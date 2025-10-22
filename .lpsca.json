@@ -1,0 +1,8 @@
+
+{
+  "scan_args": {
+    "distribution": "saas",
+    "project": "lxp-micro-sub-app/develop",
+    "department_id_path": "3006/4001"
+  }
+}

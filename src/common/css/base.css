@@ -1,0 +1,394 @@
+* {
+  margin: 0;
+  padding: 0;
+  /* border: 0; */
+  box-sizing: border-box;
+  outline: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  /* -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch; */
+}
+
+html,
+body {
+  height: 100%;
+  font-size: 62.5%;
+  /* font-size: 10px; */
+  font-family: "PingFang SC", Helvetica, Tahoma, Arial, "Hiragino Sans GB",
+    "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei";
+}
+
+a {
+  text-decoration: none;
+}
+
+li,
+ul,
+ol {
+  list-style: none;
+}
+
+.contains {
+  background: #fff;
+  width: 100vw;
+  height: 100vh;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+img {
+  object-fit: cover;
+}
+
+.text-white {
+  color: #fff;
+}
+
+.text-black {
+  color: #333;
+}
+
+.text-light-black {
+  color: #666;
+}
+
+.text-ignore-color {
+  color: #999;
+}
+
+.text-green {
+  color: darkseagreen;
+}
+
+.text-greenaging {
+  background-color: darkseagreen;
+  width: 70px;
+  text-align: center;
+  /* height: 23px; */
+  color: #ffffff !important;
+}
+.text-red {
+  background-color: #e30808;
+  width: 70px;
+  text-align: center;
+  /* height: 23px; */
+  color: #ffffff !important;
+}
+
+.text-darkred {
+  background-color: #ad1515;
+  width: 70px;
+  text-align: center;
+  /* height: 23px; */
+  color: #ffffff !important;
+}
+
+.text-blue {
+  color: #409eff;
+}
+
+.text-yellow {
+  background: #ffa400;
+  width: 70px;
+  text-align: center;
+  /* height: 23px; */
+  color: #ffffff !important;
+}
+
+.bg-blue {
+  background: #54c8f2;
+}
+
+.bg-yellow {
+  background: #fcd12c;
+}
+
+.bg-red {
+  background: #ff6d60;
+}
+
+.bg-green {
+  background: #6ccac9;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.text-space {
+  white-space: nowrap;
+}
+
+.main-container-dark,
+.menu-bgColor-dark,
+.head-bgColor-dark {
+  background: #353f4a;
+}
+
+.el-pagination {
+  text-align: right;
+}
+
+.el-table thead {
+  color: #002226 !important;
+}
+
+.fl {
+  float: left;
+}
+
+.fr {
+  float: right;
+}
+
+.clearfixed:after {
+  content: ".";
+  display: block;
+  height: 0;
+  visibility: hidden;
+  clear: both;
+}
+
+.display-none {
+  display: none;
+}
+
+:-webkit-any(article, aside, nav, section) h1 {
+  font-size: 2em;
+}
+
+#app {
+  height: 100%;
+}
+
+.el-container {
+  height: 100%;
+}
+
+.breadTail {
+  color: #000000 !important;
+}
+
+
+.el-breadcrumb {
+  /* line-height: 6rem !important; */
+  background-color: #fff;
+  border-radius: 0.6rem;
+  padding-left: 3.2rem;
+}
+
+.el-checkbox__input.is-checked .el-checkbox__inner,
+.el-checkbox__input.is-indeterminate .el-checkbox__inner {
+  background-color: var(--themColor) !important;
+  border-color: var(--themColor) !important;
+}
+
+.el-checkbox__input.is-checked + .el-checkbox__label {
+  color: var(--themColor) !important;
+}
+
+.el-link.el-link--primary {
+  color: var(--themColor) !important;
+}
+
+.el-link.el-link--primary:hover {
+  color: var(--themColor) !important;
+}
+
+.mainColor {
+  color: var(--themColor);
+}
+.editColor {
+  color: #FBAB10;
+}
+.successColor {
+  color: #08C954;
+}
+.delteColor {
+  color: rgb(226, 65, 85);
+}
+.mediumColor {
+  color: #108dfb;
+}
+.curPoint {
+  cursor: pointer;
+}
+
+.el-radio__input.is-checked .el-radio__inner {
+  border-color: var(--themColor) !important;
+  background-color: var(--themColor) !important;
+}
+
+.el-radio__input.is-checked + .el-radio__label {
+  color: var(--themColor) !important;
+}
+
+/* .el-cascader .el-input .el-input__inner {
+  height: 32px!important;
+} */
+
+.el-textarea__inner::placeholder {
+  color: #888888 !important;
+}
+
+.el-picker-panel__footer .el-button--text.el-picker-panel__link-btn {
+  display: none;
+}
+
+.el-picker-panel__sidebar {
+  overflow-y: scroll !important;
+  height: 375px;
+}
+
+.el-picker-panel__body {
+  height: 375px;
+}
+
+.el-tooltip__popper {
+  max-width: 43.7rem;
+  line-height: 1.5;
+}
+
+.vue-copy-parent {
+  user-select: none;
+}
+.vue-copy-parent:hover .vue-copy-btn {
+  display: block;
+}
+.vue-copy-btn,
+.vue-copy-container .vue-isCopy-i {
+  cursor: pointer;
+  display: none;
+  position: absolute;
+  right: 2rem;
+  font-size: 0.9rem;
+  color: var(--themColor);
+  top: 50%;
+  transform: translateY(-50%);
+}
+.vue-copy-container .vue-isCopy-i {
+  animation:.3s ease-in move_isCopy;
+  display: block;
+  right: 1rem;
+  top: 20%;
+  z-index: 999;
+  font-style: normal;
+}
+@keyframes move_isCopy {
+  from {
+    opacity: 1;
+    transform: translateY(-50%)
+  }
+  to {
+    opacity: 0;
+    display: none;
+    transform: translateY(-90%)
+  }
+}
+
+/* 一屏滚动的逻辑 */
+.one-screen-y{
+  overflow: auto;
+  scroll-snap-type: y mandatory;
+ 
+}
+
+.one-screen-y .one-screen-item{
+  scroll-snap-align: start;
+}
+.one-screen-item-h{
+  height:calc(100vh - 14.6rem - 6.4rem)
+  
+}
+.hidden-scrollbar{
+  overflow: auto;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hidden-scrollbar::-webkit-scrollbar{
+  display: none;
+}
+
+.one-screen-y.info{
+  height: calc(100vh - 6rem - 15rem);
+  overflow: auto;
+  padding-bottom:0!important;
+}
+
+.one-screen-y.info .detailContent{
+  height: 100%;
+}
+
+
+
+/* 列表中展开和收起 */
+.screen {
+  color: var(--themColor);
+  font-size: 1.5rem;
+  margin-left: 1rem;
+}
+.mgb24 {
+  margin-bottom: 0.8rem;
+  margin-top: 1.6rem;
+}
+
+
+
+.el-link.el-link--primary.is-underline:hover:after, 
+.el-link.el-link--primary:after{
+ border-color: var(--themColor)!important;
+}
+
+.el-link.is-underline:hover:after{
+  border-bottom-color:var(--themColor)!important;
+}
+
+
+
+.el-checkbox-button.is-checked .el-checkbox-button__inner{
+  background-color:var(--themColor)!important;
+}
+
+.el-checkbox-button.is-checked:first-child .el-checkbox-button__inner{
+  border-left-color:var(--themColor)!important;
+}
+.el-checkbox-button.is-checked .el-checkbox-button__inner{
+  box-shadow: none!important;
+}
+
+.el-button--text:focus, .el-button--text:hover{
+  color: var(--themColor)!important;
+}
+
+.el-button--text{
+  color: var(--themColor)!important;
+}
+
+.el-input-number__decrease:hover, .el-input-number__increase:hover{
+  color: var(--themColor);
+ }
+
+/* iconfont */
+.icon-lxppc {
+  width: 1em; height: 1em;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
+}

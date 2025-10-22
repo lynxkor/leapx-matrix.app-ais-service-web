@@ -1,0 +1,232 @@
+#!/usr/bin/env node
+
+const fs = require('fs-extra');
+const path = require('path');
+const { program } = require('commander');
+const mustache = require('mustache');
+const { exec } = require('child_process');
+const recast = require('recast');
+const parser = require('@babel/parser');
+
+// 获取模板目录路径
+const templatesDir = path.join(__dirname, '../templates');
+
+// 设置命令行参数
+program
+  .version('1.0.0')
+  .description('Vue2代码生成工具')
+  .argument('<name>', '模块名称')
+  .parse(process.argv);
+
+// 获取参数
+const [name] = program.args;
+// 读取generate.json数据
+const generateJson = require('./generate.json');
+// 读取完成之后删除该文件
+fs.removeSync(path.join(__dirname, './generate.json'));
+
+// 准备模板数据
+const data = {
+  name,
+  nameLowerCase: name.toLowerCase(),
+  nameKebabCase: name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(),
+  nameCamelCase: name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()),
+  cols: generateJson.list,
+  searchList: generateJson.list.filter(el => el.searchable)
+};
+
+// 创建vue文件
+async function createFile ({ templateName, templatePath = '', outPath = '', outName = '' }) {
+  try {
+    const templateFile = path.join(templatesDir, templatePath + templateName);
+
+    // 读取模板
+    const template = await fs.readFile(templateFile, 'utf8');
+
+    // 渲染模板
+    const content = mustache.render(template, data, {}, ['{{{', '}}}']);
+
+    // 确定输出路径
+    const outputDir = outPath || `src/views/${data.nameCamelCase}${templatePath}`;
+    if (!(await fs.pathExists(outputDir))) {
+      await fs.mkdir(outputDir, { recursive: true });
+    }
+
+    // 写入文件
+    const outputFile = path.join(outputDir, outName || templateName);
+    await fs.writeFile(outputFile, content);
+
+    console.log(`✓ 成功生成文件: ${outputFile}`);
+  } catch (error) {
+    console.error('生成代码时出错:', error.message);
+    process.exit(1);
+  }
+}
+
+// 插入路由到 index.js 的 children 数组
+async function insertRoute () {
+  const routerFilePath = path.resolve(__dirname, '../src/router/index.js');
+  let content = await fs.readFile(routerFilePath, 'utf8');
+
+  // 解析 AST
+  const ast = recast.parse(content, {
+    parser: {
+      parse: (code) => parser.parse(code, {
+        sourceType: 'module', // 支持 import/export
+        plugins: [
+          'jsx', // 可选：支持 JSX 语法
+          'classProperties', // 支持类属性
+          'objectRestSpread', // 支持对象展开
+          'optionalChaining' // 支持可选链
+        ]
+      })
+    }
+  });
+
+  // 遍历 AST，找到 name 为 'index' 的路由对象
+  recast.visit(ast, {
+    visitVariableDeclarator (path) {
+      if (path.value.id.name === 'routes') {
+        const routesArray = path.value.init;
+
+        // 遍历 routes 数组
+        routesArray.elements.forEach(route => {
+          if (route.properties) {
+            const nameProp = route.properties.find(p => p.key.name === 'name');
+            if (nameProp && nameProp.value.value === 'index') {
+              // 找到 children 数组
+              const childrenProp = route.properties.find(p => p.key.name === 'children');
+              if (childrenProp) {
+                // 构建列表页
+                const indexRoute = recast.types.builders.objectExpression([
+                  recast.types.builders.property(
+                    'init',
+                    recast.types.builders.identifier('path'),
+                    recast.types.builders.stringLiteral(`/${data.nameCamelCase}`)
+                  ),
+                  recast.types.builders.property(
+                    'init',
+                    recast.types.builders.identifier('name'),
+                    recast.types.builders.stringLiteral(data.name)
+                  ),
+                  recast.types.builders.property(
+                    'init',
+                    recast.types.builders.identifier('component'),
+                    recast.types.builders.arrowFunctionExpression(
+                      [],
+                      recast.types.builders.callExpression(
+                        recast.types.builders.identifier('import'),
+                        [recast.types.builders.stringLiteral(`@/views/${data.nameCamelCase}/index.vue`)]
+                      )
+                    )
+                  ),
+                  recast.types.builders.property(
+                    'init',
+                    recast.types.builders.identifier('meta'),
+                    recast.types.builders.objectExpression([
+                      recast.types.builders.property(
+                        'init',
+                        recast.types.builders.identifier('name'),
+                        recast.types.builders.stringLiteral('新页面')
+                      )
+                    ])
+                  )
+                ]);
+
+                // 插入新路由到 children 数组
+                childrenProp.value.elements.push(indexRoute);
+
+                // 构建列表页
+                const detailRoute = recast.types.builders.objectExpression([
+                  recast.types.builders.property(
+                    'init',
+                    recast.types.builders.identifier('path'),
+                    recast.types.builders.stringLiteral(`/${data.nameCamelCase}/detail`)
+                  ),
+                  recast.types.builders.property(
+                    'init',
+                    recast.types.builders.identifier('name'),
+                    recast.types.builders.stringLiteral(data.name + 'Detail')
+                  ),
+                  recast.types.builders.property(
+                    'init',
+                    recast.types.builders.identifier('component'),
+                    recast.types.builders.arrowFunctionExpression(
+                      [],
+                      recast.types.builders.callExpression(
+                        recast.types.builders.identifier('import'),
+                        [recast.types.builders.stringLiteral(`@/views/${data.nameCamelCase}/detail.vue`)]
+                      )
+                    )
+                  ),
+                  recast.types.builders.property(
+                    'init',
+                    recast.types.builders.identifier('meta'),
+                    recast.types.builders.objectExpression([
+                      recast.types.builders.property(
+                        'init',
+                        recast.types.builders.identifier('name'),
+                        recast.types.builders.stringLiteral('新页面详情')
+                      ),
+                      recast.types.builders.property(
+                        'init',
+                        recast.types.builders.identifier('noResourceUrl'),
+                        recast.types.builders.stringLiteral('true')
+                      )
+                    ])
+                  )
+                ]);
+
+                // 插入新路由到 children 数组
+                childrenProp.value.elements.push(detailRoute);
+              }
+            }
+          }
+        });
+      }
+      this.traverse(path);
+    }
+  });
+
+  // 生成新代码
+  const newContent = recast.print(ast).code;
+  console.log(newContent);
+
+  await fs.writeFile(routerFilePath, newContent);
+  console.log('✓ 路由已插入到 src/router/index.js');
+
+  // 执行 ESLint 格式化
+  const cmd = 'npx eslint --ext .js src/router --fix';
+  exec(cmd, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`ESLint 格式化失败: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.warn(`ESLint 警告: ${stderr}`);
+      return;
+    }
+    console.log(`✓ ESLint 格式化完成: ${stdout}`);
+  });
+}
+
+// 主函数
+async function main () {
+  const list = [
+    { templateName: 'index.vue' },
+    { templateName: 'detail.vue' },
+    { templateName: 'editDialog.vue', templatePath: '/components/' },
+    { templateName: 'api.js', outPath: 'src/api/', outName: data.nameCamelCase + '.js' }
+  ];
+
+  for (const item of list) {
+    await createFile(item);
+  }
+
+  await insertRoute();
+
+  console.log('\n代码生成完成！');
+}
+
+// 执行主函数
+main();

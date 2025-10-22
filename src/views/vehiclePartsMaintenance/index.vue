@@ -1,0 +1,347 @@
+<template>
+  <div class="m-vehiclePartsMaintenance-list">
+    <div>
+      <el-form
+        :inline="true"
+        :model="form"
+        size="small"
+        label-position="right"
+        label-width="11rem"
+      >
+        <el-row>
+          <el-col :span="8">
+            <el-form-item label="Vin：">
+              <el-input
+                placeholder="请输入"
+                v-model="form.vehicleProfileName"
+                clearable
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="保养零件名称：">
+              <el-input
+                placeholder="请输入"
+                v-model="form.partsMaintenanceName"
+                clearable
+              />
+            </el-form-item>
+          </el-col>
+          <el-col v-if="show" :span="8">
+            <el-form-item label="下次保养时间：">
+              <el-date-picker
+                v-model="form.nextDate"
+                type="daterange"
+                :picker-options="pickerOptions"
+                value-format="yyyy-MM-dd"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                align="right"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <page-search-action
+              v-model="show"
+              is-expandable
+              :loading="loading"
+              @submit="onSubmit"
+              @reset="onReset"
+            />
+          </el-col>
+        </el-row>
+      </el-form>
+      <div class="mgb24">
+        <el-button :loading="exportLoading" size="mini" @click="exportExcel">导出</el-button>
+      </div>
+    </div>
+    <div
+      class="m-table-c"
+      :class="{ 'z-form-show': show }"
+    >
+      <LPVxeTable
+        ref="tableRef"
+        v-loading="loading"
+        is-checkbox
+        show-index
+        is-page
+        :option-obj="optionObj"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+      />
+    </div>
+    <edit-dialog
+      :visible.sync="editDialogVisible"
+      :info="editInfo"
+      @submit="edit"
+    />
+  </div>
+</template>
+
+<script>
+import debounce from 'lodash.debounce';
+import { LPVxeTable } from '@leapmotor/design';
+import PageSearchAction from '@/libs/components/page-search-action';
+import { getList, deleteItem } from '@/api/vehiclePartsMaintenance';
+import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
+import EditDialog from './components/editDialog';
+
+const defaultForm = {
+  vehicleProfileName: '',
+  partsMaintenanceName: '',
+  nextDate: []
+};
+
+const pageSize = 20;
+const mockConfig = {
+  data: null
+};
+
+export default {
+  components: {
+    PageSearchAction,
+    LPVxeTable,
+    EditDialog
+  },
+  data () {
+    return {
+      form: {
+        ...defaultForm
+      },
+      show: false,
+      loading: false,
+      exportLoading: false,
+      optionObj: {
+        id: 'VehiclePartsMaintenanceTable',
+        dataList: [],
+        form: {
+          page: 1,
+          size: pageSize
+        },
+        dataProp: [
+          { props: 'id', label: 'ID', width: 100, visible: true },
+          { props: 'name', label: '保养方案', visible: true },
+          { props: 'partsMaintenanceId', label: '保养零件代码', visible: true },
+          { props: 'partsMaintenanceName', label: '保养零件名称', visible: true },
+          { props: 'nextDate', label: '下次保养时间', width: 100, visible: true },
+          { props: 'nextMileage', label: '下次保养里程(KM)', width: 140, visible: true },
+          { props: 'nextDuemileage', label: '下次保养间隔里程(KM)', width: 170, visible: true },
+          { props: 'nextDuetime', label: '下次保养间隔时间(月)', width: 160, visible: true },
+          { props: 'vehicleProfileId', label: '整车档案ID', visible: true },
+          { props: 'vehicleProfileName', label: '整车档案名称', visible: true },
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
+            buttons: [{
+              name: '编辑',
+              click: (rowIndex, row) => {
+                this.editInfo = row;
+                this.editDialogVisible = true;
+              },
+              type: 'primary'
+            }, {
+              name: '详情',
+              click: (rowIndex, row) => {
+                window.open(`/datacenter/vehiclePartsMaintenance/detail?id=${row.id}`);
+              }
+            }, {
+              name: '删除',
+              click: (rowIndex, row) => {
+                this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  type: 'warning',
+                  beforeClose: (action, instance, done) => {
+                    if (action === 'confirm') {
+                      instance.confirmButtonLoading = true;
+                      instance.confirmButtonText = '执行中...';
+                      deleteItem([row.id]).then(() => {
+                        done();
+                      }).finally(() => {
+                        instance.confirmButtonLoading = false;
+                      });
+                    } else {
+                      done();
+                    }
+                  }
+                }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '删除成功!'
+                  });
+                  // 删除完要重新请求列表数据
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                  });
+                });
+              },
+              type: 'danger'
+            }]
+          }
+        ],
+        total: 0
+      },
+      editDialogVisible: false,
+      editInfo: null,
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick (picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近一个月',
+          onClick (picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近三个月',
+          onClick (picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            picker.$emit('pick', [start, end]);
+          }
+        }]
+      }
+    };
+  },
+  created () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['车辆零件保养']);
+    this.getData();
+  },
+  methods: {
+    onSubmit () {
+      this.getData();
+    },
+    onReset () {
+      this.form = { ...defaultForm };
+    },
+    exportExcel () {
+      this.exportLoading = true;
+      exportTable({
+        dataFetchPath: '/datacenter/vehiclePartsMaintenance/page',
+        reqParams: this.getFormData(),
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols())
+      }).then(res => {
+        if (res) {
+          if (res.excelUrl) {
+            window.location.href = res.excelUrl;
+          } else {
+            this.$message({
+              type: 'error',
+              message: '导出失败'
+            });
+          }
+        } else {
+          this.$message({
+            type: 'info',
+            message: '请前往导出列表中查询导出结果'
+          });
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
+    },
+    getData () {
+      this.loading = true;
+
+      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+        .then(res => {
+          console.log(res);
+          this.optionObj.dataList = res.records.map(item => {
+            return {
+              ...item,
+              deleteLoading: false
+            };
+          });
+          this.optionObj.total = res.total;
+        }).finally(() => {
+          this.loading = false;
+        });
+    },
+    // 需要防抖场景时使用
+    debouncedGetData: debounce(function () {
+      this.getData();
+    }, 300),
+    getConfig () {
+      return new Promise((resolve, reject) => {
+        getTableConfig(this.optionObj.id).then(data => {
+          resolve({ data });
+        }).catch(err => {
+          // 容错：此处如果接口挂了，也不应该影响正常使用
+          console.error(err);
+          resolve(mockConfig);
+        });
+      });
+    },
+    saveOrUpdate (data) {
+      return tableAddOrUpdate(data);
+    },
+    paginationChange (type, num) {
+      if (type === 'page') {
+        this.optionObj.form.page = num;
+      } else {
+        this.optionObj.form.size = num;
+      }
+      this.debouncedGetData();
+    },
+    // 多选框选中数据
+    handleSelectionChange (selection) {
+      console.log(selection);
+    },
+    edit (data) {
+      const item = this.optionObj.dataList.find(item => item.id === data.id);
+      Object.assign(item, data);
+    },
+    getFormData () {
+      const data = { ...this.form };
+
+      Object.keys(this.form).forEach(key => {
+        if (data[key] === '' || data[key] === null) {
+          delete data[key];
+        }
+      });
+
+      if (this.form.nextDate) {
+        delete data.nextDate;
+        if (this.form.nextDate.length > 1) {
+          data.nextDateStart = this.form.nextDate[0];
+          data.nextDateEnd = this.form.nextDate[1];
+        }
+      }
+
+      return data;
+    }
+  }
+};
+</script>
+
+<style lang="scss">
+.m-vehiclePartsMaintenance-list {
+  height: 100%;
+
+  .m-table-c {
+    height: calc(100% - 120px);
+
+    &.z-form-show {
+      height: calc(100% - 169px);
+    }
+  }
+}
+</style>

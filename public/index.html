@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+    <!-- 使用CDN的CSS文件 -->
+    <% for (var i in htmlWebpackPlugin.options.cdn &&
+    htmlWebpackPlugin.options.cdn.css) { %>
+        <link href="<%= htmlWebpackPlugin.options.cdn.css[i] %>" rel="stylesheet" />
+        <% } %>
+            <!-- 使用CDN的CSS文件 -->
+            <!-- <link rel="icon" href="<%= BASE_URL %>favicon.ico"> -->
+            <link rel="icon" href="./favicon.ico">
+            <title>零小跑-零跑汽车</title>
+</head>
+
+<body>
+    <noscript>
+      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.  </strong>
+    </noscript>
+    <div id="app"></div>
+    <script src="/js/font_4983741_i6ik4qn6b4.js"></script>
+    <!-- 使用CDN的JS文件 -->
+    <% for (var i in htmlWebpackPlugin.options.cdn &&
+    htmlWebpackPlugin.options.cdn.js) { %>
+        <script src="<%= htmlWebpackPlugin.options.cdn.js[i] %>" crossorigin></script>
+        <% } %>
+</body>
+<!-- iconfont -->
+<style>
+.el-menu--popup {
+  min-width: 148px;
+  text-indent: 10px;
+}
+</style>
+</html>
