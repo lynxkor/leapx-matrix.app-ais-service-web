@@ -2,7 +2,7 @@
 ## 项目初始化
 ``` bash
 # 克隆项目命令
-git clone -b develop --recurse-submodules http://git-external.leapmotor.com/business-front/webx/lxp-micro-sub-app.git
+git clone -b develop --recurse-submodules http://git-external.leapmotor.com/business-front/webx/app-ais-aftersale-front.git
 ```
 其余步骤参考[PC端子应用开发流程](https://wiki-intra.leapmotor.com/pages/viewpage.action?pageId=97819126)
 
