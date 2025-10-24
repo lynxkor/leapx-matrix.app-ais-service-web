@@ -96,7 +96,8 @@ module.exports = {
   configureWebpack: {
     resolve: {
       alias: {
-        '@': resolve('src')
+        '@': resolve('src'),
+        'element-ui': '@leapmotor/element-ui'
       }
     },
     // module: {
