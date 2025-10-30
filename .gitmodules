@@ -1,3 +1,4 @@
 [submodule "src/libs"]
 	path = src/libs
 	url = http://git-external.leapmotor.com/business-front/webx/partner-components.git
+	branch = develop
