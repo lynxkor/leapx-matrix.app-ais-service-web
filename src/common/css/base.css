@@ -14,8 +14,7 @@ body {
   height: 100%;
   font-size: 62.5%;
   /* font-size: 10px; */
-  font-family: "PingFang SC", Helvetica, Tahoma, Arial, "Hiragino Sans GB",
-    "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei";
+  font-family: "PingFang SC";
 }
 
 a {
@@ -336,21 +335,6 @@ img {
   height: 100%;
 }
 
-
-
-/* 列表中展开和收起 */
-.screen {
-  color: var(--themColor);
-  font-size: 1.5rem;
-  margin-left: 1rem;
-}
-.mgb24 {
-  margin-bottom: 0.8rem;
-  margin-top: 1.6rem;
-}
-
-
-
 .el-link.el-link--primary.is-underline:hover:after, 
 .el-link.el-link--primary:after{
  border-color: var(--themColor)!important;
@@ -373,6 +357,9 @@ img {
   box-shadow: none!important;
 }
 
+.el-button--medium {
+  padding: 8px 15px;
+}
 .el-button--text:focus, .el-button--text:hover{
   color: var(--themColor)!important;
 }

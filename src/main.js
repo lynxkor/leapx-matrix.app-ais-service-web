@@ -12,7 +12,8 @@ import '@/common/css/base.scss';
 /* -------------------- 注册vxe-table ----------------- */
 import {
   VxeUi,
-  VxeTooltip
+  VxeTooltip,
+  VxeButton,
 } from 'vxe-pc-ui';
 
 import {
@@ -36,6 +37,7 @@ Vue.use(VxeTable);
 Vue.use(VxeTooltip);
 Vue.use(VxeColumn);
 Vue.use(VxeToolbar);
+Vue.use(VxeButton);
 /* -------------------- 注册vxe-table ----------------- */
 
 Vue.config.productionTip = false;

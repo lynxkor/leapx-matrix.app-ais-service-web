@@ -228,7 +228,7 @@
 <script>
 import { getOutLink } from '@/api/thirdPart';
 import { getOwnerTree } from '@/api/crm/page-source';
-import pageTitle from '@/libs/components/page-title';
+import pageTitle from '@/libs/components/ais-page-title';
 import { changeRoute } from './routeData';
 import { changeUserPsd, getOnlineOperation, getServiceOnlineStatus, queryClientByUserId, getRedirectUrl, getTrUrl } from '@/api/user';
 import waterMark from '@/components/watermark';
@@ -730,8 +730,9 @@ export default {
   }
   .el-header.bread {
     background-color: #fff;
-    height: 124px!important;
-    padding-left: 40px;
+    height: 56px!important;
+    padding-left: 16px;
+    border-bottom: 1px solid #E6E6E5;
   }
   .el-aside {
     background-color: #fff;
@@ -755,7 +756,7 @@ export default {
     min-height: 400px;
   }
   .el-main {
-    background-color: #EEEEEE;
+    // background-color: #EEEEEE;
     // color: #333;
     // text-align: center;
     // line-height: 160px;
@@ -764,10 +765,10 @@ export default {
 
     &.mainContent {
       padding: 0;
-      margin: 12px;
+      // margin: 12px;
       overflow-y: scroll;
       background-color: #FFFFFF;
-      padding: 3.2rem;
+      padding: 20px;
 
       &.specil {
         margin: 0;

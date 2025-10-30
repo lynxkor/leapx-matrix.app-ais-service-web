@@ -1,12 +1,13 @@
 <template>
-  <div class="m-{{{nameKebabCase}}}-list">
+  <div class="page-common m-{{{nameKebabCase}}}-list">
     <div>
       <el-form
         :inline="true"
         :model="form"
         size="small"
         label-position="right"
-        label-width="11rem"
+        label-width="128px"
+        class="ais-search-form"
       >
         <el-row>
           <el-col
@@ -21,7 +22,6 @@
               type="daterange"
               :picker-options="pickerOptions"
               value-format="yyyy-MM-dd"
-              range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               align="right"
@@ -45,12 +45,12 @@
           </el-col>
         </el-row>
       </el-form>
-      <div class="mgb24">
-        <el-button :loading="exportLoading" size="mini" @click="exportExcel">导出</el-button>
+      <div class="ais-actions">
+        <el-button :loading="exportLoading" size="medium" @click="exportExcel">导出</el-button>
       </div>
     </div>
     <div
-      class="m-table-c"
+      class="ais-table-c"
       :class="{ 'z-form-show': show }"
     >
       <LPVxeTable
@@ -77,7 +77,7 @@
 <script>
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
-import PageSearchAction from '@/libs/components/page-search-action';
+import PageSearchAction from '@/libs/components/ais-page-search-action';
 import { getList, deleteItem } from '@/api/{{{nameCamelCase}}}';
 import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
 import EditDialog from './components/editDialog';
@@ -144,7 +144,7 @@ export default {
             }, {
               name: '详情',
               click: (rowIndex, row) => {
-                window.open(`/datacenter/{{{nameCamelCase}}}/detail?id=${row.id}`);
+                window.open(`${process.env.VUE_APP_ROUTER_BASE}/{{{nameCamelCase}}}/detail?id=${row.id}`);
               }
             }, {
               name: '删除',
@@ -335,14 +335,5 @@ export default {
 
 <style lang="scss" scoped>
 .m-{{{nameKebabCase}}}-list {
-  height: 100%;
-
-  .m-table-c {
-    height: calc(100% - 120px);
-
-    &.z-form-show {
-      height: calc(100% - 169px);
-    }
-  }
 }
 </style>

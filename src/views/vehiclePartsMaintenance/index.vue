@@ -1,12 +1,12 @@
 <template>
-  <div class="m-vehiclePartsMaintenance-list">
-    <div>
+  <div class="m-vehiclePartsMaintenance-list page-common">
       <el-form
         :inline="true"
         :model="form"
         size="small"
         label-position="right"
-        label-width="11rem"
+        label-width="128px"
+        class="ais-search-form"
       >
         <el-row>
           <el-col :span="8">
@@ -27,20 +27,30 @@
               />
             </el-form-item>
           </el-col>
-          <el-col v-if="show" :span="8">
-            <el-form-item label="下次保养时间：">
-              <el-date-picker
-                v-model="form.nextDate"
-                type="daterange"
-                :picker-options="pickerOptions"
-                value-format="yyyy-MM-dd"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                align="right"
-              />
-            </el-form-item>
-          </el-col>
+          <template v-if="show">
+            <el-col :span="8">
+              <el-form-item label="保养零件名称：">
+                <el-input
+                  placeholder="请输入"
+                  v-model="form.partsMaintenanceName"
+                  clearable
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="下次保养时间：">
+                <el-date-picker
+                  v-model="form.nextDate"
+                  type="daterange"
+                  :picker-options="pickerOptions"
+                  value-format="yyyy-MM-dd"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  align="right"
+                />
+              </el-form-item>
+            </el-col>
+          </template>
           <el-col :span="8">
             <page-search-action
               v-model="show"
@@ -52,12 +62,11 @@
           </el-col>
         </el-row>
       </el-form>
-      <div class="mgb24">
-        <el-button :loading="exportLoading" size="mini" @click="exportExcel">导出</el-button>
+      <div class="ais-actions">
+        <el-button :loading="exportLoading" size="medium" @click="exportExcel">导出</el-button>
       </div>
-    </div>
     <div
-      class="m-table-c"
+      class="ais-table-c"
       :class="{ 'z-form-show': show }"
     >
       <LPVxeTable
@@ -84,7 +93,7 @@
 <script>
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
-import PageSearchAction from '@/libs/components/page-search-action';
+import PageSearchAction from '@/libs/components/ais-page-search-action';
 import { getList, deleteItem } from '@/api/vehiclePartsMaintenance';
 import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
 import EditDialog from './components/editDialog';
@@ -139,7 +148,21 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
-              name: '编辑',
+              name: '编辑1',
+              click: (rowIndex, row) => {
+                this.editInfo = row;
+                this.editDialogVisible = true;
+              },
+              type: 'link'
+            }, {
+              name: '编辑2',
+              click: (rowIndex, row) => {
+                this.editInfo = row;
+                this.editDialogVisible = true;
+              },
+              type: 'primary'
+            }, {
+              name: '编辑3',
               click: (rowIndex, row) => {
                 this.editInfo = row;
                 this.editDialogVisible = true;
@@ -148,7 +171,7 @@ export default {
             }, {
               name: '详情',
               click: (rowIndex, row) => {
-                window.open(`/datacenter/vehiclePartsMaintenance/detail?id=${row.id}`);
+                window.open(`${process.env.VUE_APP_ROUTER_BASE}/sale/vehiclePartsMaintenance/detail?id=${row.id}`);
               }
             }, {
               name: '删除',
@@ -331,17 +354,3 @@ export default {
   }
 };
 </script>
-
-<style lang="scss" scoped>
-.m-vehiclePartsMaintenance-list {
-  height: 100%;
-
-  .m-table-c {
-    height: calc(100% - 120px);
-
-    &.z-form-show {
-      height: calc(100% - 169px);
-    }
-  }
-}
-</style>
