@@ -9,6 +9,7 @@ import '@/common/css/element-variables.scss';
 import '@/common/css/base.css';
 import '@/common/css/base.scss';
 import '@/libs/assets/styles/common.scss';
+import '@/libs/assets/iconfont/iconfont.css';
 
 /* -------------------- 注册vxe-table ----------------- */
 import {
