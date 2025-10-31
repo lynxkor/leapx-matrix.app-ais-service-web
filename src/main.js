@@ -8,6 +8,7 @@ import Vuex from 'vuex';
 import '@/common/css/element-variables.scss';
 import '@/common/css/base.css';
 import '@/common/css/base.scss';
+import '@/libs/assets/styles/common.scss';
 
 /* -------------------- 注册vxe-table ----------------- */
 import {

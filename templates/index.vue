@@ -144,7 +144,12 @@ export default {
             }, {
               name: '详情',
               click: (rowIndex, row) => {
-                window.open(`${process.env.VUE_APP_ROUTER_BASE}/{{{nameCamelCase}}}/detail?id=${row.id}`);
+                this.$router.push({
+                  name: '/{{{nameCamelCase}}}/Detail',
+                  query: {
+                    id: row.id
+                  }
+                });
               }
             }, {
               name: '删除',

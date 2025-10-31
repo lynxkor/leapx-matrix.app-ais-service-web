@@ -63,7 +63,9 @@
         </el-row>
       </el-form>
       <div class="ais-actions">
+        <el-button :loading="exportLoading" size="medium" @click="exportExcel">新增</el-button>
         <el-button :loading="exportLoading" size="medium" @click="exportExcel">导出</el-button>
+        <el-button :loading="exportLoading" size="medium" @click="exportExcel">批量删除</el-button>
       </div>
     <div
       class="ais-table-c"
@@ -148,31 +150,23 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
-              name: '编辑1',
-              click: (rowIndex, row) => {
-                this.editInfo = row;
-                this.editDialogVisible = true;
-              },
-              type: 'link'
-            }, {
-              name: '编辑2',
-              click: (rowIndex, row) => {
-                this.editInfo = row;
-                this.editDialogVisible = true;
-              },
-              type: 'primary'
-            }, {
-              name: '编辑3',
-              click: (rowIndex, row) => {
-                this.editInfo = row;
-                this.editDialogVisible = true;
-              },
-              type: 'primary'
-            }, {
               name: '详情',
               click: (rowIndex, row) => {
-                window.open(`${process.env.VUE_APP_ROUTER_BASE}/sale/vehiclePartsMaintenance/detail?id=${row.id}`);
-              }
+                this.$router.push({
+                  path: '/vehiclePartsMaintenance/Detail',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'info'
+            }, {
+              name: '编辑',
+              click: (rowIndex, row) => {
+                this.editInfo = row;
+                this.editDialogVisible = true;
+              },
+              type: 'primary'
             }, {
               name: '删除',
               click: (rowIndex, row) => {

@@ -374,30 +374,3 @@
   color: var(--themColor);
   background-color: var(--themLightColor);;
  }
-.vxe-table--render-default {
-  font-family: "PingFang SC"!important;
-}
-/* 通用列表页样式 */
-.page-common{
-  height: 100%;
-  .ais-table-c {
-    height: calc(100% - 150px);
-  }
-  /* 列表页-搜索项 */
-  .ais-search-form {
-    border-bottom: 1px solid #E6E6E5;
-    padding-bottom: 2px;
-    .el-form-item__content{
-      min-width: 230px;
-    }
-    .el-date-editor--daterange.el-input,
-    .el-date-editor--daterange.el-input__inner,
-    .el-date-editor--timerange.el-input,
-    .el-date-editor--timerange.el-input__inner {
-      width: 230px;
-    }
-  }
-  .ais-actions{
-    padding: 20px 0 15px 0;
-  }
-}

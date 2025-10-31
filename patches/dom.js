@@ -260,17 +260,18 @@ function updatePanelPlacement(targetElem, panelElem, options) {
         left = -(panelRect.left + panelRect.width + marginSize - visibleWidth);
       }
     }
+    var zoom = document.body.style.zoom || 1;
     if (_xeUtils.default.isNumber(top)) {
-      stys.top = toCssUnit(top);
+      stys.top = toCssUnit(top / zoom);
     }
     if (_xeUtils.default.isNumber(bottom)) {
-      stys.bottom = toCssUnit(bottom);
+      stys.bottom = toCssUnit(bottom / zoom);
     }
     if (_xeUtils.default.isNumber(left)) {
-      stys.left = toCssUnit(left);
+      stys.left = toCssUnit(left / zoom);
     }
     if (_xeUtils.default.isNumber(right)) {
-      stys.right = toCssUnit(right);
+      stys.right = toCssUnit(right / zoom);
     }
     if (_xeUtils.default.isNumber(minWidth)) {
       stys.minWidth = toCssUnit(minWidth);

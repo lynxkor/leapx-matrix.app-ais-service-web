@@ -730,7 +730,6 @@ export default {
   }
   .el-header.bread {
     background-color: #fff;
-    height: 56px!important;
     padding-left: 16px;
     border-bottom: 1px solid #E6E6E5;
   }
