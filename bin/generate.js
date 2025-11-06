@@ -25,14 +25,34 @@ const generateJson = require('./generate.json');
 // 读取完成之后删除该文件
 fs.removeSync(path.join(__dirname, './generate.json'));
 
+// 解析 name，支持目录结构
+const nameParts = name.split('/');
+const moduleName = nameParts.pop(); // 最后一部分作为模块名
+const moduleDir = nameParts.join('/'); // 剩余部分作为目录路径
+
 // 准备模板数据
+const colsData = generateJson.list.filter(item => item.description).map(el => {
+  const isDate = el.format === 'date-time';
+  const isSelect = el.key.includes('Type');
+  return {
+    ...el,
+    isDate,
+    isSelect,
+    description: el.description.replace(/\(.*?\)/g, ''),
+    isNormal: !isDate && !isSelect,
+  };
+});
+console.log(colsData, 'colsData');
 const data = {
-  name,
-  nameLowerCase: name.toLowerCase(),
-  nameKebabCase: name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(),
-  nameCamelCase: name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()),
-  cols: generateJson.list,
-  searchList: generateJson.list.filter(el => el.searchable)
+  name: moduleName,
+  nameLowerCase: moduleName.toLowerCase(),
+  nameKebabCase: moduleName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(),
+  nameCamelCase: moduleName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()),
+  modulePath: moduleDir ? `${moduleDir}/${moduleName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())}` : moduleName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()),
+  cols: colsData,
+  searchList: colsData.filter(el => el.searchable),
+  top2SearchList: colsData.filter(el => el.searchable).slice(0, 2),
+  lastSearchList: colsData.filter(el => el.searchable).slice(2),
 };
 
 // 创建vue文件
@@ -47,7 +67,8 @@ async function createFile ({ templateName, templatePath = '', outPath = '', outN
     const content = mustache.render(template, data, {}, ['{{{', '}}}']);
 
     // 确定输出路径
-    const outputDir = outPath || `src/views/${data.nameCamelCase}${templatePath}`;
+    const baseOutputDir = `src/views/${data.modulePath}${templatePath}`;
+    const outputDir = outPath || baseOutputDir;
     if (!(await fs.pathExists(outputDir))) {
       await fs.mkdir(outputDir, { recursive: true });
     }
@@ -102,7 +123,7 @@ async function insertRoute () {
                   recast.types.builders.property(
                     'init',
                     recast.types.builders.identifier('path'),
-                    recast.types.builders.stringLiteral(`/${data.nameCamelCase}`)
+                    recast.types.builders.stringLiteral(`/${data.modulePath.toLowerCase()}`)
                   ),
                   recast.types.builders.property(
                     'init',
@@ -116,7 +137,7 @@ async function insertRoute () {
                       [],
                       recast.types.builders.callExpression(
                         recast.types.builders.identifier('import'),
-                        [recast.types.builders.stringLiteral(`@/views/${data.nameCamelCase}/index.vue`)]
+                        [recast.types.builders.stringLiteral(`@/views/${data.modulePath}/index.vue`)]
                       )
                     )
                   ),
@@ -141,7 +162,7 @@ async function insertRoute () {
                   recast.types.builders.property(
                     'init',
                     recast.types.builders.identifier('path'),
-                    recast.types.builders.stringLiteral(`/${data.nameCamelCase}/detail`)
+                    recast.types.builders.stringLiteral(`/${data.modulePath.toLowerCase()}/detail`)
                   ),
                   recast.types.builders.property(
                     'init',
@@ -155,7 +176,7 @@ async function insertRoute () {
                       [],
                       recast.types.builders.callExpression(
                         recast.types.builders.identifier('import'),
-                        [recast.types.builders.stringLiteral(`@/views/${data.nameCamelCase}/detail.vue`)]
+                        [recast.types.builders.stringLiteral(`@/views/${data.modulePath}/detail.vue`)]
                       )
                     )
                   ),

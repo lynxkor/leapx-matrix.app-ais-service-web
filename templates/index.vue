@@ -6,47 +6,92 @@
         :model="form"
         size="small"
         label-position="right"
-        label-width="128px"
+        label-width="136px"
         class="ais-search-form"
       >
-        <el-row>
-          <el-col
-            v-for="(item, index) in formListVisible"
-            :key="index"
-            :span="8"
-          >
-            <el-form-item :label="item.description + '：'">
-              <el-date-picker
-              v-if="item.format.includes('date')"
-              v-model="form[item.key]"
+      {{{#top2SearchList}}}
+      {{{#isDate}}}
+        <el-form-item label="{{{description}}}：">
+          <el-date-picker
+            v-model="form.{{{key}}}"
+            type="daterange"
+            :picker-options="pickerOptions"
+            value-format="yyyy-MM-dd"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            align="right"
+          />
+        </el-form-item>
+      {{{/isDate}}}
+      {{{#isSelect}}}
+        <el-form-item label="{{{description}}}：">
+          <fetch-select
+            :request="fetchOptions"
+            v-model="form.{{{key}}}"
+            placeholder="请选择"
+            clearable
+          />
+        </el-form-item>
+      {{{/isSelect}}}
+      {{{#isNormal}}}
+        <el-form-item label="{{{description}}}：">
+          <el-input
+            placeholder="请输入"
+            v-model="form.{{{key}}}"
+            clearable
+          />
+        </el-form-item>
+      {{{/isNormal}}}
+      {{{/top2SearchList}}}
+        <template v-if="show">
+        {{{#lastSearchList}}}
+        {{{#isDate}}}
+          <el-form-item label="{{{description}}}：">
+            <el-date-picker
+              v-model="form.{{{key}}}"
               type="daterange"
               :picker-options="pickerOptions"
               value-format="yyyy-MM-dd"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               align="right"
-              />
-              <el-input
-                v-else
-                placeholder="请输入"
-                v-model="form[item.key]"
-                clearable
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <page-search-action
-              v-model="show"
-              :is-expandable="formList.length > 2"
-              :loading="loading"
-              @submit="onSubmit"
-              @reset="onReset"
             />
-          </el-col>
-        </el-row>
+          </el-form-item>
+        {{{/isDate}}}
+        {{{#isSelect}}}
+          <el-form-item label="{{{description}}}：">
+            <fetch-select
+              :request="fetchOptions"
+              v-model="form.{{{key}}}"
+              placeholder="请选择"
+              clearable
+            />
+          </el-form-item>
+        {{{/isSelect}}}
+        {{{#isNormal}}}
+          <el-form-item label="{{{description}}}：">
+            <el-input
+              placeholder="请输入"
+              v-model="form.{{{key}}}"
+              clearable
+            />
+          </el-form-item>
+        {{{/isNormal}}}
+        {{{/lastSearchList}}}
+        </template>
+        <page-search-action
+          v-model="show"
+          is-expandable
+          :loading="loading"
+          @submit="onSubmit"
+          @reset="onReset"
+        />
       </el-form>
       <div class="ais-actions">
-        <el-button :loading="exportLoading" size="medium" @click="exportExcel">导出</el-button>
+        <el-button size="small" @click="handleAdd">新增</el-button>
+        <el-button size="small">导入</el-button>
+        <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+        <el-button size="small">批量删除</el-button>
       </div>
     </div>
     <div
@@ -66,21 +111,16 @@
         @handleSelect="handleSelectionChange"
       />
     </div>
-    <edit-dialog
-      :visible.sync="editDialogVisible"
-      :info="editInfo"
-      @submit="edit"
-    />
   </div>
 </template>
 
 <script>
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
-import PageSearchAction from '@/libs/components/ais-page-search-action';
+import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem } from '@/api/{{{nameCamelCase}}}';
 import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
-import EditDialog from './components/editDialog';
+import FetchSelect from '@/libs/components/FetchSelect';
 
 const defaultForm = {
   {{{#searchList}}}
@@ -102,15 +142,10 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    EditDialog
+    FetchSelect
   },
   data () {
     return {
-      formList: [
-        {{{#searchList}}}
-        { key: '{{{key}}}', description: '{{{description}}}', type: '{{{type}}}', format: '{{{format}}}' },
-        {{{/searchList}}}
-      ],
       form: {
         ...defaultForm
       },
@@ -126,7 +161,7 @@ export default {
         },
         dataProp: [
           {{{#cols}}}
-          { props: '{{{key}}}', label: '{{{description}}}', visible: {{{visible}}} },
+          { props: '{{{key}}}', label: '{{{description}}}', visible: {{{visible}}}, width: 150 },
           {{{/cols}}}
           {
             props: 'operate',
@@ -137,15 +172,19 @@ export default {
             buttons: [{
               name: '编辑',
               click: (rowIndex, row) => {
-                this.editInfo = row;
-                this.editDialogVisible = true;
+                this.$router.push({
+                  path: '/{{{nameCamelCase}}}/edit',
+                  query: {
+                    id: row.id
+                  }
+                });
               },
               type: 'primary'
             }, {
               name: '详情',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  name: '/{{{nameCamelCase}}}/Detail',
+                  path: '/{{{nameCamelCase}}}/detail',
                   query: {
                     id: row.id
                   }
@@ -191,8 +230,6 @@ export default {
         ],
         total: 0
       },
-      editDialogVisible: false,
-      editInfo: null,
       pickerOptions: {
         shortcuts: [{
           text: '最近一周',
@@ -222,16 +259,16 @@ export default {
       }
     };
   },
-  computed: {
-    formListVisible () {
-      return this.formList.filter((item, index) => this.formList.length <= 2 || index < 2 || this.show);
-    }
-  },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['列表']);
     this.getData();
   },
   methods: {
+    handleAdd () {
+      this.$router.push({
+        path: '/{{{nameCamelCase}}}/add'
+      });
+    },
     onSubmit () {
       this.getData();
     },
@@ -311,10 +348,6 @@ export default {
     handleSelectionChange (selection) {
       console.log(selection);
     },
-    edit (data) {
-      const item = this.optionObj.dataList.find(item => item.id === data.id);
-      Object.assign(item, data);
-    },
     getFormData () {
       const data = { ...this.form };
 
@@ -333,6 +366,18 @@ export default {
       }
 
       return data;
+    },
+    async fetchOptions () {
+      // 发请求获取
+      return {
+        data: [{
+          value: '1',
+          label: '选项1'
+        }, {
+          value: '2',
+          label: '选项2'
+        }]
+      };
     }
   }
 };
