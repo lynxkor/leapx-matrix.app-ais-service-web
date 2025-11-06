@@ -1,30 +1,25 @@
 <template>
-  <div class="m-{{{nameKebabCase}}}-detail">
+  <div class="page-common-detail m-{{{nameKebabCase}}}-detail">
     <el-skeleton v-if="loading" :rows="6" animated />
     <el-descriptions
       v-else title="基本信息"
-      :labelStyle="{
-        width: '150px',
-        fontWeight: 'bold',
-        justifyContent: 'right'
-      }"
     >
-      <el-descriptions-item label="colName1">{{ info.col1 }}</el-descriptions-item>
-      <el-descriptions-item label="colName2">{{ info.col2 }}</el-descriptions-item>
-      <el-descriptions-item label="时间">{{ info.date }}</el-descriptions-item>
+      {{{#cols}}}
+      <el-descriptions-item label="{{{ description }}}：">{{ info.{{{key}}} }}</el-descriptions-item>
+      {{{/cols}}}
     </el-descriptions>
   </div>
 </template>
 
 <script>
-import { getDetail } from '@/api/{{{nameCamelCase}}}';
+import { getDetail } from '@/api/{{{{modulePath}}}}/index';
 
 export default {
-  name: 'vehiclePartsMaintenanceDetail',
+  name: '{{{nameCamelCase}}}Edit',
   data () {
     return {
       loading: true,
-      info: null
+      info: {}
     };
   },
   created () {

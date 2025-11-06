@@ -8,64 +8,81 @@
         label-width="128px"
         class="ais-search-form"
       >
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="Vin：">
-              <el-input
-                placeholder="请输入"
-                v-model="form.vehicleProfileName"
-                clearable
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="保养零件名称：">
-              <el-input
-                placeholder="请输入"
-                v-model="form.partsMaintenanceName"
-                clearable
-              />
-            </el-form-item>
-          </el-col>
-          <template v-if="show">
-            <el-col :span="8">
-              <el-form-item label="保养零件名称：">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.partsMaintenanceName"
-                  clearable
-                />
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="下次保养时间：">
-                <el-date-picker
-                  v-model="form.nextDate"
-                  type="daterange"
-                  :picker-options="pickerOptions"
-                  value-format="yyyy-MM-dd"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  align="right"
-                />
-              </el-form-item>
-            </el-col>
-          </template>
-          <el-col :span="8">
-            <page-search-action
-              v-model="show"
-              is-expandable
-              :loading="loading"
-              @submit="onSubmit"
-              @reset="onReset"
+        <el-form-item label="Vin：">
+          <el-input
+            placeholder="请输入"
+            v-model="form.vehicleProfileName"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="保养零件名称：">
+          <el-input
+            placeholder="请输入"
+            v-model="form.partsMaintenanceName"
+            clearable
+          />
+        </el-form-item>
+        <template v-if="show">
+          <el-form-item label="Vin：">
+            <el-input
+              placeholder="请输入"
+              v-model="form.vehicleProfileName"
+              clearable
             />
-          </el-col>
-        </el-row>
+          </el-form-item>
+          <el-form-item label="保养零件名称：">
+            <el-input
+              placeholder="请输入"
+              v-model="form.partsMaintenanceName"
+              clearable
+            />
+          </el-form-item>
+          <el-form-item label="Vin：">
+            <el-input
+              placeholder="请输入"
+              v-model="form.vehicleProfileName"
+              clearable
+            />
+          </el-form-item>
+          <el-form-item label="保养零件名称：">
+            <el-input
+              placeholder="请输入"
+              v-model="form.partsMaintenanceName"
+              clearable
+            />
+          </el-form-item>
+            <el-form-item label="保养零件类型：">
+              <fetch-select
+                :request="fetchOptions"
+                v-model="form.partsType"
+                placeholder="请选择"
+                clearable
+              />
+            </el-form-item>
+            <el-form-item label="下次保养时间：">
+              <el-date-picker
+                v-model="form.nextDate"
+                type="daterange"
+                :picker-options="pickerOptions"
+                value-format="yyyy-MM-dd"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                align="right"
+              />
+            </el-form-item>
+        </template>
+        <page-search-action
+          v-model="show"
+          is-expandable
+          :loading="loading"
+          @submit="onSubmit"
+          @reset="onReset"
+        />
       </el-form>
       <div class="ais-actions">
-        <el-button :loading="exportLoading" size="medium" @click="exportExcel">新增</el-button>
-        <el-button :loading="exportLoading" size="medium" @click="exportExcel">导出</el-button>
-        <el-button :loading="exportLoading" size="medium" @click="exportExcel">批量删除</el-button>
+        <el-button size="small" @click="handleAdd">新增</el-button>
+        <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+        <el-button size="small">批量删除</el-button>
       </div>
     <div
       class="ais-table-c"
@@ -89,16 +106,19 @@
       :info="editInfo"
       @submit="edit"
     />
+    <!-- <Upload :visible="true"/> -->
   </div>
 </template>
 
 <script>
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
-import PageSearchAction from '@/libs/components/ais-page-search-action';
+import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem } from '@/api/vehiclePartsMaintenance';
 import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
 import EditDialog from './components/editDialog';
+import Upload from '@/libs/components/UploadDialog';
+import FetchSelect from '@/libs/components/FetchSelect';
 
 const defaultForm = {
   vehicleProfileName: '',
@@ -115,7 +135,9 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    EditDialog
+    EditDialog,
+    FetchSelect,
+    // Upload
   },
   data () {
     return {
@@ -153,7 +175,7 @@ export default {
               name: '详情',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/vehiclePartsMaintenance/Detail',
+                  path: '/vehiclePartsMaintenance/detail',
                   query: {
                     id: row.id
                   }
@@ -163,8 +185,14 @@ export default {
             }, {
               name: '编辑',
               click: (rowIndex, row) => {
-                this.editInfo = row;
-                this.editDialogVisible = true;
+                this.$router.push({
+                  path: '/vehiclePartsMaintenance/add',
+                  query: {
+                    id: row.id
+                  }
+                });
+                // this.editInfo = row;
+                // this.editDialogVisible = true;
               },
               type: 'primary'
             }, {
@@ -243,6 +271,11 @@ export default {
     this.getData();
   },
   methods: {
+    handleAdd () {
+      this.$router.push({
+        path: '/vehiclePartsMaintenance/add'
+      });
+    },
     onSubmit () {
       this.getData();
     },
@@ -344,6 +377,20 @@ export default {
       }
 
       return data;
+    },
+    async fetchOptions () {
+      return {
+        data: [{
+          value: '1',
+          label: '选项1'
+        }, {
+          value: '2',
+          label: '选项2'
+        }, {
+          value: '3',
+          label: '选项3'
+        }]
+      };
     }
   }
 };

@@ -32,8 +32,9 @@ const moduleDir = nameParts.join('/'); // 剩余部分作为目录路径
 
 // 准备模板数据
 const colsData = generateJson.list.filter(item => item.description).map(el => {
-  const isDate = el.format === 'date-time';
-  const isSelect = el.key.includes('Type');
+  const key = el.key.toLowerCase();
+  const isDate = el.format === 'date-time' || !!key.match(/time/);
+  const isSelect = !!key.match(/type|status|state/);
   return {
     ...el,
     isDate,
@@ -48,7 +49,7 @@ const data = {
   nameLowerCase: moduleName.toLowerCase(),
   nameKebabCase: moduleName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(),
   nameCamelCase: moduleName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()),
-  modulePath: moduleDir ? `${moduleDir}/${moduleName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())}` : moduleName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()),
+  modulePath: name.split('/').filter(el => el).join('/'),
   cols: colsData,
   searchList: colsData.filter(el => el.searchable),
   top2SearchList: colsData.filter(el => el.searchable).slice(0, 2),
@@ -157,7 +158,7 @@ async function insertRoute () {
                 // 插入新路由到 children 数组
                 childrenProp.value.elements.push(indexRoute);
 
-                // 构建列表页
+                // 构建详情页
                 const detailRoute = recast.types.builders.objectExpression([
                   recast.types.builders.property(
                     'init',
@@ -187,7 +188,7 @@ async function insertRoute () {
                       recast.types.builders.property(
                         'init',
                         recast.types.builders.identifier('name'),
-                        recast.types.builders.stringLiteral('新页面详情')
+                        recast.types.builders.stringLiteral('页面详情')
                       ),
                       recast.types.builders.property(
                         'init',
@@ -200,6 +201,50 @@ async function insertRoute () {
 
                 // 插入新路由到 children 数组
                 childrenProp.value.elements.push(detailRoute);
+
+                // 构建编辑页
+                const editRoute = recast.types.builders.objectExpression([
+                  recast.types.builders.property(
+                    'init',
+                    recast.types.builders.identifier('path'),
+                    recast.types.builders.stringLiteral(`/${data.modulePath.toLowerCase()}/edit`)
+                  ),
+                  recast.types.builders.property(
+                    'init',
+                    recast.types.builders.identifier('name'),
+                    recast.types.builders.stringLiteral(data.name + 'Edit')
+                  ),
+                  recast.types.builders.property(
+                    'init',
+                    recast.types.builders.identifier('component'),
+                    recast.types.builders.arrowFunctionExpression(
+                      [],
+                      recast.types.builders.callExpression(
+                        recast.types.builders.identifier('import'),
+                        [recast.types.builders.stringLiteral(`@/views/${data.modulePath}/edit.vue`)]
+                      )
+                    )
+                  ),
+                  recast.types.builders.property(
+                    'init',
+                    recast.types.builders.identifier('meta'),
+                    recast.types.builders.objectExpression([
+                      recast.types.builders.property(
+                        'init',
+                        recast.types.builders.identifier('name'),
+                        recast.types.builders.stringLiteral('编辑页')
+                      ),
+                      recast.types.builders.property(
+                        'init',
+                        recast.types.builders.identifier('noResourceUrl'),
+                        recast.types.builders.stringLiteral('true')
+                      )
+                    ])
+                  )
+                ]);
+
+                // 插入新路由到 children 数组
+                childrenProp.value.elements.push(editRoute);
               }
             }
           }
@@ -235,9 +280,10 @@ async function insertRoute () {
 async function main () {
   const list = [
     { templateName: 'index.vue' },
+    { templateName: 'edit.vue' },
     { templateName: 'detail.vue' },
-    { templateName: 'editDialog.vue', templatePath: '/components/' },
-    { templateName: 'api.js', outPath: 'src/api/', outName: data.nameCamelCase + '.js' }
+    // { templateName: 'editDialog.vue', templatePath: '/components/' },
+    { templateName: 'api.js', outPath: `src/api/${data.modulePath}`, outName: 'index.js' }
   ];
 
   for (const item of list) {

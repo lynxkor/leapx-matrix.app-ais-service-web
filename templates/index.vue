@@ -102,7 +102,6 @@
         ref="tableRef"
         v-loading="loading"
         is-checkbox
-        show-index
         is-page
         :option-obj="optionObj"
         :get-config="getConfig"
@@ -118,7 +117,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem } from '@/api/{{{nameCamelCase}}}';
+import { getList, deleteItem } from '@/api/{{{{modulePath}}}}/index';
 import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 
@@ -189,7 +188,8 @@ export default {
                     id: row.id
                   }
                 });
-              }
+              },
+              type: 'info'
             }, {
               name: '删除',
               click: (rowIndex, row) => {
