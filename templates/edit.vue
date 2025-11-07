@@ -25,7 +25,7 @@
             {{{#isSelect}}}
               <el-form-item label="{{{description}}}：" prop="{{{key}}}">
                 <fetch-select
-                  :request="fetchOptions"
+                  :request="() => fetchOptions('xxx')"
                   v-model="form.{{{key}}}"
                   placeholder="请选择"
                   clearable
@@ -69,7 +69,6 @@
         <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
         <el-button size="small" type="primary">保存并关闭</el-button>
         <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
-        <el-button size="small">审核日志</el-button>
       </el-footer>
     </el-container>
   </div>
@@ -79,15 +78,11 @@
 // import { LPVxeTable } from '@leapmotor/design';
 import { getList, getDetail, addOrUpdate } from '@/api/{{{{modulePath}}}}/index';
 import FetchSelect from '@/libs/components/FetchSelect';
+import { getEnum } from '@/api/common';
 
 const defaultForm = {
   {{{#cols}}}
-  {{{#isDate}}}
-  {{{key}}}: [],
-  {{{/isDate}}}
-  {{{#isNormal}}}
   {{{key}}}: '',
-  {{{/isNormal}}}
   {{{/cols}}}
 };
 
@@ -214,11 +209,14 @@ export default {
   },
   methods: {
     getDetailData () {
-      getDetail({ id: this.$route.query.id }).then(res => {
-        this.loading = false;
-        Object.assign(this.form, res);
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['列表', '详情']);
-      });
+      const id = this.$route.query.id;
+      if (id) {
+        getDetail({ id }).then(res => {
+          this.loading = false;
+          Object.assign(this.form, res);
+          this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', '{{{title}}}详情']);
+        });
+      }
     },
     /*
     async getConfig () {
@@ -260,17 +258,11 @@ export default {
     resetForm (formName) {
       this.$refs[formName].resetFields();
     },
-    async fetchOptions () {
-      // 发请求获取
-      return {
-        data: [{
-          value: '1',
-          label: '选项1'
-        }, {
-          value: '2',
-          label: '选项2'
-        }]
-      };
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
     }
   }
 };

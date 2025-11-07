@@ -23,7 +23,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['列表', '']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', '']);
     this.getData();
   },
   methods: {
@@ -31,7 +31,7 @@ export default {
       getDetail({ id: this.$route.query.id }).then(res => {
         this.loading = false;
         this.info = res;
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['列表', '详情']);
+        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', '{{{title}}}详情']);
       });
     }
   }

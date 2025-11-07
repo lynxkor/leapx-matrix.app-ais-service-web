@@ -23,7 +23,7 @@ const [name] = program.args;
 // 读取generate.json数据
 const generateJson = require('./generate.json');
 // 读取完成之后删除该文件
-fs.removeSync(path.join(__dirname, './generate.json'));
+// fs.removeSync(path.join(__dirname, './generate.json'));
 
 // 解析 name，支持目录结构
 const nameParts = name.split('/');
@@ -44,11 +44,16 @@ const colsData = generateJson.list.filter(item => item.description).map(el => {
   };
 });
 console.log(colsData, 'colsData');
+const nameSplit = name.split('/').filter(el => el);
+nameSplit.splice(1, 0, 'web');
+const apiPath = nameSplit.join('/');
 const data = {
+  title: generateJson.title,
   name: moduleName,
   nameLowerCase: moduleName.toLowerCase(),
   nameKebabCase: moduleName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(),
   nameCamelCase: moduleName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()),
+  apiPath: apiPath,
   modulePath: name.split('/').filter(el => el).join('/'),
   cols: colsData,
   searchList: colsData.filter(el => el.searchable),
@@ -149,7 +154,7 @@ async function insertRoute () {
                       recast.types.builders.property(
                         'init',
                         recast.types.builders.identifier('name'),
-                        recast.types.builders.stringLiteral('新页面')
+                        recast.types.builders.stringLiteral(data.title)
                       )
                     ])
                   )
@@ -188,7 +193,7 @@ async function insertRoute () {
                       recast.types.builders.property(
                         'init',
                         recast.types.builders.identifier('name'),
-                        recast.types.builders.stringLiteral('页面详情')
+                        recast.types.builders.stringLiteral(data.title + '详情')
                       ),
                       recast.types.builders.property(
                         'init',
@@ -232,7 +237,7 @@ async function insertRoute () {
                       recast.types.builders.property(
                         'init',
                         recast.types.builders.identifier('name'),
-                        recast.types.builders.stringLiteral('编辑页')
+                        recast.types.builders.stringLiteral(data.title + '详情')
                       ),
                       recast.types.builders.property(
                         'init',

@@ -6,7 +6,7 @@
         :model="form"
         size="small"
         label-position="right"
-        label-width="136px"
+        label-width="150px"
         class="ais-search-form"
       >
       {{{#top2SearchList}}}
@@ -26,7 +26,7 @@
       {{{#isSelect}}}
         <el-form-item label="{{{description}}}：">
           <fetch-select
-            :request="fetchOptions"
+            :request="() => fetchOptions('xxx')"
             v-model="form.{{{key}}}"
             placeholder="请选择"
             clearable
@@ -43,7 +43,7 @@
         </el-form-item>
       {{{/isNormal}}}
       {{{/top2SearchList}}}
-        <template v-if="show">
+        <span v-show="show">
         {{{#lastSearchList}}}
         {{{#isDate}}}
           <el-form-item label="{{{description}}}：">
@@ -61,7 +61,7 @@
         {{{#isSelect}}}
           <el-form-item label="{{{description}}}：">
             <fetch-select
-              :request="fetchOptions"
+              :request="() => fetchOptions('xxx')"
               v-model="form.{{{key}}}"
               placeholder="请选择"
               clearable
@@ -78,7 +78,7 @@
           </el-form-item>
         {{{/isNormal}}}
         {{{/lastSearchList}}}
-        </template>
+        </span>
         <page-search-action
           v-model="show"
           is-expandable
@@ -120,15 +120,11 @@ import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem } from '@/api/{{{{modulePath}}}}/index';
 import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
+import { getEnum } from '@/api/common';
 
 const defaultForm = {
   {{{#searchList}}}
-  {{{#isDate}}}
-  {{{key}}}: [],
-  {{{/isDate}}}
-  {{{#isNormal}}}
   {{{key}}}: '',
-  {{{/isNormal}}}
   {{{/searchList}}}
 };
 
@@ -260,13 +256,13 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['列表']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}']);
     this.getData();
   },
   methods: {
     handleAdd () {
       this.$router.push({
-        path: '/{{{nameCamelCase}}}/add'
+        path: '/{{{{modulePath}}}}/edit'
       });
     },
     onSubmit () {
@@ -278,7 +274,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        dataFetchPath: '/datacenter/{{{nameCamelCase}}}/page',
+        dataFetchPath: '/datacenter/{{{{modulePath}}}}/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols())
       }).then(res => {
@@ -367,17 +363,11 @@ export default {
 
       return data;
     },
-    async fetchOptions () {
-      // 发请求获取
-      return {
-        data: [{
-          value: '1',
-          label: '选项1'
-        }, {
-          value: '2',
-          label: '选项2'
-        }]
-      };
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
     }
   }
 };

@@ -26,3 +26,11 @@ export function tableAddOrUpdate (data) {
 export function exportTable (data) {
   return api.jsonPost('/data/excelOperate/commonExport', data);
 }
+
+/**
+ * 枚举通用接口
+ * @param {*} data
+ */
+export function getEnum (code) {
+  return api.get(`/maintain/web/common/enum/${code}`);
+}
