@@ -57,6 +57,7 @@ const data = {
   modulePath: name.split('/').filter(el => el).join('/'),
   cols: colsData,
   searchList: colsData.filter(el => el.searchable),
+  top1Cols: colsData.filter(el => el.searchable).slice(0, 1),
   top2SearchList: colsData.filter(el => el.searchable).slice(0, 2),
   lastSearchList: colsData.filter(el => el.searchable).slice(2),
 };

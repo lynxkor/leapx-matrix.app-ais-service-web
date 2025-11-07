@@ -5,7 +5,7 @@
       v-else title="基本信息"
     >
       {{{#cols}}}
-      <el-descriptions-item label="{{{ description }}}：">{{ info.{{{key}}} }}</el-descriptions-item>
+      <el-descriptions-item label="{{{ description }}}">{{ info.{{{key}}} }}</el-descriptions-item>
       {{{/cols}}}
     </el-descriptions>
   </div>
@@ -32,6 +32,8 @@ export default {
         this.loading = false;
         this.info = res;
         this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', '{{{title}}}详情']);
+      }).catch(() => {
+        this.loading = false;
       });
     }
   }

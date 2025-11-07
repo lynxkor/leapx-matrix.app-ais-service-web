@@ -89,9 +89,11 @@
       </el-form>
       <div class="ais-actions">
         <el-button size="small" @click="handleAdd">新增</el-button>
-        <el-button size="small">导入</el-button>
+        <el-button size="small" @click="handleImport">导入</el-button>
         <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
         <el-button size="small">批量删除</el-button>
+        <el-button size="small">批量启用</el-button>
+        <el-button size="small">批量停用</el-button>
       </div>
     </div>
     <div
@@ -110,6 +112,12 @@
         @handleSelect="handleSelectionChange"
       />
     </div>
+    <Upload
+      :visible="uploadDialogVisible"
+      templateUrl=""
+      uploadUrl=""
+      @close="handleUploadDialogClose"
+    />
   </div>
 </template>
 
@@ -118,9 +126,9 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem } from '@/api/{{{{modulePath}}}}/index';
-import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getEnum } from '@/api/common';
+import Upload from '@/libs/components/UploadDialog';
 
 const defaultForm = {
   {{{#searchList}}}
@@ -137,7 +145,8 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    FetchSelect
+    FetchSelect,
+    Upload
   },
   data () {
     return {
@@ -147,6 +156,7 @@ export default {
       show: false,
       loading: false,
       exportLoading: false,
+      uploadDialogVisible: false,
       optionObj: {
         id: '{{{name}}}Table',
         dataList: [],
@@ -155,6 +165,26 @@ export default {
           size: pageSize
         },
         dataProp: [
+          {{{#top1Cols}}}
+          {
+            props: '{{{key}}}',
+            label: '{{{description}}}',
+            visible: {{{visible}}},
+            width: 150,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/{{{{modulePath}}}}/detail',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {{{/top1Cols}}}
           {{{#cols}}}
           { props: '{{{key}}}', label: '{{{description}}}', visible: {{{visible}}}, width: 150 },
           {{{/cols}}}
@@ -168,24 +198,13 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/{{{nameCamelCase}}}/edit',
+                  path: '/{{{{modulePath}}}}/edit',
                   query: {
                     id: row.id
                   }
                 });
               },
               type: 'primary'
-            }, {
-              name: '详情',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/{{{nameCamelCase}}}/detail',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'info'
             }, {
               name: '删除',
               click: (rowIndex, row) => {
@@ -260,6 +279,12 @@ export default {
     this.getData();
   },
   methods: {
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
+    },
     handleAdd () {
       this.$router.push({
         path: '/{{{{modulePath}}}}/edit'
