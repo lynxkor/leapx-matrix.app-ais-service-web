@@ -61,14 +61,14 @@
           </div>
           <div class="common-section-body">
             <div class="common-section-table">
-              <LPVxeTable
-                ref="tableRef"
-                :show-table-setting="false"
-                :get-config="getConfig"
-                v-loading="loading"
-                show-index
-                is-page
-                :option-obj="optionObj"
+              <edit-table
+                ref="editTable"
+                :columns="columns"
+                :data="tableData"
+                :defaultNewRow="defaultNewRow"
+                :show-toolbar="false"
+                @add-row="handleTableAdd"
+                @save-all="handleTableSave"
               />
             </div>
           </div>
@@ -78,6 +78,7 @@
         <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
         <el-button size="small" type="primary">保存并关闭</el-button>
         <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
+        <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button>
       </el-footer>
     </el-container>
   </div>
@@ -87,6 +88,7 @@
 // import { LPVxeTable } from '@leapmotor/design';
 import { getList, getDetail, addOrUpdate } from '@/api/{{{{modulePath}}}}/index';
 import FetchSelect from '@/libs/components/FetchSelect';
+// import EditTable from '@/libs/components/EditTable';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 
@@ -100,7 +102,8 @@ export default {
   name: '{{{nameCamelCase}}}Edit',
   components: {
     // LPVxeTable,
-    FetchSelect
+    FetchSelect,
+    // EditTable
   },
   data () {
     return {
@@ -111,61 +114,38 @@ export default {
       form: {
         ...defaultForm
       },
-      /*
-      optionObj: {
-        id: 'VehiclePartsMaintenanceTable',
-        dataList: [],
-        form: {
-          page: 1,
-          size: 20
-        },
-        dataProp: [
-          { props: 'id', label: 'ID', width: 100, visible: true },
-          { props: 'name', label: '保养方案', visible: true },
-          { props: 'partsMaintenanceId', label: '保养零件代码', visible: true },
-          { props: 'partsMaintenanceName', label: '保养零件名称', visible: true },
-          { props: 'nextDate', label: '下次保养时间', width: 100, visible: true },
-          { props: 'nextMileage', label: '下次保养里程(KM)', width: 140, visible: true },
-          { props: 'nextDuemileage', label: '下次保养间隔里程(KM)', width: 170, visible: true },
-          { props: 'nextDuetime', label: '下次保养间隔时间(月)', width: 160, visible: true },
-          { props: 'vehicleProfileId', label: '整车档案ID', visible: true },
-          { props: 'vehicleProfileName', label: '整车档案名称', visible: true },
-          {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
-            visible: true,
-            fixed: 'right',
-            buttons: [{
-              name: '保存',
-              // click: (rowIndex, row) => {
-              //   this.$router.push({
-              //     path: '/vehiclePartsMaintenance/detail',
-              //     query: {
-              //       id: row.id
-              //     }
-              //   });
-              // },
-              type: 'info'
-            }, {
-              name: '取消',
-              // click: (rowIndex, row) => {
-              //   this.$router.push({
-              //     path: '/vehiclePartsMaintenance/add',
-              //     query: {
-              //       id: row.id
-              //     }
-              //   });
-              //   // this.editInfo = row;
-              //   // this.editDialogVisible = true;
-              // },
-              type: 'danger'
-            }]
-          }
-        ],
-        total: 0
-      },
-      */
+      // defaultNewRow: {
+      //   name: '',
+      // },
+      // tableData: [
+      //   { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
+      //   { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
+      // ],
+      // columns: [
+      //   {
+      //     field: 'name',
+      //     title: '姓名',
+      //     width: '33%',
+      //     editable: true,
+      //     editRender: { name: 'ElInput' },
+      //     rules: [
+      //       { required: true, message: '姓名不能为空', trigger: 'blur' }
+      //     ]
+      //   },
+      //   {
+      //     field: 'age',
+      //     title: '年龄',
+      //     editable: true,
+      //     width: '33%',
+      //     editRender: { name: 'ElInput', props: { type: 'number' } }
+      //   },
+      //   {
+      //     field: 'email',
+      //     title: '邮箱',
+      //     width: '33%',
+      //     editRender: { name: 'ElInput' }
+      //   },
+      // ],
       rules: {
       {{{#cols}}}
       {{{#isDate}}}
@@ -269,6 +249,38 @@ export default {
     resetForm (formName) {
       this.$refs[formName].resetFields();
     },
+    handleJumpAuditLog () {
+      this.$router.push({
+        path: '/todo/auditLog',
+        query: {
+          tableCode: '',
+          tableId: ''
+        }
+      });
+    },
+    /*
+    // 详情表格相关数据
+    handleAddRow () {
+      // 通过引用直接调用子组件方法
+      this.$refs.editTable.addRow();
+    },
+    handleTableAdd (newRow) {
+      console.log('新增行', newRow);
+    },
+
+    handleTableSave (data) {
+      console.log('保存所有数据', data);
+      // 这里可以调用API保存数据
+    },
+    handleSaveAll (data) {
+      // 调用保存方法并处理结果
+      this.$refs.editTable.saveAll().then(data => {
+        console.log('保存成功', data);
+      }).catch(error => {
+        console.log('保存失败', error);
+      });
+    },
+    */
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);
