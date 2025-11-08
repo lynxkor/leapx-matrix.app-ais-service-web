@@ -5,7 +5,12 @@
       v-else title="基本信息"
     >
       {{{#cols}}}
-      <el-descriptions-item label="{{{ description }}}">{{ info.{{{key}}} }}</el-descriptions-item>
+      {{{#isBoolean}}}
+        <el-descriptions-item label="{{{ description }}}">{{ yes_no_enum_map[info.{{{key}}}] }}</el-descriptions-item>
+      {{{/isBoolean}}}
+      {{{^isBoolean}}}
+        <el-descriptions-item label="{{{ description }}}">{{ info.{{{key}}} }}</el-descriptions-item>
+      {{{/isBoolean}}}
       {{{/cols}}}
     </el-descriptions>
   </div>
@@ -13,13 +18,15 @@
 
 <script>
 import { getDetail } from '@/api/{{{{modulePath}}}}/index';
+import { YES_NO_ENUM_MAP } from '@/libs/constants';
 
 export default {
   name: '{{{nameCamelCase}}}Edit',
   data () {
     return {
       loading: true,
-      info: {}
+      info: {},
+      yes_no_enum_map: YES_NO_ENUM_MAP
     };
   },
   created () {

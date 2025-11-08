@@ -33,6 +33,16 @@
           />
         </el-form-item>
       {{{/isSelect}}}
+      {{{#isBoolean}}}
+        <el-form-item label="{{{description}}}：">
+          <fetch-select
+            :options="yes_no_enum"
+            v-model="form.{{{key}}}"
+            placeholder="请选择"
+            clearable
+          />
+        </el-form-item>
+      {{{/isBoolean}}}
       {{{#isNormal}}}
         <el-form-item label="{{{description}}}：">
           <el-input
@@ -68,6 +78,16 @@
             />
           </el-form-item>
         {{{/isSelect}}}
+        {{{#isBoolean}}}
+          <el-form-item label="{{{description}}}：">
+            <fetch-select
+              :options="yes_no_enum"
+              v-model="form.{{{key}}}"
+              placeholder="请选择"
+              clearable
+            />
+          </el-form-item>
+        {{{/isBoolean}}}
         {{{#isNormal}}}
           <el-form-item label="{{{description}}}：">
             <el-input
@@ -105,6 +125,7 @@
         v-loading="loading"
         is-checkbox
         is-page
+        checkboxFixed
         :option-obj="optionObj"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
@@ -129,6 +150,7 @@ import { getList, deleteItem } from '@/api/{{{{modulePath}}}}/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
+import { YES_NO_ENUM } from '@/libs/constants';
 
 const defaultForm = {
   {{{#searchList}}}
@@ -153,6 +175,7 @@ export default {
       form: {
         ...defaultForm
       },
+      yes_no_enum: YES_NO_ENUM,
       show: false,
       loading: false,
       exportLoading: false,
@@ -165,7 +188,8 @@ export default {
           size: pageSize
         },
         dataProp: [
-          {{{#top1Cols}}}
+          {{{#cols}}}
+          {{{#isFirst}}}
           {
             props: '{{{key}}}',
             label: '{{{description}}}',
@@ -184,9 +208,10 @@ export default {
               type: 'primary'
             }]
           },
-          {{{/top1Cols}}}
-          {{{#cols}}}
+          {{{/isFirst}}}
+          {{{^isFirst}}}
           { props: '{{{key}}}', label: '{{{description}}}', visible: {{{visible}}}, width: 150 },
+          {{{/isFirst}}}
           {{{/cols}}}
           {
             props: 'operate',

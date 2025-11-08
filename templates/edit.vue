@@ -13,7 +13,6 @@
               <el-form-item label="{{{description}}}：" prop="{{{key}}}">
                 <el-date-picker
                   v-model="form.{{{key}}}"
-                  type="daterange"
                   :picker-options="pickerOptions"
                   value-format="yyyy-MM-dd"
                   start-placeholder="开始日期"
@@ -32,6 +31,16 @@
                 />
               </el-form-item>
             {{{/isSelect}}}
+            {{{#isBoolean}}}
+              <el-form-item label="{{{description}}}：">
+                <fetch-select
+                  :options="yes_no_enum"
+                  v-model="form.{{{key}}}"
+                  placeholder="请选择"
+                  clearable
+                />
+              </el-form-item>
+            {{{/isBoolean}}}
             {{{#isNormal}}}
               <el-form-item label="{{{description}}}：" prop="{{{key}}}">
                 <el-input
@@ -79,6 +88,7 @@
 import { getList, getDetail, addOrUpdate } from '@/api/{{{{modulePath}}}}/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
+import { YES_NO_ENUM } from '@/libs/constants';
 
 const defaultForm = {
   {{{#cols}}}
@@ -97,6 +107,7 @@ export default {
       loading: false,
       submitLoading: false,
       info: {},
+      yes_no_enum: YES_NO_ENUM,
       form: {
         ...defaultForm
       },

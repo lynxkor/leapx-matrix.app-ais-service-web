@@ -31,16 +31,19 @@ const moduleName = nameParts.pop(); // 最后一部分作为模块名
 const moduleDir = nameParts.join('/'); // 剩余部分作为目录路径
 
 // 准备模板数据
-const colsData = generateJson.list.filter(item => item.description).map(el => {
+const colsData = generateJson.list.filter(item => item.description).map((el, index) => {
   const key = el.key.toLowerCase();
   const isDate = el.format === 'date-time' || !!key.match(/time/);
-  const isSelect = !!key.match(/type|status|state/);
+  const isBoolean = el.type === 'boolean';
+  const isSelect = !isBoolean && !!key.match(/type|status|state/);
   return {
     ...el,
+    isFirst: index === 0,
     isDate,
+    isBoolean,
     isSelect,
     description: el.description.replace(/\(.*?\)/g, ''),
-    isNormal: !isDate && !isSelect,
+    isNormal: !isDate && !isSelect && !isBoolean,
   };
 });
 console.log(colsData, 'colsData');
@@ -57,7 +60,6 @@ const data = {
   modulePath: name.split('/').filter(el => el).join('/'),
   cols: colsData,
   searchList: colsData.filter(el => el.searchable),
-  top1Cols: colsData.filter(el => el.searchable).slice(0, 1),
   top2SearchList: colsData.filter(el => el.searchable).slice(0, 2),
   lastSearchList: colsData.filter(el => el.searchable).slice(2),
 };
