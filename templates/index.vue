@@ -30,6 +30,7 @@
             v-model="form.{{{key}}}"
             placeholder="请选择"
             clearable
+            multiple
           />
         </el-form-item>
       {{{/isSelect}}}
@@ -40,6 +41,7 @@
             v-model="form.{{{key}}}"
             placeholder="请选择"
             clearable
+            multiple
           />
         </el-form-item>
       {{{/isBoolean}}}
@@ -75,6 +77,7 @@
               v-model="form.{{{key}}}"
               placeholder="请选择"
               clearable
+              multiple
             />
           </el-form-item>
         {{{/isSelect}}}
@@ -85,6 +88,7 @@
               v-model="form.{{{key}}}"
               placeholder="请选择"
               clearable
+              multiple
             />
           </el-form-item>
         {{{/isBoolean}}}
@@ -153,6 +157,7 @@ import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 
 const defaultForm = {
+  // 多选时字段有变化，自行修复
   {{{#searchList}}}
   {{{key}}}: '',
   {{{/searchList}}}

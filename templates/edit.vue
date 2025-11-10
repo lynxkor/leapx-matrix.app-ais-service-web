@@ -28,6 +28,7 @@
                   v-model="form.{{{key}}}"
                   placeholder="请选择"
                   clearable
+                  multiple
                 />
               </el-form-item>
             {{{/isSelect}}}
@@ -57,7 +58,7 @@
         <!-- <section class="common-section">
           <div class="common-section-header">
             <h2>维修工程师</h2>
-            <el-button size="small" icon="el-icon-plus" @click="addEvent">添加</el-button>
+            <el-button size="small" icon="el-icon-plus" @click="handleAddRow">添加</el-button>
           </div>
           <div class="common-section-body">
             <div class="common-section-table">
@@ -93,6 +94,7 @@ import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 
 const defaultForm = {
+  // 多选时字段有变化，自行修复
   {{{#cols}}}
   {{{key}}}: '',
   {{{/cols}}}
@@ -196,7 +198,6 @@ export default {
   },
   mounted () {
     this.getDetailData();
-    // this.getData();
   },
   methods: {
     getDetailData () {
@@ -209,28 +210,6 @@ export default {
         });
       }
     },
-    /*
-    async getConfig () {
-      return {};
-    },
-    getData () {
-      this.loading = true;
-
-      getList({ pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
-        .then(res => {
-          console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
-            return {
-              ...item,
-              deleteLoading: false
-            };
-          });
-          this.optionObj.total = res.total;
-        }).finally(() => {
-          this.loading = false;
-        });
-    },
-    */
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
