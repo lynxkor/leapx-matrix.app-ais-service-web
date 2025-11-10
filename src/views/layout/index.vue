@@ -228,7 +228,7 @@
 <script>
 import { getOutLink } from '@/api/thirdPart';
 import { getOwnerTree } from '@/api/crm/page-source';
-import pageTitle from '@/libs/components/ais-page-title';
+import pageTitle from '@/libs/components/AisPageTitle';
 import { changeRoute } from './routeData';
 import { changeUserPsd, getOnlineOperation, getServiceOnlineStatus, queryClientByUserId, getRedirectUrl, getTrUrl } from '@/api/user';
 import waterMark from '@/components/watermark';
@@ -767,7 +767,6 @@ export default {
       // margin: 12px;
       overflow-y: scroll;
       background-color: #FFFFFF;
-      padding: 20px;
 
       &.specil {
         margin: 0;

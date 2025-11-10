@@ -1,0 +1,54 @@
+<template>
+  <div class="page-common-detail m-dealer-team-detail">
+    <el-skeleton v-if="loading" :rows="6" animated />
+    <el-descriptions
+      v-else title="基本信息"
+    >
+        <el-descriptions-item label="班组代码">{{ info.code }}</el-descriptions-item>
+        <el-descriptions-item label="班组名称">{{ info.name }}</el-descriptions-item>
+        <el-descriptions-item label="班组类型描述">{{ info.teamTypeDesc }}</el-descriptions-item>
+        <el-descriptions-item label="班组状态描述">{{ info.statusDesc }}</el-descriptions-item>
+        <el-descriptions-item label="门店名称">{{ info.dealerName }}</el-descriptions-item>
+        <el-descriptions-item label="备注">{{ info.remark }}</el-descriptions-item>
+        <el-descriptions-item label="班组状态">{{ info.status }}</el-descriptions-item>
+        <el-descriptions-item label="类型TeamTypeEnum">{{ info.teamType }}</el-descriptions-item>
+        <el-descriptions-item label="门店ID">{{ info.dealerId }}</el-descriptions-item>
+        <el-descriptions-item label="门店编码">{{ info.dealerCode }}</el-descriptions-item>
+        <el-descriptions-item label="归属组织ID">{{ info.ownerOrgId }}</el-descriptions-item>
+        <el-descriptions-item label="负责人ID">{{ info.ownerId }}</el-descriptions-item>
+        <el-descriptions-item label="负责人姓名">{{ info.ownerName }}</el-descriptions-item>
+        <el-descriptions-item label="维修工程师列表">{{ info.userRelations }}</el-descriptions-item>
+    </el-descriptions>
+  </div>
+</template>
+
+<script>
+import { getDetail } from '@/api/maintain/basic/dealerTeam/index';
+import { YES_NO_ENUM_MAP } from '@/libs/constants';
+
+export default {
+  name: 'dealerTeamEdit',
+  data () {
+    return {
+      loading: true,
+      info: {},
+      yes_no_enum_map: YES_NO_ENUM_MAP
+    };
+  },
+  created () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店班组信息管理', '']);
+    this.getData();
+  },
+  methods: {
+    getData () {
+      getDetail(this.$route.query.id).then(res => {
+        this.loading = false;
+        this.info = res || {};
+        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店班组信息管理', '厅店班组信息管理详情']);
+      }).catch(() => {
+        this.loading = false;
+      });
+    }
+  }
+};
+</script>

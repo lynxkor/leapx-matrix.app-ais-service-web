@@ -34,3 +34,11 @@ export function exportTable (data) {
 export function getEnum (code) {
   return api.get(`/maintain/web/common/enum/${code}`);
 }
+
+/**
+ * 根据名称或工号查询用户
+ * @param {*} data
+ */
+export function getUserByNameOrNo (data) {
+  return api.jsonPost('/accountService/user/listByNameOrEmpNo', data);
+}

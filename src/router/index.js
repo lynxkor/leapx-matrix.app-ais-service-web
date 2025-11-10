@@ -36,41 +36,62 @@ const routes = [
     meta: {
       requiresAuth: true
     },
-    children: [
-      {
-        path: '/vehiclePartsMaintenance',
-        name: 'vehiclePartsMaintenance',
-        component: () => import('@/views/vehiclePartsMaintenance/index.vue'),
-        meta: {
-          name: '车辆档案列表',
-          backSwitch: 'front'
-        }
-      },
-      {
-        path: '/vehiclePartsMaintenance/detail',
-        name: 'vehiclePartsMaintenanceDetail',
-        component: () => import('@/views/vehiclePartsMaintenance/detail.vue'),
-        meta: {
-          name: '车辆档案详情',
-          backSwitch: 'front',
-          noResourceUrl: true // 详情页不配置对应资源位，需要加
-        }
-      },
-      {
-        path: '/home',
-        name: 'home',
-        meta: {
-          name: '首页'
-        },
-        component: () => import('@/views/home.vue')
-      },
-      {
-        path: '/',
-        redirect: '/home',
-        name: 'index',
-        component: () => import('@/views/home.vue')
+    children: [{
+      path: '/vehiclePartsMaintenance',
+      name: 'vehiclePartsMaintenance',
+      component: () => import('@/views/vehiclePartsMaintenance/index.vue'),
+      meta: {
+        name: '车辆档案列表',
+        backSwitch: 'front'
       }
-    ]
+    }, {
+      path: '/vehiclePartsMaintenance/detail',
+      name: 'vehiclePartsMaintenanceDetail',
+      component: () => import('@/views/vehiclePartsMaintenance/detail.vue'),
+      meta: {
+        name: '车辆档案详情',
+        backSwitch: 'front',
+        noResourceUrl: true // 详情页不配置对应资源位，需要加
+      }
+    }, {
+      path: '/home',
+      name: 'home',
+      meta: {
+        name: '首页'
+      },
+      component: () => import('@/views/home.vue')
+    }, {
+      path: '/',
+      redirect: '/home',
+      name: 'index',
+      component: () => import('@/views/home.vue')
+    }, {
+      path: '/maintain/basic/dealerteam',
+      name: 'dealerTeam',
+      component: () => import('@/views/maintain/basic/dealerTeam/index.vue'),
+
+      meta: {
+        name: '厅店班组信息管理'
+      }
+    }, {
+      path: '/maintain/basic/dealerteam/detail',
+      name: 'dealerTeamDetail',
+      component: () => import('@/views/maintain/basic/dealerTeam/detail.vue'),
+
+      meta: {
+        name: '厅店班组信息管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/dealerteam/edit',
+      name: 'dealerTeamEdit',
+      component: () => import('@/views/maintain/basic/dealerTeam/edit.vue'),
+
+      meta: {
+        name: '厅店班组信息管理详情',
+        noResourceUrl: 'true'
+      }
+    }]
   }
 ];
 
@@ -111,7 +132,9 @@ export function getRouter () {
         toLoginPage(to, next);
         return;
       }
+      // 开发阶段先跳过权限验证
       if (localStorage.getItem('sourceUrl').includes(to.path) || to.meta.noResourceUrl) {
+      // if (true) {
         next();
       } else {
         window.alert('你没有访问该页面的权限');
