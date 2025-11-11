@@ -30,7 +30,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', '']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', '{{{title}}}详情']);
     this.getData();
   },
   methods: {
@@ -38,7 +38,6 @@ export default {
       getDetail({ id: this.$route.query.id }).then(res => {
         this.loading = false;
         this.info = res;
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', '{{{title}}}详情']);
       }).catch(() => {
         this.loading = false;
       });

@@ -199,7 +199,7 @@ export default {
             props: '{{{key}}}',
             label: '{{{description}}}',
             visible: {{{visible}}},
-            width: 150,
+            width: 200,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -215,7 +215,9 @@ export default {
           },
           {{{/isFirst}}}
           {{{^isFirst}}}
-          { props: '{{{key}}}', label: '{{{description}}}', visible: {{{visible}}}, width: 150 },
+          {{{#visible}}}
+          { props: '{{{key}}}', label: '{{{description}}}', visible: {{{visible}}}, width: 200 },
+          {{{/visible}}}
           {{{/isFirst}}}
           {{{/cols}}}
           {

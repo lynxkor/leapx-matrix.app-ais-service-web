@@ -68,8 +68,7 @@
                 :data="tableData"
                 :defaultNewRow="defaultNewRow"
                 :show-toolbar="false"
-                @add-row="handleTableAdd"
-                @save-all="handleTableSave"
+                :options="options"
               />
             </div>
           </div>
@@ -77,17 +76,16 @@
       </el-main>
       <el-footer height="60px">
         <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
-        <el-button size="small" type="primary">保存并关闭</el-button>
-        <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
-        <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button>
+        <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
+        <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
+        <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
       </el-footer>
     </el-container>
   </div>
 </template>
 
 <script>
-// import { LPVxeTable } from '@leapmotor/design';
-import { getList, getDetail, addOrUpdate } from '@/api/{{{{modulePath}}}}/index';
+import { getDetail, addOrUpdate } from '@/api/{{{{modulePath}}}}/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 // import EditTable from '@/libs/components/EditTable';
 import { getEnum } from '@/api/common';
@@ -103,7 +101,6 @@ const defaultForm = {
 export default {
   name: '{{{nameCamelCase}}}Edit',
   components: {
-    // LPVxeTable,
     FetchSelect,
     // EditTable
   },
@@ -197,20 +194,20 @@ export default {
     };
   },
   mounted () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', '{{{title}}}详情']);
     this.getDetailData();
   },
   methods: {
     getDetailData () {
       const id = this.$route.query.id;
       if (id) {
-        getDetail({ id }).then(res => {
+        getDetail(id).then(res => {
           this.loading = false;
           Object.assign(this.form, res);
-          this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', '{{{title}}}详情']);
         });
       }
     },
-    submitForm (formName) {
+    submitForm (formName, rest = false) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.submitLoading = true;
@@ -227,36 +224,31 @@ export default {
     },
     resetForm (formName) {
       this.$refs[formName].resetFields();
+      this.tableData = [];
     },
-    handleJumpAuditLog () {
-      this.$router.push({
-        path: '/todo/auditLog',
-        query: {
-          tableCode: '',
-          tableId: ''
-        }
-      });
-    },
+    // handleJumpAuditLog () {
+    //   this.$router.push({
+    //     path: '/todo/auditLog',
+    //     query: {
+    //       tableCode: '',
+    //       tableId: ''
+    //     }
+    //   });
+    // },
     /*
     // 详情表格相关数据
     handleAddRow () {
       // 通过引用直接调用子组件方法
       this.$refs.editTable.addRow();
     },
-    handleTableAdd (newRow) {
-      console.log('新增行', newRow);
-    },
-
-    handleTableSave (data) {
-      console.log('保存所有数据', data);
-      // 这里可以调用API保存数据
-    },
-    handleSaveAll (data) {
+    handleSaveTable (data) {
       // 调用保存方法并处理结果
-      this.$refs.editTable.saveAll().then(data => {
-        console.log('保存成功', data);
-      }).catch(error => {
-        console.log('保存失败', error);
+      return new Promise((resolve, reject) => {
+        this.$refs.editTable.saveAll().then(data => {
+          resolve(data);
+        }).catch(error => {
+          reject(error);
+        });
       });
     },
     */
