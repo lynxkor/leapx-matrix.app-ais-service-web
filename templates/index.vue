@@ -327,6 +327,7 @@ export default {
     },
     onReset () {
       this.form = { ...defaultForm };
+      this.getData();
     },
     exportExcel () {
       this.exportLoading = true;

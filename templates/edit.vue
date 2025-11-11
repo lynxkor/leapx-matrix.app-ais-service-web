@@ -138,8 +138,7 @@
       <el-footer height="60px">
         <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
         <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
-        <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
-        <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
+        <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
       </el-footer>
     </el-container>
   </div>
@@ -172,7 +171,6 @@ export default {
     return {
       loading: false,
       submitLoading: false,
-      info: {},
       yes_no_enum: YES_NO_ENUM,
       form: {
         ...defaultForm
@@ -280,12 +278,13 @@ export default {
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.submitLoading = true;
-            addOrUpdate({ id: this.info.id, ...this.form, teamUsers: tableData }).then(res => {
+            addOrUpdate({...this.form, teamUsers: tableData }).then(res => {
               this.$message({
                 message: '保存成功',
                 type: 'success'
               });
-              if (rest) {
+              const id = this.$route.query.id;
+              if (rest || !id) {
                 this.resetForm(formName);
               } else {
                 this.getDetailData();
@@ -305,11 +304,17 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.submitLoading = true;
-          addOrUpdate({ id: this.info.id, ...this.form }).then(res => {
+          addOrUpdate({...this.form }).then(res => {
             this.$message({
               message: '保存成功',
               type: 'success'
             });
+            const id = this.$route.query.id;
+            if (rest || !id) {
+              this.resetForm(formName);
+            } else {
+              this.getDetailData();
+            }
           }).finally(() => {
             this.submitLoading = false;
           });
@@ -320,6 +325,7 @@ export default {
     resetForm (formName) {
       this.$refs[formName].resetFields();
       this.tableData = [];
+      this.form = {...defaultForm};
     },
     // handleJumpAuditLog () {
     //   this.$router.push({

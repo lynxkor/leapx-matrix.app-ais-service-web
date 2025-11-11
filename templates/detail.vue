@@ -35,7 +35,7 @@ export default {
   },
   methods: {
     getData () {
-      getDetail({ id: this.$route.query.id }).then(res => {
+      getDetail(this.$route.query.id).then(res => {
         this.loading = false;
         this.info = res;
       }).catch(() => {

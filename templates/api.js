@@ -31,6 +31,6 @@ export function deleteItem (data) {
  * 查询
  * @param {Object} data
  */
-export function getDetail (params) {
-  return api.get(prefix + 'get', params);
+export function getDetail (data) {
+  return api.jsonPost(prefix + 'get', data);
 }
