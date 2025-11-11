@@ -1,4 +1,5 @@
 <template>
+  {{{#isProForm}}}
   <div class="page-common-edit">
     <el-container>
       <el-main>
@@ -55,9 +56,9 @@
             </el-form>
           </div>
         </section>
-        <!-- <section class="common-section">
+        <section class="common-section">
           <div class="common-section-header">
-            <h2>维修工程师</h2>
+            <h2>区块标题</h2>
             <el-button size="small" icon="el-icon-plus" @click="handleAddRow">添加</el-button>
           </div>
           <div class="common-section-body">
@@ -72,7 +73,7 @@
               />
             </div>
           </div>
-        </section> -->
+        </section>
       </el-main>
       <el-footer height="60px">
         <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
@@ -82,12 +83,75 @@
       </el-footer>
     </el-container>
   </div>
+  {{{/isProForm}}}
+  {{{^isProForm}}}
+  <div class="page-common-add">
+    <el-container>
+      <el-main>
+        <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px" size="small">
+        {{{#cols}}}
+        {{{#isDate}}}
+          <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+            <el-date-picker
+              v-model="form.{{{key}}}"
+              :picker-options="pickerOptions"
+              value-format="yyyy-MM-dd"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              align="right"
+            />
+          </el-form-item>
+        {{{/isDate}}}
+        {{{#isSelect}}}
+          <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+            <fetch-select
+              :request="() => fetchOptions('xxx')"
+              v-model="form.{{{key}}}"
+              placeholder="请选择"
+              clearable
+              multiple
+            />
+          </el-form-item>
+        {{{/isSelect}}}
+        {{{#isBoolean}}}
+          <el-form-item label="{{{description}}}：">
+            <fetch-select
+              :options="yes_no_enum"
+              v-model="form.{{{key}}}"
+              placeholder="请选择"
+              clearable
+            />
+          </el-form-item>
+        {{{/isBoolean}}}
+        {{{#isNormal}}}
+          <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+            <el-input
+              placeholder="请输入"
+              v-model="form.{{{key}}}"
+              clearable
+            />
+          </el-form-item>
+        {{{/isNormal}}}
+        {{{/cols}}}
+        </el-form>
+      </el-main>
+      <el-footer height="60px">
+        <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
+        <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
+        <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
+        <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
+      </el-footer>
+    </el-container>
+  </div>
+  {{{/isProForm}}}
 </template>
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/{{{{modulePath}}}}/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-// import EditTable from '@/libs/components/EditTable';
+{{{#isProForm}}}
+import EditTable from '@/libs/components/EditTable';
+{{{/isProForm}}}
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 
@@ -113,38 +177,40 @@ export default {
       form: {
         ...defaultForm
       },
-      // defaultNewRow: {
-      //   name: '',
-      // },
-      // tableData: [
-      //   { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-      //   { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      // ],
-      // columns: [
-      //   {
-      //     field: 'name',
-      //     title: '姓名',
-      //     width: '33%',
-      //     editable: true,
-      //     editRender: { name: 'ElInput' },
-      //     rules: [
-      //       { required: true, message: '姓名不能为空', trigger: 'blur' }
-      //     ]
-      //   },
-      //   {
-      //     field: 'age',
-      //     title: '年龄',
-      //     editable: true,
-      //     width: '33%',
-      //     editRender: { name: 'ElInput', props: { type: 'number' } }
-      //   },
-      //   {
-      //     field: 'email',
-      //     title: '邮箱',
-      //     width: '33%',
-      //     editRender: { name: 'ElInput' }
-      //   },
-      // ],
+      {{{#isProForm}}}
+      defaultNewRow: {
+        name: '',
+      },
+      tableData: [
+        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
+        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
+      ],
+      columns: [
+        {
+          field: 'name',
+          title: '姓名',
+          width: '33%',
+          editable: true,
+          editRender: { name: 'ElInput' },
+          rules: [
+            { required: true, message: '姓名不能为空', trigger: 'blur' }
+          ]
+        },
+        {
+          field: 'age',
+          title: '年龄',
+          editable: true,
+          width: '33%',
+          editRender: { name: 'ElInput', props: { type: 'number' } }
+        },
+        {
+          field: 'email',
+          title: '邮箱',
+          width: '33%',
+          editRender: { name: 'ElInput' }
+        },
+      ],
+      {{{/isProForm}}}
       rules: {
       {{{#cols}}}
       {{{#isDate}}}
@@ -207,6 +273,34 @@ export default {
         });
       }
     },
+    {{{#isProForm}}}
+    async submitForm (formName, rest = false) {
+      try {
+        const tableData = await this.handleSaveTable();
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.submitLoading = true;
+            addOrUpdate({ id: this.info.id, ...this.form, teamUsers: tableData }).then(res => {
+              this.$message({
+                message: '保存成功',
+                type: 'success'
+              });
+              if (rest) {
+                this.resetForm(formName);
+              } else {
+                this.getDetailData();
+              }
+            }).finally(() => {
+              this.submitLoading = false;
+            });
+          }
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    {{{/isProForm}}}
+    {{{^isProForm}}}
     submitForm (formName, rest = false) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -222,20 +316,21 @@ export default {
         }
       });
     },
+    {{{/isProForm}}}
     resetForm (formName) {
       this.$refs[formName].resetFields();
       this.tableData = [];
     },
     // handleJumpAuditLog () {
     //   this.$router.push({
-    //     path: '/todo/auditLog',
+    //     path: '/xxx/auditLog',
     //     query: {
     //       tableCode: '',
     //       tableId: ''
     //     }
     //   });
     // },
-    /*
+    {{{#isProForm}}}
     // 详情表格相关数据
     handleAddRow () {
       // 通过引用直接调用子组件方法
@@ -251,7 +346,7 @@ export default {
         });
       });
     },
-    */
+    {{{/isProForm}}}
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);

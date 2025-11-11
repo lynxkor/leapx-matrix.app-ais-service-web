@@ -31,7 +31,9 @@ const moduleName = nameParts.pop(); // 最后一部分作为模块名
 const moduleDir = nameParts.join('/'); // 剩余部分作为目录路径
 
 // 准备模板数据
-const colsData = generateJson.list.filter(item => item.description).map((el, index) => {
+const colsData = generateJson.list.filter(item => {
+  return (item.format === 'date-time' || item.description);
+}).map((el, index) => {
   const key = el.key.toLowerCase();
   const isDate = el.format === 'date-time' || !!key.match(/time/);
   const isBoolean = el.type === 'boolean';
@@ -42,7 +44,7 @@ const colsData = generateJson.list.filter(item => item.description).map((el, ind
     isDate,
     isBoolean,
     isSelect,
-    description: el.description.replace(/\(.*?\)/g, ''),
+    description: el.description?.replace(/\(.*?\)/g, ''),
     isNormal: !isDate && !isSelect && !isBoolean,
   };
 });
@@ -50,6 +52,7 @@ console.log(colsData, 'colsData');
 const nameSplit = name.split('/').filter(el => el);
 nameSplit.splice(1, 0, 'web');
 const apiPath = nameSplit.join('/');
+const isProForm = colsData.some(el => el.type === 'array');
 const data = {
   title: generateJson.title,
   name: moduleName,
@@ -57,6 +60,7 @@ const data = {
   nameKebabCase: moduleName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(),
   nameCamelCase: moduleName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()),
   apiPath: apiPath,
+  isProForm,
   modulePath: name.split('/').filter(el => el).join('/'),
   cols: colsData,
   searchList: colsData.filter(el => el.searchable),
