@@ -55,9 +55,9 @@
         <el-button size="small" @click="handleAdd">新增</el-button>
         <el-button size="small" @click="handleImport">导入</el-button>
         <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-        <el-button size="small">批量删除</el-button>
-        <el-button size="small">批量启用</el-button>
-        <el-button size="small">批量停用</el-button>
+        <el-button size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
+        <el-button size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量启用</el-button>
+        <el-button size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量停用</el-button>
       </div>
     </div>
     <div
@@ -90,7 +90,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem } from '@/api/maintain/basic/dealerTeam/index';
+import { getList, deleteItem, enableItem } from '@/api/maintain/basic/dealerTeam/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -120,6 +120,7 @@ export default {
       form: {
         ...defaultForm
       },
+      selectionList: [],
       yes_no_enum: YES_NO_ENUM,
       show: false,
       loading: false,
@@ -175,35 +176,18 @@ export default {
               type: 'primary'
             }, {
               name: '删除',
+              popconfirmTitle: '此操作将永久删除, 是否继续?',
               click: (rowIndex, row) => {
-                this.$confirm('此操作将永久删除, 是否继续?', '提示', {
-                  confirmButtonText: '确定',
-                  cancelButtonText: '取消',
-                  type: 'warning',
-                  beforeClose: (action, instance, done) => {
-                    if (action === 'confirm') {
-                      instance.confirmButtonLoading = true;
-                      instance.confirmButtonText = '执行中...';
-                      deleteItem([row.id]).then(() => {
-                        done();
-                      }).finally(() => {
-                        instance.confirmButtonLoading = false;
-                      });
-                    } else {
-                      done();
-                    }
-                  }
-                }).then(() => {
+                deleteItem([row.id]).then(() => {
                   this.$message({
                     type: 'success',
                     message: '删除成功!'
                   });
-                  // 删除完要重新请求列表数据
                   this.getData();
                 }).catch(() => {
                   this.$message({
-                    type: 'info',
-                    message: '已取消删除'
+                    type: 'error',
+                    message: '删除失败!'
                   });
                 });
               },
@@ -263,6 +247,7 @@ export default {
     },
     onReset () {
       this.form = { ...defaultForm };
+      this.getData();
     },
     exportExcel () {
       this.exportLoading = true;
@@ -292,6 +277,7 @@ export default {
     },
     getData () {
       this.loading = true;
+      this.selectionList = [];
 
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
@@ -335,7 +321,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange (selection) {
-      console.log(selection);
+      this.selectionList = selection;
     },
     getFormData () {
       const data = { ...this.form };
@@ -361,6 +347,47 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    // 批量删除
+    handleBatchDelete () {
+      const ids = this.selectionList.map(item => item.id) || [];
+      this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteItem(ids).then(() => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+          this.getData();
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: '删除失败!'
+          });
+        });
+      }).catch(() => {});
+    },
+    // 批量启用停用
+    handleBatchEnable (status) {
+      const ids = this.selectionList.map(item => item.id) || [];
+      enableItem({
+        idSet: ids,
+        status
+      }).then(() => {
+        this.$message({
+          type: 'success',
+          message: '操作成功!'
+        });
+        this.getData();
+      }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '操作失败!'
+        });
+      });
     }
   }
 };

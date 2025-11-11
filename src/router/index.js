@@ -91,6 +91,32 @@ const routes = [
         name: '厅店班组信息管理详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/maintain/basic/dealerstation',
+      name: 'dealerStation',
+      component: () => import('@/views/maintain/basic/dealerStation/index.vue'),
+
+      meta: {
+        name: '厅店工位信息管理'
+      }
+    }, {
+      path: '/maintain/basic/dealerstation/detail',
+      name: 'dealerStationDetail',
+      component: () => import('@/views/maintain/basic/dealerStation/detail.vue'),
+
+      meta: {
+        name: '厅店工位信息管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/dealerstation/edit',
+      name: 'dealerStationEdit',
+      component: () => import('@/views/maintain/basic/dealerStation/edit.vue'),
+
+      meta: {
+        name: '厅店工位信息管理详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];

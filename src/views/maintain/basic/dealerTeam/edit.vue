@@ -276,7 +276,8 @@ export default {
                 message: '保存成功',
                 type: 'success'
               });
-              if (rest) {
+              const id = this.$route.query.id;
+              if (rest || !id) {
                 this.resetForm(formName);
               } else {
                 this.getDetailData();
@@ -293,6 +294,11 @@ export default {
     resetForm (formName) {
       this.$refs[formName].resetFields();
       this.tableData = [];
+      this.form = {
+        ...defaultForm,
+        ownerId: this.$store.state.user.userInfo.userId,
+        ownerName: this.$store.state.user.userInfo.userName
+      };
     },
     // handleJumpAuditLog () {
     //   this.$router.push({
