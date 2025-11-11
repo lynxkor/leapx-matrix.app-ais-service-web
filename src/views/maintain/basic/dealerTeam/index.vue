@@ -137,7 +137,7 @@ export default {
             props: 'code',
             label: '班组代码',
             visible: true,
-            width: 150,
+            width: 200,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -151,19 +151,11 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'name', label: '班组名称', visible: true, width: 150 },
-          { props: 'teamTypeDesc', label: '班组类型描述', visible: true, width: 150 },
-          { props: 'statusDesc', label: '班组状态描述', visible: true, width: 150 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 150 },
-          { props: 'remark', label: '备注', visible: true, width: 150 },
-          { props: 'status', label: '班组状态', visible: false, width: 150 },
-          { props: 'teamType', label: '类型TeamTypeEnum', visible: false, width: 150 },
-          { props: 'dealerId', label: '门店ID', visible: false, width: 150 },
-          { props: 'dealerCode', label: '门店编码', visible: false, width: 150 },
-          { props: 'ownerOrgId', label: '归属组织ID', visible: false, width: 150 },
-          { props: 'ownerId', label: '负责人ID', visible: false, width: 150 },
-          { props: 'ownerName', label: '负责人姓名', visible: false, width: 150 },
-          { props: 'userRelations', label: '维修工程师列表', visible: false, width: 150 },
+          { props: 'name', label: '班组名称', visible: true, width: 200 },
+          { props: 'teamTypeDesc', label: '班组类型描述', visible: true, width: 200 },
+          { props: 'statusDesc', label: '班组状态描述', visible: true, width: 200 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'remark', label: '备注', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',

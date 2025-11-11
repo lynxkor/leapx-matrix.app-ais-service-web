@@ -71,7 +71,7 @@
                 :data="tableData"
                 :defaultNewRow="defaultNewRow"
                 :show-toolbar="false"
-                @value-select="handleValSelect"
+                :options="options"
               />
             </div>
           </div>
@@ -79,9 +79,9 @@
       </el-main>
       <el-footer height="60px">
         <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
-        <el-button size="small" type="primary">保存并关闭</el-button>
-        <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
-        <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button>
+        <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
+        <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button> -->
+        <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
       </el-footer>
     </el-container>
   </div>
@@ -114,13 +114,11 @@ const defaultForm = {
 export default {
   name: 'dealerTeamEdit',
   components: {
-    // LPVxeTable,
     FetchSelect,
     EditTable
   },
   data () {
     return {
-      state: '',
       loading: false,
       submitLoading: false,
       info: {},
@@ -138,6 +136,9 @@ export default {
       tableData: [
         // { userName: '张三', userId: 25, createTime: '' },
       ],
+      options: {
+        userName: []
+      },
       columns: [
         {
           field: 'userName',
@@ -145,14 +146,14 @@ export default {
           width: '30%',
           editable: true,
           editRender: {
-            name: 'ElAutocomplete',
+            name: 'ElSelect',
             props: {
               clearable: true,
-              type: 'text',
+              filterable: true,
+              remote: true,
               'suffix-icon': 'el-icon-search',
-              placeholder: '请输入姓名',
-              'fetch-suggestions': this.querySearchAsync,
-              prop: 'userName'
+              placeholder: '请选择姓名',
+              'remote-method': this.querySearchAsync,
             }
           },
           rules: [
@@ -163,7 +164,10 @@ export default {
           field: 'userId',
           title: '工号',
           width: '30%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
+          editRender: { name: 'ElInput', props: { type: 'number' } },
+          rules: [
+            { required: true, message: '工号不能为空' }
+          ]
         },
         {
           field: 'createTime',
@@ -247,6 +251,7 @@ export default {
     };
   },
   mounted () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店班组信息管理', '厅店班组信息管理详情']);
     this.getDetailData();
   },
   methods: {
@@ -257,11 +262,10 @@ export default {
           this.loading = false;
           Object.assign(this.form, res);
           this.tableData = res.userRelations;
-          this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店班组信息管理', '厅店班组信息管理详情']);
         });
       }
     },
-    async submitForm (formName) {
+    async submitForm (formName, rest = false) {
       try {
         const tableData = await this.handleSaveTable();
         this.$refs[formName].validate((valid) => {
@@ -272,7 +276,11 @@ export default {
                 message: '保存成功',
                 type: 'success'
               });
-              this.getDetailData();
+              if (rest) {
+                this.resetForm(formName);
+              } else {
+                this.getDetailData();
+              }
             }).finally(() => {
               this.submitLoading = false;
             });
@@ -284,16 +292,17 @@ export default {
     },
     resetForm (formName) {
       this.$refs[formName].resetFields();
+      this.tableData = [];
     },
-    handleJumpAuditLog () {
-      this.$router.push({
-        path: '/todo/auditLog',
-        query: {
-          tableCode: '',
-          tableId: ''
-        }
-      });
-    },
+    // handleJumpAuditLog () {
+    //   this.$router.push({
+    //     path: '/xxx/auditLog',
+    //     query: {
+    //       tableCode: '',
+    //       tableId: ''
+    //     }
+    //   });
+    // },
     // 详情表格相关数据
     handleAddRow () {
       // 通过引用直接调用子组件方法
@@ -315,18 +324,16 @@ export default {
       }
       return [];
     },
-    handleValSelect (d) {
-      console.log('值改变', d);
-    },
-    querySearchAsync: (queryString, cb) => {
+    querySearchAsync (queryString, cb) {
       getUserByNameOrNo({ name: queryString }).then(res => {
         const list = res?.map(item => {
           return {
-            value: item.username,
+            value: item.userId,
+            label: item.username,
             ...item
           };
         }) || [];
-        cb(list);
+        this.options.userName = list;
       });
     }
   }

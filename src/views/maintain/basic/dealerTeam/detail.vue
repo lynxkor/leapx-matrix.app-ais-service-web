@@ -17,7 +17,7 @@
         <el-descriptions-item label="归属组织ID">{{ info.ownerOrgId }}</el-descriptions-item>
         <el-descriptions-item label="负责人ID">{{ info.ownerId }}</el-descriptions-item>
         <el-descriptions-item label="负责人姓名">{{ info.ownerName }}</el-descriptions-item>
-        <el-descriptions-item label="维修工程师列表">{{ info.userRelations }}</el-descriptions-item>
+        <!-- <el-descriptions-item label="维修工程师列表">{{ info.userRelations }}</el-descriptions-item> -->
     </el-descriptions>
   </div>
 </template>
@@ -36,7 +36,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店班组信息管理', '']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店班组信息管理', '厅店班组信息管理详情']);
     this.getData();
   },
   methods: {
@@ -44,7 +44,6 @@ export default {
       getDetail(this.$route.query.id).then(res => {
         this.loading = false;
         this.info = res || {};
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店班组信息管理', '厅店班组信息管理详情']);
       }).catch(() => {
         this.loading = false;
       });
