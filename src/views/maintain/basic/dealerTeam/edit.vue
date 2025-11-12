@@ -20,6 +20,7 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.name"
+                  maxlength="50"
                   clearable
                 />
               </el-form-item>
@@ -52,6 +53,8 @@
                   type="textarea"
                   placeholder="请输入"
                   v-model="form.remark"
+                  maxlength="500"
+                  show-word-limit
                   clearable
                 />
               </el-form-item>

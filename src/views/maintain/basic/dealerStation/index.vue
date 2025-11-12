@@ -67,8 +67,8 @@
         <el-button size="small" @click="handleImport">导入</el-button>
         <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
         <el-button size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-        <el-button size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量启用</el-button>
-        <el-button size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量停用</el-button>
+        <el-button size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
+        <el-button size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
       </div>
     </div>
     <div
@@ -367,7 +367,7 @@ export default {
     // 批量删除
     handleBatchDelete () {
       const ids = this.selectionList.map(item => item.id) || [];
-      this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+      this.$confirm('此操作将删除选中工位信息，您无法撤销此操作，是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -389,19 +389,25 @@ export default {
     // 批量启用停用
     handleBatchEnable (status) {
       const ids = this.selectionList.map(item => item.id) || [];
-      enableItem({
-        idSet: ids,
-        status
+      this.$confirm(`此操作将${status ? '启用' : '停用'}选中工位信息，是否继续?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '操作成功!'
-        });
-        this.getData();
-      }).catch(() => {
-        this.$message({
-          type: 'error',
-          message: '操作失败!'
+        enableItem({
+          idSet: ids,
+          status
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '操作成功!'
+          });
+          this.getData();
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: '操作失败!'
+          });
         });
       });
     }
