@@ -264,12 +264,12 @@ export default {
     };
   },
   mounted () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', '{{{title}}}详情']);
     this.getDetailData();
   },
   methods: {
     getDetailData () {
       const id = this.$route.query.id;
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', `${id ? '编辑': '新建'}{{{title}}}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;

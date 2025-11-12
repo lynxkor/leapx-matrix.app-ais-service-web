@@ -242,7 +242,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店工位信息管理']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店工位信息']);
     this.getData();
   },
   methods: {

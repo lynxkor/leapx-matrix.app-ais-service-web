@@ -34,7 +34,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店工位信息管理', '厅店工位信息管理详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店工位信息', '厅店工位信息详情']);
     this.getData();
   },
   methods: {

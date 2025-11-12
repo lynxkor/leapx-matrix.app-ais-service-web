@@ -36,7 +36,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店班组信息管理', '厅店班组信息管理详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店班组信息', '厅店班组信息详情']);
     this.getData();
   },
   methods: {
