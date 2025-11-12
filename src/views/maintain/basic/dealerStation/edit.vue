@@ -100,11 +100,7 @@ export default {
       submitLoading: false,
       info: {},
       yes_no_enum: YES_NO_ENUM,
-      form: {
-        ...defaultForm,
-        ownerId: this.$store.state.user.userInfo.userId,
-        ownerName: this.$store.state.user.userInfo.userName
-      },
+      form: this.getDefautlForm(),
       rules: {
         name: [
           { required: true, message: '请输入工位名称', trigger: 'blur' }
@@ -183,10 +179,15 @@ export default {
     resetForm (formName) {
       this.$refs[formName].resetFields();
       this.tableData = [];
-      this.form = {
+      this.form = this.getDefautlForm();
+    },
+    getDefautlForm () {
+      const userInfo = this.$store.state.user.userInfo;
+      return {
         ...defaultForm,
-        ownerId: this.$store.state.user.userInfo.userId,
-        ownerName: this.$store.state.user.userInfo.userName
+        ownerId: userInfo.userId,
+        ownerName: userInfo.userName,
+        dealerName: userInfo.orgPostUserList.find(item => item.position === '1')?.orgName,
       };
     },
     // handleJumpAuditLog () {

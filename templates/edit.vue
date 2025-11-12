@@ -165,7 +165,9 @@ export default {
   name: '{{{nameCamelCase}}}Edit',
   components: {
     FetchSelect,
-    // EditTable
+    {{{#isProForm}}}
+    EditTable
+    {{{/isProForm}}}
   },
   data () {
     return {
@@ -183,6 +185,10 @@ export default {
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
+      options: {
+        // 对应表格里选型枚举
+        // 如 type: [{label: 'xxx', value: 'xxx'}]
+      },
       columns: [
         {
           field: 'name',
