@@ -17,21 +17,6 @@
     padding: 0;
     padding-right: .4rem;
   }
-  // 按钮颜色
-  .el-button--default:hover {
-    color: var(--themColor);
-    border-color:  var(--themLightColor);
-    background-color: var(--themLightColor);
-}
-// 按钮颜色
-.el-button--primary:hover {
-  color: white;
-}
-.el-button--default.el-button:focus {
-  // color: var(--themColor);
-  border-color: var(--themLightColor);
-  background-color: var(--themLightColor);
-}
 
 // 统一的表格 分页 样式
   ::v-deep .el-table td, .el-table th {

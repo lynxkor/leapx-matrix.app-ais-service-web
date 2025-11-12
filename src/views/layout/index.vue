@@ -233,7 +233,6 @@ import { changeRoute } from './routeData';
 import { changeUserPsd, getOnlineOperation, getServiceOnlineStatus, queryClientByUserId, getRedirectUrl, getTrUrl } from '@/api/user';
 import waterMark from '@/components/watermark';
 import { formatDateTime, decryptUC } from '@/utils';
-import { getVehicleTree, getLeadconfig, getAreaTree, getuserOrgAll, getuserOrgs, getPerAreaTree, getOrgTree4 } from '@/api/bussinessData';
 export default {
   components: {
     pageTitle,
@@ -623,55 +622,6 @@ export default {
           this.resourceBtn.push(item.resourceTag);
         });
         this.getServiceOnlineStatus();
-      }).catch(() => {});
-    },
-    // 获取车系，车型，配置
-    getVehicleTree () {
-      getVehicleTree().then(res => {
-        localStorage.setItem('vehicleTree', JSON.stringify(res));
-        this.$store.commit('SET_VEHICLE_TREE', res);
-      }).catch(() => {});
-    },
-    // 字典项目
-    getLeadconfig () {
-      getLeadconfig().then(res => {
-        localStorage.setItem('leadConfig', JSON.stringify(res));
-        this.$store.commit('SET_LEADCONFIG', res);
-      }).catch(() => {});
-    },
-    // 获取区域
-    getAreaTree () {
-      getAreaTree().then(res => {
-        localStorage.setItem('areaTree', JSON.stringify(res));
-        this.$store.commit('SET_AREATREE', res);
-      }).catch(() => {});
-    },
-    // 区域/门店
-    getuserOrgAll () {
-      getuserOrgAll().then(res => {
-        localStorage.setItem('userOrg', JSON.stringify(res));
-        this.$store.commit('SET_USERORG', res);
-      }).catch(() => {});
-    },
-    // 区域/门店(组织级)
-    getuserOrgs () {
-      getuserOrgs().then(res => {
-        localStorage.setItem('userOrgs', JSON.stringify(res));
-        this.$store.commit('SET_USERORGS', res);
-      }).catch(() => {});
-    },
-    // 获取权限区域
-    getPerAreaTree () {
-      getPerAreaTree().then(res => {
-        localStorage.setItem('perAreaTree', JSON.stringify(res));
-        this.$store.commit('SET_PERAREATREE', res);
-      }).catch(() => {});
-    },
-    // 根据用户权限查询四层组织树
-    getOrgTree4 () {
-      getOrgTree4().then(res => {
-        localStorage.setItem('orgTree4', JSON.stringify(res));
-        this.$store.commit('SET_ORGTREE4', res);
       }).catch(() => {});
     }
   }

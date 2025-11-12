@@ -15,6 +15,7 @@
             <el-input
               placeholder="请输入"
               v-model="form.name"
+              maxlength="50"
               clearable
             />
           </el-form-item>
@@ -142,12 +143,12 @@ export default {
     };
   },
   mounted () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店工位信息管理', '厅店工位信息管理详情']);
     this.getDetailData();
   },
   methods: {
     getDetailData () {
       const id = this.$route.query.id;
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店工位信息', `${id ? '编辑' : '新增'}厅店工位信息`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
