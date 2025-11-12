@@ -129,6 +129,7 @@ export default {
       },
       storeOptions: [],  // 门店名称下拉框选项
       storeLoading: false, // 门店名称下拉框loading
+      searchTimer: null, // 防抖定时器
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
       show: false,
