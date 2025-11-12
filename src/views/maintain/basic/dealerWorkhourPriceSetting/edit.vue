@@ -56,8 +56,6 @@
       <el-footer height="60px">
         <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
         <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
-        <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
-        <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
       </el-footer>
     </el-container>
   </div>
@@ -65,7 +63,6 @@
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/maintain/basic/dealerWorkhourPriceSetting/index';
-// import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import { getEnum, getUserByNameOrNo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -76,19 +73,11 @@ const defaultForm = {
   dealerName: '',
   dealerCode: '',
   workhourPrice: '',
-  statusDesc: '',
-  updateTime: '',
-  createTime: '',
-  remark: '',
-  status: '',
-  dealerId: '',
-  modelWorkhourPriceRespList: '',
 };
 
 export default {
   name: 'dealerWorkhourPriceSettingEdit',
   components: {
-    // FetchSelect,
     EditTable
   },
   data () {
@@ -114,7 +103,7 @@ export default {
       },
       columns: [
         {
-          field: 'userName',
+          field: 'vehicleModelName',
           title: '基本车型',
           width: '33%',
           editable: true,
@@ -154,32 +143,8 @@ export default {
         dealerName: [
           { required: true, message: '请输入门店名称', trigger: 'blur' }
         ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码', trigger: 'blur' }
-        ],
         workhourPrice: [
           { required: true, message: '请输入工时单价', trigger: 'blur' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态描述', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        dealerId: [
-          { required: true, message: '请输入门店ID', trigger: 'blur' }
-        ],
-        modelWorkhourPriceRespList: [
-          { required: true, message: '请输入车型工时价格列表', trigger: 'blur' }
         ],
       },
       pickerOptions: {

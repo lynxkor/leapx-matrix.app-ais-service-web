@@ -9,14 +9,7 @@
         label-width="150px"
         class="ais-search-form"
       >
-        <el-form-item label="门店名称：">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dealerName"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="创建时间：">
+       <el-form-item label="创建时间：">
           <el-date-picker
             v-model="form.createTime"
             type="daterange"
@@ -26,6 +19,25 @@
             end-placeholder="结束日期"
             align="right"
           />
+        </el-form-item>
+        <el-form-item label="门店名称：">
+          <el-select
+            v-model="form.dealerIds"
+            multiple
+            filterable
+            clearable
+            remote
+            reserve-keyword
+            placeholder="请选择"
+            :remote-method="storeSearch"
+            :loading="storeLoading">
+            <el-option
+              v-for="item in storeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
         </el-form-item>
         <span v-show="show">
           <el-form-item label="状态：">
@@ -86,14 +98,14 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/basic/dealerWorkhourPriceSetting/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
-  dealerName: '',
+  dealerIds: '',
   createTime: '',
   statusIncludeList: '',
 };
@@ -115,6 +127,8 @@ export default {
       form: {
         ...defaultForm
       },
+      storeOptions: [],  // 门店名称下拉框选项
+      storeLoading: false, // 门店名称下拉框loading
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
       show: false,
@@ -151,8 +165,8 @@ export default {
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'workhourPrice', label: '工时单价', visible: true, width: 200 },
           { props: 'statusDesc', label: '状态描述', visible: true, width: 200 },
-          { props: 'updateTime', label: '', visible: true, width: 200 },
-          { props: 'createTime', label: '', visible: true, width: 200 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',
@@ -342,6 +356,40 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+     // 门店模糊搜索方法（带防抖）
+    async storeSearch(query) {
+      if (query !== '' && query.length < 2) {
+        this.storeOptions = [];
+        return;
+      }
+      
+      // 防抖处理，避免频繁请求
+      if (this.searchTimer) {
+        clearTimeout(this.searchTimer);
+      }
+      
+      this.searchTimer = setTimeout(async () => {
+        this.storeLoading = true;
+        try {
+          // 调用搜索接口，传递搜索关键词
+          const res = await listOrgStoreInfo({ name: query });
+          
+          if (res && res.data) {
+            this.storeOptions = res?.map(item => ({
+              value: item.orgId, // 门店ID
+              label: item.orgName // 门店名称
+            }));
+          } else {
+            this.storeOptions = [];
+          }
+          } catch (error) {
+            this.storeOptions = [];
+            this.$message.error('搜索失败');
+          } finally {
+            this.storeLoading = false;
+          }
+        }, 300); // 300ms防抖延迟
     },
     // 批量删除
     handleBatchDelete () {
