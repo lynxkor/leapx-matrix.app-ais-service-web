@@ -42,3 +42,11 @@ export function getEnum (code) {
 export function getUserByNameOrNo (data) {
   return api.jsonPost('/accountService/user/listByNameOrEmpNo', data);
 }
+
+/**
+ * 门店模糊搜索
+ * @param {*} data
+ */
+export function listOrgStoreInfo (data) {
+  return api.get('/accountService/orgInfo/listOrgStoreInfo', data);
+}
