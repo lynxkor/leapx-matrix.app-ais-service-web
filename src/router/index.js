@@ -152,6 +152,32 @@ const routes = [
         name: '结算类型管理详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/maintain/basic/dealerdiscount',
+      name: 'dealerDiscount',
+      component: () => import('@/views/maintain/basic/dealerDiscount/index.vue'),
+
+      meta: {
+        name: '门店优惠模式管理'
+      }
+    }, {
+      path: '/maintain/basic/dealerdiscount/detail',
+      name: 'dealerDiscountDetail',
+      component: () => import('@/views/maintain/basic/dealerDiscount/detail.vue'),
+
+      meta: {
+        name: '门店优惠模式管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/dealerdiscount/edit',
+      name: 'dealerDiscountEdit',
+      component: () => import('@/views/maintain/basic/dealerDiscount/edit.vue'),
+
+      meta: {
+        name: '门店优惠模式管理详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
@@ -194,8 +220,8 @@ export function getRouter () {
         return;
       }
       // 开发阶段先跳过权限验证
-      if (localStorage.getItem('sourceUrl').includes(to.path) || to.meta.noResourceUrl) {
-      // if (true) {
+      // if (localStorage.getItem('sourceUrl').includes(to.path) || to.meta.noResourceUrl) {
+      if (true) {
         next();
       } else {
         window.alert('你没有访问该页面的权限');
