@@ -37,23 +37,6 @@ const routes = [
       requiresAuth: true
     },
     children: [{
-      path: '/vehiclePartsMaintenance',
-      name: 'vehiclePartsMaintenance',
-      component: () => import('@/views/vehiclePartsMaintenance/index.vue'),
-      meta: {
-        name: '车辆档案列表',
-        backSwitch: 'front'
-      }
-    }, {
-      path: '/vehiclePartsMaintenance/detail',
-      name: 'vehiclePartsMaintenanceDetail',
-      component: () => import('@/views/vehiclePartsMaintenance/detail.vue'),
-      meta: {
-        name: '车辆档案详情',
-        backSwitch: 'front',
-        noResourceUrl: true // 详情页不配置对应资源位，需要加
-      }
-    }, {
       path: '/home',
       name: 'home',
       meta: {
@@ -115,6 +98,58 @@ const routes = [
 
       meta: {
         name: '厅店工位信息管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/dealerworkhourpricesetting',
+      name: 'dealerWorkhourPriceSetting',
+      component: () => import('@/views/maintain/basic/dealerWorkhourPriceSetting/index.vue'),
+
+      meta: {
+        name: '工时价格设置管理'
+      }
+    }, {
+      path: '/maintain/basic/dealerworkhourpricesetting/detail',
+      name: 'dealerWorkhourPriceSettingDetail',
+      component: () => import('@/views/maintain/basic/dealerWorkhourPriceSetting/detail.vue'),
+
+      meta: {
+        name: '工时价格设置管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/dealerworkhourpricesetting/edit',
+      name: 'dealerWorkhourPriceSettingEdit',
+      component: () => import('@/views/maintain/basic/dealerWorkhourPriceSetting/edit.vue'),
+
+      meta: {
+        name: '工时价格设置管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/checkouttype',
+      name: 'checkoutType',
+      component: () => import('@/views/maintain/basic/checkoutType/index.vue'),
+
+      meta: {
+        name: '结算类型管理'
+      }
+    }, {
+      path: '/maintain/basic/checkouttype/detail',
+      name: 'checkoutTypeDetail',
+      component: () => import('@/views/maintain/basic/checkoutType/detail.vue'),
+
+      meta: {
+        name: '结算类型管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/checkouttype/edit',
+      name: 'checkoutTypeEdit',
+      component: () => import('@/views/maintain/basic/checkoutType/edit.vue'),
+
+      meta: {
+        name: '结算类型管理详情',
         noResourceUrl: 'true'
       }
     }]

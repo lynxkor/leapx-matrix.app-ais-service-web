@@ -1,76 +1,43 @@
 <template>
-  <div class="m-vehiclePartsMaintenance-list page-common">
+  <div class="page-common m-checkout-type-list">
+    <div>
       <el-form
         :inline="true"
         :model="form"
         size="small"
         label-position="right"
-        label-width="128px"
+        label-width="150px"
         class="ais-search-form"
       >
-        <el-form-item label="Vin：">
-          <el-input
-            placeholder="请输入"
-            v-model="form.vehicleProfileName"
-            clearable
+        <el-form-item label="创建时间：">
+          <el-date-picker
+            v-model="form.createTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            value-format="yyyy-MM-dd"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            align="right"
           />
         </el-form-item>
-        <el-form-item label="保养零件名称：">
-          <el-input
-            placeholder="请输入"
-            v-model="form.partsMaintenanceName"
+        <el-form-item label="状态：">
+          <fetch-select
+            :request="() => fetchOptions('status')"
+            v-model="form.status"
+            placeholder="请选择"
             clearable
+            multiple
           />
         </el-form-item>
-        <template v-if="show">
-          <el-form-item label="Vin：">
+        <span v-show="show">
+          <el-form-item label="结算类别：">
             <el-input
               placeholder="请输入"
-              v-model="form.vehicleProfileName"
+              v-model="form.category"
               clearable
             />
           </el-form-item>
-          <el-form-item label="保养零件名称：">
-            <el-input
-              placeholder="请输入"
-              v-model="form.partsMaintenanceName"
-              clearable
-            />
-          </el-form-item>
-          <el-form-item label="Vin：">
-            <el-input
-              placeholder="请输入"
-              v-model="form.vehicleProfileName"
-              clearable
-            />
-          </el-form-item>
-          <el-form-item label="保养零件名称：">
-            <el-input
-              placeholder="请输入"
-              v-model="form.partsMaintenanceName"
-              clearable
-            />
-          </el-form-item>
-            <el-form-item label="保养零件类型：">
-              <fetch-select
-                :request="fetchOptions"
-                v-model="form.partsType"
-                placeholder="请选择"
-                clearable
-              />
-            </el-form-item>
-            <el-form-item label="下次保养时间：">
-              <el-date-picker
-                v-model="form.nextDate"
-                type="daterange"
-                :picker-options="pickerOptions"
-                value-format="yyyy-MM-dd"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                align="right"
-              />
-            </el-form-item>
-        </template>
+        </span>
         <page-search-action
           v-model="show"
           is-expandable
@@ -81,9 +48,13 @@
       </el-form>
       <div class="ais-actions">
         <el-button size="small" @click="handleAdd">新增</el-button>
+        <el-button size="small" @click="handleImport">导入</el-button>
         <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-        <el-button size="small">批量删除</el-button>
+        <el-button size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
+        <el-button size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量启用</el-button>
+        <el-button size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量停用</el-button>
       </div>
+    </div>
     <div
       class="ais-table-c"
       :class="{ 'z-form-show': show }"
@@ -92,8 +63,8 @@
         ref="tableRef"
         v-loading="loading"
         is-checkbox
-        show-index
         is-page
+        checkboxFixed
         :option-obj="optionObj"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
@@ -101,12 +72,12 @@
         @handleSelect="handleSelectionChange"
       />
     </div>
-    <edit-dialog
-      :visible.sync="editDialogVisible"
-      :info="editInfo"
-      @submit="edit"
+    <Upload
+      :visible="uploadDialogVisible"
+      templateUrl=""
+      uploadUrl=""
+      @close="handleUploadDialogClose"
     />
-    <!-- <Upload :visible="true"/> -->
   </div>
 </template>
 
@@ -114,16 +85,17 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem } from '@/api/vehiclePartsMaintenance';
-import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
-import EditDialog from './components/editDialog';
-import Upload from '@/libs/components/UploadDialog';
+import { getList, deleteItem, enableItem } from '@/api/maintain/basic/checkoutType/index';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
+import Upload from '@/libs/components/UploadDialog';
+import { YES_NO_ENUM } from '@/libs/constants';
 
 const defaultForm = {
-  vehicleProfileName: '',
-  partsMaintenanceName: '',
-  nextDate: []
+  // 多选时字段有变化，自行修复
+  createTime: '',
+  status: '',
+  category: '',
 };
 
 const pageSize = 20;
@@ -135,36 +107,53 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    EditDialog,
     FetchSelect,
-    // Upload
+    Upload
   },
   data () {
     return {
       form: {
         ...defaultForm
       },
+      selectionList: [],
+      yes_no_enum: YES_NO_ENUM,
       show: false,
       loading: false,
       exportLoading: false,
+      uploadDialogVisible: false,
       optionObj: {
-        id: 'VehiclePartsMaintenanceTable',
+        id: 'checkoutTypeTable',
         dataList: [],
         form: {
           page: 1,
           size: pageSize
         },
         dataProp: [
-          { props: 'id', label: 'ID', width: 100, visible: true },
-          { props: 'name', label: '保养方案', visible: true },
-          { props: 'partsMaintenanceId', label: '保养零件代码', visible: true },
-          { props: 'partsMaintenanceName', label: '保养零件名称', visible: true },
-          { props: 'nextDate', label: '下次保养时间', width: 100, visible: true },
-          { props: 'nextMileage', label: '下次保养里程(KM)', width: 140, visible: true },
-          { props: 'nextDuemileage', label: '下次保养间隔里程(KM)', width: 170, visible: true },
-          { props: 'nextDuetime', label: '下次保养间隔时间(月)', width: 160, visible: true },
-          { props: 'vehicleProfileId', label: '整车档案ID', visible: true },
-          { props: 'vehicleProfileName', label: '整车档案名称', visible: true },
+          {
+            props: 'code',
+            label: '结算类型代码',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/basic/checkoutType/detail',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'name', label: '结算类型名称', visible: true, width: 200 },
+          { props: 'categoryDesc', label: '结算类别描述', visible: true, width: 200 },
+          { props: 'statusDesc', label: '状态描述', visible: true, width: 200 },
+          { props: 'appShowDesc', label: '是否app展示描述', visible: true, width: 200 },
+          { props: 'sort', label: '排序', visible: true, width: 200 },
+          { props: 'remark', label: '备注', visible: true, width: 200 },
+          { props: 'createTime', label: '', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',
@@ -172,60 +161,30 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
-              name: '详情',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/vehiclePartsMaintenance/detail',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'info'
-            }, {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/vehiclePartsMaintenance/add',
+                  path: '/maintain/basic/checkoutType/edit',
                   query: {
                     id: row.id
                   }
                 });
-                // this.editInfo = row;
-                // this.editDialogVisible = true;
               },
               type: 'primary'
             }, {
               name: '删除',
+              popconfirmTitle: '此操作将永久删除, 是否继续?',
               click: (rowIndex, row) => {
-                this.$confirm('此操作将永久删除, 是否继续?', '提示', {
-                  confirmButtonText: '确定',
-                  cancelButtonText: '取消',
-                  type: 'warning',
-                  beforeClose: (action, instance, done) => {
-                    if (action === 'confirm') {
-                      instance.confirmButtonLoading = true;
-                      instance.confirmButtonText = '执行中...';
-                      deleteItem([row.id]).then(() => {
-                        done();
-                      }).finally(() => {
-                        instance.confirmButtonLoading = false;
-                      });
-                    } else {
-                      done();
-                    }
-                  }
-                }).then(() => {
+                deleteItem([row.id]).then(() => {
                   this.$message({
                     type: 'success',
                     message: '删除成功!'
                   });
-                  // 删除完要重新请求列表数据
                   this.getData();
                 }).catch(() => {
                   this.$message({
-                    type: 'info',
-                    message: '已取消删除'
+                    type: 'error',
+                    message: '删除失败!'
                   });
                 });
               },
@@ -235,8 +194,6 @@ export default {
         ],
         total: 0
       },
-      editDialogVisible: false,
-      editInfo: null,
       pickerOptions: {
         shortcuts: [{
           text: '最近一周',
@@ -267,13 +224,19 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['车辆零件保养']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['结算类型管理']);
     this.getData();
   },
   methods: {
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
+    },
     handleAdd () {
       this.$router.push({
-        path: '/vehiclePartsMaintenance/add'
+        path: '/maintain/basic/checkoutType/edit'
       });
     },
     onSubmit () {
@@ -281,11 +244,12 @@ export default {
     },
     onReset () {
       this.form = { ...defaultForm };
+      this.getData();
     },
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        dataFetchPath: '/datacenter/vehiclePartsMaintenance/page',
+        dataFetchPath: '/datacenter/maintain/basic/checkoutType/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols())
       }).then(res => {
@@ -353,11 +317,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange (selection) {
-      console.log(selection);
-    },
-    edit (data) {
-      const item = this.optionObj.dataList.find(item => item.id === data.id);
-      Object.assign(item, data);
+      this.selectionList = selection;
     },
     getFormData () {
       const data = { ...this.form };
@@ -378,20 +338,58 @@ export default {
 
       return data;
     },
-    async fetchOptions () {
-      return {
-        data: [{
-          value: '1',
-          label: '选项1'
-        }, {
-          value: '2',
-          label: '选项2'
-        }, {
-          value: '3',
-          label: '选项3'
-        }]
-      };
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
+    },
+    // 批量删除
+    handleBatchDelete () {
+      const ids = this.selectionList.map(item => item.id) || [];
+      this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteItem(ids).then(() => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+          this.getData();
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: '删除失败!'
+          });
+        });
+      }).catch(() => {});
+    },
+    // 批量启用停用
+    handleBatchEnable (status) {
+      const ids = this.selectionList.map(item => item.id) || [];
+      enableItem({
+        idSet: ids,
+        status
+      }).then(() => {
+        this.$message({
+          type: 'success',
+          message: '操作成功!'
+        });
+        this.getData();
+      }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '操作失败!'
+        });
+      });
     }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.m-checkout-type-list {
+}
+</style>

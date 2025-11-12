@@ -384,7 +384,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange (selection) {
-      console.log(selection);
+      this.selectionList = selection;
     },
     getFormData () {
       const data = { ...this.form };
