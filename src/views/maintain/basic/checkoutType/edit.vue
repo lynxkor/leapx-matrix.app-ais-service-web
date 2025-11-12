@@ -7,32 +7,36 @@
             <el-input
               placeholder="请输入"
               v-model="form.code"
-              clearable
+              disabled
             />
           </el-form-item>
           <el-form-item label="结算类型名称：" prop="name">
             <el-input
               placeholder="请输入"
               v-model="form.name"
+              maxlength="50"
+              show-word-limit
               clearable
             />
           </el-form-item>
           <el-form-item label="结算类别：" prop="category">
-            <el-input
-              placeholder="请输入"
+            <fetch-select
+              :request="() => fetchOptions('checkout-category')"
               v-model="form.category"
+              placeholder="请选择"
               clearable
             />
           </el-form-item>
           <el-form-item label="是否app展示描述：" prop="appShow">
             <el-input
-              placeholder="请输入"
-              v-model="form.appShow"
-              clearable
+              v-model="appShowText"
+              placeholder="否"
+              disabled
             />
           </el-form-item>
           <el-form-item label="排序：" prop="sort">
             <el-input
+              type="number"
               placeholder="请输入"
               v-model="form.sort"
               clearable
@@ -69,22 +73,16 @@ const defaultForm = {
   // 多选时字段有变化，自行修复
   code: '',
   name: '',
-  categoryDesc: '',
-  statusDesc: '',
-  appShowDesc: '',
-  sort: '',
+  sort: null,
   remark: '',
-  createTime: '',
-  updateTime: '',
-  status: '',
-  category: '',
-  appShow: '',
+  category: [],
+  appShow: null,
 };
 
 export default {
   name: 'checkoutTypeEdit',
   components: {
-    // FetchSelect,
+    FetchSelect,
   },
   data () {
     return {
@@ -96,34 +94,16 @@ export default {
       },
       rules: {
         code: [
-          { required: true, message: '请输入结算类型代码', trigger: 'blur' }
+          { required: false, message: '请输入结算类型代码', trigger: 'blur' }
         ],
         name: [
           { required: true, message: '请输入结算类型名称', trigger: 'blur' }
-        ],
-        categoryDesc: [
-          { required: true, message: '请输入结算类别描述', trigger: 'blur' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态描述', trigger: 'change' }
-        ],
-        appShowDesc: [
-          { required: true, message: '请输入是否app展示描述', trigger: 'blur' }
         ],
         sort: [
           { required: true, message: '请输入排序', trigger: 'blur' }
         ],
         remark: [
           { required: true, message: '请输入备注', trigger: 'blur' }
-        ],
-        createTime: [
-          { required: true, message: '请选择', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
         ],
         category: [
           { required: true, message: '请输入结算类别 CheckoutCategoryEnum ', trigger: 'blur' }
@@ -158,6 +138,11 @@ export default {
       }
     };
   },
+  computed: {
+  appShowText() {
+      return this.form.appShow ? '是' : '否';
+    }
+  },
   mounted () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['结算类型管理', '结算类型管理详情']);
     this.getDetailData();
@@ -173,6 +158,12 @@ export default {
       }
     },
     submitForm (formName, rest = false) {
+      // 只在新增时设置 appShow = 1
+      const id = this.$route.query.id;
+      if (!id) {
+        this.form.appShow = 1; // 新增时设置为1
+      }
+      this.form.sort = Number(this.form.sort);
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.submitLoading = true;

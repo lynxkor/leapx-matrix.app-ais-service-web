@@ -20,24 +20,27 @@
             align="right"
           />
         </el-form-item>
-        <el-form-item label="状态：">
+        <el-form-item label="结算类别：">
           <fetch-select
-            :request="() => fetchOptions('status')"
-            v-model="form.status"
+            :request="() => fetchOptions('checkout-category')"
+            v-model="form.categorys"
             placeholder="请选择"
             clearable
             multiple
-          />
+            />
         </el-form-item>
         <span v-show="show">
-          <el-form-item label="结算类别：">
-            <el-input
-              placeholder="请输入"
-              v-model="form.category"
+          <el-form-item label="状态：">
+            <fetch-select
+              :request="() => fetchOptions('status')"
+              v-model="form.statusIncludeList"
+              placeholder="请选择"
               clearable
+              multiple
             />
           </el-form-item>
         </span>
+
         <page-search-action
           v-model="show"
           is-expandable
@@ -94,8 +97,8 @@ import { YES_NO_ENUM } from '@/libs/constants';
 const defaultForm = {
   // 多选时字段有变化，自行修复
   createTime: '',
-  status: '',
-  category: '',
+  statusIncludeList: [],
+  categorys: [],
 };
 
 const pageSize = 20;
@@ -153,7 +156,7 @@ export default {
           { props: 'appShowDesc', label: '是否app展示描述', visible: true, width: 200 },
           { props: 'sort', label: '排序', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'createTime', label: '', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',
