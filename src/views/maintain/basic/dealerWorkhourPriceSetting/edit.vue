@@ -36,7 +36,7 @@
         </section>
         <section class="common-section">
           <div class="common-section-header">
-            <h2>区块标题</h2>
+            <h2>特殊价格</h2>
             <el-button size="small" icon="el-icon-plus" @click="handleAddRow">添加</el-button>
           </div>
           <div class="common-section-body">
