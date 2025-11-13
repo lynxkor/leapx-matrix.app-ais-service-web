@@ -95,6 +95,7 @@ const defaultForm = {
 export default {
   name: 'dealerDiscountEdit',
   components: {
+    // eslint-disable-next-line vue/no-unused-components
     FetchSelect,
     EditTable
   },
@@ -212,7 +213,7 @@ export default {
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.submitLoading = true;
-            addOrUpdate({...this.form, teamUsers: tableData }).then(res => {
+            addOrUpdate({ ...this.form, teamUsers: tableData }).then(res => {
               this.$message({
                 message: '保存成功',
                 type: 'success'
@@ -235,7 +236,7 @@ export default {
     resetForm (formName) {
       this.$refs[formName].resetFields();
       this.tableData = [];
-      this.form = {...defaultForm};
+      this.form = { ...defaultForm };
     },
     // handleJumpAuditLog () {
     //   this.$router.push({

@@ -135,7 +135,7 @@ export default {
       form: {
         ...defaultForm
       },
-      storeOptions: [],  // 门店名称下拉框选项
+      storeOptions: [], // 门店名称下拉框选项
       storeLoading: false, // 门店名称下拉框loading
       searchTimer: null, // 防抖定时器
       selectionList: [],
@@ -327,23 +327,23 @@ export default {
       });
     },
     // 门店搜索
-    async storeSearch(query) {
+    async storeSearch (query) {
       if (query !== '' && query.length < 2) {
         this.storeOptions = [];
         return;
       }
-      
+
       // 防抖处理，避免频繁请求
       if (this.searchTimer) {
         clearTimeout(this.searchTimer);
       }
-      
+
       this.searchTimer = setTimeout(async () => {
         this.storeLoading = true;
         try {
           // 调用搜索接口，传递搜索关键词
           const res = await listOrgStoreInfo({ name: query });
-          
+
           if (res && res.data) {
             this.storeOptions = res?.map(item => ({
               value: item.orgId, // 门店ID
@@ -352,13 +352,13 @@ export default {
           } else {
             this.storeOptions = [];
           }
-          } catch (error) {
-            this.storeOptions = [];
-            this.$message.error('搜索失败');
-          } finally {
-            this.storeLoading = false;
-          }
-        }, 300); // 300ms防抖延迟
+        } catch (error) {
+          this.storeOptions = [];
+          this.$message.error('搜索失败');
+        } finally {
+          this.storeLoading = false;
+        }
+      }, 300); // 300ms防抖延迟
     },
     saveOrUpdate (data) {
       return tableAddOrUpdate(data);
