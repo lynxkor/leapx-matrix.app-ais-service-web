@@ -1,5 +1,5 @@
 <template>
-  <div class="page-common-edit">
+  <div class="page-common-add">
     <el-container>
       <el-main>
         <section class="common-section">
@@ -7,7 +7,7 @@
             <h2>基础信息</h2>
           </div>
           <div class="common-section-body">
-            <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" size="small">
+            <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px">
               <el-form-item label="班组代码：" prop="code">
                 <el-input
                   placeholder="自动生成"
@@ -142,7 +142,7 @@ export default {
         {
           field: 'userName',
           title: '姓名',
-          width: '30%',
+          width: '27%',
           editable: true,
           editRender: {
             name: 'ElSelect',
@@ -162,7 +162,7 @@ export default {
         {
           field: 'userId',
           title: '工号',
-          width: '30%',
+          width: '27%',
           editRender: { name: 'ElInput', props: { type: 'number' } },
           rules: [
             { required: true, message: '工号不能为空' }
@@ -171,7 +171,7 @@ export default {
         {
           field: 'createTime',
           title: '创建时间',
-          width: '30%',
+          width: '27%',
           editRender: { name: 'ElInput' }
         },
       ],

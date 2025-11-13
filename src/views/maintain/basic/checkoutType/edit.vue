@@ -139,7 +139,7 @@ export default {
     };
   },
   computed: {
-  appShowText() {
+    appShowText () {
       return this.form.appShow ? '是' : '否';
     }
   },
