@@ -16,7 +16,7 @@
             v-model="form.{{{key}}}"
             type="daterange"
             :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             align="right"
@@ -63,7 +63,7 @@
               v-model="form.{{{key}}}"
               type="daterange"
               :picker-options="pickerOptions"
-              value-format="yyyy-MM-dd"
+              value-format="yyyy-MM-dd HH:mm:ss"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               align="right"
@@ -341,6 +341,7 @@ export default {
     },
     getData () {
       this.loading = true;
+      this.selectionList = [];
 
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
@@ -395,11 +396,11 @@ export default {
         }
       });
 
-      if (this.form.nextDate) {
-        delete data.nextDate;
-        if (this.form.nextDate.length > 1) {
-          data.nextDateStart = this.form.nextDate[0];
-          data.nextDateEnd = this.form.nextDate[1];
+      if (this.form.createTime) {
+        delete data.createTime;
+        if (this.form.createTime.length > 1) {
+          data.createTimeStart = this.form.createTime[0];
+          data.createTimeEnd = this.form.createTime[1];
         }
       }
 

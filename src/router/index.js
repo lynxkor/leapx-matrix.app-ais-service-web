@@ -184,7 +184,8 @@ const routes = [
       component: () => import('@/views/maintain/basic/repairItemType/index.vue'),
 
       meta: {
-        name: '维修类型管理'
+        name: '维修类型管理',
+        noResourceUrl: 'true'
       }
     }, {
       path: '/maintain/basic/repairitemtype/detail',
@@ -202,6 +203,59 @@ const routes = [
 
       meta: {
         name: '维修类型管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/batteryunit',
+      name: 'batteryUnit',
+      component: () => import('@/views/maintain/basic/batteryUnit/index.vue'),
+
+      meta: {
+        name: '电池去向单位管理',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/batteryunit/detail',
+      name: 'batteryUnitDetail',
+      component: () => import('@/views/maintain/basic/batteryUnit/detail.vue'),
+
+      meta: {
+        name: '电池去向单位管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/batteryunit/edit',
+      name: 'batteryUnitEdit',
+      component: () => import('@/views/maintain/basic/batteryUnit/edit.vue'),
+
+      meta: {
+        name: '电池去向单位管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/vehicletag',
+      name: 'vehicleTag',
+      component: () => import('@/views/maintain/basic/vehicleTag/index.vue'),
+
+      meta: {
+        name: '车辆标识管理'
+      }
+    }, {
+      path: '/maintain/basic/vehicletag/detail',
+      name: 'vehicleTagDetail',
+      component: () => import('@/views/maintain/basic/vehicleTag/detail.vue'),
+
+      meta: {
+        name: '车辆标识管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/vehicletag/edit',
+      name: 'vehicleTagEdit',
+      component: () => import('@/views/maintain/basic/vehicleTag/edit.vue'),
+
+      meta: {
+        name: '车辆标识管理详情',
         noResourceUrl: 'true'
       }
     }]
@@ -246,8 +300,8 @@ export function getRouter () {
         return;
       }
       // 开发阶段先跳过权限验证
-      // if (localStorage.getItem('sourceUrl').includes(to.path) || to.meta.noResourceUrl) {
-      if (true) {
+      if (localStorage.getItem('sourceUrl').includes(to.path) || to.meta.noResourceUrl) {
+      // if (true) {
         next();
       } else {
         window.alert('你没有访问该页面的权限');
