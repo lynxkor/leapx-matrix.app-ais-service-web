@@ -37,15 +37,6 @@
   ::v-deep .el-pager .number.active {
     color: #08383E;
   }
-  .el-pagination {
-    width: 100%;
-    margin-top: 1rem;
-    padding-bottom: 4rem;
-  }
-  .el-pagination__total {
-    float: left;
-    color: #08383E;
-  }
   ::v-deep .el-table--border td, .el-table--border th, .el-table__body-wrapper .el-table--border.is-scrolling-left~.el-table__fixed {
     border-right: none!important;
   }
