@@ -15,7 +15,7 @@
                 <el-date-picker
                   v-model="form.{{{key}}}"
                   :picker-options="pickerOptions"
-                  value-format="yyyy-MM-dd"
+                  value-format="yyyy-MM-dd HH:mm:ss"
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
                   align="right"
@@ -95,7 +95,7 @@
             <el-date-picker
               v-model="form.{{{key}}}"
               :picker-options="pickerOptions"
-              value-format="yyyy-MM-dd"
+              value-format="yyyy-MM-dd HH:mm:ss"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               align="right"
@@ -284,7 +284,8 @@ export default {
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.submitLoading = true;
-            addOrUpdate({...this.form, teamUsers: tableData }).then(res => {
+            // customKey 根据接口格式修改
+            addOrUpdate({ ...this.form, customKey: tableData }).then(res => {
               this.$message({
                 message: '保存成功',
                 type: 'success'
