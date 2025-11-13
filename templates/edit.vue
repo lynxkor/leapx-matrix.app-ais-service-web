@@ -269,7 +269,7 @@ export default {
   methods: {
     getDetailData () {
       const id = this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', `${id ? '编辑': '新建'}{{{title}}}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', `${id ? '编辑' : '新建'}{{{title}}}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
@@ -332,7 +332,7 @@ export default {
     resetForm (formName) {
       this.$refs[formName].resetFields();
       this.tableData = [];
-      this.form = {...defaultForm};
+      this.form = { ...defaultForm };
     },
     // handleJumpAuditLog () {
     //   this.$router.push({

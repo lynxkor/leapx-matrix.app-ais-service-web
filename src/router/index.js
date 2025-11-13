@@ -204,6 +204,32 @@ const routes = [
         name: '电池去向单位管理详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/maintain/basic/vehicletag',
+      name: 'vehicleTag',
+      component: () => import('@/views/maintain/basic/vehicleTag/index.vue'),
+
+      meta: {
+        name: '车辆标识管理'
+      }
+    }, {
+      path: '/maintain/basic/vehicletag/detail',
+      name: 'vehicleTagDetail',
+      component: () => import('@/views/maintain/basic/vehicleTag/detail.vue'),
+
+      meta: {
+        name: '车辆标识管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/vehicletag/edit',
+      name: 'vehicleTagEdit',
+      component: () => import('@/views/maintain/basic/vehicleTag/edit.vue'),
+
+      meta: {
+        name: '车辆标识管理详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
