@@ -137,7 +137,7 @@
       </el-main>
       <el-footer height="60px">
         <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
-        <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
+        <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">取消</el-button>
         <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
       </el-footer>
     </el-container>
@@ -269,7 +269,7 @@ export default {
   methods: {
     getDetailData () {
       const id = this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', `${id ? '编辑' : '新建'}{{{title}}}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', `${id ? '编辑' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;

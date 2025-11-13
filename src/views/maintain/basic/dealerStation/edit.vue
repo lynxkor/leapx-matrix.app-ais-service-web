@@ -2,59 +2,66 @@
   <div class="page-common-add">
     <el-container>
       <el-main>
-        <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px" size="small">
-          <el-form-item label="工位代码：" prop="code">
-            <el-input
-              placeholder="自动生成"
-              v-model="form.code"
-              clearable
-              disabled
-            />
-          </el-form-item>
-          <el-form-item label="工位名称：" prop="name">
-            <el-input
-              placeholder="请输入"
-              v-model="form.name"
-              maxlength="50"
-              clearable
-            />
-          </el-form-item>
-          <el-form-item label="工位类型：" prop="stationType">
-            <fetch-select
-              :request="() => fetchOptions('StationTypeEnum')"
-              v-model="form.stationType"
-              placeholder="请选择"
-              clearable
-            />
-          </el-form-item>
-          <el-form-item label="门店名称：" prop="dealerName">
-            <el-input
-              placeholder="请输入"
-              v-model="form.dealerName"
-              clearable
-              disabled
-            />
-          </el-form-item>
-          <el-form-item label="负责人：" prop="ownerName">
-            <el-input
-              placeholder="请输入"
-              v-model="form.ownerName"
-              clearable
-              disabled
-            />
-          </el-form-item>
-          <el-form-item label="说明：" prop="remark">
-            <el-input
-              type="textarea"
-              placeholder="请输入"
-              v-model="form.remark"
-              clearable
-              rows="3"
-              maxlength="500"
-              show-word-limit
-            />
-          </el-form-item>
-        </el-form>
+        <section class="common-section">
+          <div class="common-section-header">
+            <h2>基础信息</h2>
+          </div>
+          <div class="common-section-body">
+            <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px">
+              <el-form-item label="工位代码：" prop="code">
+                <el-input
+                  placeholder="自动生成"
+                  v-model="form.code"
+                  clearable
+                  disabled
+                />
+              </el-form-item>
+              <el-form-item label="工位名称：" prop="name">
+                <el-input
+                  placeholder="请输入"
+                  v-model="form.name"
+                  maxlength="50"
+                  clearable
+                />
+              </el-form-item>
+              <el-form-item label="工位类型：" prop="stationType">
+                <fetch-select
+                  :request="() => fetchOptions('StationTypeEnum')"
+                  v-model="form.stationType"
+                  placeholder="请选择"
+                  clearable
+                />
+              </el-form-item>
+              <el-form-item label="门店名称：" prop="dealerName">
+                <el-input
+                  placeholder="请输入"
+                  v-model="form.dealerName"
+                  clearable
+                  disabled
+                />
+              </el-form-item>
+              <el-form-item label="负责人：" prop="ownerName">
+                <el-input
+                  placeholder="请输入"
+                  v-model="form.ownerName"
+                  clearable
+                  disabled
+                />
+              </el-form-item>
+              <el-form-item label="说明：" prop="remark">
+                <el-input
+                  type="textarea"
+                  placeholder="请输入"
+                  v-model="form.remark"
+                  clearable
+                  rows="3"
+                  maxlength="500"
+                  show-word-limit
+                />
+              </el-form-item>
+            </el-form>
+          </div>
+        </section>
       </el-main>
       <el-footer height="60px">
         <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
@@ -148,7 +155,7 @@ export default {
   methods: {
     getDetailData () {
       const id = this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店工位信息', `${id ? '编辑' : '新增'}厅店工位信息`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店工位信息', `${id ? '编辑' : '新增'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;

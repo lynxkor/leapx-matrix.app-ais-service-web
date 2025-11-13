@@ -82,7 +82,7 @@
       </el-main>
       <el-footer height="60px">
         <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
-        <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
+        <el-button size="small" @click="handleBack">取消</el-button>
         <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button> -->
         <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
       </el-footer>
@@ -96,6 +96,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import { getEnum, getUserByNameOrNo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
+import { shallowEqual } from '@/libs/utils';
 
 const defaultForm = {
   code: '',
@@ -121,12 +122,13 @@ export default {
     EditTable
   },
   data () {
+    const form = this.getDefautlForm();
     return {
       loading: false,
       submitLoading: false,
-      info: {},
       yes_no_enum: YES_NO_ENUM,
-      form: this.getDefautlForm(),
+      form: { ...form },
+      originalForm: { ...form },
       defaultNewRow: {
         userName: '',
         userId: '',
@@ -252,14 +254,34 @@ export default {
   mounted () {
     this.getDetailData();
   },
+  beforeRouteLeave (to, from, next) {
+    console.log(this.form, this.originalForm);
+    if (shallowEqual(this.form, this.originalForm)) {
+      next();
+    } else {
+      this.$confirm('确定要放弃修改吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        next();
+      }).catch(() => {
+        next(false);
+      });
+    }
+  },
   methods: {
+    handleBack () {
+      this.$router.back();
+    },
     getDetailData () {
       const id = this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店班组信息', `${id ? '编辑' : '新增'}厅店班组信息`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店班组信息', `${id ? '编辑' : '新增'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
           Object.assign(this.form, res);
+          Object.assign(this.originalForm, res);
           this.tableData = res.userRelations;
         });
       }
