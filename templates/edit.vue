@@ -310,7 +310,7 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.submitLoading = true;
-          addOrUpdate({...this.form }).then(res => {
+          addOrUpdate({ ...this.form }).then(res => {
             this.$message({
               message: '保存成功',
               type: 'success'
