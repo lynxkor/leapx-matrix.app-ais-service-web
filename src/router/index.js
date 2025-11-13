@@ -178,6 +178,32 @@ const routes = [
         name: '门店优惠模式管理详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/maintain/basic/repairitemtype',
+      name: 'repairItemType',
+      component: () => import('@/views/maintain/basic/repairItemType/index.vue'),
+
+      meta: {
+        name: '维修类型管理'
+      }
+    }, {
+      path: '/maintain/basic/repairitemtype/detail',
+      name: 'repairItemTypeDetail',
+      component: () => import('@/views/maintain/basic/repairItemType/detail.vue'),
+
+      meta: {
+        name: '维修类型管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/repairitemtype/edit',
+      name: 'repairItemTypeEdit',
+      component: () => import('@/views/maintain/basic/repairItemType/edit.vue'),
+
+      meta: {
+        name: '维修类型管理详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
