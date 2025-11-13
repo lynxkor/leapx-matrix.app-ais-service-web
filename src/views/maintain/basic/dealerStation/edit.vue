@@ -21,7 +21,7 @@
           </el-form-item>
           <el-form-item label="工位类型：" prop="stationType">
             <fetch-select
-              :request="() => fetchOptions('station-type')"
+              :request="() => fetchOptions('StationTypeEnum')"
               v-model="form.stationType"
               placeholder="请选择"
               clearable

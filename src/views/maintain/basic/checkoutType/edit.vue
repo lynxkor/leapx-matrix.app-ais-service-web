@@ -21,7 +21,7 @@
           </el-form-item>
           <el-form-item label="结算类别：" prop="category">
             <fetch-select
-              :request="() => fetchOptions('checkout-category')"
+              :request="() => fetchOptions('CheckoutCategoryEnum')"
               v-model="form.category"
               placeholder="请选择"
               clearable
@@ -139,7 +139,7 @@ export default {
     };
   },
   computed: {
-  appShowText() {
+    appShowText () {
       return this.form.appShow ? '是' : '否';
     }
   },

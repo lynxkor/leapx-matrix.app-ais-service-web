@@ -37,7 +37,7 @@
           </el-form-item>
           <el-form-item label="工位状态：">
             <fetch-select
-              :request="() => fetchOptions('status')"
+              :request="() => fetchOptions('StatusEnum')"
               v-model="form.statusIncludeList"
               placeholder="请选择"
               clearable
@@ -46,7 +46,7 @@
           </el-form-item>
           <el-form-item label="工位类型：">
             <fetch-select
-              :request="() => fetchOptions('station-type')"
+              :request="() => fetchOptions('StationTypeEnum')"
               v-model="form.stationTypes"
               placeholder="请选择"
               clearable
