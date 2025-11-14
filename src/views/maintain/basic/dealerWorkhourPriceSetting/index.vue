@@ -145,7 +145,7 @@ export default {
         },
         dataProp: [
           {
-            props: 'priceCode',
+            props: 'code',
             label: '价格设置代码',
             visible: true,
             width: 200,

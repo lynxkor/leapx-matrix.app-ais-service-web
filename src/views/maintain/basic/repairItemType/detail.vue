@@ -1,31 +1,49 @@
 <template>
-  <div class="page-common-detail m-repair-item-type-detail">
+  <div class="page-common-detail m-repairitemtype-detail">
     <el-skeleton v-if="loading" :rows="6" animated />
-    <el-descriptions
-      v-else title="基本信息"
-    >
-        <el-descriptions-item label="维修类型代码">{{ info.code }}</el-descriptions-item>
-        <el-descriptions-item label="维修类别 TypeCategoryEnum ">{{ info.category }}</el-descriptions-item>
-        <el-descriptions-item label="维修类型名称">{{ info.name }}</el-descriptions-item>
-        <el-descriptions-item label="排序">{{ info.sort }}</el-descriptions-item>
-        <el-descriptions-item label="结算类型名称">{{ info.checkoutTypeName }}</el-descriptions-item>
-        <el-descriptions-item label="状态">{{ info.status }}</el-descriptions-item>
-        <el-descriptions-item label="备注">{{ info.remark }}</el-descriptions-item>
-        <el-descriptions-item label="">{{ info.createTime }}</el-descriptions-item>
-        <el-descriptions-item label="">{{ info.updateTime }}</el-descriptions-item>
-        <el-descriptions-item label="状态描述">{{ info.statusDesc }}</el-descriptions-item>
-        <el-descriptions-item label="类别描述">{{ info.categoryDesc }}</el-descriptions-item>
-        <el-descriptions-item label="结算类型id">{{ info.checkoutTypeId }}</el-descriptions-item>
-    </el-descriptions>
+    <template v-else>
+      <section class="common-title">
+        <h2>维修类型代码：{{ info.code }}</h2>
+        <el-button size="small" @click="handleEdit" icon="el-icon-edit">编辑</el-button>
+      </section>
+      <section class="common-section">
+        <div class="common-section-header">
+          <h2>基本信息</h2>
+        </div>
+        <div class="common-section-body">
+          <el-form :inline="true" ref="ruleForm" label-width="120px">
+            <el-form-item label="维修类型代码：" prop="code">
+              {{ info.code  }}
+            </el-form-item>
+            <el-form-item label="维修类别：" prop="category">
+              {{ info.category  }}
+            </el-form-item>
+            <el-form-item label="维修类型名称：" prop="name">
+              {{ info.name  }}
+            </el-form-item>
+            <el-form-item label="结算类型名称：" prop="checkoutTypeName">
+              {{ info.checkoutTypeName  }}
+            </el-form-item>
+            <el-form-item label="排序：" prop="sort">
+              {{ info.sort  }}
+            </el-form-item>
+            <el-form-item label="备注：" prop="remark">
+              {{ info.remark  }}
+            </el-form-item>
+          </el-form>
+        </div>
+      </section>
+    </template>
   </div>
 </template>
 
 <script>
 import { getDetail } from '@/api/maintain/basic/repairItemType/index';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
-
 export default {
-  name: 'repairItemTypeEdit',
+  name: 'repairitemtypeEdit',
+  components: {
+  },
   data () {
     return {
       loading: true,
@@ -34,10 +52,18 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['维修类型管理', '维修类型管理详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['维修类型管理', '详情']);
     this.getData();
   },
   methods: {
+    handleEdit () {
+      this.$router.push({
+        path: '/maintain/basic/repairitemtype/edit',
+        query: {
+          id: this.$route.query.id
+        }
+      });
+    },
     getData () {
       getDetail(this.$route.query.id).then(res => {
         this.loading = false;

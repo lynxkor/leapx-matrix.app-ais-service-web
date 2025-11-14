@@ -13,7 +13,7 @@
           <h2>基本信息</h2>
         </div>
         <div class="common-section-body">
-          <el-form :inline="true" ref="ruleForm" label-width="100px">
+          <el-form :inline="true" ref="ruleForm" label-width="120px">
           {{{#cols}}}
             <el-form-item label="{{{description}}}：" prop="{{{key}}}">
               {{{#isBoolean}}}
@@ -55,7 +55,7 @@ import { YES_NO_ENUM_MAP } from '@/libs/constants';
 import EditTable from '@/libs/components/EditTable';
 {{{/isProForm}}}
 export default {
-  name: '{{{nameCamelCase}}}Edit',
+  name: '{{{nameCamelCase}}}Detail',
   components: {
     {{{#isProForm}}}
     EditTable
@@ -65,6 +65,7 @@ export default {
     return {
       loading: true,
       info: {},
+      {{{#isProForm}}}
       tableData: [],
       columns: [
         // 根据实际情况修改
@@ -84,6 +85,7 @@ export default {
           width: '33%',
         },
       ],
+      {{{/isProForm}}}
       yes_no_enum_map: YES_NO_ENUM_MAP
     };
   },
@@ -104,7 +106,9 @@ export default {
       getDetail(this.$route.query.id).then(res => {
         this.loading = false;
         this.info = res;
+        {{{#isProForm}}}
         this.tableData = res.list || []; // 根据实际情况修改
+        {{{/isProForm}}}
       }).catch(() => {
         this.loading = false;
       });
