@@ -209,6 +209,7 @@ export default {
           this.loading = false;
           Object.assign(this.form, res);
           Object.assign(this.originalForm, res);
+          this.tableData = res.modelWorkhourPriceRespList || [];
         });
       }
     },
@@ -218,7 +219,7 @@ export default {
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.submitLoading = true;
-            addOrUpdate({ ...this.form, teamUsers: tableData }).then(res => {
+            addOrUpdate({ ...this.form, modelWorkhourPriceList: tableData }).then(res => {
               this.$message({
                 message: '保存成功',
                 type: 'success'
