@@ -27,7 +27,7 @@
             <el-form-item label="负责人姓名：" prop="ownerName">
               {{ info.ownerName  }}
             </el-form-item>
-            <el-form-item label="备注：" prop="remark">
+            <el-form-item label="备注：" prop="remark" class="form-item-full">
               {{ info.remark  }}
             </el-form-item>
           </el-form>
