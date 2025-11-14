@@ -2,7 +2,7 @@
   <div class="page-common-add">
     <el-container>
       <el-main>
-        <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px" size="small">
+        <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
           <el-form-item label="结算类型代码：" prop="code">
             <el-input
               placeholder="请输入"
@@ -56,7 +56,8 @@
       </el-main>
       <el-footer height="60px">
         <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
-        <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
+        <!-- <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button> -->
+        <el-button size="small" @click="handleBack">取消</el-button>
         <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
       </el-footer>
     </el-container>
@@ -85,13 +86,15 @@ export default {
     FetchSelect,
   },
   data () {
+    const form = this.getDefautlForm();
     return {
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: {
-        ...defaultForm
+        ...form
       },
+      originalForm: { ...form },
       rules: {
         code: [
           { required: false, message: '请输入结算类型代码', trigger: 'blur' }
@@ -144,16 +147,35 @@ export default {
     }
   },
   mounted () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['结算类型管理', '结算类型管理详情']);
     this.getDetailData();
   },
+  beforeRouteLeave (to, from, next) {
+    if (JSON.stringify(this.form) === JSON.stringify(this.originalForm)) {
+      next();
+    } else {
+      this.$confirm('确定要放弃修改吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        next();
+      }).catch(() => {
+        next(false);
+      });
+    }
+  },
   methods: {
+    handleBack () {
+      this.$router.back();
+    },
     getDetailData () {
       const id = this.$route.query.id;
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['结算类型管理', `${id ? '编辑' : '新增'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
           Object.assign(this.form, res);
+          Object.assign(this.originalForm, res);
         });
       }
     },
@@ -187,7 +209,16 @@ export default {
     resetForm (formName) {
       this.$refs[formName].resetFields();
       this.tableData = [];
-      this.form = { ...defaultForm };
+      this.form = this.getDefautlForm();
+    },
+    getDefautlForm () {
+      const userInfo = this.$store.state.user.userInfo;
+      return {
+        ...defaultForm,
+        ownerId: userInfo.userId,
+        ownerName: userInfo.userName,
+        dealerName: userInfo.orgPostUserList.find(item => item.position === '1')?.orgName,
+      };
     },
     // handleJumpAuditLog () {
     //   this.$router.push({
