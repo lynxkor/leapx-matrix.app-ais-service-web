@@ -56,7 +56,7 @@
         />
       </el-form>
       <div class="ais-actions">
-        <el-button size="small" @click="handleAdd">新增</el-button>
+        <el-button size="small" type="primary" icon="el-icon-plus" @click="handleAdd">新增</el-button>
         <el-button size="small" @click="handleImport">导入</el-button>
         <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
         <el-button size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
@@ -180,7 +180,7 @@ export default {
                   }
                 });
               },
-              type: 'primary'
+              type: 'info'
             }, {
               name: '删除',
               popconfirmTitle: '此操作将永久删除, 是否继续?',
