@@ -1,5 +1,5 @@
 <template>
-  <div class="page-common-edit">
+  <div class="page-common-add">
     <el-container>
       <el-main>
         <section class="common-section">
@@ -7,7 +7,7 @@
             <h2>基本信息</h2>
           </div>
           <div class="common-section-body">
-            <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" size="small">
+            <el-form :model="form" :rules="rules" ref="ruleForm" label-width="130px">
               <el-form-item label="车辆标识代码：" prop="code">
                 <el-input
                   placeholder="自动生成"
@@ -47,7 +47,8 @@
       </el-main>
       <el-footer height="60px">
         <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
-        <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
+        <!-- <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button> -->
+        <el-button size="small" @click="handleBack">取消</el-button>
         <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
         <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
       </el-footer>
@@ -80,13 +81,15 @@ export default {
     EditTable
   },
   data () {
+    const form = this.getDefautlForm();
     return {
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: {
-        ...defaultForm
+        ...form
       },
+      originalForm: { ...form },
       defaultNewRow: {
         name: '',
       },
@@ -99,7 +102,7 @@ export default {
         {
           field: 'vin',
           title: 'VIN',
-          width: '45%',
+          width: '40%',
           editable: true,
           editRender: {
             name: 'ElSelect',
@@ -120,7 +123,7 @@ export default {
           field: 'createTime',
           title: '创建时间',
           editable: false,
-          width: '45%',
+          width: '40%',
         },
       ],
       rules: {
@@ -178,14 +181,33 @@ export default {
   mounted () {
     this.getDetailData();
   },
+  beforeRouteLeave (to, from, next) {
+    if (JSON.stringify(this.form) === JSON.stringify(this.originalForm)) {
+      next();
+    } else {
+      this.$confirm('确定要放弃修改吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        next();
+      }).catch(() => {
+        next(false);
+      });
+    }
+  },
   methods: {
+    handleBack () {
+      this.$router.back();
+    },
     getDetailData () {
       const id = this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['车辆标识', `${id ? '编辑' : '新建'}车辆标识`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['车辆标识', `${id ? '编辑' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
           Object.assign(this.form, res);
+          Object.assign(this.originalForm, res);
         });
       }
     },
@@ -218,7 +240,16 @@ export default {
     resetForm (formName) {
       this.$refs[formName].resetFields();
       this.tableData = [];
-      this.form = { ...defaultForm };
+      this.form = this.getDefautlForm();
+    },
+    getDefautlForm () {
+      const userInfo = this.$store.state.user.userInfo;
+      return {
+        ...defaultForm,
+        ownerId: userInfo.userId,
+        ownerName: userInfo.userName,
+        dealerName: userInfo.orgPostUserList.find(item => item.position === '1')?.orgName,
+      };
     },
     // handleJumpAuditLog () {
     //   this.$router.push({
