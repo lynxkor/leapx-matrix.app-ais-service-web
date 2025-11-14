@@ -1,31 +1,67 @@
 <template>
   <div class="page-common-detail m-dealer-station-detail">
     <el-skeleton v-if="loading" :rows="6" animated />
-    <el-descriptions
-      v-else title="基本信息"
-    >
-        <el-descriptions-item label="工位代码">{{ info.code }}</el-descriptions-item>
-        <el-descriptions-item label="工位名称">{{ info.name }}</el-descriptions-item>
-        <el-descriptions-item label="类型描述">{{ info.stationTypeDesc }}</el-descriptions-item>
-        <el-descriptions-item label="状态描述">{{ info.statusDesc }}</el-descriptions-item>
-        <el-descriptions-item label="门店名称">{{ info.dealerName }}</el-descriptions-item>
-        <el-descriptions-item label="备注">{{ info.remark }}</el-descriptions-item>
-        <el-descriptions-item label="工位状态">{{ info.status }}</el-descriptions-item>
-        <el-descriptions-item label="类型TeamTypeEnum">{{ info.stationType }}</el-descriptions-item>
-        <el-descriptions-item label="门店ID">{{ info.dealerId }}</el-descriptions-item>
-        <el-descriptions-item label="门店编码">{{ info.dealerCode }}</el-descriptions-item>
-        <el-descriptions-item label="负责人ID">{{ info.ownerId }}</el-descriptions-item>
-        <el-descriptions-item label="负责人姓名">{{ info.ownerName }}</el-descriptions-item>
-    </el-descriptions>
+    <template v-else>
+      <section class="common-title">
+        <h2>工位代码：{{ info.code }}</h2>
+        <el-button size="small" @click="handleEdit" icon="el-icon-edit">编辑</el-button>
+      </section>
+      <section class="common-section">
+        <div class="common-section-header">
+          <h2>基本信息</h2>
+        </div>
+        <div class="common-section-body">
+          <el-form :inline="true" ref="ruleForm" label-width="100px">
+            <el-form-item label="工位代码：" prop="code">
+              {{ info.code  }}
+            </el-form-item>
+            <el-form-item label="工位名称：" prop="name">
+              {{ info.name  }}
+            </el-form-item>
+            <el-form-item label="工位类型：" prop="stationType">
+              {{ info.stationTypeLabel }}
+            </el-form-item>
+            <el-form-item label="门店名称：" prop="dealerName">
+              {{ info.dealerName }}
+            </el-form-item>
+            <el-form-item label="负责人：" prop="ownerName">
+              {{ info.ownerName }}
+            </el-form-item>
+            <el-form-item label="说明：" prop="remark">
+              {{ info.remark }}
+            </el-form-item>
+          </el-form>
+        </div>
+      </section>
+      <!-- <section class="common-section">
+        <div class="common-section-header">
+          <h2>维修工程师</h2>
+        </div>
+        <div class="common-section-body">
+          <div class="common-section-table">
+            <edit-table
+              ref="editTable"
+              :columns="columns"
+              :data="tableData"
+              :show-toolbar="false"
+            />
+          </div>
+        </div>
+      </section> -->
+    </template>
   </div>
 </template>
 
 <script>
 import { getDetail } from '@/api/maintain/basic/dealerStation/index';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
+// import EditTable from '@/libs/components/EditTable';
 
 export default {
   name: 'dealerStationEdit',
+  components: {
+    // EditTable
+  },
   data () {
     return {
       loading: true,
@@ -34,10 +70,18 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店工位信息', '厅店工位信息详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店工位信息', '详情']);
     this.getData();
   },
   methods: {
+    handleEdit () {
+      this.$router.push({
+        path: '/maintain/basic/dealerStation/edit',
+        query: {
+          id: this.$route.query.id
+        }
+      });
+    },
     getData () {
       getDetail(this.$route.query.id).then(res => {
         this.loading = false;

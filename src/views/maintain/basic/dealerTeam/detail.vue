@@ -1,49 +1,109 @@
 <template>
   <div class="page-common-detail m-dealer-team-detail">
     <el-skeleton v-if="loading" :rows="6" animated />
-    <el-descriptions
-      v-else title="基本信息"
-    >
-        <el-descriptions-item label="班组代码">{{ info.code }}</el-descriptions-item>
-        <el-descriptions-item label="班组名称">{{ info.name }}</el-descriptions-item>
-        <el-descriptions-item label="班组类型描述">{{ info.teamTypeDesc }}</el-descriptions-item>
-        <el-descriptions-item label="班组状态描述">{{ info.statusDesc }}</el-descriptions-item>
-        <el-descriptions-item label="门店名称">{{ info.dealerName }}</el-descriptions-item>
-        <el-descriptions-item label="备注">{{ info.remark }}</el-descriptions-item>
-        <el-descriptions-item label="班组状态">{{ info.status }}</el-descriptions-item>
-        <el-descriptions-item label="类型TeamTypeEnum">{{ info.teamType }}</el-descriptions-item>
-        <el-descriptions-item label="门店ID">{{ info.dealerId }}</el-descriptions-item>
-        <el-descriptions-item label="门店编码">{{ info.dealerCode }}</el-descriptions-item>
-        <el-descriptions-item label="归属组织ID">{{ info.ownerOrgId }}</el-descriptions-item>
-        <el-descriptions-item label="负责人ID">{{ info.ownerId }}</el-descriptions-item>
-        <el-descriptions-item label="负责人姓名">{{ info.ownerName }}</el-descriptions-item>
-        <!-- <el-descriptions-item label="维修工程师列表">{{ info.userRelations }}</el-descriptions-item> -->
-    </el-descriptions>
+    <template v-else>
+      <section class="common-title">
+        <h2>班组代码：{{ info.code }}</h2>
+        <el-button size="small" @click="handleEdit" icon="el-icon-edit">编辑</el-button>
+      </section>
+      <section class="common-section">
+        <div class="common-section-header">
+          <h2>基本信息</h2>
+        </div>
+        <div class="common-section-body">
+          <el-form :inline="true" ref="ruleForm" label-width="100px">
+            <el-form-item label="班组代码：" prop="code">
+              {{ info.code  }}
+            </el-form-item>
+            <el-form-item label="班组名称：" prop="name">
+              {{ info.name  }}
+            </el-form-item>
+            <el-form-item label="班组类型：" prop="teamType">
+              {{ info.teamType  }}
+            </el-form-item>
+            <el-form-item label="门店名称：" prop="dealerName">
+              {{ info.dealerName  }}
+            </el-form-item>
+            <el-form-item label="负责人姓名：" prop="ownerName">
+              {{ info.ownerName  }}
+            </el-form-item>
+            <el-form-item label="备注：" prop="remark">
+              {{ info.remark  }}
+            </el-form-item>
+          </el-form>
+        </div>
+      </section>
+      <section class="common-section">
+        <div class="common-section-header">
+          <h2>标题</h2>
+        </div>
+        <div class="common-section-body">
+          <div class="common-section-table">
+            <edit-table
+              ref="editTable"
+              :columns="columns"
+              :data="tableData"
+              :show-toolbar="false"
+            />
+          </div>
+        </div>
+      </section>
+    </template>
   </div>
 </template>
 
 <script>
 import { getDetail } from '@/api/maintain/basic/dealerTeam/index';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
-
+import EditTable from '@/libs/components/EditTable';
 export default {
   name: 'dealerTeamEdit',
+  components: {
+    EditTable
+  },
   data () {
     return {
       loading: true,
       info: {},
+      tableData: [],
+      columns: [
+        {
+          field: 'userName',
+          title: '姓名',
+          width: '33%',
+        },
+        {
+          field: 'userId',
+          title: '工号',
+          width: '33%',
+        },
+        {
+          field: 'createTime',
+          title: '创建时间',
+          width: '33%',
+        },
+      ],
       yes_no_enum_map: YES_NO_ENUM_MAP
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店班组信息', '厅店班组信息详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店班组信息管理', '详情']);
     this.getData();
   },
   methods: {
+    handleEdit () {
+      this.$router.push({
+        path: '/maintain/basic/dealerTeam/edit',
+        query: {
+          id: this.$route.query.id
+        }
+      });
+    },
     getData () {
       getDetail(this.$route.query.id).then(res => {
         this.loading = false;
-        this.info = res || {};
+        this.info = res;
+        this.tableData = res.userRelations || []; // 根据实际情况修改
       }).catch(() => {
         this.loading = false;
       });

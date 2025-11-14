@@ -1,75 +1,73 @@
 <template>
   <div class="page-common m-dealer-station-list">
-    <div>
-      <el-form
-        :inline="true"
-        :model="form"
-        size="small"
-        label-position="right"
-        label-width="150px"
-        class="ais-search-form"
-      >
-        <el-form-item label="创建时间：">
-          <el-date-picker
-            v-model="form.createTime"
-            type="daterange"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-          />
-        </el-form-item>
-        <el-form-item label="工位名称：">
+    <el-form
+      :inline="true"
+      :model="form"
+      size="small"
+      label-position="right"
+      label-width="150px"
+      class="ais-search-form"
+    >
+      <el-form-item label="创建时间：">
+        <el-date-picker
+          v-model="form.createTime"
+          type="daterange"
+          :picker-options="pickerOptions"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          align="right"
+        />
+      </el-form-item>
+      <el-form-item label="工位名称：">
+        <el-input
+          placeholder="请输入"
+          v-model="form.name"
+          clearable
+        />
+      </el-form-item>
+      <span v-show="show">
+        <el-form-item label="门店名称：">
           <el-input
             placeholder="请输入"
-            v-model="form.name"
+            v-model="form.dealerName"
             clearable
           />
         </el-form-item>
-        <span v-show="show">
-          <el-form-item label="门店名称：">
-            <el-input
-              placeholder="请输入"
-              v-model="form.dealerName"
-              clearable
-            />
-          </el-form-item>
-          <el-form-item label="工位状态：">
-            <fetch-select
-              :request="() => fetchOptions('StatusEnum')"
-              v-model="form.statusIncludeList"
-              placeholder="请选择"
-              clearable
-              multiple
-            />
-          </el-form-item>
-          <el-form-item label="工位类型：">
-            <fetch-select
-              :request="() => fetchOptions('StationTypeEnum')"
-              v-model="form.stationTypes"
-              placeholder="请选择"
-              clearable
-              multiple
-            />
-          </el-form-item>
-        </span>
-        <page-search-action
-          v-model="show"
-          is-expandable
-          :loading="loading"
-          @submit="onSubmit"
-          @reset="onReset"
-        />
-      </el-form>
-      <div class="ais-actions">
-        <el-button size="small" @click="handleAdd">新增</el-button>
-        <el-button size="small" @click="handleImport">导入</el-button>
-        <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-        <el-button size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-        <el-button size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-        <el-button size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
-      </div>
+        <el-form-item label="工位状态：">
+          <fetch-select
+            :request="() => fetchOptions('StatusEnum')"
+            v-model="form.statusIncludeList"
+            placeholder="请选择"
+            clearable
+            multiple
+          />
+        </el-form-item>
+        <el-form-item label="工位类型：">
+          <fetch-select
+            :request="() => fetchOptions('StationTypeEnum')"
+            v-model="form.stationTypes"
+            placeholder="请选择"
+            clearable
+            multiple
+          />
+        </el-form-item>
+      </span>
+      <page-search-action
+        v-model="show"
+        is-expandable
+        :loading="loading"
+        @submit="onSubmit"
+        @reset="onReset"
+      />
+    </el-form>
+    <div class="ais-actions">
+      <el-button size="small" @click="handleAdd">新增</el-button>
+      <el-button size="small" @click="handleImport">导入</el-button>
+      <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
+      <el-button size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
+      <el-button size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
     <div
       class="ais-table-c"

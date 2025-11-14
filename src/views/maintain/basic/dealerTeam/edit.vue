@@ -4,7 +4,7 @@
       <el-main>
         <section class="common-section">
           <div class="common-section-header">
-            <h2>基础信息</h2>
+            <h2>基本信息</h2>
           </div>
           <div class="common-section-body">
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px">
@@ -96,7 +96,6 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import { getEnum, getUserByNameOrNo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
-import { shallowEqual } from '@/libs/utils';
 
 const defaultForm = {
   code: '',
@@ -255,8 +254,7 @@ export default {
     this.getDetailData();
   },
   beforeRouteLeave (to, from, next) {
-    console.log(this.form, this.originalForm);
-    if (shallowEqual(this.form, this.originalForm)) {
+    if (JSON.stringify(this.form) === JSON.stringify(this.originalForm)) {
       next();
     } else {
       this.$confirm('确定要放弃修改吗?', '提示', {

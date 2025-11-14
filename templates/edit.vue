@@ -5,10 +5,10 @@
       <el-main>
         <section class="common-section">
           <div class="common-section-header">
-            <h2>基础信息</h2>
+            <h2>基本信息</h2>
           </div>
           <div class="common-section-body">
-            <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" size="small">
+            <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px">
             {{{#cols}}}
             {{{#isDate}}}
               <el-form-item label="{{{description}}}：" prop="{{{key}}}">
@@ -88,7 +88,7 @@
   <div class="page-common-add">
     <el-container>
       <el-main>
-        <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px" size="small">
+        <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
         {{{#cols}}}
         {{{#isDate}}}
           <el-form-item label="{{{description}}}：" prop="{{{key}}}">
@@ -137,7 +137,7 @@
       </el-main>
       <el-footer height="60px">
         <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
-        <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">取消</el-button>
+        <el-button size="small" @click="handleBack">取消</el-button>
         <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
       </el-footer>
     </el-container>
@@ -174,9 +174,8 @@ export default {
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
-      form: {
-        ...defaultForm
-      },
+      form: { ...defaultForm },
+      originalForm: { ...defaultForm },
       {{{#isProForm}}}
       defaultNewRow: {
         name: '',
@@ -266,7 +265,25 @@ export default {
   mounted () {
     this.getDetailData();
   },
+  beforeRouteLeave (to, from, next) {
+    if (JSON.stringify(this.form) === JSON.stringify(this.originalForm)) {
+      next();
+    } else {
+      this.$confirm('确定要放弃修改吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        next();
+      }).catch(() => {
+        next(false);
+      });
+    }
+  },
   methods: {
+    handleBack () {
+      this.$router.back();
+    },
     getDetailData () {
       const id = this.$route.query.id;
       this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', `${id ? '编辑' : '新建'}`]);
@@ -274,6 +291,7 @@ export default {
         getDetail(id).then(res => {
           this.loading = false;
           Object.assign(this.form, res);
+          Object.assign(this.originalForm, res);
         });
       }
     },
