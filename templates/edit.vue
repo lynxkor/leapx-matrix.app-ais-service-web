@@ -5,7 +5,7 @@
       <el-main>
         <section class="common-section">
           <div class="common-section-header">
-            <h2>基本信息</h2>
+            <h2>基础信息</h2>
           </div>
           <div class="common-section-body">
             <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px">
@@ -88,52 +88,59 @@
   <div class="page-common-add">
     <el-container>
       <el-main>
-        <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-        {{{#cols}}}
-        {{{#isDate}}}
-          <el-form-item label="{{{description}}}：" prop="{{{key}}}">
-            <el-date-picker
-              v-model="form.{{{key}}}"
-              :picker-options="pickerOptions"
-              value-format="yyyy-MM-dd HH:mm:ss"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              align="right"
-            />
-          </el-form-item>
-        {{{/isDate}}}
-        {{{#isSelect}}}
-          <el-form-item label="{{{description}}}：" prop="{{{key}}}">
-            <fetch-select
-              :request="() => fetchOptions('xxx')"
-              v-model="form.{{{key}}}"
-              placeholder="请选择"
-              clearable
-              multiple
-            />
-          </el-form-item>
-        {{{/isSelect}}}
-        {{{#isBoolean}}}
-          <el-form-item label="{{{description}}}：">
-            <fetch-select
-              :options="yes_no_enum"
-              v-model="form.{{{key}}}"
-              placeholder="请选择"
-              clearable
-            />
-          </el-form-item>
-        {{{/isBoolean}}}
-        {{{#isNormal}}}
-          <el-form-item label="{{{description}}}：" prop="{{{key}}}">
-            <el-input
-              placeholder="请输入"
-              v-model="form.{{{key}}}"
-              clearable
-            />
-          </el-form-item>
-        {{{/isNormal}}}
-        {{{/cols}}}
-        </el-form>
+        <section class="common-section">
+          <div class="common-section-header">
+            <h2>基础信息</h2>
+          </div>
+          <div class="common-section-body">
+            <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
+            {{{#cols}}}
+            {{{#isDate}}}
+              <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+                <el-date-picker
+                  v-model="form.{{{key}}}"
+                  :picker-options="pickerOptions"
+                  value-format="yyyy-MM-dd HH:mm:ss"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  align="right"
+                />
+              </el-form-item>
+            {{{/isDate}}}
+            {{{#isSelect}}}
+              <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+                <fetch-select
+                  :request="() => fetchOptions('xxx')"
+                  v-model="form.{{{key}}}"
+                  placeholder="请选择"
+                  clearable
+                  multiple
+                />
+              </el-form-item>
+            {{{/isSelect}}}
+            {{{#isBoolean}}}
+              <el-form-item label="{{{description}}}：">
+                <fetch-select
+                  :options="yes_no_enum"
+                  v-model="form.{{{key}}}"
+                  placeholder="请选择"
+                  clearable
+                />
+              </el-form-item>
+            {{{/isBoolean}}}
+            {{{#isNormal}}}
+              <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+                <el-input
+                  placeholder="请输入"
+                  v-model="form.{{{key}}}"
+                  clearable
+                />
+              </el-form-item>
+            {{{/isNormal}}}
+            {{{/cols}}}
+            </el-form>
+          </div>
+        </section>
       </el-main>
       <el-footer height="60px">
         <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
@@ -163,6 +170,13 @@ const defaultForm = {
 
 export default {
   name: '{{{nameCamelCase}}}Edit',
+  // 集中视图预留
+  props: {
+    id: {
+      type: [String, Number],
+      default: null
+    }
+  },
   components: {
     FetchSelect,
     {{{#isProForm}}}
@@ -285,7 +299,7 @@ export default {
       this.$router.back();
     },
     getDetailData () {
-      const id = this.$route.query.id;
+      const id = this.id || this.$route.query.id;
       this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', `${id ? '编辑' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {

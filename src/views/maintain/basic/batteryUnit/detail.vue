@@ -8,7 +8,7 @@
       </section>
       <section class="common-section">
         <div class="common-section-header">
-          <h2>基本信息</h2>
+          <h2>基础信息</h2>
         </div>
         <div class="common-section-body">
           <el-form :inline="true" ref="ruleForm" label-width="150px">

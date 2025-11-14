@@ -89,6 +89,7 @@
         @paginationChange="paginationChange"
         @handleSelect="handleSelectionChange"
       />
+      <Detail/>
     </div>
     <Upload
       :visible="uploadDialogVisible"
@@ -127,7 +128,7 @@ export default {
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
-    Upload
+    Upload,
   },
   data () {
     return {
