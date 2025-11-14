@@ -1,47 +1,93 @@
 <template>
   <div class="page-common-detail m-checkout-type-detail">
     <el-skeleton v-if="loading" :rows="6" animated />
-    <el-descriptions
-      v-else title="基本信息"
-    >
-        <el-descriptions-item label="结算类型代码">{{ info.code }}</el-descriptions-item>
-        <el-descriptions-item label="结算类型名称">{{ info.name }}</el-descriptions-item>
-        <el-descriptions-item label="结算类别描述">{{ info.categoryDesc }}</el-descriptions-item>
-        <el-descriptions-item label="状态描述">{{ info.statusDesc }}</el-descriptions-item>
-        <el-descriptions-item label="是否app展示描述">{{ info.appShowDesc }}</el-descriptions-item>
-        <el-descriptions-item label="排序">{{ info.sort }}</el-descriptions-item>
-        <el-descriptions-item label="备注">{{ info.remark }}</el-descriptions-item>
-        <el-descriptions-item label="">{{ info.createTime }}</el-descriptions-item>
-        <el-descriptions-item label="">{{ info.updateTime }}</el-descriptions-item>
-        <el-descriptions-item label="状态">{{ info.status }}</el-descriptions-item>
-        <el-descriptions-item label="结算类别 CheckoutCategoryEnum ">{{ info.category }}</el-descriptions-item>
-        <el-descriptions-item label="是否app展示">{{ yes_no_enum_map[info.appShow] }}</el-descriptions-item>
-    </el-descriptions>
+    <template v-else>
+      <section class="common-title">
+        <h2>结算类型代码：{{ info.code }}</h2>
+        <el-button size="small" @click="handleEdit" icon="el-icon-edit">编辑</el-button>
+      </section>
+      <section class="common-section">
+        <div class="common-section-header">
+          <h2>基本信息</h2>
+        </div>
+        <div class="common-section-body">
+          <el-form :inline="true" ref="ruleForm" label-width="120px">
+            <el-form-item label="结算类型代码：" prop="code">
+              {{ info.code  }}
+            </el-form-item>
+            <el-form-item label="结算类型名称：" prop="name">
+              {{ info.name  }}
+            </el-form-item>
+            <el-form-item label="结算类别：" prop="category">
+              {{ info.category  }}
+            </el-form-item>
+            <el-form-item label="是否app展示：" prop="appShow">
+              {{ yes_no_enum_map[+info.appShow] }}
+            </el-form-item>
+            <el-form-item label="排序：" prop="sort">
+              {{ info.sort  }}
+            </el-form-item>
+            <el-form-item label="备注：" prop="remark" class="form-item-full">
+              {{ info.remark  }}
+            </el-form-item>
+          </el-form>
+        </div>
+      </section>
+    </template>
   </div>
 </template>
 
 <script>
 import { getDetail } from '@/api/maintain/basic/checkoutType/index';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
-
 export default {
   name: 'checkoutTypeEdit',
+  components: {
+  },
   data () {
     return {
       loading: true,
       info: {},
+      tableData: [],
+      columns: [
+        // 根据实际情况修改
+        {
+          field: 'name',
+          title: '姓名',
+          width: '33%',
+        },
+        {
+          field: 'age',
+          title: '年龄',
+          width: '33%',
+        },
+        {
+          field: 'email',
+          title: '邮箱',
+          width: '33%',
+        },
+      ],
       yes_no_enum_map: YES_NO_ENUM_MAP
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['结算类型管理', '结算类型管理详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['结算类型管理', '详情']);
     this.getData();
   },
   methods: {
+    handleEdit () {
+      this.$router.push({
+        path: '/maintain/basic/checkoutType/edit',
+        query: {
+          id: this.$route.query.id
+        }
+      });
+    },
     getData () {
       getDetail(this.$route.query.id).then(res => {
         this.loading = false;
         this.info = res;
+        this.tableData = res.list || []; // 根据实际情况修改
       }).catch(() => {
         this.loading = false;
       });
