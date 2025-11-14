@@ -28,11 +28,24 @@
       </el-form-item>
       <span v-show="show">
         <el-form-item label="门店名称：">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dealerName"
+          <el-select
+            v-model="form.dealerIds"
+            multiple
+            filterable
             clearable
-          />
+            remote
+            reserve-keyword
+            placeholder="请选择"
+            :remote-method="getStoreByName"
+            collapse-tags
+            >
+            <el-option
+              v-for="item in storeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="工位状态：">
           <fetch-select
@@ -100,7 +113,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/basic/dealerStation/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -133,6 +146,7 @@ export default {
         ...defaultForm
       },
       selectionList: [],
+      storeOptions: [],
       yes_no_enum: YES_NO_ENUM,
       show: false,
       loading: false,
@@ -408,7 +422,20 @@ export default {
           });
         });
       });
-    }
+    },
+    getStoreByName (query) {
+      listOrgStoreInfo({
+        name: query
+      }).then(res => {
+        this.storeOptions = res.map(item => {
+          return {
+            ...item,
+            value: item.orgId,
+            label: item.orgName
+          };
+        });
+      });
+    },
   }
 };
 </script>
