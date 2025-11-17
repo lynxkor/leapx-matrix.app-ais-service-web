@@ -258,6 +258,32 @@ const routes = [
         name: '车辆标识管理详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/maintain/basic/dealerpermission',
+      name: 'dealerPermission',
+      component: () => import('@/views/maintain/basic/dealerPermission/index.vue'),
+
+      meta: {
+        name: '门店施工单权限管理'
+      }
+    }, {
+      path: '/maintain/basic/dealerpermission/detail',
+      name: 'dealerPermissionDetail',
+      component: () => import('@/views/maintain/basic/dealerPermission/detail.vue'),
+
+      meta: {
+        name: '门店施工单权限管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/dealerpermission/edit',
+      name: 'dealerPermissionEdit',
+      component: () => import('@/views/maintain/basic/dealerPermission/edit.vue'),
+
+      meta: {
+        name: '门店施工单权限管理详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
