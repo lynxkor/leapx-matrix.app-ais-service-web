@@ -124,7 +124,7 @@ export default {
     const form = this.getDefautlForm();
     return {
       loading: false,
-      submitLoading: true,
+      submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
