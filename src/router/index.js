@@ -284,6 +284,32 @@ const routes = [
         name: '门店施工单权限管理详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/maintain/basic/spreadssetting',
+      name: 'spreadsSetting',
+      component: () => import('@/views/maintain/basic/spreadsSetting/index.vue'),
+
+      meta: {
+        name: '保养套餐差价设置管理'
+      }
+    }, {
+      path: '/maintain/basic/spreadssetting/detail',
+      name: 'spreadsSettingDetail',
+      component: () => import('@/views/maintain/basic/spreadsSetting/detail.vue'),
+
+      meta: {
+        name: '保养套餐差价设置管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/spreadssetting/edit',
+      name: 'spreadsSettingEdit',
+      component: () => import('@/views/maintain/basic/spreadsSetting/edit.vue'),
+
+      meta: {
+        name: '保养套餐差价设置管理详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
