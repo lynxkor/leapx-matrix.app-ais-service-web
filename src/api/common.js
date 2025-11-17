@@ -50,3 +50,11 @@ export function getUserByNameOrNo (data) {
 export function listOrgStoreInfo (data) {
   return api.get('/accountService/orgInfo/listOrgStoreInfo', data);
 }
+
+/**
+ * 车型模糊搜索
+ * @param {*} data
+ */
+export function listVehicleModel (data) {
+  return api.jsonPost('/datacenter/web/materials/vehicleModel/list', data);
+}
