@@ -44,6 +44,7 @@
               multiple
               placeholder="请选择"
               clearable
+              collapse-tags
             />
           </el-form-item>
           <el-form-item label="班组类型">
@@ -53,6 +54,7 @@
               multiple
               placeholder="请选择"
               clearable
+              collapse-tags
             />
           </el-form-item>
         </span>

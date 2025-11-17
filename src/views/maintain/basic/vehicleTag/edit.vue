@@ -46,7 +46,7 @@
         </section>
       </el-main>
       <el-footer height="60px">
-        <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
+        <el-button size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
         <!-- <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button> -->
         <el-button size="small" @click="handleBack">取消</el-button>
         <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>

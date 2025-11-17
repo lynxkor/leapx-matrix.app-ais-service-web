@@ -81,7 +81,7 @@
         </section>
       </el-main>
       <el-footer height="60px">
-        <el-button size="small" type="primary" @click="submitForm('ruleForm')" v-loading="submitLoading">保存</el-button>
+        <el-button size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
         <el-button size="small" @click="handleBack">取消</el-button>
         <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button> -->
         <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
@@ -124,7 +124,7 @@ export default {
     const form = this.getDefautlForm();
     return {
       loading: false,
-      submitLoading: false,
+      submitLoading: true,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -143,7 +143,7 @@ export default {
         {
           field: 'userName',
           title: '姓名',
-          width: '27%',
+          width: '20%',
           editable: true,
           editRender: {
             name: 'ElSelect',
@@ -163,7 +163,7 @@ export default {
         {
           field: 'userId',
           title: '工号',
-          width: '27%',
+          width: '20%',
           editRender: { name: 'ElInput', props: { type: 'number' } },
           rules: [
             { required: true, message: '工号不能为空' }
@@ -172,7 +172,7 @@ export default {
         {
           field: 'createTime',
           title: '创建时间',
-          width: '27%',
+          // width: '20%',
           editRender: { name: 'ElInput' }
         },
       ],
