@@ -18,8 +18,8 @@
             <el-form-item label="班组名称：" prop="name">
               {{ info.name  }}
             </el-form-item>
-            <el-form-item label="班组类型：" prop="teamType">
-              {{ info.teamType  }}
+            <el-form-item label="班组类型：" prop="teamTypeLabel">
+              {{ info.teamTypeLabel  }}
             </el-form-item>
             <el-form-item label="门店名称：" prop="dealerName">
               {{ info.dealerName  }}
@@ -70,17 +70,17 @@ export default {
         {
           field: 'userName',
           title: '姓名',
-          width: '33%',
+          width: '33.3%',
         },
         {
           field: 'userId',
           title: '工号',
-          width: '33%',
+          width: '33.3%',
         },
         {
           field: 'createTime',
           title: '创建时间',
-          width: '33%',
+          width: '33.3%',
         },
       ],
       yes_no_enum_map: YES_NO_ENUM_MAP
