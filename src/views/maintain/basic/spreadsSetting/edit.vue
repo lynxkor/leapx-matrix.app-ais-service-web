@@ -17,11 +17,23 @@
                 />
               </el-form-item>
               <el-form-item label="车型名称：" prop="vehicleModelName">
-                <el-input
-                  placeholder="请输入"
+                <el-select
                   v-model="form.vehicleModelName"
+                  filterable
                   clearable
-                />
+                  remote
+                  reserve-keyword
+                  placeholder="请输入"
+                  @change="handleModelChange"
+                  :remote-method="modelSearch"
+                  :loading="modelLoading">
+                  <el-option
+                    v-for="item in modelOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
               </el-form-item>
               <el-form-item label="单次需补差价：" prop="spreadPrice">
                 <el-input
@@ -72,8 +84,9 @@
 <script>
 import { getDetail, addOrUpdate } from '@/api/maintain/basic/spreadsSetting/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getEnum } from '@/api/common';
+import { getEnum, listVehicleModel } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
+import { createDebouncedSearch } from '@/utils/index.js';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -85,6 +98,16 @@ const defaultForm = {
   spreadPrice: '',
   effectiveon: '',
 };
+
+// 创建防抖搜索实例
+const debouncedSearch = createDebouncedSearch({
+  delay: 300,
+  minLength: 2,
+  onError: (error) => {
+    // 这里可以统一处理错误
+    console.error('搜索失败:', error);
+  }
+});
 
 export default {
   name: 'spreadsSettingEdit',
@@ -103,6 +126,9 @@ export default {
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
+      modelLoading: false, // 车型搜索加载状态
+      modelOptions: [], // 车型选项列表
+      searchTimer: null, // 车型搜索防抖定时器
       form: { ...defaultForm },
       originalForm: { ...defaultForm },
       rules: {
@@ -227,6 +253,41 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    // 处理结算类型选择变更事件
+    handleModelChange (val) {
+      const selectedVal = this.modelOptions.find(option => option.value === val);
+      if (selectedVal) {
+        this.form.vehicleModelName = selectedVal.label;
+        this.form.vehicleModelId = val;
+      }
+    },
+    // 车型模糊搜索方法（带防抖)
+    async modelSearch (query) {
+      await debouncedSearch.call(
+        this,
+        this.searchVehicleModel, // 搜索函数
+        query, // 查询参数
+        this.handleModelResult // 结果处理回调
+      );
+    },
+
+    // 具体的搜索API调用
+    async searchVehicleModel (query) {
+      const res = await listVehicleModel({ name: query });
+      return res;
+    },
+
+    // 处理搜索结果
+    handleModelResult (result) {
+      if (result) {
+        this.modelOptions = result.map(item => ({
+          value: item.id,
+          label: item.modelName
+        }));
+      } else {
+        this.modelOptions = [];
+      }
     }
   }
 };

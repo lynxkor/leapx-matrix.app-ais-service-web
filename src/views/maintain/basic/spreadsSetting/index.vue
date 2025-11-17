@@ -19,11 +19,13 @@
           align="right"
         />
       </el-form-item>
-      <el-form-item label="车型：">
-        <el-input
-          placeholder="请输入"
-          v-model="form.vehicleModelName"
-          clearable
+      <el-form-item label="核销城市等级：">
+        <fetch-select
+            :request="() => fetchOptions('CityLevelEnum')"
+            v-model="form.verificationCityLevels"
+            placeholder="请选择"
+            clearable
+            multiple
         />
       </el-form-item>
       <span v-show="show">
@@ -31,15 +33,6 @@
           <fetch-select
               :request="() => fetchOptions('CityLevelEnum')"
               v-model="form.buyCityLevels"
-              placeholder="请选择"
-              clearable
-              multiple
-          />
-        </el-form-item>
-        <el-form-item label="核销城市等级：">
-          <fetch-select
-              :request="() => fetchOptions('CityLevelEnum')"
-              v-model="form.verificationCityLevels"
               placeholder="请选择"
               clearable
               multiple
@@ -53,6 +46,25 @@
             clearable
             multiple
           />
+        </el-form-item>
+        <el-form-item label="车型：">
+          <el-select
+            v-model="form.vehicleModelIds"
+            filterable
+            clearable
+            remote
+            reserve-keyword
+            multiple
+            placeholder="请输入"
+            :remote-method="modelSearch"
+            :loading="modelLoading">
+            <el-option
+              v-for="item in modelOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
         </el-form-item>
       </span>
       <page-search-action
@@ -102,14 +114,15 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/basic/spreadsSetting/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listVehicleModel } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
+import { createDebouncedSearch } from '@/utils/index.js';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
-  vehicleModelName: '',
+  vehicleModelIds: [],
   buyCityLevels: [],
   verificationCityLevels: [],
   status: '',
@@ -120,6 +133,16 @@ const pageSize = 20;
 const mockConfig = {
   data: null
 };
+
+// 创建防抖搜索实例
+const debouncedSearch = createDebouncedSearch({
+  delay: 300,
+  minLength: 2,
+  onError: (error) => {
+    // 这里可以统一处理错误
+    console.error('搜索失败:', error);
+  }
+});
 
 export default {
   components: {
@@ -135,6 +158,9 @@ export default {
       },
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
+      modelLoading: false, // 车型搜索加载状态
+      modelOptions: [], // 车型选项列表
+      searchTimer: null, // 车型搜索防抖定时器
       show: false,
       loading: false,
       exportLoading: false,
@@ -409,6 +435,33 @@ export default {
           });
         });
       });
+    },
+    // 车型模糊搜索方法（带防抖)
+    async modelSearch (query) {
+      await debouncedSearch.call(
+        this,
+        this.searchVehicleModel, // 搜索函数
+        query, // 查询参数
+        this.handleModelResult // 结果处理回调
+      );
+    },
+
+    // 具体的搜索API调用
+    async searchVehicleModel (query) {
+      const res = await listVehicleModel({ name: query });
+      return res;
+    },
+
+    // 处理搜索结果
+    handleModelResult (result) {
+      if (result) {
+        this.modelOptions = result.map(item => ({
+          value: item.id,
+          label: item.modelName
+        }));
+      } else {
+        this.modelOptions = [];
+      }
     }
   }
 };
