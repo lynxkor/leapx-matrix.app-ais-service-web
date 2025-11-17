@@ -134,7 +134,7 @@ export default {
           { required: true, message: '请输入排序', trigger: 'blur' }
         ],
         checkoutTypeId: [
-          { required: true, message: '请选择结算类型', trigger: 'change' }
+          { required: false, message: '请选择结算类型', trigger: 'change' }
         ],
         status: [
           { required: true, message: '请选择状态', trigger: 'change' }
