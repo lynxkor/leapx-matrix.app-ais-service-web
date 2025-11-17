@@ -124,3 +124,59 @@ export function recursionSource (options, arr = []) {
     }
   }
 };
+
+/**
+ * 创建防抖搜索函数
+ * 该函数返回一个防抖的搜索函数，用于处理搜索输入，避免频繁触发搜索请求
+ *
+ * @param {Object} options - 配置选项
+ * @param {number} [options.delay=300] - 防抖延迟时间，单位毫秒，默认300ms
+ * @param {number} [options.minLength=2] - 最小搜索词长度，默认2个字符
+ * @param {Array} [options.emptyQueryResult=[]] - 空查询或错误时返回的结果，默认空数组
+ * @param {Function} [options.onError] - 错误处理回调函数，可选
+ * @returns {Function} 返回一个防抖搜索函数，该函数接受三个参数：searchFn, query, callback
+ *
+ * @example
+ */
+export function createDebouncedSearch (options = {}) {
+  const {
+    delay = 300,
+    minLength = 2,
+    emptyQueryResult = [],
+    onError
+  } = options;
+
+  return async function (searchFn, query, callback) {
+    // 如果查询词过短，直接返回空结果
+    if (query !== '' && query.length < minLength) {
+      callback(emptyQueryResult);
+      return;
+    }
+
+    // 清除之前的定时器
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+    }
+
+    this.searchTimer = setTimeout(async () => {
+      this.searchLoading = true;
+      try {
+        const res = await searchFn(query);
+        if (res) {
+          callback(res);
+        } else {
+          callback(emptyQueryResult);
+        }
+      } catch (error) {
+        callback(emptyQueryResult);
+        if (onError) {
+          onError(error);
+        } else {
+          this.$message.error('搜索失败');
+        }
+      } finally {
+        this.searchLoading = false;
+      }
+    }, delay);
+  };
+};
