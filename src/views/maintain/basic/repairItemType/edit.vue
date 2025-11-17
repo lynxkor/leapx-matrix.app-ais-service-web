@@ -22,6 +22,7 @@
                   v-model="form.category"
                   placeholder="请选择"
                   clearable
+                  @change="handleCategoryChange"
                 />
               </el-form-item>
               <el-form-item label="维修类型名称：" prop="name">
@@ -33,9 +34,9 @@
                   show-word-limit
                 />
               </el-form-item>
-              <el-form-item label="结算类型名称：" prop="checkoutTypeId">
+              <el-form-item label="结算类型名称：" prop="checkoutTypeName">
                 <el-select
-                  v-model="form.checkoutTypeId"
+                  v-model="form.checkoutTypeName"
                   filterable
                   clearable
                   remote
@@ -255,11 +256,19 @@ export default {
       }
       return [];
     },
+    // 处理维修类别选择变更事件 如果选择为10（保修），则清空结算类型
+    handleCategoryChange (val) {
+      if (val === 10) {
+        this.form.checkoutTypeId = '';
+        this.form.checkoutTypeName = '';
+      }
+    },
     // 处理结算类型选择变更事件
     handleSettlementChange (val) {
       const selectedVal = this.settlementOptions.find(option => option.value === val);
       if (selectedVal) {
         this.form.checkoutTypeName = selectedVal.label;
+        this.form.checkoutTypeId = val;
       }
     },
     // 结算类型模糊搜索方法（带防抖）
@@ -279,7 +288,6 @@ export default {
         try {
           // 调用搜索接口，传递搜索关键词
           const res = await listSettlementType({ name: query });
-          console.log('res', res);
           if (res) {
             this.settlementOptions = res?.map(item => ({
               value: item.id, // 结算类型ID

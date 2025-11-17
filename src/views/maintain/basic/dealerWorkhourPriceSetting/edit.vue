@@ -65,7 +65,7 @@
 <script>
 import { getDetail, addOrUpdate } from '@/api/maintain/basic/dealerWorkhourPriceSetting/index';
 import EditTable from '@/libs/components/EditTable';
-import { getEnum, getUserByNameOrNo } from '@/api/common';
+import { getEnum, listVehicleModel } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 
 const defaultForm = {
@@ -95,14 +95,11 @@ export default {
       defaultNewRow: {
         name: '',
       },
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
+      tableData: [],
       options: {
         // 对应表格里选型枚举
         // 如 type: [{label: 'xxx', value: 'xxx'}]
-        userName: []
+        vehicleModelName: []
       },
       columns: [
         {
@@ -283,18 +280,18 @@ export default {
       }
       return [];
     },
+    // 车型名称远程搜索
     querySearchAsync (queryString, cb) {
-      getUserByNameOrNo({ name: queryString }).then(res => {
+      listVehicleModel({ name: queryString }).then(res => {
         const list = res?.map(item => {
           return {
-            value: item.userId,
-            label: item.username,
-            ...item
+            value: item.id,
+            label: item.modelName,
           };
         }) || [];
-        this.options.userName = list;
+        this.options.vehicleModelName = list;
       });
-    }
+    },
   }
 };
 </script>
