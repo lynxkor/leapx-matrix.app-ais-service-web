@@ -1,7 +1,7 @@
 // 车辆保养
 import api from '@/axios';
 
-const prefix = '/datacenter/';
+const prefix = '/datacenter/web/common/';
 
 /**
  * 查询table配置

@@ -48,7 +48,7 @@
           </el-form-item>
           <el-form-item label="班组类型">
             <fetch-select
-              :request="() => fetchOptions('CheckoutCategoryEnum')"
+              :request="() => fetchOptions('StationTypeEnum')"
               v-model="form.teamTypes"
               multiple
               placeholder="请选择"
