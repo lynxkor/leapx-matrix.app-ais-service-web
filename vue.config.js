@@ -17,7 +17,7 @@ const devNeedCdn = false;
 const cdn = {
   // cdn：模块名称和模块作用域命名（对应window里面挂载的变量名称）
   externals: {
-    'element-ui': 'ELEMENT',
+    // 'element-ui': 'ELEMENT',
     axios: 'axios',
     vue: 'Vue',
     vuex: 'Vuex',
