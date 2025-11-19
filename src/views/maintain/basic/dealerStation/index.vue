@@ -122,7 +122,7 @@ const defaultForm = {
   // 多选时字段有变化，自行修复
   code: '',
   name: '',
-  dealerName: '',
+  dealerIds: [],
   statusIncludeList: '',
   stationTypes: '',
   createTime: ''
@@ -179,10 +179,10 @@ export default {
             }]
           },
           { props: 'name', label: '工位名称', visible: true, width: 200 },
-          { props: 'stationTypeDesc', label: '类型描述', visible: true, width: 200 },
-          { props: 'statusDesc', label: '状态描述', visible: true, width: 200 },
+          { props: 'stationType', label: '工位类型', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'remark', label: '备注', visible: true, width: 200 },
+          { props: 'remark', label: '说明', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
             props: 'operate',
@@ -427,11 +427,11 @@ export default {
       listOrgStoreInfo({
         name: query
       }).then(res => {
-        this.storeOptions = res.map(item => {
+        this.storeOptions = res?.records?.map(item => {
           return {
             ...item,
-            value: item.orgId,
-            label: item.orgName
+            value: item.storeId,
+            label: item.storeName
           };
         });
       });
