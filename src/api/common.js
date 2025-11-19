@@ -58,3 +58,19 @@ export function listOrgStoreInfo (data) {
 export function listVehicleModel (data) {
   return api.jsonPost('/datacenter/web/materials/vehicleModel/list', data);
 }
+
+/**
+ * 年款模糊搜索
+ * @param {*} data
+ */
+export function listVehicleYearType (data) {
+  return api.jsonPost('/datacenter/web/materials/vehicleYearType/list', data);
+}
+
+/**
+ * 维修类型模糊搜索
+ * @param {*} data
+ */
+export function repairItemType (data) {
+  return api.jsonPost('/maintain/web/basic/repairItemType/list', data);
+}
