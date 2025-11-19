@@ -49,7 +49,7 @@ const routes = [
       name: 'index',
       component: () => import('@/views/home.vue')
     }, {
-      path: '/maintain/basic/dealerteam',
+      path: '/maintain/basic/dealerTeam',
       name: 'dealerTeam',
       component: () => import('@/views/maintain/basic/dealerTeam/index.vue'),
 
@@ -57,7 +57,7 @@ const routes = [
         name: '厅店班组信息管理'
       }
     }, {
-      path: '/maintain/basic/dealerteam/detail',
+      path: '/maintain/basic/dealerTeam/detail',
       name: 'dealerTeamDetail',
       component: () => import('@/views/maintain/basic/dealerTeam/detail.vue'),
 
@@ -66,7 +66,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/dealerteam/edit',
+      path: '/maintain/basic/dealerTeam/edit',
       name: 'dealerTeamEdit',
       component: () => import('@/views/maintain/basic/dealerTeam/edit.vue'),
 
@@ -75,7 +75,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/dealerstation',
+      path: '/maintain/basic/dealerStation',
       name: 'dealerStation',
       component: () => import('@/views/maintain/basic/dealerStation/index.vue'),
 
@@ -83,7 +83,7 @@ const routes = [
         name: '厅店工位信息管理'
       }
     }, {
-      path: '/maintain/basic/dealerstation/detail',
+      path: '/maintain/basic/dealerStation/detail',
       name: 'dealerStationDetail',
       component: () => import('@/views/maintain/basic/dealerStation/detail.vue'),
 
@@ -92,7 +92,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/dealerstation/edit',
+      path: '/maintain/basic/dealerStation/edit',
       name: 'dealerStationEdit',
       component: () => import('@/views/maintain/basic/dealerStation/edit.vue'),
 
@@ -101,7 +101,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/dealerworkhourpricesetting',
+      path: '/maintain/basic/dealerWorkhourPriceSetting',
       name: 'dealerWorkhourPriceSetting',
       component: () => import('@/views/maintain/basic/dealerWorkhourPriceSetting/index.vue'),
 
@@ -109,7 +109,7 @@ const routes = [
         name: '工时价格设置管理'
       }
     }, {
-      path: '/maintain/basic/dealerworkhourpricesetting/detail',
+      path: '/maintain/basic/dealerWorkhourPriceSetting/detail',
       name: 'dealerWorkhourPriceSettingDetail',
       component: () => import('@/views/maintain/basic/dealerWorkhourPriceSetting/detail.vue'),
 
@@ -118,7 +118,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/dealerworkhourpricesetting/edit',
+      path: '/maintain/basic/dealerWorkhourPriceSetting/edit',
       name: 'dealerWorkhourPriceSettingEdit',
       component: () => import('@/views/maintain/basic/dealerWorkhourPriceSetting/edit.vue'),
 
@@ -127,7 +127,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/checkouttype',
+      path: '/maintain/basic/checkoutType',
       name: 'checkoutType',
       component: () => import('@/views/maintain/basic/checkoutType/index.vue'),
 
@@ -135,7 +135,7 @@ const routes = [
         name: '结算类型管理'
       }
     }, {
-      path: '/maintain/basic/checkouttype/detail',
+      path: '/maintain/basic/checkoutType/detail',
       name: 'checkoutTypeDetail',
       component: () => import('@/views/maintain/basic/checkoutType/detail.vue'),
 
@@ -144,7 +144,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/checkouttype/edit',
+      path: '/maintain/basic/checkoutType/edit',
       name: 'checkoutTypeEdit',
       component: () => import('@/views/maintain/basic/checkoutType/edit.vue'),
 
@@ -153,7 +153,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/dealerdiscount',
+      path: '/maintain/basic/dealerDiscount',
       name: 'dealerDiscount',
       component: () => import('@/views/maintain/basic/dealerDiscount/index.vue'),
 
@@ -161,7 +161,7 @@ const routes = [
         name: '门店优惠模式管理'
       }
     }, {
-      path: '/maintain/basic/dealerdiscount/detail',
+      path: '/maintain/basic/dealerDiscount/detail',
       name: 'dealerDiscountDetail',
       component: () => import('@/views/maintain/basic/dealerDiscount/detail.vue'),
 
@@ -170,7 +170,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/dealerdiscount/edit',
+      path: '/maintain/basic/dealerDiscount/edit',
       name: 'dealerDiscountEdit',
       component: () => import('@/views/maintain/basic/dealerDiscount/edit.vue'),
 
@@ -179,7 +179,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/repairitemtype',
+      path: '/maintain/basic/repairItemType',
       name: 'repairItemType',
       component: () => import('@/views/maintain/basic/repairItemType/index.vue'),
 
@@ -188,7 +188,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/repairitemtype/detail',
+      path: '/maintain/basic/repairItemType/detail',
       name: 'repairItemTypeDetail',
       component: () => import('@/views/maintain/basic/repairItemType/detail.vue'),
 
@@ -197,7 +197,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/repairitemtype/edit',
+      path: '/maintain/basic/repairItemType/edit',
       name: 'repairItemTypeEdit',
       component: () => import('@/views/maintain/basic/repairItemType/edit.vue'),
 
@@ -206,7 +206,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/batteryunit',
+      path: '/maintain/basic/batteryUnit',
       name: 'batteryUnit',
       component: () => import('@/views/maintain/basic/batteryUnit/index.vue'),
 
@@ -215,7 +215,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/batteryunit/detail',
+      path: '/maintain/basic/batteryUnit/detail',
       name: 'batteryUnitDetail',
       component: () => import('@/views/maintain/basic/batteryUnit/detail.vue'),
 
@@ -224,7 +224,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/batteryunit/edit',
+      path: '/maintain/basic/batteryUnit/edit',
       name: 'batteryUnitEdit',
       component: () => import('@/views/maintain/basic/batteryUnit/edit.vue'),
 
@@ -233,7 +233,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/vehicletag',
+      path: '/maintain/basic/vehicleTag',
       name: 'vehicleTag',
       component: () => import('@/views/maintain/basic/vehicleTag/index.vue'),
 
@@ -241,7 +241,7 @@ const routes = [
         name: '车辆标识管理'
       }
     }, {
-      path: '/maintain/basic/vehicletag/detail',
+      path: '/maintain/basic/vehicleTag/detail',
       name: 'vehicleTagDetail',
       component: () => import('@/views/maintain/basic/vehicleTag/detail.vue'),
 
@@ -250,7 +250,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/vehicletag/edit',
+      path: '/maintain/basic/vehicleTag/edit',
       name: 'vehicleTagEdit',
       component: () => import('@/views/maintain/basic/vehicleTag/edit.vue'),
 
@@ -259,7 +259,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/dealerpermission',
+      path: '/maintain/basic/dealerPermission',
       name: 'dealerPermission',
       component: () => import('@/views/maintain/basic/dealerPermission/index.vue'),
 
@@ -267,7 +267,7 @@ const routes = [
         name: '门店施工单权限管理'
       }
     }, {
-      path: '/maintain/basic/dealerpermission/detail',
+      path: '/maintain/basic/dealerPermission/detail',
       name: 'dealerPermissionDetail',
       component: () => import('@/views/maintain/basic/dealerPermission/detail.vue'),
 
@@ -276,7 +276,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/dealerpermission/edit',
+      path: '/maintain/basic/dealerPermission/edit',
       name: 'dealerPermissionEdit',
       component: () => import('@/views/maintain/basic/dealerPermission/edit.vue'),
 
@@ -285,7 +285,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/spreadssetting',
+      path: '/maintain/basic/spreadsSetting',
       name: 'spreadsSetting',
       component: () => import('@/views/maintain/basic/spreadsSetting/index.vue'),
 
@@ -293,7 +293,7 @@ const routes = [
         name: '保养套餐差价设置管理'
       }
     }, {
-      path: '/maintain/basic/spreadssetting/detail',
+      path: '/maintain/basic/spreadsSetting/detail',
       name: 'spreadsSettingDetail',
       component: () => import('@/views/maintain/basic/spreadsSetting/detail.vue'),
 
@@ -302,7 +302,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/spreadssetting/edit',
+      path: '/maintain/basic/spreadsSetting/edit',
       name: 'spreadsSettingEdit',
       component: () => import('@/views/maintain/basic/spreadsSetting/edit.vue'),
 

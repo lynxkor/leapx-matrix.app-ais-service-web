@@ -137,7 +137,7 @@ async function insertRoute () {
                   recast.types.builders.property(
                     'init',
                     recast.types.builders.identifier('path'),
-                    recast.types.builders.stringLiteral(`/${data.modulePath.toLowerCase()}`)
+                    recast.types.builders.stringLiteral(`/${data.modulePath}`)
                   ),
                   recast.types.builders.property(
                     'init',
