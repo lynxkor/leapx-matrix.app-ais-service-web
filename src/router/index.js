@@ -310,6 +310,32 @@ const routes = [
         name: '保养套餐差价设置管理详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/maintain/basic/repairitem',
+      name: 'repairItem',
+      component: () => import('@/views/maintain/basic/repairItem/index.vue'),
+
+      meta: {
+        name: '维修项目管理'
+      }
+    }, {
+      path: '/maintain/basic/repairitem/detail',
+      name: 'repairItemDetail',
+      component: () => import('@/views/maintain/basic/repairItem/detail.vue'),
+
+      meta: {
+        name: '维修项目管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/repairitem/edit',
+      name: 'repairItemEdit',
+      component: () => import('@/views/maintain/basic/repairItem/edit.vue'),
+
+      meta: {
+        name: '维修项目管理详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
