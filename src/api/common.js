@@ -8,7 +8,7 @@ const prefix = '/datacenter/web/common/';
  * @param {Object} data
  */
 export function getTableConfig (tableCode) {
-  return api.jsonPost(prefix + 'userDefineTable/get', { tableCode });
+  return api.get(prefix + 'userDefineTable/get', { tableCode });
 };
 
 /**
