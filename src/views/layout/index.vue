@@ -679,6 +679,7 @@ export default {
     // line-height: 60px;
   }
   .el-header.bread {
+    height: 56px!important;
     background-color: #fff;
     padding-left: 16px;
     border-bottom: 1px solid #E6E6E5;
