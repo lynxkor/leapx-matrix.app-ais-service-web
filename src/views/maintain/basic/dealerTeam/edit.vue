@@ -75,6 +75,7 @@
                 :defaultNewRow="defaultNewRow"
                 :show-toolbar="false"
                 :options="options"
+                :auth="{edit: true, delete: true}"
               />
             </div>
           </div>
