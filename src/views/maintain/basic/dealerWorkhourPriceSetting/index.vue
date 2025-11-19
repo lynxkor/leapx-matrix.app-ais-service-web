@@ -374,12 +374,12 @@ export default {
         this.storeLoading = true;
         try {
           // 调用搜索接口，传递搜索关键词
-          const res = await listOrgStoreInfo({ name: query });
+          const res = await listOrgStoreInfo({ name: query, size: 100 });
 
-          if (res && res.data) {
-            this.storeOptions = res?.map(item => ({
-              value: item.orgId, // 门店ID
-              label: item.orgName // 门店名称
+          if (res.records) {
+            this.storeOptions = res?.records?.map(item => ({
+              value: item.storeId, // 门店ID
+              label: item.storeName // 门店名称
             }));
           } else {
             this.storeOptions = [];

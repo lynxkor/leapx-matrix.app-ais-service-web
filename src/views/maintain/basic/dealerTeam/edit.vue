@@ -63,7 +63,7 @@
         </section>
         <section class="common-section">
           <div class="common-section-header">
-            <h2>维修工程师</h2>
+            <h2>维修工程师信息</h2>
             <el-button size="small" icon="el-icon-plus" @click="handleAddRow">添加</el-button>
           </div>
           <div class="common-section-body">
