@@ -24,13 +24,13 @@
               {{ info.code  }}
             </el-form-item>
             <el-form-item label="权限类型：" prop="permissionType">
-              {{ info.permissionType  }}
+              {{ info.permissionTypeLabel  }}
             </el-form-item>
             <el-form-item label="结算类型名称：" prop="checkoutTypeName">
               {{ info.checkoutTypeName  }}
             </el-form-item>
             <el-form-item label="建店类型：" prop="dealerType">
-              {{ info.dealerType  }}
+              {{ info.dealerTypeLabel  }}
             </el-form-item>
             <el-form-item label="保修类型名称：" prop="repairItemTypeName">
               {{ info.repairItemTypeName  }}
