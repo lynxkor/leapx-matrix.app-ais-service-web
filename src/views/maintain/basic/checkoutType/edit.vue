@@ -83,7 +83,7 @@ const defaultForm = {
   name: '',
   sort: null,
   remark: '',
-  category: [],
+  category: '',
   appShow: null,
 };
 

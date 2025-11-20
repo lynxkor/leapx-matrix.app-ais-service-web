@@ -1,3 +1,11 @@
+<!--
+ * @Author: P2500465 P2500465@leapmotor.com
+ * @Date: 2025-11-17 09:18:35
+ * @LastEditors: P2500465 P2500465@leapmotor.com
+ * @LastEditTime: 2025-11-20 15:20:57
+ * @FilePath: \app-ais-aftersale-front\src\views\maintain\basic\checkoutType\detail.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 <template>
   <div class="page-common-detail m-checkout-type-detail">
     <el-skeleton v-if="loading" :rows="6" animated />
@@ -19,10 +27,10 @@
               {{ info.name  }}
             </el-form-item>
             <el-form-item label="结算类别：" prop="category">
-              {{ info.category  }}
+              {{ info.categoryLabel  }}
             </el-form-item>
             <el-form-item label="是否app展示：" prop="appShow">
-              {{ yes_no_enum_map[+info.appShow] }}
+              {{ info.isAppShowLabel }}
             </el-form-item>
             <el-form-item label="排序：" prop="sort">
               {{ info.sort  }}
@@ -48,25 +56,6 @@ export default {
     return {
       loading: true,
       info: {},
-      tableData: [],
-      columns: [
-        // 根据实际情况修改
-        {
-          field: 'name',
-          title: '姓名',
-          width: '33%',
-        },
-        {
-          field: 'age',
-          title: '年龄',
-          width: '33%',
-        },
-        {
-          field: 'email',
-          title: '邮箱',
-          width: '33%',
-        },
-      ],
       yes_no_enum_map: YES_NO_ENUM_MAP
     };
   },
@@ -87,7 +76,6 @@ export default {
       getDetail(this.$route.query.id).then(res => {
         this.loading = false;
         this.info = res;
-        this.tableData = res.list || []; // 根据实际情况修改
       }).catch(() => {
         this.loading = false;
       });
