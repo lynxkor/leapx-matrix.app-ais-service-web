@@ -227,6 +227,7 @@ export default {
           this.loading = false;
           Object.assign(this.form, res);
           Object.assign(this.originalForm, res);
+          this.tableData = res.dealerUserDiscountRespList;
         });
       }
     },
@@ -317,9 +318,10 @@ export default {
       getUserByNameOrNo({ name: queryString }).then(res => {
         const list = res?.map(item => {
           return {
+            ...item,
             value: item.userId,
             label: item.username,
-            ...item
+            userName: item.username
           };
         }) || [];
         this.options.userName = list;
