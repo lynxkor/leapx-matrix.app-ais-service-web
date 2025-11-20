@@ -27,26 +27,26 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="门店名称：">
-          <el-select
-            v-model="form.dealerIds"
-            multiple
-            filterable
-            clearable
-            remote
-            reserve-keyword
-            placeholder="请选择"
-            :remote-method="storeSearch"
-            :loading="storeLoading">
-            <el-option
-              v-for="item in storeOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
         <span v-show="show">
+          <el-form-item label="门店名称：">
+            <el-select
+              v-model="form.dealerIds"
+              multiple
+              filterable
+              clearable
+              remote
+              reserve-keyword
+              placeholder="请选择"
+              :remote-method="storeSearch"
+              :loading="storeLoading">
+              <el-option
+                v-for="item in storeOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
           <el-form-item label="状态：">
             <fetch-select
               :request="() => fetchOptions('StatusEnum')"
@@ -174,7 +174,7 @@ export default {
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'discountWorkhourRate', label: '工时折扣率', visible: true, width: 200 },
           { props: 'discountPartRate', label: '备件折扣率', visible: true, width: 200 },
-          { props: 'status', label: '状态', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
             props: 'operate',
@@ -342,12 +342,12 @@ export default {
         this.storeLoading = true;
         try {
           // 调用搜索接口，传递搜索关键词
-          const res = await listOrgStoreInfo({ name: query });
+          const res = await listOrgStoreInfo({ name: query, size: 100 });
 
-          if (res && res.data) {
-            this.storeOptions = res?.map(item => ({
-              value: item.orgId, // 门店ID
-              label: item.orgName // 门店名称
+          if (res) {
+            this.storeOptions = res?.records?.map(item => ({
+              value: item.storeId, // 门店ID
+              label: item.storeName // 门店名称
             }));
           } else {
             this.storeOptions = [];
