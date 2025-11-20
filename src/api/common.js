@@ -48,8 +48,16 @@ export function getUserByNameOrNo (data) {
  * @param {*} data
  */
 export function listOrgStoreInfo (data) {
-  return api.get('/accountService/orgInfo/listOrgStoreInfo', data);
+  return api.jsonPost('/network/portal/store/page', data);
 }
+
+/**
+ * 门店模糊搜索
+ * @param {*} data
+ */
+// export function listOrgStoreInfo (data) {
+//   return api.get('/accountService/orgInfo/listOrgStoreInfo', data);
+// }
 
 /**
  * 车型模糊搜索

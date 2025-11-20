@@ -30,10 +30,12 @@
                   placeholder="请输入"
                   v-model="form.dealerName"
                   clearable
+                  disabled
                 />
               </el-form-item>
               <el-form-item label="工时折扣率" prop="discountWorkhourRate">
                 <el-input
+                  type="number"
                   placeholder="请输入"
                   v-model="form.discountWorkhourRate"
                   clearable
@@ -41,6 +43,7 @@
               </el-form-item>
               <el-form-item label="备件折扣率" prop="discountPartRate">
                 <el-input
+                  type="number"
                   placeholder="请输入"
                   v-model="form.discountPartRate"
                   clearable
@@ -111,12 +114,10 @@ export default {
       },
       originalForm: { ...form },
       defaultNewRow: {
-        name: '',
+        userName: '',
+        createTime: ''
       },
-      tableData: [
-        { id: 1, userName: '张三', createTime: '' },
-        { id: 2, userName: '李四', createTime: '' }
-      ],
+      tableData: [],
       options: {
         // 对应表格里选型枚举
         // 如 type: [{label: 'xxx', value: 'xxx'}]
@@ -232,10 +233,23 @@ export default {
     async submitForm (formName, rest = false) {
       try {
         const tableData = await this.handleSaveTable();
+        // 判断是否编辑数据 是的话删除详情接口所带的字段数组 modelWorkhourPriceRespList
+        if (this.$route.query.id) {
+          this.$delete(this.form, 'dealerUserDiscountRespList');
+        }
+        // 处理表格数据，转换一下后端需要的数据
+        const newTableData = tableData.map(item => {
+          return {
+            userName: item.label || '',
+            createTime: item.createTime || '',
+            userId: item.value || '',
+            dealerDiscountId: item.dealerDiscountId || '',
+          };
+        });
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.submitLoading = true;
-            addOrUpdate({ ...this.form, teamUsers: tableData }).then(res => {
+            addOrUpdate({ ...this.form, dealerUserDiscountAddOrUpdateReqs: newTableData }).then(res => {
               this.$message({
                 message: '保存成功',
                 type: 'success'

@@ -9,6 +9,17 @@
         label-width="150px"
         class="ais-search-form"
       >
+        <el-form-item label="创建时间：">
+          <el-date-picker
+            v-model="form.createTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            align="right"
+          />
+        </el-form-item>
         <el-form-item label="班组名称：">
           <el-input
             placeholder="请输入"
@@ -16,28 +27,28 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="门店名称：">
-          <el-select
-            v-model="form.dealerIds"
-            multiple
-            filterable
-            clearable
-            remote
-            reserve-keyword
-            placeholder="请选择"
-            :remote-method="getStoreByName"
-            collapse-tags
-            >
-            <el-option
-              v-for="item in storeOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
         <span v-show="show">
-          <el-form-item label="班组状态：">
+          <el-form-item label="门店名称：">
+            <el-select
+              v-model="form.dealerIds"
+              multiple
+              filterable
+              clearable
+              remote
+              reserve-keyword
+              placeholder="请选择"
+              :remote-method="getStoreByName"
+              collapse-tags
+              >
+              <el-option
+                v-for="item in storeOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="状态：">
             <fetch-select
               :request="() => fetchOptions('StatusEnum')"
               v-model="form.statusIncludeList"
@@ -116,7 +127,8 @@ const defaultForm = {
   dealerName: '',
   statusIncludeList: '',
   teamTypes: '',
-  dealerIds: []
+  dealerIds: [],
+  createTime: ''
 };
 
 const pageSize = 20;
@@ -170,10 +182,10 @@ export default {
             }]
           },
           { props: 'name', label: '班组名称', visible: true, width: 200 },
-          { props: 'teamTypeLabel', label: '班组类型描述', visible: true, width: 200 },
-          { props: 'statusLabel', label: '班组状态描述', visible: true, width: 200 },
+          { props: 'teamTypeLabel', label: '班组类型', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'remark', label: '备注', visible: true, width: 200 },
+          { props: 'remark', label: '说明', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',
@@ -414,13 +426,14 @@ export default {
     },
     getStoreByName (query) {
       listOrgStoreInfo({
-        name: query
+        name: query,
+        size: 100
       }).then(res => {
-        this.storeOptions = res.map(item => {
+        this.storeOptions = res?.records?.map(item => {
           return {
             ...item,
-            value: item.orgId,
-            label: item.orgName
+            value: item.storeId,
+            label: item.storeName
           };
         });
       });

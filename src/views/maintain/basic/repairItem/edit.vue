@@ -280,10 +280,18 @@ export default {
       form: { ...defaultForm },
       originalForm: { ...defaultForm },
       defaultNewRow: {
-        name: '',
+        vehicleYearType: '',
+        vehicleModelName: '',
+        vehicleSeriesName: '',
+        vehicleModelDesc: '',
+        remark: '',
+        createTime: '',
       },
       defaultNewRowPj: {
-        name: '',
+        partsCode: '',
+        partsName: '',
+        isOemPart: null,
+        createTime: '',
       },
       tableData: [],
       options: {
@@ -579,6 +587,11 @@ export default {
       try {
         const tableData = await this.handleSaveTable();
         const tableDataPj = await this.handleSaveTablePj();
+        // 判断是否编辑数据 是的话删除详情接口所带的字段数组
+        if (this.$route.query.id) {
+          this.$delete(this.form, 'partsRespList');
+          this.$delete(this.form, 'modelRespList');
+        }
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.submitLoading = true;
@@ -693,9 +706,10 @@ export default {
     },
     // 年款名称远程搜索
     queryModelYear (name) {
-      listVehicleYearType({ yearTypeNameList: name, status: 1 }).then(res => {
+      listVehicleYearType({ yearTypeNameLike: name, status: 1 }).then(res => {
         const list = res?.map(item => {
           return {
+            ...item,
             value: item.id,
             label: item.yearTypeName,
           };
@@ -705,11 +719,16 @@ export default {
     },
     // 车型名称远程搜索
     querySearchAsync (queryString, cb) {
-      listVehicleModel({ modelNameList: queryString, status: 1 }).then(res => {
+      listVehicleModel({ modelNameLike: queryString, status: 1 }).then(res => {
         const list = res?.map(item => {
           return {
+            ...item,
             value: item.id,
             label: item.modelName,
+            vehicleModelId: item.id,
+            vehicleModelName: item.modelName,
+            vehicleSeriesName: item.seriesName,
+            vehicleModelDesc: item.remark,
           };
         }) || [];
         this.options.vehicleModelName = list;

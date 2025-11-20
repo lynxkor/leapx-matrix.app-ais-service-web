@@ -93,7 +93,9 @@ export default {
       },
       originalForm: { ...form },
       defaultNewRow: {
-        name: '',
+        vehicleModelName: '',
+        workhourPrice: null,
+        createTime: '',
       },
       tableData: [],
       options: {
@@ -213,10 +215,23 @@ export default {
     async submitForm (formName, rest = false) {
       try {
         const tableData = await this.handleSaveTable();
+        // 判断是否编辑数据 是的话删除详情接口所带的字段数组 modelWorkhourPriceRespList
+        if (this.$route.query.id) {
+          this.$delete(this.form, 'modelWorkhourPriceRespList');
+        }
+        // 处理表格数据，转换一下后端需要的数据
+        const newTableData = tableData.map(item => {
+          return {
+            vehicleModelName: item.label || '',
+            workhourPrice: item.workhourPrice || null,
+            createTime: item.createTime || '',
+            vehicleModelId: item.value || '',
+          };
+        });
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.submitLoading = true;
-            addOrUpdate({ ...this.form, modelWorkhourPriceList: tableData }).then(res => {
+            addOrUpdate({ ...this.form, modelWorkhourPriceList: newTableData }).then(res => {
               this.$message({
                 message: '保存成功',
                 type: 'success'

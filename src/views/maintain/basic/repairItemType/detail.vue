@@ -16,7 +16,7 @@
               {{ info.code  }}
             </el-form-item>
             <el-form-item label="维修类别：" prop="category">
-              {{ info.category  }}
+              {{ info.categoryLabel  }}
             </el-form-item>
             <el-form-item label="维修类型名称：" prop="name">
               {{ info.name  }}

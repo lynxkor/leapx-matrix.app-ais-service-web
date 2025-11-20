@@ -151,11 +151,11 @@ export default {
             }]
           },
           { props: 'name', label: '结算类型名称', visible: true, width: 200 },
-          { props: 'categoryDesc', label: '结算类别描述', visible: true, width: 200 },
-          { props: 'statusDesc', label: '状态描述', visible: true, width: 200 },
-          { props: 'appShowDesc', label: '是否app展示描述', visible: true, width: 200 },
+          { props: 'categoryLabel', label: '结算类别', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
+          { props: 'isAppShowLabel', label: 'app是否展示描述', visible: true, width: 200 },
           { props: 'sort', label: '排序', visible: true, width: 200 },
-          { props: 'remark', label: '备注', visible: true, width: 200 },
+          { props: 'remark', label: '备注信息', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
             props: 'operate',
