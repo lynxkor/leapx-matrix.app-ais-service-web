@@ -105,7 +105,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
-  dealerIds: '',
+  dealerIds: [],
   createTime: '',
   statusIncludeList: '',
 };
@@ -165,7 +165,7 @@ export default {
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'workhourPrice', label: '工时单价', visible: true, width: 200 },
-          { props: 'statusDesc', label: '状态描述', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
