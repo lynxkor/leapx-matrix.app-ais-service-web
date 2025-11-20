@@ -41,7 +41,7 @@
         <el-form-item label="状态：">
           <fetch-select
             :request="() => fetchOptions('StatusEnum')"
-            v-model="form.status"
+            v-model="form.statusIncludeList"
             placeholder="请选择"
             clearable
             multiple
@@ -125,7 +125,7 @@ const defaultForm = {
   vehicleModelIds: [],
   buyCityLevels: [],
   verificationCityLevels: [],
-  status: '',
+  statusIncludeList: '',
   createTime: '',
 };
 

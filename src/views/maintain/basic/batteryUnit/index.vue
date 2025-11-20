@@ -157,7 +157,7 @@ export default {
           },
           { props: 'name', label: '单位名称', visible: true, width: 200 },
           { props: 'buinessLicense', label: '统一社会信用代码', visible: true, width: 200 },
-          { props: 'statusDesc', label: '状态描述', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
           { props: 'ownerName', label: '负责人姓名', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
