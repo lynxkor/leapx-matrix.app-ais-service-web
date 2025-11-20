@@ -148,7 +148,7 @@ export default {
             }]
           },
           { props: 'name', label: '车辆标识名称', visible: true, width: 200 },
-          { props: 'statusDesc', label: '状态描述', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
             props: 'operate',
