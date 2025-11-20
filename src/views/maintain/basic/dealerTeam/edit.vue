@@ -359,9 +359,10 @@ export default {
       getUserByNameOrNo({ name: queryString }).then(res => {
         const list = res?.map(item => {
           return {
+            ...item,
             value: item.userId,
             label: item.username,
-            ...item
+            userName: item.username
           };
         }) || [];
         this.options.userName = list;
