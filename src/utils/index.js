@@ -131,7 +131,6 @@ export function recursionSource (options, arr = []) {
  *
  * @param {Object} options - 配置选项
  * @param {number} [options.delay=300] - 防抖延迟时间，单位毫秒，默认300ms
- * @param {number} [options.minLength=2] - 最小搜索词长度，默认2个字符
  * @param {Array} [options.emptyQueryResult=[]] - 空查询或错误时返回的结果，默认空数组
  * @param {Function} [options.onError] - 错误处理回调函数，可选
  * @returns {Function} 返回一个防抖搜索函数，该函数接受三个参数：searchFn, query, callback
@@ -141,14 +140,13 @@ export function recursionSource (options, arr = []) {
 export function createDebouncedSearch (options = {}) {
   const {
     delay = 300,
-    minLength = 2,
     emptyQueryResult = [],
     onError
   } = options;
 
   return async function (searchFn, query, callback) {
     // 如果查询词过短，直接返回空结果
-    if (query !== '' && query.length < minLength) {
+    if (query === '') {
       callback(emptyQueryResult);
       return;
     }

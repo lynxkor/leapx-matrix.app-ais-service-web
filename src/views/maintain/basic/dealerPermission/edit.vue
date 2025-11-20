@@ -26,7 +26,7 @@
               </el-form-item>
               <el-form-item label="结算类型名称：" prop="checkoutTypeId">
                 <el-select
-                  v-model="form.checkoutTypeId"
+                  v-model="form.checkoutTypeName"
                   filterable
                   clearable
                   remote
@@ -52,7 +52,7 @@
               </el-form-item>
               <el-form-item label="保修类型名称：" prop="repairItemTypeName">
                 <el-select
-                  v-model="form.repairItemTypeId"
+                  v-model="form.repairItemTypeName"
                   filterable
                   clearable
                   remote
@@ -263,6 +263,7 @@ export default {
     handleSettlementChange (val) {
       const selectedVal = this.settlementOptions.find(option => option.value === val);
       if (selectedVal) {
+        this.form.checkoutTypeId = selectedVal.value;
         this.form.checkoutTypeName = selectedVal.label;
       }
     },
@@ -283,7 +284,6 @@ export default {
         try {
           // 调用搜索接口，传递搜索关键词
           const res = await listSettlementType({ name: query });
-          console.log('res', res);
           if (res) {
             this.settlementOptions = res?.map(item => ({
               value: item.id, // 结算类型ID
@@ -304,6 +304,7 @@ export default {
     handleRepairItemChange (val) {
       const selectedVal = this.repairItemOptions.find(option => option.value === val);
       if (selectedVal) {
+        this.form.repairItemTypeId = selectedVal.value;
         this.form.repairItemTypeName = selectedVal.label;
       }
     },

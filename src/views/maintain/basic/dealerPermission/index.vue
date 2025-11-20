@@ -158,9 +158,9 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'permissionType', label: '权限类型', visible: true, width: 200 },
-          { props: 'dealerType', label: '建店类型', visible: true, width: 200 },
-          { props: 'status', label: '状态', visible: true, width: 200 },
+          { props: 'permissionTypeLabel', label: '权限类型', visible: true, width: 200 },
+          { props: 'dealerTypeLabel', label: '建店类型', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
           { props: 'checkoutTypeName', label: '结算类型名称', visible: true, width: 200 },
           { props: 'repairItemTypeName', label: '保修类型名称', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
