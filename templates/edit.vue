@@ -1,5 +1,6 @@
 <template>
   {{{#isProForm}}}
+  <!-- TIPS: 如果填写项小于15项，使用类名page-common-add替换page-common-edit -->
   <div class="page-common-edit">
     <el-container>
       <el-main>
@@ -8,6 +9,7 @@
             <h2>基础信息</h2>
           </div>
           <div class="common-section-body">
+            <!-- TIPS: 如果填写项小于15项，去掉 :inline="true" -->
             <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px">
             {{{#cols}}}
             {{{#isDate}}}
@@ -34,13 +36,10 @@
               </el-form-item>
             {{{/isSelect}}}
             {{{#isBoolean}}}
-              <el-form-item label="{{{description}}}：">
-                <fetch-select
-                  :options="yes_no_enum"
-                  v-model="form.{{{key}}}"
-                  placeholder="请选择"
-                  clearable
-                />
+              <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+                <el-radio-group v-model="form.{{{key}}}">
+                  <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
+                </el-radio-group>
               </el-form-item>
             {{{/isBoolean}}}
             {{{#isNormal}}}
@@ -119,13 +118,10 @@
               </el-form-item>
             {{{/isSelect}}}
             {{{#isBoolean}}}
-              <el-form-item label="{{{description}}}：">
-                <fetch-select
-                  :options="yes_no_enum"
-                  v-model="form.{{{key}}}"
-                  placeholder="请选择"
-                  clearable
-                />
+              <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+                <el-radio-group v-model="form.{{{key}}}">
+                  <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
+                </el-radio-group>
               </el-form-item>
             {{{/isBoolean}}}
             {{{#isNormal}}}
@@ -202,6 +198,7 @@ export default {
         // 对应表格里选型枚举
         // 如 type: [{label: 'xxx', value: 'xxx'}]
       },
+      // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
           field: 'name',
@@ -316,7 +313,7 @@ export default {
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.submitLoading = true;
-            // customKey 根据接口格式修改
+            // TIPS: customKey 根据接口格式修改
             addOrUpdate({ ...this.form, customKey: tableData }).then(res => {
               this.$message({
                 message: '保存成功',
