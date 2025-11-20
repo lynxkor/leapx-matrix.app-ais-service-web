@@ -157,10 +157,10 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'categoryLabel', label: '维修类别 ', visible: true, width: 200 },
+          { props: 'categoryLabel', label: '类别 ', visible: true, width: 200 },
           { props: 'name', label: '维修类型名称', visible: true, width: 200 },
           { props: 'sort', label: '排序', visible: true, width: 200 },
-          { props: 'checkoutTypeName', label: '结算类型名称', visible: true, width: 200 },
+          { props: 'checkoutTypeName', label: '结算类型', visible: true, width: 200 },
           { props: 'statusLabel', label: '状态', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
