@@ -1,0 +1,83 @@
+<template>
+    <div class="page-common-detail m-common-data-process-excel-model-map-detail">
+      <el-skeleton v-if="loading" :rows="6" animated />
+      <template v-else>
+        <section class="common-title">
+          <h2>主键：{{ info.id }}</h2>
+          <el-button size="small" @click="handleEdit" icon="el-icon-edit">编辑</el-button>
+        </section>
+        <section class="common-section">
+          <div class="common-section-header">
+            <h2>基础信息</h2>
+          </div>
+          <div class="common-section-body">
+            <el-form :inline="true" ref="ruleForm" label-width="120px">
+              <el-form-item label="模板id：" prop="id">
+                {{ info.id  }}
+              </el-form-item>
+              <el-form-item label="excel导入模板下载地址：" prop="excelModelUrl">
+                {{ info.excelModelUrl  }}
+              </el-form-item>
+              <el-form-item label="业务标识：" prop="businessType">
+                {{ info.businessType  }}
+              </el-form-item>
+              <el-form-item label="导入数据的第三方接口信息：" prop="postInterface">
+                {{ info.postInterface  }}
+              </el-form-item>
+              <el-form-item label="导入参数DTO：" prop="postParamDto">
+                {{ info.postParamDto  }}
+              </el-form-item>
+              <el-form-item label="每批n条数据：" prop="batchSize">
+                {{ info.batchSize  }}
+              </el-form-item>
+              <el-form-item label="创建时间：" prop="createTime">
+                {{ info.createTime  }}
+              </el-form-item>
+              <el-form-item label="修改时间：" prop="updateTime">
+                {{ info.updateTime  }}
+              </el-form-item>
+            </el-form>
+          </div>
+        </section>
+      </template>
+    </div>
+  </template>
+
+<script>
+import { getDetail } from '@/api/excelManagement/commonDataProcessExcelModelMap/index';
+import { YES_NO_ENUM_MAP } from '@/libs/constants';
+export default {
+  name: 'commonDataProcessExcelModelMapDetail',
+  components: {
+  },
+  data () {
+    return {
+      loading: true,
+      info: {},
+      yes_no_enum_map: YES_NO_ENUM_MAP
+    };
+  },
+  created () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel模板', '详情']);
+    this.getData();
+  },
+  methods: {
+    handleEdit () {
+      this.$router.push({
+        path: '/excelManagement/basic/commonDataProcessExcelModelMap/edit',
+        query: {
+          id: this.$route.query.id
+        }
+      });
+    },
+    getData () {
+      getDetail(this.$route.query.id).then(res => {
+        this.loading = false;
+        this.info = res;
+      }).catch(() => {
+        this.loading = false;
+      });
+    }
+  }
+};
+</script>

@@ -336,6 +336,59 @@ const routes = [
         name: '维修项目管理详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/excelManagement/commonDataProcessExcelModelMap',
+      name: 'commonDataProcessExcelModelMap',
+      component: () => import('@/views/excelManagement/commonDataProcessExcelModelMap/index.vue'),
+
+      meta: {
+        name: 'Excel模型管理',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/excelManagement/commonDataProcessExcelModelMap/detail',
+      name: 'commonDataProcessExcelModelMapDetail',
+      component: () => import('@/views/excelManagement/commonDataProcessExcelModelMap/detail.vue'),
+
+      meta: {
+        name: 'Excel模型管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/excelManagement/commonDataProcessExcelModelMap/edit',
+      name: 'commonDataProcessExcelModelMapEdit',
+      component: () => import('@/views/excelManagement/commonDataProcessExcelModelMap/edit.vue'),
+
+      meta: {
+        name: 'Excel模型管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/excelManagement/commonDataProcessExcelTask',
+      name: 'commonDataProcessExcelTask',
+      component: () => import('@/views/excelManagement/commonDataProcessExcelTask/index.vue'),
+
+      meta: {
+        name: '新页面'
+      }
+    }, {
+      path: '/excelmanagement/commondataprocessexceltask/detail',
+      name: 'commonDataProcessExcelTaskDetail',
+      component: () => import('@/views/excelManagement/commonDataProcessExcelTask/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/excelmanagement/commondataprocessexceltask/edit',
+      name: 'commonDataProcessExcelTaskEdit',
+      component: () => import('@/views/excelManagement/commonDataProcessExcelTask/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
