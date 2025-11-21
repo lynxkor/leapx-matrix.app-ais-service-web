@@ -54,6 +54,52 @@
       </el-form-item>
     {{{/isNormal}}}
     {{{/top2SearchList}}}
+    {{{#thirdSearchList}}}
+    {{{#isDate}}}
+      <el-form-item label="{{{description}}}："  v-show="this.visibleCount === 3 || show">
+        <el-date-picker
+          v-model="form.{{{key}}}"
+          type="daterange"
+          :picker-options="pickerOptions"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          align="right"
+        />
+      </el-form-item>
+    {{{/isDate}}}
+    {{{#isSelect}}}
+      <el-form-item label="{{{description}}}："  v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :request="() => fetchOptions('xxx')"
+          v-model="form.{{{key}}}"
+          placeholder="请选择"
+          clearable
+          multiple
+        />
+      </el-form-item>
+    {{{/isSelect}}}
+    {{{#isBoolean}}}
+      <el-form-item label="{{{description}}}："  v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :options="yes_no_enum"
+          v-model="form.{{{key}}}"
+          placeholder="请选择"
+          clearable
+          multiple
+        />
+      </el-form-item>
+    {{{/isBoolean}}}
+    {{{#isNormal}}}
+      <el-form-item label="{{{description}}}："  v-show="this.visibleCount === 3 || show">
+        <el-input
+          placeholder="请输入"
+          v-model="form.{{{key}}}"
+          clearable
+        />
+      </el-form-item>
+    {{{/isNormal}}}
+    {{{/thirdSearchList}}}
       <span v-show="show">
       {{{#lastSearchList}}}
       {{{#isDate}}}
@@ -153,6 +199,7 @@ import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/co
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
+import responsiveSearchForm from '@/libs/mixins/responsive';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -167,6 +214,7 @@ const mockConfig = {
 };
 
 export default {
+  mixins: [responsiveSearchForm],
   components: {
     PageSearchAction,
     LPVxeTable,

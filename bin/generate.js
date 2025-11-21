@@ -66,7 +66,8 @@ const data = {
   searchList: colsData.filter(el => el.searchable),
   top1List: colsData.slice(0, 1),
   top2SearchList: colsData.filter(el => el.searchable).slice(0, 2),
-  lastSearchList: colsData.filter(el => el.searchable).slice(2),
+  thirdSearchList: colsData.filter(el => el.searchable).slice(2, 3),
+  lastSearchList: colsData.filter(el => el.searchable).slice(3),
 };
 
 // 创建vue文件
