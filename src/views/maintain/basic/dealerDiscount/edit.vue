@@ -238,19 +238,10 @@ export default {
         if (this.$route.query.id) {
           this.$delete(this.form, 'dealerUserDiscountRespList');
         }
-        // 处理表格数据，转换一下后端需要的数据
-        const newTableData = tableData.map(item => {
-          return {
-            userName: item.label || '',
-            createTime: item.createTime || '',
-            userId: item.value || '',
-            dealerDiscountId: item.dealerDiscountId || '',
-          };
-        });
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.submitLoading = true;
-            addOrUpdate({ ...this.form, dealerUserDiscountAddOrUpdateReqs: newTableData }).then(res => {
+            addOrUpdate({ ...this.form, dealerUserDiscountAddOrUpdateReqs: tableData }).then(res => {
               this.$message({
                 message: '保存成功',
                 type: 'success'

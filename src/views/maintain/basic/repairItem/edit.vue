@@ -712,6 +712,7 @@ export default {
             ...item,
             value: item.id,
             label: item.yearTypeName,
+            vehicleYearType: item.yearTypeName,
           };
         }) || [];
         this.options.vehicleYearType = list;

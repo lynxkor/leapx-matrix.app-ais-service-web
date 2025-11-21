@@ -300,8 +300,10 @@ export default {
       listVehicleModel({ name: queryString }).then(res => {
         const list = res?.map(item => {
           return {
+            ...item,
             value: item.id,
             label: item.modelName,
+            vehicleModelName: item.modelName,
           };
         }) || [];
         this.options.vehicleModelName = list;
