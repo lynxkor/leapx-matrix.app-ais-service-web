@@ -26,27 +26,27 @@
           clearable
         />
       </el-form-item>
-      <span v-show="show">
-        <el-form-item label="门店名称：">
-          <el-select
-            v-model="form.dealerIds"
-            multiple
-            filterable
-            clearable
-            remote
-            reserve-keyword
-            placeholder="请选择"
+      <el-form-item label="门店名称："  v-show="this.visibleCount === 3 || show">
+        <el-select
+        v-model="form.dealerIds"
+        multiple
+        filterable
+        clearable
+        remote
+        reserve-keyword
+        placeholder="请选择"
             :remote-method="getStoreByName"
             collapse-tags
             >
             <el-option
-              v-for="item in storeOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
+            v-for="item in storeOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <span v-show="show">
         <el-form-item label="工位状态：">
           <fetch-select
             :request="() => fetchOptions('StatusEnum')"
@@ -117,6 +117,7 @@ import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInf
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
+import responsiveSearchForm from '@/libs/mixins/responsive';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -134,6 +135,7 @@ const mockConfig = {
 };
 
 export default {
+  mixins: [responsiveSearchForm],
   components: {
     PageSearchAction,
     LPVxeTable,
