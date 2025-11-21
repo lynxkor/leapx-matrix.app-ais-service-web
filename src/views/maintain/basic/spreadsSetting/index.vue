@@ -28,16 +28,16 @@
             multiple
         />
       </el-form-item>
+      <el-form-item label="购买城市等级："  v-show="this.visibleCount === 3 || show">
+        <fetch-select
+        :request="() => fetchOptions('CityLevelEnum')"
+        v-model="form.buyCityLevels"
+        placeholder="请选择"
+        clearable
+        multiple
+        />
+      </el-form-item>
       <span v-show="show">
-        <el-form-item label="购买城市等级：">
-          <fetch-select
-              :request="() => fetchOptions('CityLevelEnum')"
-              v-model="form.buyCityLevels"
-              placeholder="请选择"
-              clearable
-              multiple
-          />
-        </el-form-item>
         <el-form-item label="状态：">
           <fetch-select
             :request="() => fetchOptions('StatusEnum')"
@@ -119,6 +119,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import { createDebouncedSearch } from '@/utils/index.js';
+import responsiveSearchForm from '@/libs/mixins/responsive';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -145,6 +146,7 @@ const debouncedSearch = createDebouncedSearch({
 });
 
 export default {
+  mixins: [responsiveSearchForm],
   components: {
     PageSearchAction,
     LPVxeTable,

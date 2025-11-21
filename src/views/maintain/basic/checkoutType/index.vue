@@ -29,7 +29,7 @@
             multiple
             />
         </el-form-item>
-        <span v-show="show">
+        <span v-show="this.visibleCount === 3 || show">
           <el-form-item label="状态：">
             <fetch-select
               :request="() => fetchOptions('StatusEnum')"
@@ -93,6 +93,7 @@ import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/co
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
+import responsiveSearchForm from '@/libs/mixins/responsive';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -107,6 +108,7 @@ const mockConfig = {
 };
 
 export default {
+  mixins: [responsiveSearchForm],
   components: {
     PageSearchAction,
     LPVxeTable,
