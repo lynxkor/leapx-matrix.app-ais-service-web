@@ -18,7 +18,8 @@
               </el-form-item>
               <el-form-item label="类别：">
                 <fetch-select
-                 :request="() => fetchOptions('TypeCategoryEnum')"
+                 :request="fetchOptions"
+                  enumCode="TypeCategoryEnum"
                   v-model="form.category"
                   placeholder="请选择"
                   clearable

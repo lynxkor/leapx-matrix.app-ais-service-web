@@ -49,7 +49,8 @@
         <span v-show="show">
           <el-form-item label="状态：">
             <fetch-select
-              :request="() => fetchOptions('StatusEnum')"
+              :request="fetchOptions"
+              enumCode="StatusEnum"
               v-model="form.statusIncludeList"
               placeholder="请选择"
               clearable

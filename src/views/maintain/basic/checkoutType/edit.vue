@@ -26,7 +26,8 @@
               </el-form-item>
               <el-form-item label="结算类别：" prop="category">
                 <fetch-select
-                  :request="() => fetchOptions('CheckoutCategoryEnum')"
+                  :request="fetchOptions"
+                  enumCode="CheckoutCategoryEnum"
                   v-model="form.category"
                   placeholder="请选择"
                   clearable

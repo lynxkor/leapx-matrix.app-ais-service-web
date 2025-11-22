@@ -17,7 +17,8 @@
       </el-form-item>
       <el-form-item label="任务类型：">
         <fetch-select
-          :request="() => fetchOptions('taskTypeEnum')"
+          :request="fetchOptions"
+          enumCode="taskTypeEnum"
           v-model="form.taskType"
           placeholder="请选择"
           clearable
@@ -27,7 +28,8 @@
       <span v-show="show">
         <el-form-item label="任务状态：">
           <fetch-select
-            :request="() => fetchOptions('taskStatusEnum')"
+            :request="fetchOptions"
+            enumCode="taskStatusEnum"
             v-model="form.taskStatus"
             placeholder="请选择"
             clearable

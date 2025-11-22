@@ -21,7 +21,8 @@
       </el-form-item>
       <el-form-item label="核销城市等级：">
         <fetch-select
-            :request="() => fetchOptions('CityLevelEnum')"
+            :request="fetchOptions"
+            enumCode="CityLevelEnum"
             v-model="form.verificationCityLevels"
             placeholder="请选择"
             clearable
@@ -30,7 +31,8 @@
       </el-form-item>
       <el-form-item label="购买城市等级："  v-show="this.visibleCount === 3 || show">
         <fetch-select
-        :request="() => fetchOptions('CityLevelEnum')"
+        :request="fetchOptions"
+        enumCode="CityLevelEnum"
         v-model="form.buyCityLevels"
         placeholder="请选择"
         clearable
@@ -40,7 +42,8 @@
       <span v-show="show">
         <el-form-item label="状态：">
           <fetch-select
-            :request="() => fetchOptions('StatusEnum')"
+            :request="fetchOptions"
+            enumCode="StatusEnum"
             v-model="form.statusIncludeList"
             placeholder="请选择"
             clearable

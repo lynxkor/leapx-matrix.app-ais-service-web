@@ -44,7 +44,8 @@
               </el-form-item>
               <el-form-item label="购买城市等级：" prop="buyCityLevel">
                 <fetch-select
-                    :request="() => fetchOptions('CityLevelEnum')"
+                    :request="fetchOptions"
+                    enumCode="CityLevelEnum"
                     v-model="form.buyCityLevel"
                     placeholder="请选择"
                     clearable
@@ -52,7 +53,8 @@
               </el-form-item>
               <el-form-item label="核销城市等级：" prop="verificationCityLevel">
                 <fetch-select
-                  :request="() => fetchOptions('CityLevelEnum')"
+                  :request="fetchOptions"
+                  enumCode="CityLevelEnum"
                   v-model="form.verificationCityLevel"
                   placeholder="请选择"
                   clearable

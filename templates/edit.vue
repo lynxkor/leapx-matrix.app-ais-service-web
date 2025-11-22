@@ -27,7 +27,8 @@
             {{{#isSelect}}}
               <el-form-item label="{{{description}}}：" prop="{{{key}}}">
                 <fetch-select
-                  :request="() => fetchOptions('xxx')"
+                  :request="fetchOptions"
+                  enumCode="xxx"
                   v-model="form.{{{key}}}"
                   placeholder="请选择"
                   clearable
@@ -109,7 +110,8 @@
             {{{#isSelect}}}
               <el-form-item label="{{{description}}}：" prop="{{{key}}}">
                 <fetch-select
-                  :request="() => fetchOptions('xxx')"
+                  :request="fetchOptions"
+                  enumCode="xxx"
                   v-model="form.{{{key}}}"
                   placeholder="请选择"
                   clearable

@@ -50,7 +50,8 @@
         <span v-show="show">
           <el-form-item label="状态：">
             <fetch-select
-              :request="() => fetchOptions('StatusEnum')"
+              :request="fetchOptions"
+              enumCode="StatusEnum"
               v-model="form.statusIncludeList"
               multiple
               placeholder="请选择"
@@ -60,7 +61,8 @@
           </el-form-item>
           <el-form-item label="班组类型">
             <fetch-select
-              :request="() => fetchOptions('StationTypeEnum')"
+              :request="fetchOptions"
+              enumCode="StationTypeEnum"
               v-model="form.teamTypes"
               multiple
               placeholder="请选择"
