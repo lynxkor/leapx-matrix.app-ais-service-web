@@ -171,7 +171,6 @@
     </div>
     <div
       class="ais-table-c"
-      :class="{ 'z-form-show': show }"
     >
       <LPVxeTable
         ref="tableRef"
