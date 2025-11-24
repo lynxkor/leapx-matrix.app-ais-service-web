@@ -14,6 +14,7 @@
         </div>
         <div class="common-section-body">
           <el-form :inline="true" ref="ruleForm" label-width="120px">
+            <!-- TIPS: 根据实际情况调整展示字段 -->
           {{{#cols}}}
             <el-form-item label="{{{description}}}：" prop="{{{key}}}">
               {{{#isBoolean}}}
@@ -30,6 +31,7 @@
     {{{#isProForm}}}
       <section class="common-section">
         <div class="common-section-header">
+          <!-- TIPS: 根据实际情况修改标题 -->
           <h2>标题</h2>
         </div>
         <div class="common-section-body">
@@ -68,7 +70,7 @@ export default {
       {{{#isProForm}}}
       tableData: [],
       columns: [
-        // 根据实际情况修改
+        // TIPS: 根据实际情况修改字段名field和width
         {
           field: 'name',
           title: '姓名',
@@ -107,7 +109,7 @@ export default {
         this.loading = false;
         this.info = res;
         {{{#isProForm}}}
-        this.tableData = res.list || []; // 根据实际情况修改
+        this.tableData = res.list || []; // TIPS: 根据实际情况修改表格数据res.list的取值
         {{{/isProForm}}}
       }).catch(() => {
         this.loading = false;

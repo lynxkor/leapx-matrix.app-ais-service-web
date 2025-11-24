@@ -1,5 +1,6 @@
 <template>
   <div class="page-common m-{{{nameKebabCase}}}-list">
+    <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
     <el-form
       :inline="true"
       :model="form"
@@ -160,6 +161,7 @@
       />
     </el-form>
     <div class="ais-actions">
+      <!--  TIPS:根据产品增删功能按钮  -->
       <el-button size="small" type="primary" icon="el-icon-plus" @click="handleAdd">新增</el-button>
       <el-button size="small" @click="handleImport">导入</el-button>
       <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
@@ -205,7 +207,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 
 const defaultForm = {
-  // 多选时字段有变化，自行修复
+  // TIPS:多选时字段名称会有变化，自行校对
   {{{#searchList}}}
   {{{key}}}: '',
   {{{/searchList}}}
