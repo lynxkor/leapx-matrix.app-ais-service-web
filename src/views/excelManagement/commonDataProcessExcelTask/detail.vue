@@ -15,7 +15,7 @@
             <el-form-item label="主键：" prop="id">
               {{ info.id  }}
             </el-form-item>
-            <el-form-item label="任务类型，0：excel导出，1：excel导入：" prop="taskType">
+            <el-form-item label="任务类型：" prop="taskType">
               {{ info.taskType  }}
             </el-form-item>
             <el-form-item label="业务标识：" prop="businessType">
@@ -27,7 +27,7 @@
             <el-form-item label="导入结果备注：" prop="importRemark">
               {{ info.importRemark  }}
             </el-form-item>
-            <el-form-item label="任务状态，0：导出中、1：导出完成、2：导出失败，11：等待导入，12：导入中，13：导入完成，14导入失败：" prop="taskStatus">
+            <el-form-item label="任务状态：" prop="taskStatus">
               {{ info.taskStatus  }}
             </el-form-item>
             <el-form-item label="创建者：" prop="creator">
@@ -48,7 +48,7 @@
             <el-form-item label="修改者：" prop="modifier">
               {{ info.modifier  }}
             </el-form-item>
-            <el-form-item label="删除状态，0：未删除、1：已删除：" prop="deleteStatus">
+            <el-form-item label="删除状态：" prop="deleteStatus">
               {{ info.deleteStatus  }}
             </el-form-item>
             <el-form-item label="任务需要转发的请求头：" prop="headerMap">
