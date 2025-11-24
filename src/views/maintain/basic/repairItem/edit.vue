@@ -110,7 +110,8 @@
               </el-form-item>
               <el-form-item label="保养项目分类：" prop="maintenanceItemType">
                 <fetch-select
-                  :request="() => fetchOptions('MaintenanceItemEnum')"
+                  :request="fetchOptions"
+                  enumCode="MaintenanceItemEnum"
                   v-model="form.maintenanceItemType"
                   placeholder="请选择"
                   clearable
@@ -134,7 +135,8 @@
               </el-form-item>
               <el-form-item label="里程间隔计算标准：" prop="mileageInterval">
                 <fetch-select
-                  :request="() => fetchOptions('MileageIntervalEnum')"
+                  :request="fetchOptions"
+                  enumCode="MileageIntervalEnum"
                   v-model="form.mileageInterval"
                   placeholder="请选择"
                   clearable
@@ -142,7 +144,8 @@
               </el-form-item>
               <el-form-item label="时间间隔计算标准：" prop="timeInterval">
                 <fetch-select
-                  :request="() => fetchOptions('TimeIntervalEnum')"
+                  :request="fetchOptions"
+                  enumCode="TimeIntervalEnum"
                   v-model="form.timeInterval"
                   placeholder="请选择"
                   clearable

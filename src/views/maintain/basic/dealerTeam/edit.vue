@@ -26,7 +26,8 @@
               </el-form-item>
               <el-form-item label="班组类型：" prop="teamType">
                 <fetch-select
-                  :request="() => fetchOptions('StationTypeEnum')"
+                  :request="fetchOptions"
+                  enumCode="StationTypeEnum"
                   v-model="form.teamType"
                   placeholder="请选择"
                   clearable

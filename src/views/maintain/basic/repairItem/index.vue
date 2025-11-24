@@ -36,7 +36,8 @@
       <span v-show="show">
         <el-form-item label="状态：">
           <fetch-select
-            :request="() => fetchOptions('StatusEnum')"
+            :request="fetchOptions"
+            enumCode="StatusEnum"
             v-model="form.statusIncludeList"
             placeholder="请选择"
             clearable
@@ -45,7 +46,8 @@
         </el-form-item>
         <el-form-item label="保养项目分类：">
           <fetch-select
-            :request="() => fetchOptions('MaintenanceItemEnum')"
+            :request="fetchOptions"
+            enumCode="MaintenanceItemEnum"
             v-model="form.maintenanceItemType"
             placeholder="请选择"
             clearable

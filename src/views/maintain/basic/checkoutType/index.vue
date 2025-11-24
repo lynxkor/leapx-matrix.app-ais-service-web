@@ -22,7 +22,8 @@
         </el-form-item>
         <el-form-item label="结算类别：">
           <fetch-select
-            :request="() => fetchOptions('CheckoutCategoryEnum')"
+            :request="fetchOptions"
+            enumCode="CheckoutCategoryEnum"
             v-model="form.categorys"
             placeholder="请选择"
             clearable
@@ -32,7 +33,8 @@
         <span v-show="this.visibleCount === 3 || show">
           <el-form-item label="状态：">
             <fetch-select
-              :request="() => fetchOptions('StatusEnum')"
+              :request="fetchOptions"
+              enumCode="StatusEnum"
               v-model="form.statusIncludeList"
               placeholder="请选择"
               clearable

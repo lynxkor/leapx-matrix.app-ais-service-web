@@ -21,7 +21,8 @@
       </el-form-item>
       <el-form-item label="权限类型：">
         <fetch-select
-          :request="() => fetchOptions('PermissionTypeEnum')"
+          :request="fetchOptions"
+          enumCode="PermissionTypeEnum"
           v-model="form.permissionTypes"
           placeholder="请选择"
           clearable
@@ -30,7 +31,8 @@
       </el-form-item>
       <el-form-item label="建店类型：" v-show="this.visibleCount === 3 || show">
         <fetch-select
-        :request="() => fetchOptions('DealerTypeEnum')"
+        :request="fetchOptions"
+        enumCode="DealerTypeEnum"
         v-model="form.dealerTypes"
         placeholder="请选择"
         clearable
@@ -40,7 +42,8 @@
       <span v-show="show">
         <el-form-item label="状态：">
           <fetch-select
-            :request="() => fetchOptions('StatusEnum')"
+            :request="fetchOptions"
+            enumCode="StatusEnum"
             v-model="form.statusIncludeList"
             placeholder="请选择"
             clearable
