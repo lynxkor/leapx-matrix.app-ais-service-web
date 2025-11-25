@@ -8,18 +8,19 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="创建时间：">
+      <el-form-item label="创建时间">
         <el-date-picker
           v-model="form.createTime"
           type="daterange"
           :picker-options="pickerOptions"
+          range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
           align="right"
         />
       </el-form-item>
-      <el-form-item label="权限类型：">
+      <el-form-item label="权限类型">
         <fetch-select
           :request="fetchOptions"
           enumCode="PermissionTypeEnum"
@@ -29,7 +30,7 @@
           multiple
         />
       </el-form-item>
-      <el-form-item label="建店类型：" v-show="this.visibleCount === 3 || show">
+      <el-form-item label="建店类型" v-show="this.visibleCount === 3 || show">
         <fetch-select
         :request="fetchOptions"
         enumCode="DealerTypeEnum"
@@ -40,7 +41,7 @@
         />
       </el-form-item>
       <span v-show="show">
-        <el-form-item label="状态：">
+        <el-form-item label="状态">
           <fetch-select
             :request="fetchOptions"
             enumCode="StatusEnum"
@@ -60,7 +61,7 @@
       />
     </el-form>
     <div class="ais-actions">
-      <el-button size="small" type="primary" icon="el-icon-plus" @click="handleAdd">新增</el-button>
+      <el-button size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button size="small" @click="handleImport">导入</el-button>
       <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>

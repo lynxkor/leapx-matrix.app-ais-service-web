@@ -8,25 +8,26 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="创建时间：">
+      <el-form-item label="创建时间">
         <el-date-picker
           v-model="form.createTime"
           type="daterange"
           :picker-options="pickerOptions"
+          range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
           align="right"
         />
       </el-form-item>
-      <el-form-item label="维修项目代码：">
+      <el-form-item label="维修项目代码">
         <el-input
           placeholder="请输入"
           v-model="form.codeLike"
           clearable
         />
       </el-form-item>
-      <el-form-item label="维修项目名称："  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="维修项目名称"  v-show="this.visibleCount === 3 || show">
         <el-input
         placeholder="请输入"
         v-model="form.nameLike"
@@ -34,7 +35,7 @@
         />
       </el-form-item>
       <span v-show="show">
-        <el-form-item label="状态：">
+        <el-form-item label="状态">
           <fetch-select
             :request="fetchOptions"
             enumCode="StatusEnum"
@@ -44,7 +45,7 @@
             multiple
           />
         </el-form-item>
-        <el-form-item label="保养项目分类：">
+        <el-form-item label="保养项目分类">
           <fetch-select
             :request="fetchOptions"
             enumCode="MaintenanceItemEnum"
@@ -65,7 +66,7 @@
       />
     </el-form>
     <div class="ais-actions">
-      <el-button size="small" type="primary" icon="el-icon-plus" @click="handleAdd">新增</el-button>
+      <el-button size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button size="small" @click="handleImport">导入</el-button>
       <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>

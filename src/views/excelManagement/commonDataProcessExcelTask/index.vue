@@ -53,8 +53,7 @@
       />
     </el-form>
     <div class="ais-actions">
-      <el-button size="small" type="primary" icon="el-icon-plus" @click="handleAdd">新增</el-button>
-      <el-button size="small" @click="handleImport">导入</el-button>
+      <el-button size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>      <el-button size="small" @click="handleImport">导入</el-button>
       <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>

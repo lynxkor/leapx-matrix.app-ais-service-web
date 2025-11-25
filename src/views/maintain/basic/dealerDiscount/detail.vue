@@ -4,7 +4,7 @@
     <template v-else>
       <section class="common-title">
         <h2>优惠代码：{{ info.code }}</h2>
-        <el-button size="small" @click="handleEdit" icon="el-icon-edit">编辑</el-button>
+        <el-button size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
       </section>
       <section class="common-section">
         <div class="common-section-header">

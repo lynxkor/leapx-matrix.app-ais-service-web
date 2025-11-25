@@ -5,7 +5,7 @@
       <section class="common-title">
       {{{#top1List}}}
         <h2>{{{description}}}：{{ info.{{{key}}} }}</h2>
-        <el-button size="small" @click="handleEdit" icon="el-icon-edit">编辑</el-button>
+        <el-button size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
       {{{/top1List}}}
       </section>
       <section class="common-section">

@@ -65,7 +65,7 @@
         <section class="common-section">
           <div class="common-section-header">
             <h2>维修工程师信息</h2>
-            <el-button size="small" icon="el-icon-plus" @click="handleAddRow">添加</el-button>
+            <el-button size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
           </div>
           <div class="common-section-body">
             <div class="common-section-table">
