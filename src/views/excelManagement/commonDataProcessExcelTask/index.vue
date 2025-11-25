@@ -53,7 +53,7 @@
       />
     </el-form>
     <div class="ais-actions">
-      <el-button size="small" type="primary" icon="el-icon-plus" @click="handleAdd">新增</el-button>
+      <!-- <el-button size="small" type="primary" icon="el-icon-plus" @click="handleAdd">新增</el-button> -->
       <el-button size="small" @click="handleImport">导入</el-button>
       <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
@@ -153,10 +153,10 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'taskType', label: '任务类型', visible: true, width: 200 },
+          { props: 'taskTypeLabel', label: '任务类型', visible: true, width: 200 },
           { props: 'businessType', label: '业务标识', visible: true, width: 200 },
           { props: 'excelUrl', label: '导出下载地址', visible: true, width: 200 },
-          { props: 'taskStatus', label: '任务状态', visible: true, width: 200 },
+          { props: 'taskStatusLabel', label: '任务状态', visible: true, width: 200 },
           { props: 'importRemark', label: '描述', visible: true, width: 200 },
           { props: 'creator', label: '创建者', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
@@ -167,36 +167,38 @@ export default {
             type: 'operate',
             visible: true,
             fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/excelManagement/commonDataProcessExcelTask/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
+            buttons: [
+              // {
+              //   name: '编辑',
+              //   click: (rowIndex, row) => {
+              //     this.$router.push({
+              //       path: '/excelManagement/commonDataProcessExcelTask/edit',
+              //       query: {
+              //         id: row.id
+              //       }
+              //     });
+              //   },
+              //   type: 'info'
+              // },
+              {
+                name: '删除',
+                popconfirmTitle: '此操作将永久删除, 是否继续?',
+                click: (rowIndex, row) => {
+                  deleteItem([row.id]).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '删除成功!'
+                    });
+                    this.getData();
+                  }).catch(() => {
+                    this.$message({
+                      type: 'error',
+                      message: '删除失败!'
+                    });
                   });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
-            }]
+                },
+                type: 'danger'
+              }]
           }
         ],
         total: 0
@@ -231,7 +233,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel管理']);
     this.getData();
   },
   methods: {
