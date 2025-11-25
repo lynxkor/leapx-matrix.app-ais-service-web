@@ -10,6 +10,7 @@
           </div>
           <div class="common-section-body">
             <!-- TIPS: 如果填写项小于15项，去掉 :inline="true" -->
+            <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px">
             {{{#cols}}}
             {{{#isDate}}}
@@ -32,7 +33,7 @@
                   v-model="form.{{{key}}}"
                   placeholder="请选择"
                   clearable
-                  multiple
+                  filterable
                 />
               </el-form-item>
             {{{/isSelect}}}
@@ -85,6 +86,7 @@
   </div>
   {{{/isProForm}}}
   {{{^isProForm}}}
+  <!-- TIPS: 如果填写项大于15项，使用类名page-common-edit替换page-common-add -->
   <div class="page-common-add">
     <el-container>
       <el-main>
@@ -93,6 +95,8 @@
             <h2>基础信息</h2>
           </div>
           <div class="common-section-body">
+            <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
+            <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
             {{{#cols}}}
             {{{#isDate}}}
@@ -115,7 +119,7 @@
                   v-model="form.{{{key}}}"
                   placeholder="请选择"
                   clearable
-                  multiple
+                  filterable
                 />
               </el-form-item>
             {{{/isSelect}}}
