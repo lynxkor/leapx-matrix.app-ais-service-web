@@ -90,6 +90,7 @@ import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/co
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
+import { downloadExcel } from '@/utils/index.js';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -153,7 +154,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(row.excelModelUrl);
+                this.handleDownload(row);
               },
               type: 'info'
             }]
@@ -401,6 +402,9 @@ export default {
           });
         });
       });
+    },
+    handleDownload (row) {
+      downloadExcel(row.excelModelUrl, row.fileName || '模板');
     }
   }
 };
