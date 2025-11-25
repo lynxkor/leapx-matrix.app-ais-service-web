@@ -11,7 +11,7 @@
             <h2>基础信息</h2>
           </div>
           <div class="common-section-body">
-            <el-form :inline="true" ref="ruleForm" label-width="120px">
+            <el-form :inline="true" ref="ruleForm" label-width="200px">
               <el-form-item label="模板id：" prop="id">
                 {{ info.id  }}
               </el-form-item>
@@ -58,7 +58,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel模板', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel模板导入', '详情']);
     this.getData();
   },
   methods: {

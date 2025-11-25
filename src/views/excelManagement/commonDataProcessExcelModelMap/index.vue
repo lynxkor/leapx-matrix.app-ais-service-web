@@ -174,7 +174,7 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/excelManagement/basic/commonDataProcessExcelModelMap/edit',
+                  path: '/excelManagement/commonDataProcessExcelModelMap/edit',
                   query: {
                     id: row.id
                   }
@@ -234,7 +234,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel模板导入']);
     this.getData();
   },
   methods: {
