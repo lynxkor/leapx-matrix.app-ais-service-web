@@ -32,7 +32,7 @@ export function exportTable (data) {
  * @param {*} data
  */
 export function getEnum (code) {
-  return api.get(`/maintain/web/common/enum/${code}`);
+  return api.jsonPost('/datacenter/web/common/commonDictValue/get', { dictType: code });
 }
 
 /**
@@ -81,4 +81,20 @@ export function listVehicleYearType (data) {
  */
 export function repairItemType (data) {
   return api.jsonPost('/maintain/web/basic/repairItemType/list', data);
+}
+
+/**
+ * 城市模糊搜索
+ * @param {*} data
+ */
+export function cityPage (data) {
+  return api.jsonPost('/area/findPage/city', data);
+}
+
+/**
+ * 销售公告车型模糊搜索
+ * @param {*} data
+ */
+export function vehicleSalesVersionList (data) {
+  return api.jsonPost('/datacenter/web/materials/vehicleRegisteredModel/list', data);
 }

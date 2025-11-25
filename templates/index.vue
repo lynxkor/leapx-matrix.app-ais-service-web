@@ -32,6 +32,7 @@
           placeholder="请选择"
           clearable
           multiple
+          filterable
         />
       </el-form-item>
     {{{/isSelect}}}
@@ -43,6 +44,7 @@
           placeholder="请选择"
           clearable
           multiple
+          filterable
         />
       </el-form-item>
     {{{/isBoolean}}}
@@ -79,6 +81,7 @@
           placeholder="请选择"
           clearable
           multiple
+          filterable
         />
       </el-form-item>
     {{{/isSelect}}}
@@ -90,6 +93,7 @@
           placeholder="请选择"
           clearable
           multiple
+          filterable
         />
       </el-form-item>
     {{{/isBoolean}}}
@@ -127,6 +131,7 @@
             placeholder="请选择"
             clearable
             multiple
+            filterable
           />
         </el-form-item>
       {{{/isSelect}}}
@@ -138,6 +143,7 @@
             placeholder="请选择"
             clearable
             multiple
+            filterable
           />
         </el-form-item>
       {{{/isBoolean}}}
