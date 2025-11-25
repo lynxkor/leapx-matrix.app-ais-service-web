@@ -7,15 +7,16 @@
             <h2>基础信息</h2>
           </div>
           <div class="common-section-body">
-            <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="主键：" prop="id">
+            <el-form :model="form" :rules="rules" ref="ruleForm" label-width="180px">
+              <el-form-item label="任务id：" prop="id">
                 <el-input
                   placeholder="请输入"
                   v-model="form.id"
                   clearable
+                  disabled
                 />
               </el-form-item>
-              <el-form-item label="任务类型，0：excel导出，1：excel导入：" prop="taskType">
+              <el-form-item label="任务类型：" prop="taskType">
                 <fetch-select
                   :request="() => fetchOptions('xxx')"
                   v-model="form.taskType"
@@ -47,40 +48,13 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="任务状态，0：导出中、1：导出完成、2：导出失败，11：等待导入，12：导入中，13：导入完成，14导入失败：" prop="taskStatus">
+              <el-form-item label="任务状态：" prop="taskStatus">
                 <fetch-select
                   :request="() => fetchOptions('xxx')"
                   v-model="form.taskStatus"
                   placeholder="请选择"
                   clearable
                   multiple
-                />
-              </el-form-item>
-              <el-form-item label="创建者：" prop="creator">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.creator"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="创建时间：" prop="createTime">
-                <el-date-picker
-                  v-model="form.createTime"
-                  :picker-options="pickerOptions"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  align="right"
-                />
-              </el-form-item>
-              <el-form-item label="修改时间：" prop="updateTime">
-                <el-date-picker
-                  v-model="form.updateTime"
-                  :picker-options="pickerOptions"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  align="right"
                 />
               </el-form-item>
               <el-form-item label="导入模板的主键id：" prop="importModelId">
@@ -104,7 +78,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="删除状态，0：未删除、1：已删除：" prop="deleteStatus">
+              <el-form-item label="删除状态：" prop="deleteStatus">
                 <fetch-select
                   :request="() => fetchOptions('xxx')"
                   v-model="form.deleteStatus"
@@ -154,9 +128,6 @@ const defaultForm = {
   excelUrl: '',
   importRemark: '',
   taskStatus: '',
-  creator: '',
-  createTime: '',
-  updateTime: '',
   importModelId: '',
   importFailUrl: '',
   modifier: '',
@@ -189,7 +160,7 @@ export default {
           { required: true, message: '请输入主键', trigger: 'blur' }
         ],
         taskType: [
-          { required: true, message: '请选择任务类型，0：excel导出，1：excel导入', trigger: 'change' }
+          { required: true, message: '请选择任务类型', trigger: 'change' }
         ],
         businessType: [
           { required: true, message: '请选择业务标识', trigger: 'change' }
@@ -201,16 +172,7 @@ export default {
           { required: true, message: '请输入导入结果备注', trigger: 'blur' }
         ],
         taskStatus: [
-          { required: true, message: '请选择任务状态，0：导出中、1：导出完成、2：导出失败，11：等待导入，12：导入中，13：导入完成，14导入失败', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'blur' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
+          { required: true, message: '请选择任务状态', trigger: 'change' }
         ],
         importModelId: [
           { required: true, message: '请输入导入模板的主键id', trigger: 'blur' }
@@ -218,11 +180,8 @@ export default {
         importFailUrl: [
           { required: true, message: '请输入导入失败的数据excel下载地址', trigger: 'blur' }
         ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'blur' }
-        ],
         deleteStatus: [
-          { required: true, message: '请选择删除状态，0：未删除、1：已删除', trigger: 'change' }
+          { required: true, message: '请选择删除状态', trigger: 'change' }
         ],
         headerMap: [
           { required: true, message: '请输入任务需要转发的请求头', trigger: 'blur' }
@@ -284,7 +243,7 @@ export default {
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', `${id ? '编辑' : '新建'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel管理', `${id ? '编辑' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;

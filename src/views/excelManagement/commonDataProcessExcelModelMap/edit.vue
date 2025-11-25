@@ -17,6 +17,29 @@
                   />
                 </el-form-item>
                 <el-form-item label="excel导入模板下载地址：" prop="excelModelUrl">
+                  <el-upload
+                    class="upload-demo"
+                    :action="uploadAction"
+                    :before-remove="beforeRemove"
+                    :before-upload="beforeUpload"
+                    :on-success="handleSuccess"
+                    :on-error="handleError"
+                    :limit="1"
+                    :on-exceed="handleExceed"
+                    :file-list="fileList"
+                    accept=".xlsx,.xls"
+                    :headers=uploadHeaders
+                  >
+                    <el-button
+                      size="small"
+                      type="primary"
+                      :loading="uploadLoading"
+                      :disabled="uploadLoading"
+                     >
+                     {{ uploadLoading ? '上传中...' : '点击上传' }}
+                    </el-button>
+                    <div slot="tip" class="el-upload__tip">只能上传.xlsx,.xls文件，且不超过1MB</div>
+                  </el-upload>
                   <el-input
                     placeholder="请输入"
                     v-model="form.excelModelUrl"
@@ -93,6 +116,11 @@ export default {
   },
   data () {
     return {
+      uploadHeaders: {
+        Authorization: 'Bearer ' + localStorage.getItem('token')
+      },
+      fileList: [],
+      uploadLoading: false,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -147,6 +175,12 @@ export default {
       }
     };
   },
+  computed: {
+  // 使用计算属性动态获取上传地址
+    uploadAction () {
+      return process.env.VUE_APP_WORK_ORDER_URL + '/file/fileService/uploadMultipartFile';
+    }
+  },
   mounted () {
     this.getDetailData();
   },
@@ -173,7 +207,7 @@ export default {
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', `${id ? '编辑' : '新建'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel模板导入', `${id ? '编辑' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
@@ -205,6 +239,7 @@ export default {
     },
     resetForm (formName) {
       this.$refs[formName].resetFields();
+      this.fileList = [];
       this.tableData = [];
       this.form = { ...defaultForm };
     },
@@ -222,6 +257,49 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+
+    // 上传前的文件校验
+    beforeUpload (file) {
+      const isExcel = /\.(xlsx|xls|csv)$/i.test(file.name);
+      const isLt1M = file.size / 1024 / 1024 < 1;
+      if (!isExcel) {
+        this.$message.error('只能上传 Excel 文件!');
+        return false;
+      }
+      if (!isLt1M) {
+        this.$message.error('文件大小不能超过 1MB!');
+        return false;
+      }
+      // 开始上传，显示加载状态
+      this.uploadLoading = true;
+      return true;
+    },
+
+    // 上传成功后的处理
+    handleSuccess (res, file) {
+      this.uploadLoading = false;
+      const excelModelUrl = file.response?.data?.url;
+      // 直接赋值
+      this.form.excelModelUrl = excelModelUrl;
+
+      this.$message.success('上传成功');
+    },
+
+    beforeRemove (file, fileList) {
+      this.uploadLoading = false;
+      this.form.excelModelUrl = '';
+      return this.$confirm(`确定移除 ${file.name}？`);
+    },
+
+    handleError () {
+      this.uploadLoading = false;
+      this.$message.error('上传失败，请重试');
+    },
+
+    // 上传时校验
+    handleExceed () {
+      this.$message.warning('当前限制选择 1 个文件');
     }
   }
 };

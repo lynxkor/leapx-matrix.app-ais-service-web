@@ -104,8 +104,7 @@
     </div>
     <Upload
       :visible="uploadDialogVisible"
-      templateUrl=""
-      uploadUrl=""
+      :id="1"
       @close="handleUploadDialogClose"
     />
   </div>
@@ -440,6 +439,13 @@ export default {
             label: item.storeName
           };
         });
+      });
+    },
+    // 导入模板
+    importTemplate () {
+      this.$message({
+        type: 'info',
+        message: '请前往导出列表中查询导出结果'
       });
     },
   }
