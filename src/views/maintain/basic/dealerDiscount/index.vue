@@ -337,7 +337,7 @@ export default {
         this.storeLoading = true;
         try {
           // 调用搜索接口，传递搜索关键词
-          const res = await listOrgStoreInfo({ name: query, size: 100 });
+          const res = await listOrgStoreInfo({ storeName: query, size: 100 });
 
           if (res) {
             this.storeOptions = res?.records?.map(item => ({

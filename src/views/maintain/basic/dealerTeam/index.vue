@@ -422,7 +422,7 @@ export default {
     },
     getStoreByName (query) {
       listOrgStoreInfo({
-        name: query,
+        storeName: query,
         size: 100
       }).then(res => {
         this.storeOptions = res?.records?.map(item => {
