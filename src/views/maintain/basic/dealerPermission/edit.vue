@@ -8,7 +8,7 @@
           </div>
           <div class="common-section-body">
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="建店类型代码：" prop="code">
+              <el-form-item label="建店类型代码" prop="code">
                 <el-input
                   placeholder="请输入"
                   v-model="form.code"
@@ -16,7 +16,7 @@
                   disabled
                 />
               </el-form-item>
-              <el-form-item label="权限类型：" prop="permissionType">
+              <el-form-item label="权限类型" prop="permissionType">
                 <fetch-select
                   :request="fetchOptions"
                   enumCode="PermissionTypeEnum"
@@ -25,7 +25,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="结算类型名称：" prop="checkoutTypeId">
+              <el-form-item label="结算类型名称" prop="checkoutTypeId">
                 <el-select
                   v-model="form.checkoutTypeName"
                   filterable
@@ -43,7 +43,7 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="建店类型：" prop="dealerType">
+              <el-form-item label="建店类型" prop="dealerType">
                 <fetch-select
                   :request="fetchOptions"
                   enumCode="DealerTypeEnum"
@@ -52,7 +52,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="保修类型名称：" prop="repairItemTypeName">
+              <el-form-item label="保修类型名称" prop="repairItemTypeName">
                 <el-select
                   v-model="form.repairItemTypeName"
                   filterable
@@ -70,7 +70,7 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="备注：" prop="remark">
+              <el-form-item label="备注" prop="remark">
                 <el-input
                   type="textarea"
                   placeholder="请输入"

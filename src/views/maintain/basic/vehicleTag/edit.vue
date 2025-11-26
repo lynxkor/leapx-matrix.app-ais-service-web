@@ -8,7 +8,7 @@
           </div>
           <div class="common-section-body">
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="130px">
-              <el-form-item label="车辆标识代码：" prop="code">
+              <el-form-item label="车辆标识代码" prop="code">
                 <el-input
                   placeholder="自动生成"
                   v-model="form.code"
@@ -16,7 +16,7 @@
                   disabled
                 />
               </el-form-item>
-              <el-form-item label="车辆标识名称：" prop="name">
+              <el-form-item label="车辆标识名称" prop="name">
                 <el-input
                   placeholder="请输入"
                   v-model="form.name"

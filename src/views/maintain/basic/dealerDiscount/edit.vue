@@ -8,7 +8,7 @@
           </div>
           <div class="common-section-body">
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px">
-              <el-form-item label="优惠代码：" prop="code">
+              <el-form-item label="优惠代码" prop="code">
                 <el-input
                   placeholder="请输入"
                   v-model="form.code"
@@ -16,7 +16,7 @@
                   disabled
                 />
               </el-form-item>
-              <el-form-item label="优惠名称：" prop="name">
+              <el-form-item label="优惠名称" prop="name">
                 <el-input
                   placeholder="请输入"
                   v-model="form.name"
@@ -25,7 +25,7 @@
                   show-word-limit
                 />
               </el-form-item>
-              <el-form-item label="门店名称：" prop="dealerName">
+              <el-form-item label="门店名称" prop="dealerName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.dealerName"

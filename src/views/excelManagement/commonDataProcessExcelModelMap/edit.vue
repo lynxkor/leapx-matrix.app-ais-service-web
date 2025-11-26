@@ -8,7 +8,7 @@
             </div>
             <div class="common-section-body">
               <el-form :model="form" :rules="rules" ref="ruleForm" label-width="220px">
-                <el-form-item label="模板id：" prop="id">
+                <el-form-item label="模板id" prop="id">
                   <el-input
                     placeholder="请输入"
                     v-model="form.id"
@@ -16,7 +16,7 @@
                     disabled
                   />
                 </el-form-item>
-                <el-form-item label="excel导入模板下载地址：" prop="excelModelUrl">
+                <el-form-item label="excel导入模板下载地址" prop="excelModelUrl">
                   <el-upload
                     class="upload-demo"
                     :action="uploadAction"
@@ -46,28 +46,28 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="业务标识：" prop="businessType">
+                <el-form-item label="业务标识" prop="businessType">
                   <el-input
                     placeholder="请输入"
                     v-model="form.businessType"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="导入数据的第三方接口信息：" prop="postInterface">
+                <el-form-item label="导入数据的第三方接口信息" prop="postInterface">
                   <el-input
                     placeholder="请输入"
                     v-model="form.postInterface"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="导入参数DTO：" prop="postParamDto">
+                <el-form-item label="导入参数DTO" prop="postParamDto">
                   <el-input
                     placeholder="请输入"
                     v-model="form.postParamDto"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="每批n条数据：" prop="batchSize">
+                <el-form-item label="每批n条数据" prop="batchSize">
                   <el-input
                     placeholder="请输入"
                     v-model="form.batchSize"

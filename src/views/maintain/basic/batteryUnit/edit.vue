@@ -8,7 +8,7 @@
           </div>
           <div class="common-section-body">
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="单位代码：" prop="code">
+              <el-form-item label="单位代码" prop="code">
                 <el-input
                   placeholder="自动生成"
                   v-model="form.code"
@@ -16,21 +16,21 @@
                   disabled
                 />
               </el-form-item>
-              <el-form-item label="单位名称：" prop="name">
+              <el-form-item label="单位名称" prop="name">
                 <el-input
                   placeholder="请输入"
                   v-model="form.name"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="统一社会信用代码：" prop="buinessLicense">
+              <el-form-item label="统一社会信用代码" prop="buinessLicense">
                 <el-input
                   placeholder="请输入"
                   v-model="form.buinessLicense"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="负责人：" prop="ownerName">
+              <el-form-item label="负责人" prop="ownerName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.ownerName"

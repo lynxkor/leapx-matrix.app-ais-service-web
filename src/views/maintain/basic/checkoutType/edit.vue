@@ -8,14 +8,14 @@
           </div>
           <div class="common-section-body">
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="结算类型代码：" prop="code">
+              <el-form-item label="结算类型代码" prop="code">
                 <el-input
                   placeholder="请输入"
                   v-model="form.code"
                   disabled
                 />
               </el-form-item>
-              <el-form-item label="结算类型名称：" prop="name">
+              <el-form-item label="结算类型名称" prop="name">
                 <el-input
                   placeholder="请输入"
                   v-model="form.name"
@@ -24,7 +24,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="结算类别：" prop="category">
+              <el-form-item label="结算类别" prop="category">
                 <fetch-select
                   :request="fetchOptions"
                   enumCode="CheckoutCategoryEnum"
@@ -33,14 +33,14 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="是否app展示描述：" prop="appShow">
+              <el-form-item label="是否app展示描述" prop="appShow">
                 <el-input
                   v-model="appShowText"
                   placeholder="否"
                   disabled
                 />
               </el-form-item>
-              <el-form-item label="排序：" prop="sort">
+              <el-form-item label="排序" prop="sort">
                 <el-input
                   type="number"
                   placeholder="请输入"
@@ -48,7 +48,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="备注：" prop="remark">
+              <el-form-item label="备注" prop="remark">
                 <el-input
                   type="textarea"
                   placeholder="请输入"
