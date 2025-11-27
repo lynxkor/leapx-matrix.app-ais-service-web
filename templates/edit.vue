@@ -188,12 +188,13 @@ export default {
     {{{/isProForm}}}
   },
   data () {
+    const form = this.getDefautlForm();
     return {
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
-      form: { ...defaultForm },
-      originalForm: { ...defaultForm },
+      form: { ...form },
+      originalForm: { ...form },
       {{{#isProForm}}}
       defaultNewRow: {
         name: '',
@@ -354,7 +355,16 @@ export default {
     resetForm (formName) {
       this.$refs[formName].resetFields();
       this.tableData = [];
-      this.form = { ...defaultForm };
+      this.form = this.getDefautlForm();
+    },
+    getDefautlForm () {
+      // TIPS: 此处可添加表单默认值，如当前用户信息等
+      // const userInfo = this.$store.state.user.userInfo;
+      return {
+        ...defaultForm
+        // ownerId: userInfo.userId,
+        // ownerName: userInfo.userName,
+      };
     },
     // handleJumpAuditLog () {
     //   this.$router.push({
