@@ -194,10 +194,10 @@
         @handleSelect="handleSelectionChange"
       />
     </div>
+    <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      templateUrl=""
-      uploadUrl=""
+      :id="1"
       @close="handleUploadDialogClose"
     />
   </div>
@@ -375,9 +375,11 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
+        businessType: '{{{title}}}',
         dataFetchPath: '/datacenter/{{{{modulePath}}}}/page',
         reqParams: this.getFormData(),
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols())
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        httpMethod: 'POST'
       }).then(res => {
         if (res) {
           if (res.excelUrl) {
