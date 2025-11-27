@@ -67,7 +67,9 @@
     </el-form>
     <div class="ais-actions">
       <el-button size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button size="small" @click="handleImport">导入</el-button>
+      <el-button size="small" @click="handleImport(2)">项目导入</el-button>
+      <el-button size="small" @click="handleImport(3)">配件导入</el-button>
+      <el-button size="small" @click="handleImport(4)">车型导入</el-button>
       <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
@@ -92,8 +94,7 @@
     </div>
     <Upload
       :visible="uploadDialogVisible"
-      templateUrl=""
-      uploadUrl=""
+      :id="uploadDialogId"
       @close="handleUploadDialogClose"
     />
   </div>
@@ -143,6 +144,7 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      uploadDialogId: 2,
       optionObj: {
         id: 'repairItemTable',
         dataList: [],
@@ -262,7 +264,8 @@ export default {
     this.getData();
   },
   methods: {
-    handleImport () {
+    handleImport (val) {
+      this.uploadDialogId = val;
       this.uploadDialogVisible = true;
     },
     handleUploadDialogClose () {
