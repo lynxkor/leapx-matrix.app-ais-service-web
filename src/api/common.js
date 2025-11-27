@@ -28,6 +28,25 @@ export function getTemplateUrl (data) {
 }
 
 /**
+ * 列表模板确认
+ * @param {*} data
+ */
+export function importExcelConfirmFile (formData, config = {}) {
+  // 查询参数需要放在 config 或 URL 中
+  return api.postExport('/data/ExcelManage/importExcelConfirm', formData, {
+    params: { // 查询参数放在 config 中
+      id: config.id,
+      token: config.token
+    },
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      ...config.headers
+    },
+    ...config
+  });
+}
+
+/**
  * 列表导出
  * @param {*} data
  */
