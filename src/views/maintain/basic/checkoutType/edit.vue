@@ -77,6 +77,7 @@ import { getDetail, addOrUpdate } from '@/api/maintain/basic/checkoutType/index'
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
+import routeGuard from '@/libs/mixins/routeGuard';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -90,6 +91,7 @@ const defaultForm = {
 
 export default {
   name: 'checkoutTypeEdit',
+  mixins: [routeGuard],
   components: {
     FetchSelect,
   },
@@ -156,21 +158,6 @@ export default {
   },
   mounted () {
     this.getDetailData();
-  },
-  beforeRouteLeave (to, from, next) {
-    if (JSON.stringify(this.form) === JSON.stringify(this.originalForm)) {
-      next();
-    } else {
-      this.$confirm('确定要放弃修改吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        next();
-      }).catch(() => {
-        next(false);
-      });
-    }
   },
   methods: {
     handleBack () {

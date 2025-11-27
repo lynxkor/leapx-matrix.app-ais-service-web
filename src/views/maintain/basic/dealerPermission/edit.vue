@@ -100,6 +100,7 @@ import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import { listSettlementType } from '@/api/maintain/basic/checkoutType';
 import { listItem } from '@/api/maintain/basic/repairItemType';
+import routeGuard from '@/libs/mixins/routeGuard';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -115,6 +116,7 @@ const defaultForm = {
 
 export default {
   name: 'dealerPermissionEdit',
+  mixins: [routeGuard],
   // 集中视图预留
   props: {
     id: {
@@ -189,21 +191,6 @@ export default {
   },
   mounted () {
     this.getDetailData();
-  },
-  beforeRouteLeave (to, from, next) {
-    if (JSON.stringify(this.form) === JSON.stringify(this.originalForm)) {
-      next();
-    } else {
-      this.$confirm('确定要放弃修改吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        next();
-      }).catch(() => {
-        next(false);
-      });
-    }
   },
   methods: {
     handleBack () {

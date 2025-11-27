@@ -62,6 +62,7 @@ import { getDetail, addOrUpdate } from '@/api/maintain/basic/vehicleTag/index';
 import EditTable from '@/libs/components/EditTable';
 import { getEnum, getUserByNameOrNo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
+import routeGuard from '@/libs/mixins/routeGuard';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -76,6 +77,7 @@ const defaultForm = {
 
 export default {
   name: 'vehicleTagEdit',
+  mixins: [routeGuard],
   components: {
     // FetchSelect,
     EditTable
@@ -180,21 +182,6 @@ export default {
   },
   mounted () {
     this.getDetailData();
-  },
-  beforeRouteLeave (to, from, next) {
-    if (JSON.stringify(this.form) === JSON.stringify(this.originalForm)) {
-      next();
-    } else {
-      this.$confirm('确定要放弃修改吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        next();
-      }).catch(() => {
-        next(false);
-      });
-    }
   },
   methods: {
     handleBack () {

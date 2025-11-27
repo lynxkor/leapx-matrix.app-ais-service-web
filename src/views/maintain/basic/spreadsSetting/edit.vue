@@ -89,6 +89,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum, listVehicleModel } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import { createDebouncedSearch } from '@/utils/index.js';
+import routeGuard from '@/libs/mixins/routeGuard';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -114,6 +115,7 @@ const debouncedSearch = createDebouncedSearch({
 export default {
   name: 'spreadsSettingEdit',
   // 集中视图预留
+  mixins: [routeGuard],
   props: {
     id: {
       type: [String, Number],
@@ -184,21 +186,6 @@ export default {
   },
   mounted () {
     this.getDetailData();
-  },
-  beforeRouteLeave (to, from, next) {
-    if (JSON.stringify(this.form) === JSON.stringify(this.originalForm)) {
-      next();
-    } else {
-      this.$confirm('确定要放弃修改吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        next();
-      }).catch(() => {
-        next(false);
-      });
-    }
   },
   methods: {
     handleBack () {
