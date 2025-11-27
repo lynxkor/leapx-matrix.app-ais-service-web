@@ -258,9 +258,11 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        dataFetchPath: '/datacenter/maintain/basic/dealerWorkhourPriceSetting/page',
+        businessType: '工时价格设置',
+        dataFetchPath: '/maintain/web/basic/dealerWorkhourPriceSetting/page',
         reqParams: this.getFormData(),
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols())
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        httpMethod: 'POST'
       }).then(res => {
         if (res) {
           if (res.excelUrl) {
