@@ -8,7 +8,7 @@
           </div>
           <div class="common-section-body">
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="180px">
-              <el-form-item label="任务id：" prop="id">
+              <el-form-item label="任务id" prop="id">
                 <el-input
                   placeholder="请输入"
                   v-model="form.id"
@@ -16,7 +16,7 @@
                   disabled
                 />
               </el-form-item>
-              <el-form-item label="任务类型：" prop="taskType">
+              <el-form-item label="任务类型" prop="taskType">
                 <fetch-select
                   :request="() => fetchOptions('xxx')"
                   v-model="form.taskType"
@@ -25,7 +25,7 @@
                   multiple
                 />
               </el-form-item>
-              <el-form-item label="业务标识：" prop="businessType">
+              <el-form-item label="业务标识" prop="businessType">
                 <fetch-select
                   :request="() => fetchOptions('xxx')"
                   v-model="form.businessType"
@@ -34,21 +34,21 @@
                   multiple
                 />
               </el-form-item>
-              <el-form-item label="导出的excel下载地址：" prop="excelUrl">
+              <el-form-item label="导出的excel下载地址" prop="excelUrl">
                 <el-input
                   placeholder="请输入"
                   v-model="form.excelUrl"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="导入结果备注：" prop="importRemark">
+              <el-form-item label="导入结果备注" prop="importRemark">
                 <el-input
                   placeholder="请输入"
                   v-model="form.importRemark"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="任务状态：" prop="taskStatus">
+              <el-form-item label="任务状态" prop="taskStatus">
                 <fetch-select
                   :request="() => fetchOptions('xxx')"
                   v-model="form.taskStatus"
@@ -57,28 +57,28 @@
                   multiple
                 />
               </el-form-item>
-              <el-form-item label="导入模板的主键id：" prop="importModelId">
+              <el-form-item label="导入模板的主键id" prop="importModelId">
                 <el-input
                   placeholder="请输入"
                   v-model="form.importModelId"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="导入失败的数据excel下载地址：" prop="importFailUrl">
+              <el-form-item label="导入失败的数据excel下载地址" prop="importFailUrl">
                 <el-input
                   placeholder="请输入"
                   v-model="form.importFailUrl"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="修改者：" prop="modifier">
+              <el-form-item label="修改者" prop="modifier">
                 <el-input
                   placeholder="请输入"
                   v-model="form.modifier"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="删除状态：" prop="deleteStatus">
+              <el-form-item label="删除状态" prop="deleteStatus">
                 <fetch-select
                   :request="() => fetchOptions('xxx')"
                   v-model="form.deleteStatus"
@@ -87,14 +87,14 @@
                   multiple
                 />
               </el-form-item>
-              <el-form-item label="任务需要转发的请求头：" prop="headerMap">
+              <el-form-item label="任务需要转发的请求头" prop="headerMap">
                 <el-input
                   placeholder="请输入"
                   v-model="form.headerMap"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="业务标题：" prop="businessTitle">
+              <el-form-item label="业务标题" prop="businessTitle">
                 <el-input
                   placeholder="请输入"
                   v-model="form.businessTitle"
@@ -119,6 +119,7 @@ import { getDetail, addOrUpdate } from '@/api/excelManagement/commonDataProcessE
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
+import routeGuard from '@/libs/mixins/routeGuard';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -138,6 +139,7 @@ const defaultForm = {
 
 export default {
   name: 'commonDataProcessExcelTaskEdit',
+  mixins: [routeGuard],
   // 集中视图预留
   props: {
     id: {
@@ -221,21 +223,6 @@ export default {
   },
   mounted () {
     this.getDetailData();
-  },
-  beforeRouteLeave (to, from, next) {
-    if (JSON.stringify(this.form) === JSON.stringify(this.originalForm)) {
-      next();
-    } else {
-      this.$confirm('确定要放弃修改吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        next();
-      }).catch(() => {
-        next(false);
-      });
-    }
   },
   methods: {
     handleBack () {

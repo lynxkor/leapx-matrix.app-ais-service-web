@@ -8,7 +8,7 @@
           </div>
           <div class="common-section-body">
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px">
-              <el-form-item label="班组代码：" prop="code">
+              <el-form-item label="班组代码" prop="code">
                 <el-input
                   placeholder="自动生成"
                   v-model="form.code"
@@ -16,7 +16,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="班组名称：" prop="name">
+              <el-form-item label="班组名称" prop="name">
                 <el-input
                   placeholder="请输入"
                   v-model="form.name"
@@ -24,7 +24,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="班组类型：" prop="teamType">
+              <el-form-item label="班组类型" prop="teamType">
                 <fetch-select
                   :request="fetchOptions"
                   enumCode="StationTypeEnum"
@@ -33,7 +33,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="门店名称：" prop="dealerName">
+              <el-form-item label="门店名称" prop="dealerName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.dealerName"
@@ -41,7 +41,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="负责人：" prop="ownerName">
+              <el-form-item label="负责人" prop="ownerName">
                 <el-input
                 placeholder="请输入"
                 v-model="form.ownerName"
@@ -49,7 +49,7 @@
                 clearable
                 />
               </el-form-item>
-              <el-form-item label="说明：" prop="remark" class="form-item-full">
+              <el-form-item label="说明" prop="remark" class="form-item-full">
                 <el-input
                   type="textarea"
                   placeholder="请输入"
@@ -98,6 +98,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import { getEnum, getUserByNameOrNo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
+import routeGuard from '@/libs/mixins/routeGuard';
 
 const defaultForm = {
   code: '',
@@ -118,6 +119,7 @@ const defaultForm = {
 
 export default {
   name: 'dealerTeamEdit',
+  mixins: [routeGuard],
   components: {
     FetchSelect,
     EditTable
@@ -145,7 +147,7 @@ export default {
         {
           field: 'userName',
           title: '姓名',
-          width: '20%',
+          width: '30%',
           editable: true,
           editRender: {
             name: 'ElSelect',
@@ -165,7 +167,7 @@ export default {
         {
           field: 'userId',
           title: '工号',
-          width: '20%',
+          width: '25%',
           editRender: { name: 'ElInput', props: { type: 'number' } },
           rules: [
             { required: true, message: '工号不能为空' }
@@ -254,21 +256,6 @@ export default {
   },
   mounted () {
     this.getDetailData();
-  },
-  beforeRouteLeave (to, from, next) {
-    if (JSON.stringify(this.form) === JSON.stringify(this.originalForm)) {
-      next();
-    } else {
-      this.$confirm('确定要放弃修改吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        next();
-      }).catch(() => {
-        next(false);
-      });
-    }
   },
   methods: {
     handleBack () {

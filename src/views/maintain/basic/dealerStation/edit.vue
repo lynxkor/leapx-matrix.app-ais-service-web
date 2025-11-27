@@ -8,7 +8,7 @@
           </div>
           <div class="common-section-body">
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px">
-              <el-form-item label="工位代码：" prop="code">
+              <el-form-item label="工位代码" prop="code">
                 <el-input
                   placeholder="自动生成"
                   v-model="form.code"
@@ -16,7 +16,7 @@
                   disabled
                 />
               </el-form-item>
-              <el-form-item label="工位名称：" prop="name">
+              <el-form-item label="工位名称" prop="name">
                 <el-input
                   placeholder="请输入"
                   v-model="form.name"
@@ -24,7 +24,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="工位类型：" prop="stationType">
+              <el-form-item label="工位类型" prop="stationType">
                 <fetch-select
                   :request="fetchOptions"
                   enumCode="StationTypeEnum"
@@ -33,7 +33,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="门店名称：" prop="dealerName">
+              <el-form-item label="门店名称" prop="dealerName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.dealerName"
@@ -41,7 +41,7 @@
                   disabled
                 />
               </el-form-item>
-              <el-form-item label="负责人：" prop="ownerName">
+              <el-form-item label="负责人" prop="ownerName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.ownerName"
@@ -49,7 +49,7 @@
                   disabled
                 />
               </el-form-item>
-              <el-form-item label="说明：" prop="remark">
+              <el-form-item label="说明" prop="remark">
                 <el-input
                   type="textarea"
                   placeholder="请输入"
@@ -78,6 +78,7 @@ import { getDetail, addOrUpdate } from '@/api/maintain/basic/dealerStation/index
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
+import routeGuard from '@/libs/mixins/routeGuard';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -99,6 +100,7 @@ const defaultForm = {
 
 export default {
   name: 'testEdit',
+  mixins: [routeGuard],
   components: {
     FetchSelect,
     // EditTable
@@ -154,21 +156,6 @@ export default {
   },
   mounted () {
     this.getDetailData();
-  },
-  beforeRouteLeave (to, from, next) {
-    if (JSON.stringify(this.form) === JSON.stringify(this.originalForm)) {
-      next();
-    } else {
-      this.$confirm('确定要放弃修改吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        next();
-      }).catch(() => {
-        next(false);
-      });
-    }
   },
   methods: {
     handleBack () {

@@ -8,7 +8,7 @@
           </div>
           <div class="common-section-body">
             <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="维修项目代码：" prop="code">
+              <el-form-item label="维修项目代码" prop="code">
                 <el-input
                   placeholder="请输入"
                   v-model="form.code"
@@ -17,7 +17,7 @@
                   show-word-limit
                 />
               </el-form-item>
-              <el-form-item label="维修项目名称：" prop="name">
+              <el-form-item label="维修项目名称" prop="name">
                 <el-input
                   placeholder="请输入"
                   v-model="form.name"
@@ -26,7 +26,7 @@
                   show-word-limit
                 />
               </el-form-item>
-              <el-form-item label="维修类型：" prop="repairItemTypeId">
+              <el-form-item label="维修类型" prop="repairItemTypeId">
                 <el-select
                   v-model="form.repairItemTypeId"
                   filterable
@@ -44,7 +44,7 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="拼音简码：" prop="pinyinCode">
+              <el-form-item label="拼音简码" prop="pinyinCode">
                 <el-input
                   placeholder="请输入"
                   v-model="form.pinyinCode"
@@ -53,7 +53,7 @@
                   show-word-limit
                 />
               </el-form-item>
-              <el-form-item label="工时：" prop="workhour">
+              <el-form-item label="工时" prop="workhour">
                 <el-input
                   placeholder="请输入"
                   v-model="form.workhour"
@@ -61,7 +61,7 @@
                   type="number"
                 />
               </el-form-item>
-              <el-form-item label="工时单价：" prop="workhourPrice">
+              <el-form-item label="工时单价" prop="workhourPrice">
                 <el-input
                   placeholder="请输入"
                   v-model="form.workhourPrice"
@@ -69,37 +69,37 @@
                   type="number"
                 />
               </el-form-item>
-              <el-form-item label="是否活动专用：" prop="isActivity">
+              <el-form-item label="是否活动专用" prop="isActivity">
                 <el-radio-group v-model="form.isActivity">
-                  <el-radio :label="0">否</el-radio>
                   <el-radio :label="1">是</el-radio>
+                  <el-radio :label="0">否</el-radio>
                 </el-radio-group>
               </el-form-item>
-              <el-form-item label="是否保修专用：" prop="isWarranty">
+              <el-form-item label="是否保修专用" prop="isWarranty">
                 <el-radio-group v-model="form.isWarranty">
-                  <el-radio :label="0">否</el-radio>
                   <el-radio :label="1">是</el-radio>
+                  <el-radio :label="0">否</el-radio>
                 </el-radio-group>
               </el-form-item>
-              <el-form-item label="是否电池维修专用：" prop="isBatteryRepair">
+              <el-form-item label="是否电池维修专用" prop="isBatteryRepair">
                 <el-radio-group v-model="form.isBatteryRepair">
-                  <el-radio :label="0">否</el-radio>
                   <el-radio :label="1">是</el-radio>
+                  <el-radio :label="0">否</el-radio>
                 </el-radio-group>
               </el-form-item>
-              <el-form-item label="是否生产类专用：" prop="isProdType">
+              <el-form-item label="是否生产类专用" prop="isProdType">
                 <el-radio-group v-model="form.isProdType">
-                  <el-radio :label="0">否</el-radio>
                   <el-radio :label="1">是</el-radio>
+                  <el-radio :label="0">否</el-radio>
                 </el-radio-group>
               </el-form-item>
-              <el-form-item label="是否预约专用：" prop="isReservation">
+              <el-form-item label="是否预约专用" prop="isReservation">
                 <el-radio-group v-model="form.isReservation">
-                  <el-radio :label="0">否</el-radio>
                   <el-radio :label="1">是</el-radio>
+                  <el-radio :label="0">否</el-radio>
                 </el-radio-group>
               </el-form-item>
-              <el-form-item label="预约项目名称：" prop="appointmentItemName">
+              <el-form-item label="预约项目名称" prop="appointmentItemName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.appointmentItemName"
@@ -108,7 +108,7 @@
                   show-word-limit
                 />
               </el-form-item>
-              <el-form-item label="保养项目分类：" prop="maintenanceItemType">
+              <el-form-item label="保养项目分类" prop="maintenanceItemType">
                 <fetch-select
                   :request="fetchOptions"
                   enumCode="MaintenanceItemEnum"
@@ -117,7 +117,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="保养时间（月）：" prop="maintenanceTime">
+              <el-form-item label="保养时间（月）" prop="maintenanceTime">
                 <el-input
                   placeholder="请输入"
                   v-model="form.maintenanceTime"
@@ -125,7 +125,7 @@
                   type="number"
                 />
               </el-form-item>
-              <el-form-item label="保养里程（KM）：" prop="maintenanceMileage">
+              <el-form-item label="保养里程（KM）" prop="maintenanceMileage">
                 <el-input
                   placeholder="请输入"
                   v-model="form.maintenanceMileage"
@@ -133,7 +133,7 @@
                   type="number"
                 />
               </el-form-item>
-              <el-form-item label="里程间隔计算标准：" prop="mileageInterval">
+              <el-form-item label="里程间隔计算标准" prop="mileageInterval">
                 <fetch-select
                   :request="fetchOptions"
                   enumCode="MileageIntervalEnum"
@@ -142,7 +142,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="时间间隔计算标准：" prop="timeInterval">
+              <el-form-item label="时间间隔计算标准" prop="timeInterval">
                 <fetch-select
                   :request="fetchOptions"
                   enumCode="TimeIntervalEnum"
@@ -151,7 +151,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="下次保养计算里程：" prop="nextMaintenanceMileage">
+              <el-form-item label="下次保养计算里程" prop="nextMaintenanceMileage">
                 <el-input
                   placeholder="请输入"
                   v-model="form.nextMaintenanceMileage"
@@ -159,7 +159,7 @@
                   type="number"
                 />
               </el-form-item>
-              <el-form-item label="下次保养计算时间：" prop="nextMaintenanceTime">
+              <el-form-item label="下次保养计算时间" prop="nextMaintenanceTime">
                 <el-input
                   placeholder="请输入"
                   v-model="form.nextMaintenanceTime"
@@ -167,7 +167,7 @@
                   type="number"
                 />
               </el-form-item>
-              <el-form-item label="备注：" prop="remark">
+              <el-form-item label="备注" prop="remark">
                 <el-input
                   type="textarea"
                   :rows="3"
@@ -234,6 +234,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import { getEnum, listVehicleModel, listVehicleYearType, repairItemType } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
+import routeGuard from '@/libs/mixins/routeGuard';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -262,6 +263,7 @@ const defaultForm = {
 export default {
   name: 'repairItemEdit',
   // 集中视图预留
+  mixins: [routeGuard],
   props: {
     id: {
       type: [String, Number],
@@ -297,6 +299,7 @@ export default {
         createTime: '',
       },
       tableData: [],
+      tableDataPj: [],
       options: {
         // 对应表格里选型枚举
         // 如 type: [{label: 'xxx', value: 'xxx'}]
@@ -553,21 +556,6 @@ export default {
   },
   mounted () {
     this.getDetailData();
-  },
-  beforeRouteLeave (to, from, next) {
-    if (JSON.stringify(this.form) === JSON.stringify(this.originalForm)) {
-      next();
-    } else {
-      this.$confirm('确定要放弃修改吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        next();
-      }).catch(() => {
-        next(false);
-      });
-    }
   },
   methods: {
     handleBack () {

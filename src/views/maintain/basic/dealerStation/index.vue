@@ -175,7 +175,7 @@ export default {
             }]
           },
           { props: 'name', label: '工位名称', visible: true, width: 200 },
-          { props: 'stationType', label: '工位类型', visible: true, width: 200 },
+          { props: 'stationTypeLabel', label: '工位类型', visible: true, width: 200 },
           { props: 'statusLabel', label: '状态', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'remark', label: '说明', visible: true, width: 200 },

@@ -8,7 +8,7 @@
           </div>
           <div class="common-section-body">
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px">
-              <el-form-item label="优惠代码：" prop="code">
+              <el-form-item label="优惠代码" prop="code">
                 <el-input
                   placeholder="请输入"
                   v-model="form.code"
@@ -16,7 +16,7 @@
                   disabled
                 />
               </el-form-item>
-              <el-form-item label="优惠名称：" prop="name">
+              <el-form-item label="优惠名称" prop="name">
                 <el-input
                   placeholder="请输入"
                   v-model="form.name"
@@ -25,7 +25,7 @@
                   show-word-limit
                 />
               </el-form-item>
-              <el-form-item label="门店名称：" prop="dealerName">
+              <el-form-item label="门店名称" prop="dealerName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.dealerName"
@@ -86,6 +86,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import { getEnum, getUserByNameOrNo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
+import routeGuard from '@/libs/mixins/routeGuard';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -98,6 +99,7 @@ const defaultForm = {
 
 export default {
   name: 'dealerDiscountEdit',
+  mixins: [routeGuard],
   components: {
     // eslint-disable-next-line vue/no-unused-components
     FetchSelect,
@@ -199,21 +201,6 @@ export default {
   },
   mounted () {
     this.getDetailData();
-  },
-  beforeRouteLeave (to, from, next) {
-    if (JSON.stringify(this.form) === JSON.stringify(this.originalForm)) {
-      next();
-    } else {
-      this.$confirm('确定要放弃修改吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        next();
-      }).catch(() => {
-        next(false);
-      });
-    }
   },
   methods: {
     handleBack () {

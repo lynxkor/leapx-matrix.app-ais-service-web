@@ -8,7 +8,7 @@
           </div>
           <div class="common-section-body">
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="120px">
-              <el-form-item label="价格设置代码：" prop="priceCode">
+              <el-form-item label="价格设置代码" prop="priceCode">
                 <el-input
                   placeholder="自动生成"
                   v-model="form.priceCode"
@@ -16,7 +16,7 @@
                   disabled
                 />
               </el-form-item>
-              <el-form-item label="门店名称：" prop="dealerName">
+              <el-form-item label="门店名称" prop="dealerName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.dealerName"
@@ -24,7 +24,7 @@
                   disabled
                 />
               </el-form-item>
-              <el-form-item label="工时单价：" prop="workhourPrice">
+              <el-form-item label="工时单价" prop="workhourPrice">
                 <el-input
                   placeholder="请输入"
                   v-model="form.workhourPrice"
@@ -67,6 +67,7 @@ import { getDetail, addOrUpdate } from '@/api/maintain/basic/dealerWorkhourPrice
 import EditTable from '@/libs/components/EditTable';
 import { getEnum, listVehicleModel } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
+import routeGuard from '@/libs/mixins/routeGuard';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -78,6 +79,7 @@ const defaultForm = {
 
 export default {
   name: 'dealerWorkhourPriceSettingEdit',
+  mixins: [routeGuard],
   components: {
     EditTable
   },
@@ -180,21 +182,6 @@ export default {
   },
   mounted () {
     this.getDetailData();
-  },
-  beforeRouteLeave (to, from, next) {
-    if (JSON.stringify(this.form) === JSON.stringify(this.originalForm)) {
-      next();
-    } else {
-      this.$confirm('确定要放弃修改吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        next();
-      }).catch(() => {
-        next(false);
-      });
-    }
   },
   methods: {
     handleBack () {
