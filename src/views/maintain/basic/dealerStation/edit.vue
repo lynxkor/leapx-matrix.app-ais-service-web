@@ -27,7 +27,7 @@
               <el-form-item label="工位类型" prop="stationType">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="StationTypeEnum"
+                  enumCode="mc_station_type"
                   v-model="form.stationType"
                   placeholder="请选择"
                   clearable
@@ -82,15 +82,11 @@ import routeGuard from '@/libs/mixins/routeGuard';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
-  createTime: '',
-  updateTime: '',
   remark: '',
   status: '',
-  statusDesc: '',
   code: '',
   name: '',
   stationType: '',
-  stationTypeDesc: '',
   dealerId: '',
   dealerCode: '',
   dealerName: '',

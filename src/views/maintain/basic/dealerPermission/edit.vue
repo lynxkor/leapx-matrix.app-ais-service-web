@@ -19,7 +19,7 @@
               <el-form-item label="权限类型" prop="permissionType">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="PermissionTypeEnum"
+                  enumCode="mc_permission_type"
                   v-model="form.permissionType"
                   placeholder="请选择"
                   clearable
@@ -46,7 +46,7 @@
               <el-form-item label="建店类型" prop="dealerType">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="DealerTypeEnum"
+                  enumCode="mc_dealer_type"
                   v-model="form.dealerType"
                   placeholder="请选择"
                   clearable

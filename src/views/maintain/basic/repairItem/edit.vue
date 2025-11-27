@@ -111,7 +111,7 @@
               <el-form-item label="保养项目分类" prop="maintenanceItemType">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="MaintenanceItemEnum"
+                  enumCode="mc_maintenance_item"
                   v-model="form.maintenanceItemType"
                   placeholder="请选择"
                   clearable
@@ -136,7 +136,7 @@
               <el-form-item label="里程间隔计算标准" prop="mileageInterval">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="MileageIntervalEnum"
+                  enumCode="mc_mileage_interval"
                   v-model="form.mileageInterval"
                   placeholder="请选择"
                   clearable
@@ -145,7 +145,7 @@
               <el-form-item label="时间间隔计算标准" prop="timeInterval">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="TimeIntervalEnum"
+                  enumCode="mc_time_interval"
                   v-model="form.timeInterval"
                   placeholder="请选择"
                   clearable

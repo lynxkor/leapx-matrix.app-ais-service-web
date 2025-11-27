@@ -63,7 +63,7 @@
           <el-form-item label="班组类型">
             <fetch-select
               :request="fetchOptions"
-              enumCode="StationTypeEnum"
+              enumCode="mc_station_type"
               v-model="form.teamTypes"
               multiple
               placeholder="请选择"

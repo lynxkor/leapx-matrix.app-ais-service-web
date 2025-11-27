@@ -24,7 +24,7 @@
         <el-form-item label="维修类别">
           <fetch-select
             :request="fetchOptions"
-            enumCode="TypeCategoryEnum"
+            enumCode="mc_type_category"
             v-model="form.categorys"
             placeholder="请选择"
             clearable

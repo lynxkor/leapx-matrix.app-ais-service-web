@@ -48,7 +48,7 @@
         <el-form-item label="保养项目分类">
           <fetch-select
             :request="fetchOptions"
-            enumCode="MaintenanceItemEnum"
+            enumCode="mc_maintenance_item"
             v-model="form.maintenanceItemType"
             placeholder="请选择"
             clearable

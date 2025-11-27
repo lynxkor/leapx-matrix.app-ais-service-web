@@ -45,7 +45,7 @@
               <el-form-item label="购买城市等级" prop="buyCityLevel">
                 <fetch-select
                     :request="fetchOptions"
-                    enumCode="CityLevelEnum"
+                    enumCode="mc_city_level"
                     v-model="form.buyCityLevel"
                     placeholder="请选择"
                     clearable
@@ -54,7 +54,7 @@
               <el-form-item label="核销城市等级" prop="verificationCityLevel">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="CityLevelEnum"
+                  enumCode="mc_city_level"
                   v-model="form.verificationCityLevel"
                   placeholder="请选择"
                   clearable
