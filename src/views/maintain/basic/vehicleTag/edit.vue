@@ -29,24 +29,25 @@
         <section class="common-section">
           <div class="common-section-header">
             <h2>适配车辆</h2>
-            <el-button size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+            <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
           </div>
           <div class="common-section-body">
             <div class="common-section-table">
               <edit-table
                 ref="editTable"
                 :columns="columns"
-                :data="this.form.vinList"
+                :data="form.vinList"
                 :defaultNewRow="defaultNewRow"
                 :show-toolbar="false"
                 :options="options"
+                :auth="{edit: canAddOrUpdate, delete: canDelete}"
               />
             </div>
           </div>
         </section>
       </el-main>
       <el-footer height="60px">
-        <el-button size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
+        <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
         <!-- <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button> -->
         <el-button size="small" @click="handleBack">取消</el-button>
         <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
@@ -63,6 +64,7 @@ import EditTable from '@/libs/components/EditTable';
 import { getEnum, getUserByNameOrNo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
+import permissions from '@/libs/mixins/permissions';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -77,7 +79,7 @@ const defaultForm = {
 
 export default {
   name: 'vehicleTagEdit',
-  mixins: [routeGuard],
+  mixins: [routeGuard, permissions],
   components: {
     // FetchSelect,
     EditTable
