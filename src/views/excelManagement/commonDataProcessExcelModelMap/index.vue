@@ -32,7 +32,7 @@
             align="right"
           />
         </el-form-item>
-        <span v-show="show">
+        <template v-if="show">
           <el-form-item label="业务标识">
             <el-input
               placeholder="请输入"
@@ -40,7 +40,7 @@
               clearable
             />
           </el-form-item>
-        </span>
+        </template>
         <page-search-action
           v-model="show"
           is-expandable
