@@ -109,7 +109,7 @@
       </el-form-item>
     {{{/isNormal}}}
     {{{/thirdSearchList}}}
-      <span v-show="show">
+      <template v-if="show">
       {{{#lastSearchList}}}
       {{{#isDate}}}
         <el-form-item label="{{{description}}}">
@@ -160,7 +160,7 @@
         </el-form-item>
       {{{/isNormal}}}
       {{{/lastSearchList}}}
-      </span>
+      </template>
       <page-search-action
         v-if="canList"
         v-model="show"

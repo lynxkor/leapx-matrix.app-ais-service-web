@@ -47,7 +47,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <span v-show="show">
+      <template v-if="show">
         <el-form-item label="工位状态">
           <fetch-select
             :request="fetchOptions"
@@ -68,7 +68,7 @@
             multiple
           />
         </el-form-item>
-      </span>
+      </template>
       <page-search-action
         v-model="show"
         is-expandable

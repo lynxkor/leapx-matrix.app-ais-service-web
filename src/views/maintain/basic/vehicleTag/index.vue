@@ -28,7 +28,7 @@
             clearable
           />
         </el-form-item>
-        <span v-show="this.visibleCount === 3 || show">
+        <template v-if="this.visibleCount === 3 || show">
           <el-form-item label="状态">
             <fetch-select
               :request="fetchOptions"
@@ -39,7 +39,7 @@
               multiple
             />
           </el-form-item>
-        </span>
+        </template>
         <page-search-action
           v-if="canList"
           v-model="show"

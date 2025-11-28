@@ -34,7 +34,7 @@
         clearable
         />
       </el-form-item>
-      <span v-show="show">
+      <template v-if="show">
         <el-form-item label="状态">
           <fetch-select
             :request="fetchOptions"
@@ -56,7 +56,7 @@
           />
         </el-form-item>
 
-      </span>
+      </template>
       <page-search-action
         v-model="show"
         is-expandable
@@ -174,11 +174,11 @@ export default {
           { props: 'name', label: '维修项目名称', visible: true, width: 200 },
           { props: 'pinyinCode', label: '拼音简码', visible: true, width: 200 },
           { props: 'statusLabel', label: '状态', visible: true, width: 200 },
-          { props: 'workhour', label: '工时', visible: true, width: 200 },
-          { props: 'workhourPrice', label: '工时单价', visible: true, width: 200 },
+          { props: 'workhour', label: '工时', visible: true, width: 200, align: 'right', headerAlign: 'right' },
+          { props: 'workhourPrice', label: '工时单价', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'maintenanceItemTypeLabel', label: '保养项目分类', visible: true, width: 200 },
-          { props: 'maintenanceTime', label: '保养时间（月）', visible: true, width: 200 },
-          { props: 'maintenanceMileage', label: '保养里程（KM）', visible: true, width: 200 },
+          { props: 'maintenanceTime', label: '保养时间（月）', visible: true, width: 200, align: 'right', headerAlign: 'right' },
+          { props: 'maintenanceMileage', label: '保养里程（KM）', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'isBatteryRepairLabel', label: '是否电池维修专用', visible: true, width: 200 },
           { props: 'isActivityLabel', label: '是否活动专用', visible: true, width: 200 },
           { props: 'isWarrantyLabel', label: '是否保修专用', visible: true, width: 200 },

@@ -40,7 +40,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <span v-show="this.visibleCount === 3 || show">
+        <template v-if="this.visibleCount === 3 || show">
           <el-form-item label="状态">
             <fetch-select
               :request="fetchOptions"
@@ -51,7 +51,7 @@
               multiple
             />
           </el-form-item>
-        </span>
+        </template>
         <page-search-action
           v-model="show"
           is-expandable
@@ -143,7 +143,7 @@ export default {
             props: 'code',
             label: '价格设置代码',
             visible: true,
-            width: 200,
+            width: 280,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -159,7 +159,7 @@ export default {
           },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
-          { props: 'workhourPrice', label: '工时单价', visible: true, width: 200, align: 'right' },
+          { props: 'workhourPrice', label: '工时单价', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'statusLabel', label: '状态', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
