@@ -238,6 +238,8 @@ export default {
   },
   data () {
     return {
+      // TIPS: 权限前缀 AISMC，根据实际情况修改
+      moduleKey: 'AISMC-{{{name}}}',
       form: {
         ...defaultForm
       },
@@ -247,8 +249,6 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
-      // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-{{{name}}}',
       optionObj: {
         id: '{{{name}}}Table',
         dataList: [],

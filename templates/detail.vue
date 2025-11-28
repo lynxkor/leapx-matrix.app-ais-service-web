@@ -68,6 +68,8 @@ export default {
   },
   data () {
     return {
+      // TIPS: 权限前缀 AISMC，根据实际情况修改
+      moduleKey: 'AISMC-{{{name}}}',
       loading: true,
       info: {},
       {{{#isProForm}}}
