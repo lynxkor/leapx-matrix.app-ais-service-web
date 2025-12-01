@@ -1,18 +1,10 @@
-<!--
- * @Author: P2500465 P2500465@leapmotor.com
- * @Date: 2025-11-17 13:51:37
- * @LastEditors: P2500465 P2500465@leapmotor.com
- * @LastEditTime: 2025-11-17 14:15:35
- * @FilePath: \app-ais-aftersale-front\src\views\maintain\basic\spreadsSetting\detail.vue
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
--->
 <template>
   <div class="page-common-detail m-spreads-setting-detail">
     <el-skeleton v-if="loading" :rows="6" animated />
     <template v-else>
       <section class="common-title">
         <h2>差价设置代码：{{ info.code }}</h2>
-        <el-button size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
+        <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
       </section>
       <section class="common-section">
         <div class="common-section-header">
@@ -54,10 +46,13 @@
 <script>
 import { getDetail } from '@/api/maintain/basic/spreadsSetting/index';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
+import permissions from '@/libs/mixins/permissions';
+
 export default {
   name: 'spreadsSettingDetail',
   components: {
   },
+  mixins: [permissions],
   data () {
     return {
       loading: true,

@@ -1,18 +1,10 @@
-<!--
- * @Author: P2500465 P2500465@leapmotor.com
- * @Date: 2025-11-17 09:18:35
- * @LastEditors: P2500465 P2500465@leapmotor.com
- * @LastEditTime: 2025-11-20 15:20:57
- * @FilePath: \app-ais-aftersale-front\src\views\maintain\basic\checkoutType\detail.vue
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
--->
 <template>
   <div class="page-common-detail m-checkout-type-detail">
     <el-skeleton v-if="loading" :rows="6" animated />
     <template v-else>
       <section class="common-title">
         <h2>结算类型代码：{{ info.code }}</h2>
-        <el-button size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
+        <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
       </section>
       <section class="common-section">
         <div class="common-section-header">
@@ -48,8 +40,11 @@
 <script>
 import { getDetail } from '@/api/maintain/basic/checkoutType/index';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
+import permissions from '@/libs/mixins/permissions';
+
 export default {
   name: 'checkoutTypeEdit',
+  mixins: [permissions],
   components: {
   },
   data () {

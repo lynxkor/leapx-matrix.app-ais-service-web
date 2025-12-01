@@ -37,7 +37,7 @@
         <section class="common-section">
           <div class="common-section-header">
             <h2>特殊价格</h2>
-            <el-button size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+            <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
           </div>
           <div class="common-section-body">
             <div class="common-section-table">
@@ -48,13 +48,14 @@
                 :defaultNewRow="defaultNewRow"
                 :show-toolbar="false"
                 :options="options"
+                :auth="{edit: canAddOrUpdate, delete: canDelete}"
               />
             </div>
           </div>
         </section>
       </el-main>
       <el-footer height="60px">
-        <el-button size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
+        <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
         <!-- <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button> -->
         <el-button size="small" @click="handleBack">取消</el-button>
       </el-footer>
@@ -68,6 +69,7 @@ import EditTable from '@/libs/components/EditTable';
 import { getEnum, listVehicleModel } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
+import permissions from '@/libs/mixins/permissions';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -79,7 +81,7 @@ const defaultForm = {
 
 export default {
   name: 'dealerWorkhourPriceSettingEdit',
-  mixins: [routeGuard],
+  mixins: [routeGuard, permissions],
   components: {
     EditTable
   },

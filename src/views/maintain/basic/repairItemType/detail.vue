@@ -4,7 +4,7 @@
     <template v-else>
       <section class="common-title">
         <h2>维修类型代码：{{ info.code }}</h2>
-        <el-button size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
+        <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
       </section>
       <section class="common-section">
         <div class="common-section-header">
@@ -40,10 +40,13 @@
 <script>
 import { getDetail } from '@/api/maintain/basic/repairItemType/index';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
+import permissions from '@/libs/mixins/permissions';
+
 export default {
   name: 'repairitemtypeEdit',
   components: {
   },
+  mixins: [permissions],
   data () {
     return {
       loading: true,

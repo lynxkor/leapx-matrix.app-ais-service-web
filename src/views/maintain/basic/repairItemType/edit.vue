@@ -77,7 +77,7 @@
         </section>
       </el-main>
       <el-footer height="60px">
-        <el-button size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
+        <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
         <!-- <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button> -->
         <el-button size="small" @click="handleBack">取消</el-button>
         <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
@@ -93,6 +93,7 @@ import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import { listSettlementType } from '@/api/maintain/basic/checkoutType';
 import routeGuard from '@/libs/mixins/routeGuard';
+import permissions from '@/libs/mixins/permissions';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -107,7 +108,7 @@ const defaultForm = {
 
 export default {
   name: 'repairItemTypeEdit',
-  mixins: [routeGuard],
+  mixins: [routeGuard, permissions],
   components: {
     FetchSelect,
   },

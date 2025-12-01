@@ -4,7 +4,7 @@
     <template v-else>
       <section class="common-title">
         <h2>维修项目代码：{{ info.code }}</h2>
-        <el-button size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
+        <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
       </section>
       <section class="common-section">
         <div class="common-section-header">
@@ -125,11 +125,14 @@
 import { getDetail } from '@/api/maintain/basic/repairItem/index';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
 import EditTable from '@/libs/components/EditTable';
+import permissions from '@/libs/mixins/permissions';
+
 export default {
   name: 'repairItemDetail',
   components: {
     EditTable
   },
+  mixins: [permissions],
   data () {
     return {
       loading: true,
