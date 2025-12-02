@@ -389,6 +389,32 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/basic/vrt',
+      name: 'vrt',
+      component: () => import('@/views/claimreturn/basic/vrt/index.vue'),
+
+      meta: {
+        name: 'VRT'
+      }
+    }, {
+      path: '/claimreturn/basic/vrt/detail',
+      name: 'vrtDetail',
+      component: () => import('@/views/claimreturn/basic/vrt/detail.vue'),
+
+      meta: {
+        name: 'VRT详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/vrt/edit',
+      name: 'vrtEdit',
+      component: () => import('@/views/claimreturn/basic/vrt/edit.vue'),
+
+      meta: {
+        name: '编辑VRT',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
