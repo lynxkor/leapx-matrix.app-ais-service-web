@@ -111,6 +111,7 @@ import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
+import { handleBatchStatusChange } from '@/libs/utils';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -408,31 +409,54 @@ export default {
         });
       }).catch(() => {});
     },
-    // 批量启用停用
+    // 批量启用
     handleBatchEnable (status) {
-      const ids = this.selectionList.map(item => item.id) || [];
-      this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        enableItem({
-          idSet: ids,
-          status
-        }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '操作成功!'
-          });
-          this.getData();
-        }).catch(() => {
-          this.$message({
-            type: 'error',
-            message: '操作失败!'
-          });
-        });
+      handleBatchStatusChange.call(this, {
+        selectionList: this.selectionList,
+        targetStatus: status,
+        apiFunc: enableItem,
+        refreshFunc: this.getData,
+        options: {
+          statusName: 'status',
+          requireInput: true
+        }
       });
-    }
+    },
+    // 批量启用停用
+    // handleBatchEnable (status) {
+    //   const isDifferentStatus = this.selectionList.find(item => item.status === status);
+    //   const ids = this.selectionList.map(item => item.id) || [];
+    //   if (isDifferentStatus) {
+    //     this.$message({
+    //       type: 'warning',
+    //       message: `存在不是${status ? '启用' : '停用'}的数据，请确认!`
+    //     });
+    //   } else {
+    //     this.$prompt(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
+    //       confirmButtonText: '确定',
+    //       cancelButtonText: '取消',
+    //       type: 'warning',
+    //       inputPlaceholder: `请输入${status ? '启用' : '停用'}说明`
+    //     }).then(({ value }) => {
+    //       enableItem({
+    //         idSet: ids,
+    //         status,
+    //         statusDesc: value
+    //       }).then(() => {
+    //         this.$message({
+    //           type: 'success',
+    //           message: '操作成功!'
+    //         });
+    //         this.getData();
+    //       }).catch(() => {
+    //         this.$message({
+    //           type: 'error',
+    //           message: '操作失败!'
+    //         });
+    //       });
+    //     });
+    //   }
+    // }
   }
 };
 </script>

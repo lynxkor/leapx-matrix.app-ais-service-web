@@ -97,6 +97,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
+import { handleBatchStatusChange } from '@/libs/utils';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -380,29 +381,17 @@ export default {
     },
     // 批量启用停用
     handleBatchEnable (status) {
-      const ids = this.selectionList.map(item => item.id) || [];
-      this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        enableItem({
-          idSet: ids,
-          status
-        }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '操作成功!'
-          });
-          this.getData();
-        }).catch(() => {
-          this.$message({
-            type: 'error',
-            message: '操作失败!'
-          });
-        });
+      handleBatchStatusChange.call(this, {
+        selectionList: this.selectionList,
+        targetStatus: status,
+        apiFunc: enableItem,
+        refreshFunc: this.getData,
+        options: {
+          statusName: 'status',
+          requireInput: true
+        }
       });
-    }
+    },
   }
 };
 </script>
