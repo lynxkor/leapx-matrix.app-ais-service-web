@@ -130,6 +130,7 @@ export default {
   },
   data () {
     return {
+      moduleKey: 'AISMC-dealerPermission',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,

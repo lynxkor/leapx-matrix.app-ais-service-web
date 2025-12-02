@@ -112,7 +112,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/maintain/basic/dealerTeam/index';
+import { getList, deleteItem, enableItem } from '@/api/maintain/basic/dealerWorkTeam/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -149,13 +149,13 @@ export default {
       selectionList: [],
       storeOptions: [],
       yes_no_enum: YES_NO_ENUM,
-      moduleKey: 'AISMC-dealerTeam',
+      moduleKey: 'AISMC-dealerWorkTeam',
       show: false,
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
       optionObj: {
-        id: 'dealerTeamTable',
+        id: 'dealerWorkTeamTable',
         dataList: [],
         form: {
           page: 1,
@@ -171,7 +171,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/maintain/basic/dealerTeam/detail',
+                  path: '/maintain/basic/dealerWorkTeam/detail',
                   query: {
                     id: row.id
                   }
@@ -195,7 +195,7 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/maintain/basic/dealerTeam/edit',
+                  path: '/maintain/basic/dealerWorkTeam/edit',
                   query: {
                     id: row.id
                   }
@@ -267,7 +267,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/maintain/basic/dealerTeam/edit'
+        path: '/maintain/basic/dealerWorkTeam/edit'
       });
     },
     onSubmit () {
@@ -281,7 +281,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '厅店班组信息',
-        dataFetchPath: '/maintain/web/basic/dealerTeam/page',
+        dataFetchPath: '/maintain/web/basic/dealerWorkTeam/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

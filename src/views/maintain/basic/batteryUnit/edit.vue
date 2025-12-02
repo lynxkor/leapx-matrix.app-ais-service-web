@@ -82,6 +82,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      moduleKey: 'AISMC-batteryUnit',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,

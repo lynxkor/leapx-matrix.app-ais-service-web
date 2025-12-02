@@ -49,26 +49,26 @@ const routes = [
       name: 'index',
       component: () => import('@/views/home.vue')
     }, {
-      path: '/maintain/basic/dealerTeam',
-      name: 'dealerTeam',
-      component: () => import('@/views/maintain/basic/dealerTeam/index.vue'),
+      path: '/maintain/basic/dealerWorkTeam',
+      name: 'dealerWorkTeam',
+      component: () => import('@/views/maintain/basic/dealerWorkTeam/index.vue'),
 
       meta: {
         name: '厅店班组信息管理'
       }
     }, {
-      path: '/maintain/basic/dealerTeam/detail',
-      name: 'dealerTeamDetail',
-      component: () => import('@/views/maintain/basic/dealerTeam/detail.vue'),
+      path: '/maintain/basic/dealerWorkTeam/detail',
+      name: 'dealerWorkTeamDetail',
+      component: () => import('@/views/maintain/basic/dealerWorkTeam/detail.vue'),
 
       meta: {
         name: '厅店班组信息管理详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/dealerTeam/edit',
-      name: 'dealerTeamEdit',
-      component: () => import('@/views/maintain/basic/dealerTeam/edit.vue'),
+      path: '/maintain/basic/dealerWorkTeam/edit',
+      name: 'dealerWorkTeamEdit',
+      component: () => import('@/views/maintain/basic/dealerWorkTeam/edit.vue'),
 
       meta: {
         name: '厅店班组信息管理详情',
