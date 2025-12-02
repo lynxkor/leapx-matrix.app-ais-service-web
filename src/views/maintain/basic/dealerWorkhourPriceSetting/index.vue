@@ -64,8 +64,8 @@
         <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
         <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
         <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量启用</el-button>
-        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量停用</el-button>
+        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
+        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
       </div>
     </div>
     <div
@@ -98,6 +98,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
+import { handleBatchStatusChange } from '@/libs/utils';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -415,23 +416,17 @@ export default {
     },
     // 批量启用停用
     handleBatchEnable (status) {
-      const ids = this.selectionList.map(item => item.id) || [];
-      enableItem({
-        idSet: ids,
-        status
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '操作成功!'
-        });
-        this.getData();
-      }).catch(() => {
-        this.$message({
-          type: 'error',
-          message: '操作失败!'
-        });
+      handleBatchStatusChange.call(this, {
+        selectionList: this.selectionList,
+        targetStatus: status,
+        apiFunc: enableItem,
+        refreshFunc: this.getData,
+        options: {
+          statusName: 'status',
+          requireInput: true
+        }
       });
-    }
+    },
   }
 };
 </script>
