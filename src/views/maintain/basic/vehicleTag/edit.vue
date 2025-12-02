@@ -87,6 +87,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      moduleKey: 'AISMC-vehicleTag',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,

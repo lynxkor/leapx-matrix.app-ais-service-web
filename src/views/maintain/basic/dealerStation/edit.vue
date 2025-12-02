@@ -105,6 +105,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      moduleKey: 'AISMC-dealerStation',
       loading: false,
       submitLoading: false,
       info: {},

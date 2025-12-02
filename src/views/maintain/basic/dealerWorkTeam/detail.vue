@@ -53,19 +53,20 @@
 </template>
 
 <script>
-import { getDetail } from '@/api/maintain/basic/dealerTeam/index';
+import { getDetail } from '@/api/maintain/basic/dealerWorkTeam/index';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
 import EditTable from '@/libs/components/EditTable';
 import permissions from '@/libs/mixins/permissions';
 
 export default {
-  name: 'dealerTeamEdit',
+  name: 'dealerWorkTeamEdit',
   components: {
     EditTable
   },
   mixins: [permissions],
   data () {
     return {
+      moduleKey: 'AISMC-dealerWorkTeam',
       loading: true,
       info: {},
       tableData: [],
@@ -96,7 +97,7 @@ export default {
   methods: {
     handleEdit () {
       this.$router.push({
-        path: '/maintain/basic/dealerTeam/edit',
+        path: '/maintain/basic/dealerWorkTeam/edit',
         query: {
           id: this.$route.query.id
         }

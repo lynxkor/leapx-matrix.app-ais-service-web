@@ -57,6 +57,7 @@ export default {
   mixins: [permissions],
   data () {
     return {
+      moduleKey: 'AISMC-dealerWorkhourPriceSetting',
       loading: true,
       info: {},
       tableData: [],
