@@ -15,6 +15,7 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.vrtCode"
+                  :disabled="form.id!==''"
                   clearable
                 />
               </el-form-item>
@@ -148,7 +149,7 @@ export default {
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', `${id ? '编辑' : '新建'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VRT', `${id ? '编辑' : '新建'}`]);
       this.form.status = 1;
       if (id) {
         getDetail(id).then(res => {

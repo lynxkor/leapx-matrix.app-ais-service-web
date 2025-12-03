@@ -23,19 +23,31 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="创建时间" v-show="this.visibleCount === 3 || show">
-        <el-date-picker
-          v-model="form.createTime"
-          type="daterange"
-          :picker-options="pickerOptions"
-          range-separator="至"
-          value-format="yyyy-MM-dd HH:mm:ss"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          align="right"
+
+      <el-form-item label="状态"  v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="StatusEnum"
+          v-model="form.statusIncludeList"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
         />
       </el-form-item>
       <template v-if="show">
+        <el-form-item label="创建时间">
+          <el-date-picker
+            v-model="form.createTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            align="right"
+          />
+        </el-form-item>
         <el-form-item label="修改时间">
           <el-date-picker
             v-model="form.updateTime"
@@ -48,17 +60,7 @@
             align="right"
           />
         </el-form-item>
-        <el-form-item label="状态">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="StatusEnum"
-            v-model="form.statusIncludeList"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
+
       </template>
       <page-search-action
         v-if="canList"
@@ -239,7 +241,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VRT']);
     this.getData();
   },
   methods: {

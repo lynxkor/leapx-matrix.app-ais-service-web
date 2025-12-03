@@ -441,6 +441,32 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/basic/ccc',
+      name: 'ccc',
+      component: () => import('@/views/claimreturn/basic/ccc/index.vue'),
+
+      meta: {
+        name: '新页面'
+      }
+    }, {
+      path: '/claimreturn/basic/ccc/detail',
+      name: 'cccDetail',
+      component: () => import('@/views/claimreturn/basic/ccc/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/ccc/edit',
+      name: 'cccEdit',
+      component: () => import('@/views/claimreturn/basic/ccc/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];

@@ -24,19 +24,19 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="VFG编码"  v-show="this.visibleCount === 3 || show">
+
+      <el-form-item label="VRT编码"  v-show="this.visibleCount === 3 || show">
         <el-input
           placeholder="请输入"
-          v-model="form.vfgCode"
+          v-model="form.vrtCode"
           clearable
         />
       </el-form-item>
       <template v-if="show">
-
-        <el-form-item label="VRT编码">
+        <el-form-item label="VFG编码" >
           <el-input
             placeholder="请输入"
-            v-model="form.vrtCode"
+            v-model="form.vfgCode"
             clearable
           />
         </el-form-item>
@@ -63,11 +63,16 @@
             align="right"
           />
         </el-form-item>
-        <el-form-item label="修改者名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.modifierName"
-            clearable
+        <el-form-item label="修改时间">
+          <el-date-picker
+            v-model="form.updateTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            align="right"
           />
         </el-form-item>
       </template>
@@ -189,7 +194,23 @@ export default {
             }]
           },
           { props: 'vfgName', label: 'VFG名称', visible: true, width: 200 },
-          { props: 'vrtCode', label: 'VRT编码', visible: true, width: 200 },
+          {
+            props: 'vrtCode',
+            label: 'VRT编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/basic/vrt/detail',
+                  query: {
+                    id: row.vrtId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'vrtName', label: 'VRT名称', visible: true, width: 200 },
           { props: 'statusLabel', label: '状态', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
@@ -247,7 +268,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VFG']);
     this.getData();
   },
   methods: {

@@ -23,6 +23,7 @@
               <el-form-item label="VFG编码" prop="vfgCode">
                 <el-input
                   placeholder="请输入"
+                  :disabled="form.id!==''"
                   v-model="form.vfgCode"
                   clearable
                 />
@@ -93,7 +94,7 @@ export default {
     const form = this.getDefautlForm();
     return {
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-vfg',
+      moduleKey: 'AISCR-vfg',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -187,7 +188,7 @@ export default {
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', `${id ? '编辑' : '新建'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VFG', `${id ? '编辑' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
