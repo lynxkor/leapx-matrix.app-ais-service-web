@@ -27,7 +27,7 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="维修项目名称"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="维修项目名称"  v-show="visibleCount === 3 || show">
         <el-input
         placeholder="请输入"
         v-model="form.nameLike"

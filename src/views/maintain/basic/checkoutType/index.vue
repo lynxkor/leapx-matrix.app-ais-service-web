@@ -31,7 +31,7 @@
             multiple
             />
         </el-form-item>
-        <template v-if="this.visibleCount === 3 || show">
+        <template v-if="visibleCount === 3 || show">
           <el-form-item label="状态">
             <fetch-select
               :request="fetchOptions"

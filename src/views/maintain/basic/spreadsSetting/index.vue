@@ -30,7 +30,7 @@
             multiple
         />
       </el-form-item>
-      <el-form-item label="购买城市等级"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="购买城市等级"  v-show="visibleCount === 3 || show">
         <fetch-select
         :request="fetchOptions"
         enumCode="mc_city_level"

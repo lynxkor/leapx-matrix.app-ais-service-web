@@ -30,7 +30,7 @@
           multiple
         />
       </el-form-item>
-      <el-form-item label="建店类型" v-show="this.visibleCount === 3 || show">
+      <el-form-item label="建店类型" v-show="visibleCount === 3 || show">
         <fetch-select
         :request="fetchOptions"
         enumCode="mc_dealer_type"
