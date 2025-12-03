@@ -77,7 +77,7 @@
     </div>
     <Upload
       :visible="uploadDialogVisible"
-      :id="1"
+      :id="'IMPORT-202512031408158501'"
       @close="handleUploadDialogClose"
     />
   </div>
