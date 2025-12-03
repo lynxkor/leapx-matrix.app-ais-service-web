@@ -28,7 +28,7 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="统一社会信用代码" v-show="this.visibleCount === 3 || show">
+        <el-form-item label="统一社会信用代码" v-show="visibleCount === 3 || show">
           <el-input
           placeholder="请输入"
           v-model="form.buinessLicense"

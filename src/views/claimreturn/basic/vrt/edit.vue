@@ -15,6 +15,7 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.vrtCode"
+                  :disabled="form.id!==''"
                   clearable
                 />
               </el-form-item>
@@ -25,16 +26,23 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="状态" prop="status">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="StatusEnum"
-                  v-model="form.status"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
+<!--              <el-form-item label="状态" prop="status">-->
+<!--                <fetch-select-->
+<!--                  :request="fetchOptions"-->
+<!--                  enumCode="StatusEnum"-->
+<!--                  v-model="form.status"-->
+<!--                  placeholder="请选择"-->
+<!--                  clearable-->
+<!--                  filterable-->
+<!--                />-->
+<!--              </el-form-item>-->
+<!--              <el-form-item label="说明" prop="dataSource">-->
+<!--                <el-input-->
+<!--                  placeholder="请输入"-->
+<!--                  v-model="form.statusDesc"-->
+<!--                  clearable-->
+<!--                />-->
+<!--              </el-form-item>-->
             </el-form>
           </div>
         </section>
@@ -50,7 +58,6 @@
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/claimreturn/basic/vrt/index';
-import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -83,9 +90,6 @@ export default {
     }
   },
   mixins: [routeGuard, permissions],
-  components: {
-    FetchSelect,
-  },
   data () {
     const form = this.getDefautlForm();
     return {
@@ -145,7 +149,8 @@ export default {
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', `${id ? '编辑' : '新建'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VRT', `${id ? '编辑' : '新建'}`]);
+      this.form.status = 1;
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;

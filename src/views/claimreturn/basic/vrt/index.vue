@@ -23,19 +23,31 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="创建时间" v-show="this.visibleCount === 3 || show">
-        <el-date-picker
-          v-model="form.createTime"
-          type="daterange"
-          :picker-options="pickerOptions"
-          range-separator="至"
-          value-format="yyyy-MM-dd HH:mm:ss"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          align="right"
+
+      <el-form-item label="状态"  v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="StatusEnum"
+          v-model="form.statusIncludeList"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
         />
       </el-form-item>
       <template v-if="show">
+        <el-form-item label="创建时间">
+          <el-date-picker
+            v-model="form.createTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            align="right"
+          />
+        </el-form-item>
         <el-form-item label="修改时间">
           <el-date-picker
             v-model="form.updateTime"
@@ -48,17 +60,7 @@
             align="right"
           />
         </el-form-item>
-        <el-form-item label="状态">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="StatusEnum"
-            v-model="form.statusIncludeList"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
+
       </template>
       <page-search-action
         v-if="canList"
@@ -75,9 +77,6 @@
         class="iconfont icon-lxppc-plus"></i>新增
       </el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">
-        批量删除
-      </el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)"
                  :disabled="selectionList.length === 0">批量启用
       </el-button>
@@ -121,6 +120,7 @@ import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
+import { handleBatchStatusChange } from '@/libs/utils';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -187,6 +187,7 @@ export default {
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 160 },
+          { props: 'statusDesc', label: '说明', visible: true, width: 160 },
           {
             props: 'operate',
             label: '操作',
@@ -205,39 +206,6 @@ export default {
                   });
                 },
                 type: 'info'
-              },
-              {
-                name: '启用',
-                click: (rowIndex, row) => {
-                  this.enableOrDisable(row);
-                },
-                type: 'info'
-              },
-              {
-                name: '停用',
-                click: (rowIndex, row) => {
-                  this.enableOrDisable(row);
-                },
-                type: 'info'
-              },
-              {
-                name: '删除',
-                popconfirmTitle: '此操作将永久删除, 是否继续?',
-                click: (rowIndex, row) => {
-                  deleteItem([row.id]).then(() => {
-                    this.$message({
-                      type: 'success',
-                      message: '删除成功!'
-                    });
-                    this.getData();
-                  }).catch(() => {
-                    this.$message({
-                      type: 'error',
-                      message: '删除失败!'
-                    });
-                  });
-                },
-                type: 'danger'
               }]
           }
         ],
@@ -273,7 +241,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VRT']);
     this.getData();
   },
   methods: {
@@ -421,33 +389,20 @@ export default {
     },
     // 批量启用停用
     handleBatchEnable (status) {
-      const ids = this.selectionList.map(item => item.id) || [];
-      this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        enableItem({
-          idSet: ids,
-          status
-        }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '操作成功!'
-          });
-          this.getData();
-        }).catch(() => {
-          this.$message({
-            type: 'error',
-            message: '操作失败!'
-          });
-        });
+      handleBatchStatusChange.call(this, {
+        selectionList: this.selectionList,
+        targetStatus: status,
+        apiFunc: enableItem,
+        refreshFunc: this.getData,
+        options: {
+          statusName: 'status',
+          requireInput: true
+        }
       });
     },
     enableOrDisable (row) {
       // 启用或停用
-      let newStatus = row.status === 0 ? 1 : 0;
-      enableItem({ idSet: [row.id], status: newStatus }).then(() => {
+      enableItem({ idSet: [row.id], status: row.status === 0 ? 1 : 0 }).then(() => {
         this.$message({
           type: 'success',
           message: '操作成功!'

@@ -34,6 +34,9 @@
             <el-form-item label="状态：" prop="status">
               {{ info.statusLabel  }}
             </el-form-item>
+            <el-form-item label="说明：" prop="status">
+              {{ info.statusDesc  }}
+            </el-form-item>
             <el-form-item label="数据来源：" prop="dataSource">
               {{ info.dataSourceLabel  }}
             </el-form-item>
@@ -64,7 +67,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VRT', '详情']);
     this.getData();
   },
   methods: {

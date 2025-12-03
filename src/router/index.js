@@ -415,6 +415,58 @@ const routes = [
         name: '编辑VRT',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/basic/vfg',
+      name: 'vfg',
+      component: () => import('@/views/claimreturn/basic/vfg/index.vue'),
+
+      meta: {
+        name: '新页面'
+      }
+    }, {
+      path: '/claimreturn/basic/vfg/detail',
+      name: 'vfgDetail',
+      component: () => import('@/views/claimreturn/basic/vfg/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/vfg/edit',
+      name: 'vfgEdit',
+      component: () => import('@/views/claimreturn/basic/vfg/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/ccc',
+      name: 'ccc',
+      component: () => import('@/views/claimreturn/basic/ccc/index.vue'),
+
+      meta: {
+        name: '新页面'
+      }
+    }, {
+      path: '/claimreturn/basic/ccc/detail',
+      name: 'cccDetail',
+      component: () => import('@/views/claimreturn/basic/ccc/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/ccc/edit',
+      name: 'cccEdit',
+      component: () => import('@/views/claimreturn/basic/ccc/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];

@@ -28,7 +28,7 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="门店名称"  v-show="this.visibleCount === 3 || show">
+        <el-form-item label="门店名称"  v-show="visibleCount === 3 || show">
           <el-select
           v-model="form.dealerIds"
           multiple
@@ -105,7 +105,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange } from '@/libs/utils';
+import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -388,7 +388,7 @@ export default {
         delete data.createTime;
         if (this.form.createTime.length > 1) {
           data.createTimeStart = this.form.createTime[0];
-          data.createTimeEnd = this.form.createTime[1];
+          data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
         }
       }
 

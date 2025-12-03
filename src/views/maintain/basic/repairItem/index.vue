@@ -27,7 +27,7 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="维修项目名称"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="维修项目名称"  v-show="visibleCount === 3 || show">
         <el-input
         placeholder="请输入"
         v-model="form.nameLike"
@@ -67,9 +67,9 @@
     </el-form>
     <div class="ais-actions">
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport(2)">项目导入</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport(3)">配件导入</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport(4)">车型导入</el-button>
+      <el-button v-if="canImport" size="small" @click="handleImport('IMPORT-202512031408158502')">项目导入</el-button>
+      <el-button v-if="canImport" size="small" @click="handleImport('IMPORT-202512031408158503')">配件导入</el-button>
+      <el-button v-if="canImport" size="small" @click="handleImport('IMPORT-202512031408158504')">车型导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
@@ -111,7 +111,7 @@ import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange } from '@/libs/utils';
+import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -147,7 +147,7 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
-      uploadDialogId: 2,
+      uploadDialogId: 'IMPORT-202512031408158502',
       optionObj: {
         id: 'repairItemTable',
         dataList: [],
@@ -375,7 +375,7 @@ export default {
         delete data.createTime;
         if (this.form.createTime.length > 1) {
           data.createTimeStart = this.form.createTime[0];
-          data.createTimeEnd = this.form.createTime[1];
+          data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
         }
       }
 
