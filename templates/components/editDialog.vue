@@ -27,7 +27,7 @@
         <el-col :span="12">
           <el-form-item label="时间：">
             <!-- <el-input v-model="form.nextDate" autocomplete="off" /> -->
-            <el-date-picker type="date" placeholder="选择日期" v-model="form.date" value-format="yyyy-MM-dd" style="width: 100%;" />
+            <el-date-picker type="date" placeholder="选择日期" v-model="form.date" value-format="yyyy-MM-dd HH:mm:ss" style="width: 100%;" />
           </el-form-item>
         </el-col>
       </el-row>

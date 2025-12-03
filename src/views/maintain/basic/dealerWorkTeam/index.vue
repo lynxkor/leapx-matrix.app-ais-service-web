@@ -362,11 +362,11 @@ export default {
         }
       });
 
-      if (this.form.nextDate) {
-        delete data.nextDate;
-        if (this.form.nextDate.length > 1) {
-          data.nextDateStart = this.form.nextDate[0];
-          data.nextDateEnd = this.form.nextDate[1];
+      if (this.form.createTime) {
+        delete data.createTime;
+        if (this.form.createTime.length > 1) {
+          data.createTimeStart = this.form.createTime[0];
+          data.createTimeEnd = this.form.createTime[1];
         }
       }
 
