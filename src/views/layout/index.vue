@@ -319,10 +319,13 @@ export default {
   created () {
     console.log('当前为newIndex');
     // this.getTrUrl();
-    this.getOwnerTree();
-    this.getOwnerTree1();
+    if (!window.__POWERED_BY_QIANKUN__) {
+      this.getOwnerTree();
+      this.getOwnerTree1();
+      this.queryClientByUserId('lxp');
+    }
+
     this.show = this.$route.path !== '/home' && !this.$route.path.startsWith('/leapx/biEmbed');
-    console.log('🚀 ~ created ~ this.$route:nobar', this.$route.query.nobar);
     this.isNobar = this.$route.query.nobar === '1';
 
     // 解决公告 / 常见问题 / 操作手册 / 业务手册 侧边栏问题
@@ -330,20 +333,6 @@ export default {
     if (menuHiddenList.includes(this.$route.path)) {
       this.show = false;
     };
-
-    // this.leftActiveNav = this.$route.path;
-    // this.$nextTick(() => {
-    //   this.$refs.aside.width = '242px';
-    // });
-    // this.$store.dispatch('SET_ORG_TREE');
-    // this.getVehicleTree();
-    // this.getLeadconfig();
-    // this.getAreaTree();
-    // this.getuserOrgAll();
-    // this.getuserOrgs();
-    // this.getPerAreaTree();
-    // this.getOrgTree4();
-    this.queryClientByUserId('lxp');
   },
   mounted () {
     this.markContent = this.$store.state.user.userInfo.userName + ' ' + this.$store.state.user.userInfo.mobile + ' ' + formatDateTime().slice(0, 10);
