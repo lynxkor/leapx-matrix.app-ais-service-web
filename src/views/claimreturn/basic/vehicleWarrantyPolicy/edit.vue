@@ -158,7 +158,7 @@ export default {
           { required: true, message: '请输入车型名称', trigger: 'blur' }
         ],
         yearTypeName: [
-          { required: true, message: '请选择年款名称', trigger: 'change' }
+          { required: true, message: '请选择车辆年款', trigger: 'change' }
         ],
         vehicleProperty: [
           { required: true, message: '请输入车辆属性', trigger: 'blur' }
@@ -250,7 +250,7 @@ export default {
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['整修保修政策', `${id ? '编辑' : '新建'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['整车保修政策设置', `${id ? '编辑' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;

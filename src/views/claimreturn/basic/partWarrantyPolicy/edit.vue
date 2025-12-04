@@ -32,7 +32,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="年款名称" prop="yearTypeName">
+              <el-form-item label="车辆年款" prop="yearTypeName">
                 <fetch-select
                   :request="fetchOptions"
                   enumCode="xxx"
@@ -145,7 +145,7 @@ export default {
           { required: true, message: '请输入车型名称', trigger: 'blur' }
         ],
         yearTypeName: [
-          { required: true, message: '请选择年款名称', trigger: 'change' }
+          { required: true, message: '请选择车辆年款', trigger: 'change' }
         ],
         mileage: [
           { required: true, message: '请输入里程数（KM）', trigger: 'blur' }
@@ -234,7 +234,7 @@ export default {
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', `${id ? '编辑' : '新建'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['零件保修政策设置', `${id ? '编辑' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;

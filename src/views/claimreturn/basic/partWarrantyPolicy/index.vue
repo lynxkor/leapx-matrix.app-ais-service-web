@@ -248,6 +248,7 @@ export default {
             const end = new Date();
             const start = new Date();
             start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            start.setHours(0, 0, 0, 0);
             picker.$emit('pick', [start, end]);
           }
         }, {
@@ -256,6 +257,7 @@ export default {
             const end = new Date();
             const start = new Date();
             start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            start.setHours(0, 0, 0, 0);
             picker.$emit('pick', [start, end]);
           }
         }, {
@@ -264,6 +266,7 @@ export default {
             const end = new Date();
             const start = new Date();
             start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            start.setHours(0, 0, 0, 0);
             picker.$emit('pick', [start, end]);
           }
         }]
@@ -271,7 +274,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['零件保修政策设置']);
     this.getData();
   },
   methods: {
@@ -385,7 +388,13 @@ export default {
           data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
         }
       }
-
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = getEndOfDayString(this.form.updateTime[1]);
+        }
+      }
       return data;
     },
     async fetchOptions (code) {

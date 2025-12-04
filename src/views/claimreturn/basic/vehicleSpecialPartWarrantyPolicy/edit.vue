@@ -39,7 +39,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="年款名称" prop="yearTypeName">
+              <el-form-item label="车辆年款" prop="yearTypeName">
                 <fetch-select
                   :request="fetchOptions"
                   enumCode="xxx"
@@ -175,7 +175,7 @@ export default {
           { required: true, message: '请输入车型名称', trigger: 'blur' }
         ],
         yearTypeName: [
-          { required: true, message: '请选择年款名称', trigger: 'change' }
+          { required: true, message: '请选择车辆年款', trigger: 'change' }
         ],
         vehicleProperty: [
           { required: true, message: '请输入车辆属性（家用，营运，B级车，J级车，J1级车，专车，报废灭失）', trigger: 'blur' }

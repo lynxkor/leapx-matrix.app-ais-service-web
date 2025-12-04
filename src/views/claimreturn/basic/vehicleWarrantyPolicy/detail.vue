@@ -22,7 +22,7 @@
             <el-form-item label="车型名称：" prop="modelName">
               {{ info.modelName  }}
             </el-form-item>
-            <el-form-item label="年款名称：" prop="yearTypeName">
+            <el-form-item label="车辆年款：" prop="yearTypeName">
               {{ info.yearTypeName  }}
             </el-form-item>
             <el-form-item label="车辆属性：" prop="vehicleProperty">
@@ -79,7 +79,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['整修保修政策', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['整车保修政策设置', '详情']);
     this.getData();
   },
   methods: {

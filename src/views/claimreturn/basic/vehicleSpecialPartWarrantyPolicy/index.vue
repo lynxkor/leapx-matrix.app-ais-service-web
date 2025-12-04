@@ -44,7 +44,7 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="年款名称">
+        <el-form-item label="车辆年款">
           <fetch-select
             :request="fetchOptions"
             enumCode="xxx"
