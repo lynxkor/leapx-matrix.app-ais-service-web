@@ -18,6 +18,9 @@
               <el-form-item label="excel导入模板下载地址：" prop="excelModelUrl">
                 {{ info.excelModelUrl  }}
               </el-form-item>
+              <el-form-item label="模板编码：" prop="code">
+                {{ info.code  }}
+              </el-form-item>
               <el-form-item label="业务标识：" prop="businessType">
                 {{ info.businessType  }}
               </el-form-item>
