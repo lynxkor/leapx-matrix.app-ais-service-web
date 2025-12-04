@@ -161,6 +161,7 @@ export default {
               type: 'info'
             }]
           },
+          { props: 'code', label: '模板编码', visible: true, width: 200 },
           { props: 'businessType', label: '业务标识', visible: true, width: 200 },
           { props: 'postInterface', label: '导入数据的第三方接口信息', visible: true, width: 200 },
           { props: 'postParamDto', label: '导入参数DTO', visible: true, width: 200 },
