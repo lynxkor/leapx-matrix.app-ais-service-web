@@ -519,6 +519,32 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/basic/partWarrantyPolicy',
+      name: 'partWarrantyPolicy',
+      component: () => import('@/views/claimreturn/basic/partWarrantyPolicy/index.vue'),
+
+      meta: {
+        name: '新页面'
+      }
+    }, {
+      path: '/claimreturn/basic/partwarrantypolicy/detail',
+      name: 'partWarrantyPolicyDetail',
+      component: () => import('@/views/claimreturn/basic/partWarrantyPolicy/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/partwarrantypolicy/edit',
+      name: 'partWarrantyPolicyEdit',
+      component: () => import('@/views/claimreturn/basic/partWarrantyPolicy/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
