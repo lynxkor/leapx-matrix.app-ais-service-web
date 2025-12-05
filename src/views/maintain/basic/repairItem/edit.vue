@@ -278,6 +278,7 @@ export default {
   },
   data () {
     return {
+      moduleKey: 'AISMC-repairItem',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,

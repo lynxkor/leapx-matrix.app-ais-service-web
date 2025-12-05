@@ -49,26 +49,26 @@ const routes = [
       name: 'index',
       component: () => import('@/views/home.vue')
     }, {
-      path: '/maintain/basic/dealerTeam',
-      name: 'dealerTeam',
-      component: () => import('@/views/maintain/basic/dealerTeam/index.vue'),
+      path: '/maintain/basic/dealerWorkTeam',
+      name: 'dealerWorkTeam',
+      component: () => import('@/views/maintain/basic/dealerWorkTeam/index.vue'),
 
       meta: {
         name: '厅店班组信息管理'
       }
     }, {
-      path: '/maintain/basic/dealerTeam/detail',
-      name: 'dealerTeamDetail',
-      component: () => import('@/views/maintain/basic/dealerTeam/detail.vue'),
+      path: '/maintain/basic/dealerWorkTeam/detail',
+      name: 'dealerWorkTeamDetail',
+      component: () => import('@/views/maintain/basic/dealerWorkTeam/detail.vue'),
 
       meta: {
         name: '厅店班组信息管理详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/dealerTeam/edit',
-      name: 'dealerTeamEdit',
-      component: () => import('@/views/maintain/basic/dealerTeam/edit.vue'),
+      path: '/maintain/basic/dealerWorkTeam/edit',
+      name: 'dealerWorkTeamEdit',
+      component: () => import('@/views/maintain/basic/dealerWorkTeam/edit.vue'),
 
       meta: {
         name: '厅店班组信息管理详情',
@@ -491,6 +491,188 @@ const routes = [
 
       meta: {
         name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/vrt',
+      name: 'vrt',
+      component: () => import('@/views/claimreturn/basic/vrt/index.vue'),
+
+      meta: {
+        name: 'VRT'
+      }
+    }, {
+      path: '/claimreturn/basic/vrt/detail',
+      name: 'vrtDetail',
+      component: () => import('@/views/claimreturn/basic/vrt/detail.vue'),
+
+      meta: {
+        name: 'VRT详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/vrt/edit',
+      name: 'vrtEdit',
+      component: () => import('@/views/claimreturn/basic/vrt/edit.vue'),
+
+      meta: {
+        name: '编辑VRT',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/vfg',
+      name: 'vfg',
+      component: () => import('@/views/claimreturn/basic/vfg/index.vue'),
+
+      meta: {
+        name: '新页面'
+      }
+    }, {
+      path: '/claimreturn/basic/vfg/detail',
+      name: 'vfgDetail',
+      component: () => import('@/views/claimreturn/basic/vfg/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/vfg/edit',
+      name: 'vfgEdit',
+      component: () => import('@/views/claimreturn/basic/vfg/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/ccc',
+      name: 'ccc',
+      component: () => import('@/views/claimreturn/basic/ccc/index.vue'),
+
+      meta: {
+        name: 'CCC管理'
+      }
+    }, {
+      path: '/claimreturn/basic/ccc/detail',
+      name: 'cccDetail',
+      component: () => import('@/views/claimreturn/basic/ccc/detail.vue'),
+
+      meta: {
+        name: 'CCC详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/ccc/edit',
+      name: 'cccEdit',
+      component: () => import('@/views/claimreturn/basic/ccc/edit.vue'),
+
+      meta: {
+        name: 'CCC编辑',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/vehicleSpecialPartWarrantyPolicy',
+      name: 'vehicleSpecialPartWarrantyPolicy',
+      component: () => import('@/views/claimreturn/basic/vehicleSpecialPartWarrantyPolicy/index.vue'),
+
+      meta: {
+        name: '整车特殊零件保修政策设置管理'
+      }
+    }, {
+      path: '/claimreturn/basic/vehiclespecialpartwarrantypolicy/detail',
+      name: 'vehicleSpecialPartWarrantyPolicyDetail',
+      component: () => import('@/views/claimreturn/basic/vehicleSpecialPartWarrantyPolicy/detail.vue'),
+
+      meta: {
+        name: '整车特殊零件保修政策设置管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/vehiclespecialpartwarrantypolicy/edit',
+      name: 'vehicleSpecialPartWarrantyPolicyEdit',
+      component: () => import('@/views/claimreturn/basic/vehicleSpecialPartWarrantyPolicy/edit.vue'),
+
+      meta: {
+        name: '整车特殊零件保修政策设置管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/vehicleWarrantyPolicy',
+      name: 'vehicleWarrantyPolicy',
+      component: () => import('@/views/claimreturn/basic/vehicleWarrantyPolicy/index.vue'),
+
+      meta: {
+        name: '整车保修政策设置管理'
+      }
+    }, {
+      path: '/claimreturn/basic/vehiclewarrantypolicy/detail',
+      name: 'vehicleWarrantyPolicyDetail',
+      component: () => import('@/views/claimreturn/basic/vehicleWarrantyPolicy/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/vehiclewarrantypolicy/edit',
+      name: 'vehicleWarrantyPolicyEdit',
+      component: () => import('@/views/claimreturn/basic/vehicleWarrantyPolicy/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/partWarrantyPolicy',
+      name: 'partWarrantyPolicy',
+      component: () => import('@/views/claimreturn/basic/partWarrantyPolicy/index.vue'),
+
+      meta: {
+        name: '零件保修政策管理'
+      }
+    }, {
+      path: '/claimreturn/basic/partwarrantypolicy/detail',
+      name: 'partWarrantyPolicyDetail',
+      component: () => import('@/views/claimreturn/basic/partWarrantyPolicy/detail.vue'),
+
+      meta: {
+        name: '零件保修政策详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/partwarrantypolicy/edit',
+      name: 'partWarrantyPolicyEdit',
+      component: () => import('@/views/claimreturn/basic/partWarrantyPolicy/edit.vue'),
+
+      meta: {
+        name: '零件保修政策编辑',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/partSpecialPartWarrantyPolicy',
+      name: 'partSpecialPartWarrantyPolicy',
+      component: () => import('@/views/claimreturn/basic/partSpecialPartWarrantyPolicy/index.vue'),
+
+      meta: {
+        name: '零件特殊零件保修政策管理'
+      }
+    }, {
+      path: '/claimreturn/basic/partspecialpartwarrantypolicy/detail',
+      name: 'partSpecialPartWarrantyPolicyDetail',
+      component: () => import('@/views/claimreturn/basic/partSpecialPartWarrantyPolicy/detail.vue'),
+
+      meta: {
+        name: '零件特殊零件保修政策详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/partspecialpartwarrantypolicy/edit',
+      name: 'partSpecialPartWarrantyPolicyEdit',
+      component: () => import('@/views/claimreturn/basic/partSpecialPartWarrantyPolicy/edit.vue'),
+
+      meta: {
+        name: '零件特殊零件保修编辑',
         noResourceUrl: 'true'
       }
     }]

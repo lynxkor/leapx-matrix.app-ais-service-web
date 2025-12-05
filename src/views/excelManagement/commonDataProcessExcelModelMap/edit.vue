@@ -16,6 +16,15 @@
                     disabled
                   />
                 </el-form-item>
+                <el-form-item label="模板编码" prop="code">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.code"
+                    clearable
+                    maxLength="36"
+                    show-word-limit
+                  />
+                </el-form-item>
                 <el-form-item label="excel导入模板下载地址" prop="excelModelUrl">
                   <el-upload
                     class="upload-demo"
@@ -97,6 +106,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 const defaultForm = {
   // 多选时字段有变化，自行修复
   id: '',
+  code: '',
   excelModelUrl: '',
   businessType: '',
   postInterface: '',
@@ -131,6 +141,9 @@ export default {
       rules: {
         id: [
           { required: false, message: '请输入主键', trigger: 'blur' }
+        ],
+        code: [
+          { required: true, message: '请输入模板编码', trigger: 'blur' }
         ],
         excelModelUrl: [
           { required: true, message: '请输入excel导入模板下载地址', trigger: 'blur' }

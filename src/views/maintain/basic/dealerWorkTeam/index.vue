@@ -28,7 +28,7 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="门店名称" v-show="this.visibleCount === 3 || show">
+        <el-form-item label="门店名称" v-show="visibleCount === 3 || show">
           <el-select
             v-model="form.dealerIds"
             multiple
@@ -112,12 +112,13 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/maintain/basic/dealerTeam/index';
+import { getList, deleteItem, enableItem } from '@/api/maintain/basic/dealerWorkTeam/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
+import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 
 const defaultForm = {
   name: '',
@@ -148,13 +149,13 @@ export default {
       selectionList: [],
       storeOptions: [],
       yes_no_enum: YES_NO_ENUM,
-      moduleKey: 'AISMC-dealerTeam',
+      moduleKey: 'AISMC-dealerWorkTeam',
       show: false,
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
       optionObj: {
-        id: 'dealerTeamTable',
+        id: 'dealerWorkTeamTable',
         dataList: [],
         form: {
           page: 1,
@@ -170,7 +171,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/maintain/basic/dealerTeam/detail',
+                  path: '/maintain/basic/dealerWorkTeam/detail',
                   query: {
                     id: row.id
                   }
@@ -194,7 +195,7 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/maintain/basic/dealerTeam/edit',
+                  path: '/maintain/basic/dealerWorkTeam/edit',
                   query: {
                     id: row.id
                   }
@@ -266,7 +267,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/maintain/basic/dealerTeam/edit'
+        path: '/maintain/basic/dealerWorkTeam/edit'
       });
     },
     onSubmit () {
@@ -280,7 +281,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '厅店班组信息',
-        dataFetchPath: '/maintain/web/basic/dealerTeam/page',
+        dataFetchPath: '/maintain/web/basic/dealerWorkTeam/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
@@ -361,11 +362,11 @@ export default {
         }
       });
 
-      if (this.form.nextDate) {
-        delete data.nextDate;
-        if (this.form.nextDate.length > 1) {
-          data.nextDateStart = this.form.nextDate[0];
-          data.nextDateEnd = this.form.nextDate[1];
+      if (this.form.createTime) {
+        delete data.createTime;
+        if (this.form.createTime.length > 1) {
+          data.createTimeStart = this.form.createTime[0];
+          data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
         }
       }
 
@@ -401,27 +402,15 @@ export default {
     },
     // 批量启用停用
     handleBatchEnable (status) {
-      const ids = this.selectionList.map(item => item.id) || [];
-      this.$confirm(`此操作将${status ? '启用' : '停用'}选中班组信息，是否继续?`, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        enableItem({
-          idSet: ids,
-          status
-        }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '操作成功!'
-          });
-          this.getData();
-        }).catch(() => {
-          this.$message({
-            type: 'error',
-            message: '操作失败!'
-          });
-        });
+      handleBatchStatusChange.call(this, {
+        selectionList: this.selectionList,
+        targetStatus: status,
+        apiFunc: enableItem,
+        refreshFunc: this.getData,
+        options: {
+          statusName: 'status',
+          requireInput: true
+        }
       });
     },
     getStoreByName (query) {

@@ -88,6 +88,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      moduleKey: 'AISMC-dealerWorkhourPriceSetting',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -208,19 +209,10 @@ export default {
         if (this.$route.query.id) {
           this.$delete(this.form, 'modelWorkhourPriceRespList');
         }
-        // 处理表格数据，转换一下后端需要的数据
-        const newTableData = tableData.map(item => {
-          return {
-            vehicleModelName: item.label || '',
-            workhourPrice: item.workhourPrice || null,
-            createTime: item.createTime || '',
-            vehicleModelId: item.value || '',
-          };
-        });
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.submitLoading = true;
-            addOrUpdate({ ...this.form, modelWorkhourPriceList: newTableData }).then(res => {
+            addOrUpdate({ ...this.form, modelWorkhourPriceList: tableData }).then(res => {
               this.$message({
                 message: '保存成功',
                 type: 'success'
@@ -293,6 +285,7 @@ export default {
             value: item.id,
             label: item.modelName,
             vehicleModelName: item.modelName,
+            vehicleModelId: item.id,
           };
         }) || [];
         this.options.vehicleModelName = list;

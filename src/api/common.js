@@ -20,11 +20,19 @@ export function tableAddOrUpdate (data) {
 }
 
 /**
- * 列表下载模板
+ * 列表通用下载模板
  * @param {*} data
  */
 export function getTemplateUrl (data) {
   return api.jsonPost('/data/commonDataProcessExcelModelMap/get', data);
+}
+
+/**
+ * 列表下载模板 code
+ * @param {*} data
+ */
+export function getTemplateCode (data) {
+  return api.jsonPost('/data/commonDataProcessExcelModelMap/code', data);
 }
 
 /**

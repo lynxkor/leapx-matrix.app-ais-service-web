@@ -55,6 +55,7 @@ export default {
   mixins: [permissions],
   data () {
     return {
+      moduleKey: 'AISMC-spreadsSetting',
       loading: true,
       info: {},
       yes_no_enum_map: YES_NO_ENUM_MAP

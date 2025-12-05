@@ -63,6 +63,7 @@ export default {
   mixins: [permissions],
   data () {
     return {
+      moduleKey: 'AISMC-dealerDiscount',
       loading: true,
       info: {},
       tableData: [],

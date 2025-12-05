@@ -128,6 +128,7 @@ export default {
   },
   data () {
     return {
+      moduleKey: 'AISMC-spreadsSetting',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,

@@ -93,7 +93,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/maintain/basic/dealerTeam/index';
+import { getDetail, addOrUpdate } from '@/api/maintain/basic/dealerWorkTeam/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import { getEnum, getUserByNameOrNo } from '@/api/common';
@@ -119,7 +119,7 @@ const defaultForm = {
 };
 
 export default {
-  name: 'dealerTeamEdit',
+  name: 'dealerWorkTeamEdit',
   mixins: [routeGuard, permissions],
   components: {
     FetchSelect,
@@ -128,6 +128,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      moduleKey: 'AISMC-dealerWorkTeam',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,

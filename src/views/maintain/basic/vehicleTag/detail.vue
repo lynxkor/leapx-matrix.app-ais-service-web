@@ -54,6 +54,7 @@ export default {
   mixins: [permissions],
   data () {
     return {
+      moduleKey: 'AISMC-vehicleTag',
       loading: true,
       info: {},
       tableData: [],

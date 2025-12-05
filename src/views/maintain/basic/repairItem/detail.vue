@@ -135,6 +135,7 @@ export default {
   mixins: [permissions],
   data () {
     return {
+      moduleKey: 'AISMC-repairItem',
       loading: true,
       info: {},
       tableData: [],
