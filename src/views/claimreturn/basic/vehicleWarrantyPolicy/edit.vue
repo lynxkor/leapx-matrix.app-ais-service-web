@@ -19,29 +19,42 @@
                 />
               </el-form-item>
 
-              <el-form-item label="车系ID" prop="seriesId">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.seriesId"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="车型ID" prop="modelId">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.modelId"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="车辆年款ID" prop="yearTypeId">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.yearTypeId"
+              <el-form-item label="车系" prop="seriesId">
+                <list-select
+                  v-if="form.id"
+                  listUrl="/datacenter/web/materials/vehicleSeries/list"
                   placeholder="请选择"
-                  clearable
+                  v-model="form.seriesId"
+                  query-key="seriesNameLike"
+                  auto-load-options
+                  no-param-load
                   filterable
-                />
+                  :params="{}" />
+              </el-form-item>
+              <el-form-item label="车型" prop="modelId">
+                <list-select
+                  v-if="form.id"
+                  listUrl="/datacenter/web/materials/vehicleModel/list"
+                  placeholder="请选择"
+                  v-model="form.modelId"
+                  query-key="modelNameLike"
+                  auto-load-options
+                  collapseTags
+                  filterable
+                  :params="{seriesIdList: form.seriesId?[form.seriesId]:[]}" />
+              </el-form-item>
+              <el-form-item label="车辆年款" prop="yearTypeId">
+                <list-select
+                  v-if="form.id"
+                  listUrl="/datacenter/web/materials/vehicleModelYearTypeRelation/list"
+                  placeholder="请选择"
+                  v-model="form.yearTypeId"
+                  collapseTags
+                  auto-load-options
+                  filterable
+                  label-key="yearTypeName"
+                  value-key="yearTypeId"
+                  :params="{modelIdList: form.modelId?[form.modelId]:[]}" />
               </el-form-item>
               <el-form-item label="车辆属性" prop="vehicleProperty">
                 <fetch-select
@@ -98,6 +111,7 @@ import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import ListSelect from '@/libs/components/list-select/index.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -135,6 +149,7 @@ export default {
   },
   mixins: [routeGuard, permissions],
   components: {
+    ListSelect,
     FetchSelect,
   },
   data () {
@@ -260,25 +275,26 @@ export default {
       }
     },
     submitForm (formName, rest = false) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          this.submitLoading = true;
-          addOrUpdate({ ...this.form }).then(res => {
-            this.$message({
-              message: '保存成功',
-              type: 'success'
-            });
-            const id = this.$route.query.id;
-            if (rest || !id) {
-              this.resetForm(formName);
-            } else {
-              this.getDetailData();
-            }
-          }).finally(() => {
-            this.submitLoading = false;
-          });
-        }
-      });
+      console.log(this.form);
+      // this.$refs[formName].validate((valid) => {
+      //   if (valid) {
+      //     this.submitLoading = true;
+      //     addOrUpdate({ ...this.form }).then(res => {
+      //       this.$message({
+      //         message: '保存成功',
+      //         type: 'success'
+      //       });
+      //       const id = this.$route.query.id;
+      //       if (rest || !id) {
+      //         this.resetForm(formName);
+      //       } else {
+      //         this.getDetailData();
+      //       }
+      //     }).finally(() => {
+      //       this.submitLoading = false;
+      //     });
+      //   }
+      // });
     },
     resetForm (formName) {
       this.$refs[formName].resetFields();

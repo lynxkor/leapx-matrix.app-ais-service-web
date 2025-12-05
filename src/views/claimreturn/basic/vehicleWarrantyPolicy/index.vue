@@ -17,38 +17,46 @@
         />
       </el-form-item>
       <el-form-item label="车系名称">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="xxx"
-          v-model="form.yearTypeName"
+        <list-select
+          listUrl="/datacenter/web/materials/vehicleSeries/list"
           placeholder="请选择"
+          v-model="form.seriesIds"
+          query-key="seriesNameLike"
           clearable
+          collapseTags
+          auto-load-options
+          no-param-load
           multiple
           filterable
-        />
+          :params="{}" />
       </el-form-item>
       <el-form-item label="车型名称"  v-show="this.visibleCount === 3 || show">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="xxx"
-          v-model="form.yearTypeName"
+        <list-select
+          listUrl="/datacenter/web/materials/vehicleModel/list"
           placeholder="请选择"
+          v-model="form.modelIds"
+          query-key="modelNameLike"
           clearable
+          auto-load-options
+          collapseTags
           multiple
           filterable
-        />
+          :params="{seriesIdList: form.seriesIds}" />
       </el-form-item>
       <template v-if="show">
         <el-form-item label="车辆年款">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.yearTypeName"
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleModelYearTypeRelation/list"
             placeholder="请选择"
+            v-model="form.yearTypeIds"
             clearable
             multiple
+            collapseTags
+            auto-load-options
             filterable
-          />
+            label-key="yearTypeName"
+            value-key="yearTypeId"
+            :params="{modelIdList: form.modelIds}" />
         </el-form-item>
         <el-form-item label="车辆属性">
           <fetch-select
@@ -139,6 +147,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
+import ListSelect from '@/libs/components/list-select/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -152,6 +161,9 @@ const defaultForm = {
   remark: '',
   createTime: '',
   updateTime: '',
+  seriesIds: [],
+  modelIds: [],
+  yearTypeIds: []
 };
 
 const pageSize = 20;
@@ -162,6 +174,7 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions],
   components: {
+    ListSelect,
     PageSearchAction,
     LPVxeTable,
     FetchSelect
