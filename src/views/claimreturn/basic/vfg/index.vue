@@ -13,14 +13,14 @@
       <el-form-item label="VRT名称">
         <el-input
           placeholder="请输入"
-          v-model="form.vrtName"
+          v-model="form.vrtNameLike"
           clearable
         />
       </el-form-item>
       <el-form-item label="VFG名称">
         <el-input
           placeholder="请输入"
-          v-model="form.vfgName"
+          v-model="form.vfgNameLike"
           clearable
         />
       </el-form-item>
@@ -28,7 +28,7 @@
       <el-form-item label="VRT编码"  v-show="this.visibleCount === 3 || show">
         <el-input
           placeholder="请输入"
-          v-model="form.vrtCode"
+          v-model="form.vrtCodeLike"
           clearable
         />
       </el-form-item>
@@ -36,7 +36,7 @@
         <el-form-item label="VFG编码" >
           <el-input
             placeholder="请输入"
-            v-model="form.vfgCode"
+            v-model="form.vfgCodeLike"
             clearable
           />
         </el-form-item>
@@ -44,7 +44,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="StatusEnum"
-            v-model="form.status"
+            v-model="form.statusIncludeList"
             placeholder="请选择"
             clearable
             multiple
@@ -126,9 +126,13 @@ import { getEndOfDayString, handleBatchStatusChange } from '@/libs/utils';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   vfgCode: '',
+  vfgCodeLike: '',
   vfgName: '',
+  vfgNameLike: '',
   vrtCode: '',
+  vrtCodeLike: '',
   vrtName: '',
+  vrtNameLike: '',
   status: '',
   createTime: '',
   modifierName: '',

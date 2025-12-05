@@ -11,33 +11,29 @@
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="VRT编码" prop="vrtCode">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.vrtCode"
-                  clearable
-                />
+              <el-form-item label="VRT名称" prop="vrtId">
+                <list-select
+                  v-if="form.id"
+                  listUrl="/claimreturn/web/basic/vrt/list"
+                  placeholder="请选择"
+                  v-model="form.vrtId"
+                  query-key="vrtNameLike"
+                  auto-load-options
+                  no-param-load
+                  filterable
+                  :params="{}" />
               </el-form-item>
-              <el-form-item label="VRT名称" prop="vrtName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.vrtName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="VFG编码" prop="vfgCode">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.vfgCode"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="VFG名称" prop="vfgName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.vfgName"
-                  clearable
-                />
+              <el-form-item label="VFG名称" prop="vfgId">
+                <list-select
+                  v-if="form.id"
+                  listUrl="/claimreturn/web/basic/vfg/list"
+                  placeholder="请选择"
+                  v-model="form.vfgId"
+                  query-key="vfgNameLike"
+                  auto-load-options
+                  filterable
+                  :params="{vrtId: form.vrtId}"
+                   />
               </el-form-item>
               <el-form-item label="CCC编码" prop="cccCode">
                 <el-input
@@ -73,6 +69,7 @@ import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import ListSelect from '@/libs/components/list-select/index.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -108,6 +105,7 @@ export default {
   },
   mixins: [routeGuard, permissions],
   components: {
+    ListSelect
   },
   data () {
     const form = this.getDefautlForm();
