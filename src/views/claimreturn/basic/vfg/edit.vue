@@ -12,13 +12,16 @@
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
               <el-form-item label="VRT名称" prop="vrtName">
-                <fetch-select
-                  :request="fetchVrt"
-                  v-model="form.statusDesc"
+                <list-select
+                  v-if="form.id"
+                  listUrl="/claimreturn/web/basic/vrt/list"
                   placeholder="请选择"
-                  clearable
+                  v-model="form.vrtId"
+                  query-key="vrtNameLike"
+                  auto-load-options
+                  no-param-load
                   filterable
-                />
+                  :params="{}" />
               </el-form-item>
               <el-form-item label="VFG编码" prop="vfgCode">
                 <el-input
@@ -57,6 +60,7 @@ import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import ListSelect from '@/libs/components/list-select/index.vue';
 const defaultForm = {
   // 多选时字段有变化，自行修复
   vfgCode: '',
@@ -88,7 +92,7 @@ export default {
   },
   mixins: [routeGuard, permissions],
   components: {
-    FetchSelect,
+    ListSelect,
   },
   data () {
     const form = this.getDefautlForm();
