@@ -389,6 +389,110 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/basic/sparePartVehicleModel',
+      name: 'sparePartVehicleModel',
+      component: () => import('@/views/sparepart/basic/sparePartVehicleModel/index.vue'),
+
+      meta: {
+        name: '新页面'
+      }
+    }, {
+      path: '/sparepart/basic/sparepartvehiclemodel/detail',
+      name: 'sparePartVehicleModelDetail',
+      component: () => import('@/views/sparepart/basic/sparePartVehicleModel/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/sparepartvehiclemodel/edit',
+      name: 'sparePartVehicleModelEdit',
+      component: () => import('@/views/sparepart/basic/sparePartVehicleModel/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/spareSalesCategory',
+      name: 'spareSalesCategory',
+      component: () => import('@/views/sparepart/basic/spareSalesCategory/index.vue'),
+
+      meta: {
+        name: '新页面'
+      }
+    }, {
+      path: '/sparepart/basic/sparesalescategory/detail',
+      name: 'spareSalesCategoryDetail',
+      component: () => import('@/views/sparepart/basic/spareSalesCategory/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/sparesalescategory/edit',
+      name: 'spareSalesCategoryEdit',
+      component: () => import('@/views/sparepart/basic/spareSalesCategory/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/spareSupplyCategory',
+      name: 'spareSupplyCategory',
+      component: () => import('@/views/sparepart/basic/spareSupplyCategory/index.vue'),
+
+      meta: {
+        name: '新页面'
+      }
+    }, {
+      path: '/sparepart/basic/sparesupplycategory/detail',
+      name: 'spareSupplyCategoryDetail',
+      component: () => import('@/views/sparepart/basic/spareSupplyCategory/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/sparesupplycategory/edit',
+      name: 'spareSupplyCategoryEdit',
+      component: () => import('@/views/sparepart/basic/spareSupplyCategory/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/spareEngineeringCategory',
+      name: 'spareEngineeringCategory',
+      component: () => import('@/views/sparepart/basic/spareEngineeringCategory/index.vue'),
+
+      meta: {
+        name: '新页面'
+      }
+    }, {
+      path: '/sparepart/basic/spareengineeringcategory/detail',
+      name: 'spareEngineeringCategoryDetail',
+      component: () => import('@/views/sparepart/basic/spareEngineeringCategory/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/spareengineeringcategory/edit',
+      name: 'spareEngineeringCategoryEdit',
+      component: () => import('@/views/sparepart/basic/spareEngineeringCategory/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
