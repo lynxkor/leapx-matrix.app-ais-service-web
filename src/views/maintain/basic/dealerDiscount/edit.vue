@@ -26,11 +26,11 @@
                 />
               </el-form-item>
               <el-form-item label="门店名称" prop="dealerName">
-                <el-input
-                  placeholder="请输入"
+                <InputLink
                   v-model="form.dealerName"
-                  clearable
-                  disabled
+                  :link="`/partner/channelManagement/shopBasicsMessageDetails?num=2&id=${form.dealerId}&_blank=true`"
+                  placeholder="请输入"
+                  readonly
                 />
               </el-form-item>
               <el-form-item label="工时折扣率" prop="discountWorkhourRate">
@@ -89,6 +89,7 @@ import { getEnum, getUserByNameOrNo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import InputLink from '@/libs/components/InputLink';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -105,7 +106,8 @@ export default {
   components: {
     // eslint-disable-next-line vue/no-unused-components
     FetchSelect,
-    EditTable
+    EditTable,
+    InputLink
   },
   data () {
     const form = this.getDefautlForm();

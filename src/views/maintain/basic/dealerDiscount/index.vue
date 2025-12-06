@@ -24,7 +24,7 @@
         <el-form-item label="优惠名称">
           <el-input
             placeholder="请输入"
-            v-model="form.name"
+            v-model="form.nameLike"
             clearable
           />
         </el-form-item>
@@ -108,7 +108,7 @@ import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
-  name: '',
+  nameLike: '',
   dealerIds: [],
   statusIncludeList: [],
   createTime: '',
