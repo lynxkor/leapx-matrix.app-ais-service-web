@@ -39,6 +39,7 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.spreadPrice"
+                  type="number"
                   clearable
                 />
               </el-form-item>
