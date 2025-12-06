@@ -35,7 +35,6 @@
           filterable
           clearable
           remote
-          reserve-keyword
           placeholder="请选择"
           :remote-method="storeSearch"
           :loading="storeLoading">
@@ -342,12 +341,12 @@ export default {
         this.storeLoading = true;
         try {
           // 调用搜索接口，传递搜索关键词
-          const res = await listOrgStoreInfo({ storeName: query, size: 100 });
+          const res = await listOrgStoreInfo({ name: query });
 
           if (res) {
-            this.storeOptions = res?.records?.map(item => ({
-              value: item.storeId, // 门店ID
-              label: item.storeName // 门店名称
+            this.storeOptions = res?.map(item => ({
+              value: item.orgId, // 门店ID
+              label: item.orgName // 门店名称
             }));
           } else {
             this.storeOptions = [];

@@ -167,10 +167,32 @@ export default {
           { required: true, message: '请输入门店名称', trigger: 'blur' }
         ],
         discountWorkhourRate: [
-          { required: true, message: '请输入工时折扣率:介入0-1之间，包含0、1', trigger: 'blur' }
+          { required: true, message: '请输入工时折扣率:介入0-1之间，包含0、1', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              if (!value) {
+                callback(new Error('请输入工时折扣率:介入0-1之间，包含0、1'));
+              } else if (value < 0 || value > 1) {
+                callback(new Error('请输入工时折扣率:介入0-1之间，包含0、1'));
+              } else {
+                callback();
+              }
+            }
+          }
         ],
         discountPartRate: [
-          { required: true, message: '请输入备件折扣率:介入0-1之间，包含0、1', trigger: 'blur' }
+          { required: true, message: '请输入备件折扣率:介入0-1之间，包含0、1', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              if (!value) {
+                callback(new Error('请输入备件折扣率:介入0-1之间，包含0、1'));
+              } else if (value < 0 || value > 1) {
+                callback(new Error('请输入备件折扣率:介入0-1之间，包含0、1'));
+              } else {
+                callback();
+              }
+            }
+          }
         ],
       },
       pickerOptions: {

@@ -25,23 +25,18 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="结算类型名称" prop="checkoutTypeId">
-                <el-select
-                  v-model="form.checkoutTypeName"
+              <el-form-item label="结算类型" prop="checkoutTypeId">
+                <fetch-select
                   filterable
                   clearable
                   remote
-                  reserve-keyword
-                  @change="handleSettlementChange"
+                  v-model="form.checkoutTypeId"
                   :remote-method="settlementSearch"
-                  :loading="settlementLoading">
-                  <el-option
-                    v-for="item in settlementOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
+                  :params="form.checkoutTypeName"
+                  @change="handleSettlementChange"
+                  value-key="id"
+                  label-key="name"
+                />
               </el-form-item>
               <el-form-item label="建店类型" prop="dealerType">
                 <fetch-select
@@ -52,23 +47,18 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="保修类型名称" prop="repairItemTypeName">
-                <el-select
-                  v-model="form.repairItemTypeName"
+              <el-form-item label="保修类型" prop="repairItemTypeId">
+                <fetch-select
                   filterable
                   clearable
                   remote
-                  reserve-keyword
-                  @change="handleRepairItemChange"
+                  v-model="form.repairItemTypeId"
                   :remote-method="repairItemSearch"
-                  :loading="repairItemLoading">
-                  <el-option
-                    v-for="item in repairItemOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
+                  :params="form.repairItemTypeName"
+                  @change="handleRepairItemChange"
+                  value-key="id"
+                  label-key="name"
+                />
               </el-form-item>
               <el-form-item label="备注" prop="remark">
                 <el-input
@@ -136,12 +126,6 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...defaultForm },
       originalForm: { ...defaultForm },
-      settlementLoading: false, // 结算类型搜索加载状态
-      settlementOptions: [], // 结算类型选项列表
-      settlementTimer: null, // 结算类型搜索防抖定时器
-      repairItemLoading: false, // 维修类型搜索加载状态
-      repairItemOptions: [], // 维修类型选项列表
-      repairItemTimer: null, // 维修类型搜索防抖定时器
       rules: {
         code: [
           { required: false, message: '请输入建店类型代码', trigger: 'blur' }
@@ -152,14 +136,14 @@ export default {
         dealerType: [
           { required: true, message: '请选择建店类型', trigger: 'change' }
         ],
-        checkoutTypeName: [
+        checkoutTypeId: [
           { required: true, message: '请选择结算类型名称', trigger: 'change' }
         ],
-        repairItemTypeName: [
-          { required: false, message: '请选择维修类型名称', trigger: 'change' }
+        repairItemTypeId: [
+          { required: true, message: '请选择维修类型名称', trigger: 'change' }
         ],
         remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
+          { required: false, message: '请输入备注', trigger: 'blur' }
         ],
       },
       pickerOptions: {
@@ -251,87 +235,24 @@ export default {
       return [];
     },
     // 处理结算类型选择变更事件
-    handleSettlementChange (val) {
-      const selectedVal = this.settlementOptions.find(option => option.value === val);
-      if (selectedVal) {
-        this.form.checkoutTypeId = selectedVal.value;
-        this.form.checkoutTypeName = selectedVal.label;
+    handleSettlementChange (val, record) {
+      if (record) {
+        this.form.checkoutTypeName = record.name;
       }
     },
     // 结算类型模糊搜索方法（带防抖）
     async settlementSearch (query) {
-      if (query !== '' && query.length < 2) {
-        this.settlementOptions = [];
-        return;
-      }
-
-      // 防抖处理，避免频繁请求
-      if (this.settlementTimer) {
-        clearTimeout(this.settlementTimer);
-      }
-
-      this.settlementTimer = setTimeout(async () => {
-        this.settlementLoading = true;
-        try {
-          // 调用搜索接口，传递搜索关键词
-          const res = await listSettlementType({ name: query });
-          if (res) {
-            this.settlementOptions = res?.map(item => ({
-              value: item.id, // 结算类型ID
-              label: item.name // 结算类型名称
-            }));
-          } else {
-            this.settlementOptions = [];
-          }
-        } catch (error) {
-          this.settlementOptions = [];
-          this.$message.error('搜索失败');
-        } finally {
-          this.settlementLoading = false;
-        }
-      }, 300); // 300ms防抖延迟
+      return listSettlementType({ nameLike: query });
     },
     // 处理维修类型选择变更事件
-    handleRepairItemChange (val) {
-      const selectedVal = this.repairItemOptions.find(option => option.value === val);
-      if (selectedVal) {
-        this.form.repairItemTypeId = selectedVal.value;
-        this.form.repairItemTypeName = selectedVal.label;
+    handleRepairItemChange (val, record) {
+      if (record) {
+        this.form.repairItemTypeName = record.name;
       }
     },
     // 维修类型模糊搜索方法（带防抖）
     async repairItemSearch (query) {
-      if (query !== '' && query.length < 2) {
-        this.repairItemOptions = [];
-        return;
-      }
-
-      // 防抖处理，避免频繁请求
-      if (this.repairItemTimer) {
-        clearTimeout(this.repairItemTimer);
-      }
-
-      this.repairItemTimer = setTimeout(async () => {
-        this.repairItemLoading = true;
-        try {
-          // 调用搜索接口，传递搜索关键词
-          const res = await listItem({ name: query });
-          console.log('res', res);
-          if (res) {
-            this.repairItemOptions = res?.map(item => ({
-              value: item.id, // 维修类型ID
-              label: item.name // 维修类型名称
-            }));
-          } else {
-            this.repairItemOptions = [];
-          }
-        } catch (error) {
-          this.repairItemOptions = [];
-          this.$message.error('搜索失败');
-        } finally {
-          this.repairItemLoading = false;
-        }
-      }, 300); // 300ms防抖延迟
+      return listItem({ nameLike: query });
     }
   }
 };
