@@ -16,24 +16,18 @@
                   disabled
                 />
               </el-form-item>
-              <el-form-item label="车型名称" prop="vehicleModelName">
-                <el-select
-                  v-model="form.vehicleModelName"
+              <el-form-item label="车型名称" prop="vehicleModelId">
+                <fetch-select
                   filterable
                   clearable
                   remote
-                  reserve-keyword
-                  placeholder="请输入"
-                  @change="handleModelChange"
+                  v-model="form.vehicleModelId"
                   :remote-method="modelSearch"
-                  :loading="modelLoading">
-                  <el-option
-                    v-for="item in modelOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
+                  :params="form.vehicleModelName"
+                  @change="handleModelChange"
+                  value-key="id"
+                  label-key="name"
+                />
               </el-form-item>
               <el-form-item label="单次需补差价" prop="spreadPrice">
                 <el-input
@@ -89,7 +83,6 @@ import { getDetail, addOrUpdate } from '@/api/maintain/basic/spreadsSetting/inde
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum, listVehicleModel } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
-import { createDebouncedSearch } from '@/utils/index.js';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 
@@ -103,16 +96,6 @@ const defaultForm = {
   spreadPrice: '',
   effectiveon: '',
 };
-
-// 创建防抖搜索实例
-const debouncedSearch = createDebouncedSearch({
-  delay: 300,
-  minLength: 2,
-  onError: (error) => {
-    // 这里可以统一处理错误
-    console.error('搜索失败:', error);
-  }
-});
 
 export default {
   name: 'spreadsSettingEdit',
@@ -142,7 +125,7 @@ export default {
         code: [
           { required: false, message: '请输入差价设置代码', trigger: 'blur' }
         ],
-        vehicleModelName: [
+        vehicleModelId: [
           { required: true, message: '请输入车型', trigger: 'blur' }
         ],
         buyCityLevel: [
@@ -246,41 +229,15 @@ export default {
       }
       return [];
     },
-    // 处理结算类型选择变更事件
-    handleModelChange (val) {
-      const selectedVal = this.modelOptions.find(option => option.value === val);
-      if (selectedVal) {
-        this.form.vehicleModelName = selectedVal.label;
-        this.form.vehicleModelId = val;
+    // 处理维修类型选择变更事件
+    handleModelChange (val, record) {
+      if (record) {
+        this.form.vehicleModelName = record.name;
       }
     },
-    // 车型模糊搜索方法（带防抖)
     async modelSearch (query) {
-      await debouncedSearch.call(
-        this,
-        this.searchVehicleModel, // 搜索函数
-        query, // 查询参数
-        this.handleModelResult // 结果处理回调
-      );
+      return listVehicleModel({ nameLike: query });
     },
-
-    // 具体的搜索API调用
-    async searchVehicleModel (query) {
-      const res = await listVehicleModel({ name: query });
-      return res;
-    },
-
-    // 处理搜索结果
-    handleModelResult (result) {
-      if (result) {
-        this.modelOptions = result.map(item => ({
-          value: item.id,
-          label: item.modelName
-        }));
-      } else {
-        this.modelOptions = [];
-      }
-    }
   }
 };
 </script>
