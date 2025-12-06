@@ -28,6 +28,7 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.workhourPrice"
+                  type="number"
                   clearable
                 />
               </el-form-item>

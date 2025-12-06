@@ -35,7 +35,6 @@
             filterable
             clearable
             remote
-            reserve-keyword
             placeholder="请选择"
             :remote-method="getStoreByName"
             collapse-tags
@@ -415,14 +414,13 @@ export default {
     },
     getStoreByName (query) {
       listOrgStoreInfo({
-        storeName: query,
-        size: 100
+        name: query
       }).then(res => {
-        this.storeOptions = res?.records?.map(item => {
+        this.storeOptions = res?.map(item => {
           return {
             ...item,
-            value: item.storeId,
-            label: item.storeName
+            value: item.orgId,
+            label: item.orgName
           };
         });
       });
