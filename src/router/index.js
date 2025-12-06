@@ -675,6 +675,84 @@ const routes = [
         name: '零件特殊零件保修编辑',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/basic/supplierInfo',
+      name: 'supplierInfo',
+      component: () => import('@/views/sparepart/basic/supplierInfo/index.vue'),
+
+      meta: {
+        name: '新页面'
+      }
+    }, {
+      path: '/sparepart/basic/supplierinfo/detail',
+      name: 'supplierInfoDetail',
+      component: () => import('@/views/sparepart/basic/supplierInfo/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/supplierinfo/edit',
+      name: 'supplierInfoEdit',
+      component: () => import('@/views/sparepart/basic/supplierInfo/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/sparePartSupplier',
+      name: 'sparePartSupplier',
+      component: () => import('@/views/sparepart/basic/sparePartSupplier/index.vue'),
+
+      meta: {
+        name: '新页面'
+      }
+    }, {
+      path: '/sparepart/basic/sparepartsupplier/detail',
+      name: 'sparePartSupplierDetail',
+      component: () => import('@/views/sparepart/basic/sparePartSupplier/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/sparepartsupplier/edit',
+      name: 'sparePartSupplierEdit',
+      component: () => import('@/views/sparepart/basic/sparePartSupplier/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/sparePartReplacer',
+      name: 'sparePartReplacer',
+      component: () => import('@/views/sparepart/basic/sparePartReplacer/index.vue'),
+
+      meta: {
+        name: '新页面'
+      }
+    }, {
+      path: '/sparepart/basic/sparepartreplacer/detail',
+      name: 'sparePartReplacerDetail',
+      component: () => import('@/views/sparepart/basic/sparePartReplacer/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/sparepartreplacer/edit',
+      name: 'sparePartReplacerEdit',
+      component: () => import('@/views/sparepart/basic/sparePartReplacer/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
