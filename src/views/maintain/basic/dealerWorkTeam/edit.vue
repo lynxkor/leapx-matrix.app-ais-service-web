@@ -21,6 +21,7 @@
                   placeholder="请输入"
                   v-model="form.name"
                   maxlength="50"
+                  show-word-limit
                   clearable
                 />
               </el-form-item>
@@ -34,19 +35,19 @@
                 />
               </el-form-item>
               <el-form-item label="门店名称" prop="dealerName">
-                <el-input
-                  placeholder="请输入"
+                <InputLink
                   v-model="form.dealerName"
-                  disabled
-                  clearable
+                  :link="`/partner/channelManagement/shopBasicsMessageDetails?num=2&id=${form.dealerId}&_blank=true`"
+                  placeholder="请输入"
+                  readonly
                 />
               </el-form-item>
               <el-form-item label="负责人" prop="ownerName">
-                <el-input
-                placeholder="请输入"
-                v-model="form.ownerName"
-                disabled
-                clearable
+                <InputLink
+                  v-model="form.ownerName"
+                  :link="`/partner/user/list/detail?&userId=${form.ownerId}`"
+                  placeholder="请输入"
+                  readonly
                 />
               </el-form-item>
               <el-form-item label="说明" prop="remark" class="form-item-full">
@@ -100,6 +101,7 @@ import { getEnum, getUserByNameOrNo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import InputLink from '@/libs/components/InputLink';
 
 const defaultForm = {
   code: '',
@@ -123,7 +125,8 @@ export default {
   mixins: [routeGuard, permissions],
   components: {
     FetchSelect,
-    EditTable
+    EditTable,
+    InputLink
   },
   data () {
     const form = this.getDefautlForm();

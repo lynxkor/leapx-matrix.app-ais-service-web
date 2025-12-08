@@ -182,7 +182,18 @@ export default {
           { props: 'name', label: '班组名称', visible: true, width: 200 },
           { props: 'teamTypeLabel', label: '班组类型', visible: true, width: 200 },
           { props: 'statusLabel', label: '状态', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          {
+            props: 'dealerName',
+            label: '门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopBasicsMessageDetails?num=2&id=${row.dealerId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'remark', label: '说明', visible: true, width: 200 },
           {
             props: 'operate',
