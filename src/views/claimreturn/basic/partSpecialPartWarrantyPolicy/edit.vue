@@ -18,179 +18,84 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="零件编码" prop="partCode">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.partCode"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="零件名称" prop="partName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.partName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="车系名称" prop="seriesName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.seriesName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="车型名称" prop="modelName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.modelName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="车辆年款" prop="yearTypeName">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.yearTypeName"
+              <el-form-item label="零件编码" prop="partId">
+                <list-select
+                  v-if="!this.$route.query.id||form.id"
+                  listUrl="/sp/web/basic/sparePart/list"
                   placeholder="请选择"
-                  clearable
+                  v-model="form.partId"
+                  query-key="partCodeOrNameLike"
+                  auto-load-options
+                  no-param-load
                   filterable
-                />
+                  clearable
+                  :params="{oemPart: 1}" />
+              </el-form-item>
+              <el-form-item label="车系名称" prop="seriesId">
+                <list-select
+                  v-if="!this.$route.query.id||form.id"
+                  listUrl="/datacenter/web/materials/vehicleSeries/list"
+                  placeholder="请选择"
+                  v-model="form.seriesId"
+                  query-key="seriesNameLike"
+                  auto-load-options
+                  no-param-load
+                  :disabled="form.id"
+                  filterable
+                  clearable
+                  :params="{}" />
               </el-form-item>
               <el-form-item label="里程数（KM）" prop="mileage">
-                <el-input
+                <el-input-number
                   placeholder="请输入"
                   v-model="form.mileage"
+                  :controls="false"
+                  :precision="0"
+                  :min="0"
                   clearable
                 />
               </el-form-item>
               <el-form-item label="保修期（月）" prop="warrantyPeriod">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
+                <el-input-number
+                  placeholder="请输入"
                   v-model="form.warrantyPeriod"
-                  placeholder="请选择"
+                  :controls="false"
+                  :precision="0"
+                  :min="0"
                   clearable
-                  filterable
                 />
+              </el-form-item>
+              <el-form-item label="车型名称" prop="modelId">
+                <list-select
+                  v-if="!this.$route.query.id||form.id"
+                  listUrl="/datacenter/web/materials/vehicleModel/list"
+                  placeholder="请选择"
+                  v-model="form.modelId"
+                  query-key="modelNameLike"
+                  auto-load-options
+                  :disabled="form.id"
+                  collapseTags
+                  filterable
+                  clearable
+                  :params="{seriesIdList: form.seriesId?[form.seriesId]:[]}" />
+              </el-form-item>
+              <el-form-item label="车辆年款" prop="yearTypeId">
+                <list-select
+                  v-if="!this.$route.query.id||form.id"
+                  listUrl="/datacenter/web/materials/vehicleYearType/list"
+                  placeholder="请选择"
+                  v-model="form.yearTypeId"
+                  :disabled="form.id"
+                  collapseTags
+                  auto-load-options
+                  filterable
+                  :params="{modelIdList: form.modelId?[form.modelId]:[]}" />
               </el-form-item>
               <el-form-item label="备注" prop="remark">
                 <el-input
                   placeholder="请输入"
                   v-model="form.remark"
                   clearable
-                />
-              </el-form-item>
-              <el-form-item label="创建时间" prop="createTime">
-                <el-date-picker
-                  v-model="form.createTime"
-                  :picker-options="pickerOptions"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  align="right"
-                />
-              </el-form-item>
-              <el-form-item label="修改时间" prop="updateTime">
-                <el-date-picker
-                  v-model="form.updateTime"
-                  :picker-options="pickerOptions"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  align="right"
-                />
-              </el-form-item>
-              <el-form-item label="主键" prop="id">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.id"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="创建者" prop="creator">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.creator"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="创建者名称" prop="creatorName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.creatorName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="修改者" prop="modifier">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.modifier"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="修改者名称" prop="modifierName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.modifierName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="状态" prop="status">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.status"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
-              <el-form-item label="状态变更描述" prop="statusDesc">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.statusDesc"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
-              <el-form-item label="数据来源，140:新销服; 老销服:10" prop="dataSource">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.dataSource"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="零件ID" prop="partId">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.partId"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="车系ID" prop="seriesId">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.seriesId"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="车型ID" prop="modelId">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.modelId"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="车辆年款ID" prop="yearTypeId">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.yearTypeId"
-                  placeholder="请选择"
-                  clearable
-                  filterable
                 />
               </el-form-item>
             </el-form>
@@ -208,11 +113,11 @@
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/claimreturn/basic/partSpecialPartWarrantyPolicy/index';
-import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import ListSelect from '@/libs/components/list-select/index.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -252,7 +157,7 @@ export default {
   },
   mixins: [routeGuard, permissions],
   components: {
-    FetchSelect,
+    ListSelect,
   },
   data () {
     const form = this.getDefautlForm();
@@ -268,72 +173,18 @@ export default {
         policyName: [
           { required: true, message: '请输入政策名称', trigger: 'blur' }
         ],
-        partCode: [
+        partId: [
           { required: true, message: '请输入零件编码', trigger: 'blur' }
         ],
-        partName: [
-          { required: true, message: '请输入零件名称', trigger: 'blur' }
-        ],
-        seriesName: [
+        seriesId: [
           { required: true, message: '请输入车系名称', trigger: 'blur' }
-        ],
-        modelName: [
-          { required: true, message: '请输入车型名称', trigger: 'blur' }
-        ],
-        yearTypeName: [
-          { required: true, message: '请选择车辆年款', trigger: 'change' }
         ],
         mileage: [
           { required: true, message: '请输入里程数（KM）', trigger: 'blur' }
         ],
         warrantyPeriod: [
-          { required: true, message: '请选择保修期（月）', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'blur' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'blur' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'blur' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'blur' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'blur' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，140:新销服; 老销服:10', trigger: 'blur' }
-        ],
-        partId: [
-          { required: true, message: '请输入零件ID', trigger: 'blur' }
-        ],
-        seriesId: [
-          { required: true, message: '请输入车系ID', trigger: 'blur' }
-        ],
-        modelId: [
-          { required: true, message: '请输入车型ID', trigger: 'blur' }
-        ],
-        yearTypeId: [
-          { required: true, message: '请选择车辆年款ID', trigger: 'change' }
-        ],
+          { required: true, message: '请选择保修期（月）', trigger: 'blur' }
+        ]
       },
       pickerOptions: {
         shortcuts: [{

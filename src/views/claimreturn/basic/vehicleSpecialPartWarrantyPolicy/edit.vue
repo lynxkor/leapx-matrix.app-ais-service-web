@@ -24,11 +24,13 @@
                   listUrl="/sp/web/basic/sparePart/list"
                   placeholder="请选择"
                   v-model="form.partId"
-                  query-key="partCodeLike"
+                  query-key="partCodeOrNameLike"
                   auto-load-options
                   no-param-load
+                  :disabled="form.id!==''"
                   filterable
-                  :params="{}" />
+                  clearable
+                  :params="{oemPart: 1}" />
               </el-form-item>
               <el-form-item label="车系名称" prop="seriesId">
                 <list-select
@@ -39,20 +41,20 @@
                   query-key="seriesNameLike"
                   auto-load-options
                   no-param-load
-                  :disabled="form.id"
+                  :disabled="form.id!==''"
                   filterable
                   clearable
                   :params="{}" />
               </el-form-item>
               <el-form-item label="车型名称" prop="modelId">
                 <list-select
-                  v-if="form.id"
+                  v-if="!this.$route.query.id||form.id"
                   listUrl="/datacenter/web/materials/vehicleModel/list"
                   placeholder="请选择"
                   v-model="form.modelId"
                   query-key="modelNameLike"
                   auto-load-options
-                  :disabled="form.id"
+                  :disabled="form.id!==''"
 
                   collapseTags
                   filterable
@@ -62,11 +64,12 @@
 
               <el-form-item label="车辆年款" prop="yearTypeId">
                 <list-select
-                  v-if="form.id"
+                  v-if="!this.$route.query.id||form.id"
                   listUrl="/datacenter/web/materials/vehicleYearType/list"
                   placeholder="请选择"
                   v-model="form.yearTypeId"
-                  :disabled="form.id"
+                  :disabled="form.id!==''"
+
                   collapseTags
                   auto-load-options
                   filterable
@@ -78,7 +81,7 @@
                   enumCode="claim_vehicle_property"
                   v-model="form.vehicleProperty"
                   placeholder="请选择"
-                  :disabled="form.id"
+                  :disabled="form.id!==''"
                   clearable
                   filterable
                 />
@@ -179,7 +182,7 @@ export default {
     const form = this.getDefautlForm();
     return {
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-vehicleSpecialPartWarrantyPolicy',
+      moduleKey: 'AISCR-vehicleSpecialPartWarrantyPolicy',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -204,33 +207,6 @@ export default {
         partId: [
           { required: true, message: '请输入零件编码', trigger: 'blur' }
         ]
-      },
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近一个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近三个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
       }
     };
   },
