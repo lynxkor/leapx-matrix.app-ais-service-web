@@ -40,6 +40,7 @@
                 :defaultNewRow="defaultNewRow"
                 :show-toolbar="false"
                 :options="options"
+                :delTitle="delTitle"
                 :auth="{edit: canAddOrUpdate, delete: canDelete}"
               />
             </div>
@@ -103,6 +104,7 @@ export default {
         // 如 type: [{label: 'xxx', value: 'xxx'}]
         vin: []
       },
+      delTitle: '此操作将删除此 适配车辆信息，您无法撤消此操作，是否继续？',
       columns: [
         {
           field: 'vin',

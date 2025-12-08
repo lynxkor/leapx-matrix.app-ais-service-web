@@ -77,6 +77,7 @@
                 :defaultNewRow="defaultNewRow"
                 :show-toolbar="false"
                 :options="options"
+                :del-title="delTitle"
                 :auth="{edit: canAddOrUpdate, delete: canDelete}"
               />
             </div>
@@ -148,6 +149,7 @@ export default {
       options: {
         userName: []
       },
+      delTitle: '此操作将删除此 维修工程师信息，您无法撤消此操作，是否继续？',
       columns: [
         {
           field: 'userName',

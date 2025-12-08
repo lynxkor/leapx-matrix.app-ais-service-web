@@ -195,6 +195,8 @@
                 :defaultNewRow="defaultNewRow"
                 :show-toolbar="false"
                 :options="options"
+                :delTitle="delTitle"
+                :auth="{edit: canAddOrUpdate, delete: canDelete}"
               />
             </div>
           </div>
@@ -213,6 +215,7 @@
                 :defaultNewRow="defaultNewRowPj"
                 :show-toolbar="false"
                 :options="options"
+                :delTitle="delTitlePj"
                 :auth="{edit: canAddOrUpdate, delete: canDelete}"
               />
             </div>
@@ -309,6 +312,8 @@ export default {
         vehicleModelName: [],
         partsCode: [],
       },
+      delTitle: '此操作将删除此 维修项目-适配车型 信息，您无法撤消此操作，是否继续？',
+      delTitlePj: '此操作将删除此 维修项目-适配配件 信息，您无法撤消此操作，是否继续？',
       columns: [ // 适配车型
         {
           field: 'vehicleYearType',
