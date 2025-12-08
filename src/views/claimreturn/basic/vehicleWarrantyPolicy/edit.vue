@@ -30,7 +30,7 @@
                   no-param-load
                   clearable
                   filterable
-                  :disabled="form.id"
+                  :disabled="form.id!==''"
                   :params="{}" />
               </el-form-item>
               <el-form-item label="车型" prop="modelId">
@@ -40,7 +40,7 @@
                   placeholder="请选择"
                   v-model="form.modelId"
                   query-key="modelNameLike"
-                  :disabled="form.id"
+                  :disabled="form.id!==''"
                   auto-load-options
                   collapseTags
                   clearable
@@ -49,12 +49,12 @@
               </el-form-item>
               <el-form-item label="车辆年款" prop="yearTypeId">
                 <list-select
-                  v-if="form.id"
+                  v-if="!this.$route.query.id||form.id"
                   listUrl="/datacenter/web/materials/vehicleYearType/list"
                   placeholder="请选择"
                   v-model="form.yearTypeId"
                   collapseTags
-                  :disabled="form.id"
+                  :disabled="form.id!==''"
                   auto-load-options
                   filterable
                   clearable
@@ -65,7 +65,7 @@
                   :request="fetchOptions"
                   enumCode="claim_vehicle_property"
                   v-model="form.vehicleProperty"
-                  :disabled="form.id"
+                  :disabled="form.id!==''"
                   placeholder="请选择"
                   clearable
                   filterable
@@ -186,33 +186,6 @@ export default {
         seriesId: [
           { required: true, message: '请输入车系', trigger: 'blur' }
         ]
-      },
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近一个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近三个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
       }
     };
   },

@@ -56,7 +56,6 @@
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/claimreturn/basic/vfg';
-import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -71,7 +70,7 @@ const defaultForm = {
   status: '',
   createTime: '',
   modifierName: '',
-  id: '',
+  id: null,
   creator: '',
   creatorName: '',
   modifier: '',
@@ -115,33 +114,6 @@ export default {
         vrtId: [
           { required: true, message: '请输入VRT名称', trigger: 'blur' }
         ]
-      },
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近一个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近三个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
       }
     };
   },
