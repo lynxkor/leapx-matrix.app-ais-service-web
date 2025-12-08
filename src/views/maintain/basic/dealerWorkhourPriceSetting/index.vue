@@ -159,7 +159,18 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          {
+            props: 'dealerName',
+            label: '门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopBasicsMessageDetails?num=2&id=${row.dealerId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'workhourPrice', label: '工时单价', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'statusLabel', label: '状态', visible: true, width: 200 },
