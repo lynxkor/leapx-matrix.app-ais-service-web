@@ -141,3 +141,11 @@ export function cityPage (data) {
 export function vehicleSalesVersionList (data) {
   return api.jsonPost('/datacenter/web/materials/vehicleRegisteredModel/list', data);
 }
+
+/**
+ * 建店类型接口 级联
+ * @param {*} data
+ */
+export function getBuildType (data) {
+  return api.jsonPost('/network/portal/DataDict/getBuildType', data);
+}

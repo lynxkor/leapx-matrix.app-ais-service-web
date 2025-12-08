@@ -159,7 +159,23 @@ export default {
           { props: 'categoryLabel', label: '类别 ', visible: true, width: 200 },
           { props: 'name', label: '维修类型名称', visible: true, width: 200 },
           { props: 'sort', label: '排序', visible: true, width: 200, align: 'right', headerAlign: 'right' },
-          { props: 'checkoutTypeName', label: '结算类型', visible: true, width: 200 },
+          {
+            props: 'checkoutTypeName',
+            label: '结算类型',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/basic/checkoutType/detail',
+                  query: {
+                    id: row.checkoutTypeId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'statusLabel', label: '状态', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
@@ -182,7 +198,7 @@ export default {
               type: 'info'
             }, {
               name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
+              popconfirmTitle: '此操作将删除选中维修类型设置信息，您无法撤销此操作，是否继续？',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
                   this.$message({

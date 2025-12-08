@@ -66,6 +66,7 @@
                 :defaultNewRow="defaultNewRow"
                 :show-toolbar="false"
                 :options="options"
+                :delTitle="delTitle"
                 :auth="{edit: canAddOrUpdate, delete: canDelete}"
               />
             </div>
@@ -130,6 +131,7 @@ export default {
         // 如 type: [{label: 'xxx', value: 'xxx'}]
         userName: [],
       },
+      delTitle: '此操作将删除此 可使用对象信息，您无法撤消此操作，是否继续？',
       columns: [
         {
           field: 'userName',

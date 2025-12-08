@@ -132,6 +132,12 @@
         @handleSelect="handleSelectionChange"
       />
     </div>
+    <!-- TIPS: 填入项目id即可 -->
+    <Upload
+      :visible="uploadDialogVisible"
+      id="vehicleSpecialPartWarrantyPolicy"
+      @close="handleUploadDialogClose"
+    />
   </div>
 </template>
 
@@ -148,6 +154,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 import TagInput from '@/libs/components/TagInput/index.vue';
 import ListSelect from '@/libs/components/list-select/index.vue';
+import Upload from '@/libs/components/UploadDialog/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -173,6 +180,7 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions],
   components: {
+    Upload,
     ListSelect,
     TagInput,
     PageSearchAction,
