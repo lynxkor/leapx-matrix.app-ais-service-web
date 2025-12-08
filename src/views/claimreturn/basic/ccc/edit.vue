@@ -13,24 +13,26 @@
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
               <el-form-item label="VRT名称" prop="vrtId">
                 <list-select
-                  v-if="form.id"
+                  v-if="!this.$route.query.id||form.id"
                   listUrl="/claimreturn/web/basic/vrt/list"
                   placeholder="请选择"
                   v-model="form.vrtId"
                   query-key="vrtNameLike"
                   auto-load-options
                   no-param-load
+                  clearable
                   filterable
                   :params="{}" />
               </el-form-item>
               <el-form-item label="VFG名称" prop="vfgId">
                 <list-select
-                  v-if="form.id"
+                  v-if="!this.$route.query.id||form.id"
                   listUrl="/claimreturn/web/basic/vfg/list"
                   placeholder="请选择"
                   v-model="form.vfgId"
                   query-key="vfgNameLike"
                   auto-load-options
+                  clearable
                   filterable
                   :params="{vrtId: form.vrtId}"
                    />
@@ -118,16 +120,11 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       rules: {
-        vrtCode: [
-          { required: true, message: '请输入VRT编码', trigger: 'blur' }
-        ],
-        vrtName: [
+
+        vrtId: [
           { required: true, message: '请输入VRT名称', trigger: 'blur' }
         ],
-        vfgCode: [
-          { required: true, message: '请输入VFG编码', trigger: 'blur' }
-        ],
-        vfgName: [
+        vfgId: [
           { required: true, message: '请输入VFG名称', trigger: 'blur' }
         ],
         cccCode: [
@@ -135,46 +132,7 @@ export default {
         ],
         cccName: [
           { required: true, message: '请输入CCC名称', trigger: 'blur' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'blur' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'blur' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'blur' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'blur' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'blur' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，140:新销服; 老销服:10', trigger: 'blur' }
-        ],
-        vfgId: [
-          { required: true, message: '请输入VFG ID', trigger: 'blur' }
-        ],
-        vrtId: [
-          { required: true, message: '请输入VRT ID', trigger: 'blur' }
-        ],
+        ]
       },
       pickerOptions: {
         shortcuts: [{

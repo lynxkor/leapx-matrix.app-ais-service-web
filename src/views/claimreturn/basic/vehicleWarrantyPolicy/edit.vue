@@ -21,39 +21,43 @@
 
               <el-form-item label="车系" prop="seriesId">
                 <list-select
-                  v-if="form.id"
+                  v-if="!this.$route.query.id||form.id"
                   listUrl="/datacenter/web/materials/vehicleSeries/list"
                   placeholder="请选择"
                   v-model="form.seriesId"
                   query-key="seriesNameLike"
                   auto-load-options
                   no-param-load
+                  clearable
                   filterable
+                  :disabled="form.id"
                   :params="{}" />
               </el-form-item>
               <el-form-item label="车型" prop="modelId">
                 <list-select
-                  v-if="form.id"
+                  v-if="!this.$route.query.id||form.id"
                   listUrl="/datacenter/web/materials/vehicleModel/list"
                   placeholder="请选择"
                   v-model="form.modelId"
                   query-key="modelNameLike"
+                  :disabled="form.id"
                   auto-load-options
                   collapseTags
+                  clearable
                   filterable
                   :params="{seriesIdList: form.seriesId?[form.seriesId]:[]}" />
               </el-form-item>
               <el-form-item label="车辆年款" prop="yearTypeId">
                 <list-select
                   v-if="form.id"
-                  listUrl="/datacenter/web/materials/vehicleModelYearTypeRelation/list"
+                  listUrl="/datacenter/web/materials/vehicleYearType/list"
                   placeholder="请选择"
                   v-model="form.yearTypeId"
                   collapseTags
+                  :disabled="form.id"
                   auto-load-options
                   filterable
-                  label-key="yearTypeName"
-                  value-key="yearTypeId"
+                  clearable
                   :params="{modelIdList: form.modelId?[form.modelId]:[]}" />
               </el-form-item>
               <el-form-item label="车辆属性" prop="vehicleProperty">
@@ -61,26 +65,30 @@
                   :request="fetchOptions"
                   enumCode="claim_vehicle_property"
                   v-model="form.vehicleProperty"
+                  :disabled="form.id"
                   placeholder="请选择"
                   clearable
                   filterable
                 />
               </el-form-item>
               <el-form-item label="里程数（KM）" prop="mileage">
-                <el-input
+                <el-input-number
                   placeholder="请输入"
                   v-model="form.mileage"
+                  :controls="false"
+                  :precision="0"
+                  :min="0"
                   clearable
                 />
               </el-form-item>
               <el-form-item label="保修期（月）" prop="warrantyPeriod">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
+                <el-input-number
+                  placeholder="请输入"
                   v-model="form.warrantyPeriod"
-                  placeholder="请选择"
+                  :controls="false"
+                  :precision="0"
+                  :min="0"
                   clearable
-                  filterable
                 />
               </el-form-item>
               <el-form-item label="备注" prop="remark">
@@ -166,15 +174,6 @@ export default {
         policyName: [
           { required: true, message: '请输入政策名称', trigger: 'blur' }
         ],
-        seriesName: [
-          { required: true, message: '请输入车系名称', trigger: 'blur' }
-        ],
-        modelName: [
-          { required: true, message: '请输入车型名称', trigger: 'blur' }
-        ],
-        yearTypeName: [
-          { required: true, message: '请选择车辆年款', trigger: 'change' }
-        ],
         vehicleProperty: [
           { required: true, message: '请输入车辆属性', trigger: 'blur' }
         ],
@@ -184,48 +183,9 @@ export default {
         warrantyPeriod: [
           { required: true, message: '请选择保修期（月）', trigger: 'change' }
         ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'blur' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'blur' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'blur' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'blur' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'blur' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，140:新销服; 老销服:10', trigger: 'blur' }
-        ],
         seriesId: [
-          { required: true, message: '请输入车系ID', trigger: 'blur' }
-        ],
-        modelId: [
-          { required: true, message: '请输入车型ID', trigger: 'blur' }
-        ],
-        yearTypeId: [
-          { required: true, message: '请选择车辆年款ID', trigger: 'change' }
-        ],
+          { required: true, message: '请输入车系', trigger: 'blur' }
+        ]
       },
       pickerOptions: {
         shortcuts: [{
@@ -275,26 +235,25 @@ export default {
       }
     },
     submitForm (formName, rest = false) {
-      console.log(this.form);
-      // this.$refs[formName].validate((valid) => {
-      //   if (valid) {
-      //     this.submitLoading = true;
-      //     addOrUpdate({ ...this.form }).then(res => {
-      //       this.$message({
-      //         message: '保存成功',
-      //         type: 'success'
-      //       });
-      //       const id = this.$route.query.id;
-      //       if (rest || !id) {
-      //         this.resetForm(formName);
-      //       } else {
-      //         this.getDetailData();
-      //       }
-      //     }).finally(() => {
-      //       this.submitLoading = false;
-      //     });
-      //   }
-      // });
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.submitLoading = true;
+          addOrUpdate({ ...this.form }).then(res => {
+            this.$message({
+              message: '保存成功',
+              type: 'success'
+            });
+            const id = this.$route.query.id;
+            if (rest || !id) {
+              this.resetForm(formName);
+            } else {
+              this.getDetailData();
+            }
+          }).finally(() => {
+            this.submitLoading = false;
+          });
+        }
+      });
     },
     resetForm (formName) {
       this.$refs[formName].resetFields();
