@@ -168,7 +168,18 @@ export default {
             }]
           },
           { props: 'name', label: '优惠名称', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          {
+            props: 'dealerName',
+            label: '门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopBasicsMessageDetails?num=2&id=${row.dealerId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'discountWorkhourRate', label: '工时折扣率', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'discountPartRate', label: '备件折扣率', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'statusLabel', label: '状态', visible: true, width: 200 },
