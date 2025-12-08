@@ -39,13 +39,12 @@
                 />
               </el-form-item>
               <el-form-item label="建店类型" prop="dealerType">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="mc_dealer_type"
+                <el-cascader
+                  class="cascader"
                   v-model="form.dealerType"
-                  placeholder="请选择"
-                  clearable
-                />
+                  :options="storeTypeOptions"
+                  @change="handleCascaderChange">
+                </el-cascader>
               </el-form-item>
               <el-form-item label="保修类型" prop="repairItemTypeId">
                 <fetch-select
@@ -86,7 +85,7 @@
 <script>
 import { getDetail, addOrUpdate } from '@/api/maintain/basic/dealerPermission/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getEnum } from '@/api/common';
+import { getEnum, getBuildType } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import { listSettlementType } from '@/api/maintain/basic/checkoutType';
 import { listItem } from '@/api/maintain/basic/repairItemType';
@@ -126,6 +125,7 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...defaultForm },
       originalForm: { ...defaultForm },
+      storeTypeOptions: [], // 建店类型选项
       rules: {
         code: [
           { required: false, message: '请输入建店类型代码', trigger: 'blur' }
@@ -176,6 +176,7 @@ export default {
     };
   },
   mounted () {
+    this.getStore();
     this.getDetailData();
   },
   methods: {
@@ -228,11 +229,35 @@ export default {
     //     }
     //   });
     // },
-    async fetchOptions (code) {
-      if (code) {
-        return getEnum(code);
+    // 处理建店类型选择变更事件
+    async getStore () {
+      const res = await getBuildType();
+      this.storeTypeOptions = res || [];
+    },
+    handleCascaderChange (value) {
+      console.log('级联选择的值:', value);
+
+      if (value && value.length > 0) {
+        // 获取最后一级的ID
+        const lastValue = value[value.length - 1];
+        this.form.dealerType = lastValue;
+
+        // 如果需要保留完整路径（用于显示）
+        this.form.dealerTypeArray = value;
+      } else {
+        this.form.dealerType = '';
+        this.form.dealerTypeArray = [];
       }
-      return [];
+
+      // 触发其他业务逻辑
+      this.handleChange(this.form.dealerType);
+    },
+
+    handleChange (selectedId) {
+      // 你的业务逻辑，接收最后一级的ID
+      console.log('选择的最后一级ID:', selectedId);
+      this.form.dealerType = selectedId;
+      // ...其他逻辑
     },
     // 处理结算类型选择变更事件
     handleSettlementChange (val, record) {
@@ -253,7 +278,19 @@ export default {
     // 维修类型模糊搜索方法（带防抖）
     async repairItemSearch (query) {
       return listItem({ nameLike: query });
+    },
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
     }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.cascader {
+  width: 100%;
+}
+</style>
