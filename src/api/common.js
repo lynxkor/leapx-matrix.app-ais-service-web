@@ -147,5 +147,5 @@ export function vehicleSalesVersionList (data) {
  * @param {*} data
  */
 export function getBuildType (data) {
-  return api.jsonPost('/network/portal/DataDict/getBuildType', data);
+  return api.get('/network/portal/DataDict/getBuildType', data);
 }
