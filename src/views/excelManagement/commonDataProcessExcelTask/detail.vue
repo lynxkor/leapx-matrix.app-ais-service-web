@@ -79,7 +79,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel管理', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel模板导出', '详情']);
     this.getData();
   },
   methods: {
