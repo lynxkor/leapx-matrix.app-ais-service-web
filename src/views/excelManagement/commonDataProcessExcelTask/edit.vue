@@ -230,7 +230,7 @@ export default {
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel管理', `${id ? '编辑' : '新建'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel模板导出', `${id ? '编辑' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
