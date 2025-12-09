@@ -753,6 +753,58 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/basic/sparePartPurchasePrice',
+      name: 'sparePartPurchasePrice',
+      component: () => import('@/views/sparepart/basic/sparePartPurchasePrice/index.vue'),
+
+      meta: {
+        name: '新页面'
+      }
+    }, {
+      path: '/sparepart/basic/sparepartpurchaseprice/detail',
+      name: 'sparePartPurchasePriceDetail',
+      component: () => import('@/views/sparepart/basic/sparePartPurchasePrice/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/sparepartpurchaseprice/edit',
+      name: 'sparePartPurchasePriceEdit',
+      component: () => import('@/views/sparepart/basic/sparePartPurchasePrice/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/sparePartSalesPrice',
+      name: 'sparePartSalesPrice',
+      component: () => import('@/views/sparepart/basic/sparePartSalesPrice/index.vue'),
+
+      meta: {
+        name: '新页面'
+      }
+    }, {
+      path: '/sparepart/basic/sparepartsalesprice/detail',
+      name: 'sparePartSalesPriceDetail',
+      component: () => import('@/views/sparepart/basic/sparePartSalesPrice/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/sparepartsalesprice/edit',
+      name: 'sparePartSalesPriceEdit',
+      component: () => import('@/views/sparepart/basic/sparePartSalesPrice/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
