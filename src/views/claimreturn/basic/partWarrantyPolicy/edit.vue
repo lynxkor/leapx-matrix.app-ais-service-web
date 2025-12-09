@@ -40,7 +40,7 @@
                   v-model="form.modelId"
                   query-key="modelNameLike"
                   auto-load-options
-                  :disabled="form.id"
+                  :disabled="form.id!==''"
                   collapseTags
                   filterable
                   clearable
@@ -99,8 +99,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/claimreturn/basic/partWarrantyPolicy/index';
-import FetchSelect from '@/libs/components/FetchSelect';
+import { getDetail, addOrUpdate } from '@/api/claimreturn/basic/partWarrantyPolicy';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';

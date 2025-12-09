@@ -45,17 +45,18 @@
         </el-form-item>
         <el-form-item label="车辆年款">
           <list-select
-            listUrl="/datacenter/web/materials/vehicleModelYearTypeRelation/list"
+            listUrl="/datacenter/web/materials/vehicleYearType/list"
             placeholder="请选择"
             v-model="form.yearTypeIds"
+            query-key="yearTypeNameLike"
             clearable
             multiple
             collapseTags
+            no-param-load
             auto-load-options
             filterable
-            label-key="yearTypeName"
-            value-key="yearTypeId"
-            :params="{modelIdList: form.modelIds}" />
+            value-key="id"
+          />
         </el-form-item>
         <el-form-item label="车辆属性">
           <fetch-select
