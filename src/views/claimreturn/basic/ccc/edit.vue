@@ -42,6 +42,7 @@
                   placeholder="请输入"
                   :disabled="form.id!==''"
                   v-model="form.cccCode"
+                  maxlength="100"
                   clearable
                 />
               </el-form-item>
@@ -49,6 +50,7 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.cccName"
+                  maxlength="100"
                   clearable
                 />
               </el-form-item>
