@@ -16,6 +16,7 @@
                   placeholder="请输入"
                   v-model="form.vrtCode"
                   :disabled="form.id!==''"
+                  maxlength="100"
                   clearable
                 />
               </el-form-item>
@@ -23,6 +24,7 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.vrtName"
+                  maxlength="100"
                   clearable
                 />
               </el-form-item>

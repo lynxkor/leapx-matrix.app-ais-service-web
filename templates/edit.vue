@@ -165,6 +165,7 @@ import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -182,7 +183,7 @@ export default {
       default: null
     }
   },
-  mixins: [routeGuard, permissions],
+  mixins: [routeGuard, permissions, commonMixins],
   components: {
     FetchSelect,
     {{{#isProForm}}}
@@ -192,6 +193,8 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      pageTitle: '{{{title}}}',
+      pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-{{{name}}}',
       loading: false,

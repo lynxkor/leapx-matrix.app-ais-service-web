@@ -326,7 +326,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '新页面',
+        businessType: '零件特殊零件保修政策',
         dataFetchPath: 'claimreturn/web/basic/partSpecialPartWarrantyPolicy/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),

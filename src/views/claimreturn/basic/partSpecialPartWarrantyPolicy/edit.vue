@@ -15,6 +15,7 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.policyName"
+                  maxlength="100"
                   clearable
                 />
               </el-form-item>
@@ -40,7 +41,7 @@
                   query-key="seriesNameLike"
                   auto-load-options
                   no-param-load
-                  :disabled="form.id"
+                  :disabled="form.id!==''"
                   filterable
                   clearable
                   :params="{}" />
@@ -73,7 +74,7 @@
                   v-model="form.modelId"
                   query-key="modelNameLike"
                   auto-load-options
-                  :disabled="form.id"
+                  :disabled="form.id!==''"
                   collapseTags
                   filterable
                   clearable
@@ -85,7 +86,7 @@
                   listUrl="/datacenter/web/materials/vehicleYearType/list"
                   placeholder="请选择"
                   v-model="form.yearTypeId"
-                  :disabled="form.id"
+                  :disabled="form.id!==''"
                   collapseTags
                   auto-load-options
                   filterable
@@ -95,6 +96,7 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.remark"
+                  maxlength="500"
                   clearable
                 />
               </el-form-item>

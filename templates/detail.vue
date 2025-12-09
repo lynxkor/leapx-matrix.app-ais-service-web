@@ -57,10 +57,11 @@ import { YES_NO_ENUM_MAP } from '@/libs/constants';
 import EditTable from '@/libs/components/EditTable';
 {{{/isProForm}}}
 import permissions from '@/libs/mixins/permissions';
+import commonMixins from '@/libs/mixins/commonMixins';
 
 export default {
   name: '{{{nameCamelCase}}}Detail',
-  mixins: [permissions],
+  mixins: [permissions, commonMixins],
   components: {
     {{{#isProForm}}}
     EditTable
@@ -68,6 +69,8 @@ export default {
   },
   data () {
     return {
+      pageTitle: '{{{title}}}',
+      pageType: 'detail',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-{{{name}}}',
       loading: true,
