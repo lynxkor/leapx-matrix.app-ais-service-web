@@ -506,11 +506,7 @@ export default {
         selectionList: this.selectionList,
         targetStatus: status,
         apiFunc: enableItem,
-        refreshFunc: this.getData,
-        options: {
-          statusName: 'status',
-          requireInput: true
-        }
+        refreshFunc: this.getData
       });
       // const ids = this.selectionList.map(item => item.id) || [];
       // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
