@@ -12,42 +12,59 @@
       <el-form-item label="零件编码">
         <el-input
           placeholder="请输入"
-          v-model="form.partCode"
+          v-model="form.partCodeLike"
           clearable
         />
       </el-form-item>
       <el-form-item label="零件名称">
         <el-input
           placeholder="请输入"
-          v-model="form.partName"
+          v-model="form.partNameLike"
           clearable
         />
       </el-form-item>
-      <el-form-item label="车系名称"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.vehicleSeriesName"
-          clearable
-        />
-      </el-form-item>
+
       <template v-if="show">
-        <el-form-item label="车型名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.vehicleModelName"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="年款名称">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.vehicleYearTypeName"
+        <el-form-item label="车系名称">
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleSeries/list"
             placeholder="请选择"
+            v-model="form.vehicleSeriesIds"
+            query-key="seriesNameLike"
             clearable
+            collapseTags
+            auto-load-options
+            no-param-load
             multiple
             filterable
-          />
+            :params="{}" />
+        </el-form-item>
+        <el-form-item label="车型名称"  v-show="this.visibleCount === 3 || show">
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleModel/list"
+            placeholder="请选择"
+            v-model="form.vehicleModelIds"
+            query-key="modelNameLike"
+            clearable
+            auto-load-options
+            collapseTags
+            multiple
+            filterable
+            :params="{seriesIdList: form.vehicleSeriesIds}" />
+        </el-form-item>
+        <el-form-item label="车辆年款">
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleYearType/list"
+            placeholder="请选择"
+            v-model="form.vehicleYearTypeIds"
+            query-key="yearTypeNameLike"
+            clearable
+            multiple
+            collapseTags
+            no-param-load
+            auto-load-options
+            filterable
+            />
         </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
@@ -128,14 +145,15 @@ import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
+import ListSelect from '@/libs/components/list-select/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  partCode: '',
-  partName: '',
-  vehicleSeriesName: '',
-  vehicleModelName: '',
-  vehicleYearTypeName: '',
+  partCodeLike: '',
+  partNameLike: '',
+  vehicleSeriesIds: [],
+  vehicleModelIds: [],
+  vehicleYearTypeIds: [],
   createTime: '',
   updateTime: '',
 };
@@ -148,6 +166,7 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions],
   components: {
+    ListSelect,
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
@@ -321,8 +340,14 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
-
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      const params = { ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size };
+      // 过滤掉空数组参数
+      Object.keys(params).forEach(key => {
+        if (Array.isArray(params[key]) && params[key].length === 0) {
+          delete params[key];
+        }
+      });
+      getList(params)
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {

@@ -9,32 +9,32 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="状态">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="xxx"
-          v-model="form.status"
-          placeholder="请选择"
-          clearable
-          multiple
-          filterable
-        />
-      </el-form-item>
-      <el-form-item label="分类编码">
+      <el-form-item label="工程分类编码">
         <el-input
           placeholder="请输入"
-          v-model="form.categoryCode"
+          v-model="form.categoryCodeLike"
           clearable
         />
       </el-form-item>
-      <el-form-item label="分类名称"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="工程分类名称">
         <el-input
           placeholder="请输入"
-          v-model="form.categoryName"
+          v-model="form.categoryNameLike"
           clearable
         />
       </el-form-item>
       <template v-if="show">
+        <el-form-item label="状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="StatusEnum"
+            v-model="form.statusIncludeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+      </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
             v-model="form.createTime"
@@ -72,9 +72,9 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
+      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
@@ -118,8 +118,8 @@ import permissions from '@/libs/mixins/permissions';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   status: '',
-  categoryCode: '',
-  categoryName: '',
+  categoryCodeLike: '',
+  categoryNameLike: '',
   createTime: '',
   updateTime: '',
 };
@@ -176,48 +176,37 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'categoryCode', label: '分类编码', visible: true, width: 200 },
-          { props: 'categoryName', label: '分类名称', visible: true, width: 200 },
-          { props: 'statusDesc', label: '状态变更描述', visible: true, width: 200 },
+          { props: 'categoryCode', label: '工程分类编码', visible: true, width: 200 },
+          { props: 'categoryName', label: '工程分类名称', visible: true, width: 200 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-          {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
-            visible: true,
-            fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/basic/spareEngineeringCategory/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
-            }]
-          }
+          // {
+          //   props: 'operate',
+          //   label: '操作',
+          //   type: 'operate',
+          //   visible: true,
+          //   fixed: 'right',
+          //   buttons: [{
+          //     name: '删除',
+          //     popconfirmTitle: '此操作将永久删除, 是否继续?',
+          //     click: (rowIndex, row) => {
+          //       deleteItem([row.id]).then(() => {
+          //         this.$message({
+          //           type: 'success',
+          //           message: '删除成功!'
+          //         });
+          //         this.getData();
+          //       }).catch(() => {
+          //         this.$message({
+          //           type: 'error',
+          //           message: '删除失败!'
+          //         });
+          //       });
+          //     },
+          //     type: 'danger'
+          //   }]
+          // }
         ],
         total: 0
       },
