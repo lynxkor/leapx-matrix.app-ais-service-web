@@ -229,6 +229,9 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['结算类型']);
     this.getData();
   },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['结算类型']);
+  },
   methods: {
     handleImport () {
       this.uploadDialogVisible = true;

@@ -288,6 +288,9 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['维修项目']);
     this.getData();
   },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['维修项目']);
+  },
   methods: {
     handleImport (val) {
       this.uploadDialogId = val;

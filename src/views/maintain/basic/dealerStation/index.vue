@@ -266,6 +266,9 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店工位信息']);
     this.getData();
   },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店工位信息']);
+  },
   methods: {
     handleImport () {
       this.uploadDialogVisible = true;

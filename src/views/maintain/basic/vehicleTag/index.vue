@@ -231,6 +231,9 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['车辆标识']);
     this.getData();
   },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['车辆标识']);
+  },
   methods: {
     handleImport () {
       this.uploadDialogVisible = true;

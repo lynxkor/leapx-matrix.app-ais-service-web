@@ -293,6 +293,9 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['零件保修政策设置']);
     this.getData();
   },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['零件保修政策设置']);
+  },
   methods: {
     handleImport () {
       this.uploadDialogVisible = true;
