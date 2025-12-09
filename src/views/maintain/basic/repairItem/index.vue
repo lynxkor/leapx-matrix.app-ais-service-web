@@ -49,7 +49,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="mc_maintenance_item"
-            v-model="form.maintenanceItemType"
+            v-model="form.maintenanceItemTypes"
             placeholder="请选择"
             clearable
             multiple
@@ -118,7 +118,7 @@ const defaultForm = {
   codeLike: '',
   nameLike: '',
   statusIncludeList: '',
-  maintenanceItemType: '',
+  maintenanceItemTypes: [],
   createTime: '',
 };
 
