@@ -95,6 +95,7 @@ import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/co
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
+import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -110,6 +111,8 @@ const mockConfig = {
 };
 
 export default {
+  mixins: [commonMixins],
+
   components: {
     PageSearchAction,
     LPVxeTable,
@@ -118,6 +121,8 @@ export default {
   },
   data () {
     return {
+      pageTitle: 'Excel模板导出',
+      pageType: 'list',
       form: {
         ...defaultForm
       },
@@ -231,11 +236,8 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel模板导出']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
-  },
-  activated () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面']);
   },
   methods: {
     handleImport () {

@@ -117,6 +117,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import { createDebouncedSearch } from '@/utils/index.js';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
+import commonMixins from '@/libs/mixins/commonMixins';
 import { handleBatchStatusChange, getEndOfDayString, downloadExcel } from '@/libs/utils';
 
 const defaultForm = {
@@ -144,7 +145,7 @@ const debouncedSearch = createDebouncedSearch({
 });
 
 export default {
-  mixins: [responsiveSearchForm, permissions],
+  mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
     PageSearchAction,
     LPVxeTable,
@@ -152,6 +153,8 @@ export default {
   },
   data () {
     return {
+      pageTitle: '保养套餐差价设置',
+      pageType: 'list',
       form: {
         ...defaultForm
       },
@@ -268,12 +271,8 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['保养套餐差价设置']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
-  },
-  activated () {
-    console.log('actived');
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['保养套餐差价设置']);
   },
   methods: {
     handleImport () {

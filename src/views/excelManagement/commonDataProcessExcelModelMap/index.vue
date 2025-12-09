@@ -93,6 +93,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import { downloadExcel } from '@/utils/index.js';
+import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -107,6 +108,7 @@ const mockConfig = {
 };
 
 export default {
+  mixins: [commonMixins],
   components: {
     PageSearchAction,
     LPVxeTable,
@@ -114,6 +116,8 @@ export default {
   },
   data () {
     return {
+      pageTitle: 'Excel模板导入',
+      pageType: 'list',
       form: {
         ...defaultForm
       },
@@ -238,11 +242,8 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel模板导入']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
-  },
-  activated () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel模板导入']);
   },
   methods: {
     handleImport () {
