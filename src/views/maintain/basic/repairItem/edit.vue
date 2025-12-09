@@ -170,7 +170,6 @@
               <el-form-item label="备注" prop="remark">
                 <el-input
                   type="textarea"
-                  :rows="3"
                   style="width: 100%"
                   placeholder="请输入"
                   v-model="form.remark"
@@ -196,6 +195,8 @@
                 :defaultNewRow="defaultNewRow"
                 :show-toolbar="false"
                 :options="options"
+                :delTitle="delTitle"
+                :auth="{edit: canAddOrUpdate, delete: canDelete}"
               />
             </div>
           </div>
@@ -214,6 +215,7 @@
                 :defaultNewRow="defaultNewRowPj"
                 :show-toolbar="false"
                 :options="options"
+                :delTitle="delTitlePj"
                 :auth="{edit: canAddOrUpdate, delete: canDelete}"
               />
             </div>
@@ -233,7 +235,7 @@
 import { getDetail, addOrUpdate } from '@/api/maintain/basic/repairItem/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
-import { getEnum, listVehicleModel, listVehicleYearType, repairItemType } from '@/api/common';
+import { getEnum, listVehicleYearTypeFull, listVehicleYearType, repairItemType } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -310,6 +312,8 @@ export default {
         vehicleModelName: [],
         partsCode: [],
       },
+      delTitle: '此操作将删除此 维修项目-适配车型 信息，您无法撤消此操作，是否继续？',
+      delTitlePj: '此操作将删除此 维修项目-适配配件 信息，您无法撤消此操作，是否继续？',
       columns: [ // 适配车型
         {
           field: 'vehicleYearType',
@@ -324,8 +328,7 @@ export default {
               remote: true,
               'suffix-icon': 'el-icon-search',
               placeholder: '请选择年款',
-              'remote-method': this.queryModelYear,
-              'value-change': this.queryChange,
+              'remote-method': this.queryModelYear
             }
           },
         },
@@ -514,7 +517,7 @@ export default {
     'form.isReservation': {
       handler (newVal) {
         // 动态更新验证规则
-        if (newVal === 1) {
+        if (Number(newVal) === 1) {
           this.rules.appointmentItemName[0].required = true;
         } else {
           this.rules.appointmentItemName[0].required = false;
@@ -524,12 +527,13 @@ export default {
           });
         }
       },
+      deep: true,
       immediate: true
     },
     'form.maintenanceItemType': { // 监听保养项目分类如果选择的是否 必填项
       handler (newVal) {
         // 动态更新验证规则
-        if (newVal === 0) {
+        if (Number(newVal) === 0) { // 后期优化此方法
           this.rules.maintenanceTime[0].required = false;
           this.rules.maintenanceMileage[0].required = false;
           this.rules.mileageInterval[0].required = false;
@@ -554,6 +558,7 @@ export default {
           this.rules.nextMaintenanceTime[0].required = true;
         }
       },
+      deep: true,
       immediate: true
     }
   },
@@ -714,7 +719,7 @@ export default {
     },
     // 车型名称远程搜索
     querySearchAsync (queryString, cb) {
-      listVehicleModel({ modelNameLike: queryString, status: 1 }).then(res => {
+      listVehicleYearTypeFull({ modelNameLike: queryString, status: 1 }).then(res => {
         const list = res?.map(item => {
           return {
             ...item,

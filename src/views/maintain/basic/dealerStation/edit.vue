@@ -21,6 +21,7 @@
                   placeholder="请输入"
                   v-model="form.name"
                   maxlength="50"
+                  show-word-limit
                   clearable
                 />
               </el-form-item>
@@ -34,19 +35,19 @@
                 />
               </el-form-item>
               <el-form-item label="门店名称" prop="dealerName">
-                <el-input
-                  placeholder="请输入"
+                <InputLink
                   v-model="form.dealerName"
-                  clearable
-                  disabled
+                  :link="`/partner/channelManagement/shopBasicsMessageDetails?num=2&id=${form.dealerId}&_blank=true`"
+                  placeholder="请输入"
+                  readonly
                 />
               </el-form-item>
               <el-form-item label="负责人" prop="ownerName">
-                <el-input
-                  placeholder="请输入"
+                <InputLink
                   v-model="form.ownerName"
-                  clearable
-                  disabled
+                  :link="`/partner/user/list/detail?&userId=${form.ownerId}`"
+                  placeholder="请输入"
+                  readonly
                 />
               </el-form-item>
               <el-form-item label="说明" prop="remark">
@@ -80,6 +81,7 @@ import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import InputLink from '@/libs/components/InputLink';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -100,6 +102,7 @@ export default {
   mixins: [routeGuard, permissions],
   components: {
     FetchSelect,
+    InputLink
     // EditTable
   },
   data () {
@@ -119,8 +122,14 @@ export default {
         stationType: [
           { required: true, message: '请选择工位类型', trigger: 'blur' }
         ],
+        dealerName: [
+          { required: true, message: '', trigger: 'blur' }
+        ],
+        ownerName: [
+          { required: true, message: '', trigger: 'blur' }
+        ],
         remark: [
-          { required: true, message: '请输入说明', trigger: 'blur' }
+          { required: false, message: '请输入说明', trigger: 'blur' }
         ],
       },
       pickerOptions: {

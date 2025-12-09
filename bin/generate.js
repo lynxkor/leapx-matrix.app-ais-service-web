@@ -164,6 +164,11 @@ async function insertRoute () {
                         'init',
                         recast.types.builders.identifier('name'),
                         recast.types.builders.stringLiteral(data.title)
+                      ),
+                      recast.types.builders.property(
+                        'init',
+                        recast.types.builders.identifier('keepAlive'),
+                        recast.types.builders.booleanLiteral(true)
                       )
                     ])
                   )

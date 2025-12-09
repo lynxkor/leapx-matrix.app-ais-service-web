@@ -115,13 +115,32 @@ export default {
           { required: true, message: '请输入结算类型名称', trigger: 'blur' }
         ],
         sort: [
-          { required: true, message: '请输入排序', trigger: 'blur' }
+          {
+            required: false,
+            validator: (rule, value, callback) => {
+            // 如果值为空，直接通过（因为 required: false）
+              if (value === '' || value === undefined || value === null) {
+                callback();
+                return;
+              }
+
+              // 正则：正整数（1, 2, 3, ...），不包括0
+              const reg = /^[1-9]\d*$/;
+
+              if (!reg.test(value.toString())) {
+                callback(new Error('排序必须为正整数'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'blur'
+          }
         ],
         remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
+          { required: false, message: '请输入备注', trigger: 'blur' }
         ],
         category: [
-          { required: true, message: '请输入结算类别 CheckoutCategoryEnum ', trigger: 'blur' }
+          { required: true, message: '请输入结算类别 ', trigger: 'blur' }
         ],
       },
       pickerOptions: {

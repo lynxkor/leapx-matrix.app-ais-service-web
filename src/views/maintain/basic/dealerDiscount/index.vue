@@ -168,7 +168,18 @@ export default {
             }]
           },
           { props: 'name', label: '优惠名称', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          {
+            props: 'dealerName',
+            label: '门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopBasicsMessageDetails?num=2&id=${row.dealerId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'discountWorkhourRate', label: '工时折扣率', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'discountPartRate', label: '备件折扣率', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'statusLabel', label: '状态', visible: true, width: 200 },
@@ -192,7 +203,7 @@ export default {
               type: 'info'
             }, {
               name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
+              popconfirmTitle: '此操作将删除选中优惠模式信息，您无法撤销此操作，是否继续？',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
                   this.$message({

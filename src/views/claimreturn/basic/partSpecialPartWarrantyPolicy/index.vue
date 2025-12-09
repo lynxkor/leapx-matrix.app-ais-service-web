@@ -32,21 +32,33 @@
       </el-form-item>
       <template v-if="show">
         <el-form-item label="车型名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.modelName"
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleModel/list"
+            placeholder="请选择"
+            v-model="form.modelIds"
+            query-key="modelNameLike"
             clearable
+            auto-load-options
+            collapseTags
+            no-param-load
+            multiple
+            filterable
+            value-key="id"
           />
         </el-form-item>
         <el-form-item label="车辆年款">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.yearTypeName"
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleYearType/list"
             placeholder="请选择"
+            v-model="form.yearTypeIds"
+            query-key="yearTypeNameLike"
             clearable
             multiple
+            collapseTags
+            no-param-load
+            auto-load-options
             filterable
+            value-key="id"
           />
         </el-form-item>
         <el-form-item label="备注">
@@ -117,7 +129,7 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="1"
+      id="partSpecialPartWarrantyPolicy"
       @close="handleUploadDialogClose"
     />
   </div>
@@ -127,14 +139,14 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/claimreturn/basic/partSpecialPartWarrantyPolicy/index';
+import { getList, deleteItem } from '@/api/claimreturn/basic/partSpecialPartWarrantyPolicy/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
-import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
+import { getEndOfDayString } from '@/libs/utils';
+import ListSelect from '@/libs/components/list-select/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -159,9 +171,9 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions],
   components: {
+    ListSelect,
     PageSearchAction,
     LPVxeTable,
-    FetchSelect,
     Upload
   },
   data () {

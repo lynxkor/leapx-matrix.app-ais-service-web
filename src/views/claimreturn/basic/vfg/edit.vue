@@ -11,9 +11,9 @@
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="VRT名称" prop="vrtName">
+              <el-form-item label="VRT名称" prop="vrtId">
                 <list-select
-                  v-if="form.id"
+                  v-if="!this.$route.query.id||form.id"
                   listUrl="/claimreturn/web/basic/vrt/list"
                   placeholder="请选择"
                   v-model="form.vrtId"
@@ -21,6 +21,7 @@
                   auto-load-options
                   no-param-load
                   filterable
+                  clearable
                   :params="{}" />
               </el-form-item>
               <el-form-item label="VFG编码" prop="vfgCode">
@@ -55,7 +56,6 @@
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/claimreturn/basic/vfg';
-import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -70,7 +70,7 @@ const defaultForm = {
   status: '',
   createTime: '',
   modifierName: '',
-  id: '',
+  id: null,
   creator: '',
   creatorName: '',
   modifier: '',
@@ -111,75 +111,9 @@ export default {
         vfgName: [
           { required: true, message: '请输入VFG名称', trigger: 'blur' }
         ],
-        vrtCode: [
-          { required: true, message: '请输入VRT编码', trigger: 'blur' }
-        ],
-        vrtName: [
-          { required: true, message: '请输入VRT名称', trigger: 'blur' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'blur' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'blur' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'blur' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'blur' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'blur' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，140:新销服; 老销服:10', trigger: 'blur' }
-        ],
         vrtId: [
-          { required: true, message: '请输入VRT ID', trigger: 'blur' }
-        ],
-      },
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近一个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近三个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
+          { required: true, message: '请输入VRT名称', trigger: 'blur' }
+        ]
       }
     };
   },

@@ -160,8 +160,40 @@ export default {
           { props: 'permissionTypeLabel', label: '权限类型', visible: true, width: 200 },
           { props: 'dealerTypeLabel', label: '建店类型', visible: true, width: 200 },
           { props: 'statusLabel', label: '状态', visible: true, width: 200 },
-          { props: 'checkoutTypeName', label: '结算类型名称', visible: true, width: 200 },
-          { props: 'repairItemTypeName', label: '保修类型名称', visible: true, width: 200 },
+          {
+            props: 'checkoutTypeName',
+            label: '结算类型名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/basic/checkoutType/detail',
+                  query: {
+                    id: row.checkoutTypeId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'repairItemTypeName',
+            label: '保修类型名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/basic/repairItemType/detail',
+                  query: {
+                    id: row.repairItemTypeId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
@@ -183,7 +215,7 @@ export default {
               type: 'info'
             }, {
               name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
+              popconfirmTitle: '此操作将删除选中门店施工单权限设置信息，您无法撤销此操作，是否继续？',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
                   this.$message({

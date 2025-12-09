@@ -46,17 +46,17 @@
       <template v-if="show">
         <el-form-item label="车辆年款">
           <list-select
-            listUrl="/datacenter/web/materials/vehicleModelYearTypeRelation/list"
+            listUrl="/datacenter/web/materials/vehicleYearType/list"
             placeholder="请选择"
             v-model="form.yearTypeIds"
+            query-key="yearTypeNameLike"
             clearable
             multiple
             collapseTags
+            no-param-load
             auto-load-options
             filterable
-            label-key="yearTypeName"
-            value-key="yearTypeId"
-            :params="{modelIdList: form.modelIds}" />
+            />
         </el-form-item>
         <el-form-item label="车辆属性">
           <fetch-select
@@ -114,6 +114,7 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
     </div>
@@ -133,6 +134,12 @@
         @handleSelect="handleSelectionChange"
       />
     </div>
+    <!-- TIPS: 填入项目id即可 -->
+    <Upload
+      :visible="uploadDialogVisible"
+      id="vehicleWarrantyPolicyImport"
+      @close="handleUploadDialogClose"
+    />
   </div>
 </template>
 
@@ -148,6 +155,7 @@ import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 import ListSelect from '@/libs/components/list-select/index.vue';
+import Upload from '@/libs/components/UploadDialog/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -163,7 +171,8 @@ const defaultForm = {
   updateTime: '',
   seriesIds: [],
   modelIds: [],
-  yearTypeIds: []
+  yearTypeIds: [],
+  vehicleProperties: []
 };
 
 const pageSize = 20;
@@ -174,6 +183,7 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions],
   components: {
+    Upload,
     ListSelect,
     PageSearchAction,
     LPVxeTable,

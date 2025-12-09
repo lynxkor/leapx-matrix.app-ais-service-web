@@ -188,9 +188,31 @@ export default {
           { props: 'isProdTypeLabel', label: '是否生产类专用', visible: true, width: 200 },
           { props: 'isReservationLabel', label: '是否预约专用', visible: true, width: 200 },
           { props: 'appointmentItemName', label: '预约项目名称', visible: true, width: 200 },
-          { props: 'modifierName', label: '修改者', visible: true, width: 200 },
+          {
+            props: 'modifierName',
+            label: '修改者',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/user/list/detail?userId=${row.modifier}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-          { props: 'creatorName', label: '创建者', visible: true, width: 200 },
+          {
+            props: 'creatorName',
+            label: '创建者',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/user/list/detail?userId=${row.creator}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           {
@@ -212,7 +234,7 @@ export default {
               type: 'info'
             }, {
               name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
+              popconfirmTitle: '此操作将删除选中维修项目信息，您无法撤销此操作，是否继续？',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
                   this.$message({

@@ -95,11 +95,19 @@ export function listOrgStoreInfo (data) {
 }
 
 /**
- * 车型模糊搜索
+ * 车型统一 id  name 搜索
  * @param {*} data
  */
 export function listVehicleModel (data) {
   return api.jsonPost('/datacenter/web/materials/vehicleModel/list', data);
+}
+
+/**
+ * 车型详细模糊搜索
+ * @param {*} data
+ */
+export function listVehicleYearTypeFull (data) {
+  return api.jsonPost('/datacenter/web/materials/vehicleModel/listFull', data);
 }
 
 /**
@@ -132,4 +140,12 @@ export function cityPage (data) {
  */
 export function vehicleSalesVersionList (data) {
   return api.jsonPost('/datacenter/web/materials/vehicleRegisteredModel/list', data);
+}
+
+/**
+ * 建店类型接口 级联
+ * @param {*} data
+ */
+export function getBuildType (data) {
+  return api.get('/network/portal/DataDict/getBuildType', data);
 }

@@ -12,60 +12,67 @@
       <el-form-item label="政策名称">
         <el-input
           placeholder="请输入"
-          v-model="form.policyName"
+          v-model="form.policyNameLike"
           clearable
         />
       </el-form-item>
       <el-form-item label="零件编码">
         <el-input
           placeholder="请输入"
-          v-model="form.partCode"
+          v-model="form.partCodeLike"
           clearable
         />
       </el-form-item>
 
       <el-form-item label="零件名称"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.partNames"
-          clearable
-        />
+        <tag-input v-model="form.partNames" />
       </el-form-item>
 
       <template v-if="show">
         <el-form-item label="车型名称" >
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.yearTypeName"
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleModel/list"
             placeholder="请选择"
+            v-model="form.modelIds"
+            query-key="modelNameLike"
             clearable
+            auto-load-options
+            collapseTags
+            no-param-load
             multiple
             filterable
-          />
+            />
         </el-form-item>
         <el-form-item label="车辆年款">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.yearTypeName"
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleYearType/list"
             placeholder="请选择"
+            v-model="form.yearTypeIds"
+            query-key="yearTypeNameLike"
             clearable
             multiple
+            collapseTags
+            no-param-load
+            auto-load-options
             filterable
+            value-key="id"
           />
         </el-form-item>
         <el-form-item label="车辆属性">
-          <el-input
-            placeholder="请输入"
-            v-model="form.vehicleProperty"
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="claim_vehicle_property"
+            v-model="form.vehicleProperties"
+            placeholder="请选择"
             clearable
+            multiple
+            filterable
           />
         </el-form-item>
         <el-form-item label="备注">
           <el-input
             placeholder="请输入"
-            v-model="form.remark"
+            v-model="form.remarkLike"
             clearable
           />
         </el-form-item>
@@ -126,6 +133,12 @@
         @handleSelect="handleSelectionChange"
       />
     </div>
+    <!-- TIPS: 填入项目id即可 -->
+    <Upload
+      :visible="uploadDialogVisible"
+      id="vehicleSpecialPartWarrantyPolicy"
+      @close="handleUploadDialogClose"
+    />
   </div>
 </template>
 
@@ -140,10 +153,15 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
+import TagInput from '@/libs/components/TagInput/index.vue';
+import ListSelect from '@/libs/components/list-select/index.vue';
+import Upload from '@/libs/components/UploadDialog/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  policyName: '',
+  policyNameLike: '',
+  partCodeLike: '',
+  partNames: [],
   seriesName: '',
   modelName: '',
   yearTypeName: '',
@@ -151,7 +169,7 @@ const defaultForm = {
   mileage: '',
   updateTime: '',
   warrantyPeriod: '',
-  remark: '',
+  remarkLike: '',
   createTime: '',
 };
 
@@ -163,6 +181,9 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions],
   components: {
+    Upload,
+    ListSelect,
+    TagInput,
     PageSearchAction,
     LPVxeTable,
     FetchSelect

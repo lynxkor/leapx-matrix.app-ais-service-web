@@ -18,36 +18,62 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="零件编码" prop="partCode">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.partCode"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="车系名称" prop="seriesName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.seriesName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="车型名称" prop="modelName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.modelName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="车辆年款" prop="yearTypeName">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.yearTypeName"
+              <el-form-item label="零件编码" prop="partId">
+                <list-select
+                  v-if="!this.$route.query.id||form.id"
+                  listUrl="/sp/web/basic/sparePart/list"
                   placeholder="请选择"
-                  clearable
+                  v-model="form.partId"
+                  query-key="partCodeOrNameLike"
+                  auto-load-options
+                  no-param-load
+                  :disabled="form.id!==''"
                   filterable
-                />
+                  clearable
+                  :params="{oemPart: 1}" />
+              </el-form-item>
+              <el-form-item label="车系名称" prop="seriesId">
+                <list-select
+                  v-if="!this.$route.query.id||form.id"
+                  listUrl="/datacenter/web/materials/vehicleSeries/list"
+                  placeholder="请选择"
+                  v-model="form.seriesId"
+                  query-key="seriesNameLike"
+                  auto-load-options
+                  no-param-load
+                  :disabled="form.id!==''"
+                  filterable
+                  clearable
+                  :params="{}" />
+              </el-form-item>
+              <el-form-item label="车型名称" prop="modelId">
+                <list-select
+                  v-if="!this.$route.query.id||form.id"
+                  listUrl="/datacenter/web/materials/vehicleModel/list"
+                  placeholder="请选择"
+                  v-model="form.modelId"
+                  query-key="modelNameLike"
+                  auto-load-options
+                  :disabled="form.id!==''"
+
+                  collapseTags
+                  filterable
+                  clearable
+                  :params="{seriesIdList: form.seriesId?[form.seriesId]:[]}" />
+              </el-form-item>
+
+              <el-form-item label="车辆年款" prop="yearTypeId">
+                <list-select
+                  v-if="!this.$route.query.id||form.id"
+                  listUrl="/datacenter/web/materials/vehicleYearType/list"
+                  placeholder="请选择"
+                  v-model="form.yearTypeId"
+                  :disabled="form.id!==''"
+
+                  collapseTags
+                  auto-load-options
+                  filterable
+                  :params="{modelIdList: form.modelId?[form.modelId]:[]}" />
               </el-form-item>
               <el-form-item label="车辆属性" prop="vehicleProperty">
                 <fetch-select
@@ -55,40 +81,36 @@
                   enumCode="claim_vehicle_property"
                   v-model="form.vehicleProperty"
                   placeholder="请选择"
+                  :disabled="form.id!==''"
                   clearable
                   filterable
                 />
               </el-form-item>
               <el-form-item label="里程数（KM）" prop="mileage">
-                <el-input
+                <el-input-number
                   placeholder="请输入"
                   v-model="form.mileage"
+                  :controls="false"
+                  :precision="0"
+                  :min="0"
                   clearable
                 />
               </el-form-item>
 
               <el-form-item label="保修期（月）" prop="warrantyPeriod">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
+                <el-input-number
+                  placeholder="请输入"
                   v-model="form.warrantyPeriod"
-                  placeholder="请选择"
+                  :controls="false"
+                  :precision="0"
+                  :min="0"
                   clearable
-                  filterable
                 />
               </el-form-item>
               <el-form-item label="备注" prop="remark">
                 <el-input
                   placeholder="请输入"
                   v-model="form.remark"
-                  clearable
-                />
-              </el-form-item>
-
-              <el-form-item label="零件名称" prop="partName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.partName"
                   clearable
                 />
               </el-form-item>
@@ -112,6 +134,7 @@ import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import ListSelect from '@/libs/components/list-select/index.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -152,13 +175,14 @@ export default {
   },
   mixins: [routeGuard, permissions],
   components: {
+    ListSelect,
     FetchSelect,
   },
   data () {
     const form = this.getDefautlForm();
     return {
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-vehicleSpecialPartWarrantyPolicy',
+      moduleKey: 'AISCR-vehicleSpecialPartWarrantyPolicy',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -168,102 +192,21 @@ export default {
         policyName: [
           { required: true, message: '请输入政策名称', trigger: 'blur' }
         ],
-        seriesName: [
+        seriesId: [
           { required: true, message: '请输入车系名称', trigger: 'blur' }
         ],
-        modelName: [
-          { required: true, message: '请输入车型名称', trigger: 'blur' }
-        ],
-        yearTypeName: [
-          { required: true, message: '请选择车辆年款', trigger: 'change' }
-        ],
         vehicleProperty: [
-          { required: true, message: '请输入车辆属性（家用，营运，B级车，J级车，J1级车，专车，报废灭失）', trigger: 'blur' }
+          { required: true, message: '请输入车辆属性', trigger: 'blur' }
         ],
         mileage: [
           { required: true, message: '请输入里程数（KM）', trigger: 'blur' }
         ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
         warrantyPeriod: [
           { required: true, message: '请选择保修期（月）', trigger: 'change' }
         ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'blur' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'blur' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'blur' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'blur' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'blur' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，140:新销服; 老销服:10', trigger: 'blur' }
-        ],
         partId: [
-          { required: true, message: '请输入零件ID', trigger: 'blur' }
-        ],
-        partCode: [
           { required: true, message: '请输入零件编码', trigger: 'blur' }
-        ],
-        partName: [
-          { required: true, message: '请输入零件名称', trigger: 'blur' }
-        ],
-        seriesId: [
-          { required: true, message: '请输入车系ID', trigger: 'blur' }
-        ],
-        modelId: [
-          { required: true, message: '请输入车型ID', trigger: 'blur' }
-        ],
-        yearTypeId: [
-          { required: true, message: '请选择车辆年款ID', trigger: 'change' }
-        ],
-      },
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近一个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近三个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
+        ]
       }
     };
   },

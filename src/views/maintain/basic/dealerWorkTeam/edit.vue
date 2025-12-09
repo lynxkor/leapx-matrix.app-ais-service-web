@@ -21,6 +21,7 @@
                   placeholder="请输入"
                   v-model="form.name"
                   maxlength="50"
+                  show-word-limit
                   clearable
                 />
               </el-form-item>
@@ -34,19 +35,19 @@
                 />
               </el-form-item>
               <el-form-item label="门店名称" prop="dealerName">
-                <el-input
-                  placeholder="请输入"
+                <InputLink
                   v-model="form.dealerName"
-                  disabled
-                  clearable
+                  :link="`/partner/channelManagement/shopBasicsMessageDetails?num=2&id=${form.dealerId}&_blank=true`"
+                  placeholder="请输入"
+                  readonly
                 />
               </el-form-item>
               <el-form-item label="负责人" prop="ownerName">
-                <el-input
-                placeholder="请输入"
-                v-model="form.ownerName"
-                disabled
-                clearable
+                <InputLink
+                  v-model="form.ownerName"
+                  :link="`/partner/user/list/detail?&userId=${form.ownerId}`"
+                  placeholder="请输入"
+                  readonly
                 />
               </el-form-item>
               <el-form-item label="说明" prop="remark" class="form-item-full">
@@ -76,6 +77,7 @@
                 :defaultNewRow="defaultNewRow"
                 :show-toolbar="false"
                 :options="options"
+                :del-title="delTitle"
                 :auth="{edit: canAddOrUpdate, delete: canDelete}"
               />
             </div>
@@ -100,6 +102,7 @@ import { getEnum, getUserByNameOrNo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import InputLink from '@/libs/components/InputLink';
 
 const defaultForm = {
   code: '',
@@ -123,7 +126,8 @@ export default {
   mixins: [routeGuard, permissions],
   components: {
     FetchSelect,
-    EditTable
+    EditTable,
+    InputLink
   },
   data () {
     const form = this.getDefautlForm();
@@ -145,6 +149,7 @@ export default {
       options: {
         userName: []
       },
+      delTitle: '此操作将删除此 维修工程师信息，您无法撤消此操作，是否继续？',
       columns: [
         {
           field: 'userName',
