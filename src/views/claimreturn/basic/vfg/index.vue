@@ -270,6 +270,9 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VFG']);
     this.getData();
   },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VFG']);
+  },
   methods: {
     handleImport () {
       this.uploadDialogVisible = true;

@@ -35,6 +35,7 @@
           filterable
           clearable
           remote
+          collapse-tags
           placeholder="请选择"
           :remote-method="storeSearch"
           :loading="storeLoading">
@@ -256,6 +257,9 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['门店优惠模式']);
     this.getData();
+  },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['门店优惠模式']);
   },
   methods: {
     handleImport () {

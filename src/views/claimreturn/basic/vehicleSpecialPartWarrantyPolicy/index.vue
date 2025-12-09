@@ -314,6 +314,9 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['整车特殊零件保修政策设置管理']);
     this.getData();
   },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['整车特殊零件保修政策设置管理']);
+  },
   methods: {
     handleImport () {
       this.uploadDialogVisible = true;

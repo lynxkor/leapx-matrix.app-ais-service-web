@@ -239,6 +239,7 @@ export default {
   },
   data () {
     return {
+      pageTitle: '{{{title}}}',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-{{{name}}}',
       form: {
@@ -355,8 +356,11 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+  },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
   },
   methods: {
     handleImport () {

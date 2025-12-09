@@ -253,6 +253,9 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面']);
     this.getData();
   },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面']);
+  },
   methods: {
     handleImport () {
       this.uploadDialogVisible = true;

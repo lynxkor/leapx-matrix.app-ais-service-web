@@ -269,6 +269,9 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['门店施工单权限']);
     this.getData();
   },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['门店施工单权限']);
+  },
   methods: {
     handleImport () {
       this.uploadDialogVisible = true;

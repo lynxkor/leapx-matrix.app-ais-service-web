@@ -231,6 +231,9 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['电池去向单位']);
     this.getData();
   },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['电池去向单位']);
+  },
   methods: {
     handleImport () {
       this.uploadDialogVisible = true;

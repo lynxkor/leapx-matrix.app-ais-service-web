@@ -239,6 +239,9 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VRT']);
     this.getData();
   },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VRT']);
+  },
   methods: {
     handleImport () {
       this.uploadDialogVisible = true;

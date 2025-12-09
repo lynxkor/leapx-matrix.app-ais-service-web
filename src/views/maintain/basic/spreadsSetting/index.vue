@@ -271,6 +271,10 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['保养套餐差价设置']);
     this.getData();
   },
+  activated () {
+    console.log('actived');
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['保养套餐差价设置']);
+  },
   methods: {
     handleImport () {
       this.uploadDialogVisible = true;
