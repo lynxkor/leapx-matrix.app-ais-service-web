@@ -54,7 +54,8 @@ const routes = [
       component: () => import('@/views/maintain/basic/dealerWorkTeam/index.vue'),
 
       meta: {
-        name: '厅店班组信息管理'
+        name: '厅店班组信息管理',
+        keepAlive: true
       }
     }, {
       path: '/maintain/basic/dealerWorkTeam/detail',
@@ -80,7 +81,8 @@ const routes = [
       component: () => import('@/views/maintain/basic/dealerStation/index.vue'),
 
       meta: {
-        name: '厅店工位信息管理'
+        name: '厅店工位信息管理',
+        keepAlive: true
       }
     }, {
       path: '/maintain/basic/dealerStation/detail',
@@ -106,7 +108,8 @@ const routes = [
       component: () => import('@/views/maintain/basic/dealerWorkhourPriceSetting/index.vue'),
 
       meta: {
-        name: '工时价格设置管理'
+        name: '工时价格设置管理',
+        keepAlive: true
       }
     }, {
       path: '/maintain/basic/dealerWorkhourPriceSetting/detail',
@@ -132,7 +135,8 @@ const routes = [
       component: () => import('@/views/maintain/basic/checkoutType/index.vue'),
 
       meta: {
-        name: '结算类型管理'
+        name: '结算类型管理',
+        keepAlive: true
       }
     }, {
       path: '/maintain/basic/checkoutType/detail',
@@ -158,7 +162,8 @@ const routes = [
       component: () => import('@/views/maintain/basic/dealerDiscount/index.vue'),
 
       meta: {
-        name: '门店优惠模式管理'
+        name: '门店优惠模式管理',
+        keepAlive: true
       }
     }, {
       path: '/maintain/basic/dealerDiscount/detail',
@@ -185,7 +190,7 @@ const routes = [
 
       meta: {
         name: '维修类型管理',
-        noResourceUrl: 'true'
+        keepAlive: true
       }
     }, {
       path: '/maintain/basic/repairItemType/detail',
@@ -212,7 +217,7 @@ const routes = [
 
       meta: {
         name: '电池去向单位管理',
-        noResourceUrl: 'true'
+        keepAlive: true
       }
     }, {
       path: '/maintain/basic/batteryUnit/detail',
@@ -238,7 +243,8 @@ const routes = [
       component: () => import('@/views/maintain/basic/vehicleTag/index.vue'),
 
       meta: {
-        name: '车辆标识管理'
+        name: '车辆标识管理',
+        keepAlive: true
       }
     }, {
       path: '/maintain/basic/vehicleTag/detail',
@@ -264,7 +270,8 @@ const routes = [
       component: () => import('@/views/maintain/basic/dealerPermission/index.vue'),
 
       meta: {
-        name: '门店施工单权限管理'
+        name: '门店施工单权限管理',
+        keepAlive: true
       }
     }, {
       path: '/maintain/basic/dealerPermission/detail',
@@ -290,7 +297,8 @@ const routes = [
       component: () => import('@/views/maintain/basic/spreadsSetting/index.vue'),
 
       meta: {
-        name: '保养套餐差价设置管理'
+        name: '保养套餐差价设置管理',
+        keepAlive: true
       }
     }, {
       path: '/maintain/basic/spreadsSetting/detail',
@@ -316,7 +324,8 @@ const routes = [
       component: () => import('@/views/maintain/basic/repairItem/index.vue'),
 
       meta: {
-        name: '维修项目管理'
+        name: '维修项目管理',
+        keepAlive: true
       }
     }, {
       path: '/maintain/basic/repairitem/detail',
@@ -343,7 +352,7 @@ const routes = [
 
       meta: {
         name: 'Excel模型管理',
-        noResourceUrl: 'true'
+        keepAlive: true
       }
     }, {
       path: '/excelManagement/commonDataProcessExcelModelMap/detail',
@@ -369,7 +378,8 @@ const routes = [
       component: () => import('@/views/excelManagement/commonDataProcessExcelTask/index.vue'),
 
       meta: {
-        name: '新页面'
+        name: '新页面',
+        keepAlive: true
       }
     }, {
       path: '/excelmanagement/commondataprocessexceltask/detail',
@@ -395,7 +405,8 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartVehicleModel/index.vue'),
 
       meta: {
-        name: '新页面'
+        name: '新页面',
+        keepAlive: true
       }
     }, {
       path: '/sparepart/basic/sparepartvehiclemodel/detail',
@@ -421,7 +432,8 @@ const routes = [
       component: () => import('@/views/sparepart/basic/spareSalesCategory/index.vue'),
 
       meta: {
-        name: '新页面'
+        name: '新页面',
+        keepAlive: true
       }
     }, {
       path: '/sparepart/basic/sparesalescategory/detail',
@@ -447,7 +459,8 @@ const routes = [
       component: () => import('@/views/sparepart/basic/spareSupplyCategory/index.vue'),
 
       meta: {
-        name: '新页面'
+        name: '新页面',
+        keepAlive: true
       }
     }, {
       path: '/sparepart/basic/sparesupplycategory/detail',
@@ -473,7 +486,8 @@ const routes = [
       component: () => import('@/views/sparepart/basic/spareEngineeringCategory/index.vue'),
 
       meta: {
-        name: '新页面'
+        name: '新页面',
+        keepAlive: true
       }
     }, {
       path: '/sparepart/basic/spareengineeringcategory/detail',
@@ -499,7 +513,8 @@ const routes = [
       component: () => import('@/views/claimreturn/basic/vrt/index.vue'),
 
       meta: {
-        name: 'VRT'
+        name: 'VRT',
+        keepAlive: true
       }
     }, {
       path: '/claimreturn/basic/vrt/detail',
@@ -525,7 +540,8 @@ const routes = [
       component: () => import('@/views/claimreturn/basic/vfg/index.vue'),
 
       meta: {
-        name: '新页面'
+        name: '新页面',
+        keepAlive: true
       }
     }, {
       path: '/claimreturn/basic/vfg/detail',
@@ -551,7 +567,8 @@ const routes = [
       component: () => import('@/views/claimreturn/basic/ccc/index.vue'),
 
       meta: {
-        name: 'CCC管理'
+        name: 'CCC管理',
+        keepAlive: true
       }
     }, {
       path: '/claimreturn/basic/ccc/detail',
@@ -577,7 +594,8 @@ const routes = [
       component: () => import('@/views/claimreturn/basic/vehicleSpecialPartWarrantyPolicy/index.vue'),
 
       meta: {
-        name: '整车特殊零件保修政策设置管理'
+        name: '整车特殊零件保修政策设置管理',
+        keepAlive: true
       }
     }, {
       path: '/claimreturn/basic/vehiclespecialpartwarrantypolicy/detail',
@@ -603,7 +621,8 @@ const routes = [
       component: () => import('@/views/claimreturn/basic/vehicleWarrantyPolicy/index.vue'),
 
       meta: {
-        name: '整车保修政策设置管理'
+        name: '整车保修政策设置管理',
+        keepAlive: true
       }
     }, {
       path: '/claimreturn/basic/vehiclewarrantypolicy/detail',
@@ -629,7 +648,8 @@ const routes = [
       component: () => import('@/views/claimreturn/basic/partWarrantyPolicy/index.vue'),
 
       meta: {
-        name: '零件保修政策管理'
+        name: '零件保修政策管理',
+        keepAlive: true
       }
     }, {
       path: '/claimreturn/basic/partwarrantypolicy/detail',
@@ -655,7 +675,8 @@ const routes = [
       component: () => import('@/views/claimreturn/basic/partSpecialPartWarrantyPolicy/index.vue'),
 
       meta: {
-        name: '零件特殊零件保修政策管理'
+        name: '零件特殊零件保修政策管理',
+        keepAlive: true
       }
     }, {
       path: '/claimreturn/basic/partspecialpartwarrantypolicy/detail',
@@ -681,7 +702,8 @@ const routes = [
       component: () => import('@/views/sparepart/basic/supplierInfo/index.vue'),
 
       meta: {
-        name: '新页面'
+        name: '新页面',
+        keepAlive: true
       }
     }, {
       path: '/sparepart/basic/supplierinfo/detail',
@@ -707,7 +729,8 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartSupplier/index.vue'),
 
       meta: {
-        name: '新页面'
+        name: '新页面',
+        keepAlive: true
       }
     }, {
       path: '/sparepart/basic/sparepartsupplier/detail',
@@ -733,7 +756,8 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartReplacer/index.vue'),
 
       meta: {
-        name: '新页面'
+        name: '新页面',
+        keepAlive: true
       }
     }, {
       path: '/sparepart/basic/sparepartreplacer/detail',

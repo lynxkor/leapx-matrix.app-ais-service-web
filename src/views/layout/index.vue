@@ -1,7 +1,12 @@
 <template>
   <el-container v-if="qiankun">
     <el-header class="bread" v-show="$route.path !== '/home' && !$route.path.startsWith('/leapx/biEmbed')"><pageTitle></pageTitle></el-header>
-    <el-main class="mainContent" :class="$route.meta.specilMain ? 'specil' : ''"><router-view :key="$route.fullPath"/></el-main>
+    <el-main class="mainContent" :class="$route.meta.specilMain ? 'specil' : ''">
+      <keep-alive>
+        <router-view v-if="$route.meta.keepAlive" :key="$route.fullPath"/>
+      </keep-alive>
+      <router-view v-if="!$route.meta.keepAlive" :key="$route.fullPath"/>
+    </el-main>
   </el-container>
   <el-container v-else>
     <el-header class="header" v-if="!isNobar">
@@ -174,7 +179,12 @@
 
       <el-container>
         <el-header class="bread" v-show="$route.path !== '/home' && !$route.path.startsWith('/leapx/biEmbed')"><pageTitle></pageTitle></el-header>
-        <el-main class="mainContent" :class="$route.meta.specilMain ? 'specil' : ''"><router-view :key="$route.fullPath"/></el-main>
+        <el-main class="mainContent" :class="$route.meta.specilMain ? 'specil' : ''">
+          <keep-alive>
+            <router-view v-if="$route.meta.keepAlive" :key="$route.fullPath"/>
+          </keep-alive>
+          <router-view v-if="!$route.meta.keepAlive" :key="$route.fullPath"/>
+        </el-main>
         <!-- <el-main class="mainContent specil"><router-view /></el-main> -->
       </el-container>
     </el-container>

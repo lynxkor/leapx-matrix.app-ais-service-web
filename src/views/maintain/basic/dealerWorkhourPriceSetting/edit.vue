@@ -49,6 +49,7 @@
                 :defaultNewRow="defaultNewRow"
                 :show-toolbar="false"
                 :options="options"
+                :delTitle="delTitle"
                 :auth="{edit: canAddOrUpdate, delete: canDelete}"
               />
             </div>
@@ -67,7 +68,7 @@
 <script>
 import { getDetail, addOrUpdate } from '@/api/maintain/basic/dealerWorkhourPriceSetting/index';
 import EditTable from '@/libs/components/EditTable';
-import { getEnum, listVehicleModel } from '@/api/common';
+import { getEnum, listVehicleYearTypeFull } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -111,6 +112,7 @@ export default {
         // 如 type: [{label: 'xxx', value: 'xxx'}]
         vehicleModelName: []
       },
+      delTitle: '此操作将删除此 特殊价格信息，您无法撤消此操作，是否继续？',
       columns: [
         {
           field: 'vehicleModelName',
@@ -311,7 +313,7 @@ export default {
     },
     // 车型名称远程搜索
     querySearchAsync (queryString, cb) {
-      listVehicleModel({ name: queryString }).then(res => {
+      listVehicleYearTypeFull({ modelNameLike: queryString, status: 1 }).then(res => {
         const list = res?.map(item => {
           return {
             ...item,
