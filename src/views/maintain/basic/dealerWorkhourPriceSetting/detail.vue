@@ -83,7 +83,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['工时价格设置管理', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['工时价格设置', '详情']);
     this.getData();
   },
   methods: {

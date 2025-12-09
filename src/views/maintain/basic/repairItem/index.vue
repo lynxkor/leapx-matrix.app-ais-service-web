@@ -285,7 +285,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['维修项目管理']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['维修项目']);
     this.getData();
   },
   methods: {
@@ -437,48 +437,9 @@ export default {
         selectionList: this.selectionList,
         targetStatus: status,
         apiFunc: enableItem,
-        refreshFunc: this.getData,
-        options: {
-          statusName: 'status',
-          requireInput: true
-        }
+        refreshFunc: this.getData
       });
     },
-    // 批量启用停用
-    // handleBatchEnable (status) {
-    //   const isDifferentStatus = this.selectionList.find(item => item.status === status);
-    //   const ids = this.selectionList.map(item => item.id) || [];
-    //   if (isDifferentStatus) {
-    //     this.$message({
-    //       type: 'warning',
-    //       message: `存在不是${status ? '启用' : '停用'}的数据，请确认!`
-    //     });
-    //   } else {
-    //     this.$prompt(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-    //       confirmButtonText: '确定',
-    //       cancelButtonText: '取消',
-    //       type: 'warning',
-    //       inputPlaceholder: `请输入${status ? '启用' : '停用'}说明`
-    //     }).then(({ value }) => {
-    //       enableItem({
-    //         idSet: ids,
-    //         status,
-    //         statusDesc: value
-    //       }).then(() => {
-    //         this.$message({
-    //           type: 'success',
-    //           message: '操作成功!'
-    //         });
-    //         this.getData();
-    //       }).catch(() => {
-    //         this.$message({
-    //           type: 'error',
-    //           message: '操作失败!'
-    //         });
-    //       });
-    //     });
-    //   }
-    // }
   }
 };
 </script>

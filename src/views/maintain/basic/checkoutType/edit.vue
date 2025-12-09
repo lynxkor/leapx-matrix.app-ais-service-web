@@ -186,7 +186,7 @@ export default {
     },
     getDetailData () {
       const id = this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['结算类型管理', `${id ? '编辑' : '新增'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['结算类型', `${id ? '编辑' : '新增'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;

@@ -62,7 +62,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['保养套餐差价设置管理', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['保养套餐差价设置', '详情']);
     this.getData();
   },
   methods: {

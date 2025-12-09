@@ -268,7 +268,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['保养套餐差价设置管理']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['保养套餐差价设置']);
     this.getData();
   },
   methods: {
@@ -419,11 +419,7 @@ export default {
         selectionList: this.selectionList,
         targetStatus: status,
         apiFunc: enableItem,
-        refreshFunc: this.getData,
-        options: {
-          statusName: 'status',
-          requireInput: true
-        }
+        refreshFunc: this.getData
       });
     },
     // 车型模糊搜索方法（带防抖)

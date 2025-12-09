@@ -198,7 +198,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['维修项目管理', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['维修项目', '详情']);
     this.getData();
   },
   methods: {

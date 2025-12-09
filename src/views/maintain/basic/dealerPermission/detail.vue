@@ -56,7 +56,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['门店施工单权限管理', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['门店施工单权限', '详情']);
     this.getData();
   },
   methods: {

@@ -174,13 +174,37 @@ export default {
           { required: true, message: '请输入工时折扣率:介入0-1之间，包含0、1', trigger: 'blur' },
           {
             validator: (rule, value, callback) => {
-              if (!value) {
-                callback(new Error('请输入工时折扣率:介入0-1之间，包含0、1'));
-              } else if (value < 0 || value > 1) {
-                callback(new Error('请输入工时折扣率:介入0-1之间，包含0、1'));
-              } else {
-                callback();
+              // 处理字符串类型的值
+              const numValue = Number(value);
+
+              if (value === '' || value === null || value === undefined) {
+                callback(new Error('请输入工时折扣率'));
+                return;
               }
+
+              // 检查是否是有效数字
+              if (isNaN(numValue)) {
+                callback(new Error('请输入有效的数字'));
+                return;
+              }
+
+              // 检查范围
+              if (numValue < 0 || numValue > 1) {
+                callback(new Error('工时折扣率必须在0-1之间'));
+                return;
+              }
+
+              // 检查小数位数
+              const strValue = value.toString();
+              if (strValue.includes('.')) {
+                const decimalPart = strValue.split('.')[1];
+                if (decimalPart.length > 2) {
+                  callback(new Error('工时折扣率最多只能有两位小数'));
+                  return;
+                }
+              }
+
+              callback();
             }
           }
         ],
@@ -188,13 +212,37 @@ export default {
           { required: true, message: '请输入备件折扣率:介入0-1之间，包含0、1', trigger: 'blur' },
           {
             validator: (rule, value, callback) => {
-              if (!value) {
-                callback(new Error('请输入备件折扣率:介入0-1之间，包含0、1'));
-              } else if (value < 0 || value > 1) {
-                callback(new Error('请输入备件折扣率:介入0-1之间，包含0、1'));
-              } else {
-                callback();
+              // 处理字符串类型的值
+              const numValue = Number(value);
+
+              if (value === '' || value === null || value === undefined) {
+                callback(new Error('请输入备件折扣率'));
+                return;
               }
+
+              // 检查是否是有效数字
+              if (isNaN(numValue)) {
+                callback(new Error('请输入有效的数字'));
+                return;
+              }
+
+              // 检查范围
+              if (numValue < 0 || numValue > 1) {
+                callback(new Error('备件折扣率必须在0-1之间'));
+                return;
+              }
+
+              // 检查小数位数
+              const strValue = value.toString();
+              if (strValue.includes('.')) {
+                const decimalPart = strValue.split('.')[1];
+                if (decimalPart.length > 2) {
+                  callback(new Error('备件折扣率最多只能有两位小数'));
+                  return;
+                }
+              }
+
+              callback();
             }
           }
         ],
@@ -324,10 +372,14 @@ export default {
     querySearchAsync (queryString, cb) {
       getUserByNameOrNo({ name: queryString }).then(res => {
         const list = res?.map(item => {
+          let label = item.username || '';
+          if (item.empNo) {
+            label += `- ${item.empNo}`;
+          }
           return {
             ...item,
             value: item.userId,
-            label: item.username,
+            label: label,
             userName: item.username
           };
         }) || [];

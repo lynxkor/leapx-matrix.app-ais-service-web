@@ -266,7 +266,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['门店施工单权限管理']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['门店施工单权限']);
     this.getData();
   },
   methods: {
@@ -417,11 +417,7 @@ export default {
         selectionList: this.selectionList,
         targetStatus: status,
         apiFunc: enableItem,
-        refreshFunc: this.getData,
-        options: {
-          statusName: 'status',
-          requireInput: true
-        }
+        refreshFunc: this.getData
       });
     },
   }
