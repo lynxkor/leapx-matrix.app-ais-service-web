@@ -15,6 +15,7 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.policyName"
+                  maxlength="100"
                   clearable
                 />
               </el-form-item>
@@ -93,6 +94,7 @@
                   :controls="false"
                   :precision="0"
                   :min="0"
+                  :max="999999999"
                   clearable
                 />
               </el-form-item>
@@ -104,6 +106,7 @@
                   :controls="false"
                   :precision="0"
                   :min="0"
+                  :max="999999999"
                   clearable
                 />
               </el-form-item>
@@ -111,6 +114,7 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.remark"
+                  maxlength="500"
                   clearable
                 />
               </el-form-item>

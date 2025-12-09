@@ -270,6 +270,9 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VFG']);
     this.getData();
   },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VFG']);
+  },
   methods: {
     handleImport () {
       this.uploadDialogVisible = true;
@@ -292,7 +295,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '新页面',
+        businessType: 'VFG',
         dataFetchPath: '/datacenter/claimreturn/basic/vfg/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),

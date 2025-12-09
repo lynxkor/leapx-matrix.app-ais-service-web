@@ -137,7 +137,42 @@ export default {
           { required: true, message: '请输入维修类型名称', trigger: 'blur' }
         ],
         sort: [
-          { required: true, message: '请输入排序', trigger: 'blur' }
+          { required: true, message: '请输入排序', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              if (value === '' || value === null || value === undefined) {
+                callback(new Error('请输入排序'));
+                return;
+              }
+
+              // 检查是否是数字
+              const num = Number(value);
+              if (isNaN(num)) {
+                callback(new Error('排序必须为数字'));
+                return;
+              }
+
+              // 检查是否是整数
+              if (!Number.isInteger(num)) {
+                callback(new Error('排序必须为整数'));
+                return;
+              }
+
+              // 检查是否是正整数
+              if (num <= 0) {
+                callback(new Error('排序必须为正整数'));
+                return;
+              }
+
+              // 检查是否过大（可选）
+              if (num > 9999) {
+                callback(new Error('排序不能超过9999'));
+                return;
+              }
+
+              callback();
+            },
+          }
         ],
         checkoutTypeId: [
           { required: false, message: '请选择结算类型', trigger: 'change' }
@@ -187,7 +222,7 @@ export default {
     },
     getDetailData () {
       const id = this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['维修类型管理', `${id ? '编辑' : '新建'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['维修类型', `${id ? '编辑' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;

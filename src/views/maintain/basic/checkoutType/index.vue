@@ -56,8 +56,8 @@
         <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
         <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
         <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量启用</el-button>
-        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量停用</el-button>
+        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
+        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
       </div>
     </div>
     <div
@@ -90,7 +90,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
+import { handleBatchStatusChange, getEndOfDayString, downloadExcel } from '@/libs/utils';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -226,8 +226,11 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['结算类型管理']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['结算类型']);
     this.getData();
+  },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['结算类型']);
   },
   methods: {
     handleImport () {
@@ -256,14 +259,14 @@ export default {
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
-      }).then(res => {
-        if (res) {
-          if (res.excelUrl) {
-            window.location.href = res.excelUrl;
-          } else {
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '结算类型.xlsx');
+          } catch (error) {
             this.$message({
               type: 'error',
-              message: '导出失败'
+              message: '文件导出失败'
             });
           }
         } else {
@@ -278,6 +281,7 @@ export default {
     },
     getData () {
       this.loading = true;
+      this.selectionList = [];
 
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
@@ -376,11 +380,7 @@ export default {
         selectionList: this.selectionList,
         targetStatus: status,
         apiFunc: enableItem,
-        refreshFunc: this.getData,
-        options: {
-          statusName: 'status',
-          requireInput: true
-        }
+        refreshFunc: this.getData
       });
     }
   }

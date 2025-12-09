@@ -97,7 +97,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
+import { handleBatchStatusChange, getEndOfDayString, downloadExcel } from '@/libs/utils';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -246,8 +246,11 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['工时价格设置管理']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['工时价格设置']);
     this.getData();
+  },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['工时价格设置']);
   },
   methods: {
     handleImport () {
@@ -276,14 +279,14 @@ export default {
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
-      }).then(res => {
-        if (res) {
-          if (res.excelUrl) {
-            window.location.href = res.excelUrl;
-          } else {
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '工时价格设置.xlsx');
+          } catch (error) {
             this.$message({
               type: 'error',
-              message: '导出失败'
+              message: '文件导出失败'
             });
           }
         } else {
@@ -298,6 +301,7 @@ export default {
     },
     getData () {
       this.loading = true;
+      this.selectionList = [];
 
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
@@ -430,11 +434,7 @@ export default {
         selectionList: this.selectionList,
         targetStatus: status,
         apiFunc: enableItem,
-        refreshFunc: this.getData,
-        options: {
-          statusName: 'status',
-          requireInput: true
-        }
+        refreshFunc: this.getData
       });
     },
   }

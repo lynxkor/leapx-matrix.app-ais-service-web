@@ -29,6 +29,7 @@
                   placeholder="请输入"
                   :disabled="form.id!==''"
                   v-model="form.vfgCode"
+                  maxlength="100"
                   clearable
                 />
               </el-form-item>
@@ -36,6 +37,7 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.vfgName"
+                  maxlength="100"
                   clearable
                 />
               </el-form-item>

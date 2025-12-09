@@ -117,7 +117,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
+import { handleBatchStatusChange, getEndOfDayString, downloadExcel } from '@/libs/utils';
 
 const defaultForm = {
   name: '',
@@ -268,6 +268,9 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店班组信息']);
     this.getData();
   },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店班组信息']);
+  },
   methods: {
     handleImport () {
       this.uploadDialogVisible = true;
@@ -295,14 +298,14 @@ export default {
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
-      }).then(res => {
-        if (res) {
-          if (res.excelUrl) {
-            window.location.href = res.excelUrl;
-          } else {
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '厅店班组信息.xlsx');
+          } catch (error) {
             this.$message({
               type: 'error',
-              message: '导出失败'
+              message: '文件导出失败'
             });
           }
         } else {
@@ -416,11 +419,7 @@ export default {
         selectionList: this.selectionList,
         targetStatus: status,
         apiFunc: enableItem,
-        refreshFunc: this.getData,
-        options: {
-          statusName: 'status',
-          requireInput: true
-        }
+        refreshFunc: this.getData
       });
     },
     getStoreByName (query) {

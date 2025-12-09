@@ -56,7 +56,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['结算类型管理', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['结算类型', '详情']);
     this.getData();
   },
   methods: {

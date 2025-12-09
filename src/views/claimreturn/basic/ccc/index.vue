@@ -297,6 +297,9 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['CCC']);
     this.getData();
   },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['CCC']);
+  },
   methods: {
     handleImport () {
       this.uploadDialogVisible = true;

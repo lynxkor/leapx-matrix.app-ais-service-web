@@ -117,7 +117,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import { createDebouncedSearch } from '@/utils/index.js';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
+import { handleBatchStatusChange, getEndOfDayString, downloadExcel } from '@/libs/utils';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -268,8 +268,12 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['保养套餐差价设置管理']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['保养套餐差价设置']);
     this.getData();
+  },
+  activated () {
+    console.log('actived');
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['保养套餐差价设置']);
   },
   methods: {
     handleImport () {
@@ -298,14 +302,14 @@ export default {
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
-      }).then(res => {
-        if (res) {
-          if (res.excelUrl) {
-            window.location.href = res.excelUrl;
-          } else {
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '保养套餐差价设置.xlsx');
+          } catch (error) {
             this.$message({
               type: 'error',
-              message: '导出失败'
+              message: '文件导出失败'
             });
           }
         } else {
@@ -419,11 +423,7 @@ export default {
         selectionList: this.selectionList,
         targetStatus: status,
         apiFunc: enableItem,
-        refreshFunc: this.getData,
-        options: {
-          statusName: 'status',
-          requireInput: true
-        }
+        refreshFunc: this.getData
       });
     },
     // 车型模糊搜索方法（带防抖)

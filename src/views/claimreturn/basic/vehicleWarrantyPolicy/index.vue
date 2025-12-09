@@ -313,6 +313,9 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['整车保修政策设置']);
     this.getData();
   },
+  activated () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['整车保修政策设置']);
+  },
   methods: {
     handleImport () {
       this.uploadDialogVisible = true;
@@ -335,7 +338,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '新页面',
+        businessType: '整车保修政策',
         dataFetchPath: '/datacenter/claimreturn/basic/vehicleWarrantyPolicy/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
