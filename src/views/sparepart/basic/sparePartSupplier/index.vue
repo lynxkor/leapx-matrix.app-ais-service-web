@@ -135,6 +135,7 @@ import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
+import commonMixins from '@/libs/mixins/commonMixins';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 
 const defaultForm = {
@@ -155,7 +156,7 @@ const mockConfig = {
 };
 
 export default {
-  mixins: [responsiveSearchForm, permissions],
+  mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
     PageSearchAction,
     LPVxeTable,
@@ -164,6 +165,8 @@ export default {
   },
   data () {
     return {
+      pageTitle: '新页面',
+      pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-sparePartSupplier',
       form: {
@@ -278,11 +281,8 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
-  },
-  activated () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面']);
   },
   methods: {
     handleImport () {

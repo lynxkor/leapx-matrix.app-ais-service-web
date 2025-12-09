@@ -113,6 +113,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
+import commonMixins from '@/libs/mixins/commonMixins';
 import { getEndOfDayString, handleBatchStatusChange } from '@/libs/utils';
 
 const defaultForm = {
@@ -130,7 +131,7 @@ const mockConfig = {
 };
 
 export default {
-  mixins: [responsiveSearchForm, permissions],
+  mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
     PageSearchAction,
     LPVxeTable,
@@ -138,6 +139,8 @@ export default {
   },
   data () {
     return {
+      pageTitle: 'VRT',
+      pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-vrt',
       form: {
@@ -236,11 +239,8 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VRT']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
-  },
-  activated () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VRT']);
   },
   methods: {
     handleImport () {

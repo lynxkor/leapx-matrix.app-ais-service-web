@@ -153,6 +153,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
+import commonMixins from '@/libs/mixins/commonMixins';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import Upload from '@/libs/components/UploadDialog/index.vue';
@@ -181,7 +182,7 @@ const mockConfig = {
 };
 
 export default {
-  mixins: [responsiveSearchForm, permissions],
+  mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
     Upload,
     ListSelect,
@@ -191,6 +192,8 @@ export default {
   },
   data () {
     return {
+      pageTitle: '整车保修政策设置',
+      pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-vehicleWarrantyPolicy',
       form: {
@@ -312,9 +315,6 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['整车保修政策设置']);
     this.getData();
-  },
-  activated () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['整车保修政策设置']);
   },
   methods: {
     handleImport () {

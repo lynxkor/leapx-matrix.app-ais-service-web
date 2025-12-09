@@ -141,6 +141,7 @@ import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
+import commonMixins from '@/libs/mixins/commonMixins';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 import ListSelect from '@/libs/components/list-select/index.vue';
 
@@ -163,7 +164,7 @@ const mockConfig = {
 };
 
 export default {
-  mixins: [responsiveSearchForm, permissions],
+  mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
     ListSelect,
     PageSearchAction,
@@ -172,6 +173,8 @@ export default {
   },
   data () {
     return {
+      pageTitle: '零件保修政策设置',
+      pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-partWarrantyPolicy',
       form: {
@@ -290,11 +293,8 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['零件保修政策设置']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
-  },
-  activated () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['零件保修政策设置']);
   },
   methods: {
     handleImport () {
