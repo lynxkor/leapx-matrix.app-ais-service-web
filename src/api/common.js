@@ -149,3 +149,11 @@ export function vehicleSalesVersionList (data) {
 export function getBuildType (data) {
   return api.get('/network/portal/DataDict/getBuildType', data);
 }
+
+/**
+ * 备件主数据表列表查询
+ * @param {*} data
+ */
+export function sparePartList (data) {
+  return api.jsonPost('/sp/web/basic/sparePart/listFull', data);
+}
