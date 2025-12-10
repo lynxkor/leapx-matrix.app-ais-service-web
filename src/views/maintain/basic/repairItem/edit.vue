@@ -709,6 +709,7 @@ export default {
             value: item.id,
             label: item.name,
             vehicleYearType: item.name,
+            vehicleYearTypeId: item.yearTypeId,
           };
         }) || [];
         this.options.vehicleYearType = list;
@@ -724,6 +725,7 @@ export default {
             label: item.modelName,
             vehicleModelId: item.id,
             vehicleModelName: item.modelName,
+            vehicleSeriesId: item.seriesId,
             vehicleSeriesName: item.seriesName,
             vehicleModelDesc: item.remark,
           };
