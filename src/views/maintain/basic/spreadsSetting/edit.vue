@@ -247,7 +247,7 @@ export default {
       }
     },
     async modelSearch (query) {
-      return listVehicleModel({ nameLike: query });
+      return listVehicleModel({ modelNameLike: query });
     },
   }
 };
