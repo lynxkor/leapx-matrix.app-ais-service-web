@@ -446,7 +446,7 @@ export default {
       if (result) {
         this.modelOptions = result.map(item => ({
           value: item.id,
-          label: item.modelName
+          label: item.name
         }));
       } else {
         this.modelOptions = [];
