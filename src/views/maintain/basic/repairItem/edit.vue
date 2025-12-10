@@ -235,7 +235,7 @@
 import { getDetail, addOrUpdate } from '@/api/maintain/basic/repairItem/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
-import { getEnum, listVehicleYearTypeFull, listVehicleYearType, repairItemType } from '@/api/common';
+import { getEnum, listVehicleYearTypeFull, listVehicleYearType, repairItemType, sparePartList } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -359,7 +359,7 @@ export default {
           editRender: { name: 'ElInput' }
         },
         {
-          field: 'vehicleModelDesc	',
+          field: 'vehicleModelDesc',
           title: '车型描述',
           width: '15%',
           editRender: { name: 'ElInput' }
@@ -392,7 +392,7 @@ export default {
               remote: true,
               'suffix-icon': 'el-icon-search',
               placeholder: '请选择零件代码',
-              'remote-method': this.querySearch,
+              'remote-method': this.querySpareParts,
             }
           },
           rules: [
@@ -403,14 +403,10 @@ export default {
           field: 'partsName',
           title: '零件名称',
           width: '20%',
-          editable: true,
           editRender: { name: 'ElInput' },
-          rules: [
-            { required: true }
-          ]
         },
         {
-          field: 'isOemPart',
+          field: 'oemPartLabel',
           title: '是否OEM件',
           width: '20%',
           editRender: { name: 'ElInput' }
@@ -617,6 +613,7 @@ export default {
     resetForm (formName) {
       this.$refs[formName].resetFields();
       this.tableData = [];
+      this.tableDataPj = [];
       this.form = { ...defaultForm };
     },
     // handleJumpAuditLog () {
@@ -710,8 +707,8 @@ export default {
           return {
             ...item,
             value: item.id,
-            label: item.yearTypeName,
-            vehicleYearType: item.yearTypeName,
+            label: item.name,
+            vehicleYearType: item.name,
           };
         }) || [];
         this.options.vehicleYearType = list;
@@ -732,6 +729,28 @@ export default {
           };
         }) || [];
         this.options.vehicleModelName = list;
+      });
+    },
+    // 备件主数据表列表查询
+    querySpareParts (queryString, cb) {
+      sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
+        const list = res?.map(item => {
+          let label = item.partCode || '';
+          if (item.partName) {
+            label += `- ${item.partName}`;
+          }
+          return {
+            ...item,
+            value: item.id,
+            label: label,
+            partsId: item.id,
+            partsName: item.partName,
+            partsCode: item.partCode,
+            isOemPart: item.oemPart,
+            oemPartLabel: item.oemPartLabel,
+          };
+        }) || [];
+        this.options.partsCode = list;
       });
     },
   }
