@@ -294,6 +294,9 @@ export default {
       if (selectedVal) {
         this.form.checkoutTypeName = selectedVal.label;
         this.form.checkoutTypeId = val;
+      } else {
+        this.form.checkoutTypeName = '';
+        this.form.checkoutTypeId = '';
       }
     },
     // 结算类型模糊搜索方法（带防抖）
