@@ -161,7 +161,7 @@ export default {
           },
           { props: 'categoryLabel', label: '类别 ', visible: true, width: 200 },
           { props: 'name', label: '维修类型名称', visible: true, width: 200 },
-          { props: 'sort', label: '排序', visible: true, width: 200, align: 'right', headerAlign: 'right' },
+          { props: 'sort', label: '排序', visible: true, width: 200 },
           {
             props: 'checkoutTypeName',
             label: '结算类型',
