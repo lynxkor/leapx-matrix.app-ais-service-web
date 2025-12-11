@@ -120,7 +120,7 @@ export default {
           { required: true, message: '请输入工位名称', trigger: 'blur' }
         ],
         stationType: [
-          { required: true, message: '请选择工位类型', trigger: 'blur' }
+          { required: true, message: '请选择工位类型', trigger: 'change' }
         ],
         dealerName: [
           { required: true, message: '', trigger: 'blur' }
