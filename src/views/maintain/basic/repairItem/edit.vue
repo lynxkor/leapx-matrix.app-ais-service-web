@@ -768,7 +768,7 @@ export default {
         this.repairItemLoading = true;
         try {
           // 调用搜索接口，传递搜索关键词
-          const res = await repairItemType({ name: query });
+          const res = await repairItemType({ nameLike: query, categorys: [10] });
           if (res) {
             this.repairItemOptions = res?.map(item => ({
               value: item.id, // 维修类型ID
