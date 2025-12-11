@@ -9,10 +9,11 @@ const data = {
   mutations: {
     // 登陆时设置信息
     SET_LOGIN_INFO (state, info) {
+      const { resources, ...rest } = info;
       localStorage.setItem('token', info.token);
       state.token = info.token;
-      localStorage.setItem('userInfo', JSON.stringify(info));
-      state.userInfo = info;
+      localStorage.setItem('userInfo', JSON.stringify(rest));
+      state.userInfo = rest;
     },
     // 用户登出
     USER_SIGN_OUT (state) {

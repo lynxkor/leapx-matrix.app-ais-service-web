@@ -114,6 +114,9 @@ export default {
         name: [
           { required: true, message: '请输入结算类型名称', trigger: 'blur' }
         ],
+        category: [
+          { required: true, message: '请选择结算类别 ', trigger: 'change' }
+        ],
         sort: [
           {
             required: false,
@@ -138,9 +141,6 @@ export default {
         ],
         remark: [
           { required: false, message: '请输入备注', trigger: 'blur' }
-        ],
-        category: [
-          { required: true, message: '请输入结算类别 ', trigger: 'blur' }
         ],
       },
       pickerOptions: {
@@ -201,7 +201,6 @@ export default {
       if (!id) {
         this.form.appShow = 1; // 新增时设置为1
       }
-      this.form.sort = Number(this.form.sort);
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.submitLoading = true;

@@ -31,14 +31,19 @@
         />
       </el-form-item>
       <el-form-item label="建店类型" v-show="visibleCount === 3 || show">
-        <fetch-select
-        :request="fetchOptions"
-        enumCode="mc_dealer_type"
-        v-model="form.dealerTypes"
-        placeholder="请选择"
-        clearable
-        multiple
-        />
+        <el-select
+          v-model="form.dealerTypes"
+          multiple
+          placeholder="请选择"
+          collapse-tags
+          >
+          <el-option
+            v-for="item in storeTypeOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
       </el-form-item>
       <template v-if="show">
         <el-form-item label="状态">
@@ -92,7 +97,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/basic/dealerPermission/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getBuildType } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -128,6 +133,7 @@ export default {
         ...defaultForm
       },
       selectionList: [],
+      storeTypeOptions: [], // 建店类型选项
       yes_no_enum: YES_NO_ENUM,
       moduleKey: 'AISMC-dealerPermission',
       show: false,
@@ -271,6 +277,7 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    this.getStore();
   },
   methods: {
     handleImport () {
@@ -422,6 +429,25 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
+    },
+    // 处理建店类型选择事件
+    async getStore () {
+      const res = await getBuildType();
+
+      if (res && Array.isArray(res)) {
+        // 使用 flatMap 提取所有 children 并合并成一个新数组
+        this.storeTypeOptions = res.flatMap(item => {
+          if (item.children && Array.isArray(item.children)) {
+            return item.children.map(child => ({
+              label: child.label,
+              value: child.value
+            }));
+          }
+          return [];
+        });
+      } else {
+        this.storeTypeOptions = [];
+      }
     },
   }
 };

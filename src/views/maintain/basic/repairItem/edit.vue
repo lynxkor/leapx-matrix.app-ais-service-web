@@ -94,7 +94,7 @@
                 </el-radio-group>
               </el-form-item>
               <el-form-item label="是否预约专用" prop="isReservation">
-                <el-radio-group v-model="form.isReservation">
+                <el-radio-group v-model="form.isReservation" @change="handleReservationChange">
                   <el-radio :label="1">是</el-radio>
                   <el-radio :label="0">否</el-radio>
                 </el-radio-group>
@@ -438,10 +438,70 @@ export default {
           { required: true, message: '请选择保养项目分类', trigger: 'change' }
         ],
         maintenanceTime: [
-          { required: false, message: '请选择保养时间（月）', trigger: 'change' }
+          { required: false, message: '请选择保养时间（月）', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              // 非必填，允许为空
+              if (value === null || value === undefined || value === '') {
+                callback();
+                return;
+              }
+              // 转换为数字
+              const num = Number(value);
+              // 检查转换是否有效
+              if (isNaN(num)) {
+                callback(new Error('请输入有效的数字'));
+                return;
+              }
+              // 检查是否为整数
+              if (Math.floor(num) !== num) {
+                callback(new Error('请输入整数'));
+                return;
+              }
+              // 根据需求选择条件：
+              // 1. 大于0的整数：num > 0
+              // 2. 大于等于0的整数：num >= 0
+              if (num < 0) {
+                callback(new Error('请输入大于等于0的整数'));
+                return;
+              }
+              callback();
+            },
+            trigger: 'blur'
+          }
         ],
         maintenanceMileage: [
-          { required: false, message: '请输入保养里程（KM）', trigger: 'blur' }
+          { required: false, message: '请输入保养里程（KM）', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              // 非必填，允许为空
+              if (value === null || value === undefined || value === '') {
+                callback();
+                return;
+              }
+              // 转换为数字
+              const num = Number(value);
+              // 检查转换是否有效
+              if (isNaN(num)) {
+                callback(new Error('请输入有效的数字'));
+                return;
+              }
+              // 检查是否为整数
+              if (Math.floor(num) !== num) {
+                callback(new Error('请输入整数'));
+                return;
+              }
+              // 根据需求选择条件：
+              // 1. 大于0的整数：num > 0
+              // 2. 大于等于0的整数：num >= 0
+              if (num < 0) {
+                callback(new Error('请输入大于等于0的整数'));
+                return;
+              }
+              callback();
+            },
+            trigger: 'blur'
+          }
         ],
         isBatteryRepair: [
           { required: true, message: '请输入是否电池维修专用', trigger: 'blur' }
@@ -474,10 +534,70 @@ export default {
           { required: false, message: '请选择时间间隔计算标准', trigger: 'change' }
         ],
         nextMaintenanceMileage: [
-          { required: false, message: '请输入下次保养计算里程', trigger: 'blur' }
+          { required: false, message: '请输入下次保养计算里程', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              // 非必填，允许为空
+              if (value === null || value === undefined || value === '') {
+                callback();
+                return;
+              }
+              // 转换为数字
+              const num = Number(value);
+              // 检查转换是否有效
+              if (isNaN(num)) {
+                callback(new Error('请输入有效的数字'));
+                return;
+              }
+              // 检查是否为整数
+              if (Math.floor(num) !== num) {
+                callback(new Error('请输入整数'));
+                return;
+              }
+              // 根据需求选择条件：
+              // 1. 大于0的整数：num > 0
+              // 2. 大于等于0的整数：num >= 0
+              if (num < 0) {
+                callback(new Error('请输入大于等于0的整数'));
+                return;
+              }
+              callback();
+            },
+            trigger: 'blur'
+          }
         ],
         nextMaintenanceTime: [
-          { required: false, message: '请选择下次保养计算时间', trigger: 'change' }
+          { required: false, message: '请选择下次保养计算时间', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              // 非必填，允许为空
+              if (value === null || value === undefined || value === '') {
+                callback();
+                return;
+              }
+              // 转换为数字
+              const num = Number(value);
+              // 检查转换是否有效
+              if (isNaN(num)) {
+                callback(new Error('请输入有效的数字'));
+                return;
+              }
+              // 检查是否为整数
+              if (Math.floor(num) !== num) {
+                callback(new Error('请输入整数'));
+                return;
+              }
+              // 根据需求选择条件：
+              // 1. 大于0的整数：num > 0
+              // 2. 大于等于0的整数：num >= 0
+              if (num < 0) {
+                callback(new Error('请输入大于等于0的整数'));
+                return;
+              }
+              callback();
+            },
+            trigger: 'blur'
+          }
         ],
       },
       pickerOptions: {
@@ -648,7 +768,7 @@ export default {
         this.repairItemLoading = true;
         try {
           // 调用搜索接口，传递搜索关键词
-          const res = await repairItemType({ name: query });
+          const res = await repairItemType({ nameLike: query, categorys: [10] });
           if (res) {
             this.repairItemOptions = res?.map(item => ({
               value: item.id, // 维修类型ID
@@ -664,6 +784,22 @@ export default {
           this.repairItemLoading = false;
         }
       }, 300); // 300ms防抖延迟
+    },
+    // 处理是否预约专用时 选择是 弹窗二次确认
+    handleReservationChange (val) {
+      if (this.$route.query.id) {
+        if (val === 1) {
+          this.$confirm('此操作将对C端APP用户预约产生影响，是否继续？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+
+          }).catch(() => {
+
+          });
+        }
+      }
     },
     async fetchOptions (code) {
       if (code) {

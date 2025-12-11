@@ -283,7 +283,7 @@ export default {
     },
     // 处理维修类别选择变更事件 如果选择为10（保修），则清空结算类型
     handleCategoryChange (val) {
-      if (val === 10) {
+      if (Number(val) === 10) {
         this.form.checkoutTypeId = '';
         this.form.checkoutTypeName = '';
       }
