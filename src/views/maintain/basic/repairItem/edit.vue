@@ -94,7 +94,7 @@
                 </el-radio-group>
               </el-form-item>
               <el-form-item label="是否预约专用" prop="isReservation">
-                <el-radio-group v-model="form.isReservation">
+                <el-radio-group v-model="form.isReservation" @change="handleReservationChange">
                   <el-radio :label="1">是</el-radio>
                   <el-radio :label="0">否</el-radio>
                 </el-radio-group>
@@ -784,6 +784,22 @@ export default {
           this.repairItemLoading = false;
         }
       }, 300); // 300ms防抖延迟
+    },
+    // 处理是否预约专用时 选择是 弹窗二次确认
+    handleReservationChange (val) {
+      if (this.$route.query.id) {
+        if (val === 1) {
+          this.$confirm('此操作将对C端APP用户预约产生影响，是否继续？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+
+          }).catch(() => {
+
+          });
+        }
+      }
     },
     async fetchOptions (code) {
       if (code) {
