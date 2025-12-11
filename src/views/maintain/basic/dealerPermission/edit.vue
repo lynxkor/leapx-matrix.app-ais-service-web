@@ -35,7 +35,7 @@
                   :params="form.checkoutTypeName"
                   @change="handleSettlementChange"
                   value-key="id"
-                  label-key="name"
+                  label-key="nameAndCategory"
                 />
               </el-form-item>
               <el-form-item label="建店类型" prop="dealerType">
@@ -235,8 +235,6 @@ export default {
       this.storeTypeOptions = res || [];
     },
     handleCascaderChange (value) {
-      console.log('级联选择的值:', value);
-
       if (value && value.length > 0) {
         // 获取最后一级的ID
         const lastValue = value[value.length - 1];
@@ -255,9 +253,7 @@ export default {
 
     handleChange (selectedId) {
       // 你的业务逻辑，接收最后一级的ID
-      console.log('选择的最后一级ID:', selectedId);
       this.form.dealerType = selectedId;
-      // ...其他逻辑
     },
     // 处理结算类型选择变更事件
     handleSettlementChange (val, record) {
