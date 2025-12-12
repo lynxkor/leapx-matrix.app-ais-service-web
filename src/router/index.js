@@ -824,6 +824,59 @@ const routes = [
       path: '/sparepart/basic/sparepartsalesprice/edit',
       name: 'sparePartSalesPriceEdit',
       component: () => import('@/views/sparepart/basic/sparePartSalesPrice/edit.vue'),
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/serviceActivityVehicle',
+      name: 'serviceActivityVehicle',
+      component: () => import('@/views/claimreturn/basic/serviceActivityVehicle/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/basic/serviceactivityvehicle/detail',
+      name: 'serviceActivityVehicleDetail',
+      component: () => import('@/views/claimreturn/basic/serviceActivityVehicle/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/serviceactivityvehicle/edit',
+      name: 'serviceActivityVehicleEdit',
+      component: () => import('@/views/claimreturn/basic/serviceActivityVehicle/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/serviceActivity',
+      name: 'serviceActivity',
+      component: () => import('@/views/claimreturn/web/basic/serviceActivity/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/basic/serviceactivity/detail',
+      name: 'serviceActivityDetail',
+      component: () => import('@/views/claimreturn/web/basic/serviceActivity/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/serviceactivity/edit',
+      name: 'serviceActivityEdit',
+      component: () => import('@/views/claimreturn/web/basic/serviceActivity/edit.vue'),
 
       meta: {
         name: '新页面详情',
