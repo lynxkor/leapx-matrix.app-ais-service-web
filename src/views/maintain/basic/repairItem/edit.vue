@@ -794,9 +794,9 @@ export default {
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-
+            this.form.isReservation = 1;
           }).catch(() => {
-
+            this.form.isReservation = 0;
           });
         }
       }

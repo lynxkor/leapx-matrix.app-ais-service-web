@@ -137,13 +137,13 @@ export default {
           { required: false, message: '请输入差价设置代码', trigger: 'blur' }
         ],
         vehicleModelId: [
-          { required: true, message: '请输入车型', trigger: 'blur' }
+          { required: true, message: '请输入车型', trigger: 'change' }
         ],
         buyCityLevel: [
-          { required: true, message: '请输入购买城市等级', trigger: 'blur' }
+          { required: true, message: '请输入购买城市等级', trigger: 'change' }
         ],
         verificationCityLevel: [
-          { required: true, message: '请输入核销城市等级', trigger: 'blur' }
+          { required: true, message: '请输入核销城市等级', trigger: 'change' }
         ],
         spreadPrice: [
           { required: true, message: '请输入单次需补差价', trigger: 'blur' }
