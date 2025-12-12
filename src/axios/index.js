@@ -157,7 +157,7 @@ export function fetch (url, params, method, sign, userResponse, config) {
           reject(error);
         });
     } else if (method === 'postJson') { // 封装postJSON方法
-      // for (var key in params) { // 非必填字段也要穿值,传空就行
+      // for (var key in params) { // 非必填字段也要传值,传空就行
       //   if (params[key] === '') {
       //     delete params[key];
       //   }
