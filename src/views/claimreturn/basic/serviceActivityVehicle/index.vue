@@ -327,6 +327,19 @@ export default {
               },
               type: 'info'
             }, {
+              // eslint-disable-next-line no-warning-comments
+              // todo 权限控制
+              name: '完成',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/basic/serviceActivityVehicle/edit',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'info'
+            }, {
               name: '删除',
               popconfirmTitle: '此操作将永久删除, 是否继续?',
               click: (rowIndex, row) => {
