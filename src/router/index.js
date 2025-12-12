@@ -882,6 +882,60 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/basic/freeMaintenancePolicy',
+      name: 'freeMaintenancePolicy',
+      component: () => import('@/views/claimreturn/basic/freeMaintenancePolicy/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/basic/freemaintenancepolicy/detail',
+      name: 'freeMaintenancePolicyDetail',
+      component: () => import('@/views/claimreturn/basic/freeMaintenancePolicy/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/freemaintenancepolicy/edit',
+      name: 'freeMaintenancePolicyEdit',
+      component: () => import('@/views/claimreturn/basic/freeMaintenancePolicy/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/freeMaintenancePolicy',
+      name: 'freeMaintenancePolicy',
+      component: () => import('@/views/claimreturn/basic/freeMaintenancePolicy/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/basic/freemaintenancepolicy/detail',
+      name: 'freeMaintenancePolicyDetail',
+      component: () => import('@/views/claimreturn/basic/freeMaintenancePolicy/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/freemaintenancepolicy/edit',
+      name: 'freeMaintenancePolicyEdit',
+      component: () => import('@/views/claimreturn/basic/freeMaintenancePolicy/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
