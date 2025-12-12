@@ -936,6 +936,33 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/basic/threeGuaranteesRule',
+      name: 'threeGuaranteesRule',
+      component: () => import('@/views/claimreturn/basic/threeGuaranteesRule/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/basic/threeguaranteesrule/detail',
+      name: 'threeGuaranteesRuleDetail',
+      component: () => import('@/views/claimreturn/basic/threeGuaranteesRule/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/basic/threeguaranteesrule/edit',
+      name: 'threeGuaranteesRuleEdit',
+      component: () => import('@/views/claimreturn/basic/threeGuaranteesRule/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
