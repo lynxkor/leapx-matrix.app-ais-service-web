@@ -16,6 +16,7 @@
             {{{#isDate}}}
               <el-form-item label="{{{description}}}" prop="{{{key}}}">
                 <el-date-picker
+                  :default-time="['00:00:00', '23:59:59']"
                   v-model="form.{{{key}}}"
                   :picker-options="pickerOptions"
                   value-format="yyyy-MM-dd HH:mm:ss"
@@ -103,6 +104,7 @@
             {{{#isDate}}}
               <el-form-item label="{{{description}}}" prop="{{{key}}}">
                 <el-date-picker
+                  :default-time="['00:00:00', '23:59:59']"
                   v-model="form.{{{key}}}"
                   :picker-options="pickerOptions"
                   value-format="yyyy-MM-dd HH:mm:ss"
