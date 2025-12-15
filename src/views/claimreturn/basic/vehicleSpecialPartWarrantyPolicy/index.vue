@@ -230,7 +230,23 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'partCode', label: '零件编码', visible: true, width: 150 },
+          {
+            props: 'partCode',
+            label: '零件编码',
+            visible: true,
+            width: 150,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/sparePart/detail',
+                  query: {
+                    id: row.partId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'partName', label: '零件名称', visible: true, width: 200 },
           { props: 'seriesName', label: '车系名称', visible: true, width: 120 },
           { props: 'modelName', label: '车型名称', visible: true, width: 200 },

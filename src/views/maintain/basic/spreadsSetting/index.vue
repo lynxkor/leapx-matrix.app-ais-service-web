@@ -58,6 +58,7 @@
             clearable
             remote
             reserve-keyword
+            collapse-tags
             multiple
             placeholder="请输入"
             :remote-method="modelSearch"
