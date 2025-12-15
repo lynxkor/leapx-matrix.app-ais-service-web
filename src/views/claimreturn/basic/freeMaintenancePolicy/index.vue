@@ -193,7 +193,23 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'repairItemCode', label: '维修项目代码', visible: true, width: 180 },
+          {
+            props: 'repairItemCode',
+            label: '维修项目代码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/basic/repairItem/detail',
+                  query: {
+                    id: row.repairItemId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'repairItemName', label: '维修项目名称', visible: true, width: 200 },
           { props: 'policyTypeLabel', label: '政策类型', visible: true, width: 200 },
           { props: 'freePeriod', label: '免保时间（月）', visible: true, width: 200 },
