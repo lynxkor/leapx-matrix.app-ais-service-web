@@ -13,6 +13,7 @@
     {{{#isDate}}}
       <el-form-item label="{{{description}}}">
         <el-date-picker
+         :default-time="['00:00:00', '23:59:59']"
           v-model="form.{{{key}}}"
           type="daterange"
           :picker-options="pickerOptions"
@@ -63,6 +64,7 @@
     {{{#isDate}}}
       <el-form-item label="{{{description}}}"  v-show="this.visibleCount === 3 || show">
         <el-date-picker
+         :default-time="['00:00:00', '23:59:59']"
           v-model="form.{{{key}}}"
           type="daterange"
           :picker-options="pickerOptions"
@@ -114,6 +116,7 @@
       {{{#isDate}}}
         <el-form-item label="{{{description}}}">
           <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
             v-model="form.{{{key}}}"
             type="daterange"
             :picker-options="pickerOptions"
@@ -215,7 +218,7 @@ import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange, getEndOfDayString, downloadExcel } from '@/libs/utils';
+import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
@@ -327,33 +330,6 @@ export default {
           }
         ],
         total: 0
-      },
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近一个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近三个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
       }
     };
   },
@@ -469,7 +445,7 @@ export default {
         delete data.createTime;
         if (this.form.createTime.length > 1) {
           data.createTimeStart = this.form.createTime[0];
-          data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
+          data.createTimeEnd = this.form.createTime[1];
         }
       }
 

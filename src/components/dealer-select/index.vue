@@ -1,18 +1,29 @@
 <template>
-  <fetch-select
-    v-bind="$attrs"
-    :remote="true"
-    :remoteMethod="storeSearch"
-    :format="formatDealer"
-    v-model="orgId"
-    placeholder="请选择"
-    labelKey="label"
-    valueKey="orgId"
-    :params="defaultDealerName"
-    clearable
-    :multiple="multiple"
-    filterable
-  />
+<!--  <fetch-select-->
+<!--    v-bind="$attrs"-->
+<!--    :remote="true"-->
+<!--    :remoteMethod="storeSearch"-->
+<!--    :format="formatDealer"-->
+<!--    v-model="orgId"-->
+<!--    placeholder="请选择"-->
+<!--    labelKey="label"-->
+<!--    valueKey="orgId"-->
+<!--    :params="defaultDealerName"-->
+<!--    clearable-->
+<!--    :multiple="multiple"-->
+<!--    filterable-->
+<!--  />-->
+  <el-select :remote="true" v-bind="$attrs" v-model="orgId" filterable placeholder="请选择" :remote-method="storeSearch" :multiple="multiple" clearable @change="handleChange" collapse-tags>
+    <el-option
+      v-for="item in options"
+      :key="item.orgId"
+      :label="item.orgName"
+      style="height: 50px"
+      :value="item.orgId">
+      <div class="org_name">{{ item.orgName }}</div>
+      <div class="org_code">{{ item.orgCode }}</div>
+    </el-option>
+  </el-select>
 </template>
 <script>
 /**
@@ -23,10 +34,9 @@ import { listOrgStoreInfo } from '@/api/common';
 
 export default {
   name: 'DealerSelect',
-  components: { FetchSelect },
   props: {
     value: {
-      type: [String, Array],
+      type: [String, Array, Number],
       default: null
     },
     params: {
@@ -44,24 +54,26 @@ export default {
   },
   data () {
     return {
-      orgId: null
+      orgId: null,
+      options: [],
     };
   },
   watch: {
     orgId (val) {
       this.$emit('input', val);
     },
-    value (val) {
-      if (val && !this.multiple) {
-        this.orgId = val + '';
-      } else {
-        this.orgId = val;
+    defaultDealerName (val, old) {
+      if (val && !old) {
+        this.storeSearch(val);
       }
+    },
+    value (val, old) {
+      this.orgId = val;
     }
   },
   mounted () {
     if (this.value) {
-      this.orgId = this.value + '';
+      this.orgId = this.value;
     }
   },
   methods: {
@@ -70,7 +82,13 @@ export default {
       if (query && query.length < 2) {
         return;
       }
-      return listOrgStoreInfo({ name: query });
+      listOrgStoreInfo({ name: query }).then(res => {
+        this.options = res.map(item => {
+          return {
+            ...item
+          };
+        });
+      });
     },
     formatDealer (resp) {
       for (let ele of resp) {
@@ -79,10 +97,21 @@ export default {
       }
       return resp;
     },
+    handleChange (val) {
+      console.log('handleChange', val);
+    }
   }
 };
 </script>
 
 <style scoped lang="scss">
-
+  .org_name {
+    color: #333333;
+    font-size: 14px;
+    height: 20px;
+  }
+  .org_code {
+    color: #999999;
+    height: 20px;
+  }
 </style>

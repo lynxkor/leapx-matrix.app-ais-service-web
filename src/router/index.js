@@ -858,7 +858,7 @@ const routes = [
     }, {
       path: '/claimreturn/basic/serviceActivity',
       name: 'serviceActivity',
-      component: () => import('@/views/claimreturn/web/basic/serviceActivity/index.vue'),
+      component: () => import('@/views/claimreturn/basic/serviceActivity/index.vue'),
 
       meta: {
         name: '新页面',
@@ -867,7 +867,7 @@ const routes = [
     }, {
       path: '/claimreturn/basic/serviceactivity/detail',
       name: 'serviceActivityDetail',
-      component: () => import('@/views/claimreturn/web/basic/serviceActivity/detail.vue'),
+      component: () => import('@/views/claimreturn/basic/serviceActivity/detail.vue'),
 
       meta: {
         name: '新页面详情',
@@ -876,7 +876,7 @@ const routes = [
     }, {
       path: '/claimreturn/basic/serviceactivity/edit',
       name: 'serviceActivityEdit',
-      component: () => import('@/views/claimreturn/web/basic/serviceActivity/edit.vue'),
+      component: () => import('@/views/claimreturn/basic/serviceActivity/edit.vue'),
 
       meta: {
         name: '新页面详情',

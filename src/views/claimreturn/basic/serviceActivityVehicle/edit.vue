@@ -130,7 +130,7 @@ const defaultForm = {
   settlementTypeName: '',
   warrantyTypeId: '',
   warrantyTypeName: '',
-  plannedDealerId: '',
+  plannedDealerId: null,
   plannedDealerCode: '',
   manualCompletionNote: '',
   manualOperatorId: '',
@@ -220,10 +220,6 @@ export default {
           this.loading = false;
           Object.assign(this.form, res);
           Object.assign(this.originalForm, res);
-          if (res.plannedDealerId) {
-            this.form.plannedDealerId = res.plannedDealerId + '';
-            this.originalForm.plannedDealerId = res.plannedDealerId + '';
-          }
         });
       }
     },

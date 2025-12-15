@@ -271,8 +271,8 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/claimreturn/web/basic/serviceActivity/index';
-import FetchSelect from '@/libs/components/FetchSelect';
+import { getDetail, addOrUpdate } from '@/api/claimreturn/web/basic/serviceActivity';
+import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';

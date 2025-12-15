@@ -230,7 +230,23 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'partCode', label: '零件编码', visible: true, width: 150 },
+          {
+            props: 'partCode',
+            label: '零件编码',
+            visible: true,
+            width: 150,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/sparePart/detail',
+                  query: {
+                    id: row.partId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'partName', label: '零件名称', visible: true, width: 200 },
           { props: 'seriesName', label: '车系名称', visible: true, width: 120 },
           { props: 'modelName', label: '车型名称', visible: true, width: 200 },
@@ -281,36 +297,6 @@ export default {
         ],
         total: 0
       },
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-            start.setHours(0, 0, 0, 0);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近一个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-            start.setHours(0, 0, 0, 0);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近三个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-            start.setHours(0, 0, 0, 0);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
-      }
     };
   },
   created () {
