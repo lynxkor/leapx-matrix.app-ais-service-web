@@ -1,6 +1,6 @@
 <template>
   <!-- TIPS: 如果填写项大于15项，使用类名page-common-edit替换page-common-add -->
-  <div class="page-common-add">
+  <div class="page-common-edit">
     <el-container>
       <el-main>
         <section class="common-section">
@@ -10,7 +10,7 @@
           <div class="common-section-body">
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-            <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
+            <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px">
               <el-form-item label="供应商编码" prop="supplierCode">
                 <el-input
                   placeholder="请输入"
