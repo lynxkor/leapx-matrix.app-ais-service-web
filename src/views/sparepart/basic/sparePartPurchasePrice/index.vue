@@ -9,53 +9,43 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="主键">
-        <el-input
-          placeholder="请输入"
-          v-model="form.id"
-          clearable
-        />
-      </el-form-item>
       <el-form-item label="备件编码">
         <el-input
           placeholder="请输入"
-          v-model="form.sparePartCode"
+          v-model="form.sparePartCodeLike"
           clearable
         />
       </el-form-item>
       <el-form-item label="备件名称"  v-show="this.visibleCount === 3 || show">
         <el-input
           placeholder="请输入"
-          v-model="form.sparePartName"
+          v-model="form.sparePartNameLike"
           clearable
         />
       </el-form-item>
       <template v-if="show">
         <el-form-item label="定价模式">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="sparePartPricingModelEnum"
+            v-model="form.pricingModels"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="门店编码">
           <el-input
             placeholder="请输入"
-            v-model="form.pricingModel"
+            v-model="form.dealerCodes"
             clearable
           />
         </el-form-item>
-        <el-form-item label="门店采购价格">
+        <el-form-item label="门店名称">
           <el-input
             placeholder="请输入"
-            v-model="form.dealerPurchasePrice"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="门店编码（组织code）">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dealerCode"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="门店名称（组织名称）">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dealerName"
+            v-model="form.dealerNames"
             clearable
           />
         </el-form-item>
@@ -67,10 +57,15 @@
           />
         </el-form-item>
         <el-form-item label="生效开始日期">
-          <el-input
-            placeholder="请输入"
+          <el-date-picker
             v-model="form.effectiveStartDate"
-            clearable
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            align="right"
           />
         </el-form-item>
         <el-form-item label="生效结束时间">
@@ -88,39 +83,8 @@
         <el-form-item label="失效操作人">
           <el-input
             placeholder="请输入"
-            v-model="form.invalidOperator"
+            v-model="form.invalidOperatorLike"
             clearable
-          />
-        </el-form-item>
-        <el-form-item label="失效原因">
-          <el-input
-            placeholder="请输入"
-            v-model="form.invalidReason"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="创建时间">
-          <el-date-picker
-            v-model="form.createTime"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-          />
-        </el-form-item>
-        <el-form-item label="修改时间">
-          <el-date-picker
-            v-model="form.updateTime"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
           />
         </el-form-item>
       </template>
@@ -136,11 +100,12 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button v-if="canImport" size="small" @click="handleImport">价格导入</el-button>
+      <el-button >集中视图</el-button>
+      <!-- <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -280,19 +245,19 @@ export default {
               },
               type: 'info'
             }, {
-              name: '删除',
+              name: '失效',
               popconfirmTitle: '此操作将永久删除, 是否继续?',
               click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
+                enableItem([row.id]).then(() => {
                   this.$message({
                     type: 'success',
-                    message: '删除成功!'
+                    message: '失效成功!'
                   });
                   this.getData();
                 }).catch(() => {
                   this.$message({
                     type: 'error',
-                    message: '删除失败!'
+                    message: '失效失败!'
                   });
                 });
               },

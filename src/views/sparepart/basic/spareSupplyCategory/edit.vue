@@ -11,6 +11,21 @@
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
+              <el-form-item label="分类编码" prop="categoryCode">
+                <el-input
+                  placeholder="请输入"
+                  v-model="form.categoryCode"
+                  clearable
+                  :disabled="this.$route.query.id"
+                />
+              </el-form-item>
+              <el-form-item label="分类名称" prop="categoryName">
+                <el-input
+                  placeholder="请输入"
+                  v-model="form.categoryName"
+                  clearable
+                />
+              </el-form-item>
               <el-form-item label="状态" prop="status">
                 <fetch-select
                   :request="fetchOptions"
@@ -19,20 +34,6 @@
                   placeholder="请选择"
                   clearable
                   filterable
-                />
-              </el-form-item>
-              <el-form-item label="分类编码" prop="categoryCode">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.categoryCode"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="分类名称" prop="categoryName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.categoryName"
-                  clearable
                 />
               </el-form-item>
             </el-form>

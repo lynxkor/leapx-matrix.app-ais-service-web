@@ -16,6 +16,7 @@
                   placeholder="请输入"
                   v-model="form.supplierCode"
                   clearable
+                  :disabled="this.$route.query.id"
                 />
               </el-form-item>
               <el-form-item label="供应商名称" prop="supplierName">
@@ -32,154 +33,6 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="状态变更描述" prop="statusDesc">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.statusDesc"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
-              <el-form-item label="创建时间" prop="createTime">
-                <el-date-picker
-                  v-model="form.createTime"
-                  :picker-options="pickerOptions"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  align="right"
-                />
-              </el-form-item>
-              <el-form-item label="修改时间" prop="updateTime">
-                <el-date-picker
-                  v-model="form.updateTime"
-                  :picker-options="pickerOptions"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  align="right"
-                />
-              </el-form-item>
-              <el-form-item label="主键" prop="id">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.id"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="创建者" prop="creator">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.creator"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="创建者名称" prop="creatorName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.creatorName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="修改者" prop="modifier">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.modifier"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="修改者名称" prop="modifierName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.modifierName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="备注" prop="remark">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.remark"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="状态" prop="status">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.status"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
-              <el-form-item label="数据来源，140:新销服; 老销服:10" prop="dataSource">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.dataSource"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="拼音简码" prop="pinyinCode">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.pinyinCode"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="供应商类型" prop="supplierType">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.supplierType"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
-              <el-form-item label="是否OEM" prop="oemFlag">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.oemFlag"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="门店ID（组织ID）" prop="dealerId">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.dealerId"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="门店编码（组织code）" prop="dealerCode">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.dealerCode"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="门店名称（组织名称）" prop="dealerName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.dealerName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="供应商等级" prop="supplierLevel">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.supplierLevel"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="供应商安全库存系数" prop="supplierSafetyStock">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.supplierSafetyStock"
-                  clearable
-                />
-              </el-form-item>
               <el-form-item label="国家code" prop="countryCode">
                 <el-input
                   placeholder="请输入"
@@ -188,10 +41,13 @@
                 />
               </el-form-item>
               <el-form-item label="国家" prop="countryName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.countryName"
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="CountryEnum"
+                  v-model="form.countryCode"
+                  placeholder="请选择"
                   clearable
+                  filterable
                 />
               </el-form-item>
               <el-form-item label="省code" prop="provinceCode">
@@ -250,6 +106,20 @@
                   clearable
                 />
               </el-form-item>
+              <el-form-item label="供应商等级" prop="supplierLevel">
+                <el-input
+                  placeholder="请输入"
+                  v-model="form.supplierLevel"
+                  clearable
+                />
+              </el-form-item>
+              <el-form-item label="拼音简码" prop="supplierLevel">
+                <el-input
+                  placeholder="请输入"
+                  v-model="form.pinyincode"
+                  clearable
+                />
+              </el-form-item>
               <el-form-item label="联系人姓名" prop="contactName">
                 <el-input
                   placeholder="请输入"
@@ -276,6 +146,16 @@
                   placeholder="请输入"
                   v-model="form.contactFax"
                   clearable
+                />
+              </el-form-item>
+              <el-form-item label="是否启用" prop="status">
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="BooleanEnum"
+                  v-model="form.status"
+                  placeholder="请选择"
+                  clearable
+                  filterable
                 />
               </el-form-item>
             </el-form>
@@ -323,8 +203,8 @@ const defaultForm = {
   dealerName: '',
   supplierLevel: '',
   supplierSafetyStock: '',
-  countryCode: '',
-  countryName: '',
+  countryCode: 'CN',
+  countryName: '中国',
   provinceCode: '',
   provinceName: '',
   cityCode: '',
@@ -369,108 +249,108 @@ export default {
         supplierName: [
           { required: true, message: '请输入供应商名称', trigger: 'blur' }
         ],
-        supplierShortName: [
-          { required: true, message: '请输入供应商简称', trigger: 'blur' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'blur' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'blur' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'blur' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'blur' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'blur' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
-        ],
+        // supplierShortName: [
+        //   { required: true, message: '请输入供应商简称', trigger: 'blur' }
+        // ],
+        // statusDesc: [
+        //   { required: true, message: '请选择状态变更描述', trigger: 'change' }
+        // ],
+        // createTime: [
+        //   { required: true, message: '请选择创建时间', trigger: 'change' }
+        // ],
+        // updateTime: [
+        //   { required: true, message: '请选择修改时间', trigger: 'change' }
+        // ],
+        // id: [
+        //   { required: true, message: '请输入主键', trigger: 'blur' }
+        // ],
+        // creator: [
+        //   { required: true, message: '请输入创建者', trigger: 'blur' }
+        // ],
+        // creatorName: [
+        //   { required: true, message: '请输入创建者名称', trigger: 'blur' }
+        // ],
+        // modifier: [
+        //   { required: true, message: '请输入修改者', trigger: 'blur' }
+        // ],
+        // modifierName: [
+        //   { required: true, message: '请输入修改者名称', trigger: 'blur' }
+        // ],
+        // remark: [
+        //   { required: true, message: '请输入备注', trigger: 'blur' }
+        // ],
         status: [
           { required: true, message: '请选择状态', trigger: 'change' }
         ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，140:新销服; 老销服:10', trigger: 'blur' }
-        ],
-        pinyinCode: [
-          { required: true, message: '请输入拼音简码', trigger: 'blur' }
-        ],
-        supplierType: [
-          { required: true, message: '请选择供应商类型', trigger: 'change' }
-        ],
-        oemFlag: [
-          { required: true, message: '请输入是否OEM', trigger: 'blur' }
-        ],
-        dealerId: [
-          { required: true, message: '请输入门店ID（组织ID）', trigger: 'blur' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码（组织code）', trigger: 'blur' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称（组织名称）', trigger: 'blur' }
-        ],
-        supplierLevel: [
-          { required: true, message: '请输入供应商等级', trigger: 'blur' }
-        ],
-        supplierSafetyStock: [
-          { required: true, message: '请输入供应商安全库存系数', trigger: 'blur' }
-        ],
-        countryCode: [
-          { required: true, message: '请输入国家code', trigger: 'blur' }
-        ],
-        countryName: [
-          { required: true, message: '请输入国家', trigger: 'blur' }
-        ],
-        provinceCode: [
-          { required: true, message: '请输入省code', trigger: 'blur' }
-        ],
-        provinceName: [
-          { required: true, message: '请输入省', trigger: 'blur' }
-        ],
-        cityCode: [
-          { required: true, message: '请输入市code', trigger: 'blur' }
-        ],
-        cityName: [
-          { required: true, message: '请输入市', trigger: 'blur' }
-        ],
-        districtCode: [
-          { required: true, message: '请输入区&#x2F;县编码', trigger: 'blur' }
-        ],
-        districtName: [
-          { required: true, message: '请输入区&#x2F;县名称', trigger: 'blur' }
-        ],
-        address: [
-          { required: true, message: '请输入详细地址', trigger: 'blur' }
-        ],
-        fullAddress: [
-          { required: true, message: '请输入省市区+详细地址', trigger: 'blur' }
-        ],
-        contactName: [
-          { required: true, message: '请输入联系人姓名', trigger: 'blur' }
-        ],
-        contactPhone: [
-          { required: true, message: '请输入联系人电话', trigger: 'blur' }
-        ],
-        contactEmail: [
-          { required: true, message: '请输入联系人邮箱', trigger: 'blur' }
-        ],
-        contactFax: [
-          { required: true, message: '请输入联系人传真', trigger: 'blur' }
-        ],
+        // dataSource: [
+        //   { required: true, message: '请输入数据来源，140:新销服; 老销服:10', trigger: 'blur' }
+        // ],
+        // pinyinCode: [
+        //   { required: true, message: '请输入拼音简码', trigger: 'blur' }
+        // ],
+        // supplierType: [
+        //   { required: true, message: '请选择供应商类型', trigger: 'change' }
+        // ],
+        // oemFlag: [
+        //   { required: true, message: '请输入是否OEM', trigger: 'blur' }
+        // ],
+        // dealerId: [
+        //   { required: true, message: '请输入门店ID（组织ID）', trigger: 'blur' }
+        // ],
+        // dealerCode: [
+        //   { required: true, message: '请输入门店编码（组织code）', trigger: 'blur' }
+        // ],
+        // dealerName: [
+        //   { required: true, message: '请输入门店名称（组织名称）', trigger: 'blur' }
+        // ],
+        // supplierLevel: [
+        //   { required: true, message: '请输入供应商等级', trigger: 'blur' }
+        // ],
+        // supplierSafetyStock: [
+        //   { required: true, message: '请输入供应商安全库存系数', trigger: 'blur' }
+        // ],
+        // countryCode: [
+        //   { required: true, message: '请输入国家code', trigger: 'blur' }
+        // ],
+        // countryName: [
+        //   { required: true, message: '请输入国家', trigger: 'blur' }
+        // ],
+        // provinceCode: [
+        //   { required: true, message: '请输入省code', trigger: 'blur' }
+        // ],
+        // provinceName: [
+        //   { required: true, message: '请输入省', trigger: 'blur' }
+        // ],
+        // cityCode: [
+        //   { required: true, message: '请输入市code', trigger: 'blur' }
+        // ],
+        // cityName: [
+        //   { required: true, message: '请输入市', trigger: 'blur' }
+        // ],
+        // districtCode: [
+        //   { required: true, message: '请输入区&#x2F;县编码', trigger: 'blur' }
+        // ],
+        // districtName: [
+        //   { required: true, message: '请输入区&#x2F;县名称', trigger: 'blur' }
+        // ],
+        // address: [
+        //   { required: true, message: '请输入详细地址', trigger: 'blur' }
+        // ],
+        // fullAddress: [
+        //   { required: true, message: '请输入省市区+详细地址', trigger: 'blur' }
+        // ],
+        // contactName: [
+        //   { required: true, message: '请输入联系人姓名', trigger: 'blur' }
+        // ],
+        // contactPhone: [
+        //   { required: true, message: '请输入联系人电话', trigger: 'blur' }
+        // ],
+        // contactEmail: [
+        //   { required: true, message: '请输入联系人邮箱', trigger: 'blur' }
+        // ],
+        // contactFax: [
+        //   { required: true, message: '请输入联系人传真', trigger: 'blur' }
+        // ],
       },
       pickerOptions: {
         shortcuts: [{
@@ -520,6 +400,7 @@ export default {
       }
     },
     submitForm (formName, rest = false) {
+      this.form.pinyinCode = 'todo pingying';
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.submitLoading = true;

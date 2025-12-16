@@ -24,7 +24,7 @@
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="状态">
+        <el-form-item label="是否启用">
           <fetch-select
             :request="fetchOptions"
             enumCode="StatusEnum"
@@ -184,32 +184,25 @@ export default {
           { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-          // {
-          //   props: 'operate',
-          //   label: '操作',
-          //   type: 'operate',
-          //   visible: true,
-          //   fixed: 'right',
-          //   buttons: [{
-          //     name: '删除',
-          //     popconfirmTitle: '此操作将永久删除, 是否继续?',
-          //     click: (rowIndex, row) => {
-          //       deleteItem([row.id]).then(() => {
-          //         this.$message({
-          //           type: 'success',
-          //           message: '删除成功!'
-          //         });
-          //         this.getData();
-          //       }).catch(() => {
-          //         this.$message({
-          //           type: 'error',
-          //           message: '删除失败!'
-          //         });
-          //       });
-          //     },
-          //     type: 'danger'
-          //   }]
-          // }
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
+            buttons: [{
+              name: '编辑',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/spareEngineeringCategory/edit',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'info'
+            }]
+          }
         ],
         total: 0
       },

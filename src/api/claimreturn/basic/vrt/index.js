@@ -4,6 +4,14 @@ import api from '@/axios';
 const prefix = 'claimreturn/web/basic/vrt/';
 
 /**
+ * 下拉框
+ * @param {Object} data
+ */
+export function vrtlist (data) {
+  return api.jsonPost(prefix + 'list', data);
+};
+
+/**
  * 查询列表
  * @param {Object} data
  */

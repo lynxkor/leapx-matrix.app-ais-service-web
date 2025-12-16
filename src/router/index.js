@@ -847,6 +847,33 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/sparepart/basic/sparePart',
+      name: 'sparePart',
+      component: () => import('@/views/sparepart/basic/sparePart/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/sparepart/detail',
+      name: 'sparePartDetail',
+      component: () => import('@/views/sparepart/basic/sparePart/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/sparepart/edit',
+      name: 'sparePartEdit',
+      component: () => import('@/views/sparepart/basic/sparePart/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/claimreturn/basic/serviceactivityvehicle/edit',
       name: 'serviceActivityVehicleEdit',
       component: () => import('@/views/claimreturn/basic/serviceActivityVehicle/edit.vue'),

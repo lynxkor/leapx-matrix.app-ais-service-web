@@ -12,41 +12,41 @@
       <el-form-item label="替换前备件编码">
         <el-input
           placeholder="请输入"
-          v-model="form.beforePartCode"
+          v-model="form.beforePartCodeLike"
           clearable
         />
       </el-form-item>
-      <el-form-item label="替换前备件名称">
+      <el-form-item label="替换后前备件编码">
         <el-input
           placeholder="请输入"
-          v-model="form.beforePartName"
+          v-model="form.afterPartCodeLike"
           clearable
-        />
-      </el-form-item>
-      <el-form-item label="替换类型"  v-show="this.visibleCount === 3 || show">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="xxx"
-          v-model="form.replacementType"
-          placeholder="请选择"
-          clearable
-          multiple
-          filterable
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="替换后前备件编码">
+        <el-form-item label="替换前备件名称">
           <el-input
             placeholder="请输入"
-            v-model="form.afterPartCode"
+            v-model="form.beforePartNameLike"
             clearable
           />
         </el-form-item>
         <el-form-item label="替换后前备件名称">
           <el-input
             placeholder="请输入"
-            v-model="form.afterPartName"
+            v-model="form.afterPartNameLike"
             clearable
+          />
+        </el-form-item>
+        <el-form-item label="替换类型"  v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="ReplacementTypeEnum"
+            v-model="form.replacementTypeIncludeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
           />
         </el-form-item>
         <el-form-item label="备注">
@@ -54,6 +54,17 @@
             placeholder="请输入"
             v-model="form.remark"
             clearable
+          />
+        </el-form-item>
+        <el-form-item label="是否启用">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.statusIncludeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
           />
         </el-form-item>
         <el-form-item label="创建时间">
@@ -78,17 +89,6 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             align="right"
-          />
-        </el-form-item>
-        <el-form-item label="状态">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.status"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
           />
         </el-form-item>
       </template>
@@ -151,11 +151,11 @@ import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  beforePartCode: '',
-  beforePartName: '',
-  replacementType: '',
-  afterPartCode: '',
-  afterPartName: '',
+  beforePartCodeLike: '',
+  beforePartNameLike: '',
+  replacementTypeIncludeList: [],
+  afterPartCodeLike: '',
+  afterPartNameLike: '',
   remark: '',
   createTime: '',
   updateTime: '',
@@ -217,50 +217,50 @@ export default {
             }]
           },
           { props: 'beforePartName', label: '替换前备件名称', visible: true, width: 200 },
-          { props: 'replacementType', label: '替换类型', visible: true, width: 200 },
+          { props: 'replacementTypeLabel', label: '替换类型', visible: true, width: 200 },
           { props: 'afterPartCode', label: '替换后前备件编码', visible: true, width: 200 },
           { props: 'afterPartName', label: '替换后前备件名称', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'statusDesc', label: '状态变更描述', visible: true, width: 200 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-          {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
-            visible: true,
-            fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/basic/sparePartReplacer/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
-            }]
-          }
+          // {
+          //   props: 'operate',
+          //   label: '操作',
+          //   type: 'operate',
+          //   visible: true,
+          //   fixed: 'right',
+          //   buttons: [{
+          //     name: '编辑',
+          //     click: (rowIndex, row) => {
+          //       this.$router.push({
+          //         path: '/sparepart/basic/sparePartReplacer/edit',
+          //         query: {
+          //           id: row.id
+          //         }
+          //       });
+          //     },
+          //     type: 'info'
+          //   }, {
+          //     name: '删除',
+          //     popconfirmTitle: '此操作将永久删除, 是否继续?',
+          //     click: (rowIndex, row) => {
+          //       deleteItem([row.id]).then(() => {
+          //         this.$message({
+          //           type: 'success',
+          //           message: '删除成功!'
+          //         });
+          //         this.getData();
+          //       }).catch(() => {
+          //         this.$message({
+          //           type: 'error',
+          //           message: '删除失败!'
+          //         });
+          //       });
+          //     },
+          //     type: 'danger'
+          //   }]
+          // }
         ],
         total: 0
       },
@@ -347,8 +347,15 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
+      const params = { ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size };
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      // 过滤掉空数组参数
+      Object.keys(params).forEach(key => {
+        if (Array.isArray(params[key]) && params[key].length === 0) {
+          delete params[key];
+        }
+      });
+      getList(params)
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {
