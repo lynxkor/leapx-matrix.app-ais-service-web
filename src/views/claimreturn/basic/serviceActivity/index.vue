@@ -130,12 +130,6 @@
         @handleSelect="handleSelectionChange"
       />
     </div>
-    <!-- TIPS: 填入项目id即可 -->
-    <Upload
-      :visible="uploadDialogVisible"
-      :id="1"
-      @close="handleUploadDialogClose"
-    />
   </div>
 </template>
 
@@ -185,8 +179,7 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    FetchSelect,
-    Upload
+    FetchSelect
   },
   data () {
     return {
