@@ -29,7 +29,7 @@
       </el-form-item>
       <el-form-item label="门店名称"  v-show="visibleCount === 3 || show">
         <el-select
-          v-model="form.dealerIds"
+          v-model="form.dealerCodes"
           multiple
           filterable
           clearable
@@ -120,7 +120,7 @@ const defaultForm = {
   // 多选时字段有变化，自行修复
   code: '',
   name: '',
-  dealerIds: [],
+  dealerCodes: [],
   statusIncludeList: '',
   stationTypes: '',
   createTime: ''
@@ -428,7 +428,7 @@ export default {
         this.storeOptions = res?.map(item => {
           return {
             ...item,
-            value: item.orgId,
+            value: item.orgCode,
             label: item.orgName
           };
         });
