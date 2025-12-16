@@ -17,7 +17,6 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
-          align="right"
         />
       </el-form-item>
       <el-form-item label="工位名称">
@@ -29,7 +28,7 @@
       </el-form-item>
       <el-form-item label="门店名称"  v-show="visibleCount === 3 || show">
         <el-select
-          v-model="form.dealerIds"
+          v-model="form.dealerCodes"
           multiple
           filterable
           clearable
@@ -120,7 +119,7 @@ const defaultForm = {
   // 多选时字段有变化，自行修复
   code: '',
   name: '',
-  dealerIds: [],
+  dealerCodes: [],
   statusIncludeList: '',
   stationTypes: '',
   createTime: ''
@@ -428,7 +427,7 @@ export default {
         this.storeOptions = res?.map(item => {
           return {
             ...item,
-            value: item.orgId,
+            value: item.orgCode,
             label: item.orgName
           };
         });

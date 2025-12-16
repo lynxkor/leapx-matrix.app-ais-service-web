@@ -81,7 +81,8 @@
                   :picker-options="effectiveStartDate"
                   range-separator="至"
                   value-format="yyyy-MM-dd HH:mm:ss"
-                  align="right"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
                 />
               </el-form-item>
               <el-form-item label="生效结束时间">
@@ -90,7 +91,6 @@
                   :picker-options="effectiveEndDatetime"
                   range-separator="至"
                   value-format="yyyy-MM-dd HH:mm:ss"
-                  align="right"
                 />
               </el-form-item>
             </el-form>
