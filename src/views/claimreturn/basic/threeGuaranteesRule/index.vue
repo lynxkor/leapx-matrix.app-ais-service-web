@@ -36,7 +36,6 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
-          align="right"
         />
       </el-form-item>
       <template v-if="show">
@@ -49,7 +48,6 @@
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
-            align="right"
           />
         </el-form-item>
       </template>
@@ -268,7 +266,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '三包配置规则',
-        dataFetchPath: 'claimreturn/web/basic/threeGuaranteesRule/page',
+        dataFetchPath: 'claimreturn/claim/web/basic/threeGuaranteesRule/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

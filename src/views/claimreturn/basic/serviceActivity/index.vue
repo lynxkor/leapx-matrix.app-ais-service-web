@@ -56,7 +56,6 @@
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
-            align="right"
           />
         </el-form-item>
         <el-form-item label="活动结束时间">
@@ -68,7 +67,6 @@
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
-            align="right"
           />
         </el-form-item>
         <el-form-item label="创建时间">
@@ -80,7 +78,6 @@
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
-            align="right"
           />
         </el-form-item>
         <el-form-item label="修改时间">
@@ -92,7 +89,6 @@
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
-            align="right"
           />
         </el-form-item>
       </template>
@@ -130,12 +126,6 @@
         @handleSelect="handleSelectionChange"
       />
     </div>
-    <!-- TIPS: 填入项目id即可 -->
-    <Upload
-      :visible="uploadDialogVisible"
-      :id="1"
-      @close="handleUploadDialogClose"
-    />
   </div>
 </template>
 
@@ -148,7 +138,7 @@ import {
   deleteItem,
   enableItem,
   submitPartsPreparation
-} from '@/api/claimreturn/web/basic/serviceActivity';
+} from '@/api/claimreturn/basic/serviceActivity';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import Upload from '@/libs/components/UploadDialog/index.vue';
@@ -185,8 +175,7 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    FetchSelect,
-    Upload
+    FetchSelect
   },
   data () {
     return {
@@ -215,7 +204,7 @@ export default {
             props: 'activityCode',
             label: '活动编码',
             visible: true,
-            width: 200,
+            width: 120,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -229,18 +218,18 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'activityName', label: '活动名称', visible: true, width: 200 },
-          { props: 'activityTypeLabel', label: '活动状态', visible: true, width: 200 },
-          { props: 'activityStatusLabel', label: '活动状态', visible: true, width: 200 },
-          { props: 'startTime', label: '活动开始时间', visible: true, width: 200 },
-          { props: 'endTime', label: '活动结束时间', visible: true, width: 200 },
+          { props: 'activityName', label: '活动名称', visible: true, width: 150 },
+          { props: 'activityTypeLabel', label: '活动类型', visible: true, width: 120 },
+          { props: 'activityStatusLabel', label: '活动状态', visible: true, width: 150 },
+          { props: 'startTime', label: '活动开始时间', visible: true, width: 180 },
+          { props: 'endTime', label: '活动结束时间', visible: true, width: 180 },
           { props: 'description', label: '活动描述', visible: true, width: 200 },
-          { props: 'attachmentRequiredLabel', label: '施工单必需上传附件', visible: true, width: 200 },
-          { props: 'vehicleCount', label: '活动数量', visible: true, width: 200 },
-          { props: 'finishedVehicleCount', label: '完成数量', visible: true, width: 200 },
-          { props: 'finishedPercent', label: '完成情况', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'attachmentRequiredLabel', label: '施工单必需上传附件', visible: true, width: 180 },
+          { props: 'vehicleCount', label: '活动数量', visible: true, width: 120 },
+          { props: 'finishedVehicleCount', label: '完成数量', visible: true, width: 120 },
+          { props: 'finishedPercent', label: '完成情况(%)', visible: true, width: 130 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 180 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
           {
             props: 'operate',
             label: '操作',
@@ -303,7 +292,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '技术服务活动',
-        dataFetchPath: 'claimreturn/web/web/basic/serviceActivity/page',
+        dataFetchPath: 'claimreturn/claim/web/web/basic/serviceActivity/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

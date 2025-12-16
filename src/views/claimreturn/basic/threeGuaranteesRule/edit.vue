@@ -25,63 +25,74 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="判断单位（次数，天数）" prop="determineUnit">
-                <el-input
-                  placeholder="请输入"
+              <el-form-item label="判断单位" prop="determineUnit">
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="claim_determine_unit"
                   v-model="form.determineUnit"
+                  placeholder="请选择"
                   clearable
+                  filterable
                 />
               </el-form-item>
-              <el-form-item label="累计方式（单一零件，任意零件）" prop="accumulation">
-                <el-input
-                  placeholder="请输入"
+              <el-form-item label="累计方式" prop="accumulation">
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="claim_accumulation"
                   v-model="form.accumulation"
+                  placeholder="请选择"
                   clearable
+                  filterable
                 />
               </el-form-item>
-              <el-form-item label="车辆属性（家用，营运，B级车，J级车，J1级车，专车，报废灭失）" prop="vehicleProperty">
-                <el-input
-                  placeholder="请输入"
+              <el-form-item label="车辆用途" prop="vehicleProperty">
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="claim_vehicle_property"
                   v-model="form.vehicleProperty"
+                  placeholder="请选择"
                   clearable
+                  filterable
                 />
               </el-form-item>
               <el-form-item label="销售开始日期" prop="saleStartDate">
-                <el-input
-                  placeholder="请输入"
+                <el-date-picker
                   v-model="form.saleStartDate"
-                  clearable
+                  range-separator="至"
+                  value-format="yyyy-MM-dd HH:mm:ss"
+                  align="right"
                 />
               </el-form-item>
               <el-form-item label="销售结束日期" prop="saleEndDate">
-                <el-input
-                  placeholder="请输入"
+                <el-date-picker
                   v-model="form.saleEndDate"
-                  clearable
+                  range-separator="至"
+                  value-format="yyyy-MM-dd HH:mm:ss"
+                  align="right"
                 />
               </el-form-item>
-              <el-form-item label="预警车龄起" prop="warningVehicleAgeFrom">
+              <el-form-item label="预警车龄起（天）" prop="warningVehicleAgeFrom">
                 <el-input
                   placeholder="请输入"
                   v-model="form.warningVehicleAgeFrom"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="预警车龄止" prop="warningVehicleAgeTo">
+              <el-form-item label="预警车龄止（天）" prop="warningVehicleAgeTo">
                 <el-input
                   placeholder="请输入"
                   v-model="form.warningVehicleAgeTo"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="预警里程起" prop="warningMileageFrom">
+              <el-form-item label="预警里程起（天）" prop="warningMileageFrom">
                 <el-input
                   placeholder="请输入"
                   v-model="form.warningMileageFrom"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="预警里程止" prop="warningMileageTo">
+              <el-form-item label="预警里程止（天）" prop="warningMileageTo">
                 <el-input
                   placeholder="请输入"
                   v-model="form.warningMileageTo"
@@ -130,92 +141,10 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="状态" prop="status">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.status"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
-              <el-form-item label="创建时间" prop="createTime">
-                <el-date-picker
-                  v-model="form.createTime"
-                  :picker-options="pickerOptions"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  align="right"
-                />
-              </el-form-item>
-              <el-form-item label="修改时间" prop="updateTime">
-                <el-date-picker
-                  v-model="form.updateTime"
-                  :picker-options="pickerOptions"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  align="right"
-                />
-              </el-form-item>
-              <el-form-item label="主键" prop="id">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.id"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="创建者" prop="creator">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.creator"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="创建者名称" prop="creatorName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.creatorName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="修改者" prop="modifier">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.modifier"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="修改者名称" prop="modifierName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.modifierName"
-                  clearable
-                />
-              </el-form-item>
               <el-form-item label="备注" prop="remark">
                 <el-input
                   placeholder="请输入"
                   v-model="form.remark"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="状态变更描述" prop="statusDesc">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.statusDesc"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
-              <el-form-item label="数据来源，140:新销服; 老销服:10" prop="dataSource">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.dataSource"
                   clearable
                 />
               </el-form-item>
@@ -237,13 +166,6 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.warningContent"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="明细" prop="details">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.details"
                   clearable
                 />
               </el-form-item>
@@ -289,6 +211,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { numberRule } from '@/validation/rule';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -412,34 +335,44 @@ export default {
           { required: true, message: '请输入销售结束日期', trigger: 'blur' }
         ],
         warningVehicleAgeFrom: [
-          { required: true, message: '请输入预警车龄起', trigger: 'blur' }
+          { required: true, message: '请输入预警车龄起', trigger: 'blur' },
+          numberRule,
         ],
         warningVehicleAgeTo: [
-          { required: true, message: '请输入预警车龄止', trigger: 'blur' }
+          { required: true, message: '请输入预警车龄止', trigger: 'blur' },
+          numberRule,
         ],
         warningMileageFrom: [
-          { required: true, message: '请输入预警里程起', trigger: 'blur' }
+          { required: true, message: '请输入预警里程起', trigger: 'blur' },
+          numberRule,
         ],
         warningMileageTo: [
-          { required: true, message: '请输入预警里程止', trigger: 'blur' }
+          { required: true, message: '请输入预警里程止', trigger: 'blur' },
+          numberRule,
         ],
         greenWarning1: [
-          { required: true, message: '请输入绿色预警区间1', trigger: 'blur' }
+          // { required: true, message: '请输入绿色预警区间1', trigger: 'blur' },
+          numberRule,
         ],
         greenWarning2: [
-          { required: true, message: '请输入绿色预警区间2', trigger: 'blur' }
+          // { required: true, message: '请输入绿色预警区间2', trigger: 'blur' },
+          numberRule,
         ],
         yellowWarning2: [
-          { required: true, message: '请输入黄色预警区间2', trigger: 'blur' }
+          // { required: true, message: '请输入黄色预警区间2', trigger: 'blur' },
+          numberRule,
         ],
         yellowWarning1: [
-          { required: true, message: '请输入黄色预警区间1', trigger: 'blur' }
+          // { required: true, message: '请输入黄色预警区间1', trigger: 'blur' },
+          numberRule,
         ],
         redWarning1: [
-          { required: true, message: '请输入红色预警区间1', trigger: 'blur' }
+          // { required: true, message: '请输入红色预警区间1', trigger: 'blur' },
+          numberRule,
         ],
         redWarning2: [
-          { required: true, message: '请输入红色预警区间2', trigger: 'blur' }
+          // { required: true, message: '请输入红色预警区间2', trigger: 'blur' },
+          numberRule,
         ],
         status: [
           { required: true, message: '请选择状态', trigger: 'change' }

@@ -47,7 +47,6 @@
                   :picker-options="effectiveStartDate"
                   range-separator="至"
                   value-format="yyyy-MM-dd HH:mm:ss"
-                  align="right"
                 />
               </el-form-item>
             </el-form>

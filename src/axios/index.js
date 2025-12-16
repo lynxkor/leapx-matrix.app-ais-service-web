@@ -162,6 +162,10 @@ export function fetch (url, params, method, sign, userResponse, config) {
       //     delete params[key];
       //   }
       // }
+      // id为空时删除
+      if (params?.id === '') {
+        delete params.id;
+      }
       axios.post(url, params, config)
         .then(response => {
           resolve(response.data);
