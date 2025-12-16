@@ -76,7 +76,7 @@
           />
         </el-form-item>
         <el-form-item label="计划实施门店名称">
-          <dealer-select v-model="form.plannedDealerIds" multiple/>
+          <dealer-select v-model="form.plannedDealerCodes" multiple/>
         </el-form-item>
         <el-form-item label="是否完成">
           <fetch-select
@@ -102,7 +102,7 @@
           />
         </el-form-item>
         <el-form-item label="实际施工门店名称">
-          <dealer-select v-model="form.actualDealerIds" multiple/>
+          <dealer-select v-model="form.actualDealerCodes" multiple/>
         </el-form-item>
 
         <el-form-item label="接车施工单号">
