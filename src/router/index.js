@@ -508,189 +508,189 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/vrt',
+      path: '/claimreturn/claim/basic/vrt',
       name: 'vrt',
-      component: () => import('@/views/claimreturn/basic/vrt/index.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/vrt/index.vue'),
 
       meta: {
         name: 'VRT',
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/basic/vrt/detail',
+      path: '/claimreturn/claim/basic/vrt/detail',
       name: 'vrtDetail',
-      component: () => import('@/views/claimreturn/basic/vrt/detail.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/vrt/detail.vue'),
 
       meta: {
         name: 'VRT详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/vrt/edit',
+      path: '/claimreturn/claim/basic/vrt/edit',
       name: 'vrtEdit',
-      component: () => import('@/views/claimreturn/basic/vrt/edit.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/vrt/edit.vue'),
 
       meta: {
         name: '编辑VRT',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/vfg',
+      path: '/claimreturn/claim/basic/vfg',
       name: 'vfg',
-      component: () => import('@/views/claimreturn/basic/vfg/index.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/vfg/index.vue'),
 
       meta: {
         name: '新页面',
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/basic/vfg/detail',
+      path: '/claimreturn/claim/basic/vfg/detail',
       name: 'vfgDetail',
-      component: () => import('@/views/claimreturn/basic/vfg/detail.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/vfg/detail.vue'),
 
       meta: {
         name: '新页面详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/vfg/edit',
+      path: '/claimreturn/claim/basic/vfg/edit',
       name: 'vfgEdit',
-      component: () => import('@/views/claimreturn/basic/vfg/edit.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/vfg/edit.vue'),
 
       meta: {
         name: '新页面详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/ccc',
+      path: '/claimreturn/claim/basic/ccc',
       name: 'ccc',
-      component: () => import('@/views/claimreturn/basic/ccc/index.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/ccc/index.vue'),
 
       meta: {
         name: 'CCC管理',
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/basic/ccc/detail',
+      path: '/claimreturn/claim/basic/ccc/detail',
       name: 'cccDetail',
-      component: () => import('@/views/claimreturn/basic/ccc/detail.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/ccc/detail.vue'),
 
       meta: {
         name: 'CCC详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/ccc/edit',
+      path: '/claimreturn/claim/basic/ccc/edit',
       name: 'cccEdit',
-      component: () => import('@/views/claimreturn/basic/ccc/edit.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/ccc/edit.vue'),
 
       meta: {
         name: 'CCC编辑',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/vehicleSpecialPartWarrantyPolicy',
+      path: '/claimreturn/claim/basic/vehicleSpecialPartWarrantyPolicy',
       name: 'vehicleSpecialPartWarrantyPolicy',
-      component: () => import('@/views/claimreturn/basic/vehicleSpecialPartWarrantyPolicy/index.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/vehicleSpecialPartWarrantyPolicy/index.vue'),
 
       meta: {
         name: '整车特殊零件保修政策设置管理',
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/basic/vehiclespecialpartwarrantypolicy/detail',
+      path: '/claimreturn/claim/basic/vehiclespecialpartwarrantypolicy/detail',
       name: 'vehicleSpecialPartWarrantyPolicyDetail',
-      component: () => import('@/views/claimreturn/basic/vehicleSpecialPartWarrantyPolicy/detail.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/vehicleSpecialPartWarrantyPolicy/detail.vue'),
 
       meta: {
         name: '整车特殊零件保修政策设置管理详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/vehiclespecialpartwarrantypolicy/edit',
+      path: '/claimreturn/claim/basic/vehiclespecialpartwarrantypolicy/edit',
       name: 'vehicleSpecialPartWarrantyPolicyEdit',
-      component: () => import('@/views/claimreturn/basic/vehicleSpecialPartWarrantyPolicy/edit.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/vehicleSpecialPartWarrantyPolicy/edit.vue'),
 
       meta: {
         name: '整车特殊零件保修政策设置管理详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/vehicleWarrantyPolicy',
+      path: '/claimreturn/claim/basic/vehicleWarrantyPolicy',
       name: 'vehicleWarrantyPolicy',
-      component: () => import('@/views/claimreturn/basic/vehicleWarrantyPolicy/index.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/vehicleWarrantyPolicy/index.vue'),
 
       meta: {
         name: '整车保修政策设置管理',
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/basic/vehiclewarrantypolicy/detail',
+      path: '/claimreturn/claim/basic/vehiclewarrantypolicy/detail',
       name: 'vehicleWarrantyPolicyDetail',
-      component: () => import('@/views/claimreturn/basic/vehicleWarrantyPolicy/detail.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/vehicleWarrantyPolicy/detail.vue'),
 
       meta: {
         name: '新页面详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/vehiclewarrantypolicy/edit',
+      path: '/claimreturn/claim/basic/vehiclewarrantypolicy/edit',
       name: 'vehicleWarrantyPolicyEdit',
-      component: () => import('@/views/claimreturn/basic/vehicleWarrantyPolicy/edit.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/vehicleWarrantyPolicy/edit.vue'),
 
       meta: {
         name: '新页面详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/partWarrantyPolicy',
+      path: '/claimreturn/claim/basic/partWarrantyPolicy',
       name: 'partWarrantyPolicy',
-      component: () => import('@/views/claimreturn/basic/partWarrantyPolicy/index.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/partWarrantyPolicy/index.vue'),
 
       meta: {
         name: '零件保修政策管理',
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/basic/partwarrantypolicy/detail',
+      path: '/claimreturn/claim/basic/partwarrantypolicy/detail',
       name: 'partWarrantyPolicyDetail',
-      component: () => import('@/views/claimreturn/basic/partWarrantyPolicy/detail.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/partWarrantyPolicy/detail.vue'),
 
       meta: {
         name: '零件保修政策详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/partwarrantypolicy/edit',
+      path: '/claimreturn/claim/basic/partwarrantypolicy/edit',
       name: 'partWarrantyPolicyEdit',
-      component: () => import('@/views/claimreturn/basic/partWarrantyPolicy/edit.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/partWarrantyPolicy/edit.vue'),
 
       meta: {
         name: '零件保修政策编辑',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/partSpecialPartWarrantyPolicy',
+      path: '/claimreturn/claim/basic/partSpecialPartWarrantyPolicy',
       name: 'partSpecialPartWarrantyPolicy',
-      component: () => import('@/views/claimreturn/basic/partSpecialPartWarrantyPolicy/index.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/partSpecialPartWarrantyPolicy/index.vue'),
 
       meta: {
         name: '零件特殊零件保修政策管理',
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/basic/partspecialpartwarrantypolicy/detail',
+      path: '/claimreturn/claim/basic/partspecialpartwarrantypolicy/detail',
       name: 'partSpecialPartWarrantyPolicyDetail',
-      component: () => import('@/views/claimreturn/basic/partSpecialPartWarrantyPolicy/detail.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/partSpecialPartWarrantyPolicy/detail.vue'),
 
       meta: {
         name: '零件特殊零件保修政策详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/partspecialpartwarrantypolicy/edit',
+      path: '/claimreturn/claim/basic/partspecialpartwarrantypolicy/edit',
       name: 'partSpecialPartWarrantyPolicyEdit',
-      component: () => import('@/views/claimreturn/basic/partSpecialPartWarrantyPolicy/edit.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/partSpecialPartWarrantyPolicy/edit.vue'),
 
       meta: {
         name: '零件特殊零件保修编辑',
@@ -829,18 +829,18 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/serviceActivityVehicle',
+      path: '/claimreturn/claim/basic/serviceActivityVehicle',
       name: 'serviceActivityVehicle',
-      component: () => import('@/views/claimreturn/basic/serviceActivityVehicle/index.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/serviceActivityVehicle/index.vue'),
 
       meta: {
         name: '新页面',
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/basic/serviceactivityvehicle/detail',
+      path: '/claimreturn/claim/basic/serviceactivityvehicle/detail',
       name: 'serviceActivityVehicleDetail',
-      component: () => import('@/views/claimreturn/basic/serviceActivityVehicle/detail.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/serviceActivityVehicle/detail.vue'),
 
       meta: {
         name: '新页面详情',
@@ -874,117 +874,117 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/serviceactivityvehicle/edit',
+      path: '/claimreturn/claim/basic/serviceactivityvehicle/edit',
       name: 'serviceActivityVehicleEdit',
-      component: () => import('@/views/claimreturn/basic/serviceActivityVehicle/edit.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/serviceActivityVehicle/edit.vue'),
 
       meta: {
         name: '新页面详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/serviceActivity',
+      path: '/claimreturn/claim/basic/serviceActivity',
       name: 'serviceActivity',
-      component: () => import('@/views/claimreturn/basic/serviceActivity/index.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/serviceActivity/index.vue'),
 
       meta: {
         name: '新页面',
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/basic/serviceactivity/detail',
+      path: '/claimreturn/claim/basic/serviceactivity/detail',
       name: 'serviceActivityDetail',
-      component: () => import('@/views/claimreturn/basic/serviceActivity/detail.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/serviceActivity/detail.vue'),
 
       meta: {
         name: '新页面详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/serviceactivity/edit',
+      path: '/claimreturn/claim/basic/serviceactivity/edit',
       name: 'serviceActivityEdit',
-      component: () => import('@/views/claimreturn/basic/serviceActivity/edit.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/serviceActivity/edit.vue'),
 
       meta: {
         name: '新页面详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/freeMaintenancePolicy',
+      path: '/claimreturn/claim/basic/freeMaintenancePolicy',
       name: 'freeMaintenancePolicy',
-      component: () => import('@/views/claimreturn/basic/freeMaintenancePolicy/index.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/freeMaintenancePolicy/index.vue'),
 
       meta: {
         name: '新页面',
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/basic/freemaintenancepolicy/detail',
+      path: '/claimreturn/claim/basic/freemaintenancepolicy/detail',
       name: 'freeMaintenancePolicyDetail',
-      component: () => import('@/views/claimreturn/basic/freeMaintenancePolicy/detail.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/freeMaintenancePolicy/detail.vue'),
 
       meta: {
         name: '新页面详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/freemaintenancepolicy/edit',
+      path: '/claimreturn/claim/basic/freemaintenancepolicy/edit',
       name: 'freeMaintenancePolicyEdit',
-      component: () => import('@/views/claimreturn/basic/freeMaintenancePolicy/edit.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/freeMaintenancePolicy/edit.vue'),
 
       meta: {
         name: '新页面详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/freeMaintenancePolicy',
+      path: '/claimreturn/claim/basic/freeMaintenancePolicy',
       name: 'freeMaintenancePolicy',
-      component: () => import('@/views/claimreturn/basic/freeMaintenancePolicy/index.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/freeMaintenancePolicy/index.vue'),
 
       meta: {
         name: '新页面',
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/basic/freemaintenancepolicy/detail',
+      path: '/claimreturn/claim/basic/freemaintenancepolicy/detail',
       name: 'freeMaintenancePolicyDetail',
-      component: () => import('@/views/claimreturn/basic/freeMaintenancePolicy/detail.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/freeMaintenancePolicy/detail.vue'),
 
       meta: {
         name: '新页面详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/freemaintenancepolicy/edit',
+      path: '/claimreturn/claim/basic/freemaintenancepolicy/edit',
       name: 'freeMaintenancePolicyEdit',
-      component: () => import('@/views/claimreturn/basic/freeMaintenancePolicy/edit.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/freeMaintenancePolicy/edit.vue'),
 
       meta: {
         name: '新页面详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/threeGuaranteesRule',
+      path: '/claimreturn/claim/basic/threeGuaranteesRule',
       name: 'threeGuaranteesRule',
-      component: () => import('@/views/claimreturn/basic/threeGuaranteesRule/index.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/threeGuaranteesRule/index.vue'),
 
       meta: {
         name: '新页面',
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/basic/threeguaranteesrule/detail',
+      path: '/claimreturn/claim/basic/threeguaranteesrule/detail',
       name: 'threeGuaranteesRuleDetail',
-      component: () => import('@/views/claimreturn/basic/threeGuaranteesRule/detail.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/threeGuaranteesRule/detail.vue'),
 
       meta: {
         name: '新页面详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/basic/threeguaranteesrule/edit',
+      path: '/claimreturn/claim/basic/threeguaranteesrule/edit',
       name: 'threeGuaranteesRuleEdit',
-      component: () => import('@/views/claimreturn/basic/threeGuaranteesRule/edit.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/threeGuaranteesRule/edit.vue'),
 
       meta: {
         name: '新页面详情',
