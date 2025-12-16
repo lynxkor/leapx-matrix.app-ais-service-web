@@ -280,7 +280,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/serviceActivityVehicle/detail',
+                  path: '/claimreturn/claim/basic/serviceActivityVehicle/detail',
                   query: {
                     id: row.id
                   }
@@ -314,7 +314,7 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/serviceActivityVehicle/edit',
+                  path: '/claimreturn/claim/basic/serviceActivityVehicle/edit',
                   query: {
                     id: row.id
                   }
@@ -327,7 +327,7 @@ export default {
               name: '完成',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/serviceActivityVehicle/edit',
+                  path: '/claimreturn/claim/basic/serviceActivityVehicle/edit',
                   query: {
                     id: row.id
                   }
@@ -373,7 +373,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/claimreturn/basic/serviceActivityVehicle/edit'
+        path: '/claimreturn/claim/basic/serviceActivityVehicle/edit'
       });
     },
     onSubmit () {

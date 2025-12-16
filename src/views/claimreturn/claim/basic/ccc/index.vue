@@ -192,7 +192,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/ccc/detail',
+                  path: '/claimreturn/claim/basic/ccc/detail',
                   query: {
                     id: row.id
                   }
@@ -211,7 +211,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/vfg/detail',
+                  path: '/claimreturn/claim/basic/vfg/detail',
                   query: {
                     id: row.vfgId
                   }
@@ -229,7 +229,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/vrt/detail',
+                  path: '/claimreturn/claim/basic/vrt/detail',
                   query: {
                     id: row.vrtId
                   }
@@ -253,7 +253,7 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/ccc/edit',
+                  path: '/claimreturn/claim/basic/ccc/edit',
                   query: {
                     id: row.id
                   }
@@ -280,7 +280,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/claimreturn/basic/ccc/edit'
+        path: '/claimreturn/claim/basic/ccc/edit'
       });
     },
     onSubmit () {
@@ -294,7 +294,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '新页面',
-        dataFetchPath: '/datacenter/claimreturn/basic/ccc/page',
+        dataFetchPath: '/datacenter/claimreturn/claim/basic/ccc/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

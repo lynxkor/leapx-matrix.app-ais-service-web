@@ -83,7 +83,7 @@ export default {
   methods: {
     handleEdit () {
       this.$router.push({
-        path: '/claimreturn/basic/serviceActivityVehicle/edit',
+        path: '/claimreturn/claim/basic/serviceActivityVehicle/edit',
         query: {
           id: this.$route.query.id
         }

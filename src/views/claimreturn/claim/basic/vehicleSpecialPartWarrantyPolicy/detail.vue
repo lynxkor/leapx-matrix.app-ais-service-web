@@ -93,7 +93,7 @@ export default {
   methods: {
     handleEdit () {
       this.$router.push({
-        path: '/claimreturn/basic/vehicleSpecialPartWarrantyPolicy/edit',
+        path: '/claimreturn/claim/basic/vehicleSpecialPartWarrantyPolicy/edit',
         query: {
           id: this.$route.query.id
         }

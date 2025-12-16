@@ -220,7 +220,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/vehicleWarrantyPolicy/detail',
+                  path: '/claimreturn/claim/basic/vehicleWarrantyPolicy/detail',
                   query: {
                     id: row.id
                   }
@@ -248,7 +248,7 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/vehicleWarrantyPolicy/edit',
+                  path: '/claimreturn/claim/basic/vehicleWarrantyPolicy/edit',
                   query: {
                     id: row.id
                   }
@@ -293,7 +293,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/claimreturn/basic/vehicleWarrantyPolicy/edit'
+        path: '/claimreturn/claim/basic/vehicleWarrantyPolicy/edit'
       });
     },
     onSubmit () {
@@ -307,7 +307,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '整车保修政策',
-        dataFetchPath: '/datacenter/claimreturn/basic/vehicleWarrantyPolicy/page',
+        dataFetchPath: '/datacenter/claimreturn/claim/basic/vehicleWarrantyPolicy/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

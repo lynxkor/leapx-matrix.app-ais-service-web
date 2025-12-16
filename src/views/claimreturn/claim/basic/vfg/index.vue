@@ -181,7 +181,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/vfg/detail',
+                  path: '/claimreturn/claim/basic/vfg/detail',
                   query: {
                     id: row.id
                   }
@@ -199,7 +199,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/vrt/detail',
+                  path: '/claimreturn/claim/basic/vrt/detail',
                   query: {
                     id: row.vrtId
                   }
@@ -223,7 +223,7 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/vfg/edit',
+                  path: '/claimreturn/claim/basic/vfg/edit',
                   query: {
                     id: row.id
                   }
@@ -250,7 +250,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/claimreturn/basic/vfg/edit'
+        path: '/claimreturn/claim/basic/vfg/edit'
       });
     },
     onSubmit () {
@@ -264,7 +264,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: 'VFG',
-        dataFetchPath: '/datacenter/claimreturn/basic/vfg/page',
+        dataFetchPath: '/datacenter/claimreturn/claim/basic/vfg/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

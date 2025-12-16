@@ -85,7 +85,7 @@ export default {
   methods: {
     handleEdit () {
       this.$router.push({
-        path: '/claimreturn/basic/ccc/edit',
+        path: '/claimreturn/claim/basic/ccc/edit',
         query: {
           id: this.$route.query.id
         }

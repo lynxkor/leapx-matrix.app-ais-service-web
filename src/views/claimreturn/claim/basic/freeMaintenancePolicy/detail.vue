@@ -152,7 +152,7 @@ export default {
   methods: {
     handleEdit () {
       this.$router.push({
-        path: '/claimreturn/basic/freeMaintenancePolicy/edit',
+        path: '/claimreturn/claim/basic/freeMaintenancePolicy/edit',
         query: {
           id: this.$route.query.id
         }

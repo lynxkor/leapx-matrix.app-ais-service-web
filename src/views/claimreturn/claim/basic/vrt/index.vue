@@ -167,7 +167,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/vrt/detail',
+                  path: '/claimreturn/claim/basic/vrt/detail',
                   query: {
                     id: row.id
                   }
@@ -192,7 +192,7 @@ export default {
                 name: '编辑',
                 click: (rowIndex, row) => {
                   this.$router.push({
-                    path: '/claimreturn/basic/vrt/edit',
+                    path: '/claimreturn/claim/basic/vrt/edit',
                     query: {
                       id: row.id
                     }
@@ -219,7 +219,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/claimreturn/basic/vrt/edit'
+        path: '/claimreturn/claim/basic/vrt/edit'
       });
     },
     onSubmit () {
