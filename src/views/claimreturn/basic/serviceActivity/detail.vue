@@ -111,7 +111,7 @@
 </template>
 
 <script>
-import { getDetail } from '@/api/claimreturn/web/basic/serviceActivity';
+import { getDetail } from '@/api/claimreturn/basic/serviceActivity';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';

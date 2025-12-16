@@ -267,7 +267,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/claimreturn/web/basic/serviceActivity';
+import { getDetail, addOrUpdate } from '@/api/claimreturn/basic/serviceActivity';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';

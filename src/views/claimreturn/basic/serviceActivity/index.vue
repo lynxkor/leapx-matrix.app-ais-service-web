@@ -138,7 +138,7 @@ import {
   deleteItem,
   enableItem,
   submitPartsPreparation
-} from '@/api/claimreturn/web/basic/serviceActivity';
+} from '@/api/claimreturn/basic/serviceActivity';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import Upload from '@/libs/components/UploadDialog/index.vue';
