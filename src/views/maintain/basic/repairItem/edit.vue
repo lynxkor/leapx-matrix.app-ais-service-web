@@ -183,7 +183,12 @@
         </section>
         <section class="common-section">
           <div class="common-section-header">
-            <h2>适配车型</h2>
+            <div class="common-section-header-content">
+              <h2>适配车型</h2>
+              <div class="common-section-header-content-right">
+                <el-button type="primary" size="small" @click="handleModel">适配车型</el-button>
+              </div>
+            </div>
             <el-button size="small" icon="el-icon-plus" @click="handleAddRow('cx')">添加</el-button>
           </div>
           <div class="common-section-body">
@@ -228,6 +233,8 @@
         <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
       </el-footer>
     </el-container>
+    <!-- 公共弹窗组件 -->
+     <ModelDialog :visible="modelDialogVisible" :data="tableData" @update-table-data="handleUpdateTableData" @close="handleCloseModel" />
   </div>
 </template>
 
@@ -239,6 +246,7 @@ import { getEnum, listVehicleYearTypeFull, listVehicleYearType, repairItemType, 
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import ModelDialog from './model.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -276,7 +284,8 @@ export default {
   },
   components: {
     FetchSelect,
-    EditTable
+    EditTable,
+    ModelDialog
   },
   data () {
     return {
@@ -287,6 +296,7 @@ export default {
       repairItemLoading: false, // 维修类型搜索加载状态
       repairItemOptions: [], // 维修类型选项列表
       repairItemTimer: null, // 维修类型搜索防抖定时器
+      modelDialogVisible: false, // 适配车型弹窗
       form: { ...defaultForm },
       originalForm: { ...defaultForm },
       defaultNewRow: {
@@ -845,7 +855,7 @@ export default {
             value: item.id,
             label: item.name,
             vehicleYearType: item.name,
-            vehicleYearTypeId: item.yearTypeId,
+            vehicleYearTypeId: item.id,
           };
         }) || [];
         this.options.vehicleYearType = list;
@@ -891,6 +901,29 @@ export default {
         this.options.partsCode = list;
       });
     },
+    // 适配车型弹窗
+    handleModel () {
+      this.modelDialogVisible = true;
+      console.log('this.tableData', this.tableData);
+    },
+    // 处理更新表格数据事件
+    handleUpdateTableData (data) {
+      this.tableData = [...data];
+    },
+    // 处理关闭弹窗事件
+    handleCloseModel () {
+      this.modelDialogVisible = false;
+    },
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.common-section-header-content {
+  display: flex;
+  align-items: center;
+  .common-section-header-content-right {
+    margin-left: 20px;
+  }
+}
+</style>
