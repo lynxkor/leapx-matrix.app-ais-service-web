@@ -174,7 +174,7 @@
         </section>
         <section class="common-section">
           <div class="common-section-header">
-            <h2>区块标题</h2>
+            <h2>零件明细</h2>
             <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
           </div>
           <div class="common-section-body">
@@ -186,7 +186,7 @@
                 :defaultNewRow="defaultNewRow"
                 :show-toolbar="false"
                 :options="options"
-                :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                :auth="{edit: canAddOrUpdate, delete: true /* canDelete*/}"
               />
             </div>
           </div>
@@ -290,9 +290,8 @@ export default {
       columns: [
         {
           field: 'name',
-          title: '姓名',
+          title: '零件编码',
           width: '33%',
-          editable: true,
           editRender: { name: 'ElInput' },
           rules: [
             { required: true, message: '姓名不能为空', trigger: 'blur' }
@@ -300,15 +299,15 @@ export default {
         },
         {
           field: 'age',
-          title: '年龄',
-          editable: true,
+          title: '零件名称',
           width: '33%',
           editRender: { name: 'ElInput', props: { type: 'number' } }
         },
         {
           field: 'email',
-          title: '邮箱',
+          title: '备注',
           width: '33%',
+          editable: true,
           editRender: { name: 'ElInput' }
         },
       ],
@@ -386,26 +385,11 @@ export default {
         id: [
           { required: true, message: '请输入主键', trigger: 'blur' }
         ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'blur' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'blur' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'blur' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'blur' }
-        ],
         remark: [
           { required: true, message: '请输入备注', trigger: 'blur' }
         ],
         statusDesc: [
           { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，140:新销服; 老销服:10', trigger: 'blur' }
         ],
         reminderItem: [
           { required: true, message: '请输入警示条款', trigger: 'blur' }
