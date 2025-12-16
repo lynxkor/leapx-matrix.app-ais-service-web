@@ -286,7 +286,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '新页面',
-        dataFetchPath: 'claimreturn/web/basic/freeMaintenancePolicy/page',
+        dataFetchPath: 'claimreturn/claim/web/basic/freeMaintenancePolicy/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

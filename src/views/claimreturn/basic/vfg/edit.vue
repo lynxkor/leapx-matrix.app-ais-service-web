@@ -14,7 +14,7 @@
               <el-form-item label="VRT名称" prop="vrtId">
                 <list-select
                   v-if="!this.$route.query.id||form.id"
-                  listUrl="/claimreturn/web/basic/vrt/list"
+                  listUrl="/claimreturn/claim/web/basic/vrt/list"
                   placeholder="请选择"
                   v-model="form.vrtId"
                   query-key="vrtNameLike"

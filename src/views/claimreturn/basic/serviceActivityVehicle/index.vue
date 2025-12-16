@@ -118,7 +118,7 @@
         </el-form-item>
         <el-form-item label="施工方案">
           <list-select
-            listUrl="/claimreturn/web/basic/serviceActivityScheme/list"
+            listUrl="/claimreturn/claim/web/basic/serviceActivityScheme/list"
             placeholder="请选择"
             v-model="form.schemeIds"
             query-key="schemeNameLike"
@@ -387,7 +387,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '服务活动车辆',
-        dataFetchPath: 'claimreturn/web/basic/serviceActivityVehicle/page',
+        dataFetchPath: 'claimreturn/claim/web/basic/serviceActivityVehicle/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

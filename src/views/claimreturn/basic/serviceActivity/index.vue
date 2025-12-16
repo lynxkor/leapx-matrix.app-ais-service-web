@@ -292,7 +292,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '技术服务活动',
-        dataFetchPath: 'claimreturn/web/web/basic/serviceActivity/page',
+        dataFetchPath: 'claimreturn/claim/web/web/basic/serviceActivity/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

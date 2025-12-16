@@ -311,7 +311,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '零件特殊零件保修政策',
-        dataFetchPath: 'claimreturn/web/basic/partSpecialPartWarrantyPolicy/page',
+        dataFetchPath: 'claimreturn/claim/web/basic/partSpecialPartWarrantyPolicy/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

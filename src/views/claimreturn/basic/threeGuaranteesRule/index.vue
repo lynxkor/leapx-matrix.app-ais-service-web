@@ -266,7 +266,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '三包配置规则',
-        dataFetchPath: 'claimreturn/web/basic/threeGuaranteesRule/page',
+        dataFetchPath: 'claimreturn/claim/web/basic/threeGuaranteesRule/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

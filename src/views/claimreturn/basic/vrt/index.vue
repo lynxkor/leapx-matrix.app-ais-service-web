@@ -233,7 +233,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: 'VRT',
-        dataFetchPath: '/claimreturn/web/basic/vrt/page',
+        dataFetchPath: '/claimreturn/claim/web/basic/vrt/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
