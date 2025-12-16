@@ -73,7 +73,6 @@
                   value-format="yyyy-MM-dd HH:mm:ss"
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
-                  align="right"
                 />
               </el-form-item>
               <el-form-item label="修改时间" prop="updateTime">
@@ -83,7 +82,6 @@
                   value-format="yyyy-MM-dd HH:mm:ss"
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
-                  align="right"
                 />
               </el-form-item>
               <el-form-item label="主键" prop="id">
@@ -124,8 +122,8 @@
               <el-form-item label="状态" prop="status">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.status"
+                  enumCode="BooleanEnum"
+                  v-model="form.statusIncludeList"
                   placeholder="请选择"
                   clearable
                   filterable

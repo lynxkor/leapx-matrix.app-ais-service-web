@@ -11,149 +11,42 @@
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="备件编码" prop="sparePartCode">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.sparePartCode"
+              <el-form-item label="零件编码">
+                <fetch-select
+                  prop="sparePartCode"
+                  filterable
                   clearable
+                  remote
+                  reserve-keyword
+                  v-model="form.sparePartCode"
+                  :remote-method="listSparePart"
+                  :disabled="this.$route.query.id"
+                  value-key="id"
+                  label-key="name"
+                  @change="listSparePartChange"
                 />
               </el-form-item>
-              <el-form-item label="备件名称" prop="sparePartName">
+              <el-form-item label="零件名称" prop="sparePartName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.sparePartName"
+                  disabled="true"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="门店销售价格" prop="dealerSalesPrice">
+              <el-form-item label="销售价格" prop="dealerSalesPrice">
                 <el-input
                   placeholder="请输入"
                   v-model="form.dealerSalesPrice"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="生效开始日期" prop="effectiveStartDate">
-                <el-input
-                  placeholder="请输入"
+              <el-form-item label="生效开始日期">
+                <el-date-picker
                   v-model="form.effectiveStartDate"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="创建时间" prop="createTime">
-                <el-date-picker
-                  v-model="form.createTime"
-                  :picker-options="pickerOptions"
+                  :picker-options="effectiveStartDate"
+                  range-separator="至"
                   value-format="yyyy-MM-dd HH:mm:ss"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  align="right"
-                />
-              </el-form-item>
-              <el-form-item label="修改时间" prop="updateTime">
-                <el-date-picker
-                  v-model="form.updateTime"
-                  :picker-options="pickerOptions"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  align="right"
-                />
-              </el-form-item>
-              <el-form-item label="主键" prop="id">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.id"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="创建者" prop="creator">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.creator"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="创建者名称" prop="creatorName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.creatorName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="修改者" prop="modifier">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.modifier"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="修改者名称" prop="modifierName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.modifierName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="备注" prop="remark">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.remark"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="状态" prop="status">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.status"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
-              <el-form-item label="状态变更描述" prop="statusDesc">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.statusDesc"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
-              <el-form-item label="数据来源，140:新销服; 老销服:10" prop="dataSource">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.dataSource"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="备件ID" prop="sparePartId">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.sparePartId"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="门店ID（组织ID）" prop="dealerId">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.dealerId"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="门店编码（组织code）" prop="dealerCode">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.dealerCode"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="门店名称（组织名称）" prop="dealerName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.dealerName"
-                  clearable
                 />
               </el-form-item>
             </el-form>
@@ -176,6 +69,7 @@ import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import { getSparePart } from '@/api/sparepart/basic/sparePart/index';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -183,21 +77,6 @@ const defaultForm = {
   sparePartName: '',
   dealerSalesPrice: '',
   effectiveStartDate: '',
-  createTime: '',
-  updateTime: '',
-  id: '',
-  creator: '',
-  creatorName: '',
-  modifier: '',
-  modifierName: '',
-  remark: '',
-  status: '',
-  statusDesc: '',
-  dataSource: '',
-  sparePartId: '',
-  dealerId: '',
-  dealerCode: '',
-  dealerName: '',
 };
 
 export default {
@@ -211,7 +90,7 @@ export default {
   },
   mixins: [routeGuard, permissions],
   components: {
-    FetchSelect,
+    FetchSelect
   },
   data () {
     const form = this.getDefautlForm();
@@ -231,55 +110,10 @@ export default {
           { required: true, message: '请输入备件名称', trigger: 'blur' }
         ],
         dealerSalesPrice: [
-          { required: true, message: '请输入门店销售价格', trigger: 'blur' }
+          { required: true, message: '请输入销售价格', trigger: 'blur' }
         ],
         effectiveStartDate: [
           { required: true, message: '请输入生效开始日期', trigger: 'blur' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'blur' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'blur' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'blur' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'blur' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'blur' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，140:新销服; 老销服:10', trigger: 'blur' }
-        ],
-        sparePartId: [
-          { required: true, message: '请输入备件ID', trigger: 'blur' }
-        ],
-        dealerId: [
-          { required: true, message: '请输入门店ID（组织ID）', trigger: 'blur' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码（组织code）', trigger: 'blur' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称（组织名称）', trigger: 'blur' }
         ],
       },
       pickerOptions: {
@@ -315,6 +149,16 @@ export default {
     this.getDetailData();
   },
   methods: {
+
+    async listSparePart (query) {
+      var a = await getSparePart({ partCodeOrNameLike: query });
+      return a;
+    },
+    listSparePartChange (val, all) {
+      this.form.sparePartId = all.id;
+      this.form.sparePartCode = all.code;
+      this.form.sparePartName = all.name;
+    },
     handleBack () {
       this.$router.back();
     },

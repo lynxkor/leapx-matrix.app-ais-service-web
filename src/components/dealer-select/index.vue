@@ -1,25 +1,11 @@
 <template>
-<!--  <fetch-select-->
-<!--    v-bind="$attrs"-->
-<!--    :remote="true"-->
-<!--    :remoteMethod="storeSearch"-->
-<!--    :format="formatDealer"-->
-<!--    v-model="orgId"-->
-<!--    placeholder="请选择"-->
-<!--    labelKey="label"-->
-<!--    valueKey="orgId"-->
-<!--    :params="defaultDealerName"-->
-<!--    clearable-->
-<!--    :multiple="multiple"-->
-<!--    filterable-->
-<!--  />-->
   <el-select :remote="true" v-bind="$attrs" v-model="orgId" filterable placeholder="请选择" :remote-method="storeSearch" :multiple="multiple" clearable @change="handleChange" collapse-tags>
     <el-option
       v-for="item in options"
       :key="item.orgId"
       :label="item.orgName"
       style="height: 50px"
-      :value="item.orgId">
+      :value="item.orgCode">
       <div class="org_name">{{ item.orgName }}</div>
       <div class="org_code">{{ item.orgCode }}</div>
     </el-option>
@@ -89,13 +75,6 @@ export default {
           };
         });
       });
-    },
-    formatDealer (resp) {
-      for (let ele of resp) {
-        ele.orgId = ele.orgId + '';
-        ele.label = ele.orgCode + ' ' + ele.orgName;
-      }
-      return resp;
     },
     handleChange (val) {
       console.log('handleChange', val);

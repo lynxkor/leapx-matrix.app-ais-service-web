@@ -11,7 +11,7 @@
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="活动编码" prop="activityCode">
+              <el-form-item label="活动编码" prop="activityId">
                 <list-select
                   v-if="!this.$route.query.id||form.id"
                   listUrl="/claimreturn/web/basic/serviceActivity/listFull"
@@ -40,10 +40,10 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="计划实施门店名称" prop="plannedDealerName">
+              <el-form-item label="计划实施门店名称" prop="plannedDealerCode">
                 <dealer-select
                   :disabled="form.finished==='1'"
-                  v-model="form.plannedDealerId"
+                  v-model="form.plannedDealerCode"
                   :defaultDealerName="form.plannedDealerName"
                 />
               </el-form-item>
@@ -169,39 +169,12 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       rules: {
-        activityCode: [
+        activityId: [
           { required: true, message: '请输入活动编码', trigger: 'blur' }
         ],
         vin: [
           { required: true, message: '请输入VIN', trigger: 'blur' }
         ]
-      },
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近一个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近三个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
       }
     };
   },
