@@ -124,8 +124,8 @@
               <el-form-item label="状态" prop="status">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.status"
+                  enumCode="BooleanEnum"
+                  v-model="form.statusIncludeList"
                   placeholder="请选择"
                   clearable
                   filterable

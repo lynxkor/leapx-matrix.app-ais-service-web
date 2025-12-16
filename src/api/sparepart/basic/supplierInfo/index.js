@@ -7,6 +7,14 @@ const prefix = '/sp/web/basic/supplierInfo/';
  * 查询列表
  * @param {Object} data
  */
+export function list (data) {
+  return api.jsonPost(prefix + 'list', data);
+};
+
+/**
+ * 查询列表
+ * @param {Object} data
+ */
 export function getList (data) {
   return api.jsonPost(prefix + 'page', data);
 };

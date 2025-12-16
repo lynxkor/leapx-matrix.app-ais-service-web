@@ -11,135 +11,60 @@
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="主键" prop="id">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.id"
+              <el-form-item label="供应商编码">
+                <fetch-select
+                  prop="supplierCode"
+                  filterable
                   clearable
-                />
-              </el-form-item>
-              <el-form-item label="供应商ID" prop="supplierInfoId">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.supplierInfoId"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="供应商编码" prop="supplierCode">
-                <el-input
-                  placeholder="请输入"
+                  remote
+                  reserve-keyword
                   v-model="form.supplierCode"
-                  clearable
+                  :remote-method="listSupplier"
+                  :disabled="this.$route.query.id"
+                  value-key="id"
+                  label-key="name"
+                  @change="listSupplierChange"
                 />
               </el-form-item>
               <el-form-item label="供应商名称" prop="supplierName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.supplierName"
+                  disabled="true"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="备件编码" prop="partCode">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.partCode"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="备件名称" prop="partName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.partName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="状态变更描述" prop="statusDesc">
+              <el-form-item label="零件编码">
                 <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.statusDesc"
-                  placeholder="请选择"
-                  clearable
+                  prop="sparePartCode"
                   filterable
+                  clearable
+                  remote
+                  reserve-keyword
+                  v-model="form.sparePartCode"
+                  :remote-method="listSparePart"
+                  :disabled="this.$route.query.id"
+                  value-key="id"
+                  label-key="name"
+                  @change="listSparePartChange"
                 />
               </el-form-item>
-              <el-form-item label="创建时间" prop="createTime">
-                <el-date-picker
-                  v-model="form.createTime"
-                  :picker-options="pickerOptions"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  align="right"
-                />
-              </el-form-item>
-              <el-form-item label="修改时间" prop="updateTime">
-                <el-date-picker
-                  v-model="form.updateTime"
-                  :picker-options="pickerOptions"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  align="right"
-                />
-              </el-form-item>
-              <el-form-item label="创建者" prop="creator">
+              <el-form-item label="零件名称" prop="sparePartName">
                 <el-input
                   placeholder="请输入"
-                  v-model="form.creator"
+                  v-model="form.sparePartName"
+                  disabled="true"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="创建者名称" prop="creatorName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.creatorName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="修改者" prop="modifier">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.modifier"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="修改者名称" prop="modifierName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.modifierName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="备注" prop="remark">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.remark"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="状态" prop="status">
+              <el-form-item label="是否启用" prop="status">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="xxx"
+                  enumCode="BooleanEnum"
                   v-model="form.status"
                   placeholder="请选择"
                   clearable
                   filterable
-                />
-              </el-form-item>
-              <el-form-item label="数据来源，140:新销服; 老销服:10" prop="dataSource">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.dataSource"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="备件ID" prop="sparePartId">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.sparePartId"
-                  clearable
                 />
               </el-form-item>
               <el-form-item label="配额数值" prop="quota">
@@ -169,6 +94,8 @@ import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import { getSparePart } from '@/api/sparepart/basic/sparePart/index';
+import { list as getSupplier } from '@/api/sparepart/basic/supplierInfo/index';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -304,6 +231,27 @@ export default {
     this.getDetailData();
   },
   methods: {
+
+    async listSupplier (query) {
+      console.log('wode');
+      var a = await getSupplier({ partCodeOrNameLike: query });
+      return a;
+    },
+    listSupplierChange (val, all) {
+      console.log(JSON.stringify(all));
+      this.form.supplierInfoId = all.id;
+      this.form.supplierCode = all.code;
+      this.form.supplierName = all.name;
+    },
+    async listSparePart (query) {
+      var a = await getSparePart({ partCodeOrNameLike: query });
+      return a;
+    },
+    listSparePartChange (val, all) {
+      this.form.sparePartId = all.id;
+      this.form.sparePartCode = all.code;
+      this.form.sparePartName = all.name;
+    },
     handleBack () {
       this.$router.back();
     },

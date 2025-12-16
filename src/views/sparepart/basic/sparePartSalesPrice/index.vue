@@ -12,14 +12,14 @@
       <el-form-item label="备件编码">
         <el-input
           placeholder="请输入"
-          v-model="form.sparePartCode"
+          v-model="form.sparePartCodeLike"
           clearable
         />
       </el-form-item>
       <el-form-item label="备件名称">
         <el-input
           placeholder="请输入"
-          v-model="form.sparePartName"
+          v-model="form.sparePartNameLike"
           clearable
         />
       </el-form-item>
@@ -75,11 +75,12 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
+      <el-button v-if="canImport" size="small" @click="handleImport">价格导入</el-button>
+      <el-button>集中视图</el-button>
+      <!-- <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button> -->
+      <!-- <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -180,6 +181,7 @@ export default {
             }]
           },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'dealerSalesPrice', label: '销售价格', visible: true, width: 200 },
           { props: 'effectiveStartDate', label: '生效开始日期', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
