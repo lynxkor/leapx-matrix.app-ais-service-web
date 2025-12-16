@@ -163,9 +163,9 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/sparePart/index';
-import { vfglist } from '@/api/claimreturn/basic/vfg/index';
-import { vrtlist } from '@/api/claimreturn/basic/vrt/index';
+import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/sparePart';
+import { vfglist } from '@/api/claimreturn/claim/basic/vfg';
+import { vrtlist } from '@/api/claimreturn/claim/basic/vrt';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
