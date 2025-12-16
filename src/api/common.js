@@ -111,6 +111,14 @@ export function listVehicleYearTypeFull (data) {
 }
 
 /**
+ * 车系详细模糊搜索
+ * @param {*} data
+ */
+export function listVehicleSeries (data) {
+  return api.jsonPost('/datacenter/web/materials/vehicleSeries/listFull', data);
+}
+
+/**
  * 年款模糊搜索
  * @param {*} data
  */
