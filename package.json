@@ -18,7 +18,8 @@
   },
   "lint-staged": {
     "src/**/*.{js,vue}": [
-      "eslint"
+      "eslint --fix",
+      "prettier --write"
     ]
   },
   "author": "pan_ji2@leapmotor.com",

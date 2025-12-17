@@ -16,7 +16,7 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="判断单位" >
+      <el-form-item label="判断单位">
         <fetch-select
           :request="fetchOptions"
           enumCode="claim_determine_unit"
@@ -27,7 +27,7 @@
           filterable
         />
       </el-form-item>
-      <el-form-item label="创建时间"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="创建时间" v-show="this.visibleCount === 3 || show">
         <el-date-picker
           v-model="form.createTime"
           type="daterange"
@@ -62,15 +62,43 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button
+        v-if="canAddOrUpdate"
+        size="small"
+        type="primary"
+        @click="handleAdd"
+        ><i class="iconfont icon-lxppc-plus"></i>新增</el-button
+      >
+      <el-button
+        v-if="canExport"
+        :loading="exportLoading"
+        size="small"
+        @click="exportExcel"
+        >导出</el-button
+      >
+      <el-button
+        v-if="canDelete"
+        size="small"
+        @click="handleBatchDelete"
+        :disabled="selectionList.length === 0"
+        >批量删除</el-button
+      >
+      <el-button
+        v-if="canEnableOrDisable"
+        size="small"
+        @click="handleBatchEnable(1)"
+        :disabled="selectionList.length === 0"
+        >批量启用</el-button
+      >
+      <el-button
+        v-if="canEnableOrDisable"
+        size="small"
+        @click="handleBatchEnable(0)"
+        :disabled="selectionList.length === 0"
+        >批量停用</el-button
+      >
     </div>
-    <div
-      class="ais-table-c"
-    >
+    <div class="ais-table-c">
       <LPVxeTable
         ref="tableRef"
         v-loading="loading"
@@ -88,46 +116,58 @@
 </template>
 
 <script>
-import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
-import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/claimreturn/claim/basic/threeGuaranteesRule';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
-import FetchSelect from '@/libs/components/FetchSelect';
-import Upload from '@/libs/components/UploadDialog';
-import { YES_NO_ENUM } from '@/libs/constants';
-import responsiveSearchForm from '@/libs/mixins/responsive';
-import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange, getEndOfDayString, downloadExcel } from '@/libs/utils';
-import commonMixins from '@/libs/mixins/commonMixins';
+import debounce from "lodash.debounce";
+import { LPVxeTable } from "@leapmotor/design";
+import PageSearchAction from "@/libs/components/AisPageSearchAction";
+import {
+  getList,
+  deleteItem,
+  enableItem,
+} from "@/api/claimreturn/claim/basic/threeGuaranteesRule";
+import {
+  getTableConfig,
+  tableAddOrUpdate,
+  exportTable,
+  getEnum,
+} from "@/api/common";
+import FetchSelect from "@/libs/components/FetchSelect";
+import { YES_NO_ENUM } from "@/libs/constants";
+import responsiveSearchForm from "@/libs/mixins/responsive";
+import permissions from "@/libs/mixins/permissions";
+import {
+  handleBatchStatusChange,
+  getEndOfDayString,
+  downloadExcel,
+} from "@/libs/utils";
+import commonMixins from "@/libs/mixins/commonMixins";
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  ruleCode: '',
-  judgmentBasis: '',
-  determineUnit: '',
-  accumulation: '',
-  vehicleProperty: '',
-  saleStartDate: '',
-  saleEndDate: '',
-  warningVehicleAgeFrom: '',
-  warningVehicleAgeTo: '',
-  warningMileageFrom: '',
-  warningMileageTo: '',
-  greenWarning1: '',
-  greenWarning2: '',
-  yellowWarning2: '',
-  yellowWarning1: '',
-  redWarning1: '',
-  redWarning2: '',
-  status: '',
-  createTime: '',
-  updateTime: '',
+  ruleCode: "",
+  judgmentBasis: "",
+  determineUnit: "",
+  accumulation: "",
+  vehicleProperty: "",
+  saleStartDate: "",
+  saleEndDate: "",
+  warningVehicleAgeFrom: "",
+  warningVehicleAgeTo: "",
+  warningMileageFrom: "",
+  warningMileageTo: "",
+  greenWarning1: "",
+  greenWarning2: "",
+  yellowWarning2: "",
+  yellowWarning1: "",
+  redWarning1: "",
+  redWarning2: "",
+  status: "",
+  createTime: "",
+  updateTime: "",
 };
 
 const pageSize = 20;
 const mockConfig = {
-  data: null
+  data: null,
 };
 
 export default {
@@ -137,14 +177,14 @@ export default {
     LPVxeTable,
     FetchSelect,
   },
-  data () {
+  data() {
     return {
-      pageTitle: '三包配置规则',
-      pageType: 'list',
+      pageTitle: "三包配置规则",
+      pageType: "list",
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISCR-threeGuaranteesRule',
+      moduleKey: "AISCR-threeGuaranteesRule",
       form: {
-        ...defaultForm
+        ...defaultForm,
       },
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
@@ -153,158 +193,252 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       optionObj: {
-        id: 'threeGuaranteesRuleTable',
+        id: "threeGuaranteesRuleTable",
         dataList: [],
         form: {
           page: 1,
-          size: pageSize
+          size: pageSize,
         },
         dataProp: [
           {
-            props: 'ruleCode',
-            label: '三包规则编码',
+            props: "ruleCode",
+            label: "三包规则编码",
             visible: true,
             width: 240,
-            fixed: 'left',
-            buttons: [{
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/claimreturn/basic/threeGuaranteesRule/detail',
-                  query: {
-                    id: row.id
-                  }
-                });
+            fixed: "left",
+            buttons: [
+              {
+                click: (rowIndex, row) => {
+                  this.$router.push({
+                    path: "/claimreturn/basic/threeGuaranteesRule/detail",
+                    query: {
+                      id: row.id,
+                    },
+                  });
+                },
+                type: "primary",
               },
-              type: 'primary'
-            }]
+            ],
           },
-          { props: 'judgmentBasis', label: '判断依据', visible: true, width: 200 },
-          { props: 'determineUnitLabel', label: '判断单位', visible: true, width: 120 },
-          { props: 'accumulationLabel', label: '累计方式', visible: true, width: 120 },
-          { props: 'vehiclePropertyLabel', label: '车辆属性', visible: true, width: 120 },
-          { props: 'saleStartDate', label: '销售开始日期', visible: true, width: 180 },
-          { props: 'saleEndDate', label: '销售结束日期', visible: true, width: 180 },
-          { props: 'warningVehicleAgeFrom', label: '预警车龄起', visible: true, width: 130 },
-          { props: 'warningVehicleAgeTo', label: '预警车龄止', visible: true, width: 130 },
-          { props: 'warningMileageFrom', label: '预警里程起', visible: true, width: 130 },
-          { props: 'warningMileageTo', label: '预警里程止', visible: true, width: 130 },
-          { props: 'greenWarning1', label: '绿色预警区间1', visible: true, width: 150 },
-          { props: 'greenWarning2', label: '绿色预警区间2', visible: true, width: 150 },
-          { props: 'yellowWarning2', label: '黄色预警区间2', visible: true, width: 150 },
-          { props: 'yellowWarning1', label: '黄色预警区间1', visible: true, width: 150 },
-          { props: 'redWarning1', label: '红色预警区间1', visible: true, width: 150 },
-          { props: 'redWarning2', label: '红色预警区间2', visible: true, width: 150 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 120 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 180 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
           {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
+            props: "judgmentBasis",
+            label: "判断依据",
             visible: true,
-            fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/claimreturn/basic/threeGuaranteesRule/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
+            width: 200,
+          },
+          {
+            props: "determineUnitLabel",
+            label: "判断单位",
+            visible: true,
+            width: 120,
+          },
+          {
+            props: "accumulationLabel",
+            label: "累计方式",
+            visible: true,
+            width: 120,
+          },
+          {
+            props: "vehiclePropertyLabel",
+            label: "车辆属性",
+            visible: true,
+            width: 120,
+          },
+          {
+            props: "saleStartDate",
+            label: "销售开始日期",
+            visible: true,
+            width: 180,
+          },
+          {
+            props: "saleEndDate",
+            label: "销售结束日期",
+            visible: true,
+            width: 180,
+          },
+          {
+            props: "warningVehicleAgeFrom",
+            label: "预警车龄起",
+            visible: true,
+            width: 130,
+          },
+          {
+            props: "warningVehicleAgeTo",
+            label: "预警车龄止",
+            visible: true,
+            width: 130,
+          },
+          {
+            props: "warningMileageFrom",
+            label: "预警里程起",
+            visible: true,
+            width: 130,
+          },
+          {
+            props: "warningMileageTo",
+            label: "预警里程止",
+            visible: true,
+            width: 130,
+          },
+          {
+            props: "greenWarning1",
+            label: "绿色预警区间1",
+            visible: true,
+            width: 150,
+          },
+          {
+            props: "greenWarning2",
+            label: "绿色预警区间2",
+            visible: true,
+            width: 150,
+          },
+          {
+            props: "yellowWarning2",
+            label: "黄色预警区间2",
+            visible: true,
+            width: 150,
+          },
+          {
+            props: "yellowWarning1",
+            label: "黄色预警区间1",
+            visible: true,
+            width: 150,
+          },
+          {
+            props: "redWarning1",
+            label: "红色预警区间1",
+            visible: true,
+            width: 150,
+          },
+          {
+            props: "redWarning2",
+            label: "红色预警区间2",
+            visible: true,
+            width: 150,
+          },
+          { props: "statusLabel", label: "状态", visible: true, width: 120 },
+          { props: "createTime", label: "创建时间", visible: true, width: 180 },
+          { props: "updateTime", label: "修改时间", visible: true, width: 180 },
+          {
+            props: "operate",
+            label: "操作",
+            type: "operate",
+            visible: true,
+            fixed: "right",
+            buttons: [
+              {
+                name: "编辑",
+                click: (rowIndex, row) => {
+                  this.$router.push({
+                    path: "/claimreturn/claim/basic/threeGuaranteesRule/edit",
+                    query: {
+                      id: row.id,
+                    },
                   });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
+                },
+                type: "info",
               },
-              type: 'danger'
-            }]
-          }
+              {
+                name: "删除",
+                popconfirmTitle: "此操作将永久删除, 是否继续?",
+                click: (rowIndex, row) => {
+                  deleteItem([row.id])
+                    .then(() => {
+                      this.$message({
+                        type: "success",
+                        message: "删除成功!",
+                      });
+                      this.getData();
+                    })
+                    .catch(() => {
+                      this.$message({
+                        type: "error",
+                        message: "删除失败!",
+                      });
+                    });
+                },
+                type: "danger",
+              },
+            ],
+          },
         ],
-        total: 0
-      }
+        total: 0,
+      },
     };
   },
-  created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+  created() {
+    this.$store.commit("SET_ACTIVE_BREADCRUMB", [this.pageTitle]);
     this.getData();
   },
   methods: {
-    handleImport () {
+    handleImport() {
       this.uploadDialogVisible = true;
     },
-    handleUploadDialogClose () {
+    handleUploadDialogClose() {
       this.uploadDialogVisible = false;
     },
-    handleAdd () {
+    handleAdd() {
       this.$router.push({
-        path: '/claimreturn/basic/threeGuaranteesRule/edit'
+        path: "/claimreturn/basic/threeGuaranteesRule/edit",
       });
     },
-    onSubmit () {
+    onSubmit() {
       this.getData();
     },
-    onReset () {
+    onReset() {
       this.form = { ...defaultForm };
       this.getData();
     },
-    exportExcel () {
+    exportExcel() {
       this.exportLoading = true;
       exportTable({
-        businessType: '三包配置规则',
-        dataFetchPath: 'claimreturn/claim/web/basic/threeGuaranteesRule/page',
+        businessType: "三包配置规则",
+        dataFetchPath: "claimreturn/claim/web/basic/threeGuaranteesRule/page",
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
-        httpMethod: 'POST'
-      }).then(async res => {
-        if (res && res.excelUrl) {
-          try {
-            await downloadExcel(res.excelUrl, '三包配置规则.xlsx');
-          } catch (error) {
+        httpMethod: "POST",
+      })
+        .then(async (res) => {
+          if (res && res.excelUrl) {
+            try {
+              await downloadExcel(res.excelUrl, "三包配置规则.xlsx");
+            } catch (error) {
+              this.$message({
+                type: "error",
+                message: "文件导出失败",
+              });
+            }
+          } else {
             this.$message({
-              type: 'error',
-              message: '文件导出失败'
+              type: "info",
+              message: "请前往导出列表中查询导出结果",
             });
           }
-        } else {
-          this.$message({
-            type: 'info',
-            message: '请前往导出列表中查询导出结果'
-          });
-        }
-      }).finally(() => {
-        this.exportLoading = false;
-      });
+        })
+        .finally(() => {
+          this.exportLoading = false;
+        });
     },
-    getData () {
+    getData() {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
-        .then(res => {
+      getList({
+        ...this.getFormData(),
+        pageNum: this.optionObj.form.page,
+        pageSize: this.optionObj.form.size,
+      })
+        .then((res) => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          this.optionObj.dataList = res.records.map((item) => {
             return {
               ...item,
-              deleteLoading: false
+              deleteLoading: false,
             };
           });
           this.optionObj.total = res.total;
-        }).finally(() => {
+        })
+        .finally(() => {
           this.loading = false;
         });
     },
@@ -312,22 +446,24 @@ export default {
     debouncedGetData: debounce(function () {
       this.getData();
     }, 300),
-    getConfig () {
+    getConfig() {
       return new Promise((resolve, reject) => {
-        getTableConfig(this.optionObj.id).then(data => {
-          resolve({ data });
-        }).catch(err => {
-          // 容错：此处如果接口挂了，也不应该影响正常使用
-          console.error(err);
-          resolve(mockConfig);
-        });
+        getTableConfig(this.optionObj.id)
+          .then((data) => {
+            resolve({ data });
+          })
+          .catch((err) => {
+            // 容错：此处如果接口挂了，也不应该影响正常使用
+            console.error(err);
+            resolve(mockConfig);
+          });
       });
     },
-    saveOrUpdate (data) {
+    saveOrUpdate(data) {
       return tableAddOrUpdate(data);
     },
-    paginationChange (type, num) {
-      if (type === 'page') {
+    paginationChange(type, num) {
+      if (type === "page") {
         this.optionObj.form.page = num;
       } else {
         this.optionObj.form.size = num;
@@ -335,14 +471,14 @@ export default {
       this.debouncedGetData();
     },
     // 多选框选中数据
-    handleSelectionChange (selection) {
+    handleSelectionChange(selection) {
       this.selectionList = selection;
     },
-    getFormData () {
+    getFormData() {
       const data = { ...this.form };
 
-      Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+      Object.keys(this.form).forEach((key) => {
+        if (data[key] === "" || data[key] === null) {
           delete data[key];
         }
       });
@@ -363,41 +499,45 @@ export default {
       }
       return data;
     },
-    async fetchOptions (code) {
+    async fetchOptions(code) {
       if (code) {
         return getEnum(code);
       }
       return [];
     },
     // 批量删除
-    handleBatchDelete () {
-      const ids = this.selectionList.map(item => item.id) || [];
-      this.$confirm('此操作将永久删除, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        deleteItem(ids).then(() => {
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          });
-          this.getData();
-        }).catch(() => {
-          this.$message({
-            type: 'error',
-            message: '删除失败!'
-          });
-        });
-      }).catch(() => {});
+    handleBatchDelete() {
+      const ids = this.selectionList.map((item) => item.id) || [];
+      this.$confirm("此操作将永久删除, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          deleteItem(ids)
+            .then(() => {
+              this.$message({
+                type: "success",
+                message: "删除成功!",
+              });
+              this.getData();
+            })
+            .catch(() => {
+              this.$message({
+                type: "error",
+                message: "删除失败!",
+              });
+            });
+        })
+        .catch(() => {});
     },
     // 批量启用停用
-    handleBatchEnable (status) {
+    handleBatchEnable(status) {
       handleBatchStatusChange.call(this, {
         selectionList: this.selectionList,
         targetStatus: status,
         apiFunc: enableItem,
-        refreshFunc: this.getData
+        refreshFunc: this.getData,
       });
       // const ids = this.selectionList.map(item => item.id) || [];
       // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
@@ -421,8 +561,8 @@ export default {
       //     });
       //   });
       // });
-    }
-  }
+    },
+  },
 };
 </script>
 
