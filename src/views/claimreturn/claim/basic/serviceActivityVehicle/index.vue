@@ -199,7 +199,13 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
+import {
+  getList,
+  deleteItem,
+  enableItem,
+  getDetailDecrypt,
+  getDetailDecryptField
+} from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -289,7 +295,14 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'vin', label: 'VIN', visible: true, width: 200 },
+          {
+            props: 'vin',
+            label: 'VIN',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDetailDecryptField(row.id, 'vin')
+          },
           { props: 'activityName', label: '活动名称', visible: true, width: 200 },
           { props: 'activityTypeLabel', label: '活动类型', visible: true, width: 200 },
           { props: 'activityStatusLabel', label: '活动状态', visible: true, width: 200 },
@@ -300,7 +313,14 @@ export default {
           { props: 'actualDealerName', label: '实际施工门店名称', visible: true, width: 200 },
           { props: 'finishTime', label: '完成时间', visible: true, width: 200 },
           { props: 'workOrderNo', label: '接车施工单号', visible: true, width: 200 },
-          { props: 'ownerPhone', label: '车主手机号码', visible: true, width: 200 },
+          {
+            props: 'ownerPhone',
+            label: '车主手机号码',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDetailDecryptField(row.id, 'ownerPhone')
+          },
           { props: 'schemeName', label: '方案名称', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
