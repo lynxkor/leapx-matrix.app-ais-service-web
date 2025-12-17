@@ -182,7 +182,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/freeMaintenancePolicy/detail',
+                  path: '/claimreturn/claim/basic/freeMaintenancePolicy/detail',
                   query: {
                     id: row.id
                   }
@@ -227,7 +227,7 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/freeMaintenancePolicy/edit',
+                  path: '/claimreturn/claim/basic/freeMaintenancePolicy/edit',
                   query: {
                     id: row.id
                   }
@@ -272,7 +272,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/claimreturn/basic/freeMaintenancePolicy/edit'
+        path: '/claimreturn/claim/basic/freeMaintenancePolicy/edit'
       });
     },
     onSubmit () {

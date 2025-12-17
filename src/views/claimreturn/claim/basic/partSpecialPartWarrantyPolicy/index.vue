@@ -207,7 +207,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/partSpecialPartWarrantyPolicy/detail',
+                  path: '/claimreturn/claim/basic/partSpecialPartWarrantyPolicy/detail',
                   query: {
                     id: row.id
                   }
@@ -252,7 +252,7 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/partSpecialPartWarrantyPolicy/edit',
+                  path: '/claimreturn/claim/basic/partSpecialPartWarrantyPolicy/edit',
                   query: {
                     id: row.id
                   }
@@ -297,7 +297,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/claimreturn/basic/partSpecialPartWarrantyPolicy/edit'
+        path: '/claimreturn/claim/basic/partSpecialPartWarrantyPolicy/edit'
       });
     },
     onSubmit () {

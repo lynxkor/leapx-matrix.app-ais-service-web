@@ -12,7 +12,7 @@
       <el-form-item label="政策名称">
         <el-input
           placeholder="请输入"
-          v-model="form.policyName"
+          v-model="form.policyNameLike"
           clearable
         />
       </el-form-item>
@@ -72,7 +72,7 @@
         <el-form-item label="备注">
           <el-input
             placeholder="请输入"
-            v-model="form.remark"
+            v-model="form.remarkLike"
             clearable
           />
         </el-form-item>
@@ -215,12 +215,12 @@ export default {
             props: 'policyName',
             label: '政策名称',
             visible: true,
-            width: 200,
+            width: 220,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/vehicleWarrantyPolicy/detail',
+                  path: '/claimreturn/claim/basic/vehicleWarrantyPolicy/detail',
                   query: {
                     id: row.id
                   }
@@ -229,15 +229,15 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'seriesName', label: '车系名称', visible: true, width: 200 },
-          { props: 'modelName', label: '车型名称', visible: true, width: 200 },
-          { props: 'yearTypeName', label: '车辆年款', visible: true, width: 200 },
-          { props: 'vehiclePropertyLabel', label: '车辆属性', visible: true, width: 200 },
-          { props: 'mileage', label: '里程数（KM）', visible: true, width: 200 },
-          { props: 'warrantyPeriod', label: '保修期（月）', visible: true, width: 200 },
+          { props: 'seriesName', label: '车系名称', visible: true, width: 120 },
+          { props: 'modelName', label: '车型名称', visible: true, width: 150 },
+          { props: 'yearTypeName', label: '车辆年款', visible: true, width: 120 },
+          { props: 'vehiclePropertyLabel', label: '车辆属性', visible: true, width: 120 },
+          { props: 'mileage', label: '里程数（KM）', visible: true, width: 140 },
+          { props: 'warrantyPeriod', label: '保修期（月）', visible: true, width: 140 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 180 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
           {
             props: 'operate',
             label: '操作',
@@ -248,7 +248,7 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/basic/vehicleWarrantyPolicy/edit',
+                  path: '/claimreturn/claim/basic/vehicleWarrantyPolicy/edit',
                   query: {
                     id: row.id
                   }
@@ -293,7 +293,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/claimreturn/basic/vehicleWarrantyPolicy/edit'
+        path: '/claimreturn/claim/basic/vehicleWarrantyPolicy/edit'
       });
     },
     onSubmit () {
@@ -307,7 +307,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '整车保修政策',
-        dataFetchPath: '/datacenter/claimreturn/basic/vehicleWarrantyPolicy/page',
+        dataFetchPath: '/datacenter/claimreturn/claim/basic/vehicleWarrantyPolicy/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

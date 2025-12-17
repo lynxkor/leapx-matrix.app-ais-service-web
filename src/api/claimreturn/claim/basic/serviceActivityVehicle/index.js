@@ -34,6 +34,22 @@ export function deleteItem (data) {
 export function getDetail (data) {
   return api.jsonPost(prefix + 'getWithActivity', data);
 }
+/**
+ * 查询加密数据
+ * @param {String} id
+ * @param {String} field
+ */
+export function getDetailDecryptField (id, field) {
+  let param = {
+    id,
+    decryptFields: [field]
+  };
+  return new Promise(resolve => {
+    api.jsonPost(prefix + 'getWithActivityDecrypt', param).then(res => {
+      resolve(res[field]);
+    });
+  });
+}
 
 /**
  * 启用停用

@@ -210,7 +210,7 @@ export default {
               {
                 click: (rowIndex, row) => {
                   this.$router.push({
-                    path: "/claimreturn/basic/threeGuaranteesRule/detail",
+                    path: "/claimreturn/claim/basic/threeGuaranteesRule/detail",
                     query: {
                       id: row.id,
                     },
@@ -220,6 +220,8 @@ export default {
               },
             ],
           },
+
+          
           {
             props: "judgmentBasis",
             label: "判断依据",
@@ -328,15 +330,15 @@ export default {
             buttons: [
               {
                 name: "编辑",
+                type: 'info',
                 click: (rowIndex, row) => {
                   this.$router.push({
                     path: "/claimreturn/claim/basic/threeGuaranteesRule/edit",
                     query: {
                       id: row.id,
                     },
-                  });
+                  })
                 },
-                type: "info",
               },
               {
                 name: "删除",
@@ -379,7 +381,7 @@ export default {
     },
     handleAdd() {
       this.$router.push({
-        path: "/claimreturn/basic/threeGuaranteesRule/edit",
+        path: '/claimreturn/claim/basic/threeGuaranteesRule/edit'
       });
     },
     onSubmit() {

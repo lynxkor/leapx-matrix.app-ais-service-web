@@ -54,10 +54,12 @@
                   placeholder="请选择"
                   v-model="form.yearTypeId"
                   :disabled="form.id!==''"
+                  query-key="yearTypeNameLike"
                   collapseTags
+                  no-param-load
                   auto-load-options
                   filterable
-                  :params="{modelIdList: form.modelId?[form.modelId]:[]}" />
+                  :params="{}" />
               </el-form-item>
               <el-form-item label="里程数（KM）" prop="mileage">
                 <el-input-number
