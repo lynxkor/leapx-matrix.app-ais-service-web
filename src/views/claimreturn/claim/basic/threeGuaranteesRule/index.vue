@@ -239,9 +239,9 @@ export default {
       }
     };
   },
-
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+
     this.getData();
   },
   methods: {
