@@ -25,6 +25,7 @@
                   listUrl="/sp/web/basic/sparePart/list"
                   placeholder="请选择"
                   v-model="form.partId"
+                  :disabled="form.id!==''"
                   query-key="partCodeOrNameLike"
                   auto-load-options
                   no-param-load
@@ -87,10 +88,12 @@
                   placeholder="请选择"
                   v-model="form.yearTypeId"
                   :disabled="form.id!==''"
+                  query-key="yearTypeNameLike"
                   collapseTags
+                  no-param-load
                   auto-load-options
                   filterable
-                  :params="{modelIdList: form.modelId?[form.modelId]:[]}" />
+                  :params="{}" />
               </el-form-item>
               <el-form-item label="备注" prop="remark">
                 <el-input
