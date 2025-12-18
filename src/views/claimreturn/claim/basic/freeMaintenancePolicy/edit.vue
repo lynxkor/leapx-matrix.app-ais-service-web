@@ -20,6 +20,16 @@
                       clearable
                     />
                   </el-form-item>
+                  <el-form-item label="政策类型" prop="policyType">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="xxx"
+                      v-model="form.policyType"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
                   <el-form-item label="维修项目代码" prop="repairItemCode">
                     <el-input
                       placeholder="请输入"
@@ -34,149 +44,38 @@
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="政策类型（免费保养，终身免费保养）" prop="policyType">
-                    <fetch-select
-                      :request="fetchOptions"
-                      enumCode="xxx"
-                      v-model="form.policyType"
-                      placeholder="请选择"
-                      clearable
-                      filterable
-                    />
-                  </el-form-item>
-                  <el-form-item label="免保时间（月）（最小为0）" prop="freePeriod">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.freePeriod"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="里程（最小为0）" prop="mileage">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.mileage"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="延后天数（最小为0）" prop="delayDays">
+                  <el-form-item label="延后天数" prop="delayDays">
                     <el-input
                       placeholder="请输入"
                       v-model="form.delayDays"
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="延后里程（最小为0）" prop="delayMileage">
+                  <el-form-item label="免保时间（月）" prop="freePeriod">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.freePeriod"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="延后里程" prop="delayMileage">
                     <el-input
                       placeholder="请输入"
                       v-model="form.delayMileage"
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="工时" prop="workhour">
+                  <el-form-item label="里程" prop="mileage">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.mileage"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="工时数" prop="workhour">
                     <el-input
                       placeholder="请输入"
                       v-model="form.workhour"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="创建时间" prop="createTime">
-                    <el-date-picker
-                      v-model="form.createTime"
-                      :picker-options="pickerOptions"
-                      value-format="yyyy-MM-dd HH:mm:ss"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
-                    />
-                  </el-form-item>
-                  <el-form-item label="修改时间" prop="updateTime">
-                    <el-date-picker
-                      v-model="form.updateTime"
-                      :picker-options="pickerOptions"
-                      value-format="yyyy-MM-dd HH:mm:ss"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
-                    />
-                  </el-form-item>
-                  <el-form-item label="主键" prop="id">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.id"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="创建者" prop="creator">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.creator"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="创建者名称" prop="creatorName">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.creatorName"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="修改者" prop="modifier">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.modifier"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="修改者名称" prop="modifierName">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.modifierName"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="备注" prop="remark">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.remark"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="状态" prop="status">
-                    <fetch-select
-                      :request="fetchOptions"
-                      enumCode="xxx"
-                      v-model="form.status"
-                      placeholder="请选择"
-                      clearable
-                      filterable
-                    />
-                  </el-form-item>
-                  <el-form-item label="状态变更描述" prop="statusDesc">
-                    <fetch-select
-                      :request="fetchOptions"
-                      enumCode="xxx"
-                      v-model="form.statusDesc"
-                      placeholder="请选择"
-                      clearable
-                      filterable
-                    />
-                  </el-form-item>
-                  <el-form-item label="数据来源，140:新销服; 老销服:10" prop="dataSource">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.dataSource"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="维修项目ID" prop="repairItemId">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.repairItemId"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="备件" prop="parts">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.parts"
                       clearable
                     />
                   </el-form-item>
@@ -211,7 +110,7 @@
           </el-footer>
         </el-container>
       </div>
-    </template>
+     </template>
     <template #right>
       test
     </template>
@@ -228,6 +127,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { uIntRule } from '@/validation/rule';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -326,65 +226,19 @@ export default {
         repairItemCode: [
           { required: true, message: '请输入维修项目代码', trigger: 'blur' }
         ],
-        repairItemName: [
-          { required: true, message: '请输入维修项目名称', trigger: 'blur' }
-        ],
+        // repairItemName: [
+        //   { required: true, message: '请输入维修项目名称', trigger: 'blur' }
+        // ],
         policyType: [
           { required: true, message: '请选择政策类型（免费保养，终身免费保养）', trigger: 'change' }
         ],
         freePeriod: [
-          { required: true, message: '请输入免保时间（月）（最小为0）', trigger: 'blur' }
+          { required: true, message: '请输入免保时间（月）（最小为0）', trigger: 'blur' },
+          uIntRule,
         ],
         mileage: [
-          { required: true, message: '请输入里程（最小为0）', trigger: 'blur' }
-        ],
-        delayDays: [
-          { required: true, message: '请输入延后天数（最小为0）', trigger: 'blur' }
-        ],
-        delayMileage: [
-          { required: true, message: '请输入延后里程（最小为0）', trigger: 'blur' }
-        ],
-        workhour: [
-          { required: true, message: '请输入工时', trigger: 'blur' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'blur' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'blur' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'blur' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'blur' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'blur' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，140:新销服; 老销服:10', trigger: 'blur' }
-        ],
-        repairItemId: [
-          { required: true, message: '请输入维修项目ID', trigger: 'blur' }
-        ],
-        parts: [
-          { required: true, message: '请输入备件', trigger: 'blur' }
+          { required: true, message: '请输入里程（最小为0）', trigger: 'blur' },
+          uIntRule,
         ],
       },
       pickerOptions: {
@@ -491,7 +345,6 @@ export default {
       this.$refs.editLayout.openPane();
     },
     handleSaveTable (data) {
-      // 调用保存方法并处理结果
       return new Promise((resolve, reject) => {
         this.$refs.editTable.saveAll().then(data => {
           resolve(data);
