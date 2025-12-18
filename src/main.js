@@ -11,6 +11,7 @@ import '@/common/css/base.css';
 import '@/common/css/base.scss';
 import '@/libs/assets/styles/common.scss';
 import '@/libs/assets/iconfont/iconfont.css';
+import '@leapmotor/splitpanes/dist/splitpanes.css';
 
 /* -------------------- 注册vxe-table ----------------- */
 import {

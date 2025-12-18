@@ -1,90 +1,97 @@
 <template>
   {{{#isProForm}}}
   <!-- TIPS: 如果填写项小于15项，使用类名page-common-add替换page-common-edit -->
-  <div class="page-common-edit">
-    <el-container>
-      <el-main>
-        <section class="common-section">
-          <div class="common-section-header">
-            <h2>基础信息</h2>
-          </div>
-          <div class="common-section-body">
-            <!-- TIPS: 如果填写项小于15项，去掉 :inline="true" -->
-            <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-            <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-            {{{#cols}}}
-            {{{#isDate}}}
-              <el-form-item label="{{{description}}}" prop="{{{key}}}">
-                <el-date-picker
-                  :default-time="['00:00:00', '23:59:59']"
-                  v-model="form.{{{key}}}"
-                  :picker-options="pickerOptions"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                />
-              </el-form-item>
-            {{{/isDate}}}
-            {{{#isSelect}}}
-              <el-form-item label="{{{description}}}" prop="{{{key}}}">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.{{{key}}}"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
-            {{{/isSelect}}}
-            {{{#isBoolean}}}
-              <el-form-item label="{{{description}}}" prop="{{{key}}}">
-                <el-radio-group v-model="form.{{{key}}}">
-                  <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
-                </el-radio-group>
-              </el-form-item>
-            {{{/isBoolean}}}
-            {{{#isNormal}}}
-              <el-form-item label="{{{description}}}" prop="{{{key}}}">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.{{{key}}}"
-                  clearable
-                />
-              </el-form-item>
-            {{{/isNormal}}}
-            {{{/cols}}}
-            </el-form>
-          </div>
-        </section>
-        <section class="common-section">
-          <div class="common-section-header">
-            <h2>区块标题</h2>
-            <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
-          </div>
-          <div class="common-section-body">
-            <div class="common-section-table">
-              <edit-table
-                ref="editTable"
-                :columns="columns"
-                :data="tableData"
-                :defaultNewRow="defaultNewRow"
-                :show-toolbar="false"
-                :options="options"
-                :auth="{edit: canAddOrUpdate, delete: canDelete}"
-              />
-            </div>
-          </div>
-        </section>
-      </el-main>
-      <el-footer height="60px">
-        <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-        <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
-        <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
-        <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
-      </el-footer>
-    </el-container>
-  </div>
+  <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
+    <template #left>
+      <div class="page-common-edit">
+        <el-container>
+          <el-main>
+            <section class="common-section">
+              <div class="common-section-header">
+                <h2>基础信息</h2>
+              </div>
+              <div class="common-section-body">
+                <!-- TIPS: 如果填写项小于15项，去掉 :inline="true" -->
+                <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px">
+                {{{#cols}}}
+                {{{#isDate}}}
+                  <el-form-item label="{{{description}}}" prop="{{{key}}}">
+                    <el-date-picker
+                      :default-time="['00:00:00', '23:59:59']"
+                      v-model="form.{{{key}}}"
+                      :picker-options="pickerOptions"
+                      value-format="yyyy-MM-dd HH:mm:ss"
+                      start-placeholder="开始日期"
+                      end-placeholder="结束日期"
+                    />
+                  </el-form-item>
+                {{{/isDate}}}
+                {{{#isSelect}}}
+                  <el-form-item label="{{{description}}}" prop="{{{key}}}">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="xxx"
+                      v-model="form.{{{key}}}"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                {{{/isSelect}}}
+                {{{#isBoolean}}}
+                  <el-form-item label="{{{description}}}" prop="{{{key}}}">
+                    <el-radio-group v-model="form.{{{key}}}">
+                      <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                {{{/isBoolean}}}
+                {{{#isNormal}}}
+                  <el-form-item label="{{{description}}}" prop="{{{key}}}">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.{{{key}}}"
+                      clearable
+                    />
+                  </el-form-item>
+                {{{/isNormal}}}
+                {{{/cols}}}
+                </el-form>
+              </div>
+            </section>
+            <section class="common-section">
+              <div class="common-section-header">
+                <h2>区块标题</h2>
+                <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              </div>
+              <div class="common-section-body">
+                <div class="common-section-table">
+                  <edit-table
+                    ref="editTable"
+                    :columns="columns"
+                    :data="tableData"
+                    :defaultNewRow="defaultNewRow"
+                    :show-toolbar="false"
+                    :options="options"
+                    :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                  />
+                </div>
+              </div>
+            </section>
+          </el-main>
+          <el-footer height="60px">
+            <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
+            <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
+            <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
+            <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
+          </el-footer>
+        </el-container>
+      </div>
+    </template>
+    <template #right>
+      <!-- 右侧栏组件，自行开发 -->
+    </template>
+  </edit-page-layout>
   {{{/isProForm}}}
   {{{^isProForm}}}
   <!-- TIPS: 如果填写项大于15项，使用类名page-common-edit替换page-common-add -->
@@ -266,6 +273,10 @@ export default {
     this.getDetailData();
   },
   methods: {
+    // 打开侧边栏
+    openPane () {
+      this.$refs.editLayout.openPane();
+    },
     handleBack () {
       this.$router.back();
     },
