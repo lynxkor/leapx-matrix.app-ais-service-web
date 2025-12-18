@@ -26,6 +26,7 @@
   "dependencies": {
     "@babel/eslint-parser": "^7.28.0",
     "@leapmotor/element-ui": "^2.15.15",
+    "@leapmotor/splitpanes": "^2.4.2",
     "axios": "^0.19.0",
     "babel-plugin-import": "^1.13.5",
     "commander": "^14.0.0",

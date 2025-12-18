@@ -70,7 +70,7 @@ export default {
       pageTitle: '新页面',
       pageType: 'detail',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-serviceActivityVehicle',
+      moduleKey: 'AISCR-serviceActivityVehicle',
       loading: true,
       info: {},
       yes_no_enum_map: YES_NO_ENUM_MAP
