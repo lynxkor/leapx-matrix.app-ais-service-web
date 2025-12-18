@@ -347,9 +347,7 @@
         </section>
         <section class="common-section">
           <div class="common-section-header">
-            <div class="common-section-header-content">
-              <h2>供应商信息</h2>
-            </div>
+            <h2>供应商信息</h2>
           </div>
           <div class="common-section-body">
             <div class="common-section-table">
@@ -368,9 +366,7 @@
         </section>
         <section class="common-section">
           <div class="common-section-header">
-            <div class="common-section-header-content">
-              <h2>车型信息</h2>
-            </div>
+            <h2>车型信息</h2>
           </div>
           <div class="common-section-body">
             <div class="common-section-table">
@@ -389,9 +385,7 @@
         </section>
         <section class="common-section">
           <div class="common-section-header">
-            <div class="common-section-header-content">
-              <h2>替换件信息</h2>
-            </div>
+            <h2>替换件信息</h2>
           </div>
           <div class="common-section-body">
             <div class="common-section-table">

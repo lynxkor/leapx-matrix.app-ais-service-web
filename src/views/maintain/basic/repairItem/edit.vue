@@ -183,12 +183,7 @@
         </section>
         <section class="common-section">
           <div class="common-section-header">
-            <div class="common-section-header-content">
-              <h2>适配车型</h2>
-              <div class="common-section-header-content-right">
-                <el-button type="primary" size="small" @click="handleModel">适配车型</el-button>
-              </div>
-            </div>
+            <h2>适配车型 <el-button type="primary" size="small" @click.stop="handleModel">适配车型</el-button></h2>
             <el-button size="small" icon="el-icon-plus" @click="handleAddRow('cx')">添加</el-button>
           </div>
           <div class="common-section-body">
@@ -247,6 +242,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import ModelDialog from './model.vue';
+import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -275,7 +271,7 @@ const defaultForm = {
 export default {
   name: 'repairItemEdit',
   // 集中视图预留
-  mixins: [routeGuard, permissions],
+  mixins: [routeGuard, permissions, commonMixins],
   props: {
     id: {
       type: [String, Number],
@@ -290,6 +286,8 @@ export default {
   data () {
     return {
       moduleKey: 'AISMC-repairItem',
+      pageType: 'edit',
+      pageTitle: '维修项目',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,

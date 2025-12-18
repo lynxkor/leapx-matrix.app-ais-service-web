@@ -56,10 +56,9 @@
         </section>
         <section class="common-section">
           <div class="common-section-header">
-            <div class="common-section-header-content">
-              <h2>可采购门店</h2>
-            </div>
+            <h2>可采购门店</h2>
           </div>
+          <div>
           <div v-if="partsId">
             <el-select
               style="width: 305px;"
@@ -118,14 +117,14 @@
               </el-table>
             </div>
           </div>
+        </div>
         </section>
         <section class="common-section">
           <div class="common-section-header">
-            <div class="common-section-header-content">
-              <h2>不可采购门店</h2>
-            </div>
+            <h2>不可采购门店</h2>
           </div>
-          <div v-if="partsId">
+          <div>
+          <div class="common-section-body" v-if="partsId">
             <el-select
               style="width: 305px;"
               v-model="noDealerCodes"
@@ -183,6 +182,7 @@
               </el-table>
             </div>
           </div>
+        </div>
         </section>
       </el-main>
       <el-footer height="60px">
@@ -201,6 +201,7 @@ import { getEnum, getBuildType, listOrgStoreInfo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -230,7 +231,7 @@ export default {
       default: null
     }
   },
-  mixins: [routeGuard, permissions],
+  mixins: [routeGuard, permissions, commonMixins],
   components: {
     FetchSelect,
   },
@@ -239,6 +240,8 @@ export default {
     return {
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-spareSalesCategory',
+      pageType: 'edit',
+      pageTitle: '备件销售分类',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
