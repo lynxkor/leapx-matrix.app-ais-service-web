@@ -234,54 +234,54 @@ import {
   getDetail,
   addOrUpdate,
   getDetailPage,
-} from "@/api/claimreturn/claim/basic/threeGuaranteesRule";
-import FetchSelect from "@/libs/components/FetchSelect";
-import EditTable from "@/libs/components/EditTable";
-import { getEnum, sparePartListShort } from "@/api/common";
-import { YES_NO_ENUM } from "@/libs/constants";
-import routeGuard from "@/libs/mixins/routeGuard";
-import permissions from "@/libs/mixins/permissions";
-import commonMixins from "@/libs/mixins/commonMixins";
-import { numberRule } from "@/validation/rule";
+} from '@/api/claimreturn/claim/basic/threeGuaranteesRule';
+import FetchSelect from '@/libs/components/FetchSelect';
+import EditTable from '@/libs/components/EditTable';
+import { getEnum, sparePartListShort } from '@/api/common';
+import { YES_NO_ENUM } from '@/libs/constants';
+import routeGuard from '@/libs/mixins/routeGuard';
+import permissions from '@/libs/mixins/permissions';
+import commonMixins from '@/libs/mixins/commonMixins';
+import { numberRule } from '@/validation/rule';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
-  ruleCode: "",
-  judgmentBasis: "",
-  determineUnit: "",
-  accumulation: "",
-  vehicleProperty: "",
-  saleStartDate: "",
-  saleEndDate: "",
-  warningVehicleAgeFrom: "",
-  warningVehicleAgeTo: "",
-  warningMileageFrom: "",
-  warningMileageTo: "",
-  greenWarning1: "",
-  greenWarning2: "",
-  yellowWarning2: "",
-  yellowWarning1: "",
-  redWarning1: "",
-  redWarning2: "",
-  status: "",
-  createTime: "",
-  updateTime: "",
-  id: "",
-  creator: "",
-  creatorName: "",
-  modifier: "",
-  modifierName: "",
-  remark: "",
-  statusDesc: "",
-  dataSource: "",
-  reminderItem: "",
-  reminderContent: "",
-  warningContent: "",
-  details: "",
+  ruleCode: '',
+  judgmentBasis: '',
+  determineUnit: '',
+  accumulation: '',
+  vehicleProperty: '',
+  saleStartDate: '',
+  saleEndDate: '',
+  warningVehicleAgeFrom: '',
+  warningVehicleAgeTo: '',
+  warningMileageFrom: '',
+  warningMileageTo: '',
+  greenWarning1: '',
+  greenWarning2: '',
+  yellowWarning2: '',
+  yellowWarning1: '',
+  redWarning1: '',
+  redWarning2: '',
+  status: '',
+  createTime: '',
+  updateTime: '',
+  id: '',
+  creator: '',
+  creatorName: '',
+  modifier: '',
+  modifierName: '',
+  remark: '',
+  statusDesc: '',
+  dataSource: '',
+  reminderItem: '',
+  reminderContent: '',
+  warningContent: '',
+  details: '',
 };
 
 export default {
-  name: "threeGuaranteesRuleEdit",
+  name: 'threeGuaranteesRuleEdit',
   // 集中视图预留
   props: {
     id: {
@@ -294,22 +294,22 @@ export default {
     FetchSelect,
     EditTable,
   },
-  data() {
+  data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: "三包配置规则",
-      pageType: "edit",
+      pageTitle: '三包配置规则',
+      pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: "AISCR-threeGuaranteesRule",
+      moduleKey: 'AISCR-threeGuaranteesRule',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
       defaultNewRow: {
-        partId: "", // 零件id
-        partName: "", // 零件名称
-        remark: "", // 备注
+        partId: '', // 零件id
+        partName: '', // 零件名称
+        remark: '', // 备注
       },
       tableData: [],
       options: {
@@ -318,88 +318,88 @@ export default {
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
-          field: "partId",
-          title: "零件编码",
-          width: "33%",
+          field: 'partId',
+          title: '零件编码',
+          width: '33%',
           editable: true,
           editRender: {
-            name: "ElSelect",
+            name: 'ElSelect',
             multiRow: true,
             props: {
               filterable: true,
               clearable: true,
               remote: true,
               remoteMethod: this.sparePartListApi,
-              placeholder: "请选择",
-              "suffix-icon": "el-icon-search",
+              placeholder: '请选择',
+              'suffix-icon': 'el-icon-search',
             },
           },
           rules: [
-            { required: true, message: "零件编码不能为空", trigger: "blur" },
+            { required: true, message: '零件编码不能为空', trigger: 'blur' },
           ],
         },
         {
-          field: "partName",
-          title: "零件名称",
-          width: "33%",
+          field: 'partName',
+          title: '零件名称',
+          width: '33%',
         },
         {
-          field: "remark",
-          title: "备注",
-          width: "33%",
+          field: 'remark',
+          title: '备注',
+          width: '33%',
           editable: true,
-          editRender: { name: "ElInput" },
+          editRender: { name: 'ElInput' },
         },
       ],
       rules: {
         ruleCode: [
-          { required: true, message: "请输入三包规则编码", trigger: "blur" },
+          { required: true, message: '请输入三包规则编码', trigger: 'blur' },
         ],
         judgmentBasis: [
-          { required: true, message: "请输入判断依据", trigger: "blur" },
+          { required: true, message: '请输入判断依据', trigger: 'blur' },
         ],
         determineUnit: [
           {
             required: true,
-            message: "请输入判断单位（次数，天数）",
-            trigger: "blur",
+            message: '请输入判断单位（次数，天数）',
+            trigger: 'blur',
           },
         ],
         accumulation: [
           {
             required: true,
-            message: "请输入累计方式（单一零件，任意零件）",
-            trigger: "blur",
+            message: '请输入累计方式（单一零件，任意零件）',
+            trigger: 'blur',
           },
         ],
         vehicleProperty: [
           {
             required: true,
             message:
-              "请输入车辆属性（家用，营运，B级车，J级车，J1级车，专车，报废灭失）",
-            trigger: "blur",
+              '请输入车辆属性（家用，营运，B级车，J级车，J1级车，专车，报废灭失）',
+            trigger: 'blur',
           },
         ],
         saleStartDate: [
-          { required: true, message: "请输入销售开始日期", trigger: "blur" },
+          { required: true, message: '请输入销售开始日期', trigger: 'blur' },
         ],
         saleEndDate: [
-          { required: true, message: "请输入销售结束日期", trigger: "blur" },
+          { required: true, message: '请输入销售结束日期', trigger: 'blur' },
         ],
         warningVehicleAgeFrom: [
-          { required: true, message: "请输入预警车龄起", trigger: "blur" },
+          { required: true, message: '请输入预警车龄起', trigger: 'blur' },
           numberRule,
         ],
         warningVehicleAgeTo: [
-          { required: true, message: "请输入预警车龄止", trigger: "blur" },
+          { required: true, message: '请输入预警车龄止', trigger: 'blur' },
           numberRule,
         ],
         warningMileageFrom: [
-          { required: true, message: "请输入预警里程起", trigger: "blur" },
+          { required: true, message: '请输入预警里程起', trigger: 'blur' },
           numberRule,
         ],
         warningMileageTo: [
-          { required: true, message: "请输入预警里程止", trigger: "blur" },
+          { required: true, message: '请输入预警里程止', trigger: 'blur' },
           numberRule,
         ],
         greenWarning1: [
@@ -426,74 +426,74 @@ export default {
           // { required: true, message: '请输入红色预警区间2', trigger: 'blur' },
           numberRule,
         ],
-        status: [{ required: true, message: "请选择状态", trigger: "change" }],
+        status: [{ required: true, message: '请选择状态', trigger: 'change' }],
         createTime: [
-          { required: true, message: "请选择创建时间", trigger: "change" },
+          { required: true, message: '请选择创建时间', trigger: 'change' },
         ],
         updateTime: [
-          { required: true, message: "请选择修改时间", trigger: "change" },
+          { required: true, message: '请选择修改时间', trigger: 'change' },
         ],
-        id: [{ required: true, message: "请输入主键", trigger: "blur" }],
-        remark: [{ required: true, message: "请输入备注", trigger: "blur" }],
+        id: [{ required: true, message: '请输入主键', trigger: 'blur' }],
+        remark: [{ required: true, message: '请输入备注', trigger: 'blur' }],
         statusDesc: [
-          { required: true, message: "请选择状态变更描述", trigger: "change" },
+          { required: true, message: '请选择状态变更描述', trigger: 'change' },
         ],
         reminderItem: [
-          { required: true, message: "请输入警示条款", trigger: "blur" },
+          { required: true, message: '请输入警示条款', trigger: 'blur' },
         ],
         reminderContent: [
-          { required: true, message: "请输入警示内容", trigger: "blur" },
+          { required: true, message: '请输入警示内容', trigger: 'blur' },
         ],
         warningContent: [
-          { required: true, message: "请输入预警内容", trigger: "blur" },
+          { required: true, message: '请输入预警内容', trigger: 'blur' },
         ],
-        details: [{ required: true, message: "请输入明细", trigger: "blur" }],
+        details: [{ required: true, message: '请输入明细', trigger: 'blur' }],
       },
       pickerOptions: {
         shortcuts: [
           {
-            text: "最近一周",
-            onClick(picker) {
+            text: '最近一周',
+            onClick (picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit("pick", [start, end]);
+              picker.$emit('pick', [start, end]);
             },
           },
           {
-            text: "最近一个月",
-            onClick(picker) {
+            text: '最近一个月',
+            onClick (picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit("pick", [start, end]);
+              picker.$emit('pick', [start, end]);
             },
           },
           {
-            text: "最近三个月",
-            onClick(picker) {
+            text: '最近三个月',
+            onClick (picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit("pick", [start, end]);
+              picker.$emit('pick', [start, end]);
             },
           },
         ],
       },
     };
   },
-  mounted() {
+  mounted () {
     this.getDetailData();
   },
   methods: {
-    handleBack() {
+    handleBack () {
       this.$router.back();
     },
-    getDetailData() {
+    getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit("SET_ACTIVE_BREADCRUMB", [
-        "三包配置规则",
-        `${id ? "编辑" : "新建"}`,
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', [
+        '三包配置规则',
+        `${id ? '编辑' : '新建'}`,
       ]);
       if (id) {
         getDetail(id).then((res) => {
@@ -506,7 +506,7 @@ export default {
       }
     },
     // 表格数据
-    getDetailPageApi(id) {
+    getDetailPageApi (id) {
       if (!id) {
         return;
       }
@@ -527,7 +527,7 @@ export default {
       });
     },
     // 零件编码名称搜索
-    sparePartListApi(query) {
+    sparePartListApi (query) {
       sparePartListShort({ partCodeOrNameLike: query }).then((data) => {
         const list = data.map((item) => {
           return {
@@ -542,7 +542,7 @@ export default {
         this.options.partId = list;
       });
     },
-    async submitForm(formName, rest = false) {
+    async submitForm (formName, rest = false) {
       try {
         const tableData = await this.handleSaveTable();
         this.$refs[formName].validate((valid) => {
@@ -552,8 +552,8 @@ export default {
             addOrUpdate({ ...this.form, customKey: tableData })
               .then((res) => {
                 this.$message({
-                  message: "保存成功",
-                  type: "success",
+                  message: '保存成功',
+                  type: 'success',
                 });
                 const id = this.$route.query.id;
                 if (rest || !id) {
@@ -571,12 +571,12 @@ export default {
         console.log(error);
       }
     },
-    resetForm(formName) {
+    resetForm (formName) {
       this.$refs[formName].resetFields();
       this.tableData = [];
       this.form = this.getDefautlForm();
     },
-    getDefautlForm() {
+    getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
       // const userInfo = this.$store.state.user.userInfo;
       return {
@@ -595,14 +595,14 @@ export default {
     //   });
     // },
     // 详情表格相关数据
-    handleAddRow() {
+    handleAddRow () {
       // 通过引用直接调用子组件方法
       this.$refs.editTable.addRow();
     },
-    handleRemoveRow(row, index) {
+    handleRemoveRow (row, index) {
       console.log(row, index);
     },
-    handleSaveTable(data) {
+    handleSaveTable (data) {
       // 调用保存方法并处理结果
       return new Promise((resolve, reject) => {
         this.$refs.editTable
@@ -615,7 +615,7 @@ export default {
           });
       });
     },
-    async fetchOptions(code) {
+    async fetchOptions (code) {
       if (code) {
         return getEnum(code);
       }
@@ -623,7 +623,7 @@ export default {
     },
     // --------------------------------------------------------------
     // 处理更新表格数据事件
-    handleUpdateTableData(data) {
+    handleUpdateTableData (data) {
       this.tableData = [...data];
     },
   },
