@@ -200,9 +200,9 @@
                 :auth="{ edit: canAddOrUpdate, delete: canAddOrUpdate }"
                 :isFocusNewRow="false"
                 :enableSingleRowSave="true"
+                @save-row-edit="saveRowEdit"
+                @remove-row="handleRemoveRow"
               />
-              <!-- :isFocusNewRow="false"
-                @remove-row="handleRemoveRow" -->
             </div>
           </div>
         </section>
@@ -234,6 +234,9 @@ import {
   getDetail,
   addOrUpdate,
   getDetailPage,
+  //
+  addOrUpdateDetail,
+  deleteDetailItem,
 } from '@/api/claimreturn/claim/basic/threeGuaranteesRule';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
@@ -242,7 +245,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { numberRule } from '@/validation/rule';
+import { uIntRule } from '@/validation/rule';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -313,12 +316,12 @@ export default {
       },
       tableData: [],
       options: {
-        partId: [],
+        partCode: [],
       },
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
-          field: 'partId',
+          field: 'partCode',
           title: '零件编码',
           width: '33%',
           editable: true,
@@ -388,43 +391,43 @@ export default {
         ],
         warningVehicleAgeFrom: [
           { required: true, message: '请输入预警车龄起', trigger: 'blur' },
-          numberRule,
+          uIntRule,
         ],
         warningVehicleAgeTo: [
           { required: true, message: '请输入预警车龄止', trigger: 'blur' },
-          numberRule,
+          uIntRule,
         ],
         warningMileageFrom: [
           { required: true, message: '请输入预警里程起', trigger: 'blur' },
-          numberRule,
+          uIntRule,
         ],
         warningMileageTo: [
           { required: true, message: '请输入预警里程止', trigger: 'blur' },
-          numberRule,
+          uIntRule,
         ],
         greenWarning1: [
           // { required: true, message: '请输入绿色预警区间1', trigger: 'blur' },
-          numberRule,
+          uIntRule,
         ],
         greenWarning2: [
           // { required: true, message: '请输入绿色预警区间2', trigger: 'blur' },
-          numberRule,
+          uIntRule,
         ],
         yellowWarning2: [
           // { required: true, message: '请输入黄色预警区间2', trigger: 'blur' },
-          numberRule,
+          uIntRule,
         ],
         yellowWarning1: [
           // { required: true, message: '请输入黄色预警区间1', trigger: 'blur' },
-          numberRule,
+          uIntRule,
         ],
         redWarning1: [
           // { required: true, message: '请输入红色预警区间1', trigger: 'blur' },
-          numberRule,
+          uIntRule,
         ],
         redWarning2: [
           // { required: true, message: '请输入红色预警区间2', trigger: 'blur' },
-          numberRule,
+          uIntRule,
         ],
         status: [{ required: true, message: '请选择状态', trigger: 'change' }],
         createTime: [
@@ -489,8 +492,11 @@ export default {
     handleBack () {
       this.$router.back();
     },
+    getId () {
+      return this.id || this.$route.query.id;
+    },
     getDetailData () {
-      const id = this.id || this.$route.query.id;
+      const id = this.getId();
       this.$store.commit('SET_ACTIVE_BREADCRUMB', [
         '三包配置规则',
         `${id ? '编辑' : '新建'}`,
@@ -510,7 +516,7 @@ export default {
       if (!id) {
         return;
       }
-      getDetailPage({ id }).then((res) => {
+      getDetailPage({ ruleId: id }).then((res) => {
         this.tableData = res.records;
         // res =
         //  {
@@ -528,18 +534,18 @@ export default {
     },
     // 零件编码名称搜索
     sparePartListApi (query) {
-      sparePartListShort({ partCodeOrNameLike: query }).then((data) => {
+      sparePartListShort({ partCodeOrNameLike: query, oemPart: 1 }).then((data) => {
         const list = data.map((item) => {
           return {
-            ...item,
             value: item.id,
             label: item.code,
             labelDesc: item.name,
-            partId: item.code,
+            partId: item.id, // 表格
+            partCode: item.code, // 表格
             partName: item.name,
           };
         });
-        this.options.partId = list;
+        this.options.partCode = list;
       });
     },
     async submitForm (formName, rest = false) {
@@ -599,8 +605,16 @@ export default {
       // 通过引用直接调用子组件方法
       this.$refs.editTable.addRow();
     },
-    handleRemoveRow (row, index) {
-      console.log(row, index);
+    handleRemoveRow (row, index, defer) {
+      if (!row.id) {
+        return;
+      }
+      deleteDetailItem([row.id]).then((d) => {
+        defer.resolve();
+        this.$message.success('删除成功');
+      }).catch(() => {
+        defer.reject();
+      });
     },
     handleSaveTable (data) {
       // 调用保存方法并处理结果
@@ -625,6 +639,20 @@ export default {
     // 处理更新表格数据事件
     handleUpdateTableData (data) {
       this.tableData = [...data];
+    },
+    saveRowEdit (row, defer) {
+      const parmas = {
+        id: row.id, // 修改需要
+        partId: row.partId, // 零件ID
+        remark: row.remark,
+        ruleId: this.getId(), // 三包规则ID
+      };
+      addOrUpdateDetail(parmas).then(id => {
+        defer.resolve(id);
+        this.$message.success('更新成功');
+      }).catch(e => {
+        defer.reject();
+      });
     },
   },
 };
