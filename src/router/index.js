@@ -883,27 +883,27 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/claim/basic/serviceActivity',
+      path: '/claimreturn/claim/basic/techServiceActivity',
       name: 'serviceActivity',
-      component: () => import('@/views/claimreturn/claim/basic/serviceActivity/index.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/techServiceActivity/index.vue'),
 
       meta: {
         name: '新页面',
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/serviceactivity/detail',
+      path: '/claimreturn/claim/basic/techServiceActivity/detail',
       name: 'serviceActivityDetail',
-      component: () => import('@/views/claimreturn/claim/basic/serviceActivity/detail.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/techServiceActivity/detail.vue'),
 
       meta: {
         name: '新页面详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/claim/basic/serviceactivity/edit',
+      path: '/claimreturn/claim/basic/techServiceActivity/edit',
       name: 'serviceActivityEdit',
-      component: () => import('@/views/claimreturn/claim/basic/serviceActivity/edit.vue'),
+      component: () => import('@/views/claimreturn/claim/basic/techServiceActivity/edit.vue'),
 
       meta: {
         name: '新页面详情',

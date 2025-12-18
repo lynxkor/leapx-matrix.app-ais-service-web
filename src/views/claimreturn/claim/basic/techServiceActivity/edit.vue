@@ -267,7 +267,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/claimreturn/claim/basic/serviceActivity';
+import { getDetail, addOrUpdate } from '@/api/claimreturn/claim/basic/techServiceActivity';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -310,7 +310,7 @@ const defaultForm = {
 };
 
 export default {
-  name: 'serviceActivityEdit',
+  name: 'techServiceActivityEdit',
   // 集中视图预留
   props: {
     id: {
@@ -328,7 +328,7 @@ export default {
       pageTitle: '新页面',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-serviceActivity',
+      moduleKey: 'AISMC-techServiceActivity',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
