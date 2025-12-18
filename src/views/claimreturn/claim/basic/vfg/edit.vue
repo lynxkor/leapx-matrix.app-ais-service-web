@@ -41,6 +41,17 @@
                   clearable
                 />
               </el-form-item>
+              <el-form-item label="状态" prop="status">
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="StatusEnum"
+                  v-model="form.status"
+                  placeholder="请选择"
+                  disabled="disabled"
+                  clearable
+                  filterable
+                />
+              </el-form-item>
             </el-form>
           </div>
         </section>
@@ -63,13 +74,14 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import ListSelect from '@/libs/components/list-select/index.vue';
+import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 const defaultForm = {
   // 多选时字段有变化，自行修复
   vfgCode: '',
   vfgName: '',
   vrtCode: '',
   vrtName: '',
-  status: '',
+  status: '1',
   createTime: '',
   modifierName: '',
   id: '',
@@ -94,6 +106,7 @@ export default {
   },
   mixins: [routeGuard, permissions],
   components: {
+    FetchSelect,
     ListSelect,
   },
   data () {

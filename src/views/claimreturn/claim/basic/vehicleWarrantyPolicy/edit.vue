@@ -97,9 +97,11 @@
               </el-form-item>
               <el-form-item label="备注" prop="remark">
                 <el-input
+                  type="textarea"
                   placeholder="请输入"
                   v-model="form.remark"
                   maxlength="500"
+                  show-word-limit
                   clearable
                 />
               </el-form-item>

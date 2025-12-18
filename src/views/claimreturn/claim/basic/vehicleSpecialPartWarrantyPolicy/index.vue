@@ -17,15 +17,15 @@
         />
       </el-form-item>
       <el-form-item label="零件编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.partCodeLike"
-          clearable
-        />
+        <tag-input v-model="form.partCodes" />
       </el-form-item>
 
       <el-form-item label="零件名称"  v-show="this.visibleCount === 3 || show">
-        <tag-input v-model="form.partNames" />
+        <el-input
+          placeholder="请输入"
+          v-model="form.partNameLike"
+          clearable
+        />
       </el-form-item>
 
       <template v-if="show">
@@ -189,7 +189,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '整车特殊零件保修政策设置管理',
+      pageTitle: '整车特殊零件保修政策设置',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-vehicleSpecialPartWarrantyPolicy',

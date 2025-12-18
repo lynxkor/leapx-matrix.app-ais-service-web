@@ -120,7 +120,7 @@ export default {
       pageTitle: '新页面',
       pageType: 'detail',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-freeMaintenancePolicy',
+      moduleKey: 'AISCR-freeMaintenancePolicy',
       loading: true,
       info: {},
       tableData: [],
