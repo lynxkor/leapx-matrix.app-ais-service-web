@@ -151,7 +151,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
+import { handleBatchStatusChange, getEndOfDayString, downloadExcel } from '@/libs/utils';
 import TagInput from '@/libs/components/TagInput/index.vue';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import Upload from '@/libs/components/UploadDialog/index.vue';
@@ -323,19 +323,19 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '整车特殊零件保修政策设置管理',
-        dataFetchPath: '/datacenter/claimreturn/claim/basic/vehicleSpecialPartWarrantyPolicy/page',
+        businessType: '整车特殊零件保修政策',
+        dataFetchPath: '/claimreturn/claim/web/basic/vehicleSpecialPartWarrantyPolicy/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
-      }).then(res => {
-        if (res) {
-          if (res.excelUrl) {
-            window.location.href = res.excelUrl;
-          } else {
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '整车特殊零件保修政策.xlsx');
+          } catch (error) {
             this.$message({
               type: 'error',
-              message: '导出失败'
+              message: '文件导出失败'
             });
           }
         } else {
