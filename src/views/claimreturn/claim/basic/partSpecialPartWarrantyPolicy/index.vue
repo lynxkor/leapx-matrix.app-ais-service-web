@@ -17,16 +17,12 @@
         />
       </el-form-item>
       <el-form-item label="零件编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.partCode"
-          clearable
-        />
+        <tag-input v-model="form.partCodes" />
       </el-form-item>
       <el-form-item label="零件名称"  v-show="this.visibleCount === 3 || show">
         <el-input
           placeholder="请输入"
-          v-model="form.partName"
+          v-model="form.partNameLike"
           clearable
         />
       </el-form-item>
@@ -144,8 +140,9 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { getEndOfDayString } from '@/libs/utils';
+import { downloadExcel, getEndOfDayString } from '@/libs/utils';
 import ListSelect from '@/libs/components/list-select/index.vue';
+import TagInput from '@/libs/components/TagInput/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -170,6 +167,7 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
+    TagInput,
     ListSelect,
     PageSearchAction,
     LPVxeTable,
@@ -311,18 +309,18 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '零件特殊零件保修政策',
-        dataFetchPath: 'claimreturn/claim/web/basic/partSpecialPartWarrantyPolicy/page',
+        dataFetchPath: '/claimreturn/claim/web/basic/partSpecialPartWarrantyPolicy/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
-      }).then(res => {
-        if (res) {
-          if (res.excelUrl) {
-            window.location.href = res.excelUrl;
-          } else {
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '零件特殊零件保修政策.xlsx');
+          } catch (error) {
             this.$message({
               type: 'error',
-              message: '导出失败'
+              message: '文件导出失败'
             });
           }
         } else {
