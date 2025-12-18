@@ -20,6 +20,7 @@ const data = {
       localStorage.setItem('aisPageSource', JSON.stringify(aisPageSource));
       state.pageSource = arr;
       state.sourceUrl = arr1;
+      state.aisPageSource = aisPageSource;
     }
   },
   actions: {
