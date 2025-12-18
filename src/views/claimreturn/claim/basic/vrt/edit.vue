@@ -28,23 +28,17 @@
                   clearable
                 />
               </el-form-item>
-<!--              <el-form-item label="状态" prop="status">-->
-<!--                <fetch-select-->
-<!--                  :request="fetchOptions"-->
-<!--                  enumCode="StatusEnum"-->
-<!--                  v-model="form.status"-->
-<!--                  placeholder="请选择"-->
-<!--                  clearable-->
-<!--                  filterable-->
-<!--                />-->
-<!--              </el-form-item>-->
-<!--              <el-form-item label="说明" prop="dataSource">-->
-<!--                <el-input-->
-<!--                  placeholder="请输入"-->
-<!--                  v-model="form.statusDesc"-->
-<!--                  clearable-->
-<!--                />-->
-<!--              </el-form-item>-->
+              <el-form-item label="状态" prop="status">
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="StatusEnum"
+                  v-model="form.status"
+                  placeholder="请选择"
+                  disabled="disabled"
+                  clearable
+                  filterable
+                />
+              </el-form-item>
             </el-form>
           </div>
         </section>
@@ -64,6 +58,7 @@ import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import FetchSelect from '@/libs/components/FetchSelect';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -78,7 +73,7 @@ const defaultForm = {
   modifier: '',
   modifierName: '',
   remark: '',
-  status: '',
+  status: '1',
   dataSource: '',
 };
 
@@ -92,6 +87,9 @@ export default {
     }
   },
   mixins: [routeGuard, permissions],
+  components: {
+    FetchSelect
+  },
   data () {
     const form = this.getDefautlForm();
     return {

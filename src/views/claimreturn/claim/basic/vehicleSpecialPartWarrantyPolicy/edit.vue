@@ -112,9 +112,11 @@
               </el-form-item>
               <el-form-item label="备注" prop="remark">
                 <el-input
+                  type="textarea"
                   placeholder="请输入"
                   v-model="form.remark"
                   maxlength="500"
+                  show-word-limit
                   clearable
                 />
               </el-form-item>
@@ -223,7 +225,7 @@ export default {
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['整车特殊零件保修政策设置管理', `${id ? '编辑' : '新建'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['整车特殊零件保修政策设置', `${id ? '编辑' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;

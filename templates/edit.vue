@@ -167,6 +167,7 @@ import { getDetail, addOrUpdate } from '@/api/{{{{modulePath}}}}/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 {{{#isProForm}}}
 import EditTable from '@/libs/components/EditTable';
+import EditPageLayout from '@/libs/components/EditPageLayout';
 {{{/isProForm}}}
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -194,6 +195,7 @@ export default {
   components: {
     FetchSelect,
     {{{#isProForm}}}
+    EditPageLayout,
     EditTable
     {{{/isProForm}}}
   },
