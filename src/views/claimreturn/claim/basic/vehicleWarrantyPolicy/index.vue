@@ -12,7 +12,7 @@
       <el-form-item label="政策名称">
         <el-input
           placeholder="请输入"
-          v-model="form.policyName"
+          v-model="form.policyNameLike"
           clearable
         />
       </el-form-item>
@@ -72,7 +72,7 @@
         <el-form-item label="备注">
           <el-input
             placeholder="请输入"
-            v-model="form.remark"
+            v-model="form.remarkLike"
             clearable
           />
         </el-form-item>
@@ -152,7 +152,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
+import { handleBatchStatusChange, getEndOfDayString, downloadExcel } from '@/libs/utils';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import Upload from '@/libs/components/UploadDialog/index.vue';
 
@@ -215,7 +215,7 @@ export default {
             props: 'policyName',
             label: '政策名称',
             visible: true,
-            width: 200,
+            width: 220,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -229,15 +229,15 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'seriesName', label: '车系名称', visible: true, width: 200 },
-          { props: 'modelName', label: '车型名称', visible: true, width: 200 },
-          { props: 'yearTypeName', label: '车辆年款', visible: true, width: 200 },
-          { props: 'vehiclePropertyLabel', label: '车辆属性', visible: true, width: 200 },
-          { props: 'mileage', label: '里程数（KM）', visible: true, width: 200 },
-          { props: 'warrantyPeriod', label: '保修期（月）', visible: true, width: 200 },
+          { props: 'seriesName', label: '车系名称', visible: true, width: 120 },
+          { props: 'modelName', label: '车型名称', visible: true, width: 150 },
+          { props: 'yearTypeName', label: '车辆年款', visible: true, width: 120 },
+          { props: 'vehiclePropertyLabel', label: '车辆属性', visible: true, width: 120 },
+          { props: 'mileage', label: '里程数（KM）', visible: true, width: 140 },
+          { props: 'warrantyPeriod', label: '保修期（月）', visible: true, width: 140 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 180 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
           {
             props: 'operate',
             label: '操作',
@@ -307,18 +307,18 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '整车保修政策',
-        dataFetchPath: '/datacenter/claimreturn/claim/basic/vehicleWarrantyPolicy/page',
+        dataFetchPath: '/claimreturn/claim/web/basic/vehicleWarrantyPolicy/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
-      }).then(res => {
-        if (res) {
-          if (res.excelUrl) {
-            window.location.href = res.excelUrl;
-          } else {
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '整车保修政策.xlsx');
+          } catch (error) {
             this.$message({
               type: 'error',
-              message: '导出失败'
+              message: '文件导出失败'
             });
           }
         } else {

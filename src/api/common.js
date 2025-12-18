@@ -9,7 +9,7 @@ const prefix = '/datacenter/web/common/';
  */
 export function getTableConfig (tableCode) {
   return api.get(prefix + 'userDefineTable/get', { tableCode });
-};
+}
 
 /**
  * 新增或修改Table配置
@@ -42,15 +42,16 @@ export function getTemplateCode (data) {
 export function importExcelConfirmFile (formData, config = {}) {
   // 查询参数需要放在 config 或 URL 中
   return api.postExport('/data/ExcelManage/importExcelConfirm', formData, {
-    params: { // 查询参数放在 config 中
+    params: {
+      // 查询参数放在 config 中
       id: config.id,
-      token: config.token
+      token: config.token,
     },
     headers: {
       'Content-Type': 'multipart/form-data',
-      ...config.headers
+      ...config.headers,
     },
-    ...config
+    ...config,
   });
 }
 
@@ -67,7 +68,9 @@ export function exportTable (data) {
  * @param {*} data
  */
 export function getEnum (code) {
-  return api.jsonPost('/datacenter/web/common/commonDictValue/get', { dictType: code });
+  return api.jsonPost('/datacenter/web/common/commonDictValue/get', {
+    dictType: code,
+  });
 }
 
 /**
@@ -147,7 +150,10 @@ export function cityPage (data) {
  * @param {*} data
  */
 export function vehicleSalesVersionList (data) {
-  return api.jsonPost('/datacenter/web/materials/vehicleRegisteredModel/list', data);
+  return api.jsonPost(
+    '/datacenter/web/materials/vehicleRegisteredModel/list',
+    data
+  );
 }
 
 /**
@@ -164,4 +170,12 @@ export function getBuildType (data) {
  */
 export function sparePartList (data) {
   return api.jsonPost('/sp/web/basic/sparePart/listFull', data);
+}
+
+/**
+ * 备件主数据表列表查询
+ * @param {*} data
+ */
+export function sparePartListShort (data) {
+  return api.jsonPost('/sp/web/basic/sparePart/list', data);
 }

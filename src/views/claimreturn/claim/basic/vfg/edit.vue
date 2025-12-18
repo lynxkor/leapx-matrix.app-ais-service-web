@@ -72,7 +72,7 @@ const defaultForm = {
   status: '',
   createTime: '',
   modifierName: '',
-  id: null,
+  id: '',
   creator: '',
   creatorName: '',
   modifier: '',

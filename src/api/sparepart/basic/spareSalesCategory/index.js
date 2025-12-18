@@ -42,3 +42,27 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 备件可采购门店表分页查询
+ * @param {Object} data
+ */
+export function categoryPurchaseDealer (data) {
+  return api.jsonPost('/sp/web/basic/categoryPurchaseDealer/page', data);
+}
+
+/**
+ * 备件可采购门店表新增
+ * @param {Object} data
+ */
+export function addDealer (data) {
+  return api.jsonPost('/sp/web/basic/categoryPurchaseDealer/addOrUpdate', data);
+}
+
+/**
+ * 删除备件可采购门店表
+ * @param {Object} data
+ */
+export function deleteDealer (data) {
+  return api.jsonPost('/sp/web/basic/categoryPurchaseDealer/delete', data);
+}

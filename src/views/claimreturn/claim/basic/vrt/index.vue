@@ -12,14 +12,14 @@
       <el-form-item label="VRT编码">
         <el-input
           placeholder="请输入"
-          v-model="form.vrtCode"
+          v-model="form.vrtCodeLike"
           clearable
         />
       </el-form-item>
       <el-form-item label="VRT名称">
         <el-input
           placeholder="请输入"
-          v-model="form.vrtName"
+          v-model="form.vrtNameLike"
           clearable
         />
       </el-form-item>

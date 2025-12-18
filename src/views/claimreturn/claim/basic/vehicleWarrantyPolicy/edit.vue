@@ -54,12 +54,13 @@
                   listUrl="/datacenter/web/materials/vehicleYearType/list"
                   placeholder="请选择"
                   v-model="form.yearTypeId"
-                  collapseTags
                   :disabled="form.id!==''"
+                  query-key="yearTypeNameLike"
+                  collapseTags
                   auto-load-options
+                  no-param-load
                   filterable
-                  clearable
-                  :params="{modelIdList: form.modelId?[form.modelId]:[]}" />
+                  :params="{}" />
               </el-form-item>
               <el-form-item label="车辆属性" prop="vehicleProperty">
                 <fetch-select
