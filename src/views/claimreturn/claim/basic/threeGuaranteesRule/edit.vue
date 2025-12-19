@@ -22,6 +22,7 @@
                   placeholder="请输入"
                   v-model="form.ruleCode"
                   clearable
+                  disabled
                 />
               </el-form-item>
               <el-form-item label="判断依据" prop="judgmentBasis">
@@ -200,8 +201,14 @@
                 :auth="{ edit: canAddOrUpdate, delete: canAddOrUpdate }"
                 :isFocusNewRow="false"
                 :enableSingleRowSave="true"
+                :showPagination="true"
+                :current="current"
+                :pageSize="pageSize"
+                :total="total"
                 @save-row-edit="saveRowEdit"
                 @remove-row="handleRemoveRow"
+                @page-size-change="pageSizeChange"
+                @current-page-change="currentPageChange"
               />
             </div>
           </div>
@@ -218,9 +225,8 @@
         >
         <el-button
           size="small"
-          type="primary"
-          @click="submitForm('ruleForm', true)"
-          >保存并下一个</el-button
+          @click="handleBack"
+          >取消</el-button
         >
         <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
         <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
@@ -314,6 +320,9 @@ export default {
         partName: '', // 零件名称
         remark: '', // 备注
       },
+      current: 1,
+      pageSize: 10,
+      total: 0,
       tableData: [],
       options: {
         partCode: [],
@@ -516,20 +525,13 @@ export default {
       if (!id) {
         return;
       }
-      getDetailPage({ ruleId: id }).then((res) => {
+      getDetailPage({
+        ruleId: id,
+        pageSize: this.pageSize,
+        pageNum: this.current,
+      }).then((res) => {
         this.tableData = res.records;
-        // res =
-        //  {
-        //   "pageNum": 1,
-        //   "pageSize": 10,
-        //   "total": 0,
-        //   "totalPage": 0,
-        //   "code": 200,
-        //   "msg": "success",
-        //   "records": [],
-        //   "totals": 0,
-        //   "current": 1
-        // },
+        this.total = res.total;
       });
     },
     // 零件编码名称搜索
@@ -548,21 +550,21 @@ export default {
         this.options.partCode = list;
       });
     },
-    async submitForm (formName, rest = false) {
+    async submitForm (formName, reset = false) {
       try {
-        const tableData = await this.handleSaveTable();
+        // const tableData = await this.handleSaveTable();
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.submitLoading = true;
             // TIPS: customKey 根据接口格式修改
-            addOrUpdate({ ...this.form, customKey: tableData })
+            addOrUpdate({ ...this.form })
               .then((res) => {
                 this.$message({
                   message: '保存成功',
                   type: 'success',
                 });
                 const id = this.$route.query.id;
-                if (rest || !id) {
+                if (reset || !id) {
                   this.resetForm(formName);
                 } else {
                   this.getDetailData();
@@ -587,19 +589,8 @@ export default {
       // const userInfo = this.$store.state.user.userInfo;
       return {
         ...defaultForm,
-        // ownerId: userInfo.userId,
-        // ownerName: userInfo.userName,
       };
     },
-    // handleJumpAuditLog () {
-    //   this.$router.push({
-    //     path: '/xxx/auditLog',
-    //     query: {
-    //       tableCode: '',
-    //       tableId: ''
-    //     }
-    //   });
-    // },
     // 详情表格相关数据
     handleAddRow () {
       // 通过引用直接调用子组件方法
@@ -640,6 +631,7 @@ export default {
     handleUpdateTableData (data) {
       this.tableData = [...data];
     },
+    // 行保存
     saveRowEdit (row, defer) {
       const parmas = {
         id: row.id, // 修改需要
@@ -653,6 +645,14 @@ export default {
       }).catch(e => {
         defer.reject();
       });
+    },
+    pageSizeChange (pageSize) {
+      this.pageSize = pageSize;
+    },
+    currentPageChange (current) {
+      this.current = current;
+      this.getDetailPageApi(this.getId());
+      console.log(this.current);
     },
   },
 };
