@@ -58,3 +58,11 @@ export function getDetailDecryptField (id, field) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 服务活动车辆完成
+ * @param {Object} data
+ */
+export function finish (data) {
+  return api.jsonPost(prefix + 'finish', data);
+}

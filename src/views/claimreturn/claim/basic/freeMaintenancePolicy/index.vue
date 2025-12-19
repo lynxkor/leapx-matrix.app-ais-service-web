@@ -277,15 +277,15 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '新页面',
-        dataFetchPath: 'claimreturn/claim/web/basic/freeMaintenancePolicy/page',
+        businessType: '免费保养政策',
+        dataFetchPath: '/claimreturn/claim/web/basic/freeMaintenancePolicy/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '免费保养政策.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',

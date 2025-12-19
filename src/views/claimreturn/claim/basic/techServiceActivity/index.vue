@@ -137,7 +137,7 @@ import {
   getList,
   deleteItem,
   enableItem,
-  submitPartsPreparation
+  submitPartsPreparation, partsPreparationCompleted
 } from '@/api/claimreturn/claim/basic/techServiceActivity';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
@@ -247,16 +247,20 @@ export default {
               },
               type: 'info'
             }, {
-              // eslint-disable-next-line no-warning-comments
-              // todo 状态、权限控制
               name: '提交零配件准备',
+              show: (row) => {
+                return row.activityStatus === '0' && this.permissions.has('AISCR-techServiceActivity-submitPartsPreparation');
+              },
               click: this.handleSubmitPartsPreparation,
               type: 'info'
             },
             {
               name: '零配件准备完成',
               click: this.partsPreparationCompleted,
-              type: 'info'
+              type: 'info',
+              show: (row) => {
+                return row.activityStatus === '1' && this.permissions.has('AISCR-techServiceActivity-partsPreparationCompleted');
+              },
             }]
           }
         ],
@@ -479,7 +483,7 @@ export default {
     },
     partsPreparationCompleted (index, row) {
       let param = { id: row.id };
-      submitPartsPreparation(param).then(res => {
+      partsPreparationCompleted(param).then(res => {
         this.$message({
           type: 'success',
           message: '零配件准备完成'
