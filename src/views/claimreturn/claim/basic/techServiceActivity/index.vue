@@ -137,7 +137,7 @@ import {
   getList,
   deleteItem,
   enableItem,
-  submitPartsPreparation
+  submitPartsPreparation, partsPreparationCompleted
 } from '@/api/claimreturn/claim/basic/techServiceActivity';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
@@ -483,7 +483,7 @@ export default {
     },
     partsPreparationCompleted (index, row) {
       let param = { id: row.id };
-      submitPartsPreparation(param).then(res => {
+      partsPreparationCompleted(param).then(res => {
         this.$message({
           type: 'success',
           message: '零配件准备完成'
