@@ -138,10 +138,9 @@ import {
   deleteItem,
   enableItem,
   submitPartsPreparation
-} from '@/api/claimreturn/claim/basic/serviceActivity';
+} from '@/api/claimreturn/claim/basic/techServiceActivity';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
-import Upload from '@/libs/components/UploadDialog/index.vue';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
@@ -182,7 +181,7 @@ export default {
       pageTitle: '技术服务活动',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISCR-serviceActivity',
+      moduleKey: 'AISCR-techServiceActivity',
       form: {
         ...defaultForm
       },
@@ -209,7 +208,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/basic/serviceActivity/detail',
+                  path: '/claimreturn/claim/basic/techServiceActivity/detail',
                   query: {
                     id: row.id
                   }
@@ -240,7 +239,7 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/web/basic/serviceActivity/edit',
+                  path: '/claimreturn/claim/basic/techServiceActivity/edit',
                   query: {
                     id: row.id
                   }
@@ -278,7 +277,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/claimreturn/web/basic/serviceActivity/edit'
+        path: '/claimreturn/web/basic/techServiceActivity/edit'
       });
     },
     onSubmit () {
@@ -292,7 +291,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '技术服务活动',
-        dataFetchPath: 'claimreturn/claim/web/web/basic/serviceActivity/page',
+        dataFetchPath: '/claimreturn/claim/web/web/basic/techServiceActivity/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

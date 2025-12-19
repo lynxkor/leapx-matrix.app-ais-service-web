@@ -120,7 +120,7 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button> -->
       <el-button v-permission="moduleKey + '-salesImport'" size="small" @click="handleImport">销售导入</el-button>
       <el-button v-permission="moduleKey + '-transportImport'" size="small" @click="handleImport">物流导入</el-button>
       <el-button v-permission="moduleKey + '-purchaseImport'" size="small" @click="handleImport">采购导入</el-button>
@@ -210,7 +210,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '备件主数据',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-sparePart',

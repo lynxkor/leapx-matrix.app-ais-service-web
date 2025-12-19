@@ -111,7 +111,7 @@
 </template>
 
 <script>
-import { getDetail } from '@/api/claimreturn/claim/basic/serviceActivity';
+import { getDetail } from '@/api/claimreturn/claim/basic/techServiceActivity';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -126,7 +126,7 @@ export default {
       pageTitle: '技术服务活动',
       pageType: 'detail',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISCR-serviceActivity',
+      moduleKey: 'AISCR-techServiceActivity',
       loading: true,
       info: {},
       yes_no_enum_map: YES_NO_ENUM_MAP
@@ -139,7 +139,7 @@ export default {
   methods: {
     handleEdit () {
       this.$router.push({
-        path: '/claimreturn/claim/basic/serviceActivity/edit',
+        path: '/claimreturn/claim/basic/techServiceActivity/edit',
         query: {
           id: this.$route.query.id
         }

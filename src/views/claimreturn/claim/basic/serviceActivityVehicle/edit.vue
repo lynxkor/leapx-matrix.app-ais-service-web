@@ -14,7 +14,7 @@
               <el-form-item label="活动编码" prop="activityId">
                 <list-select
                   v-if="!this.$route.query.id||form.id"
-                  listUrl="/claimreturn/claim/web/basic/serviceActivity/listFull"
+                  listUrl="/claimreturn/claim/web/basic/techServiceActivity/listFull"
                   placeholder="请选择"
                   v-model="form.activityId"
                   query-key="activityCodeLike"
