@@ -354,7 +354,6 @@ export default {
               type: 'info'
             }, {
               // eslint-disable-next-line no-warning-comments
-              // todo 权限控制
               name: '完成',
               disabled: row => row.finished === '1',
               click: (rowIndex, row) => {
@@ -416,7 +415,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '服务活动车辆',
-        dataFetchPath: 'claimreturn/claim/web/basic/serviceActivityVehicle/page',
+        dataFetchPath: '/claimreturn/claim/web/basic/serviceActivityVehicle/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
