@@ -209,10 +209,9 @@ import {
   getList,
   deleteItem,
   enableItem,
-  getDetailDecrypt,
   getDetailDecryptField
 } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
