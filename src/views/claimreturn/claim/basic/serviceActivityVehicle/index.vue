@@ -192,6 +192,12 @@
       id="serviceActivityVehicle"
       @close="handleUploadDialogClose"
     />
+    <!-- 完成活动弹窗 -->
+    <FinishActDialog
+      :visible.sync="finishActDialogVisible"
+      :info="finishActDialogInfo"
+      @refresh="getData"
+    />
   </div>
 </template>
 
@@ -217,6 +223,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import TagInput from '@/libs/components/TagInput/index.vue';
 import DealerSelect from '@/components/dealer-select/index.vue';
+import FinishActDialog from './components/finishActDialog.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -252,7 +259,8 @@ export default {
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
-    Upload
+    Upload,
+    FinishActDialog
   },
   data () {
     return {
@@ -269,6 +277,8 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      finishActDialogVisible: false,
+      finishActDialogInfo: {},
       optionObj: {
         id: 'serviceActivityVehicleTable',
         dataList: [],
@@ -332,6 +342,7 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '编辑',
+              disabled: row => row.finished === '1',
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/claimreturn/claim/basic/serviceActivityVehicle/edit',
@@ -345,17 +356,15 @@ export default {
               // eslint-disable-next-line no-warning-comments
               // todo 权限控制
               name: '完成',
+              disabled: row => row.finished === '1',
               click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/claimreturn/claim/basic/serviceActivityVehicle/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
+                this.finishActDialogInfo = row;
+                this.finishActDialogVisible = true;
               },
               type: 'info'
             }, {
               name: '删除',
+              disabled: row => row.finished === '1',
               popconfirmTitle: '此操作将永久删除, 是否继续?',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
