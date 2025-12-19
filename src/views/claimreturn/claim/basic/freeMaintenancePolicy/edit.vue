@@ -30,11 +30,18 @@
                       filterable
                     />
                   </el-form-item>
-                  <el-form-item label="维修项目代码" prop="repairItemCode">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.repairItemCode"
+                  <el-form-item label="维修项目代码" prop="repairItemId">
+                    <fetch-select
+                      filterable
                       clearable
+                      remote
+                      reserve-keyword
+                      v-model="form.repairItemId"
+                      :remote-method="repairItemSearch"
+                      :params="form.repairItemCode"
+                      @change="handleRepairItemChange"
+                      value-key="id"
+                      label-key="code"
                     />
                   </el-form-item>
                   <el-form-item label="维修项目名称" prop="repairItemName">
@@ -42,34 +49,8 @@
                       placeholder="请输入"
                       v-model="form.repairItemName"
                       clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="延后天数" prop="delayDays">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.delayDays"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="免保时间（月）" prop="freePeriod">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.freePeriod"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="延后里程" prop="delayMileage">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.delayMileage"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="里程" prop="mileage">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.mileage"
-                      clearable
+                      maxLength="100"
+                      disabled
                     />
                   </el-form-item>
                   <el-form-item label="工时数" prop="workhour">
@@ -77,7 +58,49 @@
                       placeholder="请输入"
                       v-model="form.workhour"
                       clearable
+                      maxLength="100"
+                      disabled
                     />
+                  </el-form-item>
+                  <el-form-item label="免保时间" prop="freePeriod">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.freePeriod"
+                      clearable
+                      maxLength="100"
+                    >
+                      <template slot="append">月</template>
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="里程" prop="mileage">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.mileage"
+                      clearable
+                      maxLength="100"
+                    >
+                      <template slot="append">公里</template>
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="延后天数" prop="delayDays">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.delayDays"
+                      clearable
+                      maxLength="100"
+                    >
+                      <template slot="append">天</template>
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="延后里程" prop="delayMileage">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.delayMileage"
+                      clearable
+                      maxLength="100"
+                    >
+                      <template slot="append">公里</template>
+                    </el-input>
                   </el-form-item>
                 </el-form>
               </div>
@@ -128,6 +151,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { uIntRule } from '@/validation/rule';
+import { getList } from '@/api/maintain/basic/repairItem';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -223,12 +247,9 @@ export default {
         policyName: [
           { required: true, message: '请输入政策名称', trigger: 'blur' }
         ],
-        repairItemCode: [
+        repairItemId: [
           { required: true, message: '请输入维修项目代码', trigger: 'blur' }
         ],
-        // repairItemName: [
-        //   { required: true, message: '请输入维修项目名称', trigger: 'blur' }
-        // ],
         policyType: [
           { required: true, message: '请选择政策类型（免费保养，终身免费保养）', trigger: 'change' }
         ],
@@ -274,6 +295,23 @@ export default {
     this.getDetailData();
   },
   methods: {
+    handleRepairItemChange (val, record) {
+      console.log(record);
+      if (record) {
+        this.form.repairItemId = record.id;
+        this.form.repairItemCode = record.code;
+        this.form.repairItemName = record.name;
+        this.form.workhour = record.workhour;
+      }
+    },
+    async repairItemSearch (query) {
+      return getList({
+        maintenanceItemTypes: [],
+        codeLike: query,
+        pageSize: 20,
+        pageNum: 1,
+      });
+    },
     handleBack () {
       this.$router.back();
     },
@@ -290,12 +328,12 @@ export default {
     },
     async submitForm (formName, rest = false) {
       try {
-        const tableData = await this.handleSaveTable();
+        // const tableData = await this.handleSaveTable();
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.submitLoading = true;
             // TIPS: customKey 根据接口格式修改
-            addOrUpdate({ ...this.form, customKey: tableData }).then(res => {
+            addOrUpdate({ ...this.form }).then(res => {
               this.$message({
                 message: '保存成功',
                 type: 'success'
