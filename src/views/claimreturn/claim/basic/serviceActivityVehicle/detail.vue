@@ -11,7 +11,7 @@
           <h2>基础信息</h2>
         </div>
         <div class="common-section-body">
-          <el-form :inline="true" ref="ruleForm" label-width="120px">
+          <el-form :inline="true" ref="ruleForm" label-width="150px">
             <!-- TIPS: 根据实际情况调整展示字段 -->
             <el-form-item label="活动编码：" prop="activityCode">
               {{ info.activityCode  }}
