@@ -58,35 +58,34 @@
           <div class="common-section-header">
             <h2>可采购门店</h2>
           </div>
-          <div>
-          <div v-if="partsId">
-            <el-select
-              style="width: 305px;"
-              v-model="dealerCodes"
-              filterable
-              clearable
-              remote
-              placeholder="请选择"
-              :remote-method="getStoreByName"
-              @change="handleStoreChange"
-              collapse-tags
-              >
-                <el-option
-                  v-for="item in storeOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-            </el-select>
-            <el-button
-              type="primary"
-              @click="handleAddStore(1)"
-              size="small"
-            >
-              添加
-            </el-button>
-          </div>
           <div class="common-section-body">
+            <div class="ais-select-group" v-if="partsId">
+              <el-select
+                style="width: 305px;"
+                v-model="dealerCodes"
+                filterable
+                clearable
+                remote
+                placeholder="请选择"
+                :remote-method="getStoreByName"
+                @change="handleStoreChange"
+                collapse-tags
+                >
+                  <el-option
+                    v-for="item in storeOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+              </el-select>
+              <el-button
+                type="primary"
+                @click="handleAddStore(1)"
+                size="small"
+              >
+                添加
+              </el-button>
+            </div>
             <div class="common-section-table">
               <el-table
                 :data="tableData"
@@ -117,41 +116,39 @@
               </el-table>
             </div>
           </div>
-        </div>
         </section>
         <section class="common-section">
           <div class="common-section-header">
             <h2>不可采购门店</h2>
           </div>
-          <div>
-          <div class="common-section-body" v-if="partsId">
-            <el-select
-              style="width: 305px;"
-              v-model="noDealerCodes"
-              filterable
-              clearable
-              remote
-              placeholder="请选择"
-              :remote-method="getStoreByName"
-              @change="handleStoreChange"
-              collapse-tags
-              >
-                <el-option
-                  v-for="item in storeOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-            </el-select>
-            <el-button
-              type="primary"
-              @click="handleAddStore(0)"
-              size="small"
-            >
-              添加
-            </el-button>
-          </div>
           <div class="common-section-body">
+            <div class="ais-select-group" v-if="partsId">
+              <el-select
+                style="width: 305px;"
+                v-model="noDealerCodes"
+                filterable
+                clearable
+                remote
+                placeholder="请选择"
+                :remote-method="getStoreByName"
+                @change="handleStoreChange"
+                collapse-tags
+                >
+                  <el-option
+                    v-for="item in storeOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+              </el-select>
+              <el-button
+                type="primary"
+                @click="handleAddStore(0)"
+                size="small"
+              >
+                添加
+              </el-button>
+            </div>
             <div class="common-section-table">
               <el-table
                 :data="noTableData"
@@ -182,7 +179,6 @@
               </el-table>
             </div>
           </div>
-        </div>
         </section>
       </el-main>
       <el-footer height="60px">
