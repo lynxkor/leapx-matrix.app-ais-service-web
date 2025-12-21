@@ -37,6 +37,7 @@
       </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
             :picker-options="pickerOptions"
@@ -48,6 +49,7 @@
         </el-form-item>
         <el-form-item label="修改时间">
           <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
             :picker-options="pickerOptions"
@@ -138,7 +140,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '备件供应分类',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-spareSupplyCategory',
@@ -259,7 +261,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '新页面',
+        businessType: '备件供应分类',
         dataFetchPath: '/datacenter/sparepart/basic/spareSupplyCategory/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),

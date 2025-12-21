@@ -44,6 +44,7 @@
         </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
             :picker-options="pickerOptions"
@@ -55,6 +56,7 @@
         </el-form-item>
         <el-form-item label="修改时间">
           <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
             :picker-options="pickerOptions"
@@ -147,7 +149,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '供应商主数据',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-supplierInfo',
@@ -188,7 +190,7 @@ export default {
           },
           { props: 'supplierName', label: '供应商名称', visible: true, width: 200 },
           { props: 'supplierShortName', label: '供应商简称', visible: true, width: 200 },
-          { props: 'status', label: '是否启用', visible: true, width: 200 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -208,24 +210,6 @@ export default {
                 });
               },
               type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
             }]
           }
         ],

@@ -100,7 +100,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['备件适用车型', '详情']);
     this.getData();
   },
   methods: {

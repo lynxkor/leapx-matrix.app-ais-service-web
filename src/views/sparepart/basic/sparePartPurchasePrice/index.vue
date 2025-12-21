@@ -27,7 +27,7 @@
         <el-form-item label="定价模式">
           <fetch-select
             :request="fetchOptions"
-            enumCode="sparePartPricingModelEnum"
+            enumCode="PricingModelEnum"
             v-model="form.pricingModels"
             placeholder="请选择"
             clearable
@@ -38,14 +38,14 @@
         <el-form-item label="门店编码">
           <el-input
             placeholder="请输入"
-            v-model="form.dealerCodes"
+            v-model="form.dealerCode"
             clearable
           />
         </el-form-item>
         <el-form-item label="门店名称">
           <el-input
             placeholder="请输入"
-            v-model="form.dealerNames"
+            v-model="form.dealerName"
             clearable
           />
         </el-form-item>
@@ -58,6 +58,7 @@
         </el-form-item>
         <el-form-item label="生效开始日期">
           <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
             v-model="form.effectiveStartDate"
             type="daterange"
             :picker-options="pickerOptions"
@@ -69,6 +70,7 @@
         </el-form-item>
         <el-form-item label="生效结束时间">
           <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
             v-model="form.effectiveEndDatetime"
             type="daterange"
             :picker-options="pickerOptions"
@@ -83,6 +85,30 @@
             placeholder="请输入"
             v-model="form.invalidOperatorLike"
             clearable
+          />
+        </el-form-item>
+        <el-form-item label="创建时间">
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="form.createTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="修改时间">
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="form.updateTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
           />
         </el-form-item>
       </template>
@@ -135,13 +161,14 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/sparePartPurchasePrice/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
+import FetchSelect from '@/libs/components/FetchSelect';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -169,13 +196,15 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
+    FetchSelect,
     PageSearchAction,
     LPVxeTable,
     Upload
   },
   data () {
     return {
-      pageTitle: '新页面',
+      storeOptions: [],
+      pageTitle: '零配件采购价格',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-sparePartPurchasePrice',
@@ -198,10 +227,9 @@ export default {
         dataProp: [
           {
             props: 'id',
-            label: '主键',
-            visible: false,
+            label: '价格序号',
+            visible: true,
             width: 200,
-            fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -214,15 +242,32 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
+          {
+            props: 'sparePartCode',
+            label: '备件编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/sparePart/detail',
+                  query: {
+                    id: row.sparePartId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
-          { props: 'pricingModel', label: '定价模式', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码（组织code）', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称（组织名称）', visible: true, width: 200 },
+          { props: 'pricingModelLabel', label: '定价模式', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'adjustmentRatio', label: '调价比例（%）', visible: true, width: 200 },
           { props: 'effectiveStartDate', label: '生效开始日期', visible: true, width: 200 },
           { props: 'effectiveEndDatetime', label: '生效结束时间', visible: true, width: 200 },
           { props: 'invalidOperator', label: '失效操作人', visible: true, width: 200 },
+          { props: 'invalidReason', label: '失效原因', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -244,7 +289,7 @@ export default {
               type: 'info'
             }, {
               name: '失效',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
+              popconfirmTitle: '确认失效?',
               click: (rowIndex, row) => {
                 enableItem([row.id]).then(() => {
                   this.$message({
@@ -299,6 +344,32 @@ export default {
     this.getData();
   },
   methods: {
+
+    // 门店
+    getStoreByName (query) {
+      listOrgStoreInfo({
+        name: query
+      }).then(res => {
+        this.storeOptions = res?.map(item => {
+          return {
+            ...item,
+            value: item.orgCode,
+            label: item.orgName
+          };
+        });
+      });
+    },
+
+    // 处理选择门店时拿到所有的数据
+    handleStoreChange (val) {
+      // 根据 value 在 storeOptions 中查找完整的对象
+      const selectedItem = this.storeOptions.find(item => item.orgCode === val);
+      this.storeParams = {
+        dealerCode: selectedItem.orgCode,
+        dealerName: selectedItem.orgName,
+        categorySpareId: this.partsId
+      };
+    },
     handleImport () {
       this.uploadDialogVisible = true;
     },
@@ -320,7 +391,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '新页面',
+        businessType: '零配件采购价格',
         dataFetchPath: 'sparepart/web/basic/sparePartPurchasePrice/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -348,8 +419,14 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
-
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      const params = { ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size };
+      // 过滤掉空数组参数
+      Object.keys(params).forEach(key => {
+        if (Array.isArray(params[key]) && params[key].length === 0) {
+          delete params[key];
+        }
+      });
+      getList(params)
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {

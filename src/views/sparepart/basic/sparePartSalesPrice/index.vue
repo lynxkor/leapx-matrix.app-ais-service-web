@@ -32,14 +32,20 @@
       </el-form-item>
       <template v-if="show">
         <el-form-item label="生效开始日期">
-          <el-input
-            placeholder="请输入"
+          <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
             v-model="form.effectiveStartDate"
-            clearable
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
           />
         </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
             :picker-options="pickerOptions"
@@ -51,6 +57,7 @@
         </el-form-item>
         <el-form-item label="修改时间">
           <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
             :picker-options="pickerOptions"
@@ -169,9 +176,9 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePartSalesPrice/detail',
+                  path: '/sparepart/basic/sparePart/detail',
                   query: {
-                    id: row.id
+                    id: row.sparePartId
                   }
                 });
               },
@@ -200,24 +207,6 @@ export default {
                 });
               },
               type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
             }]
           }
         ],
@@ -253,7 +242,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['零配件销售价格']);
     this.getData();
   },
   methods: {
@@ -278,7 +267,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '新页面',
+        businessType: '零配件销售价格',
         dataFetchPath: 'sparepart/web/basic/sparePartSalesPrice/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -306,8 +295,14 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
-
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      const params = { ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size };
+      // 过滤掉空数组参数
+      Object.keys(params).forEach(key => {
+        if (Array.isArray(params[key]) && params[key].length === 0) {
+          delete params[key];
+        }
+      });
+      getList(params)
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {

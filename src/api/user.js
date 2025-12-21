@@ -81,3 +81,12 @@ export function getTrUrl () {
 export function getActiveBreadcrumb (params) {
   return api.post('/passport/resourceInfo/findPath', params);
 };
+
+/**
+ * 查询地区树
+ * @export
+ * @returns
+ */
+export function getAreaTree () {
+  return api.get('/area/tree');
+};

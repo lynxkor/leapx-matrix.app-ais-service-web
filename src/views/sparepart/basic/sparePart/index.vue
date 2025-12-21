@@ -88,6 +88,7 @@
         </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
             :picker-options="pickerOptions"
@@ -99,6 +100,7 @@
         </el-form-item>
         <el-form-item label="修改时间">
           <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
             :picker-options="pickerOptions"
@@ -364,7 +366,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '新页面',
+        businessType: '备件主数据',
         dataFetchPath: 'sparepart/web/basic/sparePart/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),

@@ -26,16 +26,6 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="是否启用" prop="status">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="StatusEnum"
-                  v-model="form.status"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
               <el-form-item label="可采购建店类型" prop="buildTypeCode">
                 <el-select
                   v-model="form.buildTypeCode"

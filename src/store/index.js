@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 
 import user from './modules/user';
 import menu from './modules/menu';
+import businessData from './modules/businessData';
 import pageSource from './modules/page-source';
 import enumModule from '@/libs/store/enum';
 
@@ -13,6 +14,7 @@ export default new Vuex.Store({
     user,
     menu,
     pageSource,
+    businessData,
     enum: enumModule
   }
 });

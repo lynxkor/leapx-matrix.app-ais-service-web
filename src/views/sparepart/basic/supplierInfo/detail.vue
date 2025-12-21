@@ -22,16 +22,7 @@
             <el-form-item label="供应商简称：" prop="supplierShortName">
               {{ info.supplierShortName  }}
             </el-form-item>
-            <el-form-item label="状态变更描述：" prop="statusDesc">
-              {{ info.statusDesc  }}
-            </el-form-item>
-            <el-form-item label="创建时间：" prop="createTime">
-              {{ info.createTime  }}
-            </el-form-item>
-            <el-form-item label="修改时间：" prop="updateTime">
-              {{ info.updateTime  }}
-            </el-form-item>
-            <el-form-item label="主键：" prop="id">
+            <!-- <el-form-item label="主键：" prop="id">
               {{ info.id  }}
             </el-form-item>
             <el-form-item label="创建者：" prop="creator">
@@ -45,15 +36,9 @@
             </el-form-item>
             <el-form-item label="修改者名称：" prop="modifierName">
               {{ info.modifierName  }}
-            </el-form-item>
-            <el-form-item label="备注：" prop="remark">
-              {{ info.remark  }}
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="状态：" prop="status">
-              {{ info.status  }}
-            </el-form-item>
-            <el-form-item label="数据来源，140:新销服; 老销服:10：" prop="dataSource">
-              {{ info.dataSource  }}
+              {{ info.statusLabel  }}
             </el-form-item>
             <el-form-item label="拼音简码：" prop="pinyinCode">
               {{ info.pinyinCode  }}
@@ -64,12 +49,6 @@
             <el-form-item label="是否OEM：" prop="oemFlag">
               {{ info.oemFlag  }}
             </el-form-item>
-            <el-form-item label="门店ID（组织ID）：" prop="dealerId">
-              {{ info.dealerId  }}
-            </el-form-item>
-            <el-form-item label="门店编码（组织code）：" prop="dealerCode">
-              {{ info.dealerCode  }}
-            </el-form-item>
             <el-form-item label="门店名称（组织名称）：" prop="dealerName">
               {{ info.dealerName  }}
             </el-form-item>
@@ -79,13 +58,20 @@
             <el-form-item label="供应商安全库存系数：" prop="supplierSafetyStock">
               {{ info.supplierSafetyStock  }}
             </el-form-item>
-            <el-form-item label="国家code：" prop="countryCode">
-              {{ info.countryCode  }}
-            </el-form-item>
             <el-form-item label="国家：" prop="countryName">
               {{ info.countryName  }}
             </el-form-item>
-            <el-form-item label="省code：" prop="provinceCode">
+            <el-form-item label="省市区" prop="provinceCode">
+                <el-cascader
+                  placeholder="请选择省市区"
+                  v-model="info.provinceCode"
+                  :props="orgProps"
+                  :options="areaOptions"
+                  filterable
+                  clearable>
+                </el-cascader>
+              </el-form-item>
+            <!-- <el-form-item label="省code：" prop="provinceCode">
               {{ info.provinceCode  }}
             </el-form-item>
             <el-form-item label="省：" prop="provinceName">
@@ -102,12 +88,9 @@
             </el-form-item>
             <el-form-item label="区&#x2F;县名称：" prop="districtName">
               {{ info.districtName  }}
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="详细地址：" prop="address">
               {{ info.address  }}
-            </el-form-item>
-            <el-form-item label="省市区+详细地址：" prop="fullAddress">
-              {{ info.fullAddress  }}
             </el-form-item>
             <el-form-item label="联系人姓名：" prop="contactName">
               {{ info.contactName  }}
@@ -120,6 +103,12 @@
             </el-form-item>
             <el-form-item label="联系人传真：" prop="contactFax">
               {{ info.contactFax  }}
+            </el-form-item>
+            <el-form-item label="创建时间：" prop="createTime">
+              {{ info.createTime  }}
+            </el-form-item>
+            <el-form-item label="修改时间：" prop="updateTime">
+              {{ info.updateTime  }}
             </el-form-item>
           </el-form>
         </div>
@@ -140,6 +129,14 @@ export default {
   },
   data () {
     return {
+      areaOptions: JSON.parse(localStorage.areaTree),
+      orgProps: {
+        checkStrictly: true,
+        emitPath: false,
+        label: 'name',
+        value: 'code',
+        children: 'child'
+      },
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-supplierInfo',
       loading: true,
@@ -148,7 +145,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['供应商主数据', '详情']);
     this.getData();
   },
   methods: {
