@@ -22,6 +22,8 @@
                   placeholder="请输入"
                   v-model="form.ruleCode"
                   clearable
+                  disabled
+                  maxLength="100"
                 />
               </el-form-item>
               <el-form-item label="判断依据" prop="judgmentBasis">
@@ -29,6 +31,7 @@
                   placeholder="请输入"
                   v-model="form.judgmentBasis"
                   clearable
+                  maxLength="100"
                 />
               </el-form-item>
               <el-form-item label="判断单位" prop="determineUnit">
@@ -49,6 +52,7 @@
                   placeholder="请选择"
                   clearable
                   filterable
+                  @change="accumulationChange"
                 />
               </el-form-item>
               <el-form-item label="车辆用途" prop="vehicleProperty">
@@ -85,6 +89,7 @@
                   placeholder="请输入"
                   v-model="form.warningVehicleAgeFrom"
                   clearable
+                  maxLength="100"
                 />
               </el-form-item>
               <el-form-item label="预警车龄止（天）" prop="warningVehicleAgeTo">
@@ -92,6 +97,7 @@
                   placeholder="请输入"
                   v-model="form.warningVehicleAgeTo"
                   clearable
+                  maxLength="100"
                 />
               </el-form-item>
               <el-form-item label="预警里程起（天）" prop="warningMileageFrom">
@@ -99,6 +105,7 @@
                   placeholder="请输入"
                   v-model="form.warningMileageFrom"
                   clearable
+                  maxLength="100"
                 />
               </el-form-item>
               <el-form-item label="预警里程止（天）" prop="warningMileageTo">
@@ -106,6 +113,7 @@
                   placeholder="请输入"
                   v-model="form.warningMileageTo"
                   clearable
+                  maxLength="100"
                 />
               </el-form-item>
               <el-form-item label="绿色预警区间1" prop="greenWarning1">
@@ -113,6 +121,7 @@
                   placeholder="请输入"
                   v-model="form.greenWarning1"
                   clearable
+                  maxLength="100"
                 />
               </el-form-item>
               <el-form-item label="绿色预警区间2" prop="greenWarning2">
@@ -120,6 +129,7 @@
                   placeholder="请输入"
                   v-model="form.greenWarning2"
                   clearable
+                  maxLength="100"
                 />
               </el-form-item>
               <el-form-item label="黄色预警区间2" prop="yellowWarning2">
@@ -127,6 +137,7 @@
                   placeholder="请输入"
                   v-model="form.yellowWarning2"
                   clearable
+                  maxLength="100"
                 />
               </el-form-item>
               <el-form-item label="黄色预警区间1" prop="yellowWarning1">
@@ -134,6 +145,7 @@
                   placeholder="请输入"
                   v-model="form.yellowWarning1"
                   clearable
+                  maxLength="100"
                 />
               </el-form-item>
               <el-form-item label="红色预警区间1" prop="redWarning1">
@@ -141,6 +153,7 @@
                   placeholder="请输入"
                   v-model="form.redWarning1"
                   clearable
+                  maxLength="100"
                 />
               </el-form-item>
               <el-form-item label="红色预警区间2" prop="redWarning2">
@@ -148,6 +161,7 @@
                   placeholder="请输入"
                   v-model="form.redWarning2"
                   clearable
+                  maxLength="100"
                 />
               </el-form-item>
               <el-form-item label="备注" prop="remark">
@@ -155,6 +169,7 @@
                   placeholder="请输入"
                   v-model="form.remark"
                   clearable
+                  maxLength="100"
                 />
               </el-form-item>
               <el-form-item label="警示条款" prop="reminderItem">
@@ -162,6 +177,7 @@
                   placeholder="请输入"
                   v-model="form.reminderItem"
                   clearable
+                  maxLength="100"
                 />
               </el-form-item>
               <el-form-item label="警示内容" prop="reminderContent">
@@ -169,6 +185,7 @@
                   placeholder="请输入"
                   v-model="form.reminderContent"
                   clearable
+                  maxLength="100"
                 />
               </el-form-item>
               <el-form-item label="预警内容" prop="warningContent">
@@ -176,6 +193,7 @@
                   placeholder="请输入"
                   v-model="form.warningContent"
                   clearable
+                  maxLength="100"
                 />
               </el-form-item>
             </el-form>
@@ -200,8 +218,14 @@
                 :auth="{ edit: canAddOrUpdate, delete: canAddOrUpdate }"
                 :isFocusNewRow="false"
                 :enableSingleRowSave="true"
+                :showPagination="true"
+                :current="current"
+                :pageSize="pageSize"
+                :total="total"
                 @save-row-edit="saveRowEdit"
                 @remove-row="handleRemoveRow"
+                @page-size-change="pageSizeChange"
+                @current-page-change="currentPageChange"
               />
             </div>
           </div>
@@ -218,12 +242,9 @@
         >
         <el-button
           size="small"
-          type="primary"
-          @click="submitForm('ruleForm', true)"
-          >保存并下一个</el-button
+          @click="handleBack"
+          >取消</el-button
         >
-        <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
-        <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
       </el-footer>
     </el-container>
   </div>
@@ -233,19 +254,15 @@
 import {
   getDetail,
   addOrUpdate,
-  getDetailPage,
-  //
-  addOrUpdateDetail,
-  deleteDetailItem,
 } from '@/api/claimreturn/claim/basic/threeGuaranteesRule';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
-import { getEnum, sparePartListShort } from '@/api/common';
+import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { uIntRule } from '@/validation/rule';
+import tableMixin from './tableMixin';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -292,7 +309,7 @@ export default {
       default: null,
     },
   },
-  mixins: [routeGuard, permissions, commonMixins],
+  mixins: [routeGuard, permissions, commonMixins, tableMixin],
   components: {
     FetchSelect,
     EditTable,
@@ -309,149 +326,6 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      defaultNewRow: {
-        partId: '', // 零件id
-        partName: '', // 零件名称
-        remark: '', // 备注
-      },
-      tableData: [],
-      options: {
-        partCode: [],
-      },
-      // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
-      columns: [
-        {
-          field: 'partCode',
-          title: '零件编码',
-          width: '33%',
-          editable: true,
-          editRender: {
-            name: 'ElSelect',
-            multiRow: true,
-            props: {
-              filterable: true,
-              clearable: true,
-              remote: true,
-              remoteMethod: this.sparePartListApi,
-              placeholder: '请选择',
-              'suffix-icon': 'el-icon-search',
-            },
-          },
-          rules: [
-            { required: true, message: '零件编码不能为空', trigger: 'blur' },
-          ],
-        },
-        {
-          field: 'partName',
-          title: '零件名称',
-          width: '33%',
-        },
-        {
-          field: 'remark',
-          title: '备注',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-        },
-      ],
-      rules: {
-        ruleCode: [
-          { required: true, message: '请输入三包规则编码', trigger: 'blur' },
-        ],
-        judgmentBasis: [
-          { required: true, message: '请输入判断依据', trigger: 'blur' },
-        ],
-        determineUnit: [
-          {
-            required: true,
-            message: '请输入判断单位（次数，天数）',
-            trigger: 'blur',
-          },
-        ],
-        accumulation: [
-          {
-            required: true,
-            message: '请输入累计方式（单一零件，任意零件）',
-            trigger: 'blur',
-          },
-        ],
-        vehicleProperty: [
-          {
-            required: true,
-            message:
-              '请输入车辆属性（家用，营运，B级车，J级车，J1级车，专车，报废灭失）',
-            trigger: 'blur',
-          },
-        ],
-        saleStartDate: [
-          { required: true, message: '请输入销售开始日期', trigger: 'blur' },
-        ],
-        saleEndDate: [
-          { required: true, message: '请输入销售结束日期', trigger: 'blur' },
-        ],
-        warningVehicleAgeFrom: [
-          { required: true, message: '请输入预警车龄起', trigger: 'blur' },
-          uIntRule,
-        ],
-        warningVehicleAgeTo: [
-          { required: true, message: '请输入预警车龄止', trigger: 'blur' },
-          uIntRule,
-        ],
-        warningMileageFrom: [
-          { required: true, message: '请输入预警里程起', trigger: 'blur' },
-          uIntRule,
-        ],
-        warningMileageTo: [
-          { required: true, message: '请输入预警里程止', trigger: 'blur' },
-          uIntRule,
-        ],
-        greenWarning1: [
-          // { required: true, message: '请输入绿色预警区间1', trigger: 'blur' },
-          uIntRule,
-        ],
-        greenWarning2: [
-          // { required: true, message: '请输入绿色预警区间2', trigger: 'blur' },
-          uIntRule,
-        ],
-        yellowWarning2: [
-          // { required: true, message: '请输入黄色预警区间2', trigger: 'blur' },
-          uIntRule,
-        ],
-        yellowWarning1: [
-          // { required: true, message: '请输入黄色预警区间1', trigger: 'blur' },
-          uIntRule,
-        ],
-        redWarning1: [
-          // { required: true, message: '请输入红色预警区间1', trigger: 'blur' },
-          uIntRule,
-        ],
-        redWarning2: [
-          // { required: true, message: '请输入红色预警区间2', trigger: 'blur' },
-          uIntRule,
-        ],
-        status: [{ required: true, message: '请选择状态', trigger: 'change' }],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' },
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' },
-        ],
-        id: [{ required: true, message: '请输入主键', trigger: 'blur' }],
-        remark: [{ required: true, message: '请输入备注', trigger: 'blur' }],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' },
-        ],
-        reminderItem: [
-          { required: true, message: '请输入警示条款', trigger: 'blur' },
-        ],
-        reminderContent: [
-          { required: true, message: '请输入警示内容', trigger: 'blur' },
-        ],
-        warningContent: [
-          { required: true, message: '请输入预警内容', trigger: 'blur' },
-        ],
-        details: [{ required: true, message: '请输入明细', trigger: 'blur' }],
-      },
       pickerOptions: {
         shortcuts: [
           {
@@ -506,63 +380,24 @@ export default {
           this.loading = false;
           Object.assign(this.form, res);
           Object.assign(this.originalForm, res);
-
-          this.getDetailPageApi(this.originalForm.id);
         });
       }
     },
-    // 表格数据
-    getDetailPageApi (id) {
-      if (!id) {
-        return;
-      }
-      getDetailPage({ ruleId: id }).then((res) => {
-        this.tableData = res.records;
-        // res =
-        //  {
-        //   "pageNum": 1,
-        //   "pageSize": 10,
-        //   "total": 0,
-        //   "totalPage": 0,
-        //   "code": 200,
-        //   "msg": "success",
-        //   "records": [],
-        //   "totals": 0,
-        //   "current": 1
-        // },
-      });
-    },
-    // 零件编码名称搜索
-    sparePartListApi (query) {
-      sparePartListShort({ partCodeOrNameLike: query, oemPart: 1 }).then((data) => {
-        const list = data.map((item) => {
-          return {
-            value: item.id,
-            label: item.code,
-            labelDesc: item.name,
-            partId: item.id, // 表格
-            partCode: item.code, // 表格
-            partName: item.name,
-          };
-        });
-        this.options.partCode = list;
-      });
-    },
-    async submitForm (formName, rest = false) {
+    async submitForm (formName, reset = false) {
       try {
-        const tableData = await this.handleSaveTable();
+        // const tableData = await this.handleSaveTable();
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.submitLoading = true;
             // TIPS: customKey 根据接口格式修改
-            addOrUpdate({ ...this.form, customKey: tableData })
+            addOrUpdate({ ...this.form })
               .then((res) => {
                 this.$message({
                   message: '保存成功',
                   type: 'success',
                 });
                 const id = this.$route.query.id;
-                if (rest || !id) {
+                if (reset || !id) {
                   this.resetForm(formName);
                 } else {
                   this.getDetailData();
@@ -587,47 +422,7 @@ export default {
       // const userInfo = this.$store.state.user.userInfo;
       return {
         ...defaultForm,
-        // ownerId: userInfo.userId,
-        // ownerName: userInfo.userName,
       };
-    },
-    // handleJumpAuditLog () {
-    //   this.$router.push({
-    //     path: '/xxx/auditLog',
-    //     query: {
-    //       tableCode: '',
-    //       tableId: ''
-    //     }
-    //   });
-    // },
-    // 详情表格相关数据
-    handleAddRow () {
-      // 通过引用直接调用子组件方法
-      this.$refs.editTable.addRow();
-    },
-    handleRemoveRow (row, index, defer) {
-      if (!row.id) {
-        return;
-      }
-      deleteDetailItem([row.id]).then((d) => {
-        defer.resolve();
-        this.$message.success('删除成功');
-      }).catch(() => {
-        defer.reject();
-      });
-    },
-    handleSaveTable (data) {
-      // 调用保存方法并处理结果
-      return new Promise((resolve, reject) => {
-        this.$refs.editTable
-          .saveAll()
-          .then((data) => {
-            resolve(data);
-          })
-          .catch((error) => {
-            reject(error);
-          });
-      });
     },
     async fetchOptions (code) {
       if (code) {
@@ -635,25 +430,11 @@ export default {
       }
       return [];
     },
-    // --------------------------------------------------------------
-    // 处理更新表格数据事件
-    handleUpdateTableData (data) {
-      this.tableData = [...data];
-    },
-    saveRowEdit (row, defer) {
-      const parmas = {
-        id: row.id, // 修改需要
-        partId: row.partId, // 零件ID
-        remark: row.remark,
-        ruleId: this.getId(), // 三包规则ID
-      };
-      addOrUpdateDetail(parmas).then(id => {
-        defer.resolve(id);
-        this.$message.success('更新成功');
-      }).catch(e => {
-        defer.reject();
-      });
-    },
+    accumulationChange (val) {
+      if (val === '2') {
+        this.$message.info('切换为任意零件，零件明细将被清空');
+      }
+    }
   },
 };
 </script>
