@@ -150,7 +150,7 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="1"
+      :id="sparePartPurchasePriceImport"
       @close="handleUploadDialogClose"
     />
   </div>

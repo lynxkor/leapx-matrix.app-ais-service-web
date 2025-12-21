@@ -106,7 +106,7 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="1"
+      :id="'sparePartSalesPriceImport'"
       @close="handleUploadDialogClose"
     />
   </div>
