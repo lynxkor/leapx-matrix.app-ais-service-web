@@ -352,33 +352,33 @@
           <div class="common-section-body">
             <div class="common-section-table">
               <el-table
-                :data="tableData"
+                :data="supplierData"
                 style="width: 100%"
                 fit
                 stripe
                 highlight-current-row
               >
-                <el-table-column prop="dealerName" label="供应商代码" width="280"></el-table-column>
-                <el-table-column prop="dealerCode" label="供应商名称" width="280"></el-table-column>
+                <el-table-column prop="supplierCode" label="供应商代码" width="280"></el-table-column>
+                <el-table-column prop="supplierName" label="供应商名称" width="280"></el-table-column>
               </el-table>
             </div>
           </div>
         </section>
         <section class="common-section">
           <div class="common-section-header">
-            <h2>车型信息</h2>
+            <h2>车型信息 <el-button type="primary" size="small" plain @click.stop="handleModel">维护车型</el-button></h2>
           </div>
           <div class="common-section-body">
             <div class="common-section-table">
               <el-table
-                :data="tableData"
+                :data="modelData"
                 style="width: 100%"
                 fit
                 stripe
                 highlight-current-row
               >
-                <el-table-column prop="dealerName" label="车辆年型" width="280"></el-table-column>
-                <el-table-column prop="dealerCode" label="车型名称" width="280"></el-table-column>
+                <el-table-column prop="vehicleYearTypeName" label="车辆年型" width="280"></el-table-column>
+                <el-table-column prop="vehicleModelName" label="车型名称" width="280"></el-table-column>
               </el-table>
             </div>
           </div>
@@ -390,17 +390,21 @@
           <div class="common-section-body">
             <div class="common-section-table">
               <el-table
-                :data="tableData"
+                :data="replacementData"
                 style="width: 100%"
                 fit
                 stripe
                 highlight-current-row
               >
-                <el-table-column prop="dealerName" label="替换关系" width="180"></el-table-column>
-                <el-table-column prop="dealerCode" label="替换前件号" width="180"></el-table-column>
-                <el-table-column prop="dealerCode" label="替换前名称" width="180"></el-table-column>
-                <el-table-column prop="dealerCode" label="替换后件号" width="180"></el-table-column>
-                <el-table-column prop="dealerCode" label="替换后名称" width="180"></el-table-column>
+                <el-table-column prop="replacementType" label="替换关系" width="180">
+                  <template slot-scope="scope">
+                    {{ scope.row.replacementType === 1 ? '单向替换' : '双向替换' }}
+                  </template>
+                </el-table-column>
+                <el-table-column prop="beforePartCode" label="替换前件号" width="180"></el-table-column>
+                <el-table-column prop="beforePartName" label="替换前名称" width="180"></el-table-column>
+                <el-table-column prop="afterPartCode" label="替换后件号" width="180"></el-table-column>
+                <el-table-column prop="afterPartName" label="替换后名称" width="180"></el-table-column>
               </el-table>
             </div>
           </div>
@@ -412,6 +416,8 @@
         <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
       </el-footer>
     </el-container>
+    <!-- 维护车型弹窗组件 -->
+    <ModelDialog :visible="modelDialogVisible" :modelId="modelId" @success="getDetailData" @close="handleCloseModel" />
   </div>
 </template>
 
@@ -423,6 +429,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import ModelDialog from './model.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -485,6 +492,7 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     FetchSelect,
+    ModelDialog
   },
   data () {
     const form = this.getDefautlForm();
@@ -498,7 +506,11 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      tableData: [],
+      modelId: '', // 备件编辑id
+      modelData: [], // 车型信息
+      supplierData: [], // 供应商信息
+      replacementData: [], // 替换件信息
+      modelDialogVisible: false, // 适配车型弹窗
       rules: {
         partCode: [
           { required: true, message: '请输入备件编码', trigger: 'blur' }
@@ -665,6 +677,9 @@ export default {
           this.loading = false;
           Object.assign(this.form, res);
           Object.assign(this.originalForm, res);
+          this.supplierData = res.sparePartSupplierRespList || []; // 供应商信息
+          this.modelData = res.sparePartVehicleModelRespList || []; // 车型信息
+          this.replacementData = res.sparePartReplacerRespList || []; // 替换件信息
         });
       }
     },
@@ -717,7 +732,16 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    // 适配车型弹窗
+    handleModel () {
+      this.modelId = this.$route.query.id;
+      this.modelDialogVisible = true;
+    },
+    // 处理关闭弹窗事件
+    handleCloseModel () {
+      this.modelDialogVisible = false;
+    },
   }
 };
 </script>
