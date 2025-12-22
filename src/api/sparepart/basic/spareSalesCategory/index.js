@@ -2,6 +2,7 @@ import api from '@/axios';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = '/sp/web/basic/spareSalesCategory/';
+const prefixDeale = '/sp/web/basic/categoryPurchaseDealer/';
 
 /**
  * 查询列表
@@ -48,7 +49,7 @@ export function enableItem (data) {
  * @param {Object} data
  */
 export function categoryPurchaseDealer (data) {
-  return api.jsonPost('/sp/web/basic/categoryPurchaseDealer/page', data);
+  return api.jsonPost(prefixDeale + 'page', data);
 }
 
 /**
@@ -56,7 +57,7 @@ export function categoryPurchaseDealer (data) {
  * @param {Object} data
  */
 export function addDealer (data) {
-  return api.jsonPost('/sp/web/basic/categoryPurchaseDealer/addOrUpdate', data);
+  return api.jsonPost(prefixDeale + 'addOrUpdate', data);
 }
 
 /**
@@ -64,5 +65,5 @@ export function addDealer (data) {
  * @param {Object} data
  */
 export function deleteDealer (data) {
-  return api.jsonPost('/sp/web/basic/categoryPurchaseDealer/delete', data);
+  return api.jsonPost(prefixDeale + 'delete', data);
 }

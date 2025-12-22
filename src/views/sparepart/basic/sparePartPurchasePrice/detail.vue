@@ -28,10 +28,10 @@
             <el-form-item label="门店采购价格：" prop="dealerPurchasePrice">
               {{ info.dealerPurchasePrice  }}
             </el-form-item>
-            <el-form-item label="门店编码（组织code）：" prop="dealerCode">
+            <el-form-item label="门店编码：" prop="dealerCode">
               {{ info.dealerCode  }}
             </el-form-item>
-            <el-form-item label="门店名称（组织名称）：" prop="dealerName">
+            <el-form-item label="门店名称：" prop="dealerName">
               {{ info.dealerName  }}
             </el-form-item>
             <el-form-item label="调价比例（%）：" prop="adjustmentRatio">
@@ -55,7 +55,7 @@
             <el-form-item label="修改时间：" prop="updateTime">
               {{ info.updateTime  }}
             </el-form-item>
-            <el-form-item label="创建者：" prop="creator">
+            <!-- <el-form-item label="创建者：" prop="creator">
               {{ info.creator  }}
             </el-form-item>
             <el-form-item label="创建者名称：" prop="creatorName">
@@ -66,14 +66,14 @@
             </el-form-item>
             <el-form-item label="修改者名称：" prop="modifierName">
               {{ info.modifierName  }}
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="备注：" prop="remark">
               {{ info.remark  }}
             </el-form-item>
-            <el-form-item label="状态：" prop="status">
-              {{ info.status  }}
+            <el-form-item label="是否启用：" prop="status">
+              {{ info.statusLabel  }}
             </el-form-item>
-            <el-form-item label="状态变更描述：" prop="statusDesc">
+            <!-- <el-form-item label="状态变更描述：" prop="statusDesc">
               {{ info.statusDesc  }}
             </el-form-item>
             <el-form-item label="数据来源，140:新销服; 老销服:10：" prop="dataSource">
@@ -84,7 +84,7 @@
             </el-form-item>
             <el-form-item label="门店ID（组织ID）：" prop="dealerId">
               {{ info.dealerId  }}
-            </el-form-item>
+            </el-form-item> -->
           </el-form>
         </div>
       </section>
@@ -112,7 +112,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['零配件采购价格', '详情']);
     this.getData();
   },
   methods: {

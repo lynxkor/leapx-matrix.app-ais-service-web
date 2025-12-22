@@ -11,41 +11,47 @@
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="价格序号">
+              <!-- <el-form-item label="价格序号">
                 <el-input
                   placeholder=""
                   disabled="true"
                   v-model="form.id"
                   clearable
                 />
-              </el-form-item>
+              </el-form-item> -->
               <el-form-item label="定价模式">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="sparePartPricingModelEnum"
+                  enumCode="PricingModelEnum"
                   v-model="form.pricingModel"
                   placeholder="请选择"
                   clearable
+                  :disabled="this.$route.query.id"
                   filterable
                 />
               </el-form-item>
-              <el-form-item label="门店ID（组织ID）" prop="dealerId">
-                <el-input
-                  placeholder="请输入"
+              <el-form-item label="门店" prop="dealerCode" v-if="form.pricingModel != 'standardPrice'">
+                <el-select
+                  style="width: 305px;"
+                  v-model="form.dealerCode"
+                  filterable
+                  clearable
+                  remote
                   :disabled="this.$route.query.id"
-                  v-model="form.dealerId"
-                  clearable
-                />
+                  placeholder="请选择"
+                  :remote-method="getStoreByName"
+                  @change="handleStoreChange"
+                  collapse-tags
+                  >
+                    <el-option
+                      v-for="item in storeOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                </el-select>
               </el-form-item>
-              <el-form-item label="门店名称" prop="dealerName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.dealerName"
-                  disabled="true"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="零件编码">
+              <el-form-item label="零件编码" prop="sparePartCode"  v-if="form.pricingModel != 'dealerPriceRatio'">
                 <fetch-select
                   prop="sparePartCode"
                   filterable
@@ -60,7 +66,7 @@
                   @change="listSparePartChange"
                 />
               </el-form-item>
-              <el-form-item label="零件名称" prop="sparePartName">
+              <el-form-item label="零件名称"  v-if="form.pricingModel != 'dealerPriceRatio'">
                 <el-input
                   placeholder="请输入"
                   v-model="form.sparePartName"
@@ -68,14 +74,21 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="采购价格" prop="dealerPurchasePrice">
+              <el-form-item label="采购价格" prop="dealerPurchasePrice" v-if="form.pricingModel != 'dealerPriceRatio'">
                 <el-input
                   placeholder="请输入"
                   v-model="form.dealerPurchasePrice"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="生效开始日期">
+              <el-form-item label="调价比例(%)" prop="adjustmentRatio" v-if="form.pricingModel == 'dealerPriceRatio'">
+                <el-input
+                  placeholder="请输入"
+                  v-model="form.adjustmentRatio"
+                  clearable
+                />
+              </el-form-item>
+              <el-form-item label="生效开始日期" prop="effectiveStartDate">
                 <el-date-picker
                   v-model="form.effectiveStartDate"
                   :picker-options="effectiveStartDate"
@@ -85,9 +98,10 @@
                   end-placeholder="结束日期"
                 />
               </el-form-item>
-              <el-form-item label="生效结束时间">
+              <el-form-item label="生效结束时间"  v-if="form.pricingModel != 'standardPrice'">
                 <el-date-picker
                   v-model="form.effectiveEndDatetime"
+                  disabled="true"
                   :picker-options="effectiveEndDatetime"
                   range-separator="至"
                   value-format="yyyy-MM-dd HH:mm:ss"
@@ -109,11 +123,12 @@
 <script>
 import { getDetail, addOrUpdate } from '@/api/sparepart/basic/sparePartPurchasePrice/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getEnum } from '@/api/common';
+import { getEnum, listOrgStoreInfo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import { getSparePart } from '@/api/sparepart/basic/sparePart/index';
+import DealerSelect from '@/components/dealer-select/index.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -155,12 +170,14 @@ export default {
   mixins: [routeGuard, permissions],
   components: {
     FetchSelect,
+    DealerSelect,
   },
   data () {
     const form = this.getDefautlForm();
     return {
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-sparePartPurchasePrice',
+      storeOptions: [],
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -273,7 +290,31 @@ export default {
     this.getDetailData();
   },
   methods: {
+    // 门店
+    getStoreByName (query) {
+      listOrgStoreInfo({
+        name: query
+      }).then(res => {
+        this.storeOptions = res?.map(item => {
+          return {
+            ...item,
+            value: item.orgCode,
+            label: item.orgName
+          };
+        });
+      });
+    },
 
+    // 处理选择门店时拿到所有的数据
+    handleStoreChange (val) {
+      // 根据 value 在 storeOptions 中查找完整的对象
+      const selectedItem = this.storeOptions.find(item => item.orgCode === val);
+      this.storeParams = {
+        dealerCode: selectedItem.orgCode,
+        dealerName: selectedItem.orgName,
+        categorySpareId: this.partsId
+      };
+    },
     async listSparePart (query) {
       var a = await getSparePart({ partCodeOrNameLike: query });
       return a;

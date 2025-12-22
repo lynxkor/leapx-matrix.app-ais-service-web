@@ -9,44 +9,49 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="主键">
-        <el-input
-          placeholder="请输入"
-          v-model="form.id"
-          clearable
-        />
-      </el-form-item>
       <el-form-item label="供应商编码">
         <el-input
           placeholder="请输入"
-          v-model="form.supplierCode"
+          v-model="form.supplierCodeLike"
           clearable
         />
       </el-form-item>
-      <el-form-item label="供应商名称"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.supplierName"
-          clearable
-        />
-      </el-form-item>
-      <template v-if="show">
-        <el-form-item label="备件编码">
+      <el-form-item label="备件编码">
           <el-input
             placeholder="请输入"
-            v-model="form.partCode"
+            v-model="form.partCodeLike"
             clearable
           />
         </el-form-item>
+      <template v-if="show">
+        <el-form-item label="供应商名称"  v-show="this.visibleCount === 3 || show">
+        <el-input
+          placeholder="请输入"
+          v-model="form.supplierNameLike"
+          clearable
+        />
+      </el-form-item>
         <el-form-item label="备件名称">
           <el-input
             placeholder="请输入"
-            v-model="form.partName"
+            v-model="form.partNameLike"
             clearable
+          />
+        </el-form-item>
+        <el-form-item label="是否启用">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.statusIncludeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
           />
         </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
             :picker-options="pickerOptions"
@@ -58,6 +63,7 @@
         </el-form-item>
         <el-form-item label="修改时间">
           <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
             :picker-options="pickerOptions"
@@ -65,17 +71,6 @@
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="状态">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.status"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
           />
         </el-form-item>
       </template>
@@ -91,9 +86,9 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
+      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
@@ -139,10 +134,10 @@ import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   id: '',
-  supplierCode: '',
-  supplierName: '',
-  partCode: '',
-  partName: '',
+  supplierCodeLike: '',
+  supplierNameLike: '',
+  partCodeLike: '',
+  partNameLike: '',
   createTime: '',
   updateTime: '',
   status: '',
@@ -163,7 +158,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '供应商零配件关系',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-sparePartSupplier',
@@ -186,7 +181,7 @@ export default {
         dataProp: [
           {
             props: 'id',
-            label: '主键',
+            label: '关系ID',
             visible: true,
             width: 200,
             fixed: 'left',
@@ -202,50 +197,84 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'supplierCode', label: '供应商编码', visible: true, width: 200 },
-          { props: 'supplierName', label: '供应商名称', visible: true, width: 200 },
-          { props: 'partCode', label: '备件编码', visible: true, width: 200 },
-          { props: 'partName', label: '备件名称', visible: true, width: 200 },
-          { props: 'statusDesc', label: '状态变更描述', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
+            props: 'supplierCode',
+            label: '供应商编码',
             visible: true,
-            fixed: 'right',
+            width: 200,
+            fixed: 'left',
             buttons: [{
-              name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePartSupplier/edit',
+                  path: '/sparepart/basic/supplierInfo/detail',
                   query: {
-                    id: row.id
+                    id: row.supplierInfoId
                   }
                 });
               },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
+              type: 'primary'
+            }]
+          },
+          { props: 'supplierName', label: '供应商名称', visible: true, width: 200 },
+          {
+            props: 'partCode',
+            label: '备件编码',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
               click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
+                this.$router.push({
+                  path: '/sparepart/basic/sparepart/detail',
+                  query: {
+                    id: row.sparePartId
+                  }
                 });
               },
-              type: 'danger'
+              type: 'primary'
             }]
-          }
+          },
+          { props: 'partName', label: '备件名称', visible: true, width: 200 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          // {
+          //   props: 'operate',
+          //   label: '操作',
+          //   type: 'operate',
+          //   visible: true,
+          //   fixed: 'right',
+          //   buttons: [{
+          //     name: '编辑',
+          //     click: (rowIndex, row) => {
+          //       this.$router.push({
+          //         path: '/sparepart/basic/sparePartSupplier/edit',
+          //         query: {
+          //           id: row.id
+          //         }
+          //       });
+          //     },
+          //     type: 'info'
+          //   }, {
+          //     name: '删除',
+          //     popconfirmTitle: '此操作将永久删除, 是否继续?',
+          //     click: (rowIndex, row) => {
+          //       deleteItem([row.id]).then(() => {
+          //         this.$message({
+          //           type: 'success',
+          //           message: '删除成功!'
+          //         });
+          //         this.getData();
+          //       }).catch(() => {
+          //         this.$message({
+          //           type: 'error',
+          //           message: '删除失败!'
+          //         });
+          //       });
+          //     },
+          //     type: 'danger'
+          //   }]
+          // }
         ],
         total: 0
       },

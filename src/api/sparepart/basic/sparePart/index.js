@@ -46,3 +46,27 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 备件适用车型表分页查询
+ * @param {Object} data
+ */
+export function searchVehicleModel (data) {
+  return api.jsonPost('/sp/web/basic/sparePartVehicleModel/page', data);
+}
+
+/**
+ * 备件适用车型表新增/编辑
+ * @param {Object} data
+ */
+export function addOrUpdateVehicleModel (data) {
+  return api.jsonPost('/sp-local/web/basic/sparePartVehicleModel/addOrUpdate', data);
+}
+
+/**
+ * 备件适用车型表删除
+ * @param {Object} data
+ */
+export function deleteVehicleModel (data) {
+  return api.jsonPost('/sp/web/basic/sparePartVehicleModel/delete', data);
+}

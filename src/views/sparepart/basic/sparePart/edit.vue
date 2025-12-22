@@ -203,6 +203,7 @@
               </el-form-item>
               <el-form-item label="包装前长(mm)" prop="domesticPrePackageLengthMm">
                 <el-input
+                  type="number"
                   placeholder="请输入"
                   v-model="form.domesticPrePackageLengthMm"
                   clearable
@@ -210,6 +211,7 @@
               </el-form-item>
               <el-form-item label="包装后长(mm)" prop="domesticPostPackageLengthMm">
                 <el-input
+                  type="number"
                   placeholder="请输入"
                   v-model="form.domesticPostPackageLengthMm"
                   clearable
@@ -227,6 +229,7 @@
               </el-form-item>
               <el-form-item label="包装前宽(mm)" prop="domesticPrePackageWidthMm">
                 <el-input
+                  type="number"
                   placeholder="请输入"
                   v-model="form.domesticPrePackageWidthMm"
                   clearable
@@ -234,6 +237,7 @@
               </el-form-item>
               <el-form-item label="包装前后宽(mm)" prop="domesticPostPackageWidthMm">
                 <el-input
+                  type="number"
                   placeholder="请输入"
                   v-model="form.domesticPostPackageWidthMm"
                   clearable
@@ -248,6 +252,7 @@
               </el-form-item>
               <el-form-item label="包装前高(mm)" prop="domesticPrePackageHeightMm">
                 <el-input
+                  type="number"
                   placeholder="请输入"
                   v-model="form.domesticPrePackageHeightMm"
                   clearable
@@ -255,6 +260,7 @@
               </el-form-item>
               <el-form-item label="包装前后高(mm)" prop="domesticPostPackageHeightMm">
                 <el-input
+                  type="number"
                   placeholder="请输入"
                   v-model="form.domesticPostPackageHeightMm"
                   clearable
@@ -268,6 +274,7 @@
               </el-form-item>
               <el-form-item label="包装前体积(cm³)" prop="domesticPrePackageVolumeCm3">
                 <el-input
+                  type="number"
                   placeholder="请输入"
                   v-model="form.domesticPrePackageVolumeCm3"
                   clearable
@@ -275,6 +282,7 @@
               </el-form-item>
               <el-form-item label="包装后体积(cm³)" prop="domesticPostPackageVolumeCm3">
                 <el-input
+                  type="number"
                   placeholder="请输入"
                   v-model="form.domesticPostPackageVolumeCm3"
                   clearable
@@ -288,6 +296,7 @@
               </el-form-item>
               <el-form-item label="包装前重量(kg)" prop="domesticPrePackageWeightKg">
                 <el-input
+                  type="number"
                   placeholder="请输入"
                   v-model="form.domesticPrePackageWeightKg"
                   clearable
@@ -295,6 +304,7 @@
               </el-form-item>
               <el-form-item label="包装后重量(kg)" prop="domesticPostPackageWeightKg">
                 <el-input
+                  type="number"
                   placeholder="请输入"
                   v-model="form.domesticPostPackageWeightKg"
                   clearable
@@ -352,33 +362,33 @@
           <div class="common-section-body">
             <div class="common-section-table">
               <el-table
-                :data="tableData"
+                :data="supplierData"
                 style="width: 100%"
                 fit
                 stripe
                 highlight-current-row
               >
-                <el-table-column prop="dealerName" label="供应商代码" width="280"></el-table-column>
-                <el-table-column prop="dealerCode" label="供应商名称" width="280"></el-table-column>
+                <el-table-column prop="supplierCode" label="供应商代码" width="280"></el-table-column>
+                <el-table-column prop="supplierName" label="供应商名称" width="280"></el-table-column>
               </el-table>
             </div>
           </div>
         </section>
         <section class="common-section">
           <div class="common-section-header">
-            <h2>车型信息</h2>
+            <h2>车型信息 <el-button type="primary" size="small" plain @click.stop="handleModel">维护车型</el-button></h2>
           </div>
           <div class="common-section-body">
             <div class="common-section-table">
               <el-table
-                :data="tableData"
+                :data="modelData"
                 style="width: 100%"
                 fit
                 stripe
                 highlight-current-row
               >
-                <el-table-column prop="dealerName" label="车辆年型" width="280"></el-table-column>
-                <el-table-column prop="dealerCode" label="车型名称" width="280"></el-table-column>
+                <el-table-column prop="vehicleYearTypeName" label="车辆年型" width="280"></el-table-column>
+                <el-table-column prop="vehicleModelName" label="车型名称" width="280"></el-table-column>
               </el-table>
             </div>
           </div>
@@ -390,17 +400,21 @@
           <div class="common-section-body">
             <div class="common-section-table">
               <el-table
-                :data="tableData"
+                :data="replacementData"
                 style="width: 100%"
                 fit
                 stripe
                 highlight-current-row
               >
-                <el-table-column prop="dealerName" label="替换关系" width="180"></el-table-column>
-                <el-table-column prop="dealerCode" label="替换前件号" width="180"></el-table-column>
-                <el-table-column prop="dealerCode" label="替换前名称" width="180"></el-table-column>
-                <el-table-column prop="dealerCode" label="替换后件号" width="180"></el-table-column>
-                <el-table-column prop="dealerCode" label="替换后名称" width="180"></el-table-column>
+                <el-table-column prop="replacementType" label="替换关系" width="180">
+                  <template slot-scope="scope">
+                    {{ scope.row.replacementType === 1 ? '单向替换' : '双向替换' }}
+                  </template>
+                </el-table-column>
+                <el-table-column prop="beforePartCode" label="替换前件号" width="180"></el-table-column>
+                <el-table-column prop="beforePartName" label="替换前名称" width="180"></el-table-column>
+                <el-table-column prop="afterPartCode" label="替换后件号" width="180"></el-table-column>
+                <el-table-column prop="afterPartName" label="替换后名称" width="180"></el-table-column>
               </el-table>
             </div>
           </div>
@@ -412,6 +426,8 @@
         <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
       </el-footer>
     </el-container>
+    <!-- 维护车型弹窗组件 -->
+    <ModelDialog :visible="modelDialogVisible" :modelId="modelId" @success="getDetailData" @close="handleCloseModel" />
   </div>
 </template>
 
@@ -423,6 +439,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import ModelDialog from './model.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -485,6 +502,7 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     FetchSelect,
+    ModelDialog
   },
   data () {
     const form = this.getDefautlForm();
@@ -498,7 +516,11 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      tableData: [],
+      modelId: '', // 备件编辑id
+      modelData: [], // 车型信息
+      supplierData: [], // 供应商信息
+      replacementData: [], // 替换件信息
+      modelDialogVisible: false, // 适配车型弹窗
       rules: {
         partCode: [
           { required: true, message: '请输入备件编码', trigger: 'blur' }
@@ -507,7 +529,37 @@ export default {
           { required: true, message: '请输入备件名称', trigger: 'blur' }
         ],
         minOrderQuantity: [
-          { required: false, message: '请输入最小订购量', trigger: 'blur' }
+          { required: false, message: '请输入最小订购量', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              // 非必填，允许为空
+              if (value === null || value === undefined || value === '') {
+                callback();
+                return;
+              }
+              // 转换为数字
+              const num = Number(value);
+              // 检查转换是否有效
+              if (isNaN(num)) {
+                callback(new Error('请输入有效的数字'));
+                return;
+              }
+              // 检查是否为整数
+              if (Math.floor(num) !== num) {
+                callback(new Error('请输入整数'));
+                return;
+              }
+              // 根据需求选择条件：
+              // 1. 大于0的整数：num > 0
+              // 2. 大于等于0的整数：num >= 0
+              if (num < 0) {
+                callback(new Error('请输入大于等于0的整数'));
+                return;
+              }
+              callback();
+            },
+            trigger: 'blur'
+          }
         ],
         salePrice: [
           { required: false, message: '请输入销售价格', trigger: 'blur' }
@@ -584,14 +636,17 @@ export default {
         maintenanceSplitQuantityIs: [
           { required: false, message: '请输入保修是否拆分数量', trigger: 'blur' }
         ],
-        domesticPrePackageWeightKg: [
-          { required: false, message: '请输入国内包装前重量（kg）', trigger: 'blur' }
-        ],
+        // 初始化时调用方法生成规则
+        domesticPrePackageWeightKg: this.createNumberRule({
+          fieldName: '国内包装前重量',
+          unit: 'kg',
+          required: false
+        }),
         domesticPrePackageLengthMm: [
-          { required: false, message: '请输入国内包装前长（mm）', trigger: 'blur' }
+          { required: false, message: '请输入国内包装前长（mm）', trigger: 'blur' },
         ],
         domesticPrePackageWidthMm: [
-          { required: false, message: '请输入国内包装前宽（mm）', trigger: 'blur' }
+          { required: false, message: '请输入国内包装前宽（mm）', trigger: 'blur' },
         ],
         domesticPrePackageHeightMm: [
           { required: false, message: '请输入国内包装前高（mm）', trigger: 'blur' }
@@ -618,7 +673,37 @@ export default {
           { required: false, message: '请输入基本计量单位', trigger: 'blur' }
         ],
         supplierMinOrderQuantity: [
-          { required: false, message: '请输入供应商起订量', trigger: 'blur' }
+          { required: false, message: '请输入供应商起订量', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              // 非必填，允许为空
+              if (value === null || value === undefined || value === '') {
+                callback();
+                return;
+              }
+              // 转换为数字
+              const num = Number(value);
+              // 检查转换是否有效
+              if (isNaN(num)) {
+                callback(new Error('请输入有效的数字'));
+                return;
+              }
+              // 检查是否为整数
+              if (Math.floor(num) !== num) {
+                callback(new Error('请输入整数'));
+                return;
+              }
+              // 根据需求选择条件：
+              // 1. 大于0的整数：num > 0
+              // 2. 大于等于0的整数：num >= 0
+              if (num < 0) {
+                callback(new Error('请输入大于等于0的整数'));
+                return;
+              }
+              callback();
+            },
+            trigger: 'blur'
+          }
         ],
       },
       pickerOptions: {
@@ -665,6 +750,9 @@ export default {
           this.loading = false;
           Object.assign(this.form, res);
           Object.assign(this.originalForm, res);
+          this.supplierData = res.sparePartSupplierRespList || []; // 供应商信息
+          this.modelData = res.sparePartVehicleModelRespList || []; // 车型信息
+          this.replacementData = res.sparePartReplacerRespList || []; // 替换件信息
         });
       }
     },
@@ -717,7 +805,67 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
-  }
+    },
+    // 适配车型弹窗
+    handleModel () {
+      this.modelId = this.$route.query.id;
+      this.modelDialogVisible = true;
+    },
+    // 处理关闭弹窗事件
+    handleCloseModel () {
+      this.modelDialogVisible = false;
+    },
+    /**
+     * 创建数值验证规则
+     * @param {Object} options 配置选项
+     * @returns {Array} 验证规则数组
+     */
+    createNumberRule ({ fieldName, unit = '', required = false, trigger = 'blur' }) {
+      const displayName = unit ? `${fieldName}（${unit}）` : fieldName;
+
+      return [
+        {
+          required,
+          message: `请输入${displayName}`,
+          trigger
+        },
+        {
+          validator: (rule, value, callback) => {
+            // 非必填且值为空时通过验证
+            if (!required && (value === '' || value === undefined || value === null)) {
+              callback();
+              return;
+            }
+
+            // 转换为数字类型
+            const numValue = Number(value);
+
+            // 检查是否为有效数字
+            if (isNaN(numValue)) {
+              callback(new Error(`${displayName}必须为有效数字`));
+              return;
+            }
+
+            // 检查是否为负数
+            if (numValue < 0) {
+              callback(new Error(`${displayName}不能为负数`));
+              return;
+            }
+
+            // 检查小数位数
+            const strValue = value.toString();
+            const decimalCount = (strValue.split('.')[1] || '').length;
+            if (decimalCount > 2) {
+              callback(new Error(`${displayName}最多只能保留两位小数`));
+              return;
+            }
+
+            callback();
+          },
+          trigger
+        }
+      ];
+    },
+  },
 };
 </script>

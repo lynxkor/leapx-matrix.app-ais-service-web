@@ -52,7 +52,7 @@
         <el-form-item label="备注">
           <el-input
             placeholder="请输入"
-            v-model="form.remark"
+            v-model="form.remarkLike"
             clearable
           />
         </el-form-item>
@@ -69,6 +69,7 @@
         </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
             :picker-options="pickerOptions"
@@ -80,6 +81,7 @@
         </el-form-item>
         <el-form-item label="修改时间">
           <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
             :picker-options="pickerOptions"
@@ -154,7 +156,7 @@ const defaultForm = {
   replacementTypeIncludeList: [],
   afterPartCodeLike: '',
   afterPartNameLike: '',
-  remark: '',
+  remarkLike: '',
   createTime: '',
   updateTime: '',
   status: '',
@@ -175,7 +177,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '零配件替换关系',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-sparePartReplacer',
@@ -205,9 +207,9 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePartReplacer/detail',
+                  path: '/sparepart/basic/sparePart/detail',
                   query: {
-                    id: row.id
+                    id: row.beforeSparePartId
                   }
                 });
               },
@@ -216,7 +218,24 @@ export default {
           },
           { props: 'beforePartName', label: '替换前备件名称', visible: true, width: 200 },
           { props: 'replacementTypeLabel', label: '替换类型', visible: true, width: 200 },
-          { props: 'afterPartCode', label: '替换后前备件编码', visible: true, width: 200 },
+          {
+            props: 'afterPartCode',
+            label: '替换后前备件编码',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/sparePart/detail',
+                  query: {
+                    id: row.afterSparePartId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'afterPartName', label: '替换后前备件名称', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
@@ -317,7 +336,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '新页面',
+        businessType: '零配件替换关系',
         dataFetchPath: 'sparepart/web/basic/sparePartReplacer/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),

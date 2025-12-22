@@ -225,7 +225,7 @@
       <el-footer height="60px">
         <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
         <el-button size="small" @click="handleBack">取消</el-button>
-        <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
+        <el-button v-if="form.id" size="small" @click="handleJumpAuditLog">审核日志</el-button>
       </el-footer>
     </el-container>
     <!-- 公共弹窗组件 -->
@@ -445,72 +445,14 @@ export default {
         maintenanceItemType: [
           { required: true, message: '请选择保养项目分类', trigger: 'change' }
         ],
-        maintenanceTime: [
-          { required: false, message: '请选择保养时间（月）', trigger: 'blur' },
-          {
-            validator: (rule, value, callback) => {
-              // 非必填，允许为空
-              if (value === null || value === undefined || value === '') {
-                callback();
-                return;
-              }
-              // 转换为数字
-              const num = Number(value);
-              // 检查转换是否有效
-              if (isNaN(num)) {
-                callback(new Error('请输入有效的数字'));
-                return;
-              }
-              // 检查是否为整数
-              if (Math.floor(num) !== num) {
-                callback(new Error('请输入整数'));
-                return;
-              }
-              // 根据需求选择条件：
-              // 1. 大于0的整数：num > 0
-              // 2. 大于等于0的整数：num >= 0
-              if (num < 0) {
-                callback(new Error('请输入大于等于0的整数'));
-                return;
-              }
-              callback();
-            },
-            trigger: 'blur'
-          }
-        ],
-        maintenanceMileage: [
-          { required: false, message: '请输入保养里程（KM）', trigger: 'blur' },
-          {
-            validator: (rule, value, callback) => {
-              // 非必填，允许为空
-              if (value === null || value === undefined || value === '') {
-                callback();
-                return;
-              }
-              // 转换为数字
-              const num = Number(value);
-              // 检查转换是否有效
-              if (isNaN(num)) {
-                callback(new Error('请输入有效的数字'));
-                return;
-              }
-              // 检查是否为整数
-              if (Math.floor(num) !== num) {
-                callback(new Error('请输入整数'));
-                return;
-              }
-              // 根据需求选择条件：
-              // 1. 大于0的整数：num > 0
-              // 2. 大于等于0的整数：num >= 0
-              if (num < 0) {
-                callback(new Error('请输入大于等于0的整数'));
-                return;
-              }
-              callback();
-            },
-            trigger: 'blur'
-          }
-        ],
+        maintenanceTime: this.createNumberRule({
+          fieldName: '请选择保养时间（月）',
+          required: false
+        }),
+        maintenanceMileage: this.createNumberRule({
+          fieldName: '请输入下次保养里程',
+          required: false
+        }),
         isBatteryRepair: [
           { required: true, message: '请输入是否电池维修专用', trigger: 'blur' }
         ],
@@ -541,72 +483,15 @@ export default {
         timeInterval: [
           { required: false, message: '请选择时间间隔计算标准', trigger: 'change' }
         ],
-        nextMaintenanceMileage: [
-          { required: false, message: '请输入下次保养计算里程', trigger: 'blur' },
-          {
-            validator: (rule, value, callback) => {
-              // 非必填，允许为空
-              if (value === null || value === undefined || value === '') {
-                callback();
-                return;
-              }
-              // 转换为数字
-              const num = Number(value);
-              // 检查转换是否有效
-              if (isNaN(num)) {
-                callback(new Error('请输入有效的数字'));
-                return;
-              }
-              // 检查是否为整数
-              if (Math.floor(num) !== num) {
-                callback(new Error('请输入整数'));
-                return;
-              }
-              // 根据需求选择条件：
-              // 1. 大于0的整数：num > 0
-              // 2. 大于等于0的整数：num >= 0
-              if (num < 0) {
-                callback(new Error('请输入大于等于0的整数'));
-                return;
-              }
-              callback();
-            },
-            trigger: 'blur'
-          }
-        ],
-        nextMaintenanceTime: [
-          { required: false, message: '请选择下次保养计算时间', trigger: 'blur' },
-          {
-            validator: (rule, value, callback) => {
-              // 非必填，允许为空
-              if (value === null || value === undefined || value === '') {
-                callback();
-                return;
-              }
-              // 转换为数字
-              const num = Number(value);
-              // 检查转换是否有效
-              if (isNaN(num)) {
-                callback(new Error('请输入有效的数字'));
-                return;
-              }
-              // 检查是否为整数
-              if (Math.floor(num) !== num) {
-                callback(new Error('请输入整数'));
-                return;
-              }
-              // 根据需求选择条件：
-              // 1. 大于0的整数：num > 0
-              // 2. 大于等于0的整数：num >= 0
-              if (num < 0) {
-                callback(new Error('请输入大于等于0的整数'));
-                return;
-              }
-              callback();
-            },
-            trigger: 'blur'
-          }
-        ],
+        // 初始化时调用方法生成规则
+        nextMaintenanceMileage: this.createNumberRule({
+          fieldName: '请输入下次保养计算里程',
+          required: false
+        }),
+        nextMaintenanceTime: this.createNumberRule({
+          fieldName: '请选择下次保养计算时间',
+          required: false
+        }),
       },
       pickerOptions: {
         shortcuts: [{
@@ -744,15 +629,9 @@ export default {
       this.tableDataPj = [];
       this.form = { ...defaultForm };
     },
-    // handleJumpAuditLog () {
-    //   this.$router.push({
-    //     path: '/xxx/auditLog',
-    //     query: {
-    //       tableCode: '',
-    //       tableId: ''
-    //     }
-    //   });
-    // },
+    handleJumpAuditLog () {
+      this.$auditLog.show({ id: this.$route.query.id || this.form.id });
+    },
     // 处理维修类型选择变更事件
     handleRepairItemChange (val) {
       const selectedVal = this.repairItemOptions.find(option => option.value === val);
@@ -911,6 +790,53 @@ export default {
     // 处理关闭弹窗事件
     handleCloseModel () {
       this.modelDialogVisible = false;
+    },
+    /**
+     * 创建数值验证规则
+     * @param {Object} options 配置选项
+     * @returns {Array} 验证规则数组
+     */
+    createNumberRule ({ fieldName, unit = '', required = false, trigger = 'blur' }) {
+      const displayName = unit ? `${fieldName}（${unit}）` : fieldName;
+
+      return [
+        {
+          required,
+          message: `请输入${displayName}`,
+          trigger
+        },
+        {
+          validator: (rule, value, callback) => {
+            // 非必填且值为空时通过验证
+            // 非必填，允许为空
+            if (value === null || value === undefined || value === '') {
+              callback();
+              return;
+            }
+            // 转换为数字
+            const num = Number(value);
+            // 检查转换是否有效
+            if (isNaN(num)) {
+              callback(new Error('请输入有效的数字'));
+              return;
+            }
+            // 检查是否为整数
+            if (Math.floor(num) !== num) {
+              callback(new Error('请输入整数'));
+              return;
+            }
+            // 根据需求选择条件：
+            // 1. 大于0的整数：num > 0
+            // 2. 大于等于0的整数：num >= 0
+            if (num < 0) {
+              callback(new Error('请输入大于等于0的整数'));
+              return;
+            }
+            callback();
+          },
+          trigger
+        }
+      ];
     },
   }
 };

@@ -13,12 +13,9 @@
         <div class="common-section-body">
           <el-form :inline="true" ref="ruleForm" label-width="120px">
             <!-- TIPS: 根据实际情况调整展示字段 -->
-            <el-form-item label="主键：" prop="id">
+            <!-- <el-form-item label="主键：" prop="id">
               {{ info.id  }}
-            </el-form-item>
-            <el-form-item label="供应商ID：" prop="supplierInfoId">
-              {{ info.supplierInfoId  }}
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="供应商编码：" prop="supplierCode">
               {{ info.supplierCode  }}
             </el-form-item>
@@ -31,8 +28,11 @@
             <el-form-item label="备件名称：" prop="partName">
               {{ info.partName  }}
             </el-form-item>
-            <el-form-item label="状态变更描述：" prop="statusDesc">
-              {{ info.statusDesc  }}
+            <el-form-item label="是否启用：" prop="status">
+              {{ info.statusLabel  }}
+            </el-form-item>
+            <el-form-item label="配额数值：" prop="quota">
+              {{ info.quota  }}
             </el-form-item>
             <el-form-item label="创建时间：" prop="createTime">
               {{ info.createTime  }}
@@ -40,7 +40,7 @@
             <el-form-item label="修改时间：" prop="updateTime">
               {{ info.updateTime  }}
             </el-form-item>
-            <el-form-item label="创建者：" prop="creator">
+            <!-- <el-form-item label="创建者：" prop="creator">
               {{ info.creator  }}
             </el-form-item>
             <el-form-item label="创建者名称：" prop="creatorName">
@@ -63,10 +63,8 @@
             </el-form-item>
             <el-form-item label="备件ID：" prop="sparePartId">
               {{ info.sparePartId  }}
-            </el-form-item>
-            <el-form-item label="配额数值：" prop="quota">
-              {{ info.quota  }}
-            </el-form-item>
+            </el-form-item> -->
+
           </el-form>
         </div>
       </section>
@@ -94,7 +92,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['供应商零配件关系', '详情']);
     this.getData();
   },
   methods: {

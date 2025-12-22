@@ -82,7 +82,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['备件工程分类', '详情']);
     this.getData();
   },
   methods: {

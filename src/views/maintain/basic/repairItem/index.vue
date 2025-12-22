@@ -252,6 +252,12 @@ export default {
                 });
               },
               type: 'danger'
+            }, {
+              name: '日志',
+              click: (rowIndex, row) => {
+                this.$auditLog.show({ id: row.id });
+              },
+              type: 'info'
             }]
           }
         ],

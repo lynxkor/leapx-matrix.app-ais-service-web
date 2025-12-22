@@ -23,20 +23,22 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.supplierName"
+                  @change="handleSupplierNameChange()"
                   clearable
+                />
+              </el-form-item>
+              <el-form-item label="拼音简码">
+                <el-input
+                  placeholder="请输入"
+                  v-model="form.pinyincode"
+                  clearable
+                  disabled="true"
                 />
               </el-form-item>
               <el-form-item label="供应商简称" prop="supplierShortName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.supplierShortName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="国家code" prop="countryCode">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.countryCode"
                   clearable
                 />
               </el-form-item>
@@ -50,59 +52,20 @@
                   filterable
                 />
               </el-form-item>
-              <el-form-item label="省code" prop="provinceCode">
-                <el-input
-                  placeholder="请输入"
+              <el-form-item label="省市区" prop="provinceCode">
+                <el-cascader
+                  placeholder="请选择省市区"
                   v-model="form.provinceCode"
-                  clearable
-                />
+                  :props="orgProps"
+                  :options="areaOptions"
+                  filterable
+                  clearable>
+                </el-cascader>
               </el-form-item>
-              <el-form-item label="省" prop="provinceName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.provinceName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="市code" prop="cityCode">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.cityCode"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="市" prop="cityName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.cityName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="区&#x2F;县编码" prop="districtCode">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.districtCode"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="区&#x2F;县名称" prop="districtName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.districtName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="详细地址" prop="address">
+              <el-form-item label="地址" prop="address">
                 <el-input
                   placeholder="请输入"
                   v-model="form.address"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="省市区+详细地址" prop="fullAddress">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.fullAddress"
                   clearable
                 />
               </el-form-item>
@@ -110,13 +73,6 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.supplierLevel"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="拼音简码" prop="supplierLevel">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.pinyincode"
                   clearable
                 />
               </el-form-item>
@@ -148,16 +104,6 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="是否启用" prop="status">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="BooleanEnum"
-                  v-model="form.status"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
             </el-form>
           </div>
         </section>
@@ -178,6 +124,7 @@ import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -217,6 +164,7 @@ const defaultForm = {
   contactPhone: '',
   contactEmail: '',
   contactFax: '',
+  areaCode: [],
 };
 
 export default {
@@ -228,15 +176,24 @@ export default {
       default: null
     }
   },
-  mixins: [routeGuard, permissions],
+  mixins: [routeGuard, permissions, commonMixins],
   components: {
     FetchSelect,
   },
   data () {
     const form = this.getDefautlForm();
     return {
+      areaOptions: JSON.parse(localStorage.areaTree),
+      orgProps: {
+        checkStrictly: true,
+        emitPath: false,
+        label: 'name',
+        value: 'code',
+        children: 'child'
+      },
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-supplierInfo',
+      pageType: 'edit',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -385,12 +342,18 @@ export default {
     this.getDetailData();
   },
   methods: {
+
+    handleSupplierNameChange () {
+      console.log('handleSupplierNameChange');
+      // TODO 获取供应商名称  supplierName 获取 pinyincode 王涛
+      this.form.pinyinCode = this.form.supplierName;
+    },
     handleBack () {
       this.$router.back();
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['供应商', `${id ? '编辑' : '新建'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['供应商主数据', `${id ? '编辑' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;

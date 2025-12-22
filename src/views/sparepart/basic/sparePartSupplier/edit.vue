@@ -11,7 +11,7 @@
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="供应商编码">
+              <el-form-item label="供应商编码" prop="supplierCode">
                 <fetch-select
                   prop="supplierCode"
                   filterable
@@ -34,7 +34,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="零件编码">
+              <el-form-item label="零件编码" prop="sparePartCode">
                 <fetch-select
                   prop="sparePartCode"
                   filterable
@@ -55,16 +55,6 @@
                   v-model="form.sparePartName"
                   disabled="true"
                   clearable
-                />
-              </el-form-item>
-              <el-form-item label="是否启用" prop="status">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="BooleanEnum"
-                  v-model="form.status"
-                  placeholder="请选择"
-                  clearable
-                  filterable
                 />
               </el-form-item>
               <el-form-item label="配额数值" prop="quota">
@@ -143,59 +133,14 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       rules: {
-        id: [
-          { required: true, message: '请输入主键', trigger: 'blur' }
-        ],
-        supplierInfoId: [
-          { required: true, message: '请输入供应商ID', trigger: 'blur' }
-        ],
         supplierCode: [
-          { required: true, message: '请输入供应商编码', trigger: 'blur' }
+          { required: true, message: '请选择供应商', trigger: 'blur' }
         ],
-        supplierName: [
-          { required: true, message: '请输入供应商名称', trigger: 'blur' }
-        ],
-        partCode: [
-          { required: true, message: '请输入备件编码', trigger: 'blur' }
-        ],
-        partName: [
-          { required: true, message: '请输入备件名称', trigger: 'blur' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'blur' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'blur' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'blur' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'blur' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，140:新销服; 老销服:10', trigger: 'blur' }
-        ],
-        sparePartId: [
-          { required: true, message: '请输入备件ID', trigger: 'blur' }
+        sparePartCode: [
+          { required: true, message: '请选择备件', trigger: 'blur' }
         ],
         quota: [
-          { required: true, message: '请输入配额数值', trigger: 'blur' }
+          { required: false, message: '请输入配额数值', trigger: 'blur' }
         ],
       },
       pickerOptions: {
