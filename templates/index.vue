@@ -272,7 +272,12 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
+                  {{{#isProForm}}}
+                  path: '/{{{{modulePath}}}}/edit',
+                  {{{/isProForm}}}
+                  {{{^isProForm}}}
                   path: '/{{{{modulePath}}}}/detail',
+                  {{{/isProForm}}}
                   query: {
                     id: row.id
                   }

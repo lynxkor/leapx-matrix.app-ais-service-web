@@ -6,6 +6,18 @@
       <div class="page-common-edit">
         <el-container>
           <el-main>
+            <section class="common-title" v-if="_id">
+              {{{#top1List}}}
+              <h2>{{{description}}}：{{ form.{{{key}}} }}</h2>
+              {{{/top1List}}}
+              <div v-if="isEditing">
+                <el-button size="small" @click="handleCancel">取消</el-button>
+                <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
+              </div>
+              <div v-else>
+                <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
+              </div>
+            </section>
             <section class="common-section">
               <div class="common-section-header">
                 <h2>基础信息</h2>
@@ -13,7 +25,7 @@
               <div class="common-section-body">
                 <!-- TIPS: 如果填写项小于15项，去掉 :inline="true" -->
                 <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"  v-if="isEditing">
                 {{{#cols}}}
                 {{{#isDate}}}
                   <el-form-item label="{{{description}}}" prop="{{{key}}}">
@@ -57,6 +69,18 @@
                 {{{/isNormal}}}
                 {{{/cols}}}
                 </el-form>
+                <el-form :inline="true" class="form-detail" v-else>
+                {{{#cols}}}
+                  <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+                    {{{#isBoolean}}}
+                    {{ yes_no_enum_map[form.{{{key}}}] }}
+                    {{{/isBoolean}}}
+                    {{{^isBoolean}}}
+                    {{ form.{{{key}}} }}
+                    {{{/isBoolean}}}
+                  </el-form-item>
+                {{{/cols}}}
+                </el-form>
               </div>
             </section>
             <section class="common-section">
@@ -79,7 +103,7 @@
               </div>
             </section>
           </el-main>
-          <el-footer height="60px">
+          <el-footer height="60px" v-if="!_id">
             <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
             <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
             <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
@@ -199,6 +223,11 @@ export default {
     EditTable
     {{{/isProForm}}}
   },
+  computed: {
+    _id () {
+      return this.id || this.$route.query.id || this.form.id;
+    }
+  },
   data () {
     const form = this.getDefautlForm();
     return {
@@ -206,6 +235,7 @@ export default {
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-{{{name}}}',
+      isEditing: false,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -264,7 +294,7 @@ export default {
       {{{/isSelect}}}
       {{{#isNormal}}}
         {{{key}}}: [
-          { required: true, message: '请输入{{{description}}}', trigger: 'blur' }
+          { required: true, message: '请输入{{{description}}}', trigger: 'change' }
         ],
       {{{/isNormal}}}
       {{{/cols}}}
@@ -281,6 +311,13 @@ export default {
     },
     handleBack () {
       this.$router.back();
+    },
+    handleCancel () {
+      this.$refs.ruleForm.clearValidate();
+      this.isEditing = false;
+    },
+    handleEdit () {
+      this.isEditing = true;
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
