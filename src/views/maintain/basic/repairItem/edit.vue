@@ -225,7 +225,7 @@
       <el-footer height="60px">
         <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
         <el-button size="small" @click="handleBack">取消</el-button>
-        <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
+        <el-button v-if="form.id" size="small" @click="handleJumpAuditLog">审核日志</el-button>
       </el-footer>
     </el-container>
     <!-- 公共弹窗组件 -->
@@ -744,15 +744,9 @@ export default {
       this.tableDataPj = [];
       this.form = { ...defaultForm };
     },
-    // handleJumpAuditLog () {
-    //   this.$router.push({
-    //     path: '/xxx/auditLog',
-    //     query: {
-    //       tableCode: '',
-    //       tableId: ''
-    //     }
-    //   });
-    // },
+    handleJumpAuditLog () {
+      this.$auditLog.show({ id: this.$route.query.id || this.form.id });
+    },
     // 处理维修类型选择变更事件
     handleRepairItemChange (val) {
       const selectedVal = this.repairItemOptions.find(option => option.value === val);
