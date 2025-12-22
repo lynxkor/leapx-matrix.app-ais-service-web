@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "prepare": "husky install",
-    "local": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve --mode local",
+    "local": "set NODE_OPTIONS=--openssl-legacy-provider --max-old-space-size=8192 && vue-cli-service serve --mode local",
     "sit": "vue-cli-service build --mode sit",
     "uat": "vue-cli-service build --mode uat",
     "build": "vue-cli-service build",
