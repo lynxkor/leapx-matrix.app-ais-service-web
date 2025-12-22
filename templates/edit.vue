@@ -305,10 +305,12 @@ export default {
     this.getDetailData();
   },
   methods: {
+    {{{#isProForm}}}
     // 打开侧边栏
     openPane () {
       this.$refs.editLayout.openPane();
     },
+    {{{/isProForm}}}
     handleBack () {
       this.$router.back();
     },
