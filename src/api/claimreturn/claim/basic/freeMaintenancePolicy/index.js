@@ -42,3 +42,23 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+const prefixDetail = 'claimreturn/claim/web/basic/freeMaintenancePolicyPartDetail/';
+
+// 公告车型列表查询
+export function detailList (data) {
+  return api.jsonPost(prefixDetail + 'vehicleRegisteredMode/list', data);
+}
+
+// 免保零件明细删除
+export function freeMaintenancePolicyPartDetailDelete (data) {
+  return api.jsonPost(prefixDetail + 'delete', data);
+}
+// 免保零件明细分页查询
+export function freeMaintenancePolicyPartDetailPage (data) {
+  return api.jsonPost(prefixDetail + 'page', data);
+}
+// 免保零件明细新增/编辑
+export function freeMaintenancePolicyPartDetailUpdate (data) {
+  return api.jsonPost(prefixDetail + 'addOrUpdate', data);
+}

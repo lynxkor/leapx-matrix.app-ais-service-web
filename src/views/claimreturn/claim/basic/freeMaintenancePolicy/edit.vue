@@ -23,7 +23,7 @@
                   <el-form-item label="政策类型" prop="policyType">
                     <fetch-select
                       :request="fetchOptions"
-                      enumCode="xxx"
+                      enumCode="claim_free_maintenance_policy_type"
                       v-model="form.policyType"
                       placeholder="请选择"
                       clearable
@@ -106,9 +106,61 @@
               </div>
             </section>
             <section class="common-section">
-              <div class="common-section-header">
-                <h2>区块标题</h2>
-                <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              <div class="common-section-header common-section-tip">
+                <h2>零件信息</h2><span class="p-1">个别公告车型使用不同零件时可以添加多套方案，常规只需使用默认方案即可。</span>
+              </div>
+              <div class="common-section-body">
+                <leap-tabs
+                  :items="items"
+                  :value="vehicleRegisteredModelId"
+                  closeTip="确定删除该公共车型吗？"
+                  @change="onTabChange"
+                  @close="onTabClose"
+                  @add="onTabAdd"
+                  >
+                  <template slot="add-popover">
+                    <fetch-select
+                      filterable
+                      clearable
+                      remote
+                      reserve-keyword
+                      v-model="tabValue"
+                      :remote-method="tabValueRemote"
+                      @change="handleTabValueChange"
+                      value-key="id"
+                      label-key="registeredModelName"
+                      placeholder="请输入公告车型代码/名称"
+                    />
+                  </template>
+                </leap-tabs>
+              </div>
+            </section>
+            <section class="common-section">
+              <div
+                v-if="canAddOrUpdate"
+                class="common-section-header"
+              >
+                <fetch-box>
+                  <fetch-select
+                    filterable
+                    clearable
+                    remote
+                    reserve-keyword
+                    v-model="part"
+                    :remote-method="partRemote"
+                    @change="handlePartChange"
+                    value-key="id"
+                    label-key="partName"
+                    placeholder="请输入零件编码/名称"
+                  />
+                  <el-button
+                    type="primary"
+                    size="small"
+                    @click="handleAddPart"
+                    >
+                    添加
+                  </el-button>
+                </fetch-box>
               </div>
               <div class="common-section-body">
                 <div class="common-section-table">
@@ -119,7 +171,17 @@
                     :defaultNewRow="defaultNewRow"
                     :show-toolbar="false"
                     :options="options"
-                    :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                    :auth="{ edit: canAddOrUpdate, delete: canAddOrUpdate }"
+                    :isFocusNewRow="false"
+                    :enableSingleRowSave="true"
+                    :showPagination="true"
+                    :current="current"
+                    :pageSize="pageSize"
+                    :total="total"
+                    @save-row-edit="saveRowEdit"
+                    @remove-row="handleRemoveRow"
+                    @page-size-change="pageSizeChange"
+                    @current-page-change="currentPageChange"
                   />
                 </div>
               </div>
@@ -127,9 +189,11 @@
           </el-main>
           <el-footer height="60px">
             <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-            <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
-            <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
-            <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
+            <el-button
+              size="small"
+              @click="handleBack"
+              >取消</el-button
+            >
           </el-footer>
         </el-container>
       </div>
@@ -141,17 +205,21 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/claimreturn/claim/basic/freeMaintenancePolicy';
+import { getDetail, addOrUpdate, detailList } from '@/api/claimreturn/claim/basic/freeMaintenancePolicy';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
-import { getEnum } from '@/api/common';
+import FetchBox from '@/libs/components/FetchBox';
+import { getEnum, vehicleSalesVersionList, sparePartList } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { uIntRule } from '@/validation/rule';
 import { getList } from '@/api/maintain/basic/repairItem';
+import LeapTabs from '@/libs/components/LeapTabs/index.vue';
+import { debounce } from 'lodash';
+import tableMixin from './tableMixin';
+import { uIntRule } from '@/validation/rule';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -188,11 +256,13 @@ export default {
       default: null
     }
   },
-  mixins: [routeGuard, permissions, commonMixins],
+  mixins: [routeGuard, permissions, commonMixins, tableMixin],
   components: {
     FetchSelect,
     EditTable,
-    EditPageLayout
+    EditPageLayout,
+    LeapTabs,
+    FetchBox,
   },
   data () {
     const form = this.getDefautlForm();
@@ -206,62 +276,6 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      defaultNewRow: {
-        name: '',
-      },
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
-      // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
-      columns: [
-        {
-          field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
-        },
-        {
-          field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
-        },
-        {
-          field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
-        },
-      ],
-      rules: {
-        policyName: [
-          { required: true, message: '请输入政策名称', trigger: 'blur' }
-        ],
-        repairItemId: [
-          { required: true, message: '请输入维修项目代码', trigger: 'blur' }
-        ],
-        policyType: [
-          { required: true, message: '请选择政策类型（免费保养，终身免费保养）', trigger: 'change' }
-        ],
-        freePeriod: [
-          { required: true, message: '请输入免保时间（月）（最小为0）', trigger: 'blur' },
-          uIntRule,
-        ],
-        mileage: [
-          { required: true, message: '请输入里程（最小为0）', trigger: 'blur' },
-          uIntRule,
-        ],
-      },
       pickerOptions: {
         shortcuts: [{
           text: '最近一周',
@@ -288,15 +302,47 @@ export default {
             picker.$emit('pick', [start, end]);
           }
         }]
-      }
+      },
+      rules: {
+        policyName: [
+          { required: true, message: '请输入政策名称', trigger: 'blur' }
+        ],
+        repairItemId: [
+          { required: true, message: '请输入维修项目代码', trigger: 'blur' }
+        ],
+        policyType: [
+          { required: true, message: '请选择政策类型（免费保养，终身免费保养）', trigger: 'change' }
+        ],
+        freePeriod: [
+          { required: true, message: '请输入免保时间（月）（最小为0）', trigger: 'blur' },
+          uIntRule,
+        ],
+        mileage: [
+          { required: true, message: '请输入里程（最小为0）', trigger: 'blur' },
+          uIntRule,
+        ],
+      },
+      items: [],
+      // 公告车型id
+      vehicleRegisteredModelId: '',
+      tabValue: '',
+      //
+      part: '',
+      curPart: null,
     };
   },
   mounted () {
     this.getDetailData();
+    // 免保零件明细 PC端接口
+    this.getPartDetail();
   },
   methods: {
+    getId () {
+      const id = this.id || this.$route.query.id;
+      return id;
+    },
+    // 项目维修代码
     handleRepairItemChange (val, record) {
-      console.log(record);
       if (record) {
         this.form.repairItemId = record.id;
         this.form.repairItemCode = record.code;
@@ -304,6 +350,7 @@ export default {
         this.form.workhour = record.workhour;
       }
     },
+    // 项目维修代码
     async repairItemSearch (query) {
       return getList({
         maintenanceItemTypes: [],
@@ -316,7 +363,7 @@ export default {
       this.$router.back();
     },
     getDetailData () {
-      const id = this.id || this.$route.query.id;
+      const id = this.getId();
       this.$store.commit('SET_ACTIVE_BREADCRUMB', ['免费保养政策', `${id ? '编辑' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
@@ -377,11 +424,25 @@ export default {
     //   });
     // },
     // 详情表格相关数据
-    handleAddRow () {
+    handleAddPart: debounce(function () {
       // 通过引用直接调用子组件方法
-      this.$refs.editTable.addRow();
-      this.$refs.editLayout.openPane();
-    },
+      // this.$refs.editTable.addRow();
+      // this.$refs.editLayout.openPane();
+      if (!this.part) {
+        this.$message.error('请选择零件');
+        return null;
+      }
+      const partId = this.part;
+      const cur = this.curPart;
+      this.part = '';
+      this.tableData.unshift({
+        partId: partId,
+        partCode: cur.partCode,
+        partName: cur.partName,
+        purchasePrice: cur.purchasePrice,
+        partQuantity: '',
+      });
+    }, 200),
     handleSaveTable (data) {
       return new Promise((resolve, reject) => {
         this.$refs.editTable.saveAll().then(data => {
@@ -396,7 +457,83 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    onTabChange (item) {
+      this.vehicleRegisteredModelId = item.value;
+    },
+    onTabClose (item, index) {
+      this.items.splice(index, 1);
+      if (item === this.vehicleRegisteredModelId && this.items.length) {
+        this.vehicleRegisteredModelId = this.items[0];
+      }
+    },
+    onTabAdd () {
+      console.log('sfd');
+    },
+    // 公告车型
+    tabValueRemote (query) {
+      return vehicleSalesVersionList({
+        registeredModelNameLike: query,
+        pageSize: 20,
+        pageNum: 1,
+      });
+    },
+    // 公告车型
+    handleTabValueChange (val, record) {
+      if (val) {
+        const fItem = this.items.find(item => item.value === val);
+        if (fItem) {
+          this.tabValue = '';
+          this.$message.error('公告车型重复添加');
+          return;
+        }
+        this.items.push({
+          ...record,
+          label: record.registeredModelName,
+          value: record.id,
+        });
+      }
+      this.tabValue = '';
+    },
+    // 公告车型列表
+    getPartDetail () {
+      const id = this.getId();
+      detailList({
+        freeMaintenancePolicyId: id,
+      }).then(data => {
+        this.items = (data || []).map((item, index) => {
+          if (index === 0) {
+            this.vehicleRegisteredModelId = item.vehicleRegisteredModelId;
+          }
+          return {
+            disableClose: index === 0,
+            value: item.vehicleRegisteredModelId, // 公告车型id
+            label: item.vehicleRegisteredModelName,
+          };
+        });
+      });
+      //
+    },
+    // 零件
+    partRemote (query) {
+      // 是否OEM, 是否启用
+      return sparePartList({ partCodeOrNameLike: query, oemPart: 1, status: 1 });
+    },
+    handlePartChange (val, record) {
+      this.curPart = record;
     }
   }
 };
 </script>
+<style lang="scss" scoped>
+  .common-section{
+    .common-section-tip{
+      justify-content: flex-start;
+      .p-1{
+        padding-left: 4px;
+        color: #9D9F9D;
+      }
+    }
+  }
+
+</style>

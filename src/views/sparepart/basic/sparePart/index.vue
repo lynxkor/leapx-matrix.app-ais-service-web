@@ -155,7 +155,7 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="this.importType"
+      :id="importType"
       @close="handleUploadDialogClose"
     />
   </div>

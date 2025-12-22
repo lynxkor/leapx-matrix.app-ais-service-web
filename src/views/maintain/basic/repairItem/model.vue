@@ -129,7 +129,7 @@
             <el-button
                 type="text"
                 size="small"
-                style="color: red !important;"
+                style="color: #B91919 !important;"
                 @click="toggleStatus(scope.row, scope.$index)"
             >
                 停用
@@ -325,10 +325,10 @@ export default {
 
   .selection-item {
     padding: 8px 16px;
-    border: 1px solid #dcdfe6;
+    border: 1px solid #E6E6E5;
     border-radius: 4px;
-    background-color: #fff;
-    color: #333;
+    background-color: #ffffff;
+    color: #3B3E3B;;
     cursor: pointer;
     transition: all 0.3s;
     font-size: 14px;
@@ -338,12 +338,13 @@ export default {
   .selection-item:hover {
     border-color: #c0c4cc;
     background-color: #f5f7fa;
+    border-radius: 4px;
   }
 
   .selection-item.selected {
-    background-color: #13ce66;
+    background-color: #009100;
     color: #fff;
-    border-color: #13ce66;
+    border-radius: 4px;
   }
 
   /* 表格容器 */

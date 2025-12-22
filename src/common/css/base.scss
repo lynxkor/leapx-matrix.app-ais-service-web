@@ -314,6 +314,18 @@
   border-color: var(--themColor);
   color:var(--themColor);
 }
+.el-button--danger{
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+.el-button--danger:hover, .el-button--danger:focus{
+  background-color: var(--danger-hover-color);
+  border-color: var(--danger-hover-color);
+}
+.el-button--danger:active{
+  background-color: var(--danger-active-color);
+  border-color: var(--danger-active-color);
+}
 
 .el-range-editor.is-active, .el-range-editor.is-active:hover{
   border-color: var(--themColor)
