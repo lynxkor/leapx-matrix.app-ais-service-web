@@ -123,13 +123,13 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button> -->
-      <el-button v-permission="moduleKey + '-salesImport'" size="small" @click="handleImport">销售导入</el-button>
-      <el-button v-permission="moduleKey + '-transportImport'" size="small" @click="handleImport">物流导入</el-button>
-      <el-button v-permission="moduleKey + '-purchaseImport'" size="small" @click="handleImport">采购导入</el-button>
-      <el-button v-permission="moduleKey + '-modelImport'" size="small" @click="handleImport">车型导入</el-button>
-      <el-button v-permission="moduleKey + '-vfgImport'" size="small" @click="handleImport">VFG导入</el-button>
-      <el-button v-permission="moduleKey + '-printImport'" size="small" @click="handleImport">打印报价单</el-button>
-      <el-button v-permission="moduleKey + '-detail'" size="small" @click="handleImport">集中视图</el-button>
+      <el-button v-permission="moduleKey + '-salesImport'" size="small" @click="handleImport('sparePartSalesImport')">销售导入</el-button>
+      <el-button v-permission="moduleKey + '-transportImport'" size="small" @click="handleImport('sparePartTransportImport')">物流导入</el-button>
+      <el-button v-permission="moduleKey + '-purchaseImport'" size="small" @click="handleImport('sparePartPurchaseImport')">采购导入</el-button>
+      <el-button v-permission="moduleKey + '-modelImport'" size="small" @click="handleImport('sparePartModelImport')">车型导入</el-button>
+      <el-button v-permission="moduleKey + '-vfgImport'" size="small" @click="handleImport('sparePartVfgImport')">VFG导入</el-button>
+      <el-button v-permission="moduleKey + '-printImport'" size="small">打印报价单</el-button>
+      <el-button v-permission="moduleKey + '-detail'" size="small">集中视图</el-button>
 
       <!-- <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
@@ -155,7 +155,7 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="'sparePartSalesImport'"
+      :id="this.importType"
       @close="handleUploadDialogClose"
     />
   </div>
@@ -212,6 +212,7 @@ export default {
   },
   data () {
     return {
+      importType: '',
       pageTitle: '备件主数据',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
@@ -345,7 +346,9 @@ export default {
       return vrtlist({ vrtNameLike: query });
     },
 
-    handleImport () {
+    handleImport (type) {
+      console.log(type);
+      this.importType = type;
       this.uploadDialogVisible = true;
     },
     handleUploadDialogClose () {
