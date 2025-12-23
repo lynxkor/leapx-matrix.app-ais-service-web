@@ -21,8 +21,9 @@
   >
     <template #btn-middle="{ row, rowIndex }">
       <span
-        @click="$emit('replace', row, rowIndex)"
+        @click="onReplace(row, rowIndex)"
         class="action-button btn-edit"
+        :class="{'active': selectedRow.id === row.id}"
         >
         替换件
       </span>
@@ -95,6 +96,7 @@ export default {
           width: '25%',
         },
       ],
+      selectedRow: {},
     };
   },
   watch: {
@@ -170,6 +172,10 @@ export default {
     handleAdd (newItem) {
       this.$refs.editTable.addRow(newItem);
     },
+    onReplace (row, rowIndex) {
+      this.selectedRow = row;
+      this.$emit('replace', row, rowIndex);
+    }
   },
 };
 
@@ -180,6 +186,9 @@ export default {
     cursor: pointer;
     &.btn-edit{
       color:#4C4CD6;
+    }
+    &.active{
+      text-decoration: underline;
     }
   }
 </style>
