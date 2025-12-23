@@ -19,29 +19,29 @@
                 />
               </el-form-item>
               <el-form-item label="是否可销售" prop="saleableIs">
-                <el-radio-group v-model="form.saleableIs">
-                  <el-radio label="1">是</el-radio>
-                  <el-radio label="0">否</el-radio>
-                </el-radio-group>
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="BooleanEnum"
+                  v-model="form.saleableIs"
+                  placeholder="请选择"
+                  clearable
+                  filterable
+                />
               </el-form-item>
               <el-form-item label="采购状态" prop="purchaseType">
                 <fetch-select
-                  filterable
-                  clearable
-                  remote
-                  reserve-keyword
+                  :request="fetchOptions"
+                  enumCode="PurchaseTypeEnum"
                   v-model="form.purchaseType"
-                  :remote-method="repairItemSearch"
-                  :params="form.purchaseType"
-                  @change="handleRepairItemChange"
-                  value-key="id"
-                  label-key="name"
+                  placeholder="请选择"
+                  clearable
+                  filterable
                 />
               </el-form-item>
               <el-form-item label="备件名称" prop="partName">
                 <el-input
-                  placeholder="请输入"
                   v-model="form.partName"
+                  disabled="true"
                   clearable
                 />
               </el-form-item>
@@ -55,16 +55,12 @@
               </el-form-item>
               <el-form-item label="旧件返还类型" prop="oldReturnType">
                 <fetch-select
-                  filterable
-                  clearable
-                  remote
-                  reserve-keyword
+                  :request="fetchOptions"
+                  enumCode="OldReturnTypeEnum"
                   v-model="form.oldReturnType"
-                  :remote-method="repairItemSearch"
-                  :params="form.oldReturnType"
-                  @change="handleRepairItemChange"
-                  value-key="id"
-                  label-key="name"
+                  placeholder="请选择"
+                  clearable
+                  filterable
                 />
               </el-form-item>
               <el-form-item label="拼音简码" prop="pinyinCode">
@@ -84,7 +80,7 @@
               <el-form-item label="营销分类" prop="marketingType">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="xxx"
+                  enumCode="SparePartMarketingTypeEnum"
                   v-model="form.marketingType"
                   placeholder="请选择"
                   clearable
@@ -93,16 +89,12 @@
               </el-form-item>
               <el-form-item label="基本计量单位" prop="baseUnit">
                 <fetch-select
-                  filterable
-                  clearable
-                  remote
-                  reserve-keyword
+                  :request="fetchOptions"
+                  enumCode="BaseUnitEnum"
                   v-model="form.baseUnit"
-                  :remote-method="repairItemSearch"
-                  :params="form.baseUnit"
-                  @change="handleRepairItemChange"
-                  value-key="id"
-                  label-key="name"
+                  placeholder="请选择"
+                  clearable
+                  filterable
                 />
               </el-form-item>
               <el-form-item label="销售价格" prop="salePrice">
@@ -127,10 +119,13 @@
                 />
               </el-form-item>
               <el-form-item label="BO调拨" prop="boTransferIs">
-                <el-input
-                  placeholder="请输入"
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="BooleanEnum"
                   v-model="form.boTransferIs"
+                  placeholder="请选择"
                   clearable
+                  filterable
                 />
               </el-form-item>
               <el-form-item label="VRT" prop="vrtId">
@@ -141,16 +136,24 @@
                 />
               </el-form-item>
               <el-form-item label="是否OEM件" prop="oemPart">
-                <el-radio-group v-model="form.oemPart" size="small">
-                  <el-radio label="1">是</el-radio>
-                  <el-radio label="0">否</el-radio>
-                </el-radio-group>
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="BooleanEnum"
+                  v-model="form.oemPart"
+                  placeholder="请选择"
+                  clearable
+                  filterable
+                />
               </el-form-item>
               <el-form-item label="是否常备库存件" prop="standingInventoryIs">
-                <el-radio-group v-model="form.standingInventoryIs" size="small">
-                  <el-radio label="1">是</el-radio>
-                  <el-radio label="0">否</el-radio>
-                </el-radio-group>
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="BooleanEnum"
+                  v-model="form.standingInventoryIs"
+                  placeholder="请选择"
+                  clearable
+                  filterable
+                />
               </el-form-item>
               <el-form-item label="VFG" prop="vfgId">
                 <el-input
@@ -160,10 +163,14 @@
                 />
               </el-form-item>
               <el-form-item label="技术是否启用" prop="technicalIs">
-                <el-radio-group v-model="form.technicalIs" size="small">
-                  <el-radio label="1">是</el-radio>
-                  <el-radio label="0">否</el-radio>
-                </el-radio-group>
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="BooleanEnum"
+                  v-model="form.technicalIs"
+                  placeholder="请选择"
+                  clearable
+                  filterable
+                />
               </el-form-item>
               <el-form-item label="备注" prop="remark">
                 <el-input
@@ -267,10 +274,14 @@
                 />
               </el-form-item>
               <el-form-item label="是否追溯件" prop="traceableIs">
-                <el-radio-group v-model="form.traceableIs" size="small">
-                  <el-radio label="1">是</el-radio>
-                  <el-radio label="0">否</el-radio>
-                </el-radio-group>
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="BooleanEnum"
+                  v-model="form.traceableIs"
+                  placeholder="请选择"
+                  clearable
+                  filterable
+                />
               </el-form-item>
               <el-form-item label="包装前体积(cm³)" prop="domesticPrePackageVolumeCm3">
                 <el-input
@@ -289,10 +300,14 @@
                 />
               </el-form-item>
               <el-form-item label="是否可快递" prop="expressAvailableIs">
-                <el-radio-group v-model="form.expressAvailableIs" size="small">
-                  <el-radio label="1">是</el-radio>
-                  <el-radio label="0">否</el-radio>
-                </el-radio-group>
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="BooleanEnum"
+                  v-model="form.expressAvailableIs"
+                  placeholder="请选择"
+                  clearable
+                  filterable
+                />
               </el-form-item>
               <el-form-item label="包装前重量(kg)" prop="domesticPrePackageWeightKg">
                 <el-input
@@ -311,16 +326,24 @@
                 />
               </el-form-item>
               <el-form-item label="保修是否拆分" prop="maintenanceSplitQuantityIs">
-                <el-radio-group v-model="form.maintenanceSplitQuantityIs" size="small">
-                  <el-radio :label="1">是</el-radio>
-                  <el-radio :label="0">否</el-radio>
-                </el-radio-group>
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="BooleanEnum"
+                  v-model="form.maintenanceSplitQuantityIs"
+                  placeholder="请选择"
+                  clearable
+                  filterable
+                />
               </el-form-item>
               <el-form-item label="是否翻包" prop="needRepackIs">
-                <el-radio-group v-model="form.needRepackIs" size="small">
-                  <el-radio :label="1">是</el-radio>
-                  <el-radio :label="0">否</el-radio>
-                </el-radio-group>
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="BooleanEnum"
+                  v-model="form.needRepackIs"
+                  placeholder="请选择"
+                  clearable
+                  filterable
+                />
               </el-form-item>
               <el-form-item label="工程物料分类" prop="categorySpareEngineeringId">
                 <el-input
@@ -330,10 +353,14 @@
                 />
               </el-form-item>
               <el-form-item label="是否关键件" prop="keyPartIs">
-                <el-radio-group v-model="form.keyPartIs" size="small">
-                  <el-radio label="1">是</el-radio>
-                  <el-radio label="0">否</el-radio>
-                </el-radio-group>
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="BooleanEnum"
+                  v-model="form.keyPartIs"
+                  placeholder="请选择"
+                  clearable
+                  filterable
+                />
               </el-form-item>
               <el-form-item label="供应物料分类" prop="categorySpareSupplyId">
                 <el-input
@@ -345,7 +372,7 @@
               <el-form-item label="物料来源" prop="materialSourceType">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="xxx"
+                  enumCode="MaterialSourceTypeEnum"
                   v-model="form.materialSourceType"
                   placeholder="请选择"
                   clearable
