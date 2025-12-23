@@ -357,7 +357,8 @@
                   remote
                   reserve-keyword
                   v-model="form.categorySpareEngineeringId"
-                  :remote-method="getCommonList('basic/spareSalesCategory',{'dsa':'das'})"
+                  :remote-method="getMaterials"
+                  :params="form.categorySpareEngineeringName"
                   value-key="id"
                   label-key="name"
                   @change="categorySpareEngineeringChange"
@@ -778,9 +779,9 @@ export default {
     this.getDetailData();
   },
   methods: {
-    async getCommonList (path, query) {
-      var a = await getCommonList(path, { type: query });
-      return a;
+    async getMaterials (query) {
+      const res = await getCommonList({ categoryNameLike: query, limitSize: 1 });
+      return res;
     },
     categorySpareEngineeringChange (val, all) {
       this.form.categorySpareEngineeringId = all.id;

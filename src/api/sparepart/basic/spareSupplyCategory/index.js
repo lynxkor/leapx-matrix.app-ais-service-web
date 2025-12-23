@@ -7,8 +7,8 @@ const prefix = '/sp/web/basic/spareSupplyCategory/';
  * 查询列表
  * @param {Object} data
  */
-export function getCommonList (path, data) {
-  return api.jsonPost('/sp/web/' + path + '/list', data);
+export function getCommonList (data) {
+  return api.jsonPost('/sp/web/basic/spareSalesCategory/list', data);
 };
 
 /**
