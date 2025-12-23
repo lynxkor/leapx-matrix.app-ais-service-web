@@ -1,6 +1,6 @@
 <template>
   <!-- TIPS: 如果填写项小于15项，使用类名page-common-add替换page-common-edit -->
-  <edit-page-layout ref="editLayout" title="标题" showPaneFooter>
+  <edit-page-layout ref="editLayout" title="添加方案" >
     <template #left>
       <div class="page-common-edit">
         <el-container>
@@ -110,29 +110,25 @@
                 <h2>零件信息</h2><span class="p-1">个别公告车型使用不同零件时可以添加多套方案，常规只需使用默认方案即可。</span>
               </div>
               <div class="common-section-body">
-                <leap-tabs
-                  :items="items"
-                  :value="vehicleRegisteredModelId"
+                <fetch-tabs
+                  v-model="currentVehicleId"
+                  :loadParams="{freeMaintenancePolicyId: getId()}"
+                  :loadData="loadData"
+                  :itemConfig="{
+                    valueKey: 'vehicleRegisteredModelId',
+                    labelKey: 'vehicleRegisteredModelName',
+                    disableCloseKey: 'disableClose',
+                    disableFirst: true,
+                  }"
                   closeTip="确定删除该公共车型吗？"
-                  @change="onTabChange"
-                  @close="onTabClose"
-                  @add="onTabAdd"
-                  >
-                  <template slot="add-popover">
-                    <fetch-select
-                      filterable
-                      clearable
-                      remote
-                      reserve-keyword
-                      v-model="tabValue"
-                      :remote-method="tabValueRemote"
-                      @change="handleTabValueChange"
-                      value-key="id"
-                      label-key="registeredModelName"
-                      placeholder="请输入公告车型代码/名称"
-                    />
-                  </template>
-                </leap-tabs>
+                  :remoteMethod="remoteMethod"
+                  :selectConfig="{
+                    valueKey: 'id',
+                    labelKey: 'registeredModelName',
+                    placeholder: '请输入公告车型代码/名称',
+                  }"
+                  @remove="onRemove"
+                  />
               </div>
             </section>
             <section class="common-section">
@@ -164,25 +160,13 @@
               </div>
               <div class="common-section-body">
                 <div class="common-section-table">
-                  <edit-table
-                    ref="editTable"
-                    :columns="columns"
-                    :data="tableData"
-                    :defaultNewRow="defaultNewRow"
-                    :show-toolbar="false"
-                    :options="options"
-                    :auth="{ edit: canAddOrUpdate, delete: canAddOrUpdate }"
-                    :isFocusNewRow="false"
-                    :enableSingleRowSave="true"
-                    :showPagination="true"
-                    :current="current"
-                    :pageSize="pageSize"
-                    :total="total"
-                    @save-row-edit="saveRowEdit"
-                    @remove-row="handleRemoveRow"
-                    @page-size-change="pageSizeChange"
-                    @current-page-change="currentPageChange"
-                  />
+                  <part-table
+                    :moduleKey="moduleKey"
+                    ref="partTable"
+                    :currentVehicleId="currentVehicleId"
+                    @replace="onReplace"
+                    >
+                  </part-table>
                 </div>
               </div>
             </section>
@@ -199,27 +183,34 @@
       </div>
      </template>
     <template #right>
-      test
+      <div class="page-common-edit">
+        <replace-table
+          :moduleKey="moduleKey"
+          ref="replaceTable"
+          :replacePart="replacePart"
+          >
+        </replace-table>
+      </div>
     </template>
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate, detailList } from '@/api/claimreturn/claim/basic/freeMaintenancePolicy';
 import FetchSelect from '@/libs/components/FetchSelect';
-import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import FetchBox from '@/libs/components/FetchBox';
-import { getEnum, vehicleSalesVersionList, sparePartList } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { getList } from '@/api/maintain/basic/repairItem';
-import LeapTabs from '@/libs/components/LeapTabs/index.vue';
 import { debounce } from 'lodash';
-import tableMixin from './tableMixin';
 import { uIntRule } from '@/validation/rule';
+import FetchTabs from '@/libs/components/FetchTabs';
+import { getDetail, addOrUpdate, freeMaintenancePolicyPartDetailList, freeMaintenancePolicyPartDetailDeleteVehicle, freeMaintenancePartReplaceDetailPage } from '../../../../../api/claimreturn/claim/basic/freeMaintenancePolicy';
+import { vehicleSalesVersionList, getEnum, sparePartList } from '../../../../../api/common';
+import PartTable from './PartTable.vue';
+import ReplaceTable from './ReplaceTable.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -256,13 +247,14 @@ export default {
       default: null
     }
   },
-  mixins: [routeGuard, permissions, commonMixins, tableMixin],
+  mixins: [routeGuard, permissions, commonMixins],
   components: {
     FetchSelect,
-    EditTable,
+    PartTable,
     EditPageLayout,
-    LeapTabs,
+    FetchTabs,
     FetchBox,
+    ReplaceTable,
   },
   data () {
     const form = this.getDefautlForm();
@@ -322,19 +314,17 @@ export default {
           uIntRule,
         ],
       },
-      items: [],
-      // 公告车型id
-      vehicleRegisteredModelId: '',
-      tabValue: '',
+      //
+      currentVehicleId: '',
       //
       part: '',
       curPart: null,
+      // 替换件
+      replacePart: null,
     };
   },
   mounted () {
     this.getDetailData();
-    // 免保零件明细 PC端接口
-    this.getPartDetail();
   },
   methods: {
     getId () {
@@ -375,7 +365,6 @@ export default {
     },
     async submitForm (formName, rest = false) {
       try {
-        // const tableData = await this.handleSaveTable();
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.submitLoading = true;
@@ -402,7 +391,6 @@ export default {
     },
     resetForm (formName) {
       this.$refs[formName].resetFields();
-      this.tableData = [];
       this.form = this.getDefautlForm();
     },
     getDefautlForm () {
@@ -414,20 +402,8 @@ export default {
         // ownerName: userInfo.userName,
       };
     },
-    // handleJumpAuditLog () {
-    //   this.$router.push({
-    //     path: '/xxx/auditLog',
-    //     query: {
-    //       tableCode: '',
-    //       tableId: ''
-    //     }
-    //   });
-    // },
     // 详情表格相关数据
     handleAddPart: debounce(function () {
-      // 通过引用直接调用子组件方法
-      // this.$refs.editTable.addRow();
-      // this.$refs.editLayout.openPane();
       if (!this.part) {
         this.$message.error('请选择零件');
         return null;
@@ -435,84 +411,21 @@ export default {
       const partId = this.part;
       const cur = this.curPart;
       this.part = '';
-      this.tableData.unshift({
+
+      const newItem = {
         partId: partId,
         partCode: cur.partCode,
         partName: cur.partName,
         purchasePrice: cur.purchasePrice,
         partQuantity: '',
-      });
+      };
+      this.$refs.partTable.handleAdd(newItem);
     }, 200),
-    handleSaveTable (data) {
-      return new Promise((resolve, reject) => {
-        this.$refs.editTable.saveAll().then(data => {
-          resolve(data);
-        }).catch(error => {
-          reject(error);
-        });
-      });
-    },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);
       }
       return [];
-    },
-    onTabChange (item) {
-      this.vehicleRegisteredModelId = item.value;
-    },
-    onTabClose (item, index) {
-      this.items.splice(index, 1);
-      if (item === this.vehicleRegisteredModelId && this.items.length) {
-        this.vehicleRegisteredModelId = this.items[0];
-      }
-    },
-    onTabAdd () {
-      console.log('sfd');
-    },
-    // 公告车型
-    tabValueRemote (query) {
-      return vehicleSalesVersionList({
-        registeredModelNameLike: query,
-        pageSize: 20,
-        pageNum: 1,
-      });
-    },
-    // 公告车型
-    handleTabValueChange (val, record) {
-      if (val) {
-        const fItem = this.items.find(item => item.value === val);
-        if (fItem) {
-          this.tabValue = '';
-          this.$message.error('公告车型重复添加');
-          return;
-        }
-        this.items.push({
-          ...record,
-          label: record.registeredModelName,
-          value: record.id,
-        });
-      }
-      this.tabValue = '';
-    },
-    // 公告车型列表
-    getPartDetail () {
-      const id = this.getId();
-      detailList({
-        freeMaintenancePolicyId: id,
-      }).then(data => {
-        this.items = (data || []).map((item, index) => {
-          if (index === 0) {
-            this.vehicleRegisteredModelId = item.vehicleRegisteredModelId;
-          }
-          return {
-            disableClose: index === 0,
-            value: item.vehicleRegisteredModelId, // 公告车型id
-            label: item.vehicleRegisteredModelName,
-          };
-        });
-      });
-      //
     },
     // 零件
     partRemote (query) {
@@ -521,6 +434,30 @@ export default {
     },
     handlePartChange (val, record) {
       this.curPart = record;
+    },
+    // 公告车型
+    loadData (params) {
+      return freeMaintenancePolicyPartDetailList(params);
+    },
+    remoteMethod (query) {
+      return vehicleSalesVersionList({
+        registeredModelNameLike: query,
+        pageSize: 20,
+        pageNum: 1,
+      });
+    },
+    onRemove (item, index, defer) {
+      freeMaintenancePolicyPartDetailDeleteVehicle({
+        freeMaintenancePolicyId: this.getId(),
+        vehicleRegisteredModelId: item.value,
+      }).then(() => {
+        this.$message.success('操作成功');
+      });
+    },
+    //
+    onReplace (row, rowIndex) {
+      this.replacePart = row;
+      this.$refs.editLayout.openPane();
     }
   }
 };
@@ -535,5 +472,4 @@ export default {
       }
     }
   }
-
 </style>

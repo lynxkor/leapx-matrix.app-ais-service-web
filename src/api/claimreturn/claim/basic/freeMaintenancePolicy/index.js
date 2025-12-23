@@ -46,7 +46,7 @@ export function enableItem (data) {
 const prefixDetail = 'claimreturn/claim/web/basic/freeMaintenancePolicyPartDetail/';
 
 // 公告车型列表查询
-export function detailList (data) {
+export function freeMaintenancePolicyPartDetailList (data) {
   return api.jsonPost(prefixDetail + 'vehicleRegisteredMode/list', data);
 }
 
@@ -61,4 +61,23 @@ export function freeMaintenancePolicyPartDetailPage (data) {
 // 免保零件明细新增/编辑
 export function freeMaintenancePolicyPartDetailUpdate (data) {
   return api.jsonPost(prefixDetail + 'addOrUpdate', data);
+}
+// 根据公告车型ID删除免保零件明细
+export function freeMaintenancePolicyPartDetailDeleteVehicle (data) {
+  return api.jsonPost(prefixDetail + 'deleteByVehicleRegisteredModel', data);
+}
+
+const prefixReplace = 'claimreturn/claim/web/basic/freeMaintenancePartReplaceDetail/';
+// 替换件免保零件明细分页查询
+export function freeMaintenancePartReplaceDetailPage (data) {
+  return api.jsonPost(prefixReplace + 'page', data);
+}
+// 免保零件替换件明细新增/编辑
+export function freeMaintenancePartReplaceDetailUpdate (data) {
+  return api.jsonPost(prefixReplace + 'addOrUpdate', data);
+}
+
+// 免费保养政策设置删除
+export function freeMaintenancePartReplaceDetailDelete (data) {
+  return api.jsonPost(prefixReplace + 'delete', data);
 }

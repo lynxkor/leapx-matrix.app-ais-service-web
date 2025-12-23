@@ -1,12 +1,57 @@
+<template>
+  <edit-table
+    ref="editTable"
+    :columns="columns"
+    :data="tableData"
+    :defaultNewRow="defaultNewRow"
+    :show-toolbar="false"
+    :options="options"
+    :auth="{ edit: canAddOrUpdate, delete: canAddOrUpdate }"
+    :isFocusNewRow="false"
+    :enableSingleRowSave="true"
+    :showPagination="true"
+    :current="current"
+    :pageSize="pageSize"
+    :total="total"
+    @save-row-edit="saveRowEdit"
+    @remove-row="handleRemoveRow"
+    @page-size-change="pageSizeChange"
+    @current-page-change="currentPageChange"
+    :actionWidth="200"
+  >
+    <template #btn-middle="{ row, rowIndex }">
+      <span
+        @click="$emit('replace', row, rowIndex)"
+        class="action-button btn-edit"
+        >
+        替换件
+      </span>
+    </template>
+  </edit-table>
+</template>
+<script>
 import { uIntRule } from '@/validation/rule';
-import { sparePartListShort } from '@/api/common';
 import {
   freeMaintenancePolicyPartDetailPage, // 免保零件明细分页查询
   freeMaintenancePolicyPartDetailUpdate, // 免保零件明细新增/编辑
-  freeMaintenancePolicyPartDetailDelete, // 免保零件明细删除
+  freeMaintenancePolicyPartDetailDelete,
 } from '../../../../../api/claimreturn/claim/basic/freeMaintenancePolicy';
+import EditTable from '@/libs/components/EditTable';
+import permissions from '@/libs/mixins/permissions';
 
 export default {
+  props: {
+    currentVehicleId: {
+      type: String,
+    },
+    moduleKey: {
+      type: String,
+    }
+  },
+  components: {
+    EditTable,
+  },
+  mixins: [permissions],
   data () {
     return {
       defaultNewRow: {
@@ -52,15 +97,16 @@ export default {
       ],
     };
   },
-  mounted () {
-    this.getDetailPageApi();
-  },
   watch: {
-    vehicleRegisteredModelId: {
+    currentVehicleId: {
       handler () {
         this.getDetailPageApi();
       }
     }
+  },
+  mounted () {
+    this.getDetailPageApi();
+    console.log(this);
   },
   beforeDestroy () {
   },
@@ -75,7 +121,7 @@ export default {
         return;
       }
       freeMaintenancePolicyPartDetailPage({
-        vehicleRegisteredModelId: this.vehicleRegisteredModelId,
+        vehicleRegisteredModelId: this.currentVehicleId,
         freeMaintenancePolicyId: id,
         pageSize: this.pageSize,
         pageNum: this.current,
@@ -83,26 +129,6 @@ export default {
         this.tableData = res.records;
         this.total = res.total;
       });
-    },
-    // 零件编码名称搜索
-    sparePartListApi (query) {
-      sparePartListShort({ partCodeOrNameLike: query, oemPart: 1 }).then((data) => {
-        const list = data.map((item) => {
-          return {
-            value: item.id,
-            label: item.code,
-            labelDesc: item.name,
-            partId: item.id, // 表格
-            partCode: item.code, // 表格
-            partName: item.name,
-          };
-        });
-        this.options.partCode = list;
-      });
-    },
-    handleAddRow () {
-      // 通过引用直接调用子组件方法
-      this.$refs.editTable.addRow();
     },
     handleRemoveRow (row, index, defer) {
       if (!row.id) {
@@ -122,7 +148,7 @@ export default {
         partId: row.partId, // 零件ID
         partQuantity: row.partQuantity, // 零件数量
         freeMaintenancePolicyId: this.getId(), // 免保政策ID
-        vehicleRegisteredModelId: this.vehicleRegisteredModelId, // 公告车型ID
+        vehicleRegisteredModelId: this.currentVehicleId, // 公告车型ID
       };
       freeMaintenancePolicyPartDetailUpdate(parmas).then(id => {
         defer.resolve(id);
@@ -140,5 +166,20 @@ export default {
       this.current = current;
       this.getDetailPageApi(this.getId());
     },
+    // -------------
+    handleAdd (newItem) {
+      this.$refs.editTable.addRow(newItem);
+    },
   },
 };
+
+</script>
+<style lang="scss" scoped>
+  .action-button{
+    margin: 0 5px;
+    cursor: pointer;
+    &.btn-edit{
+      color:#4C4CD6;
+    }
+  }
+</style>
