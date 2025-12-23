@@ -351,6 +351,17 @@
                   v-model="form.categorySpareEngineeringId"
                   clearable
                 />
+                <fetch-select
+                  filterable
+                  clearable
+                  remote
+                  reserve-keyword
+                  v-model="form.categorySpareEngineeringId"
+                  :remote-method="getCommonList('basic/spareSalesCategory',{'dsa':'das'})"
+                  value-key="id"
+                  label-key="name"
+                  @change="categorySpareEngineeringChange"
+                />
               </el-form-item>
               <el-form-item label="是否关键件" prop="keyPartIs">
                 <fetch-select
@@ -467,6 +478,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import ModelDialog from './model.vue';
+import { getCommonList } from '@/api/sparepart/basic/spareSupplyCategory';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -766,6 +778,15 @@ export default {
     this.getDetailData();
   },
   methods: {
+    async getCommonList (path, query) {
+      var a = await getCommonList(path, { type: query });
+      return a;
+    },
+    categorySpareEngineeringChange (val, all) {
+      this.form.categorySpareEngineeringId = all.id;
+      this.form.categorySpareEngineeringCode = all.code;
+      this.form.categorySpareEngineeringName = all.name;
+    },
     handleBack () {
       this.$router.back();
     },

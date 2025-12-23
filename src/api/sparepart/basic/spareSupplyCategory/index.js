@@ -7,6 +7,14 @@ const prefix = '/sp/web/basic/spareSupplyCategory/';
  * 查询列表
  * @param {Object} data
  */
+export function getCommonList (path, data) {
+  return api.jsonPost('/sp/web/' + path + '/list', data);
+};
+
+/**
+ * 查询列表
+ * @param {Object} data
+ */
 export function getList (data) {
   return api.jsonPost(prefix + 'page', data);
 };
