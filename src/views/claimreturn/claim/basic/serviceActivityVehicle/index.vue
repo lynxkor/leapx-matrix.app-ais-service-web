@@ -118,7 +118,7 @@
         </el-form-item>
         <el-form-item label="施工方案">
           <list-select
-            listUrl="/claimreturn/claim/web/basic/serviceActivityScheme/list"
+            listUrl="/claimreturn/claim/web/basic/techServiceActivityScheme/list"
             placeholder="请选择"
             v-model="form.schemeIds"
             query-key="schemeNameLike"
