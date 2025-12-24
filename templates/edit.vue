@@ -349,8 +349,16 @@ export default {
               if (rest || !id) {
                 this.resetForm(formName);
               } else {
-                this.form.id = id;
-                this.getDetailData();
+                if (this.form.id) {
+                  this.getDetailData();
+                } else {
+                  this.$router.push({
+                    path: '/claimreturn/claim/basic/freeMaintenancePolicy/edit',
+                    query: {
+                      id
+                    }
+                  });
+                }
               }
             }).finally(() => {
               this.submitLoading = false;

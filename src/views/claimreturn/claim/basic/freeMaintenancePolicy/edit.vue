@@ -1,6 +1,6 @@
 <template>
   <!-- TIPS: 如果填写项小于15项，使用类名page-common-add替换page-common-edit -->
-  <edit-page-layout ref="editLayout" :title="pannelTitle" width="40">
+  <edit-page-layout ref="editLayout" :title="pannelTitle" :width="40">
     <template #left>
       <div class="page-common-edit">
         <el-container>
@@ -425,8 +425,16 @@ export default {
               if (rest || !id) {
                 this.resetForm(formName);
               } else {
-                this.form.id = id;
-                this.getDetailData();
+                if (this.form.id) {
+                  this.getDetailData();
+                } else {
+                  this.$router.push({
+                    path: '/claimreturn/claim/basic/freeMaintenancePolicy/edit',
+                    query: {
+                      id
+                    }
+                  });
+                }
               }
             }).finally(() => {
               this.submitLoading = false;
