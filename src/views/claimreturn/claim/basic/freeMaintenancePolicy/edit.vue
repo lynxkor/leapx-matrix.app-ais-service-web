@@ -1,6 +1,6 @@
 <template>
   <!-- TIPS: 如果填写项小于15项，使用类名page-common-add替换page-common-edit -->
-  <edit-page-layout ref="editLayout" title="添加方案" width="40">
+  <edit-page-layout ref="editLayout" :title="pannelTitle" width="40">
     <template #left>
       <div class="page-common-edit">
         <el-container>
@@ -309,6 +309,7 @@ export default {
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
+      pannelTitle: '',
       form: { ...form },
       originalForm: { ...form },
       pickerOptions: {
@@ -504,6 +505,7 @@ export default {
     //
     onReplace (row, rowIndex) {
       this.replacePart = row;
+      this.pannelTitle = `零件编码: ${row.partCode}`;
       this.$refs.editLayout.openPane();
     }
   }
