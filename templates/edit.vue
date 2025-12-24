@@ -1,6 +1,5 @@
 <template>
   {{{#isProForm}}}
-  <!-- TIPS: 如果填写项小于15项，使用类名page-common-add替换page-common-edit -->
   <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
       <div class="page-common-edit">
@@ -8,7 +7,11 @@
           <el-main>
             <section class="common-title" v-if="_id">
               {{{#top1List}}}
-              <h2>{{{description}}}：{{ form.{{{key}}} }}</h2>
+              <div>
+                <h2>{{{description}}}：{{ form.{{{key}}} }}</h2>
+                <!-- TIPS: 子标题格式如下 -->
+                <!-- <h5>活动编码：{{ form.activityCode }}</h5> -->
+              </div>
               {{{/top1List}}}
               <div v-if="isEditing">
                 <el-button size="small" @click="handleCancel">取消</el-button>
@@ -23,7 +26,6 @@
                 <h2>基础信息</h2>
               </div>
               <div class="common-section-body">
-                <!-- TIPS: 如果填写项小于15项，去掉 :inline="true" -->
                 <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
                 <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"  v-if="isEditing || !_id">
                 {{{#cols}}}
@@ -323,7 +325,7 @@ export default {
     },
     getDetailData () {
       const id = this._id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', `${id ? '编辑' : '新建'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', `${id ? '详情' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
