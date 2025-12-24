@@ -5,27 +5,37 @@
       <div class="page-common-edit">
         <el-container>
           <el-main>
+            <section class="common-title" v-if="_id">
+              <h2>活动编码：{{ form.activityCode }}</h2>
+              <div v-if="isEditing">
+                <el-button size="small" @click="handleCancel">取消</el-button>
+                <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm', 'ruleForm2')" :loading="submitLoading">保存</el-button>
+              </div>
+              <div v-else>
+                <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
+              </div>
+            </section>
             <section class="common-section">
               <div class="common-section-header">
                 <h2>基础信息</h2>
               </div>
               <div class="common-section-body">
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-                  <el-form-item label="活动编码" prop="activityCode">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"  class="form-edit" v-if="isEditing || !_id">
+                  <el-form-item label="活动编码：" prop="activityCode">
                     <el-input
                       placeholder="请输入"
                       v-model="form.activityCode"
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="活动名称" prop="activityName">
+                  <el-form-item label="活动名称：" prop="activityName">
                     <el-input
                       placeholder="请输入"
                       v-model="form.activityName"
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="活动类型" prop="activityType">
+                  <el-form-item label="活动类型：" prop="activityType">
                     <fetch-select
                       :request="fetchOptions"
                       enumCode="claim_activity_type"
@@ -35,50 +45,50 @@
                       filterable
                     />
                   </el-form-item>
-                  <el-form-item label="活动开始时间" prop="startTime">
+                  <el-form-item label="活动开始时间：" prop="startTime">
                     <el-date-picker
                       v-model="form.startTime"
                       value-format="yyyy-MM-dd HH:mm:ss"
                     />
                   </el-form-item>
-                  <el-form-item label="活动结束时间" prop="endTime">
+                  <el-form-item label="活动结束时间：" prop="endTime">
                     <el-date-picker
                       v-model="form.endTime"
                       value-format="yyyy-MM-dd HH:mm:ss"
                     />
                   </el-form-item>
-                  <el-form-item label="自动审批" prop="autoApprove">
+                  <el-form-item label="自动审批：" prop="autoApprove">
                     <el-switch
                       v-model="form.autoApprove">
                     </el-switch>
                   </el-form-item>
-                  <el-form-item label="施工单必传附件" prop="attachmentRequired">
+                  <el-form-item label="施工单必传附件：" prop="attachmentRequired">
                     <el-switch
                       v-model="form.attachmentRequired">
                     </el-switch>
                   </el-form-item>
-                  <el-form-item label="活动数量" prop="vehicleCount">
+                  <el-form-item label="活动数量：" prop="vehicleCount">
                     <el-input
                       placeholder="请输入"
                       v-model="form.vehicleCount"
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="完成数量" prop="finishedVehicleCount">
+                  <el-form-item label="完成数量：" prop="finishedVehicleCount">
                     <el-input
                       placeholder="请输入"
                       v-model="form.finishedVehicleCount"
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="完成情况（%）" prop="finishedPercent">
+                  <el-form-item label="完成情况（%）：" prop="finishedPercent">
                     <el-input
                       placeholder="请输入"
                       v-model="form.finishedPercent"
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="活动状态" prop="activityStatus">
+                  <el-form-item label="活动状态：" prop="activityStatus">
                     <fetch-select
                       :request="fetchOptions"
                       enumCode="claim_activity_state"
@@ -88,50 +98,89 @@
                       filterable
                     />
                   </el-form-item>
-                  <div :style="{width: '100%'}">
-                    <el-form-item :style="{width: '100%'}" label="活动描述" prop="description">
-                      <el-input
-                        type="textarea"
-                        placeholder="请输入"
-                        v-model="form.description"
-                        clearable
-                        :rows="2"
-                      />
-                    </el-form-item>
-                  </div>
-                  <div :style="{width: '100%'}">
-                    <el-form-item :style="{width: '100%'}" label="活动费用内容" prop="costContent">
-                      <el-input
-                        type="textarea"
-                        placeholder="请输入"
-                        v-model="form.costContent"
-                        clearable
-                        :rows="2"
-                      />
-                    </el-form-item>
-                  </div>
-                  <div :style="{width: '100%'}">
-                    <el-form-item :style="{width: '100%'}" label="故障现象描述" prop="faultPhenomenon">
-                      <el-input
-                        type="textarea"
-                        placeholder="请输入"
-                        v-model="form.faultPhenomenon"
-                        clearable
-                        :rows="2"
-                      />
-                    </el-form-item>
-                  </div>
-                  <div :style="{width: '100%'}">
-                    <el-form-item :style="{width: '100%'}" label="故障排查流程" prop="troubleshootingFlow">
-                      <el-input
-                        type="textarea"
-                        placeholder="请输入"
-                        v-model="form.troubleshootingFlow"
-                        clearable
-                        :rows="2"
-                      />
-                    </el-form-item>
-                  </div>
+                  <el-form-item class="form-item-full" label="活动描述：" prop="description">
+                    <el-input
+                      type="textarea"
+                      placeholder="请输入"
+                      v-model="form.description"
+                      clearable
+                      :rows="2"
+                    />
+                  </el-form-item>
+                  <el-form-item class="form-item-full" label="活动费用内容：" prop="costContent">
+                    <el-input
+                      type="textarea"
+                      placeholder="请输入"
+                      v-model="form.costContent"
+                      clearable
+                      :rows="2"
+                    />
+                  </el-form-item>
+                  <el-form-item class="form-item-full" label="故障现象描述：" prop="faultPhenomenon">
+                    <el-input
+                      type="textarea"
+                      placeholder="请输入"
+                      v-model="form.faultPhenomenon"
+                      clearable
+                      :rows="2"
+                    />
+                  </el-form-item>
+                  <el-form-item class="form-item-full" label="故障排查流程：" prop="troubleshootingFlow">
+                    <el-input
+                      type="textarea"
+                      placeholder="请输入"
+                      v-model="form.troubleshootingFlow"
+                      clearable
+                      :rows="2"
+                    />
+                  </el-form-item>
+                </el-form>
+                <el-form :inline="true" class="form-detail" v-else>
+                  <el-form-item label="活动编码：">
+                    {{ form.activityCode }}
+                  </el-form-item>
+                  <el-form-item label="活动名称：">
+                    {{ form.activityName }}
+                  </el-form-item>
+                  <el-form-item label="活动类型：">
+                    {{ form.activityTypeLabel }}
+                  </el-form-item>
+                  <el-form-item label="活动开始时间：">
+                    {{ form.startTime }}
+                  </el-form-item>
+                  <el-form-item label="活动结束时间：">
+                    {{ form.endTime }}
+                  </el-form-item>
+                  <el-form-item label="自动审批：">
+                    {{ form.autoApprove }}
+                  </el-form-item>
+                  <el-form-item label="施工单必传附件：">
+                    {{ form.attachmentRequired }}
+                  </el-form-item>
+                  <el-form-item label="活动数量：">
+                    {{ form.vehicleCount }}
+                  </el-form-item>
+                  <el-form-item label="完成数量：">
+                    {{ form.finishedVehicleCount }}
+                  </el-form-item>
+                  <el-form-item label="完成情况（%）：">
+                    {{ form.finishedPercent }}
+                  </el-form-item>
+                  <el-form-item label="活动状态：">
+                    {{ form.activityStatusLabel }}
+                  </el-form-item>
+                  <el-form-item class="form-item-full" label="活动描述：">
+                    {{ form.description }}
+                  </el-form-item>
+                  <el-form-item class="form-item-full" label="活动费用内容：">
+                    {{ form.costContent }}
+                  </el-form-item>
+                  <el-form-item class="form-item-full" label="故障现象描述：">
+                    {{ form.faultPhenomenon }}
+                  </el-form-item>
+                  <el-form-item class="form-item-full" label="故障排查流程：">
+                    {{ form.troubleshootingFlow }}
+                  </el-form-item>
                 </el-form>
               </div>
             </section>
@@ -140,8 +189,8 @@
                 <h2>结算类型</h2>
               </div>
               <div class="common-section-body">
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px">
-                  <el-form-item label="结算类型" prop="settlementTypeName">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-if="isEditing || !_id">
+                  <el-form-item label="结算类型：" prop="settlementTypeName">
                     <fetch-select
                       filterable
                       clearable
@@ -155,7 +204,7 @@
                       label-key="name"
                     />
                   </el-form-item>
-                  <el-form-item label="保修类型" prop="warrantyTypeName">
+                  <el-form-item label="保修类型：" prop="warrantyTypeName">
                     <fetch-select
                       filterable
                       clearable
@@ -170,10 +219,18 @@
                     />
                   </el-form-item>
                 </el-form>
+                <el-form :inline="true" class="form-detail" v-else>
+                  <el-form-item label="结算类型：" prop="settlementTypeName">
+                    {{ form.settlementTypeName }}
+                  </el-form-item>
+                  <el-form-item label="保修类型：" prop="warrantyTypeName">
+                    {{ form.warrantyTypeName }}
+                  </el-form-item>
+                </el-form>
               </div>
             </section>
           </el-main>
-          <el-footer height="60px">
+          <el-footer height="60px" v-if="!_id">
             <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm', 'ruleForm2')" :loading="submitLoading">保存</el-button>
             <el-button size="small" @click="handleBack">取消</el-button>
             <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
@@ -183,7 +240,6 @@
      </template>
     <template #right>
       <div class="page-common-edit">
-        oo
         <!-- <replace-table
           :moduleKey="moduleKey"
           ref="replaceTable"
@@ -255,6 +311,11 @@ export default {
     FetchSelect,
     EditPageLayout,
   },
+  computed: {
+    _id () {
+      return this.id || this.$route.query.id || this.form.id;
+    }
+  },
   data () {
     const form = this.getDefautlForm();
     return {
@@ -264,6 +325,7 @@ export default {
       moduleKey: 'AISCR-techServiceActivity',
       loading: false,
       submitLoading: false,
+      isEditing: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -350,12 +412,20 @@ export default {
     this.getDetailData();
   },
   methods: {
+    handleCancel () {
+      this.$refs.ruleForm.clearValidate();
+      this.$refs.ruleForm2.clearValidate();
+      this.isEditing = false;
+    },
+    handleEdit () {
+      this.isEditing = true;
+    },
     handleBack () {
       this.$router.back();
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', `${id ? '编辑' : '新建'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['技术服务活动', `${id ? '详情' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
@@ -378,11 +448,20 @@ export default {
             message: '保存成功',
             type: 'success'
           });
-          const id = this.$route.query.id;
+          const id = res;
           if (!id) {
             this.resetForm(formName);
           } else {
-            this.getDetailData();
+            if (this.form.id) {
+              this.getDetailData();
+            } else {
+              this.$router.push({
+                path: '/claimreturn/claim/basic/techServiceActivity/edit',
+                query: {
+                  id
+                }
+              });
+            }
           }
         }).finally(() => {
           this.submitLoading = false;

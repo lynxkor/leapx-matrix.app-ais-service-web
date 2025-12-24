@@ -208,7 +208,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/basic/techServiceActivity/detail',
+                  path: '/claimreturn/claim/basic/techServiceActivity/edit',
                   query: {
                     id: row.id
                   }
@@ -281,7 +281,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/claimreturn/web/basic/techServiceActivity/edit'
+        path: '/claimreturn/claim/basic/techServiceActivity/edit'
       });
     },
     onSubmit () {
