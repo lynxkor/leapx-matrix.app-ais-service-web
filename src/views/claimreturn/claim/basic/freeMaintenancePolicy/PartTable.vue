@@ -18,7 +18,7 @@
     @page-size-change="pageSizeChange"
     @current-page-change="currentPageChange"
     :actionWidth="200"
-    :emptyText="'新增后，即可添加'"
+    :emptyText="_id ? '' : '新增后，即可添加'"
   >
     <template #btn-middle="{ row, rowIndex }">
       <span
@@ -54,6 +54,11 @@ export default {
     EditTable,
   },
   mixins: [permissions],
+  computed: {
+    _id () {
+      return this.id || this.$route.query.id;
+    }
+  },
   data () {
     return {
       defaultNewRow: {
