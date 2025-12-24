@@ -174,7 +174,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/basic/freeMaintenancePolicy/detail',
+                  path: '/claimreturn/claim/basic/freeMaintenancePolicy/edit',
                   query: {
                     id: row.id
                   }

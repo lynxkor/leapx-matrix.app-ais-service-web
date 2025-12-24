@@ -18,6 +18,7 @@
     @page-size-change="pageSizeChange"
     @current-page-change="currentPageChange"
     :actionWidth="200"
+    :emptyText="'新增后，即可添加'"
   >
     <template #btn-middle="{ row, rowIndex }">
       <span
