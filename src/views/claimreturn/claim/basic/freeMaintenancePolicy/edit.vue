@@ -415,8 +415,9 @@ export default {
     },
     getDetailData () {
       const id = this._id;
-      if (!this.id) {
+      if (!id) {
         this.$store.commit('SET_ACTIVE_BREADCRUMB', ['免费保养政策', `${id ? '详情' : '新建'}`]);
+        return;
       }
       if (id) {
         getDetail(id).then(res => {
@@ -509,7 +510,6 @@ export default {
     },
     // 公告车型
     loadData (params) {
-      console.log('lskjf', params);
       return freeMaintenancePolicyPartDetailList(params);
     },
     remoteMethod (query) {
