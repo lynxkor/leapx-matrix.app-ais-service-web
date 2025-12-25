@@ -4,6 +4,10 @@ import api from '@/axios';
 const prefix = '/sp/web/basic/spareSalesCategory/';
 const prefixDeale = '/sp/web/basic/categoryPurchaseDealer/';
 
+export function getSalesList (data) {
+  return api.jsonPost(prefix + 'list', data);
+};
+
 /**
  * 查询列表
  * @param {Object} data

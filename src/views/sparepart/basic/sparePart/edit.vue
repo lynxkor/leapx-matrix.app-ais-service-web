@@ -19,18 +19,17 @@
                 />
               </el-form-item>
               <el-form-item label="是否可销售" prop="saleableIs">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="BooleanEnum"
-                  v-model="form.saleableIs"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
+                <el-radio-group
+                 :disabled="permissions.has('web:basic:sparePart:salesImport')"
+                 v-model="form.saleableIs">
+                  <el-radio label="1">是</el-radio>
+                  <el-radio label="0">否</el-radio>
+                </el-radio-group>
               </el-form-item>
               <el-form-item label="采购状态" prop="purchaseType">
                 <fetch-select
                   :request="fetchOptions"
+                  :disabled="permissions.has('web:basic:sparePart:salesImport') || permissions.has('web:basic:sparePart:purchaseImport')"
                   enumCode="PurchaseTypeEnum"
                   v-model="form.purchaseType"
                   placeholder="请选择"
@@ -48,6 +47,7 @@
               <el-form-item label="最小订购量" prop="minOrderQuantity">
                 <el-input
                   type="number"
+                  :disabled="permissions.has('web:basic:sparePart:salesImport') ||permissions.has('web:basic:sparePart:transportImport') "
                   placeholder="请输入"
                   v-model="form.minOrderQuantity"
                   clearable
@@ -65,7 +65,8 @@
               </el-form-item>
               <el-form-item label="拼音简码" prop="pinyinCode">
                 <el-input
-                  placeholder="请输入"
+                  placeholder="提交后自动生成"
+                  disabled
                   v-model="form.pinyinCode"
                   clearable
                 />
@@ -73,6 +74,7 @@
               <el-form-item label="采购价格" prop="purchasePrice">
                 <el-input
                   placeholder="请输入"
+                  disabled
                   v-model="form.purchasePrice"
                   clearable
                 />
@@ -80,6 +82,7 @@
               <el-form-item label="营销分类" prop="marketingType">
                 <fetch-select
                   :request="fetchOptions"
+                  :disabled="permissions.has('web:basic:sparePart:salesImport')"
                   enumCode="SparePartMarketingTypeEnum"
                   v-model="form.marketingType"
                   placeholder="请选择"
@@ -91,6 +94,7 @@
                 <fetch-select
                   :request="fetchOptions"
                   enumCode="BaseUnitEnum"
+                  :disabled="permissions.has('web:basic:sparePart:salesImport') || permissions.has('web:basic:sparePart:transportImport')"
                   v-model="form.baseUnit"
                   placeholder="请选择"
                   clearable
@@ -100,82 +104,91 @@
               <el-form-item label="销售价格" prop="salePrice">
                 <el-input
                   placeholder="请输入"
+                  disabled
                   v-model="form.salePrice"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="销售物料分类" prop="categorySpareEngineeringId">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.categorySpareEngineeringId"
+              <el-form-item label="物料分类（销售）" prop="categorySpareSalesId">
+                <fetch-select
+                  filterable
                   clearable
+                  remote
+                  :disabled="permissions.has('web:basic:sparePart:salesImport')"
+                  reserve-keyword
+                  v-model="form.categorySpareSalesId"
+                  :remote-method="getSalesList"
+                  :params="form.categorySpareSalesName"
+                  value-key="id"
+                  label-key="name"
+                  @change="categorySpareSalesChange"
                 />
               </el-form-item>
               <el-form-item label="备件工程师" prop="partsEngineer">
                 <el-input
                   placeholder="请输入"
+                  :disabled="permissions.has('web:basic:sparePart:salesImport') || permissions.has('web:basic:sparePart:purchaseImport')"
                   v-model="form.partsEngineer"
                   clearable
                 />
               </el-form-item>
               <el-form-item label="BO调拨" prop="boTransferIs">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="BooleanEnum"
-                  v-model="form.boTransferIs"
+                <el-radio-group v-model="form.boTransferIs">
+                  <el-radio label="1">是</el-radio>
+                  <el-radio label="0">否</el-radio>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item label="VRT名称" prop="vrtId">
+                <list-select
+                  listUrl="/claimreturn/claim/web/basic/vrt/list"
                   placeholder="请选择"
+                  v-model="form.vrtId"
+                  :disabled="permissions.has('web:basic:sparePart:vfgImport')"
+                  query-key="vrtNameLike"
+                  auto-load-options
+                  no-param-load
                   clearable
                   filterable
-                />
+                  :params="{}" />
               </el-form-item>
-              <el-form-item label="VRT" prop="vrtId">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.vrtId"
+              <el-form-item label="VFG名称" prop="vfgId">
+                <list-select
+                  listUrl="/claimreturn/claim/web/basic/vfg/list"
+                  placeholder="请选择"
+                  v-model="form.vfgId"
+                  :disabled="permissions.has('web:basic:sparePart:vfgImport')"
+                  query-key="vfgNameLike"
+                  auto-load-options
                   clearable
-                />
+                  filterable
+                  :params="{vrtId: form.vrtId}"
+                   />
               </el-form-item>
               <el-form-item label="是否OEM件" prop="oemPart">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="BooleanEnum"
-                  v-model="form.oemPart"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
+                <el-radio-group v-model="form.oemPart">
+                  <el-radio label="1">是</el-radio>
+                  <el-radio label="0">否</el-radio>
+                </el-radio-group>
               </el-form-item>
               <el-form-item label="是否常备库存件" prop="standingInventoryIs">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="BooleanEnum"
-                  v-model="form.standingInventoryIs"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
-              <el-form-item label="VFG" prop="vfgId">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.vfgId"
-                  clearable
-                />
+                <el-radio-group
+                :disabled="permissions.has('web:basic:sparePart:salesImport')"
+                 v-model="form.standingInventoryIs">
+                  <el-radio label="1">是</el-radio>
+                  <el-radio label="0">否</el-radio>
+                </el-radio-group>
               </el-form-item>
               <el-form-item label="技术是否启用" prop="technicalIs">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="BooleanEnum"
-                  v-model="form.technicalIs"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
+                <el-radio-group v-model="form.technicalIs">
+                  <el-radio label="1">是</el-radio>
+                  <el-radio label="0">否</el-radio>
+                </el-radio-group>
               </el-form-item>
               <el-form-item label="备注" prop="remark">
                 <el-input
                   type="textarea"
                   placeholder="请输入"
+                  :disabled="permissions.has('web:basic:sparePart:salesImport')"
                   v-model="form.remark"
                   clearable
                   maxLength="500"
@@ -186,6 +199,7 @@
                 <el-input
                   type="textarea"
                   placeholder="请输入"
+                  :disabled="permissions.has('web:basic:sparePart:salesImport') || permissions.has('web:basic:sparePart:transportImport') || permissions.has('web:basic:sparePart:purchaseImport')"
                   v-model="form.oemRemark"
                   clearable
                   maxLength="500"
@@ -201,17 +215,32 @@
           </div>
           <div class="common-section-body">
             <el-form inline :model="form" :rules="rules" ref="ruleForm" label-width="160px">
-              <el-form-item label="门店名称" prop="dealerName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.dealerName"
+              <el-form-item label="门店" prop="dealerName">
+                <el-select
+                  style="width: 305px;"
+                  v-model="form.dealerCode"
+                  filterable
                   clearable
-                />
+                  disabled
+                  remote
+                  placeholder="请选择"
+                  :remote-method="getStoreByName"
+                  @change="handleStoreChange"
+                  collapse-tags
+                  >
+                    <el-option
+                      v-for="item in storeOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                </el-select>
               </el-form-item>
               <el-form-item label="包装前长(mm)" prop="domesticPrePackageLengthMm">
                 <el-input
                   type="number"
                   placeholder="请输入"
+                  :disabled="permissions.has('web:basic:sparePart:transportImport')"
                   v-model="form.domesticPrePackageLengthMm"
                   clearable
                 />
@@ -219,24 +248,16 @@
               <el-form-item label="包装后长(mm)" prop="domesticPostPackageLengthMm">
                 <el-input
                   type="number"
+                  :disabled="permissions.has('web:basic:sparePart:transportImport')"
                   placeholder="请输入"
                   v-model="form.domesticPostPackageLengthMm"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="是否启用" prop="status">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="StatusEnum"
-                  v-model="form.statusIncludeList"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
               <el-form-item label="包装前宽(mm)" prop="domesticPrePackageWidthMm">
                 <el-input
                   type="number"
+                  :disabled="permissions.has('web:basic:sparePart:transportImport')"
                   placeholder="请输入"
                   v-model="form.domesticPrePackageWidthMm"
                   clearable
@@ -245,6 +266,7 @@
               <el-form-item label="包装前后宽(mm)" prop="domesticPostPackageWidthMm">
                 <el-input
                   type="number"
+                  :disabled="permissions.has('web:basic:sparePart:transportImport')"
                   placeholder="请输入"
                   v-model="form.domesticPostPackageWidthMm"
                   clearable
@@ -253,6 +275,7 @@
               <el-form-item label="供应商起订量" prop="supplierMinOrderQuantity">
                 <el-input
                   placeholder="请输入"
+                  disabled
                   v-model="form.supplierMinOrderQuantity"
                   clearable
                 />
@@ -261,6 +284,7 @@
                 <el-input
                   type="number"
                   placeholder="请输入"
+                  :disabled="permissions.has('web:basic:sparePart:transportImport')"
                   v-model="form.domesticPrePackageHeightMm"
                   clearable
                 />
@@ -268,24 +292,22 @@
               <el-form-item label="包装前后高(mm)" prop="domesticPostPackageHeightMm">
                 <el-input
                   type="number"
+                  :disabled="permissions.has('web:basic:sparePart:transportImport')"
                   placeholder="请输入"
                   v-model="form.domesticPostPackageHeightMm"
                   clearable
                 />
               </el-form-item>
               <el-form-item label="是否追溯件" prop="traceableIs">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="BooleanEnum"
-                  v-model="form.traceableIs"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
+                <el-radio-group v-model="form.traceableIs">
+                  <el-radio label="1">是</el-radio>
+                  <el-radio label="0">否</el-radio>
+                </el-radio-group>
               </el-form-item>
               <el-form-item label="包装前体积(cm³)" prop="domesticPrePackageVolumeCm3">
                 <el-input
                   type="number"
+                  disabled
                   placeholder="请输入"
                   v-model="form.domesticPrePackageVolumeCm3"
                   clearable
@@ -294,25 +316,25 @@
               <el-form-item label="包装后体积(cm³)" prop="domesticPostPackageVolumeCm3">
                 <el-input
                   type="number"
+                  disabled
                   placeholder="请输入"
                   v-model="form.domesticPostPackageVolumeCm3"
                   clearable
                 />
               </el-form-item>
               <el-form-item label="是否可快递" prop="expressAvailableIs">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="BooleanEnum"
-                  v-model="form.expressAvailableIs"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
+                <el-radio-group
+                :disabled="permissions.has('web:basic:sparePart:salesImport') || permissions.has('web:basic:sparePart:transportImport')"
+                 v-model="form.expressAvailableIs">
+                  <el-radio label="1">是</el-radio>
+                  <el-radio label="0">否</el-radio>
+                </el-radio-group>
               </el-form-item>
               <el-form-item label="包装前重量(kg)" prop="domesticPrePackageWeightKg">
                 <el-input
                   type="number"
                   placeholder="请输入"
+                  :disabled="permissions.has('web:basic:sparePart:transportImport')"
                   v-model="form.domesticPrePackageWeightKg"
                   clearable
                 />
@@ -320,44 +342,35 @@
               <el-form-item label="包装后重量(kg)" prop="domesticPostPackageWeightKg">
                 <el-input
                   type="number"
+                  :disabled="permissions.has('web:basic:sparePart:transportImport')"
                   placeholder="请输入"
                   v-model="form.domesticPostPackageWeightKg"
                   clearable
                 />
               </el-form-item>
               <el-form-item label="保修是否拆分" prop="maintenanceSplitQuantityIs">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="BooleanEnum"
-                  v-model="form.maintenanceSplitQuantityIs"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
+                <el-radio-group v-model="form.maintenanceSplitQuantityIs">
+                  <el-radio label="1">是</el-radio>
+                  <el-radio label="0">否</el-radio>
+                </el-radio-group>
               </el-form-item>
               <el-form-item label="是否翻包" prop="needRepackIs">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="BooleanEnum"
-                  v-model="form.needRepackIs"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
+                <el-radio-group
+                :disabled="permissions.has('web:basic:sparePart:salesImport')"
+                 v-model="form.needRepackIs">
+                  <el-radio label="1">是</el-radio>
+                  <el-radio label="0">否</el-radio>
+                </el-radio-group>
               </el-form-item>
-              <el-form-item label="工程物料分类" prop="categorySpareEngineeringId">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.categorySpareEngineeringId"
-                  clearable
-                />
+              <el-form-item label="物料分类（工程）" prop="categorySpareEngineeringId">
                 <fetch-select
                   filterable
                   clearable
                   remote
+                  disabled
                   reserve-keyword
                   v-model="form.categorySpareEngineeringId"
-                  :remote-method="getMaterials"
+                  :remote-method="getEngineeringList"
                   :params="form.categorySpareEngineeringName"
                   value-key="id"
                   label-key="name"
@@ -365,25 +378,32 @@
                 />
               </el-form-item>
               <el-form-item label="是否关键件" prop="keyPartIs">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="BooleanEnum"
-                  v-model="form.keyPartIs"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
+                <el-radio-group
+                :disabled="permissions.has('web:basic:sparePart:salesImport') || permissions.has('web:basic:sparePart:purchaseImport')"
+                 v-model="form.keyPartIs">
+                  <el-radio label="1">是</el-radio>
+                  <el-radio label="0">否</el-radio>
+                </el-radio-group>
               </el-form-item>
-              <el-form-item label="供应物料分类" prop="categorySpareSupplyId">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.categorySpareSupplyId"
+              <el-form-item label="物料分类（供应）" prop="categorySpareSupplyId">
+                <fetch-select
+                  filterable
                   clearable
+                  remote
+                  :disabled="permissions.has('web:basic:sparePart:salesImport')"
+                  reserve-keyword
+                  v-model="form.categorySpareSupplyId"
+                  :remote-method="getSupplyList"
+                  :params="form.categorySpareSupplyName"
+                  value-key="id"
+                  label-key="name"
+                  @change="categorySpareSupplyChange"
                 />
               </el-form-item>
               <el-form-item label="物料来源" prop="materialSourceType">
                 <fetch-select
                   :request="fetchOptions"
+                  disabled
                   enumCode="MaterialSourceTypeEnum"
                   v-model="form.materialSourceType"
                   placeholder="请选择"
@@ -473,13 +493,16 @@
 <script>
 import { getDetail, addOrUpdate } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getEnum } from '@/api/common';
+import { getEnum, listOrgStoreInfo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import ModelDialog from './model.vue';
-import { getCommonList } from '@/api/sparepart/basic/spareSupplyCategory';
+import { getSupplyList } from '@/api/sparepart/basic/spareSupplyCategory';
+import { getEngineeringList } from '@/api/sparepart/basic/spareEngineeringCategory';
+import { getSalesList } from '@/api/sparepart/basic/spareSalesCategory';
+import ListSelect from '@/libs/components/list-select/index.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -541,6 +564,7 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
+    ListSelect,
     FetchSelect,
     ModelDialog
   },
@@ -561,6 +585,7 @@ export default {
       supplierData: [], // 供应商信息
       replacementData: [], // 替换件信息
       modelDialogVisible: false, // 适配车型弹窗
+      storeOptions: [], // 门店列表
       rules: {
         partCode: [
           { required: true, message: '请输入备件编码', trigger: 'blur' }
@@ -682,33 +707,41 @@ export default {
           unit: 'kg',
           required: false
         }),
-        domesticPrePackageLengthMm: [
-          { required: false, message: '请输入国内包装前长（mm）', trigger: 'blur' },
-        ],
-        domesticPrePackageWidthMm: [
-          { required: false, message: '请输入国内包装前宽（mm）', trigger: 'blur' },
-        ],
-        domesticPrePackageHeightMm: [
-          { required: false, message: '请输入国内包装前高（mm）', trigger: 'blur' }
-        ],
-        domesticPrePackageVolumeCm3: [
-          { required: false, message: '请输入国内包装前体积（cm³）', trigger: 'blur' }
-        ],
-        domesticPostPackageWeightKg: [
-          { required: false, message: '请输入国内包装后重量（kg）', trigger: 'blur' }
-        ],
-        domesticPostPackageLengthMm: [
-          { required: false, message: '请输入国内包装后长（mm）', trigger: 'blur' }
-        ],
-        domesticPostPackageWidthMm: [
-          { required: false, message: '请输入国内包装后宽（mm）', trigger: 'blur' }
-        ],
-        domesticPostPackageHeightMm: [
-          { required: false, message: '请输入国内包装后高（mm）', trigger: 'blur' }
-        ],
-        domesticPostPackageVolumeCm3: [
-          { required: false, message: '请输入国内包装后体积（cm³）', trigger: 'blur' }
-        ],
+        domesticPrePackageLengthMm: this.createNumberRule({
+          fieldName: '国内包装前长',
+          unit: 'mm',
+          required: false
+        }),
+        domesticPrePackageWidthMm: this.createNumberRule({
+          fieldName: '国内包装前宽',
+          unit: 'mm',
+          required: false
+        }),
+        domesticPrePackageHeightMm: this.createNumberRule({
+          fieldName: '国内包装前高',
+          unit: 'mm',
+          required: false
+        }),
+        domesticPostPackageWeightKg: this.createNumberRule({
+          fieldName: '国内包装后重量',
+          unit: 'kg',
+          required: false
+        }),
+        domesticPostPackageLengthMm: this.createNumberRule({
+          fieldName: '国内包装后长',
+          unit: 'mm',
+          required: false
+        }),
+        domesticPostPackageWidthMm: this.createNumberRule({
+          fieldName: '国内包装后宽',
+          unit: 'mm',
+          required: false
+        }),
+        domesticPostPackageHeightMm: this.createNumberRule({
+          fieldName: '国内包装后高',
+          unit: 'mm',
+          required: false
+        }),
         baseUnit: [
           { required: false, message: '请输入基本计量单位', trigger: 'blur' }
         ],
@@ -779,14 +812,53 @@ export default {
     this.getDetailData();
   },
   methods: {
-    async getMaterials (query) {
-      const res = await getCommonList({ categoryNameLike: query, limitSize: 1 });
+    // 可采购/不可采购门店
+    getStoreByName (query) {
+      listOrgStoreInfo({
+        name: query
+      }).then(res => {
+        this.storeOptions = res?.map(item => {
+          return {
+            ...item,
+            value: item.orgCode,
+            label: item.orgName
+          };
+        });
+      });
+    },
+    // 处理选择门店时拿到所有的数据
+    handleStoreChange (val) {
+      // 根据 value 在 storeOptions 中查找完整的对象
+      const selectedItem = this.storeOptions.find(item => item.orgCode === val);
+      this.form.dealerCode = selectedItem.orgCode;
+      this.form.dealerName = selectedItem.orgName;
+    },
+    async getEngineeringList (query) {
+      const res = await getEngineeringList({ categoryNameLike: query });
+      return res;
+    },
+    async getSupplyList (query) {
+      const res = await getSupplyList({ categoryNameLike: query });
+      return res;
+    },
+    async getSalesList (query) {
+      const res = await getSalesList({ categoryNameLike: query });
       return res;
     },
     categorySpareEngineeringChange (val, all) {
       this.form.categorySpareEngineeringId = all.id;
       this.form.categorySpareEngineeringCode = all.code;
       this.form.categorySpareEngineeringName = all.name;
+    },
+    categorySpareSupplyChange (val, all) {
+      this.form.categorySpareSupplyId = all.id;
+      this.form.categorySpareSupplyCode = all.code;
+      this.form.categorySpareSupplyName = all.name;
+    },
+    categorySpareSalesChange (val, all) {
+      this.form.categorySpareSalesId = all.id;
+      this.form.categorySpareSalesCode = all.code;
+      this.form.categorySpareSalesName = all.name;
     },
     handleBack () {
       this.$router.back();
