@@ -230,6 +230,16 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     }
   },
+  watch: {
+    id: {
+      handler (val) {
+        if (val) {
+          this.getDetailData();
+        }
+      },
+      immediate: true
+    }
+  },
   data () {
     const form = this.getDefautlForm();
     return {
@@ -325,7 +335,9 @@ export default {
     },
     getDetailData () {
       const id = this._id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', `${id ? '详情' : '新建'}`]);
+      if (!this.id) {
+        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', `${id ? '详情' : '新建'}`]);
+      }
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;

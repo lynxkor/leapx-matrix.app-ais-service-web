@@ -203,6 +203,7 @@
                       :moduleKey="moduleKey"
                       ref="partTable"
                       :currentVehicleId="currentVehicleId"
+                      :id="id"
                       @replace="onReplace"
                       :disabled="!isEditing"
                       >
@@ -299,6 +300,16 @@ export default {
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
+    }
+  },
+  watch: {
+    id: {
+      handler (val) {
+        if (val) {
+          this.getDetailData();
+        }
+      },
+      immediate: true
     }
   },
   data () {
@@ -404,7 +415,9 @@ export default {
     },
     getDetailData () {
       const id = this._id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['免费保养政策', `${id ? '详情' : '新建'}`]);
+      if (!this.id) {
+        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['免费保养政策', `${id ? '详情' : '新建'}`]);
+      }
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
