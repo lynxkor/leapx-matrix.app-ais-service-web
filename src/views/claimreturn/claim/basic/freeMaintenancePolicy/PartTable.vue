@@ -19,15 +19,21 @@
     @current-page-change="currentPageChange"
     :actionWidth="200"
     :emptyText="_id ? '' : '新增后，即可添加'"
+    :disabled="disabled"
   >
     <template #btn-middle="{ row, rowIndex }">
-      <span
+      <el-button
+        type="text"
         @click="onReplace(row, rowIndex)"
         class="action-button btn-edit"
-        :class="{'active': selectedRow.id === row.id}"
+        :disabled="disabled"
+        :class="{
+          'active': selectedRow.id === row.id,
+          'disabled': disabled,
+        }"
         >
         替换件
-      </span>
+      </el-button>
     </template>
   </edit-table>
 </template>
@@ -48,6 +54,9 @@ export default {
     },
     moduleKey: {
       type: String,
+    },
+    disabled: {
+      type: Boolean,
     }
   },
   components: {
@@ -114,23 +123,15 @@ export default {
   },
   mounted () {
     this.getDetailPageApi();
-    console.log(this);
   },
   beforeDestroy () {
   },
   methods: {
-    getId () {
-      return this.id || this.$route.query.id;
-    },
     // 表格数据
     getDetailPageApi () {
-      const id = this.getId();
-      if (!id) {
-        return;
-      }
       freeMaintenancePolicyPartDetailPage({
-        vehicleRegisteredModelId: this.currentVehicleId,
-        freeMaintenancePolicyId: id,
+        vehicleRegisteredModelId: this.currentVehicleId || '',
+        freeMaintenancePolicyId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {
@@ -155,7 +156,7 @@ export default {
         id: row.id,
         partId: row.partId, // 零件ID
         partQuantity: row.partQuantity, // 零件数量
-        freeMaintenancePolicyId: this.getId(), // 免保政策ID
+        freeMaintenancePolicyId: this._id, // 免保政策ID
         vehicleRegisteredModelId: this.currentVehicleId, // 公告车型ID
       };
       freeMaintenancePolicyPartDetailUpdate(parmas).then(id => {
@@ -168,11 +169,11 @@ export default {
     pageSizeChange (pageSize) {
       this.pageSize = pageSize;
       this.current = 1;
-      this.getDetailPageApi(this.getId());
+      this.getDetailPageApi();
     },
     currentPageChange (current) {
       this.current = current;
-      this.getDetailPageApi(this.getId());
+      this.getDetailPageApi();
     },
     // -------------
     handleAdd (newItem) {
@@ -195,6 +196,10 @@ export default {
     }
     &.active{
       text-decoration: underline;
+    }
+    &.disabled{
+      cursor: not-allowed;
+      color: var(--disabled-color);
     }
   }
 </style>

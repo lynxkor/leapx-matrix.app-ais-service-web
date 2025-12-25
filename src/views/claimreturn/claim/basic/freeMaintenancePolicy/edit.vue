@@ -144,12 +144,12 @@
                 </el-form>
               </div>
             </section>
-            <section class="common-section">
+            <section class="common-section" v-if="_id">
               <div class="common-section-header common-section-tip">
                 <h2>零件信息</h2><span class="p-1">个别公告车型使用不同零件时可以添加多套方案，常规只需使用默认方案即可。</span>
               </div>
               <div class="common-section-body">
-                <section class="common-section" v-if="_id">
+                <section class="common-section">
                   <fetch-tabs
                     v-model="currentVehicleId"
                     :loadParams="{freeMaintenancePolicyId: _id}"
@@ -164,9 +164,10 @@
                     :remoteMethod="remoteMethod"
                     :selectConfig="{
                       valueKey: 'id',
-                      labelKey: 'registeredModelName',
+                      labelKey: 'name',
                       placeholder: '请输入公告车型代码/名称',
                     }"
+                    :disabled="!isEditing"
                     @remove="onRemove"
                     />
                   </section>
@@ -192,6 +193,7 @@
                           type="primary"
                           size="small"
                           @click="handleAddPart"
+                          :disabled="!isEditing"
                           >
                           添加
                         </el-button>
@@ -202,6 +204,7 @@
                       ref="partTable"
                       :currentVehicleId="currentVehicleId"
                       @replace="onReplace"
+                      :disabled="!isEditing"
                       >
                     </part-table>
                   </section>
@@ -244,7 +247,7 @@ import { getList } from '@/api/maintain/basic/repairItem';
 import { debounce } from 'lodash';
 import { uIntRule } from '@/validation/rule';
 import FetchTabs from '@/libs/components/FetchTabs';
-import { getDetail, addOrUpdate, freeMaintenancePolicyPartDetailList, freeMaintenancePolicyPartDetailDeleteVehicle, freeMaintenancePartReplaceDetailPage } from '../../../../../api/claimreturn/claim/basic/freeMaintenancePolicy';
+import { getDetail, addOrUpdate, freeMaintenancePolicyPartDetailList, freeMaintenancePolicyPartDetailDeleteVehicle } from '../../../../../api/claimreturn/claim/basic/freeMaintenancePolicy';
 import { vehicleSalesVersionList, getEnum, sparePartList } from '../../../../../api/common';
 import PartTable from './PartTable.vue';
 import ReplaceTable from './ReplaceTable.vue';
@@ -493,6 +496,7 @@ export default {
     },
     // 公告车型
     loadData (params) {
+      console.log('lskjf', params);
       return freeMaintenancePolicyPartDetailList(params);
     },
     remoteMethod (query) {

@@ -104,6 +104,7 @@
               @remove-row="handleRemoveRow"
               @page-size-change="pageSizeChange"
               @current-page-change="currentPageChange"
+              :disabled="true"
             />
           </div>
         </div>

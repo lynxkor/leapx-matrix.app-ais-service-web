@@ -354,11 +354,10 @@ img {
   padding: 8px 15px;
 }
 .el-button--text:focus, .el-button--text:hover{
-  color: var(--themColor)!important;
+  color: var(--themColor);
 }
-
 .el-button--text{
-  color: var(--themColor)!important;
+  color: var(--themColor);
 }
 
 .el-input-number__decrease:hover, .el-input-number__increase:hover{
