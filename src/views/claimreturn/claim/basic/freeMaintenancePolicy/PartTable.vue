@@ -48,7 +48,10 @@ export default {
     },
     moduleKey: {
       type: String,
-    }
+    },
+    id: {
+      type: String,
+    },
   },
   components: {
     EditTable,
@@ -108,6 +111,11 @@ export default {
   watch: {
     currentVehicleId: {
       handler () {
+        this.getDetailPageApi();
+      }
+    },
+    id: {
+      handler (val) {
         this.getDetailPageApi();
       }
     }

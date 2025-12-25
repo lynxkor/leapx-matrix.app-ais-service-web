@@ -92,12 +92,16 @@
         is-checkbox
         is-page
         checkboxFixed
+        centralized
         :option-obj="optionObj"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
         @handleSelect="handleSelectionChange"
-      />
+        @listSelect="handleListSelect"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
     </div>
   </div>
 </template>
@@ -114,6 +118,7 @@ import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, getEndOfDayString, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
+import EditPage from './edit.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -141,6 +146,7 @@ export default {
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
+    EditPage
   },
   data () {
     return {
@@ -157,6 +163,7 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      clickItemId: '',
       optionObj: {
         id: 'freeMaintenancePolicyTable',
         dataList: [],
@@ -349,6 +356,9 @@ export default {
     // 多选框选中数据
     handleSelectionChange (selection) {
       this.selectionList = selection;
+    },
+    handleListSelect (row) {
+      this.clickItemId = row.id;
     },
     getFormData () {
       const data = { ...this.form };
