@@ -231,7 +231,6 @@
             </section>
             <plan-info
               :id="_id"
-              :isEditing="isEditing"
             />
           </el-main>
           <el-footer height="60px" v-if="!_id">

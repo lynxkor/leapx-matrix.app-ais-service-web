@@ -196,6 +196,7 @@ export default {
     },
     isEditing: {
       type: Boolean,
+      default: true,
     }
   },
   mixins: [permissions],
