@@ -990,6 +990,33 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/basic/purchaseMinAmount',
+      name: 'purchaseMinAmount',
+      component: () => import('@/views/sparepart/basic/purchaseMinAmount/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/purchaseminamount/detail',
+      name: 'purchaseMinAmountDetail',
+      component: () => import('@/views/sparepart/basic/purchaseMinAmount/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/purchaseminamount/edit',
+      name: 'purchaseMinAmountEdit',
+      component: () => import('@/views/sparepart/basic/purchaseMinAmount/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
