@@ -1,7 +1,7 @@
 import api from '@/axios';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
-const prefix = '/sp-local/web/basic/sparePart/';
+const prefix = '/sp/web/basic/sparePart/';
 
 /**
  * 查询列表
@@ -60,7 +60,7 @@ export function searchVehicleModel (data) {
  * @param {Object} data
  */
 export function addOrUpdateVehicleModel (data) {
-  return api.jsonPost('/sp-local/web/basic/sparePartVehicleModel/addOrUpdate', data);
+  return api.jsonPost('/sp/web/basic/sparePartVehicleModel/addOrUpdate', data);
 }
 
 /**
