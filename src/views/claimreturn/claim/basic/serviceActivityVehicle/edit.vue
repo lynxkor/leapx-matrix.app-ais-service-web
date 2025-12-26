@@ -34,8 +34,7 @@
               <el-form-item label="VIN" prop="vin">
                 <!-- todo 车辆档案 -->
                 <LPEncrypted
-                  @change="v => form.vin = v"
-                  :value="form.vin"
+                  :value.sync="form.vin"
                   :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
                 >
                   <el-input
@@ -58,8 +57,7 @@
               </el-form-item>
               <el-form-item label="车主手机号码" prop="ownerPhone">
                 <LPEncrypted
-                  @change="v => form.ownerPhone = v"
-                  :value="form.ownerPhone"
+                  :value.sync="form.ownerPhone"
                   :decryptMethod="() => getDetailDecryptField(form.id, 'ownerPhone')"
                 />
               </el-form-item>
