@@ -58,3 +58,13 @@ export function submitPartsPreparation (data) {
 export function partsPreparationCompleted (data) {
   return api.jsonPost(prefix + 'partsPreparationCompleted', data);
 }
+
+const prefixScheme = 'claimreturn/claim/web/basic/techServiceActivityScheme/';
+// 服务活动方案列表查询
+export function techServiceActivitySchemeList (data) {
+  return api.jsonPost(prefixScheme + 'list', data);
+}
+// 服务活动方案列表查询
+export function techServiceActivitySchemeDelete (data) {
+  return api.jsonPost(prefixScheme + 'delete', data);
+}

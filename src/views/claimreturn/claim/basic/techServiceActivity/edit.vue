@@ -22,14 +22,14 @@
               <div class="common-section-body">
                 <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"  class="form-edit" v-if="isEditing || !_id">
                   <el-form-item label="活动编码：" prop="activityCode">
-                    <el-input
+                    <base-input
                       placeholder="请输入"
                       v-model="form.activityCode"
                       clearable
                     />
                   </el-form-item>
                   <el-form-item label="活动名称：" prop="activityName">
-                    <el-input
+                    <base-input
                       placeholder="请输入"
                       v-model="form.activityName"
                       clearable
@@ -68,21 +68,21 @@
                     </el-switch>
                   </el-form-item>
                   <el-form-item label="活动数量：" prop="vehicleCount">
-                    <el-input
+                    <base-input
                       placeholder="请输入"
                       v-model="form.vehicleCount"
                       clearable
                     />
                   </el-form-item>
                   <el-form-item label="完成数量：" prop="finishedVehicleCount">
-                    <el-input
+                    <base-input
                       placeholder="请输入"
                       v-model="form.finishedVehicleCount"
                       clearable
                     />
                   </el-form-item>
                   <el-form-item label="完成情况（%）：" prop="finishedPercent">
-                    <el-input
+                    <base-input
                       placeholder="请输入"
                       v-model="form.finishedPercent"
                       clearable
@@ -99,7 +99,7 @@
                     />
                   </el-form-item>
                   <el-form-item class="form-item-full" label="活动描述：" prop="description">
-                    <el-input
+                    <base-input
                       type="textarea"
                       placeholder="请输入"
                       v-model="form.description"
@@ -108,7 +108,7 @@
                     />
                   </el-form-item>
                   <el-form-item class="form-item-full" label="活动费用内容：" prop="costContent">
-                    <el-input
+                    <base-input
                       type="textarea"
                       placeholder="请输入"
                       v-model="form.costContent"
@@ -117,7 +117,7 @@
                     />
                   </el-form-item>
                   <el-form-item class="form-item-full" label="故障现象描述：" prop="faultPhenomenon">
-                    <el-input
+                    <base-input
                       type="textarea"
                       placeholder="请输入"
                       v-model="form.faultPhenomenon"
@@ -126,7 +126,7 @@
                     />
                   </el-form-item>
                   <el-form-item class="form-item-full" label="故障排查流程：" prop="troubleshootingFlow">
-                    <el-input
+                    <base-input
                       type="textarea"
                       placeholder="请输入"
                       v-model="form.troubleshootingFlow"
@@ -190,43 +190,161 @@
               </div>
               <div class="common-section-body">
                 <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-if="isEditing || !_id">
-                  <el-form-item label="结算类型：" prop="settlementTypeName">
+                  <el-form-item label="结算类型：" prop="checkoutTypeName">
                     <fetch-select
                       filterable
                       clearable
                       remote
                       reserve-keyword
-                      v-model="form.settlementTypeId"
-                      :remote-method="settlementRemote"
-                      :params="form.settlementTypeName"
-                      @change="handleSettlement"
+                      v-model="form.checkoutTypeId"
+                      :remote-method="checkoutTypeRemote"
+                      :params="form.checkoutTypeName"
+                      @change="handleCheckoutType"
                       value-key="id"
                       label-key="name"
                     />
                   </el-form-item>
-                  <el-form-item label="保修类型：" prop="warrantyTypeName">
+                  <el-form-item label="保修类型：" prop="repairItemTypeName">
                     <fetch-select
                       filterable
                       clearable
                       remote
                       reserve-keyword
-                      v-model="form.warrantyTypeId"
-                      :remote-method="warrantyRemote"
-                      :params="form.warrantyTypeName"
-                      @change="handleWarranty"
+                      v-model="form.repairItemTypeId"
+                      :remote-method="repairItemTypeRemote"
+                      :params="form.repairItemTypeName"
+                      @change="handleRepairItem"
                       value-key="id"
                       label-key="name"
                     />
                   </el-form-item>
                 </el-form>
                 <el-form :inline="true" class="form-detail" v-else>
-                  <el-form-item label="结算类型：" prop="settlementTypeName">
-                    {{ form.settlementTypeName }}
+                  <el-form-item label="结算类型：" prop="checkoutTypeName">
+                    {{ form.checkoutTypeName }}
                   </el-form-item>
-                  <el-form-item label="保修类型：" prop="warrantyTypeName">
-                    {{ form.warrantyTypeName }}
+                  <el-form-item label="保修类型：" prop="repairItemTypeName">
+                    {{ form.repairItemTypeName }}
                   </el-form-item>
                 </el-form>
+              </div>
+            </section>
+            <section class="common-section">
+              <div class="common-section-header common-section-tip">
+                <h2>方案信息</h2>
+              </div>
+              <div class="common-section-body" v-if="_id">
+                <section class="common-section">
+                  <fetch-tabs
+                    type="menu"
+                    v-model="schemeName"
+                    :loadParams="{activityId: _id}"
+                    :loadData="loadPlan"
+                    :itemConfig="{
+                      valueKey: 'id',
+                      labelKey: 'name',
+                      disableCloseKey: 'disableClose',
+                      disableFirst: false,
+                    }"
+                    closeTip="确定删除该方案吗？"
+                    :disabled="!isEditing"
+                    @remove="onRemove"
+                    />
+                  </section>
+                  <section class="common-section">
+                    <div
+                      v-if="canAddOrUpdate && _id"
+                      class="common-section-header"
+                    >
+                      基础信息
+                    </div>
+                    <el-form :inline="true" :model="planForm" :rules="rules" ref="planRuleForm" label-width="150px"  class="form-edit" v-if="isEditing || !_id">
+                      <el-form-item label="方案名称：" prop="schemeName">
+                        <base-input
+                          placeholder="请输入"
+                          v-model="planForm.schemeName"
+                          clearable
+                        />
+                      </el-form-item>
+                      <el-form-item label="是否允许修改旧件：" prop="allowModifyOldPart">
+                        <el-switch
+                          v-model="planForm.allowModifyOldPart">
+                        </el-switch>
+                      </el-form-item>
+                      <el-form-item label="是否启用：" prop="status">
+                        <el-switch
+                          v-model="planForm.status">
+                        </el-switch>
+                      </el-form-item>
+                      <el-form-item label="主因零部件：" prop="mainPartName">
+                        <fetch-select
+                          filterable
+                          clearable
+                          remote
+                          reserve-keyword
+                          v-model="planForm.mainPartId"
+                          :remote-method="partRemote"
+                          :params="planForm.mainPartName"
+                          @change="partChange"
+                          value-key="id"
+                          label-key="partName"
+                        />
+                      </el-form-item>
+                      <el-form-item label="主因供应商：" prop="mainSupplierId">
+                        <fetch-select
+                          :options="supplierOptions"
+                          v-model="planForm.mainSupplierId"
+                          placeholder="请选择"
+                          clearable
+                          filterable
+                          value-key="value"
+                          label-key="label"
+                        />
+                      </el-form-item>
+                      <el-form-item label="VRT名称：" prop="vrtId">
+                        <fetch-select
+                          :request="fetchOptions"
+                          enumCode="claim_activity_state"
+                          v-model="planForm.vrtId"
+                          placeholder="请选择"
+                          clearable
+                          filterable
+                        />
+                      </el-form-item>
+                      <el-form-item label="VFG名称：" prop="vfgId">
+                        <fetch-select
+                          :request="fetchOptions"
+                          enumCode="claim_activity_state"
+                          v-model="planForm.vfgId"
+                          placeholder="请选择"
+                          clearable
+                          filterable
+                        />
+                      </el-form-item>
+                      <el-form-item label="责任部门：" prop="responsibleDept">
+                        <fetch-select
+                          :request="fetchOptions"
+                          enumCode="claim_responsible_dept"
+                          v-model="planForm.responsibleDept"
+                          placeholder="请选择"
+                          clearable
+                          filterable
+                        />
+                      </el-form-item>
+                       <el-form-item label="方案说明：" prop="description">
+                        <base-input
+                          type="textarea"
+                          placeholder="请输入"
+                          v-model="planForm.description"
+                          clearable
+                          :rows="2"
+                        />
+                      </el-form-item>
+                    </el-form>
+                  </section>
+              </div>
+              <div class="common-section-body not-commit" v-else>
+                提交新建后，即可添加
               </div>
             </section>
           </el-main>
@@ -252,8 +370,8 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/claimreturn/claim/basic/techServiceActivity';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
+import BaseInput from '@/libs/components/BaseInput/index.vue';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -262,6 +380,10 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import { getList } from '../../../../../api/maintain/basic/checkoutType';
 import { getList as repairGetList } from '../../../../../api/maintain/basic/repairItemType';
+import { getList as partList } from '../../../../../api/sparepart/basic/sparePart';
+import { getDetail, addOrUpdate, techServiceActivitySchemeList, techServiceActivitySchemeDelete } from '../../../../../api/claimreturn/claim/basic/techServiceActivity';
+import FetchTabs from '@/libs/components/FetchTabs/index.vue';
+import { getList as sparePartList } from '../../../../../api/sparepart/basic/sparePartSupplier';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -291,10 +413,10 @@ const defaultForm = {
   costContent: '',
   faultPhenomenon: '',
   troubleshootingFlow: '',
-  settlementTypeId: '',
-  settlementTypeName: '',
-  warrantyTypeId: '',
-  warrantyTypeName: '',
+  checkoutTypeId: '',
+  checkoutTypeName: '',
+  repairItemTypeId: '',
+  repairItemTypeName: '',
 };
 
 export default {
@@ -310,6 +432,8 @@ export default {
   components: {
     FetchSelect,
     EditPageLayout,
+    FetchTabs,
+    BaseInput,
   },
   computed: {
     _id () {
@@ -366,16 +490,16 @@ export default {
         troubleshootingFlow: [
           { required: true, message: '请输入故障排查流程', trigger: 'blur' }
         ],
-        settlementTypeId: [
+        checkoutTypeId: [
           { required: true, message: '请选择结算类型ID', trigger: 'change' }
         ],
-        settlementTypeName: [
+        checkoutTypeName: [
           { required: true, message: '请选择结算类型名称', trigger: 'change' }
         ],
-        warrantyTypeId: [
+        repairItemTypeId: [
           { required: true, message: '请选择保修类型ID', trigger: 'change' }
         ],
-        warrantyTypeName: [
+        repairItemTypeName: [
           { required: true, message: '请选择保修类型名称', trigger: 'change' }
         ],
       },
@@ -405,8 +529,22 @@ export default {
             picker.$emit('pick', [start, end]);
           }
         }]
-      }
+      },
+      // --- 方案信息 ---
+      schemeName: '',
+      planForm: {
+        mainPartId: '',
+        partName: '',
+      },
+      supplierOptions: [],
     };
+  },
+  watch: {
+    schemeName: {
+      handler () {
+        console.log(this.schemeName);
+      }
+    }
   },
   mounted () {
     this.getDetailData();
@@ -491,7 +629,7 @@ export default {
       return [];
     },
     // 结算类型
-    settlementRemote (query) {
+    checkoutTypeRemote (query) {
       return getList({
         nameLike: query,
         pageSize: 20,
@@ -499,13 +637,13 @@ export default {
       });
     },
     // 结算类型
-    handleSettlement (val, record) {
+    handleCheckoutType (val, record) {
       if (record) {
-        this.form.settlementTypeName = record.name;
+        this.form.checkoutTypeName = record.name;
       }
     },
     // 维修类型
-    warrantyRemote (query) {
+    repairItemTypeRemote (query) {
       return repairGetList({
         nameLike: query,
         pageSize: 20,
@@ -513,10 +651,47 @@ export default {
       });
     },
     // 维修类型
-    handleWarranty (val, record) {
+    handleRepairItem (val, record) {
       if (record) {
-        this.form.warrantyTypeName = record.name;
+        this.form.repairItemTypeName = record.name;
       }
+    },
+    // 方案
+    loadPlan (params) {
+      return techServiceActivitySchemeList(params);
+    },
+    onRemove (item, index, defer) {
+      techServiceActivitySchemeDelete([item.value]).then(() => {
+        this.$message.success('操作成功');
+      });
+    },
+    partRemote (query) {
+      return partList({
+        partCodeOrNameLike: query,
+        pageSize: 20,
+        pageNum: 1,
+      });
+    },
+    partChange (val, record) {
+      // 零部件id
+      if (val) {
+        sparePartList({
+          sparePartId: val,
+          pageNum: 1,
+          pageSize: 100,
+        }).then(res => {
+          console.log(res);
+          this.supplierOptions = res.records.map(item => {
+            return {
+              label: item.supplierName,
+              value: item.supplierInfoId
+            };
+          });
+          console.log(this.supplierOptions);
+        });
+      }
+      console.log(val, record);
+      //
     }
   }
 };
