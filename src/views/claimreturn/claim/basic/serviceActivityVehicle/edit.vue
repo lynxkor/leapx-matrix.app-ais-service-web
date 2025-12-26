@@ -13,13 +13,13 @@
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
               <el-form-item label="活动编码" prop="activityId">
                 <list-select
-                  v-if="!this.$route.query.id||form.id"
+                  v-if="!$route.query.id||form.id"
                   listUrl="/claimreturn/claim/web/basic/techServiceActivity/listFull"
                   placeholder="请选择"
                   v-model="form.activityId"
                   query-key="activityCodeLike"
                   clearable
-                  :disabled="this.$route.query.id!=null"
+                  :disabled="$route.query.id!=null"
                   auto-load-options
                   collapseTags
                   no-param-load
@@ -33,12 +33,18 @@
               </el-form-item>
               <el-form-item label="VIN" prop="vin">
                 <!-- todo 车辆档案 -->
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.vin"
-                  :disabled="this.$route.query.id!=null"
-                  clearable
-                />
+                <LPEncrypted
+                  @change="v => form.vin = v"
+                  :value="form.vin"
+                  :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
+                >
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.vin"
+                    :disabled="$route.query.id!=null"
+                    clearable
+                  />
+                </LPEncrypted>
               </el-form-item>
               <el-form-item label="计划实施门店名称" prop="plannedDealerCode">
                 <dealer-select
@@ -51,7 +57,11 @@
                 {{ form.ownerName }}
               </el-form-item>
               <el-form-item label="车主手机号码" prop="ownerPhone">
-                {{ form.ownerPhone }}
+                <LPEncrypted
+                  @change="v => form.ownerPhone = v"
+                  :value="form.ownerPhone"
+                  :decryptMethod="() => getDetailDecryptField(form.id, 'ownerPhone')"
+                />
               </el-form-item>
               <el-form-item label="是否完成" prop="finished">
                 {{ form.finishedLabel }}
@@ -85,7 +95,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
+import { getDetail, addOrUpdate, getDetailDecryptField } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -93,9 +103,11 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import DealerSelect from '@/components/dealer-select/index.vue';
+import LPEncrypted from '@/libs/components/LPEncrypted';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
+  activityId: '',
   activityCode: '',
   vin: '',
   activityName: '',
@@ -156,6 +168,7 @@ export default {
   components: {
     DealerSelect,
     ListSelect,
+    LPEncrypted
   },
   data () {
     const form = this.getDefautlForm();
@@ -182,6 +195,9 @@ export default {
     this.getDetailData();
   },
   methods: {
+    getDetailDecryptField (id, field) {
+      return getDetailDecryptField(id, field);
+    },
     handleBack () {
       this.$router.back();
     },

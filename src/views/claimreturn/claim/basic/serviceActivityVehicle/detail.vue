@@ -20,7 +20,11 @@
               {{ info.activityName  }}
             </el-form-item>
             <el-form-item label="VIN：" prop="vin">
-              {{ info.vin  }}
+              <LPEncrypted
+                @change="v => info.vin = v"
+                :value="info.vin"
+                :decryptMethod="() => getDetailDecryptField(info.id, 'vin')"
+              />
             </el-form-item>
             <el-form-item label="计划实施门店：" prop="plannedDealerName">
               {{ info.plannedDealerName  }}
@@ -29,7 +33,11 @@
               {{ info.ownerName  }}
             </el-form-item>
             <el-form-item label="车主手机号码：" prop="ownerPhone">
-              {{ info.ownerPhone  }}
+              <LPEncrypted
+                @change="v => info.ownerPhone = v"
+                :value="info.ownerPhone"
+                :decryptMethod="() => getDetailDecryptField(info.id, 'ownerPhone')"
+              />
             </el-form-item>
             <el-form-item label="是否完成：" prop="finished">
               {{ info.finishedLabel  }}
@@ -40,7 +48,6 @@
             <el-form-item label="实际施工门店名称：" prop="actualDealerName">
               {{ info.actualDealerName  }}
             </el-form-item>
-
             <el-form-item label="接车施工单号：" prop="workOrderNo">
               {{ info.workOrderNo  }}
             </el-form-item>
@@ -55,15 +62,17 @@
 </template>
 
 <script>
-import { getDetail } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
+import { getDetail, getDetailDecryptField } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import LPEncrypted from '@/libs/components/LPEncrypted';
 
 export default {
   name: 'serviceActivityVehicleDetail',
   mixins: [permissions, commonMixins],
   components: {
+    LPEncrypted
   },
   data () {
     return {
@@ -81,6 +90,9 @@ export default {
     this.getData();
   },
   methods: {
+    getDetailDecryptField (id, field) {
+      return getDetailDecryptField(id, field);
+    },
     handleEdit () {
       this.$router.push({
         path: '/claimreturn/claim/basic/serviceActivityVehicle/edit',
