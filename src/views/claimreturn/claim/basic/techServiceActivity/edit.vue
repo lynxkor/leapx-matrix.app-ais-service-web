@@ -229,124 +229,10 @@
                 </el-form>
               </div>
             </section>
-            <section class="common-section">
-              <div class="common-section-header common-section-tip">
-                <h2>方案信息</h2>
-              </div>
-              <div class="common-section-body" v-if="_id">
-                <section class="common-section">
-                  <fetch-tabs
-                    type="menu"
-                    v-model="schemeName"
-                    :loadParams="{activityId: _id}"
-                    :loadData="loadPlan"
-                    :itemConfig="{
-                      valueKey: 'id',
-                      labelKey: 'name',
-                      disableCloseKey: 'disableClose',
-                      disableFirst: false,
-                    }"
-                    closeTip="确定删除该方案吗？"
-                    :disabled="!isEditing"
-                    @remove="onRemove"
-                    />
-                  </section>
-                  <section class="common-section">
-                    <div
-                      v-if="canAddOrUpdate && _id"
-                      class="common-section-header"
-                    >
-                      基础信息
-                    </div>
-                    <el-form :inline="true" :model="planForm" :rules="rules" ref="planRuleForm" label-width="150px"  class="form-edit" v-if="isEditing || !_id">
-                      <el-form-item label="方案名称：" prop="schemeName">
-                        <base-input
-                          placeholder="请输入"
-                          v-model="planForm.schemeName"
-                          clearable
-                        />
-                      </el-form-item>
-                      <el-form-item label="是否允许修改旧件：" prop="allowModifyOldPart">
-                        <el-switch
-                          v-model="planForm.allowModifyOldPart">
-                        </el-switch>
-                      </el-form-item>
-                      <el-form-item label="是否启用：" prop="status">
-                        <el-switch
-                          v-model="planForm.status">
-                        </el-switch>
-                      </el-form-item>
-                      <el-form-item label="主因零部件：" prop="mainPartName">
-                        <fetch-select
-                          filterable
-                          clearable
-                          remote
-                          reserve-keyword
-                          v-model="planForm.mainPartId"
-                          :remote-method="partRemote"
-                          :params="planForm.mainPartName"
-                          @change="partChange"
-                          value-key="id"
-                          label-key="partName"
-                        />
-                      </el-form-item>
-                      <el-form-item label="主因供应商：" prop="mainSupplierId">
-                        <fetch-select
-                          :options="supplierOptions"
-                          v-model="planForm.mainSupplierId"
-                          placeholder="请选择"
-                          clearable
-                          filterable
-                          value-key="value"
-                          label-key="label"
-                        />
-                      </el-form-item>
-                      <el-form-item label="VRT名称：" prop="vrtId">
-                        <fetch-select
-                          :request="fetchOptions"
-                          enumCode="claim_activity_state"
-                          v-model="planForm.vrtId"
-                          placeholder="请选择"
-                          clearable
-                          filterable
-                        />
-                      </el-form-item>
-                      <el-form-item label="VFG名称：" prop="vfgId">
-                        <fetch-select
-                          :request="fetchOptions"
-                          enumCode="claim_activity_state"
-                          v-model="planForm.vfgId"
-                          placeholder="请选择"
-                          clearable
-                          filterable
-                        />
-                      </el-form-item>
-                      <el-form-item label="责任部门：" prop="responsibleDept">
-                        <fetch-select
-                          :request="fetchOptions"
-                          enumCode="claim_responsible_dept"
-                          v-model="planForm.responsibleDept"
-                          placeholder="请选择"
-                          clearable
-                          filterable
-                        />
-                      </el-form-item>
-                       <el-form-item label="方案说明：" prop="description">
-                        <base-input
-                          type="textarea"
-                          placeholder="请输入"
-                          v-model="planForm.description"
-                          clearable
-                          :rows="2"
-                        />
-                      </el-form-item>
-                    </el-form>
-                  </section>
-              </div>
-              <div class="common-section-body not-commit" v-else>
-                提交新建后，即可添加
-              </div>
-            </section>
+            <plan-info
+              :id="_id"
+              :isEditing="isEditing"
+            />
           </el-main>
           <el-footer height="60px" v-if="!_id">
             <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm', 'ruleForm2')" :loading="submitLoading">保存</el-button>
@@ -380,10 +266,8 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import { getList } from '../../../../../api/maintain/basic/checkoutType';
 import { getList as repairGetList } from '../../../../../api/maintain/basic/repairItemType';
-import { getList as partList } from '../../../../../api/sparepart/basic/sparePart';
-import { getDetail, addOrUpdate, techServiceActivitySchemeList, techServiceActivitySchemeDelete } from '../../../../../api/claimreturn/claim/basic/techServiceActivity';
-import FetchTabs from '@/libs/components/FetchTabs/index.vue';
-import { getList as sparePartList } from '../../../../../api/sparepart/basic/sparePartSupplier';
+import { getDetail, addOrUpdate } from '../../../../../api/claimreturn/claim/basic/techServiceActivity';
+import PlanInfo from './PlanInfo.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -432,8 +316,8 @@ export default {
   components: {
     FetchSelect,
     EditPageLayout,
-    FetchTabs,
     BaseInput,
+    PlanInfo,
   },
   computed: {
     _id () {
@@ -530,21 +414,9 @@ export default {
           }
         }]
       },
-      // --- 方案信息 ---
-      schemeName: '',
-      planForm: {
-        mainPartId: '',
-        partName: '',
-      },
-      supplierOptions: [],
     };
   },
   watch: {
-    schemeName: {
-      handler () {
-        console.log(this.schemeName);
-      }
-    }
   },
   mounted () {
     this.getDetailData();
@@ -656,43 +528,6 @@ export default {
         this.form.repairItemTypeName = record.name;
       }
     },
-    // 方案
-    loadPlan (params) {
-      return techServiceActivitySchemeList(params);
-    },
-    onRemove (item, index, defer) {
-      techServiceActivitySchemeDelete([item.value]).then(() => {
-        this.$message.success('操作成功');
-      });
-    },
-    partRemote (query) {
-      return partList({
-        partCodeOrNameLike: query,
-        pageSize: 20,
-        pageNum: 1,
-      });
-    },
-    partChange (val, record) {
-      // 零部件id
-      if (val) {
-        sparePartList({
-          sparePartId: val,
-          pageNum: 1,
-          pageSize: 100,
-        }).then(res => {
-          console.log(res);
-          this.supplierOptions = res.records.map(item => {
-            return {
-              label: item.supplierName,
-              value: item.supplierInfoId
-            };
-          });
-          console.log(this.supplierOptions);
-        });
-      }
-      console.log(val, record);
-      //
-    }
   }
 };
 </script>
