@@ -13,7 +13,7 @@ import '@/libs/assets/styles/common.scss';
 import '@/libs/assets/iconfont/iconfont.css';
 import '@leapmotor/splitpanes/dist/splitpanes.css';
 import AuditLogPlugin from '@/libs/plugins/auditLog.js';
-
+import PrintPlugin from '@/libs/plugins/print.js';
 /* -------------------- 注册vxe-table ----------------- */
 import {
   VxeUi,
@@ -52,6 +52,7 @@ Vue.use(Vuex);
 
 /* -------------------- 注册插件 ----------------- */
 Vue.use(AuditLogPlugin);
+Vue.use(PrintPlugin);
 
 // 监听全局分辨率
 const onResize = () => {
