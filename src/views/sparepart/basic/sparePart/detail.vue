@@ -44,10 +44,10 @@
               {{ info.partsEngineer  }}
             </el-form-item>
             <el-form-item label="VFG：" prop="vfgId">
-              {{ info.vfgId  }}
+              {{ info.vfgName  }}
             </el-form-item>
             <el-form-item label="VRT：" prop="vrtId">
-              {{ info.vrtId  }}
+              {{ info.vrtName  }}
             </el-form-item>
             <el-form-item label="备注：" prop="remark">
               {{ info.remark  }}
