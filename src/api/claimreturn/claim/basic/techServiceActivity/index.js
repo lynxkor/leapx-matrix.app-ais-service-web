@@ -68,3 +68,15 @@ export function techServiceActivitySchemeList (data) {
 export function techServiceActivitySchemeDelete (data) {
   return api.jsonPost(prefixScheme + 'delete', data);
 }
+// 服务活动方案详情信息
+export function techServiceActivitySchemeGet (data) {
+  return api.jsonPost(prefixScheme + 'get', data);
+}
+// 服务活动方案新增/编辑
+export function techServiceActivitySchemeUpdate (data) {
+  return api.jsonPost(prefixScheme + 'addOrUpdate', data);
+}
+// 拷贝方案
+export function techServiceActivitySchemeCopy (data) {
+  return api.jsonPost(prefixScheme + 'copy', data);
+}
