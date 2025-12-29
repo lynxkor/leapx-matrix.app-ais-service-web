@@ -231,6 +231,13 @@
             </section>
             <plan-info
               :id="_id"
+              :moduleKey="moduleKey"
+              @change="schemeChange"
+            />
+            <part-info
+              :id="_id"
+              :moduleKey="moduleKey"
+              :schemeId="schemeId"
             />
           </el-main>
           <el-footer height="60px" v-if="!_id">
@@ -267,6 +274,7 @@ import { getList } from '../../../../../api/maintain/basic/checkoutType';
 import { getList as repairGetList } from '../../../../../api/maintain/basic/repairItemType';
 import { getDetail, addOrUpdate } from '../../../../../api/claimreturn/claim/basic/techServiceActivity';
 import PlanInfo from './PlanInfo.vue';
+import PartInfo from './PartInfo.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -317,6 +325,7 @@ export default {
     EditPageLayout,
     BaseInput,
     PlanInfo,
+    PartInfo,
   },
   computed: {
     _id () {
@@ -413,6 +422,7 @@ export default {
           }
         }]
       },
+      schemeId: '',
     };
   },
   watch: {
@@ -527,6 +537,10 @@ export default {
         this.form.repairItemTypeName = record.name;
       }
     },
+    //
+    schemeChange (id) {
+      this.schemeId = id;
+    }
   }
 };
 </script>

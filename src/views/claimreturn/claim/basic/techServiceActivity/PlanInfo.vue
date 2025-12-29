@@ -197,6 +197,10 @@ export default {
     isEditing: {
       type: Boolean,
       default: true,
+    },
+    moduleKey: {
+      type: String,
+      required: true,
     }
   },
   mixins: [permissions],
@@ -207,7 +211,6 @@ export default {
   },
   data () {
     return {
-      moduleKey: 'AISCR-techServiceActivity',
       schemaId: '',
       form: {
         id: '',
@@ -311,6 +314,7 @@ export default {
           }
           this.form[key] = data[key];
         });
+        this.$emit('change', data.id);
       });
     },
     onRemove (item, index, defer) {
@@ -416,5 +420,8 @@ export default {
 
 </script>
 <style lang="scss" scoped>
-
+.common-section-header{
+  font-size: 14px;
+  font-weight: 500;
+}
 </style>

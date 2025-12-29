@@ -80,3 +80,39 @@ export function techServiceActivitySchemeUpdate (data) {
 export function techServiceActivitySchemeCopy (data) {
   return api.jsonPost(prefixScheme + 'copy', data);
 }
+
+const ItemPart = 'claimreturn/claim/web/basic/techServiceActivityItem/';
+// 技术服务活动项目分页查询
+export function techServiceActivityItemPage (data) {
+  return api.jsonPost(ItemPart + 'page', data);
+}
+// 技术服务活动项目详情信息
+export function techServiceActivityItemGet (data) {
+  return api.jsonPost(ItemPart + 'get', data);
+}
+// 技术服务活动项目新增/编辑
+export function techServiceActivityItemUpdate (data) {
+  return api.jsonPost(ItemPart + 'addOrUpdate', data);
+}
+// 技术服务活动项目删除
+export function techServiceActivityItemDelete (data) {
+  return api.jsonPost(ItemPart + 'delete', data);
+}
+
+const prefixPart = 'claimreturn/claim/web/basic/techServiceActivityPart/';
+// 技术服务活动零件列表查询
+export function techServiceActivityPartPage (data) {
+  return api.jsonPost(prefixPart + 'page', data);
+}
+// 技术服务活动零件详情信息
+export function techServiceActivityPartGet (data) {
+  return api.jsonPost(prefixPart + 'get', data);
+}
+// 技术服务活动零件新增/编辑
+export function techServiceActivityPartUpdate (data) {
+  return api.jsonPost(prefixPart + 'addOrUpdate', data);
+}
+// 技术服务活动零件删除
+export function techServiceActivityPartDelete (data) {
+  return api.jsonPost(prefixPart + 'delete', data);
+}
