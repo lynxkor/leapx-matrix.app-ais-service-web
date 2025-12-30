@@ -152,7 +152,7 @@
                 <section class="common-section">
                   <fetch-tabs
                     v-model="currentVehicleId"
-                    :loadParams="{freeMaintenancePolicyId: _id}"
+                    :loadParams="loadParams"
                     :loadData="loadData"
                     :itemConfig="{
                       valueKey: 'vehicleRegisteredModelId',
@@ -298,7 +298,10 @@ export default {
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
-    }
+    },
+    loadParams () {
+      return { freeMaintenancePolicyId: this._id };
+    },
   },
   watch: {
     id: {
@@ -465,12 +468,8 @@ export default {
       this.form = this.getDefautlForm();
     },
     getDefautlForm () {
-      // TIPS: 此处可添加表单默认值，如当前用户信息等
-      // const userInfo = this.$store.state.user.userInfo;
       return {
         ...defaultForm
-        // ownerId: userInfo.userId,
-        // ownerName: userInfo.userName,
       };
     },
     // 详情表格相关数据
@@ -518,6 +517,9 @@ export default {
       });
     },
     onRemove (item, index, defer) {
+      if (!item.vehicleRegisteredModelId) {
+        return;
+      }
       freeMaintenancePolicyPartDetailDeleteVehicle({
         freeMaintenancePolicyId: this._id,
         vehicleRegisteredModelId: item.value,

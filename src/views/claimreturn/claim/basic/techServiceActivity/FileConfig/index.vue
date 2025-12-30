@@ -3,7 +3,7 @@
     <div class="common-section-header common-section-tip">
       <h2>自动审批附件清单</h2>
     </div>
-    <div class="common-section-body" v-if="id && schemeId">
+    <div class="common-section-body" v-if="id">
       <section class="common-section">
         <div
           v-if="canAddOrUpdate && id"
@@ -34,7 +34,6 @@
           :moduleKey="moduleKey"
           ref="table"
           :id="id"
-          :schemeId="schemeId"
           >
         </Table>
       </section>
@@ -57,7 +56,6 @@ import { debounce } from 'lodash';
 
 const defaultForm = {
   id: '',
-  schemeId: '',
   activityId: '',
   quantity: 0,
   unitPrice: 0,
@@ -75,9 +73,6 @@ const defaultForm = {
 export default {
   props: {
     id: {
-      type: String,
-    },
-    schemeId: {
       type: String,
     },
     isEditing: {
@@ -126,18 +121,12 @@ export default {
     loadParams () {
       return {
         activityId: this.id,
-        schemeId: this.schemeId,
         pageNum: 1,
         pageSize: 999,
       };
     }
   },
   watch: {
-    schemeId: {
-      handler () {
-        this.resetForm();
-      }
-    },
   },
   methods: {
     onChange (val, option) {

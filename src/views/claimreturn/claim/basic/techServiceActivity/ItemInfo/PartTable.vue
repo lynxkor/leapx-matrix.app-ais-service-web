@@ -30,13 +30,13 @@ import {
   techServiceActivityPartPage,
   techServiceActivityPartDelete,
   techServiceActivityPartUpdate,
-} from '../../../../../api/claimreturn/claim/basic/techServiceActivity';
+} from '@/api/claimreturn/claim/basic/techServiceActivity';
 
 import EditTable from '@/libs/components/EditTable';
 import permissions from '@/libs/mixins/permissions';
-import { getEnum, repairItemType } from '../../../../../api/common';
-import { getList as sparePartSupplierList } from '../../../../../api/sparepart/basic/sparePartSupplier';
-import { getList as partList } from '../../../../../api/sparepart/basic/sparePart';
+import { getEnum, repairItemType } from '@/api/common';
+import { getList as sparePartSupplierList } from '@/api/sparepart/basic/sparePartSupplier';
+import { getList as partList } from '@/api/sparepart/basic/sparePart';
 
 export default {
   props: {
@@ -44,6 +44,9 @@ export default {
       type: String,
     },
     id: {
+      type: String,
+    },
+    serviceActivityItemId: {
       type: String,
     },
     moduleKey: {
@@ -73,7 +76,6 @@ export default {
         returnType: [],
         repairItemTypeId: [],
         oldPartCode: [],
-        oldSupplierId: [],
       },
       columns: [
         {
@@ -131,17 +133,29 @@ export default {
           width: '160',
           editable: true,
           editRender: {
-            name: 'ElSelect',
-            multiRow: true,
+            name: 'FetchSelect',
             props: {
               filterable: true,
               clearable: true,
               remote: true,
               remoteMethod: this.partRemote,
               placeholder: '请选择',
-              'suffix-icon': 'el-icon-search',
+              'value-key': 'id',
+              'label-key': 'partName',
             },
           },
+          // editRender: {
+          //   name: 'ElSelect',
+          //   multiRow: true,
+          //   props: {
+          //     filterable: true,
+          //     clearable: true,
+          //     remote: true,
+          //     remoteMethod: this.partRemote,
+          //     placeholder: '请选择',
+          //     'suffix-icon': 'el-icon-search',
+          //   },
+          // },
         },
         {
           field: 'oldSupplierId',
@@ -149,14 +163,24 @@ export default {
           width: '160',
           editable: true,
           editRender: {
-            name: 'ElSelect',
+            name: 'FetchSelect',
             props: {
               filterable: true,
               clearable: true,
               placeholder: '请选择',
-              'suffix-icon': 'el-icon-search',
+              'value-key': 'value',
+              'label-key': 'label',
             },
           },
+          // editRender: {
+          //   name: 'ElSelect',
+          //   props: {
+          //     filterable: true,
+          //     clearable: true,
+          //     placeholder: '请选择',
+          //     'suffix-icon': 'el-icon-search',
+          //   },
+          // },
           formatter: (cellValue, row, col) => {
             if (row.oldSupplierName) {
               return row.oldSupplierName;
@@ -249,6 +273,11 @@ export default {
       handler (val) {
         this.getDetailPageApi();
       }
+    },
+    serviceActivityItemId: {
+      handler (val) {
+        this.getDetailPageApi();
+      }
     }
   },
   mounted () {
@@ -265,6 +294,7 @@ export default {
         activityId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,
+        serviceActivityItemId: this.serviceActivityItemId,
       }).then((res) => {
         this.tableData = res.records;
         this.total = res.total;
@@ -293,6 +323,7 @@ export default {
       });
       parmas.activityId = this._id;
       parmas.schemeId = this.schemeId;
+      parmas.serviceActivityItemId = this.serviceActivityItemId;
 
       techServiceActivityPartUpdate(parmas).then(id => {
         defer.resolve(id);
@@ -311,34 +342,44 @@ export default {
       this.getDetailPageApi();
     },
     // -------------
-    handleAdd (newItem) {
-      // 用零件id查找供应商，并填充第一条数据
-      sparePartSupplierList({
-        sparePartId: newItem.partId,
+    sparePartSupplierListApi (partId, row) {
+      return sparePartSupplierList({
+        sparePartId: partId,
         pageNum: 1,
         pageSize: 20,
       }).then(res => {
         const list = res.records || [];
-        if (list.length) {
-          this.options.oldSupplierId = res.records.map(item => {
-            return {
-              label: item.supplierName,
-              value: item.supplierInfoId
-            };
-          });
-          const item = res.records[0];
-          newItem.oldSupplierName = item.supplierName;
-          newItem.oldSupplierId = item.supplierInfoId;
-          newItem.oldSupplierCode = item.supplierCode;
-        } else {
-          this.options.oldSupplierId = [];
+        const options = list.map(item => {
+          return {
+            label: item.supplierName,
+            value: item.supplierInfoId,
+            labelDesc: item.supplierCode,
+          };
+        });
+        // --- 下拉数据
+        if (!row.__options__) {
+          row.__options__ = {};
         }
-        this.$refs.editTable.addRow(newItem);
+        if (options.length) {
+          const item = options[0];
+          row.oldSupplierName = item.label;
+          row.oldSupplierId = item.value;
+          row.oldSupplierCode = item.labelDesc;
+          row.__options__.oldSupplierId = options;
+        } else {
+          row.oldSupplierName = '';
+          row.oldSupplierId = '';
+          row.oldSupplierCode = '';
+          row.__options__.oldSupplierId = null;
+        }
+        return options;
       });
     },
-    onReplace (row, rowIndex) {
-      this.selectedRow = row;
-      this.$emit('replace', row, rowIndex);
+    handleAdd (partId, row) {
+      // 用零件id查找供应商，并填充第一条数据
+      this.sparePartSupplierListApi(partId, row).then(() => {
+        this.$refs.editTable.addRow(row);
+      });
     },
     // 维修类型
     repairItemTypeRemote (query) {
@@ -374,57 +415,47 @@ export default {
     },
     // 零部件下拉接口
     partRemote (query) {
-      partList({
+      return partList({
         partCodeOrNameLike: query,
         pageSize: 20,
         pageNum: 1,
-      }).then(res => {
-        const list = res.records?.map(item => {
-          return {
-            value: item.id,
-            label: item.partName,
-            labelDesc: item.partCode,
-            oldPartId: item.id,
-            oldPartCode: item.partCode,
-            oldPartName: item.partName,
-          };
-        }) || [];
-        this.options.oldPartCode = list;
       });
+      // partList({
+      //   partCodeOrNameLike: query,
+      //   pageSize: 20,
+      //   pageNum: 1,
+      // }).then(res => {
+      //   const list = res.records?.map(item => {
+      //     return {
+      //       value: item.id,
+      //       label: item.partName,
+      //       labelDesc: item.partCode,
+      //       oldPartId: item.id,
+      //       oldPartCode: item.partCode,
+      //       oldPartName: item.partName,
+      //     };
+      //   }) || [];
+      //   this.options.oldPartCode = list;
+      // });
     },
-    onValueChange ({ row, column, value }) {
+    onValueChange ({ row, column, value }, option) {
       if (column.field === 'oldPartCode') {
-        this.partChange(value, row);
+        row.oldPartCode = option?.partCode;
+        row.oldPartName = option?.partName;
+        row.oldPartId = option?.id;
+        this.partChange(row.oldPartId, row);
+      } else if (column.field === 'oldSupplierId') {
+        console.log(option);
       }
     },
     // 供应商列表
-    partChange (partCode, row) {
-      if (partCode) {
-        sparePartSupplierList({
-          partCode: partCode,
-          pageNum: 1,
-          pageSize: 100,
-        }).then(res => {
-          this.options.oldSupplierId = res.records.map(item => {
-            return {
-              label: item.supplierName,
-              value: item.supplierInfoId
-            };
-          });
-          // 选中第一个
-          if (this.options.oldSupplierId) {
-            const item = this.options.oldSupplierId[0];
-            row.oldSupplierId = item.value;
-            row.oldSupplierName = item.label;
-          } else {
-            row.oldSupplierId = '';
-            row.oldSupplierName = '';
-          }
-          // 更新
-        });
+    partChange (id, row) {
+      if (id) {
+        this.sparePartSupplierListApi(id, row);
       } else {
         row.oldSupplierId = '';
         row.oldSupplierName = '';
+        row.oldSupplierCode = '';
       }
     },
   },

@@ -152,10 +152,10 @@
                     {{ form.endTime }}
                   </el-form-item>
                   <el-form-item label="自动审批：">
-                    {{ form.autoApprove }}
+                    {{ form.autoApprove ? '是' : '否' }}
                   </el-form-item>
                   <el-form-item label="施工单必传附件：">
-                    {{ form.attachmentRequired }}
+                    {{ form.attachmentRequired  ? '是' : '否' }}
                   </el-form-item>
                   <el-form-item label="活动数量：">
                     {{ form.vehicleCount }}
@@ -234,7 +234,7 @@
               :moduleKey="moduleKey"
               @change="schemeChange"
             />
-            <part-info
+            <item-info
               :id="_id"
               :moduleKey="moduleKey"
               :schemeId="schemeId"
@@ -255,12 +255,6 @@
      </template>
     <template #right>
       <div class="page-common-edit">
-        <!-- <replace-table
-          :moduleKey="moduleKey"
-          ref="replaceTable"
-          :replacePart="replacePart"
-          >
-        </replace-table> -->
       </div>
     </template>
   </edit-page-layout>
@@ -279,7 +273,7 @@ import { getList } from '../../../../../api/maintain/basic/checkoutType';
 import { getList as repairGetList } from '../../../../../api/maintain/basic/repairItemType';
 import { getDetail, addOrUpdate } from '../../../../../api/claimreturn/claim/basic/techServiceActivity';
 import PlanInfo from './PlanInfo.vue';
-import PartInfo from './PartInfo.vue';
+import ItemInfo from './ItemInfo/index.vue';
 import FileConfig from './FileConfig/index.vue';
 
 const defaultForm = {
@@ -290,7 +284,7 @@ const defaultForm = {
   activityStatus: '',
   startTime: '',
   endTime: '',
-  attachmentRequired: '',
+  attachmentRequired: false,
   description: '',
   vehicleCount: '',
   updateTime: '',
@@ -306,7 +300,7 @@ const defaultForm = {
   status: '',
   statusDesc: '',
   dataSource: '',
-  autoApprove: '',
+  autoApprove: false,
   costContent: '',
   faultPhenomenon: '',
   troubleshootingFlow: '',
@@ -331,7 +325,7 @@ export default {
     EditPageLayout,
     BaseInput,
     PlanInfo,
-    PartInfo,
+    ItemInfo,
     FileConfig,
   },
   computed: {
@@ -467,6 +461,8 @@ export default {
           this.loading = false;
           Object.assign(this.form, res);
           Object.assign(this.originalForm, res);
+          this.form.autoApprove = res.autoApprove === '1';
+          this.form.attachmentRequired = res.attachmentRequired === '1';
         });
       }
     },

@@ -30,7 +30,6 @@
           @remove="onRemove"
           @add="onTabAdd"
           :menus="menus"
-          @command="command"
           />
         </section>
         <section class="common-section">
@@ -174,7 +173,7 @@
             ref="partTable"
             :id="id"
             :schemeId="schemeId"
-            @replace="onReplace"
+            :serviceActivityItemId="partId"
             >
           </part-table>
         </section>
@@ -190,10 +189,10 @@ import {
   techServiceActivityItemGet,
   techServiceActivityItemUpdate,
   techServiceActivityItemDelete,
-} from '../../../../../api/claimreturn/claim/basic/techServiceActivity';
+} from '@/api/claimreturn/claim/basic/techServiceActivity';
 // 维修保养 -> 维修项目
-import { getList as repairList } from '../../../../../api/maintain/basic/repairItem';
-import { getList as repairTypeList } from '../../../../../api/maintain/basic/repairItemType';
+import { getList as repairList } from '@/api/maintain/basic/repairItem';
+import { getList as repairTypeList } from '@/api/maintain/basic/repairItemType';
 import permissions from '@/libs/mixins/permissions';
 import FetchTabs from '@/libs/components/FetchTabs/index.vue';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
@@ -368,9 +367,6 @@ export default {
     //
     repairChange (val, record) {
     },
-    // 10.5天 + 2.5天
-    // 10 + 9 + 11 + 9 + 11 + 8 + 4 + 10 + 10 + 11 + 9
-    // 102h
     // 维修类型下拉
     repairItemRemote (query) {
       return repairTypeList({
@@ -386,16 +382,6 @@ export default {
     },
     repairItemChange (val, record) {
       this.onUpdate(this.form);
-    },
-    command (command, item, index) {
-      console.log(command, item, index);
-      switch (command) {
-        case 'copy':
-          break;
-        case 'delete':
-          this.$refs.fetchTabs.onTabClose(item, index);
-          break;
-      }
     },
     // ------------
     // 零件
@@ -426,13 +412,8 @@ export default {
         returnType: cur.oldReturnType,
         returnTypeLabel: cur.oldReturnTypeLabel,
       };
-      this.$refs.partTable.handleAdd(newItem);
+      this.$refs.partTable.handleAdd(partId, newItem);
     }, 200),
-    onReplace (row, rowIndex) {
-      // this.replacePart = row;
-      // this.pannelTitle = `零件编码: ${row.partCode}`;
-      // this.$refs.editLayout.openPane();
-    }
   }
 };
 
