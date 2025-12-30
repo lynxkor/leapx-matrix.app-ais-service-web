@@ -167,7 +167,6 @@
                       labelKey: 'name',
                       placeholder: '请输入公告车型代码/名称',
                     }"
-                    :disabled="!isEditing"
                     @remove="onRemove"
                     />
                   </section>
@@ -193,7 +192,6 @@
                           type="primary"
                           size="small"
                           @click="handleAddPart"
-                          :disabled="!isEditing"
                           >
                           添加
                         </el-button>
@@ -205,7 +203,6 @@
                       :currentVehicleId="currentVehicleId"
                       :id="id"
                       @replace="onReplace"
-                      :disabled="!isEditing"
                       >
                     </part-table>
                   </section>
@@ -228,6 +225,7 @@
         <replace-table
           :moduleKey="moduleKey"
           ref="replaceTable"
+          :id="id"
           :replacePart="replacePart"
           >
         </replace-table>
@@ -307,6 +305,7 @@ export default {
       handler (val) {
         if (val) {
           this.getDetailData();
+          this.$refs.editLayout.closePane();
         }
       },
       immediate: true
@@ -415,9 +414,8 @@ export default {
     },
     getDetailData () {
       const id = this._id;
-      if (!id) {
+      if (!this.id) { // 非嵌入集中视图时才更新标题
         this.$store.commit('SET_ACTIVE_BREADCRUMB', ['免费保养政策', `${id ? '详情' : '新建'}`]);
-        return;
       }
       if (id) {
         getDetail(id).then(res => {
