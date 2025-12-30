@@ -332,6 +332,16 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     }
   },
+  watch: {
+    id: {
+      handler (val) {
+        if (val) {
+          this.getDetailData();
+        }
+      },
+      immediate: true
+    }
+  },
   data () {
     const form = this.getDefautlForm();
     return {
@@ -424,8 +434,6 @@ export default {
       },
       schemeId: '',
     };
-  },
-  watch: {
   },
   mounted () {
     this.getDetailData();
