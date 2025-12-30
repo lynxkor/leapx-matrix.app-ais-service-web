@@ -233,3 +233,30 @@ export function downloadExcel (rowOrUrl, defaultName = '模板') {
 
   return downloadFile(url, fileName);
 }
+
+/**
+ * 获取省市县信息
+ * @param districtCode 区域编码
+ * @returns {Object} 省市区县信息
+ */
+export function getAreaInfo (districtCode) {
+  let areaTree = JSON.parse(localStorage.areaTree);
+  for (let province of areaTree) {
+    let cityTree = province.child;
+    for (const city of cityTree) {
+      let districtTree = city.child;
+      for (const district of districtTree) {
+        if (district.code === districtCode) {
+          return {
+            provinceCode: province.code,
+            provinceName: province.name,
+            cityCode: city.code,
+            cityName: city.name,
+            districtCode: district.code,
+            districtName: district.name,
+          };
+        }
+      }
+    }
+  }
+}
