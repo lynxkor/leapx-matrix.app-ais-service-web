@@ -1017,6 +1017,33 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/oldpart/basic/oldPartOemWarehouse',
+      name: 'page',
+      component: () => import('@/views/claimreturn/oldpart/basic/oldPartOemWarehouse/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/oldpart/basic/oldpartoemwarehouse/detail',
+      name: 'pageDetail',
+      component: () => import('@/views/claimreturn/oldpart/basic/oldPartOemWarehouse/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/oldpart/basic/oldpartoemwarehouse/edit',
+      name: 'pageEdit',
+      component: () => import('@/views/claimreturn/oldpart/basic/oldPartOemWarehouse/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
