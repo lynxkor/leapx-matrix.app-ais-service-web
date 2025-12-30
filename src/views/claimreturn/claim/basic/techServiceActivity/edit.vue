@@ -339,6 +339,16 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     }
   },
+  watch: {
+    id: {
+      handler (val) {
+        if (val) {
+          this.getDetailData();
+        }
+      },
+      immediate: true
+    }
+  },
   data () {
     const form = this.getDefautlForm();
     return {
@@ -432,8 +442,6 @@ export default {
       schemeId: '',
     };
   },
-  watch: {
-  },
   mounted () {
     this.getDetailData();
   },
@@ -451,7 +459,9 @@ export default {
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['技术服务活动', `${id ? '详情' : '新建'}`]);
+      if (!this.id) { // 非嵌入集中视图时才更新标题
+        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['技术服务活动', `${id ? '详情' : '新建'}`]);
+      }
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;

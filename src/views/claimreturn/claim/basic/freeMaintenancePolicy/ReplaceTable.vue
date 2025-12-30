@@ -73,6 +73,10 @@ export default {
     },
     moduleKey: {
       type: String,
+    },
+    id: {
+      type: [String, Number],
+      default: null,
     }
   },
   components: {

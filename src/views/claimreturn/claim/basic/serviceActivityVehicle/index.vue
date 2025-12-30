@@ -179,12 +179,16 @@
         is-checkbox
         is-page
         checkboxFixed
+        centralized
         :option-obj="optionObj"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
         @handleSelect="handleSelectionChange"
-      />
+        @listSelect="handleListSelect"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
     <Upload
@@ -223,6 +227,7 @@ import ListSelect from '@/libs/components/list-select/index.vue';
 import TagInput from '@/libs/components/TagInput/index.vue';
 import DealerSelect from '@/components/dealer-select/index.vue';
 import FinishActDialog from './components/finishActDialog.vue';
+import EditPage from './edit.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -259,7 +264,8 @@ export default {
     LPVxeTable,
     FetchSelect,
     Upload,
-    FinishActDialog
+    FinishActDialog,
+    EditPage
   },
   data () {
     return {
@@ -277,6 +283,7 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       finishActDialogVisible: false,
+      clickItemId: '',
       finishActDialogInfo: {},
       optionObj: {
         id: 'serviceActivityVehicleTable',
@@ -292,6 +299,7 @@ export default {
             visible: true,
             width: 200,
             fixed: 'left',
+            centralized: true,
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -312,8 +320,8 @@ export default {
             mask: true,
             getValue: (row) => getDetailDecryptField(row.id, 'vin')
           },
-          { props: 'activityName', label: '活动名称', visible: true, width: 200 },
-          { props: 'activityTypeLabel', label: '活动类型', visible: true, width: 200 },
+          { props: 'activityName', label: '活动名称', visible: true, width: 200, centralized: true },
+          { props: 'activityTypeLabel', label: '活动类型', visible: true, width: 200, centralized: true },
           { props: 'activityStatusLabel', label: '活动状态', visible: true, width: 200 },
           { props: 'startTime', label: '活动开始时间', visible: true, width: 200 },
           { props: 'endTime', label: '活动结束时间', visible: true, width: 200 },
@@ -485,6 +493,9 @@ export default {
     // 多选框选中数据
     handleSelectionChange (selection) {
       this.selectionList = selection;
+    },
+    handleListSelect (row) {
+      this.clickItemId = row.id;
     },
     getFormData () {
       const data = { ...this.form };
