@@ -324,7 +324,7 @@ export default {
   }
 
   .selection-item {
-    padding: 8px 16px;
+    padding: 5px 16px;
     border: 1px solid #E6E6E5;
     border-radius: 4px;
     background-color: #ffffff;
@@ -336,13 +336,14 @@ export default {
   }
 
   .selection-item:hover {
-    border-color: #c0c4cc;
-    background-color: #f5f7fa;
-    border-radius: 4px;
+    color: var(--themColor);
+    background-color: #fff;
+    border-color: var(--themColor);
   }
 
   .selection-item.selected {
     background-color: #009100;
+    border: 1px solid #009100;
     color: #fff;
     border-radius: 4px;
   }
