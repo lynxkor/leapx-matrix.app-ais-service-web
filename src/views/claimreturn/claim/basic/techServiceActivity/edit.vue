@@ -239,6 +239,11 @@
               :moduleKey="moduleKey"
               :schemeId="schemeId"
             />
+            <file-config
+              :id="_id"
+              :moduleKey="moduleKey"
+              :schemeId="schemeId"
+            />
           </el-main>
           <el-footer height="60px" v-if="!_id">
             <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm', 'ruleForm2')" :loading="submitLoading">保存</el-button>
@@ -275,6 +280,7 @@ import { getList as repairGetList } from '../../../../../api/maintain/basic/repa
 import { getDetail, addOrUpdate } from '../../../../../api/claimreturn/claim/basic/techServiceActivity';
 import PlanInfo from './PlanInfo.vue';
 import PartInfo from './PartInfo.vue';
+import FileConfig from './FileConfig/index.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -326,6 +332,7 @@ export default {
     BaseInput,
     PlanInfo,
     PartInfo,
+    FileConfig,
   },
   computed: {
     _id () {

@@ -5,7 +5,7 @@
     :data="tableData"
     :show-toolbar="false"
     :options="options"
-    :defaultNewRow="{}"
+    :defaultNewRow="defaultNewRow"
     :auth="{ edit: canAddOrUpdate, delete: canAddOrUpdate }"
     :isFocusNewRow="false"
     :enableSingleRowSave="true"
@@ -20,11 +20,12 @@
     :actionWidth="200"
     :emptyText="_id ? '' : '新增后，即可添加'"
     :disabled="disabled"
+    @value-change="onValueChange"
   >
   </edit-table>
 </template>
 <script>
-import { uIntRule } from '@/validation/rule';
+import { decimalRule } from '@/validation/rule';
 import {
   techServiceActivityPartPage,
   techServiceActivityPartDelete,
@@ -33,8 +34,9 @@ import {
 
 import EditTable from '@/libs/components/EditTable';
 import permissions from '@/libs/mixins/permissions';
-import { getEnum } from '../../../../../api/common';
+import { getEnum, repairItemType } from '../../../../../api/common';
 import { getList as sparePartSupplierList } from '../../../../../api/sparepart/basic/sparePartSupplier';
+import { getList as partList } from '../../../../../api/sparepart/basic/sparePart';
 
 export default {
   props: {
@@ -69,6 +71,9 @@ export default {
       tableData: [],
       options: {
         returnType: [],
+        repairItemTypeId: [],
+        oldPartCode: [],
+        oldSupplierId: [],
       },
       columns: [
         {
@@ -89,7 +94,7 @@ export default {
           editRender: { name: 'ElInput' },
           rules: [
             { required: true, message: '请输入数量', trigger: 'blur' },
-            uIntRule,
+            decimalRule,
           ],
         },
         {
@@ -99,9 +104,13 @@ export default {
           editable: true,
           editRender: {
             name: 'ElSwitch',
-            formatter: this.formatter,
           },
-          formatter: this.formatter,
+          formatter: (cellValue, row, col) => {
+            if (cellValue) {
+              return '是';
+            }
+            return '否';
+          }
         },
         {
           field: 'mainPart',
@@ -109,6 +118,12 @@ export default {
           width: '160',
           editable: true,
           editRender: { name: 'ElSwitch' },
+          formatter: (cellValue, row, col) => {
+            if (cellValue) {
+              return '是';
+            }
+            return '否';
+          }
         },
         {
           field: 'oldPartCode',
@@ -122,29 +137,32 @@ export default {
               filterable: true,
               clearable: true,
               remote: true,
-              remoteMethod: this.sparePartListApi,
+              remoteMethod: this.partRemote,
               placeholder: '请选择',
               'suffix-icon': 'el-icon-search',
             },
           },
         },
         {
-          field: 'oldSupplierName',
+          field: 'oldSupplierId',
           title: '旧件供应商',
           width: '160',
           editable: true,
           editRender: {
             name: 'ElSelect',
-            multiRow: true,
             props: {
               filterable: true,
               clearable: true,
-              remote: true,
-              remoteMethod: this.sparePartListApi,
               placeholder: '请选择',
               'suffix-icon': 'el-icon-search',
             },
           },
+          formatter: (cellValue, row, col) => {
+            if (row.oldSupplierName) {
+              return row.oldSupplierName;
+            }
+            return cellValue;
+          }
         },
         {
           field: 'returnType',
@@ -161,27 +179,63 @@ export default {
             },
           },
           rules: [
-            { required: true, message: '零件编码不能为空', trigger: 'blur' },
+            { required: true, message: '必填', trigger: 'blur' },
           ],
+          formatter: (cellValue, row, col) => {
+            if (row.returnTypeLabel) {
+              return row.returnTypeLabel;
+            }
+            return cellValue;
+          }
         },
         {
-          field: 'repairItemTypeName',
+          field: 'repairItemTypeId',
           title: '维修类型',
           width: '160',
           editable: true,
           editRender: {
             name: 'ElSelect',
+            multiRow: true,
             props: {
               filterable: true,
               clearable: true,
               remote: true,
-              remoteMethod: this.sparePartListApi,
+              remoteMethod: this.repairItemTypeRemote,
               placeholder: '请选择',
               'suffix-icon': 'el-icon-search',
             },
           },
+          formatter (cellValue, row) {
+            if (row.repairItemTypeName) {
+              return row.repairItemTypeName;
+            }
+            return cellValue;
+          }
         },
       ],
+      defaultNewRow: {
+        id: '',
+        activityId: '',
+        schemeId: '',
+        serviceActivityItemId: '',
+        partId: '',
+        partCode: '',
+        partName: '',
+        repairItemTypeId: '',
+        repairItemTypeCode: '',
+        repairItemTypeName: '',
+        oldPartId: '',
+        oldPartCode: '',
+        oldPartName: '',
+        oldSupplierId: '',
+        oldSupplierCode: '',
+        oldSupplierName: '',
+        quantity: '',
+        mainPart: '',
+        allowDelete: '',
+        returnType: '',
+        returnTypeLabel: '',
+      },
       selectedRow: {},
     };
   },
@@ -200,14 +254,10 @@ export default {
   mounted () {
     this.getDetailPageApi();
     this.returnTypeRemote();
-    console.log(this.moduleKey, 'moduleKey');
   },
   beforeDestroy () {
   },
   methods: {
-    formatter () {
-      return 'sdfsf';
-    },
     // 表格数据
     getDetailPageApi () {
       techServiceActivityPartPage({
@@ -233,13 +283,17 @@ export default {
     },
     // 行保存
     saveRowEdit (row, defer) {
-      const parmas = {
-        id: row.id,
-        partId: row.partId, // 零件ID
-        quantity: row.quantity, // 数量
-        activityId: this._id,
-        schemeId: this.schemeId,
-      };
+      const parmas = {};
+      Object.keys(this.defaultNewRow).forEach(key => {
+        if (key === 'allowDelete' || key === 'mainPart') {
+          parmas[key] = row[key] ? '1' : '0';
+          return;
+        }
+        parmas[key] = row[key];
+      });
+      parmas.activityId = this._id;
+      parmas.schemeId = this.schemeId;
+
       techServiceActivityPartUpdate(parmas).then(id => {
         defer.resolve(id);
         this.$message.success('更新成功');
@@ -258,6 +312,7 @@ export default {
     },
     // -------------
     handleAdd (newItem) {
+      // 用零件id查找供应商，并填充第一条数据
       sparePartSupplierList({
         sparePartId: newItem.partId,
         pageNum: 1,
@@ -265,12 +320,19 @@ export default {
       }).then(res => {
         const list = res.records || [];
         if (list.length) {
-          const item = list[0];
+          this.options.oldSupplierId = res.records.map(item => {
+            return {
+              label: item.supplierName,
+              value: item.supplierInfoId
+            };
+          });
+          const item = res.records[0];
           newItem.oldSupplierName = item.supplierName;
           newItem.oldSupplierId = item.supplierInfoId;
           newItem.oldSupplierCode = item.supplierCode;
+        } else {
+          this.options.oldSupplierId = [];
         }
-        console.log(newItem);
         this.$refs.editTable.addRow(newItem);
       });
     },
@@ -278,21 +340,93 @@ export default {
       this.selectedRow = row;
       this.$emit('replace', row, rowIndex);
     },
-    // 旧件编码
-    sparePartListApi () {},
+    // 维修类型
+    repairItemTypeRemote (query) {
+      return repairItemType({
+        nameLike: query,
+        categorys: [10]
+      }).then(data => {
+        const list = data.map((item) => {
+          return {
+            value: item.id,
+            label: item.name,
+            labelDesc: item.code,
+            repairItemTypeId: item.id, // 表格
+            repairItemTypeCode: item.code, // 表格
+            repairItemTypeName: item.name,
+          };
+        });
+        this.options.repairItemTypeId = list;
+      });
+    },
     returnTypeRemote () {
       getEnum('old_part_return_type').then(res => {
         const list = res?.map(item => {
           return {
-            ...item,
-            value: item.id,
+            value: item.code,
             label: item.message,
-            returnType: item.message,
+            returnType: item.code,
+            returnTypeLabel: item.message,
           };
         }) || [];
         this.options.returnType = list;
       });
-    }
+    },
+    // 零部件下拉接口
+    partRemote (query) {
+      partList({
+        partCodeOrNameLike: query,
+        pageSize: 20,
+        pageNum: 1,
+      }).then(res => {
+        const list = res.records?.map(item => {
+          return {
+            value: item.id,
+            label: item.partName,
+            labelDesc: item.partCode,
+            oldPartId: item.id,
+            oldPartCode: item.partCode,
+            oldPartName: item.partName,
+          };
+        }) || [];
+        this.options.oldPartCode = list;
+      });
+    },
+    onValueChange ({ row, column, value }) {
+      if (column.field === 'oldPartCode') {
+        this.partChange(value, row);
+      }
+    },
+    // 供应商列表
+    partChange (partCode, row) {
+      if (partCode) {
+        sparePartSupplierList({
+          partCode: partCode,
+          pageNum: 1,
+          pageSize: 100,
+        }).then(res => {
+          this.options.oldSupplierId = res.records.map(item => {
+            return {
+              label: item.supplierName,
+              value: item.supplierInfoId
+            };
+          });
+          // 选中第一个
+          if (this.options.oldSupplierId) {
+            const item = this.options.oldSupplierId[0];
+            row.oldSupplierId = item.value;
+            row.oldSupplierName = item.label;
+          } else {
+            row.oldSupplierId = '';
+            row.oldSupplierName = '';
+          }
+          // 更新
+        });
+      } else {
+        row.oldSupplierId = '';
+        row.oldSupplierName = '';
+      }
+    },
   },
 };
 

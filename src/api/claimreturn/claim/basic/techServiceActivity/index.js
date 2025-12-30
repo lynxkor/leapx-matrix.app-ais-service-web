@@ -116,3 +116,19 @@ export function techServiceActivityPartUpdate (data) {
 export function techServiceActivityPartDelete (data) {
   return api.jsonPost(prefixPart + 'delete', data);
 }
+
+const prefixFileConfig = 'claimreturn/claim/web/basic/techServiceActivityFileConfig/';
+// 服务活动自动审批附件分页查询
+export function techServiceActivityFileConfigPage (data) {
+  return api.jsonPost(prefixFileConfig + 'page', data);
+}
+// 服务活动自动审批附件详情信息
+export function techServiceActivityFileConfigGet (data) {
+  return api.jsonPost(prefixFileConfig + 'get', data);
+}
+export function techServiceActivityFileConfigUpdate (data) {
+  return api.jsonPost(prefixFileConfig + 'addOrUpdate', data);
+}
+export function techServiceActivityFileConfigDelete (data) {
+  return api.jsonPost(prefixFileConfig + 'delete', data);
+}

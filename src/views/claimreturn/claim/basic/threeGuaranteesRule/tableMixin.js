@@ -18,6 +18,7 @@ export default {
       pageSize: 10,
       total: 0,
       tableData: [],
+      // 表格内的下拉列表
       options: {
         partCode: [],
       },

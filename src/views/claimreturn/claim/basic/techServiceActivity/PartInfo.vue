@@ -423,7 +423,8 @@ export default {
         oldPartId: cur.partId,
         oldPartCode: cur.partCode,
         oldPartName: cur.partName,
-        returnType: cur.oldReturnTypeLabel,
+        returnType: cur.oldReturnType,
+        returnTypeLabel: cur.oldReturnTypeLabel,
       };
       this.$refs.partTable.handleAdd(newItem);
     }, 200),
