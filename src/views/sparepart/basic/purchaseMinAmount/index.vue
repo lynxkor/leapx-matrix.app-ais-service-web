@@ -9,29 +9,29 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="采购申请单类型:普通订单,紧急订单,铺货订单,定制订单,领料订单,活动订单">
+      <el-form-item label="采购申请单类型">
         <fetch-select
           :request="fetchOptions"
-          enumCode="xxx"
-          v-model="form.purchaseOrderType"
+          enumCode="purchase_order_type"
+          v-model="form.purchaseOrderTypes"
           placeholder="请选择"
           clearable
           multiple
           filterable
         />
       </el-form-item>
-      <el-form-item label="类型:标准,门店">
+      <el-form-item label="类型">
         <fetch-select
           :request="fetchOptions"
-          enumCode="xxx"
-          v-model="form.type"
+          enumCode="purchase_min_amount_type"
+          v-model="form.types"
           placeholder="请选择"
           clearable
           multiple
           filterable
         />
       </el-form-item>
-      <el-form-item label="门店编码（组织code同网发门店编码）"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="门店编码"  v-show="this.visibleCount === 3 || show">
         <el-input
           placeholder="请输入"
           v-model="form.dealerCode"
@@ -39,7 +39,7 @@
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="门店名称（组织名称同网发门店名称）">
+        <el-form-item label="门店名称">
           <el-input
             placeholder="请输入"
             v-model="form.dealerName"
@@ -54,17 +54,22 @@
           />
         </el-form-item>
         <el-form-item label="生效开始日期">
-          <el-input
-            placeholder="请输入"
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
             v-model="form.effectiveStartDate"
-            clearable
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
           />
         </el-form-item>
         <el-form-item label="状态">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.status"
+            enumCode="StatusEnum"
+            v-model="form.statusIncludeList"
             placeholder="请选择"
             clearable
             multiple
@@ -108,8 +113,8 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button> -->
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
@@ -166,6 +171,8 @@ const defaultForm = {
   dealerName: '',
   minimumAmount: '',
   effectiveStartDate: '',
+  effectiveStartDateStart: '', // 开始日期字段
+  effectiveStartDateEnd: '', // 结束日期字段
   status: '',
   createTime: '',
   updateTime: '',
@@ -190,7 +197,7 @@ export default {
       pageTitle: '新页面',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-purchaseMinAmount',
+      moduleKey: 'AISPART-purchaseMinAmount',
       form: {
         ...defaultForm
       },
@@ -210,8 +217,8 @@ export default {
         },
         dataProp: [
           {
-            props: 'purchaseOrderType',
-            label: '采购申请单类型:普通订单,紧急订单,铺货订单,定制订单,领料订单,活动订单',
+            props: 'purchaseOrderTypeLabel',
+            label: '订单类型',
             visible: true,
             width: 200,
             fixed: 'left',
@@ -227,11 +234,12 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'type', label: '类型:标准,门店', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码（组织code同网发门店编码）', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称（组织名称同网发门店名称）', visible: true, width: 200 },
+          { props: 'typeLabel', label: '类型', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'minimumAmount', label: '起订金额', visible: true, width: 200 },
           { props: 'effectiveStartDate', label: '生效开始日期', visible: true, width: 200 },
-          { props: 'status', label: '状态', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -274,6 +282,33 @@ export default {
           }
         ],
         total: 0
+      },
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick (picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近一个月',
+          onClick (picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近三个月',
+          onClick (picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            picker.$emit('pick', [start, end]);
+          }
+        }]
       }
     };
   },
@@ -395,6 +430,13 @@ export default {
         if (this.form.createTime.length > 1) {
           data.createTimeStart = this.form.createTime[0];
           data.createTimeEnd = this.form.createTime[1];
+        }
+      }
+      if (this.form.effectiveStartDate) {
+        delete data.effectiveStartDate;
+        if (this.form.effectiveStartDate.length > 1) {
+          data.effectiveStartDateStart = this.form.effectiveStartDate[0];
+          data.effectiveStartDateEnd = this.form.effectiveStartDate[1];
         }
       }
 

@@ -3,7 +3,7 @@
     <el-skeleton v-if="loading" :rows="6" animated />
     <template v-else>
       <section class="common-title">
-        <h2>采购申请单类型:普通订单,紧急订单,铺货订单,定制订单,领料订单,活动订单：{{ info.purchaseOrderType }}</h2>
+        <h2>采购申请单类型：{{ info.purchaseOrderTypeLabel }}</h2>
         <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
       </section>
       <section class="common-section">
@@ -13,16 +13,16 @@
         <div class="common-section-body">
           <!-- TIPS: 根据实际情况调整展示字段和宽度 -->
           <el-form :inline="true" ref="ruleForm" label-width="150px">
-            <el-form-item label="采购申请单类型:普通订单,紧急订单,铺货订单,定制订单,领料订单,活动订单：" prop="purchaseOrderType">
-              {{ info.purchaseOrderType  }}
+            <el-form-item label="订单类型：" prop="purchaseOrderType">
+              {{ info.purchaseOrderTypeLabel  }}
             </el-form-item>
-            <el-form-item label="类型:标准,门店：" prop="type">
-              {{ info.type  }}
+            <el-form-item label="类型:" prop="type">
+              {{ info.typeLabel  }}
             </el-form-item>
-            <el-form-item label="门店编码（组织code同网发门店编码）：" prop="dealerCode">
+            <el-form-item label="门店编码：" prop="dealerCode">
               {{ info.dealerCode  }}
             </el-form-item>
-            <el-form-item label="门店名称（组织名称同网发门店名称）：" prop="dealerName">
+            <el-form-item label="门店名称：" prop="dealerName">
               {{ info.dealerName  }}
             </el-form-item>
             <el-form-item label="起订金额：" prop="minimumAmount">
@@ -32,10 +32,7 @@
               {{ info.effectiveStartDate  }}
             </el-form-item>
             <el-form-item label="状态：" prop="status">
-              {{ info.status  }}
-            </el-form-item>
-            <el-form-item label="备注：" prop="remark">
-              {{ info.remark  }}
+              {{ info.statusLabel  }}
             </el-form-item>
             <el-form-item label="创建时间：" prop="createTime">
               {{ info.createTime  }}
@@ -43,26 +40,14 @@
             <el-form-item label="修改时间：" prop="updateTime">
               {{ info.updateTime  }}
             </el-form-item>
-            <el-form-item label="主键：" prop="id">
-              {{ info.id  }}
-            </el-form-item>
-            <el-form-item label="创建者：" prop="creator">
-              {{ info.creator  }}
-            </el-form-item>
             <el-form-item label="创建者名称：" prop="creatorName">
               {{ info.creatorName  }}
-            </el-form-item>
-            <el-form-item label="修改者：" prop="modifier">
-              {{ info.modifier  }}
             </el-form-item>
             <el-form-item label="修改者名称：" prop="modifierName">
               {{ info.modifierName  }}
             </el-form-item>
-            <el-form-item label="状态变更描述：" prop="statusDesc">
-              {{ info.statusDesc  }}
-            </el-form-item>
-            <el-form-item label="数据来源，140:新销服; 老销服:10：" prop="dataSource">
-              {{ info.dataSource  }}
+            <el-form-item label="备注：" prop="remark">
+              {{ info.remark  }}
             </el-form-item>
           </el-form>
         </div>
@@ -87,7 +72,7 @@ export default {
       pageTitle: '新页面',
       pageType: 'detail',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-purchaseMinAmount',
+      moduleKey: 'AISPART-purchaseMinAmount',
       loading: true,
       info: {},
       yes_no_enum_map: YES_NO_ENUM_MAP

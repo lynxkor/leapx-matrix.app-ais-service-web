@@ -11,39 +11,48 @@
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="采购申请单类型:普通订单,紧急订单,铺货订单,定制订单,领料订单,活动订单" prop="purchaseOrderType">
+              <el-form-item label="采购申请单类型" prop="purchaseOrderType">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="xxx"
+                  enumCode="purchase_order_type"
                   v-model="form.purchaseOrderType"
                   placeholder="请选择"
                   clearable
                   filterable
+                  :disabled="isEditing"
                 />
               </el-form-item>
-              <el-form-item label="类型:标准,门店" prop="type">
+              <el-form-item label="类型" prop="type">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="xxx"
+                  enumCode="purchase_min_amount_type"
                   v-model="form.type"
                   placeholder="请选择"
                   clearable
                   filterable
+                  :disabled="isEditing"
                 />
               </el-form-item>
-              <el-form-item label="门店编码（组织code同网发门店编码）" prop="dealerCode">
-                <el-input
-                  placeholder="请输入"
+              <el-form-item label="门店" prop="dealerCode" v-if="form.type == '1'">
+                <el-select
+                  style="width: 305px;"
                   v-model="form.dealerCode"
+                  filterable
                   clearable
-                />
-              </el-form-item>
-              <el-form-item label="门店名称（组织名称同网发门店名称）" prop="dealerName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.dealerName"
-                  clearable
-                />
+                  remote
+                  :disabled="this.$route.query.id"
+                  placeholder="请选择"
+                  :remote-method="getStoreByName"
+                  @change="handleStoreChange"
+                  collapse-tags
+                  >
+                  <el-option
+                    v-for="item in storeOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
               </el-form-item>
               <el-form-item label="起订金额" prop="minimumAmount">
                 <el-input
@@ -52,17 +61,16 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="生效开始日期" prop="effectiveStartDate">
-                <el-input
-                  placeholder="请输入"
+              <el-form-item label="生效开始日期">
+                <el-date-picker
                   v-model="form.effectiveStartDate"
-                  clearable
+                  value-format="yyyy-MM-dd HH:mm:ss"
                 />
               </el-form-item>
               <el-form-item label="状态" prop="status">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="xxx"
+                  enumCode="StatusEnum"
                   v-model="form.status"
                   placeholder="请选择"
                   clearable
@@ -73,78 +81,6 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.remark"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="创建时间" prop="createTime">
-                <el-date-picker
-                  :default-time="['00:00:00', '23:59:59']"
-                  v-model="form.createTime"
-                  :picker-options="pickerOptions"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                />
-              </el-form-item>
-              <el-form-item label="修改时间" prop="updateTime">
-                <el-date-picker
-                  :default-time="['00:00:00', '23:59:59']"
-                  v-model="form.updateTime"
-                  :picker-options="pickerOptions"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                />
-              </el-form-item>
-              <el-form-item label="主键" prop="id">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.id"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="创建者" prop="creator">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.creator"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="创建者名称" prop="creatorName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.creatorName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="修改者" prop="modifier">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.modifier"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="修改者名称" prop="modifierName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.modifierName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="状态变更描述" prop="statusDesc">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.statusDesc"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
-              <el-form-item label="数据来源，140:新销服; 老销服:10" prop="dataSource">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.dataSource"
                   clearable
                 />
               </el-form-item>
@@ -164,7 +100,7 @@
 <script>
 import { getDetail, addOrUpdate } from '@/api/sparepart/basic/purchaseMinAmount/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getEnum } from '@/api/common';
+import { getEnum, listOrgStoreInfo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -225,70 +161,73 @@ export default {
       pageTitle: '新页面',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-purchaseMinAmount',
+      moduleKey: 'AISPART-purchaseMinAmount',
       isEditing: false,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
+      storeOptions: [],
       rules: {
         purchaseOrderType: [
-          { required: true, message: '请选择采购申请单类型:普通订单,紧急订单,铺货订单,定制订单,领料订单,活动订单', trigger: 'change' }
+          { required: true, message: '请选择采购申请单类型', trigger: 'change' }
         ],
         type: [
-          { required: true, message: '请选择类型:标准,门店', trigger: 'change' }
+          { required: true, message: '请选择类型', trigger: 'change' }
         ],
         dealerCode: [
-          { required: true, message: '请输入门店编码（组织code同网发门店编码）', trigger: 'change' }
+          { required: true, message: '请输入门店编码', trigger: 'change' }
         ],
         dealerName: [
-          { required: true, message: '请输入门店名称（组织名称同网发门店名称）', trigger: 'change' }
+          { required: true, message: '请输入门店名称', trigger: 'change' }
         ],
         minimumAmount: [
           { required: true, message: '请输入起订金额', trigger: 'change' }
         ],
         effectiveStartDate: [
-          { required: true, message: '请输入生效开始日期', trigger: 'change' }
+          { required: true, message: '请输入生效开始日期', trigger: 'blur' }
         ],
         status: [
           { required: true, message: '请选择状态', trigger: 'change' }
         ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
         id: [
           { required: true, message: '请输入主键', trigger: 'change' }
         ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，140:新销服; 老销服:10', trigger: 'change' }
-        ],
+      },
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick (picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近一个月',
+          onClick (picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近三个月',
+          onClick (picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            picker.$emit('pick', [start, end]);
+          }
+        }]
       }
     };
   },
   mounted () {
     this.getDetailData();
+    this.isEditing = !!this._id;
+    console.log(this.isEditing);
   },
   methods: {
     handleBack () {
@@ -351,6 +290,33 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    // 门店
+    getStoreByName (query) {
+      listOrgStoreInfo({
+        name: query
+      }).then(res => {
+        this.storeOptions = res?.map(item => {
+          return {
+            ...item,
+            value: item.orgCode,
+            label: item.orgName
+          };
+        });
+      });
+    },
+
+    // 处理选择门店时拿到所有的数据
+    handleStoreChange (val) {
+      // 根据 value 在 storeOptions 中查找完整的对象
+      const selectedItem = this.storeOptions.find(item => item.orgCode === val);
+      this.storeParams = {
+        dealerCode: selectedItem.orgCode,
+        dealerName: selectedItem.orgName,
+        categorySpareId: this.partsId
+      };
+      // 给form dealerName赋值
+      this.form.dealerName = selectedItem.orgName;
     }
   }
 };
