@@ -168,6 +168,16 @@ export default {
     ListSelect,
     LPEncrypted
   },
+  watch: {
+    id: {
+      handler (val) {
+        if (val) {
+          this.getDetailData();
+        }
+      },
+      immediate: true
+    }
+  },
   data () {
     const form = this.getDefautlForm();
     return {
@@ -201,7 +211,9 @@ export default {
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['服务活动车辆', `${id ? '编辑' : '新建'}`]);
+      if (!id) { // 非嵌入集中视图时更新标题
+        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['服务活动车辆', `${id ? '编辑' : '新建'}`]);
+      }
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
@@ -219,10 +231,10 @@ export default {
               message: '保存成功',
               type: 'success'
             });
-            const id = this.$route.query.id;
+            const id = res;
             if (rest || !id) {
               this.resetForm(formName);
-            } else {
+            } else if (this.form.id) {
               this.getDetailData();
             }
           }).finally(() => {
