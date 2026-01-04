@@ -406,7 +406,7 @@ export default {
         partId: partId,
         partCode: cur.partCode,
         partName: cur.partName,
-        oldPartId: cur.partId,
+        oldPartId: partId,
         oldPartCode: cur.partCode,
         oldPartName: cur.partName,
         returnType: cur.oldReturnType,
