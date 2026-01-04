@@ -3,18 +3,19 @@
    <edit-page-layout ref="editLayout" title="添加方案" >
     <template #left>
       <div class="page-common-edit">
-        <el-container>
+        <el-container direction="vertical">
           <el-main>
-            <section class="common-title" v-if="_id">
-              <h2>活动编码：{{ form.activityCode }}</h2>
-              <div v-if="isEditing">
-                <el-button size="small" @click="handleCancel">取消</el-button>
-                <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm', 'ruleForm2')" :loading="submitLoading">保存</el-button>
-              </div>
-              <div v-else>
-                <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
-              </div>
-            </section>
+            <edit-base-header
+              :id="_id"
+              :title="`活动编码：${form.activityCode}`"
+              :isEditing="isEditing"
+              :canAddOrUpdate="canAddOrUpdate"
+              :submitLoading="submitLoading"
+              @edit="handleEdit"
+              @cancel="handleCancel"
+              @refresh="refresh"
+              @submit="(defer) => submitForm('ruleForm', 'ruleForm2', defer)"
+            />
             <section class="common-section">
               <div class="common-section-header">
                 <h2>基础信息</h2>
@@ -40,6 +41,7 @@
                       :request="fetchOptions"
                       enumCode="claim_activity_type"
                       v-model="form.activityType"
+                      :format="filterActivityType"
                       placeholder="请选择"
                       clearable
                       filterable
@@ -243,11 +245,15 @@
               :schemeId="schemeId"
             />
           </el-main>
-          <el-footer height="60px" v-if="!_id">
-            <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm', 'ruleForm2')" :loading="submitLoading">保存</el-button>
-            <el-button size="small" @click="handleBack">取消</el-button>
-            <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
-          </el-footer>
+          <edit-base-footer
+            v-if="!_id"
+            :id="_id"
+            :canAddOrUpdate="canAddOrUpdate"
+            :submitLoading="submitLoading"
+            @cancel="handleBack"
+            @reset="resetForm"
+            @submit="(defer) => submitForm('ruleForm', 'ruleForm2', defer)"
+          />
         </el-container>
       </div>
      </template>
@@ -273,6 +279,8 @@ import { getDetail, addOrUpdate } from '../../../../../api/claimreturn/claim/bas
 import PlanInfo from './PlanInfo.vue';
 import FileConfig from './FileConfig/index.vue';
 import { formatDateTime } from '@/libs/utils';
+import EditBaseHeader from '@/components/EditBaseHeader';
+import EditBaseFooter from '@/components/EditBaseFooter';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -320,6 +328,8 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
+    EditBaseHeader,
+    EditBaseFooter,
     FetchSelect,
     EditPageLayout,
     BaseInput,
@@ -364,12 +374,6 @@ export default {
         activityType: [
           { required: true, message: '请选择活动类型', trigger: 'change' }
         ],
-        // startTime: [
-        //   { required: true, message: '请选择活动开始时间', trigger: 'change' }
-        // ],
-        // endTime: [
-        //   { required: true, message: '请选择活动结束时间', trigger: 'change' }
-        // ],
         activityTime: [
           { required: true, message: '请选择活动时间', trigger: 'change' },
         ],
@@ -445,6 +449,10 @@ export default {
       this.$refs.ruleForm.clearValidate();
       this.$refs.ruleForm2.clearValidate();
       this.isEditing = false;
+      this.refresh();
+    },
+    refresh () {
+      this.form = JSON.parse(JSON.stringify(this.originalForm));
     },
     handleEdit () {
       this.isEditing = true;
@@ -453,7 +461,7 @@ export default {
       this.$router.back();
     },
     getDetailData () {
-      const id = this.id || this.$route.query.id;
+      const id = this._id;
       if (!this.id) { // 非嵌入集中视图时才更新标题
         this.$store.commit('SET_ACTIVE_BREADCRUMB', ['技术服务活动', `${id ? '详情' : '新建'}`]);
       }
@@ -461,24 +469,25 @@ export default {
         getDetail(id).then(res => {
           this.loading = false;
           Object.assign(this.form, res);
-          Object.assign(this.originalForm, res);
           this.form.activityTime = [
             new Date(res.startTime),
             new Date(res.endTime),
           ];
           this.form.autoApprove = res.autoApprove === '1';
           this.form.attachmentRequired = res.attachmentRequired === '1';
+          //
+          Object.assign(this.originalForm, this.form);
         });
       }
     },
-    async submitForm (formName, formName2) {
+    async submitForm (formName, formName2, defer) {
       try {
         await this.$refs[formName].validate();
         await this.$refs[formName2].validate();
         this.submitLoading = true;
         const startTime = formatDateTime(this.form.activityTime[0]);
         const endTime = formatDateTime(this.form.activityTime[1]);
-        addOrUpdate({
+        return addOrUpdate({
           ...this.form,
           startTime,
           endTime,
@@ -489,20 +498,22 @@ export default {
             message: '保存成功',
             type: 'success'
           });
+
           const id = res;
           if (!id) {
-            this.resetForm(formName);
-          } else {
-            if (this.form.id) {
-              this.getDetailData();
+            this.resetForm();
+            return;
+          }
+          // 编辑时保存
+          if (this.form.id) {
+            if (defer) {
+              defer.resolve();
             } else {
-              this.$router.push({
-                path: '/claimreturn/claim/basic/techServiceActivity/edit',
-                query: {
-                  id
-                }
-              });
+              this.getDetailData();
             }
+          } else if (defer) {
+            // 新增时保存
+            defer.resolve(id);
           }
         }).finally(() => {
           this.submitLoading = false;
@@ -511,9 +522,9 @@ export default {
         //
       }
     },
-    resetForm (formName) {
-      this.$refs[formName].resetFields();
-      this.tableData = [];
+    resetForm () {
+      this.$refs.ruleForm.resetFields();
+      this.$refs.ruleForm2.resetFields();
       this.form = this.getDefautlForm();
     },
     getDefautlForm () {
@@ -562,7 +573,10 @@ export default {
     //
     schemeChange (id) {
       this.schemeId = id;
-    }
+    },
+    filterActivityType (options) {
+      return options.filter(item => item.code !== '4');
+    },
   }
 };
 </script>

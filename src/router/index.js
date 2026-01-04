@@ -892,15 +892,6 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/techServiceActivity/detail',
-      name: 'serviceActivityDetail',
-      component: () => import('@/views/claimreturn/claim/basic/techServiceActivity/detail.vue'),
-
-      meta: {
-        name: '新页面详情',
-        noResourceUrl: 'true'
-      }
-    }, {
       path: '/claimreturn/claim/basic/techServiceActivity/edit',
       name: 'serviceActivityEdit',
       component: () => import('@/views/claimreturn/claim/basic/techServiceActivity/edit.vue'),
@@ -1125,8 +1116,14 @@ function toLoginPage (to, next) {
     });
   }
 }
+
+const appPrefix = process.env.VUE_APP_ROUTER_BASE;
+const prefixRegex = new RegExp(`^${appPrefix}`);
+export const getRouterPath = () => {
+  return location.pathname.replace(prefixRegex, '');
+};
+
 export function getRouter () {
-  const appPrefix = process.env.VUE_APP_ROUTER_BASE;
   const router = new VueRouter({
     base: `${appPrefix}/`,
     mode: 'history',
