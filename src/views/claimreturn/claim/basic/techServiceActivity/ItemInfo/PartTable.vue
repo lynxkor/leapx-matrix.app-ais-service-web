@@ -21,6 +21,7 @@
     :emptyText="_id ? '' : '新增后，即可添加'"
     :disabled="disabled"
     @value-change="onValueChange"
+    @cell-edit="cellEdit"
   >
   </edit-table>
 </template>
@@ -171,6 +172,9 @@ export default {
               'value-key': 'value',
               'label-key': 'label',
             },
+            $listeners: {
+              focus: this.oldSupplierIdRemote
+            }
           },
           // editRender: {
           //   name: 'ElSelect',
@@ -372,6 +376,7 @@ export default {
           row.oldSupplierCode = '';
           row.__options__.oldSupplierId = null;
         }
+        this.$refs.editTable.updateRow(row);
         return options;
       });
     },
@@ -458,6 +463,11 @@ export default {
         row.oldSupplierCode = '';
       }
     },
+    //
+    cellEdit ({ row, column }) {
+      // 旧件供应商请求下拉options数据
+      this.partChange(row.oldPartId, row);
+    }
   },
 };
 
