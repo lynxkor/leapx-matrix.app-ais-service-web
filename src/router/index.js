@@ -1044,6 +1044,60 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/oldpart/basic/oldPartUnqualifiedConfig',
+      name: 'oldPartUnqualifiedConfig',
+      component: () => import('@/views/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/oldpart/basic/oldpartunqualifiedconfig/detail',
+      name: 'oldPartUnqualifiedConfigDetail',
+      component: () => import('@/views/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/oldpart/basic/oldpartunqualifiedconfig/edit',
+      name: 'oldPartUnqualifiedConfigEdit',
+      component: () => import('@/views/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/purchaseReminder',
+      name: 'purchaseReminder',
+      component: () => import('@/views/sparepart/basic/purchaseReminder/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/purchasereminder/detail',
+      name: 'purchaseReminderDetail',
+      component: () => import('@/views/sparepart/basic/purchaseReminder/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/purchasereminder/edit',
+      name: 'purchaseReminderEdit',
+      component: () => import('@/views/sparepart/basic/purchaseReminder/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];

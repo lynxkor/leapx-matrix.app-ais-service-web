@@ -1,7 +1,7 @@
 import api from '@/axios';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
-const prefix = 'sparepart/web/basic/purchaseMinAmount/';
+const prefix = 'sp/web/basic/purchaseMinAmount/';
 
 /**
  * 查询列表
