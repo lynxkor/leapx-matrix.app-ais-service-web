@@ -1,8 +1,5 @@
 <template>
   <section class="common-section">
-    <div class="common-section-header common-section-tip">
-      <h2>项目零件</h2>
-    </div>
     <div class="common-section-body" v-if="id && schemeId">
       <section class="common-section">
         <fetch-tabs
@@ -33,12 +30,6 @@
           />
         </section>
         <section class="common-section">
-          <div
-            v-if="canAddOrUpdate"
-            class="common-section-header"
-          >
-            基础信息
-          </div>
           <el-form
             v-if="isEditing"
             :inline="true"
@@ -136,10 +127,7 @@
           </el-form>
         </section>
         <section class="common-section">
-          <div
-            v-if="canAddOrUpdate"
-            class="common-section-header"
-          >
+          <div class="sub-title">
             零件明细
           </div>
           <div
@@ -422,5 +410,10 @@ export default {
 .common-section-header{
   font-size: 14px;
   font-weight: 500;
+}
+.sub-title{
+  color: #6C6E6C;
+  font-size: 14px;
+  margin-bottom: 8px;
 }
 </style>

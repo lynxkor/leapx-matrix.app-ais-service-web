@@ -202,11 +202,11 @@
         <section class="common-section">
           <div class="common-section-header">
             <h2>零件明细</h2>
-            <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"
+            <el-button v-if="canAddOrUpdate && _id" size="small" @click="handleAddRow"
               ><i class="iconfont icon-lxppc-plus"></i>添加</el-button
             >
           </div>
-          <div class="common-section-body">
+          <div class="common-section-body" v-if="_id">
             <div class="common-section-table">
               <edit-table
                 ref="editTable"
@@ -228,6 +228,9 @@
                 @current-page-change="currentPageChange"
               />
             </div>
+          </div>
+          <div class="common-section-body not-commit" v-else>
+            提交新建后，即可添加
           </div>
         </section>
       </el-main>
@@ -314,6 +317,11 @@ export default {
     FetchSelect,
     EditTable,
   },
+  computed: {
+    _id () {
+      return this.id || this.$route.query.id || this.form.id;
+    }
+  },
   data () {
     const form = this.getDefautlForm();
     return {
@@ -366,11 +374,8 @@ export default {
     handleBack () {
       this.$router.back();
     },
-    getId () {
-      return this.id || this.$route.query.id;
-    },
     getDetailData () {
-      const id = this.getId();
+      const id = this._id;
       this.$store.commit('SET_ACTIVE_BREADCRUMB', [
         '三包配置规则',
         `${id ? '编辑' : '新建'}`,
@@ -396,11 +401,20 @@ export default {
                   message: '保存成功',
                   type: 'success',
                 });
-                const id = this.$route.query.id;
-                if (reset || !id) {
+                const id = res;
+                if (!id) {
                   this.resetForm(formName);
                 } else {
-                  this.getDetailData();
+                  if (this.form.id) {
+                    this.getDetailData();
+                  } else {
+                    this.$router.push({
+                      path: '/claimreturn/claim/basic/threeGuaranteesRule/edit',
+                      query: {
+                        id
+                      }
+                    });
+                  }
                 }
               })
               .finally(() => {

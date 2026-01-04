@@ -122,10 +122,15 @@ export default {
           title: '数量',
           width: '20%',
           editable: true,
-          editRender: { name: 'ElInput' },
+          editRender: {
+            name: 'ElInputNumber',
+            props: {
+              controls: false,
+              precision: 0,
+            }
+          },
           rules: [
             { required: true, message: '请输入数量', trigger: 'blur' },
-            uIntRule,
           ],
         },
         {

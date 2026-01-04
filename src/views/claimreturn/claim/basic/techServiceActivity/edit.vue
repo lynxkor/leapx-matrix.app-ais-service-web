@@ -20,7 +20,7 @@
                 <h2>基础信息</h2>
               </div>
               <div class="common-section-body">
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"  class="form-edit" v-if="isEditing || !_id">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"  class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="活动编码：" prop="activityCode">
                     <base-input
                       placeholder="请输入"
@@ -45,22 +45,21 @@
                       filterable
                     />
                   </el-form-item>
-                  <el-form-item label="活动开始时间：" prop="startTime">
-                    <el-date-picker
-                      v-model="form.startTime"
-                      value-format="yyyy-MM-dd HH:mm:ss"
-                    />
-                  </el-form-item>
-                  <el-form-item label="活动结束时间：" prop="endTime">
-                    <el-date-picker
-                      v-model="form.endTime"
-                      value-format="yyyy-MM-dd HH:mm:ss"
-                    />
-                  </el-form-item>
                   <el-form-item label="自动审批：" prop="autoApprove">
                     <el-switch
                       v-model="form.autoApprove">
                     </el-switch>
+                  </el-form-item>
+                  <el-form-item class="form-item-half" label="活动时间：" prop="activityTime">
+                    <el-date-picker
+                      v-model="form.activityTime"
+                      type="datetimerange"
+                      :picker-options="pickerOptions"
+                      range-separator="至"
+                      start-placeholder="开始日期"
+                      end-placeholder="结束日期"
+                      align="right">
+                    </el-date-picker>
                   </el-form-item>
                   <el-form-item label="施工单必传附件：" prop="attachmentRequired">
                     <el-switch
@@ -68,35 +67,39 @@
                     </el-switch>
                   </el-form-item>
                   <el-form-item label="活动数量：" prop="vehicleCount">
-                    <base-input
+                    <!-- <base-input
                       placeholder="请输入"
                       v-model="form.vehicleCount"
                       clearable
-                    />
+                    /> -->
+                    {{ form.vehicleCount }}
                   </el-form-item>
                   <el-form-item label="完成数量：" prop="finishedVehicleCount">
-                    <base-input
+                    <!-- <base-input
                       placeholder="请输入"
                       v-model="form.finishedVehicleCount"
                       clearable
-                    />
+                    /> -->
+                    {{ form.finishedVehicleCount }}
                   </el-form-item>
                   <el-form-item label="完成情况（%）：" prop="finishedPercent">
-                    <base-input
+                    <!-- <base-input
                       placeholder="请输入"
                       v-model="form.finishedPercent"
                       clearable
-                    />
+                    /> -->
+                    {{ form.finishedPercent }}
                   </el-form-item>
                   <el-form-item label="活动状态：" prop="activityStatus">
-                    <fetch-select
+                    <!-- <fetch-select
                       :request="fetchOptions"
                       enumCode="claim_activity_state"
                       v-model="form.activityStatus"
                       placeholder="请选择"
                       clearable
                       filterable
-                    />
+                    /> -->
+                    {{ form.activityStatusLabel }}
                   </el-form-item>
                   <el-form-item class="form-item-full" label="活动描述：" prop="description">
                     <base-input
@@ -135,7 +138,7 @@
                     />
                   </el-form-item>
                 </el-form>
-                <el-form :inline="true" class="form-detail" v-else>
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                   <el-form-item label="活动编码：">
                     {{ form.activityCode }}
                   </el-form-item>
@@ -189,7 +192,7 @@
                 <h2>结算类型</h2>
               </div>
               <div class="common-section-body">
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-if="isEditing || !_id">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="结算类型：" prop="checkoutTypeName">
                     <fetch-select
                       filterable
@@ -219,7 +222,7 @@
                     />
                   </el-form-item>
                 </el-form>
-                <el-form :inline="true" class="form-detail" v-else>
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                   <el-form-item label="结算类型：" prop="checkoutTypeName">
                     {{ form.checkoutTypeName }}
                   </el-form-item>
@@ -233,11 +236,6 @@
               :id="_id"
               :moduleKey="moduleKey"
               @change="schemeChange"
-            />
-            <item-info
-              :id="_id"
-              :moduleKey="moduleKey"
-              :schemeId="schemeId"
             />
             <file-config
               :id="_id"
@@ -273,8 +271,8 @@ import { getList } from '../../../../../api/maintain/basic/checkoutType';
 import { getList as repairGetList } from '../../../../../api/maintain/basic/repairItemType';
 import { getDetail, addOrUpdate } from '../../../../../api/claimreturn/claim/basic/techServiceActivity';
 import PlanInfo from './PlanInfo.vue';
-import ItemInfo from './ItemInfo/index.vue';
 import FileConfig from './FileConfig/index.vue';
+import { formatDateTime } from '@/libs/utils';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -284,6 +282,7 @@ const defaultForm = {
   activityStatus: '',
   startTime: '',
   endTime: '',
+  activityTime: [],
   attachmentRequired: false,
   description: '',
   vehicleCount: '',
@@ -325,7 +324,6 @@ export default {
     EditPageLayout,
     BaseInput,
     PlanInfo,
-    ItemInfo,
     FileConfig,
   },
   computed: {
@@ -366,11 +364,14 @@ export default {
         activityType: [
           { required: true, message: '请选择活动类型', trigger: 'change' }
         ],
-        startTime: [
-          { required: true, message: '请选择活动开始时间', trigger: 'change' }
-        ],
-        endTime: [
-          { required: true, message: '请选择活动结束时间', trigger: 'change' }
+        // startTime: [
+        //   { required: true, message: '请选择活动开始时间', trigger: 'change' }
+        // ],
+        // endTime: [
+        //   { required: true, message: '请选择活动结束时间', trigger: 'change' }
+        // ],
+        activityTime: [
+          { required: true, message: '请选择活动时间', trigger: 'change' },
         ],
         attachmentRequired: [
           { required: true, message: '请输入施工单必需上传附件（1&#x3D;是，0&#x3D;否）', trigger: 'blur' }
@@ -461,6 +462,10 @@ export default {
           this.loading = false;
           Object.assign(this.form, res);
           Object.assign(this.originalForm, res);
+          this.form.activityTime = [
+            new Date(res.startTime),
+            new Date(res.endTime),
+          ];
           this.form.autoApprove = res.autoApprove === '1';
           this.form.attachmentRequired = res.attachmentRequired === '1';
         });
@@ -471,8 +476,12 @@ export default {
         await this.$refs[formName].validate();
         await this.$refs[formName2].validate();
         this.submitLoading = true;
+        const startTime = formatDateTime(this.form.activityTime[0]);
+        const endTime = formatDateTime(this.form.activityTime[1]);
         addOrUpdate({
           ...this.form,
+          startTime,
+          endTime,
           autoApprove: this.form.autoApprove ? '1' : '0',
           attachmentRequired: this.form.attachmentRequired ? '1' : '0',
         }).then(res => {

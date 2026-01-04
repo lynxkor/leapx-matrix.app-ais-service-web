@@ -487,7 +487,7 @@ export default {
         partCode: cur.partCode,
         partName: cur.partName,
         purchasePrice: cur.purchasePrice,
-        partQuantity: '',
+        partQuantity: 1,
       };
       this.$refs.partTable.handleAdd(newItem);
     }, 200),

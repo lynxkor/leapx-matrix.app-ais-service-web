@@ -8,7 +8,7 @@
         <fetch-tabs
           ref="fetchTabs"
           type="menu"
-          v-model="schemaId"
+          v-model="schemeId"
           :loadParams="loadParams"
           :loadData="loadData"
           :itemConfig="{
@@ -25,15 +25,13 @@
           @command="command"
           />
         </section>
-        <section class="common-section">
+        <section class="common-section"  v-if="canAddOrUpdate && schemeId">
           <div
-            v-if="canAddOrUpdate"
             class="common-section-header"
           >
             基础信息
           </div>
           <el-form
-            v-if="isEditing"
             :inline="true"
             :model="form"
             :rules="rules"
@@ -137,7 +135,7 @@
               />
             </el-form-item>
           </el-form>
-          <el-form :inline="true" class="form-detail" v-else>
+          <!-- <el-form :inline="true" class="form-detail" v-else>
             <el-form-item label="方案名称：">
               {{form.schemeName}}
             </el-form-item>
@@ -165,8 +163,23 @@
             <el-form-item label="方案说明：">
               {{ form.description }}
             </el-form-item>
-          </el-form>
+          </el-form> -->
+
+          <div
+            class="common-section-header"
+          >
+            项目零件
+          </div>
+          <item-info
+            v-if="id && schemeId"
+            :id="id"
+            :moduleKey="moduleKey"
+            :schemeId="schemeId"
+          />
         </section>
+        <div class="common-section-body not-commit" v-else>
+          点击「+」添加方案
+        </div>
     </div>
     <div class="common-section-body not-commit" v-else>
       提交新建后，即可添加
@@ -188,6 +201,7 @@ import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum } from '@/api/common';
 import { getList as getVrtList } from '../../../../../api/claimreturn/claim/basic/vrt';
 import { getList as getVfgList } from '../../../../../api/claimreturn/claim/basic/vfg';
+import ItemInfo from './ItemInfo/index.vue';
 
 export default {
   props: {
@@ -208,16 +222,17 @@ export default {
     FetchTabs,
     BaseInput,
     FetchSelect,
+    ItemInfo,
   },
   data () {
     return {
-      schemaId: '',
+      schemeId: '',
       form: {
         id: '',
         activityId: '',
         schemeName: '',
-        allowModifyOldPart: '', // true, '1'
-        status: 0, // true, 1
+        allowModifyOldPart: false, // true, '1'
+        status: false, // true, 1
         mainPartId: '',
         mainPartName: '',
         mainSupplierId: '',
@@ -234,7 +249,7 @@ export default {
           { required: true, message: '请选择结算类型ID', trigger: 'change' }
         ],
         mainPartName: [
-          { required: true, message: '请选择主因零部件', trigger: 'change' }
+          { required: true, message: '请选择主因零部件', trigger: 'blur' }
         ]
       },
       supplierOptions: [],
@@ -258,7 +273,7 @@ export default {
     }
   },
   watch: {
-    schemaId: {
+    schemeId: {
       handler (newVal) {
         if (newVal) {
           this.getDetail(newVal);
@@ -288,6 +303,7 @@ export default {
         ...data,
         allowModifyOldPart: data.allowModifyOldPart ? '1' : '0',
         status: data.status ? 1 : 0,
+        activityId: this.id,
       });
     },
     loadData (params) {
@@ -337,8 +353,6 @@ export default {
     partChange (val, record) {
       // 零部件id
       if (val) {
-        // this.form.vrtId = record.vrtId;
-        // this.form.vfgId = record.vfgId;
         sparePartList({
           sparePartId: val,
           pageNum: 1,

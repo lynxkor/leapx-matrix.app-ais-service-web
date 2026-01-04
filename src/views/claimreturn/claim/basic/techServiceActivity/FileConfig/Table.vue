@@ -33,6 +33,7 @@ import {
 
 import EditTable from '@/libs/components/EditTable';
 import permissions from '@/libs/mixins/permissions';
+import { uIntRule } from '../../../../../../validation/rule';
 
 export default {
   props: {
@@ -70,14 +71,18 @@ export default {
           title: '零件编码',
           width: '50%',
           editable: true,
-          editRender: { name: 'ElInput' },
+          editRender: { name: 'BaseInput' },
         },
         {
           field: 'quantity',
-          title: '零件名称',
+          title: '数量',
           width: '50%',
           editable: true,
-          editRender: { name: 'ElInput' },
+          editRender: { name: 'BaseInput' },
+          rules: [
+            { required: true, message: '请输入数量', trigger: 'blur' },
+            uIntRule,
+          ],
         },
       ],
       defaultNewRow: {

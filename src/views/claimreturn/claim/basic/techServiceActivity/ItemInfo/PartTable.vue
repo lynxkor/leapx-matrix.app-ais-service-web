@@ -75,7 +75,6 @@ export default {
       tableData: [],
       options: {
         returnType: [],
-        repairItemTypeId: [],
         oldPartCode: [],
       },
       columns: [
@@ -109,7 +108,7 @@ export default {
             name: 'ElSwitch',
           },
           formatter: (cellValue, row, col) => {
-            if (cellValue) {
+            if (cellValue === true || cellValue === '1') {
               return '是';
             }
             return '否';
@@ -122,7 +121,7 @@ export default {
           editable: true,
           editRender: { name: 'ElSwitch' },
           formatter: (cellValue, row, col) => {
-            if (cellValue) {
+            if (cellValue === true || cellValue === '1') {
               return '是';
             }
             return '否';
@@ -145,18 +144,6 @@ export default {
               'label-key': 'partName',
             },
           },
-          // editRender: {
-          //   name: 'ElSelect',
-          //   multiRow: true,
-          //   props: {
-          //     filterable: true,
-          //     clearable: true,
-          //     remote: true,
-          //     remoteMethod: this.partRemote,
-          //     placeholder: '请选择',
-          //     'suffix-icon': 'el-icon-search',
-          //   },
-          // },
         },
         {
           field: 'oldSupplierId',
@@ -172,19 +159,7 @@ export default {
               'value-key': 'value',
               'label-key': 'label',
             },
-            $listeners: {
-              focus: this.oldSupplierIdRemote
-            }
           },
-          // editRender: {
-          //   name: 'ElSelect',
-          //   props: {
-          //     filterable: true,
-          //     clearable: true,
-          //     placeholder: '请选择',
-          //     'suffix-icon': 'el-icon-search',
-          //   },
-          // },
           formatter: (cellValue, row, col) => {
             if (row.oldSupplierName) {
               return row.oldSupplierName;
@@ -222,15 +197,15 @@ export default {
           width: '160',
           editable: true,
           editRender: {
-            name: 'ElSelect',
-            multiRow: true,
+            name: 'FetchSelect',
             props: {
               filterable: true,
               clearable: true,
               remote: true,
               remoteMethod: this.repairItemTypeRemote,
               placeholder: '请选择',
-              'suffix-icon': 'el-icon-search',
+              'value-key': 'id',
+              'label-key': 'name',
             },
           },
           formatter (cellValue, row) {
@@ -364,18 +339,15 @@ export default {
         if (!row.__options__) {
           row.__options__ = {};
         }
-        if (options.length) {
+        // 默认选择第一个
+        if (!row.oldSupplierId && options.length) {
           const item = options[0];
           row.oldSupplierName = item.label;
           row.oldSupplierId = item.value;
           row.oldSupplierCode = item.labelDesc;
-          row.__options__.oldSupplierId = options;
-        } else {
-          row.oldSupplierName = '';
-          row.oldSupplierId = '';
-          row.oldSupplierCode = '';
-          row.__options__.oldSupplierId = null;
         }
+        row.__options__.oldSupplierId = options?.length ? options : null;
+
         this.$refs.editTable.updateRow(row);
         return options;
       });
@@ -391,18 +363,6 @@ export default {
       return repairItemType({
         nameLike: query,
         categorys: [10]
-      }).then(data => {
-        const list = data.map((item) => {
-          return {
-            value: item.id,
-            label: item.name,
-            labelDesc: item.code,
-            repairItemTypeId: item.id, // 表格
-            repairItemTypeCode: item.code, // 表格
-            repairItemTypeName: item.name,
-          };
-        });
-        this.options.repairItemTypeId = list;
       });
     },
     returnTypeRemote () {
@@ -425,23 +385,6 @@ export default {
         pageSize: 20,
         pageNum: 1,
       });
-      // partList({
-      //   partCodeOrNameLike: query,
-      //   pageSize: 20,
-      //   pageNum: 1,
-      // }).then(res => {
-      //   const list = res.records?.map(item => {
-      //     return {
-      //       value: item.id,
-      //       label: item.partName,
-      //       labelDesc: item.partCode,
-      //       oldPartId: item.id,
-      //       oldPartCode: item.partCode,
-      //       oldPartName: item.partName,
-      //     };
-      //   }) || [];
-      //   this.options.oldPartCode = list;
-      // });
     },
     onValueChange ({ row, column, value }, option) {
       if (column.field === 'oldPartCode') {
@@ -450,7 +393,11 @@ export default {
         row.oldPartId = option?.id;
         this.partChange(row.oldPartId, row);
       } else if (column.field === 'oldSupplierId') {
-        console.log(option);
+        row.oldSupplierId = option?.value;
+        row.oldSupplierName = option?.label;
+        row.oldSupplierCode = option?.labelDesc;
+      } else if (column.field === 'repairItemTypeId') {
+        row.repairItemTypeName = option?.name;
       }
     },
     // 供应商列表
