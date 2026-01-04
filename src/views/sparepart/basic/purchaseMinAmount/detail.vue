@@ -69,7 +69,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '备件起订金额设置',
       pageType: 'detail',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-purchaseMinAmount',
@@ -79,7 +79,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['备件起订金额设置', '详情']);
     this.getData();
   },
   methods: {

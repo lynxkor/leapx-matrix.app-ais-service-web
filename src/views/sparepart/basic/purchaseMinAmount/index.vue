@@ -194,7 +194,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '备件起订金额设置',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-purchaseMinAmount',
@@ -343,7 +343,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '新页面',
+        businessType: '备件起订金额设置',
         dataFetchPath: 'sparepart/web/basic/purchaseMinAmount/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
