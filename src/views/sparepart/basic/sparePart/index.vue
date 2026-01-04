@@ -129,7 +129,7 @@
       <el-button v-permission="moduleKey + '-modelImport'" size="small" @click="handleImport('sparePartModelImport')">车型导入</el-button>
       <el-button v-permission="moduleKey + '-vfgImport'" size="small" @click="handleImport('sparePartVfgImport')">VFG导入</el-button>
       <el-button v-permission="moduleKey + '-printImport'" size="small">打印报价单</el-button>
-      <el-button v-permission="moduleKey + '-detail'" size="small">集中视图</el-button>
+      <!-- <el-button v-permission="moduleKey + '-detail'" size="small">集中视图</el-button> -->
 
       <!-- <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
