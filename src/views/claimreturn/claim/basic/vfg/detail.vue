@@ -49,7 +49,7 @@
             <el-form-item label="说明：" prop="statusDesc">
               {{ info.statusDesc  }}
             </el-form-item>
-            <el-form-item label="数据来源" prop="dataSource">
+            <el-form-item label="数据来源：" prop="dataSource">
               {{ info.dataSourceLabel  }}
             </el-form-item>
           </el-form>
