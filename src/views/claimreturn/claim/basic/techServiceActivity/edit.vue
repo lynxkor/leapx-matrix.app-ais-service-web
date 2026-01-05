@@ -6,247 +6,245 @@
         <edit-base-container
           :id="_id"
           :title="`活动编码：${form.activityCode}`"
-          :isEditing="isEditing"
-          :submitLoading="submitLoading"
-          :canAddOrUpdate="canAddOrUpdate"
-          @submit="submitForm"
-          @edit="baseMixinEdit"
-          @cancel="baseMixinCancel"
-          @refresh="baseMixinRefresh"
-          @reset="baseMixinReset"
+          :isEditing.sync="isEditing"
+          :form.sync="form"
+          :originalForm="originalForm"
+          :defaultForm="defaultForm"
+          :submitRequest="submitRequest"
+          :detailRequest="getDetailData"
         >
-        <template #default="{formApi}">
-          <el-main>
-            <section class="common-section">
-              <div class="common-section-header">
-                <h2>基础信息</h2>
-              </div>
-              <div class="common-section-body">
-                <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"  class="form-edit" v-show="isEditing || !_id">
-                  <el-form-item label="活动编码：" prop="activityCode">
-                    <base-input
-                      placeholder="请输入"
-                      v-model="form.activityCode"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="活动名称：" prop="activityName">
-                    <base-input
-                      placeholder="请输入"
-                      v-model="form.activityName"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="活动类型：" prop="activityType">
-                    <fetch-select
-                      :request="fetchOptions"
-                      enumCode="claim_activity_type"
-                      v-model="form.activityType"
-                      :format="filterActivityType"
-                      placeholder="请选择"
-                      clearable
-                      filterable
-                    />
-                  </el-form-item>
-                  <el-form-item label="自动审批：" prop="autoApprove">
-                    <el-switch
-                      v-model="form.autoApprove">
-                    </el-switch>
-                  </el-form-item>
-                  <el-form-item class="form-item-half" label="活动时间：" prop="activityTime">
-                    <el-date-picker
-                      v-model="form.activityTime"
-                      type="datetimerange"
-                      :picker-options="pickerOptions"
-                      range-separator="至"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
-                      align="right">
-                    </el-date-picker>
-                  </el-form-item>
-                  <el-form-item label="施工单必传附件：" prop="attachmentRequired">
-                    <el-switch
-                      v-model="form.attachmentRequired">
-                    </el-switch>
-                  </el-form-item>
-                  <el-form-item label="活动数量：" prop="vehicleCount">
-                    <!-- <base-input
-                      placeholder="请输入"
-                      v-model="form.vehicleCount"
-                      clearable
-                    /> -->
-                    {{ form.vehicleCount }}
-                  </el-form-item>
-                  <el-form-item label="完成数量：" prop="finishedVehicleCount">
-                    <!-- <base-input
-                      placeholder="请输入"
-                      v-model="form.finishedVehicleCount"
-                      clearable
-                    /> -->
-                    {{ form.finishedVehicleCount }}
-                  </el-form-item>
-                  <el-form-item label="完成情况（%）：" prop="finishedPercent">
-                    <!-- <base-input
-                      placeholder="请输入"
-                      v-model="form.finishedPercent"
-                      clearable
-                    /> -->
-                    {{ form.finishedPercent }}
-                  </el-form-item>
-                  <el-form-item label="活动状态：" prop="activityStatus">
-                    <!-- <fetch-select
-                      :request="fetchOptions"
-                      enumCode="claim_activity_state"
-                      v-model="form.activityStatus"
-                      placeholder="请选择"
-                      clearable
-                      filterable
-                    /> -->
-                    {{ form.activityStatusLabel }}
-                  </el-form-item>
-                  <el-form-item class="form-item-full" label="活动描述：" prop="description">
-                    <base-input
-                      type="textarea"
-                      placeholder="请输入"
-                      v-model="form.description"
-                      clearable
-                      :rows="2"
-                    />
-                  </el-form-item>
-                  <el-form-item class="form-item-full" label="活动费用内容：" prop="costContent">
-                    <base-input
-                      type="textarea"
-                      placeholder="请输入"
-                      v-model="form.costContent"
-                      clearable
-                      :rows="2"
-                    />
-                  </el-form-item>
-                  <el-form-item class="form-item-full" label="故障现象描述：" prop="faultPhenomenon">
-                    <base-input
-                      type="textarea"
-                      placeholder="请输入"
-                      v-model="form.faultPhenomenon"
-                      clearable
-                      :rows="2"
-                    />
-                  </el-form-item>
-                  <el-form-item class="form-item-full" label="故障排查流程：" prop="troubleshootingFlow">
-                    <base-input
-                      type="textarea"
-                      placeholder="请输入"
-                      v-model="form.troubleshootingFlow"
-                      clearable
-                      :rows="2"
-                    />
-                  </el-form-item>
-                </el-form>
-                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                  <el-form-item label="活动编码：">
-                    {{ form.activityCode }}
-                  </el-form-item>
-                  <el-form-item label="活动名称：">
-                    {{ form.activityName }}
-                  </el-form-item>
-                  <el-form-item label="活动类型：">
-                    {{ form.activityTypeLabel }}
-                  </el-form-item>
-                  <el-form-item label="活动开始时间：">
-                    {{ form.startTime }}
-                  </el-form-item>
-                  <el-form-item label="活动结束时间：">
-                    {{ form.endTime }}
-                  </el-form-item>
-                  <el-form-item label="自动审批：">
-                    {{ form.autoApprove ? '是' : '否' }}
-                  </el-form-item>
-                  <el-form-item label="施工单必传附件：">
-                    {{ form.attachmentRequired  ? '是' : '否' }}
-                  </el-form-item>
-                  <el-form-item label="活动数量：">
-                    {{ form.vehicleCount }}
-                  </el-form-item>
-                  <el-form-item label="完成数量：">
-                    {{ form.finishedVehicleCount }}
-                  </el-form-item>
-                  <el-form-item label="完成情况（%）：">
-                    {{ form.finishedPercent }}
-                  </el-form-item>
-                  <el-form-item label="活动状态：">
-                    {{ form.activityStatusLabel }}
-                  </el-form-item>
-                  <el-form-item class="form-item-full" label="活动描述：">
-                    {{ form.description }}
-                  </el-form-item>
-                  <el-form-item class="form-item-full" label="活动费用内容：">
-                    {{ form.costContent }}
-                  </el-form-item>
-                  <el-form-item class="form-item-full" label="故障现象描述：">
-                    {{ form.faultPhenomenon }}
-                  </el-form-item>
-                  <el-form-item class="form-item-full" label="故障排查流程：">
-                    {{ form.troubleshootingFlow }}
-                  </el-form-item>
-                </el-form>
-              </div>
-            </section>
-            <section class="common-section">
-              <div class="common-section-header">
-                <h2>结算类型</h2>
-              </div>
-              <div class="common-section-body">
-                <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                  <el-form-item label="结算类型：" prop="checkoutTypeName">
-                    <fetch-select
-                      filterable
-                      clearable
-                      remote
-                      reserve-keyword
-                      v-model="form.checkoutTypeId"
-                      :remote-method="checkoutTypeRemote"
-                      :params="form.checkoutTypeName"
-                      @change="handleCheckoutType"
-                      value-key="id"
-                      label-key="name"
-                    />
-                  </el-form-item>
-                  <el-form-item label="保修类型：" prop="repairItemTypeName">
-                    <fetch-select
-                      filterable
-                      clearable
-                      remote
-                      reserve-keyword
-                      v-model="form.repairItemTypeId"
-                      :remote-method="repairItemTypeRemote"
-                      :params="form.repairItemTypeName"
-                      @change="handleRepairItem"
-                      value-key="id"
-                      label-key="name"
-                    />
-                  </el-form-item>
-                </el-form>
-                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                  <el-form-item label="结算类型：" prop="checkoutTypeName">
-                    {{ form.checkoutTypeName }}
-                  </el-form-item>
-                  <el-form-item label="保修类型：" prop="repairItemTypeName">
-                    {{ form.repairItemTypeName }}
-                  </el-form-item>
-                </el-form>
-              </div>
-            </section>
-            <plan-info
-              :id="_id"
-              :moduleKey="moduleKey"
-              @change="schemeChange"
-            />
-            <file-config
-              :id="_id"
-              :moduleKey="moduleKey"
-              :schemeId="schemeId"
-            />
-          </el-main>
-        </template>
+          <template #default="{formApi}">
+            <el-main>
+              <section class="common-section">
+                <div class="common-section-header">
+                  <h2>基础信息</h2>
+                </div>
+                <div class="common-section-body">
+                  <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"  class="form-edit" v-show="isEditing || !_id">
+                    <el-form-item label="活动编码：" prop="activityCode">
+                      <base-input
+                        placeholder="请输入"
+                        v-model="form.activityCode"
+                        clearable
+                      />
+                    </el-form-item>
+                    <el-form-item label="活动名称：" prop="activityName">
+                      <base-input
+                        placeholder="请输入"
+                        v-model="form.activityName"
+                        clearable
+                      />
+                    </el-form-item>
+                    <el-form-item label="活动类型：" prop="activityType">
+                      <fetch-select
+                        :request="fetchOptions"
+                        enumCode="claim_activity_type"
+                        v-model="form.activityType"
+                        :format="filterActivityType"
+                        placeholder="请选择"
+                        clearable
+                        filterable
+                      />
+                    </el-form-item>
+                    <el-form-item label="自动审批：" prop="autoApprove">
+                      <el-switch
+                        v-model="form.autoApprove">
+                      </el-switch>
+                    </el-form-item>
+                    <el-form-item class="form-item-half" label="活动时间：" prop="activityTime">
+                      <el-date-picker
+                        v-model="form.activityTime"
+                        type="datetimerange"
+                        :picker-options="pickerOptions"
+                        range-separator="至"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期"
+                        align="right">
+                      </el-date-picker>
+                    </el-form-item>
+                    <el-form-item label="施工单必传附件：" prop="attachmentRequired">
+                      <el-switch
+                        v-model="form.attachmentRequired">
+                      </el-switch>
+                    </el-form-item>
+                    <el-form-item label="活动数量：" prop="vehicleCount">
+                      <!-- <base-input
+                        placeholder="请输入"
+                        v-model="form.vehicleCount"
+                        clearable
+                      /> -->
+                      {{ form.vehicleCount }}
+                    </el-form-item>
+                    <el-form-item label="完成数量：" prop="finishedVehicleCount">
+                      <!-- <base-input
+                        placeholder="请输入"
+                        v-model="form.finishedVehicleCount"
+                        clearable
+                      /> -->
+                      {{ form.finishedVehicleCount }}
+                    </el-form-item>
+                    <el-form-item label="完成情况（%）：" prop="finishedPercent">
+                      <!-- <base-input
+                        placeholder="请输入"
+                        v-model="form.finishedPercent"
+                        clearable
+                      /> -->
+                      {{ form.finishedPercent }}
+                    </el-form-item>
+                    <el-form-item label="活动状态：" prop="activityStatus">
+                      <!-- <fetch-select
+                        :request="fetchOptions"
+                        enumCode="claim_activity_state"
+                        v-model="form.activityStatus"
+                        placeholder="请选择"
+                        clearable
+                        filterable
+                      /> -->
+                      {{ form.activityStatusLabel }}
+                    </el-form-item>
+                    <el-form-item class="form-item-full" label="活动描述：" prop="description">
+                      <base-input
+                        type="textarea"
+                        placeholder="请输入"
+                        v-model="form.description"
+                        clearable
+                        :rows="2"
+                      />
+                    </el-form-item>
+                    <el-form-item class="form-item-full" label="活动费用内容：" prop="costContent">
+                      <base-input
+                        type="textarea"
+                        placeholder="请输入"
+                        v-model="form.costContent"
+                        clearable
+                        :rows="2"
+                      />
+                    </el-form-item>
+                    <el-form-item class="form-item-full" label="故障现象描述：" prop="faultPhenomenon">
+                      <base-input
+                        type="textarea"
+                        placeholder="请输入"
+                        v-model="form.faultPhenomenon"
+                        clearable
+                        :rows="2"
+                      />
+                    </el-form-item>
+                    <el-form-item class="form-item-full" label="故障排查流程：" prop="troubleshootingFlow">
+                      <base-input
+                        type="textarea"
+                        placeholder="请输入"
+                        v-model="form.troubleshootingFlow"
+                        clearable
+                        :rows="2"
+                      />
+                    </el-form-item>
+                  </el-form>
+                  <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                    <el-form-item label="活动编码：">
+                      {{ form.activityCode }}
+                    </el-form-item>
+                    <el-form-item label="活动名称：">
+                      {{ form.activityName }}
+                    </el-form-item>
+                    <el-form-item label="活动类型：">
+                      {{ form.activityTypeLabel }}
+                    </el-form-item>
+                    <el-form-item label="活动开始时间：">
+                      {{ form.startTime }}
+                    </el-form-item>
+                    <el-form-item label="活动结束时间：">
+                      {{ form.endTime }}
+                    </el-form-item>
+                    <el-form-item label="自动审批：">
+                      {{ form.autoApprove ? '是' : '否' }}
+                    </el-form-item>
+                    <el-form-item label="施工单必传附件：">
+                      {{ form.attachmentRequired  ? '是' : '否' }}
+                    </el-form-item>
+                    <el-form-item label="活动数量：">
+                      {{ form.vehicleCount }}
+                    </el-form-item>
+                    <el-form-item label="完成数量：">
+                      {{ form.finishedVehicleCount }}
+                    </el-form-item>
+                    <el-form-item label="完成情况（%）：">
+                      {{ form.finishedPercent }}
+                    </el-form-item>
+                    <el-form-item label="活动状态：">
+                      {{ form.activityStatusLabel }}
+                    </el-form-item>
+                    <el-form-item class="form-item-full" label="活动描述：">
+                      {{ form.description }}
+                    </el-form-item>
+                    <el-form-item class="form-item-full" label="活动费用内容：">
+                      {{ form.costContent }}
+                    </el-form-item>
+                    <el-form-item class="form-item-full" label="故障现象描述：">
+                      {{ form.faultPhenomenon }}
+                    </el-form-item>
+                    <el-form-item class="form-item-full" label="故障排查流程：">
+                      {{ form.troubleshootingFlow }}
+                    </el-form-item>
+                  </el-form>
+                </div>
+              </section>
+              <section class="common-section">
+                <div class="common-section-header">
+                  <h2>结算类型</h2>
+                </div>
+                <div class="common-section-body">
+                  <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                    <el-form-item label="结算类型：" prop="checkoutTypeName">
+                      <fetch-select
+                        filterable
+                        clearable
+                        remote
+                        reserve-keyword
+                        v-model="form.checkoutTypeId"
+                        :remote-method="checkoutTypeRemote"
+                        :params="form.checkoutTypeName"
+                        @change="handleCheckoutType"
+                        value-key="id"
+                        label-key="name"
+                      />
+                    </el-form-item>
+                    <el-form-item label="保修类型：" prop="repairItemTypeName">
+                      <fetch-select
+                        filterable
+                        clearable
+                        remote
+                        reserve-keyword
+                        v-model="form.repairItemTypeId"
+                        :remote-method="repairItemTypeRemote"
+                        :params="form.repairItemTypeName"
+                        @change="handleRepairItem"
+                        value-key="id"
+                        label-key="name"
+                      />
+                    </el-form-item>
+                  </el-form>
+                  <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                    <el-form-item label="结算类型：" prop="checkoutTypeName">
+                      {{ form.checkoutTypeName }}
+                    </el-form-item>
+                    <el-form-item label="保修类型：" prop="repairItemTypeName">
+                      {{ form.repairItemTypeName }}
+                    </el-form-item>
+                  </el-form>
+                </div>
+              </section>
+              <plan-info
+                :id="_id"
+                :moduleKey="moduleKey"
+                @change="schemeChange"
+              />
+              <file-config
+                :id="_id"
+                :moduleKey="moduleKey"
+                :schemeId="schemeId"
+              />
+            </el-main>
+          </template>
         </edit-base-container>
       </div>
      </template>
@@ -272,7 +270,6 @@ import { getDetail, addOrUpdate } from '../../../../../api/claimreturn/claim/bas
 import PlanInfo from './PlanInfo.vue';
 import FileConfig from './FileConfig/index.vue';
 import { formatDateTime } from '@/libs/utils';
-import editContainerMixin from '@/components/EditBaseContainer/editContainerMixin';
 import EditBaseContainer from '@/components/EditBaseContainer';
 
 const defaultForm = {
@@ -319,7 +316,7 @@ export default {
       default: null
     }
   },
-  mixins: [routeGuard, permissions, commonMixins, editContainerMixin],
+  mixins: [routeGuard, permissions, commonMixins],
   components: {
     EditBaseContainer,
     FetchSelect,
@@ -351,7 +348,6 @@ export default {
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-techServiceActivity',
       loading: false,
-      submitLoading: false,
       isEditing: false,
       yes_no_enum: YES_NO_ENUM,
       defaultForm: defaultForm,
@@ -440,9 +436,8 @@ export default {
   methods: {
     getDetailData () {
       const id = this._id;
-      if (!this.id) { // 非嵌入集中视图时才更新标题
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['技术服务活动', `${id ? '详情' : '新建'}`]);
-      }
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['技术服务活动', `${id ? '详情' : '新建'}`]);
+
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
@@ -458,41 +453,16 @@ export default {
         });
       }
     },
-    async submitForm (defer) {
-      try {
-        this.submitLoading = true;
-        const startTime = formatDateTime(this.form.activityTime[0]);
-        const endTime = formatDateTime(this.form.activityTime[1]);
-        return addOrUpdate({
-          ...this.form,
-          startTime,
-          endTime,
-          autoApprove: this.form.autoApprove ? '1' : '0',
-          attachmentRequired: this.form.attachmentRequired ? '1' : '0',
-        }).then(res => {
-          this.$message({
-            message: '保存成功',
-            type: 'success'
-          });
-
-          const id = res;
-          // 编辑时必须调用
-          if (this.form.id) {
-            if (defer) {
-              defer.resolve();
-            } else {
-              this.getDetailData();
-            }
-          } else if (defer && id) {
-            // 新建时必须调用
-            defer.resolve(id);
-          }
-        }).finally(() => {
-          this.submitLoading = false;
-        });
-      } catch (e) {
-        //
-      }
+    async submitRequest () {
+      const startTime = formatDateTime(this.form.activityTime[0]);
+      const endTime = formatDateTime(this.form.activityTime[1]);
+      return addOrUpdate({
+        ...this.form,
+        startTime,
+        endTime,
+        autoApprove: this.form.autoApprove ? '1' : '0',
+        attachmentRequired: this.form.attachmentRequired ? '1' : '0',
+      });
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等

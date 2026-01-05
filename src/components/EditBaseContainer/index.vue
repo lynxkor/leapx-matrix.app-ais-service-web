@@ -7,35 +7,40 @@
  * @param {String} id - 详情页id
  * @param {String} title - 详情页标题
  * @param {Boolean} isEditing - 是否为编辑状态
- * @param {Boolean} canAddOrUpdate - 编辑权限
+ * @param {Function} submitRequest 保存接口
+ * @param {Function} detailRequest 详情接口
  *
- * @event edit - 切换编辑态时触发，没有参数
- * @event cancel - 取消编辑时触发，没有参数
- * @event refresh - 刷新操作时触发，没有参数
- * @event submit - 保存全部数据时触发，保存时没有参数，保存&关闭、保存&再建一个时参数为 defer
- * @event reset - 重置表格时触发
+ * @event submit - 没有传递submitRequest时，会触发submit提交
  *
- * @method registerForm - 注册表单引用
- * @method reset - 重置表单
- * @method submit - 提交表单时自动验证
- * @method handleBack - 返回上一页
+ * 用户交互方法统一前缀：使用 handle 前缀表示用户触发的操作
+ * @method handleSubmit
+ * @method handleCancel
+ * @method handleReset
+ * @method handleRefresh
+ * @method handleEdit
+ *
+ * @method registerForm - (内部注册方法)
+ * @method updateForm - (内部更新方法)
+ * @method updateIsEditing - (内部状态更新方法)
+ * @method cancelEdit - (内部业务逻辑方法)
+ * @method resetToOriginal - (内部业务逻辑方法)
+ * @method resetToDefault - (内部业务逻辑方法)
  *
  *
- * // 使用案例可以查看文件 views/claimreturn/claim/basic/techServiceActivity/edit.vue
- * // 页面访问 http://localhost:7779/service/claimreturn/claim/basic/techServiceActivity
+ * 使用案例可以查看文件 views/claimreturn/claim/basic/techServiceActivity/edit.vue
+ * 页面访问 http://localhost:7779/service/claimreturn/claim/basic/techServiceActivity/edit
+ *
  * @example
  * 编辑页容器
   <edit-base-container
     :id="_id"
     :title="`活动编码：${form.activityCode}`"
-    :isEditing="isEditing"
-    :submitLoading="submitLoading"
-    :canAddOrUpdate="canAddOrUpdate"
-    @submit="submitForm"
-    @edit="baseMixinEdit"
-    @cancel="baseMixinCancel"
-    @refresh="baseMixinRefresh"
-    @reset="baseMixinReset"
+    :isEditing.sync="isEditing"
+    :form.sync="form"
+    :originalForm="originalForm"
+    :defaultForm="defaultForm"
+    :submitRequest="submitRequest"
+    :detailRequest="getDetailData"
   >
     <template #default="{formApi}">
       <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"  class="form-edit" v-show="isEditing || !_id">
@@ -48,27 +53,37 @@
 <template>
   <el-container direction="vertical">
     <edit-base-header
+      v-bind="$attrs"
       :id="id"
       :title="title"
       :isEditing="isEditing"
-      :canAddOrUpdate="canAddOrUpdate"
-      :submitLoading="submitLoading"
-      @edit="$emit('edit')"
-      @cancel="$emit('cancel', formRefs)"
-      @refresh="$emit('refresh')"
-      @submit="submit"
-    />
+      :loading="loading"
+      @edit="handleEdit"
+      @cancel="handleCancel"
+      @refresh="handleRefresh"
+      @submit="handleSubmit"
+    >
+      <!-- 使用具名插槽传递 header -->
+      <template v-if="$slots.header" #header>
+        <slot name="header"></slot>
+      </template>
+    </edit-base-header>
     <!-- 使用作用域插槽 -->
     <slot :formApi="formApi"></slot>
     <edit-base-footer
       v-if="!id"
+      v-bind="$attrs"
       :id="id"
-      :canAddOrUpdate="canAddOrUpdate"
-      :submitLoading="submitLoading"
+      :loading="loading"
       @cancel="handleBack"
-      @reset="reset"
-      @submit="submit"
-    />
+      @reset="handleReset"
+      @submit="handleSubmit"
+    >
+      <!-- 使用具名插槽传递 footer -->
+      <template v-if="$slots.footer" #footer>
+        <slot name="footer"></slot>
+      </template>
+    </edit-base-footer>
   </el-container>
 </template>
 <script>
@@ -76,11 +91,25 @@ import EditBaseHeader from '@/components/EditBaseHeader';
 import EditBaseFooter from '@/components/EditBaseFooter';
 
 export default {
+  name: 'EditBaseContainer',
+  inheritAttrs: false,
   components: {
     EditBaseHeader,
     EditBaseFooter,
   },
   props: {
+    /**
+     * 表单数据
+     */
+    form: Object,
+    /**
+     * 表单详情数据
+     */
+    originalForm: Object,
+    /**
+     * 表单默认初始数据
+     */
+    defaultForm: Object,
     /**
      * 详情页id
      */
@@ -101,20 +130,25 @@ export default {
       default: false,
     },
     /**
-     * 编辑权限 必须传递
+     * 保存提交接口
      */
-    canAddOrUpdate: {
-      type: Boolean,
-      required: true,
+    submitRequest: {
+      type: Function,
+      default: null,
     },
-    submitLoading: {
-      type: Boolean,
+    /**
+     * 获取详情接口
+     */
+    detailRequest: {
+      type: Function,
+      default: null,
     },
   },
   data () {
     return {
       // 存储表单引用
       formRefs: [],
+      loading: false,
     };
   },
   computed: {
@@ -130,6 +164,7 @@ export default {
 
   },
   methods: {
+    // 表单注册
     registerForm (formRef) {
       if (!this.formRefs.includes(formRef)) {
         this.formRefs.push(formRef);
@@ -138,18 +173,94 @@ export default {
     handleBack () {
       this.$router.back();
     },
-    async submit (defer) {
+    // 保存操作
+    async handleSubmit (defer) {
       for (let formRef of this.formRefs) {
         await formRef.validate();
       }
-      this.$emit('submit', defer);
+      if (this.submitRequest) {
+        this.loading = true;
+        const promise = this.submitRequest?.();
+        if (promise instanceof Promise) {
+          promise.then((res) => {
+            // 新建保存时需要用到这个id
+            let id;
+            if (typeof res === 'string') {
+              id = res;
+            }
+
+            // 编辑时必须调用
+            if (this.id) {
+              if (defer) { // 保存并关闭，回到列表页
+                defer.resolve();
+              } else if (this.detailRequest) {
+                this.detailRequest?.(); // 普通保存重新获取数据（留在当页）
+              }
+            } else if (defer) {
+              // 新建时必须调用
+              defer.resolve(id);
+            }
+            this.showSuccessMessage();
+          }).finally(() => {
+            this.loading = false;
+          })
+        } else {
+          this.loading = false;
+        }
+      } else {
+        function success(id) {
+          defer.resolve(id);
+        }
+        this.$emit('submit', success);
+      }
     },
-    reset () {
+    // 新建时，再建一个
+    handleReset () {
       for (let formRef of this.formRefs) {
         formRef.resetFields();
       }
-      this.$emit('reset');
-    }
+      this.resetToDefault();
+    },
+    // 编辑时，取消操作
+    handleCancel () {
+      // 清除验证
+      for (let formRef of this.formRefs) {
+        formRef.clearValidate();
+      }
+      this.cancelEdit();
+    },
+    handleRefresh () {
+      this.resetToOriginal();
+    },
+    updateForm (newForm) {
+      this.$emit('update:form', newForm);
+    },
+    handleEdit () {
+      this.updateIsEditing(true);
+    },
+    updateIsEditing (val) {
+      this.$emit('update:isEditing', val);
+    },
+    // 编辑，点击取消按钮
+    cancelEdit () {
+      this.updateIsEditing(false);
+      this.resetToOriginal();
+    },
+    // 编辑，操作刷新时需要恢复操作前状态
+    resetToOriginal () {
+      this.updateForm(JSON.parse(JSON.stringify(this.originalForm)));
+    },
+    // 保存&再建一个 操作成功后需要初始化
+    resetToDefault () {
+      this.updateForm(JSON.parse(JSON.stringify(this.defaultForm)));
+    },
+    // 显示成功消息
+    showSuccessMessage () {
+      this.$message({
+        message: '保存成功',
+        type: 'success'
+      });
+    },
   }
 };
 </script>

@@ -2,43 +2,59 @@
   <div class="page-common m-three-guarantees-rule-list">
     <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
     <el-form :inline="true" :model="form" size="small" label-position="right" label-width="150px"
-      class="ais-search-form">
+             class="ais-search-form">
       <el-form-item label="判断依据">
-        <el-input placeholder="请输入" v-model="form.judgmentBasisLike" clearable />
+        <el-input placeholder="请输入" v-model="form.judgmentBasisLike" clearable/>
       </el-form-item>
       <el-form-item label="判断单位">
         <fetch-select :request="fetchOptions" enumCode="claim_determine_unit" v-model="form.determineUnits"
-          placeholder="请选择" clearable multiple filterable />
+                      placeholder="请选择" clearable multiple filterable/>
+      </el-form-item>
+      <el-form-item label="状态">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="StatusEnum"
+          v-model="form.statusIncludeList"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
+        />
       </el-form-item>
       <el-form-item label="创建时间" v-show="this.visibleCount === 3 || show">
         <el-date-picker v-model="form.createTime" type="daterange" :picker-options="pickerOptions" range-separator="至"
-          value-format="yyyy-MM-dd HH:mm:ss" start-placeholder="开始日期" end-placeholder="结束日期" />
+                        value-format="yyyy-MM-dd HH:mm:ss" start-placeholder="开始日期" end-placeholder="结束日期"/>
       </el-form-item>
       <template v-if="show">
         <el-form-item label="修改时间">
-          <el-date-picker v-model="form.updateTime" type="daterange" :picker-options="pickerOptions" range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss" start-placeholder="开始日期" end-placeholder="结束日期" />
+          <el-date-picker v-model="form.updateTime" type="daterange" :picker-options="pickerOptions"
+                          range-separator="至"
+                          value-format="yyyy-MM-dd HH:mm:ss" start-placeholder="开始日期" end-placeholder="结束日期"/>
         </el-form-item>
       </template>
       <page-search-action v-if="canList" v-model="show" is-expandable :loading="loading" @submit="onSubmit"
-        @reset="onReset" />
+                          @reset="onReset"/>
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i
-          class="iconfont icon-lxppc-plus"></i>新增</el-button>
+        class="iconfont icon-lxppc-plus"></i>新增
+      </el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete"
-        :disabled="selectionList.length === 0">批量删除</el-button>
+                 :disabled="selectionList.length === 0">批量删除
+      </el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)"
-        :disabled="selectionList.length === 0">批量启用</el-button>
+                 :disabled="selectionList.length === 0">批量启用
+      </el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)"
-        :disabled="selectionList.length === 0">批量停用</el-button>
+                 :disabled="selectionList.length === 0">批量停用
+      </el-button>
     </div>
     <div class="ais-table-c">
       <LPVxeTable ref="tableRef" v-loading="loading" is-checkbox is-page checkboxFixed :option-obj="optionObj"
-        :get-config="getConfig" :save-or-update="saveOrUpdate" @paginationChange="paginationChange"
-        @handleSelect="handleSelectionChange" />
+                  :get-config="getConfig" :save-or-update="saveOrUpdate" @paginationChange="paginationChange"
+                  @handleSelect="handleSelectionChange"/>
     </div>
   </div>
 </template>
@@ -457,7 +473,8 @@ export default {
               });
             });
         })
-        .catch(() => { });
+        .catch(() => {
+        });
     },
     // 批量启用停用
     handleBatchEnable (status) {
@@ -495,5 +512,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.m-three-guarantees-rule-list {}
+.m-three-guarantees-rule-list {
+}
 </style>

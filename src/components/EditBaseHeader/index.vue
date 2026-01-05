@@ -1,17 +1,50 @@
-
+<script>
+/**
+ * @author wangjinqing
+ * @description 通用详情页标题组件，提供编辑/查看状态的切换和操作按钮
+ *
+ * 组件根据 isEditing 状态显示不同的操作按钮：
+ * - 编辑状态：显示取消、返回、刷新、保存、保存&关闭按钮
+ * - 查看状态：显示编辑按钮
+ *
+ * 用户交互方法统一前缀：使用 handle 前缀表示用户触发的操作
+ *
+ * @param {String} id - 详情页id，用于控制组件是否显示
+ * @param {String} title - 详情页标题文本
+ * @param {Boolean} isEditing - 是否为编辑状态，控制按钮组的显示，默认 false
+ * @param {Boolean} loading - 加载状态，控制保存按钮的加载动画
+ * @param {String} cancelText - 返回按钮文本，默认 '返回'
+ * @param {String} saveText - 保存按钮文本，默认 '保存'
+ * @param {String} saveAndCloseText - 保存并关闭按钮文本，默认 '保存&关闭'
+ * @param {String} refreshText - 刷新按钮文本，默认 '刷新'
+ *
+ * @event edit - 点击编辑按钮时触发
+ * @event cancel - 点击取消按钮时触发
+ * @event submit - 点击保存或保存&关闭按钮时触发
+ * @event refresh - 点击刷新按钮时触发
+ *
+ * @method handleCancel - 处理取消操作，触发 cancel 事件
+ * @method handleBack - 处理返回操作，从编辑页返回到详情页
+ * @method handleEdit - 处理编辑操作，触发 edit 事件
+ * @method handleSave - 保存操作，触发 submit 事件
+ * @method handleSaveAndClose - 保存并关闭操作，触发 submit 事件并传递延迟对象
+ */
+</script>
 <template>
   <section class="common-title px-5" v-if="id">
     <h2>{{title}}</h2>
-    <div v-if="isEditing">
-      <el-button size="small" @click="handleCancel">取消</el-button>
-      <el-button size="small" @click="handleBack">返回</el-button>
-      <el-button size="small" type="primary" @click="$emit('refresh')">刷新</el-button>
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="save" :loading="submitLoading">保存</el-button>
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="saveAndClose" :loading="submitLoading">保存&关闭</el-button>
-    </div>
-    <div v-else>
-      <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
-    </div>
+    <slot name="header">
+      <div v-if="isEditing">
+        <el-button size="small" @click="handleCancel">取消</el-button>
+        <el-button size="small" @click="handleBack">{{cancelText}}</el-button>
+        <el-button size="small" type="primary" @click="$emit('refresh')">{{refreshText}}</el-button>
+        <el-button size="small" type="primary" @click="handleSave" :loading="loading">{{saveText}}</el-button>
+        <el-button size="small" type="primary" @click="handleSaveAndClose" :loading="loading">{{ saveAndCloseText }}</el-button>
+      </div>
+      <div v-else>
+        <el-button size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
+      </div>
+    </slot>
   </section>
 </template>
 <script>
@@ -40,16 +73,42 @@ export default {
       type: Boolean,
       default: false,
     },
-    /**
-     * 编辑权限 必须传递
-     */
-    canAddOrUpdate: {
+    /** */
+    loading: {
       type: Boolean,
-      required: true,
     },
-    submitLoading: {
-      type: Boolean,
+    /**
+     * 返回按钮文本
+     */
+    cancelText: {
+      type: String,
+      default: '返回'
+    },
+    /**
+     * 保存按钮文本
+     */
+    saveText: {
+      type: String,
+      default: '保存'
+    },
+    /**
+     * 保存并关闭按钮文本
+     */
+    saveAndCloseText: {
+      type: String,
+      default: '保存&关闭'
+    },
+    /**
+     * 刷新按钮文本
+     */
+    refreshText: {
+      type: String,
+      default: '刷新'
     }
+  },
+  data () {
+    return {
+    };
   },
   methods: {
     handleCancel () {
@@ -65,10 +124,10 @@ export default {
     handleEdit () {
       this.$emit('edit');
     },
-    save () {
+    handleSave () {
       this.$emit('submit');
     },
-    saveAndClose () {
+    handleSaveAndClose () {
       const defer = createDefer();
       defer.promise.then(() => {
         this.handleBack();
