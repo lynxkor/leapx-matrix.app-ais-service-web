@@ -9,7 +9,49 @@
       label-width="150px"
       class="ais-search-form"
     >
+      <el-form-item label="提醒类别">
+        <el-input
+          placeholder="请输入"
+          v-model="form.reminderCategory"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="状态">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="StatusEnum"
+          v-model="form.statusIncludeList"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
+        />
+      </el-form-item>
+      <el-form-item label="创建时间"  v-show="this.visibleCount === 3 || show">
+        <el-date-picker
+         :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
       <template v-if="show">
+        <el-form-item label="修改时间">
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="form.updateTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -23,8 +65,8 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button> -->
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
@@ -64,7 +106,7 @@ import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/purchaseReminder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
-// import FetchSelect from '@/libs/components/FetchSelect';
+import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -75,6 +117,10 @@ import EditPage from './edit.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
+  reminderCategory: '',
+  status: '',
+  createTime: '',
+  updateTime: '',
 };
 
 const pageSize = 20;
@@ -87,13 +133,13 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    // FetchSelect,
+    FetchSelect,
     EditPage,
     Upload
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '备件采购提醒设置',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-purchaseReminder',
@@ -115,6 +161,28 @@ export default {
           size: pageSize
         },
         dataProp: [
+          {
+            props: 'reminderCategory',
+            label: '提醒类别',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/purchaseReminder/detail',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'reminderContent', label: '提醒内容', visible: true, width: 200 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',
