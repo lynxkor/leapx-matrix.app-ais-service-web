@@ -2,6 +2,7 @@ import api from '@/axios';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = 'sp/web/basic/purchaseReminder/';
+const prefixPartDetail = 'sp/web/basic/purchaseReminderDetail/';
 
 /**
  * 查询列表
@@ -42,3 +43,15 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+export function getPartDetailPage (data) {
+  return api.jsonPost(prefixPartDetail + 'page', data);
+};
+
+export function addPart (data) {
+  return api.jsonPost(prefixPartDetail + 'addOrUpdate', data);
+};
+
+export function deletePart (data) {
+  return api.jsonPost(prefixPartDetail + 'delete', data);
+};
