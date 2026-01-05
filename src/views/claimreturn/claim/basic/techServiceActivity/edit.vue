@@ -3,25 +3,26 @@
    <edit-page-layout ref="editLayout" title="添加方案" >
     <template #left>
       <div class="page-common-edit">
-        <el-container direction="vertical">
+        <edit-base-container
+          :id="_id"
+          :title="`活动编码：${form.activityCode}`"
+          :isEditing="isEditing"
+          :submitLoading="submitLoading"
+          :canAddOrUpdate="canAddOrUpdate"
+          @submit="submitForm"
+          @edit="baseMixinEdit"
+          @cancel="baseMixinCancel"
+          @refresh="baseMixinRefresh"
+          @reset="baseMixinReset"
+        >
+        <template #default="{formApi}">
           <el-main>
-            <edit-base-header
-              :id="_id"
-              :title="`活动编码：${form.activityCode}`"
-              :isEditing="isEditing"
-              :canAddOrUpdate="canAddOrUpdate"
-              :submitLoading="submitLoading"
-              @edit="handleEdit"
-              @cancel="handleCancel"
-              @refresh="refresh"
-              @submit="(defer) => submitForm('ruleForm', 'ruleForm2', defer)"
-            />
             <section class="common-section">
               <div class="common-section-header">
                 <h2>基础信息</h2>
               </div>
               <div class="common-section-body">
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"  class="form-edit" v-show="isEditing || !_id">
+                <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"  class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="活动编码：" prop="activityCode">
                     <base-input
                       placeholder="请输入"
@@ -194,7 +195,7 @@
                 <h2>结算类型</h2>
               </div>
               <div class="common-section-body">
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="结算类型：" prop="checkoutTypeName">
                     <fetch-select
                       filterable
@@ -245,16 +246,8 @@
               :schemeId="schemeId"
             />
           </el-main>
-          <edit-base-footer
-            v-if="!_id"
-            :id="_id"
-            :canAddOrUpdate="canAddOrUpdate"
-            :submitLoading="submitLoading"
-            @cancel="handleBack"
-            @reset="resetForm"
-            @submit="(defer) => submitForm('ruleForm', 'ruleForm2', defer)"
-          />
-        </el-container>
+        </template>
+        </edit-base-container>
       </div>
      </template>
     <template #right>
@@ -279,8 +272,8 @@ import { getDetail, addOrUpdate } from '../../../../../api/claimreturn/claim/bas
 import PlanInfo from './PlanInfo.vue';
 import FileConfig from './FileConfig/index.vue';
 import { formatDateTime } from '@/libs/utils';
-import EditBaseHeader from '@/components/EditBaseHeader';
-import EditBaseFooter from '@/components/EditBaseFooter';
+import editContainerMixin from '@/components/EditBaseContainer/editContainerMixin';
+import EditBaseContainer from '@/components/EditBaseContainer';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -326,10 +319,9 @@ export default {
       default: null
     }
   },
-  mixins: [routeGuard, permissions, commonMixins],
+  mixins: [routeGuard, permissions, commonMixins, editContainerMixin],
   components: {
-    EditBaseHeader,
-    EditBaseFooter,
+    EditBaseContainer,
     FetchSelect,
     EditPageLayout,
     BaseInput,
@@ -362,6 +354,7 @@ export default {
       submitLoading: false,
       isEditing: false,
       yes_no_enum: YES_NO_ENUM,
+      defaultForm: defaultForm,
       form: { ...form },
       originalForm: { ...form },
       rules: {
@@ -445,21 +438,6 @@ export default {
     this.getDetailData();
   },
   methods: {
-    handleCancel () {
-      this.$refs.ruleForm.clearValidate();
-      this.$refs.ruleForm2.clearValidate();
-      this.isEditing = false;
-      this.refresh();
-    },
-    refresh () {
-      this.form = JSON.parse(JSON.stringify(this.originalForm));
-    },
-    handleEdit () {
-      this.isEditing = true;
-    },
-    handleBack () {
-      this.$router.back();
-    },
     getDetailData () {
       const id = this._id;
       if (!this.id) { // 非嵌入集中视图时才更新标题
@@ -480,10 +458,8 @@ export default {
         });
       }
     },
-    async submitForm (formName, formName2, defer) {
+    async submitForm (defer) {
       try {
-        await this.$refs[formName].validate();
-        await this.$refs[formName2].validate();
         this.submitLoading = true;
         const startTime = formatDateTime(this.form.activityTime[0]);
         const endTime = formatDateTime(this.form.activityTime[1]);
@@ -500,19 +476,15 @@ export default {
           });
 
           const id = res;
-          if (!id) {
-            this.resetForm();
-            return;
-          }
-          // 编辑时保存
+          // 编辑时必须调用
           if (this.form.id) {
             if (defer) {
               defer.resolve();
             } else {
               this.getDetailData();
             }
-          } else if (defer) {
-            // 新增时保存
+          } else if (defer && id) {
+            // 新建时必须调用
             defer.resolve(id);
           }
         }).finally(() => {
@@ -521,11 +493,6 @@ export default {
       } catch (e) {
         //
       }
-    },
-    resetForm () {
-      this.$refs.ruleForm.resetFields();
-      this.$refs.ruleForm2.resetFields();
-      this.form = this.getDefautlForm();
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等

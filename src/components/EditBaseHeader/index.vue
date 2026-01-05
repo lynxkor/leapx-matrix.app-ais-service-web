@@ -1,6 +1,6 @@
 
 <template>
-  <section class="common-title" v-if="id">
+  <section class="common-title px-5" v-if="id">
     <h2>{{title}}</h2>
     <div v-if="isEditing">
       <el-button size="small" @click="handleCancel">取消</el-button>
@@ -79,5 +79,8 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-
+.px-5{
+  padding-left: 20px;
+  padding-right: 20px;
+}
 </style>

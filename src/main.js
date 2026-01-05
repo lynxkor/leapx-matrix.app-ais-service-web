@@ -33,6 +33,7 @@ import '@/common/css/vxe-table-variable.scss';
 
 // 导入默认的语言
 import zhCN from 'vxe-table/lib/locale/lang/zh-CN';
+import formRegister from './directives/formRegister';
 
 VxeUi.setI18n('zh-CN', zhCN);
 VxeUi.setLanguage('zh-CN');
@@ -52,6 +53,9 @@ Vue.use(Vuex);
 /* -------------------- 注册插件 ----------------- */
 Vue.use(AuditLogPlugin);
 Vue.use(PrintPlugin);
+
+/* -------------------- 注册指令 ----------------- */
+Vue.directive('form-register', formRegister);
 
 // 监听全局分辨率
 const onResize = () => {
