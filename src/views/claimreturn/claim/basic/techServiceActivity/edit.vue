@@ -8,10 +8,9 @@
           :title="`活动编码：${form.activityCode}`"
           :isEditing.sync="isEditing"
           :form.sync="form"
-          :originalForm="originalForm"
-          :defaultForm="defaultForm"
           :submitRequest="submitRequest"
-          :detailRequest="getDetailData"
+          :detailRequest="detailRequest"
+          :dataTransform="dataTransform"
         >
           <template #default="{formApi}">
             <el-main>
@@ -334,7 +333,7 @@ export default {
     id: {
       handler (val) {
         if (val) {
-          this.getDetailData();
+          this.detailRequest();
         }
       },
       immediate: true
@@ -347,12 +346,9 @@ export default {
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-techServiceActivity',
-      loading: false,
       isEditing: false,
       yes_no_enum: YES_NO_ENUM,
-      defaultForm: defaultForm,
       form: { ...form },
-      originalForm: { ...form },
       rules: {
         activityCode: [
           { required: true, message: '请输入活动编码', trigger: 'blur' }
@@ -431,27 +427,28 @@ export default {
     };
   },
   mounted () {
-    this.getDetailData();
+    this.initBreadcrumb();
   },
   methods: {
-    getDetailData () {
+    initBreadcrumb () {
       const id = this._id;
       this.$store.commit('SET_ACTIVE_BREADCRUMB', ['技术服务活动', `${id ? '详情' : '新建'}`]);
-
+    },
+    detailRequest () {
+      const id = this._id;
       if (id) {
-        getDetail(id).then(res => {
-          this.loading = false;
-          Object.assign(this.form, res);
-          this.form.activityTime = [
-            new Date(res.startTime),
-            new Date(res.endTime),
-          ];
-          this.form.autoApprove = res.autoApprove === '1';
-          this.form.attachmentRequired = res.attachmentRequired === '1';
-          //
-          Object.assign(this.originalForm, this.form);
-        });
+        return getDetail(id);
       }
+    },
+    dataTransform (data) {
+      Object.assign(this.form, data);
+      this.form.activityTime = [
+        new Date(data.startTime),
+        new Date(data.endTime),
+      ];
+      this.form.autoApprove = data.autoApprove === '1';
+      this.form.attachmentRequired = data.attachmentRequired === '1';
+      return this.form;
     },
     async submitRequest () {
       const startTime = formatDateTime(this.form.activityTime[0]);
