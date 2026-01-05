@@ -56,40 +56,42 @@
  */
 </script>
 <template>
-  <el-container direction="vertical">
-    <edit-base-header
-      v-bind="$attrs"
-      :id="id"
-      :title="title"
-      :isEditing="isEditing"
-      :loading="loading"
-      @edit="handleEdit"
-      @cancel="handleCancel"
-      @refresh="handleRefresh"
-      @submit="handleSubmit"
-    >
-      <!-- 使用具名插槽传递 header -->
-      <template v-if="$slots.header" #header>
-        <slot name="header"></slot>
-      </template>
-    </edit-base-header>
-    <!-- 使用作用域插槽 -->
-    <slot :formApi="formApi"></slot>
-    <edit-base-footer
-      v-if="!id"
-      v-bind="$attrs"
-      :id="id"
-      :loading="loading"
-      @cancel="handleBack"
-      @reset="handleReset"
-      @submit="handleSubmit"
-    >
-      <!-- 使用具名插槽传递 footer -->
-      <template v-if="$slots.footer" #footer>
-        <slot name="footer"></slot>
-      </template>
-    </edit-base-footer>
-  </el-container>
+  <div class="page-common-edit">
+    <el-container direction="vertical">
+      <edit-base-header
+        v-bind="$attrs"
+        :id="id"
+        :title="title"
+        :isEditing="isEditing"
+        :loading="loading"
+        @edit="handleEdit"
+        @cancel="handleCancel"
+        @refresh="handleRefresh"
+        @submit="handleSubmit"
+      >
+        <!-- 使用具名插槽传递 header -->
+        <template v-if="$slots.header" #header>
+          <slot name="header"></slot>
+        </template>
+      </edit-base-header>
+      <!-- 使用作用域插槽 -->
+      <slot :formApi="formApi"></slot>
+      <edit-base-footer
+        v-if="!id"
+        v-bind="$attrs"
+        :id="id"
+        :loading="loading"
+        @cancel="handleBack"
+        @reset="handleReset"
+        @submit="handleSubmit"
+      >
+        <!-- 使用具名插槽传递 footer -->
+        <template v-if="$slots.footer" #footer>
+          <slot name="footer"></slot>
+        </template>
+      </edit-base-footer>
+    </el-container>
+  </div>
 </template>
 <script>
 import EditBaseHeader from '../EditBaseHeader';

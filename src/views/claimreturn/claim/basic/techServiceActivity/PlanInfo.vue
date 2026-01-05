@@ -5,19 +5,19 @@
     </div>
     <div class="common-section-body" v-if="id">
       <section class="common-section">
-        <fetch-tabs
-          ref="fetchTabs"
+        <enhanced-tabs
+          ref="tabs"
           type="menu"
           v-model="schemeId"
-          :loadParams="loadParams"
-          :loadData="loadData"
-          :itemConfig="{
+          :load-params="loadParams"
+          :load-data="loadData"
+          :item-config="{
             valueKey: 'id',
             labelKey: 'name',
             disableCloseKey: 'disableClose',
             disableFirst: false,
           }"
-          closeTip="确定删除该方案吗？"
+          close-tip="确定删除该方案吗？"
           :disabled="!isEditing"
           @remove="onRemove"
           @add="onTabAdd"
@@ -195,7 +195,7 @@ import {
 import { getList as partList } from '../../../../../api/sparepart/basic/sparePart';
 import { getList as sparePartList } from '../../../../../api/sparepart/basic/sparePartSupplier';
 import permissions from '@/libs/mixins/permissions';
-import FetchTabs from '@/libs/components/FetchTabs/index.vue';
+import EnhancedTabs from '@/libs/components/EnhancedTabs/index.vue';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum } from '@/api/common';
@@ -219,7 +219,7 @@ export default {
   },
   mixins: [permissions],
   components: {
-    FetchTabs,
+    EnhancedTabs,
     BaseInput,
     FetchSelect,
     ItemInfo,
@@ -421,11 +421,11 @@ export default {
             id: item.id,
             activityId: this.id,
           }).then(() => {
-            this.$refs.fetchTabs.refresh();
+            this.$refs.tabs.refresh();
           });
           break;
         case 'delete':
-          this.$refs.fetchTabs.onTabClose(item, index);
+          this.$refs.tabs.onTabClose(item, index);
           break;
       }
     },
