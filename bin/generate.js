@@ -60,7 +60,7 @@ const data = {
   nameKebabCase: moduleName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(),
   nameCamelCase: moduleName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()),
   apiPath: apiPath,
-  isProForm,
+  isProForm: true,
   modulePath: name.split('/').filter(el => el).join('/'),
   cols: colsData,
   searchList: colsData.filter(el => el.searchable),
@@ -178,48 +178,48 @@ async function insertRoute () {
                 childrenProp.value.elements.push(indexRoute);
 
                 // 构建详情页
-                const detailRoute = recast.types.builders.objectExpression([
-                  recast.types.builders.property(
-                    'init',
-                    recast.types.builders.identifier('path'),
-                    recast.types.builders.stringLiteral(`/${data.modulePath.toLowerCase()}/detail`)
-                  ),
-                  recast.types.builders.property(
-                    'init',
-                    recast.types.builders.identifier('name'),
-                    recast.types.builders.stringLiteral(data.name + 'Detail')
-                  ),
-                  recast.types.builders.property(
-                    'init',
-                    recast.types.builders.identifier('component'),
-                    recast.types.builders.arrowFunctionExpression(
-                      [],
-                      recast.types.builders.callExpression(
-                        recast.types.builders.identifier('import'),
-                        [recast.types.builders.stringLiteral(`@/views/${data.modulePath}/detail.vue`)]
-                      )
-                    )
-                  ),
-                  recast.types.builders.property(
-                    'init',
-                    recast.types.builders.identifier('meta'),
-                    recast.types.builders.objectExpression([
-                      recast.types.builders.property(
-                        'init',
-                        recast.types.builders.identifier('name'),
-                        recast.types.builders.stringLiteral(data.title + '详情')
-                      ),
-                      recast.types.builders.property(
-                        'init',
-                        recast.types.builders.identifier('noResourceUrl'),
-                        recast.types.builders.stringLiteral('true')
-                      )
-                    ])
-                  )
-                ]);
+                // const detailRoute = recast.types.builders.objectExpression([
+                //   recast.types.builders.property(
+                //     'init',
+                //     recast.types.builders.identifier('path'),
+                //     recast.types.builders.stringLiteral(`/${data.modulePath.toLowerCase()}/detail`)
+                //   ),
+                //   recast.types.builders.property(
+                //     'init',
+                //     recast.types.builders.identifier('name'),
+                //     recast.types.builders.stringLiteral(data.name + 'Detail')
+                //   ),
+                //   recast.types.builders.property(
+                //     'init',
+                //     recast.types.builders.identifier('component'),
+                //     recast.types.builders.arrowFunctionExpression(
+                //       [],
+                //       recast.types.builders.callExpression(
+                //         recast.types.builders.identifier('import'),
+                //         [recast.types.builders.stringLiteral(`@/views/${data.modulePath}/detail.vue`)]
+                //       )
+                //     )
+                //   ),
+                //   recast.types.builders.property(
+                //     'init',
+                //     recast.types.builders.identifier('meta'),
+                //     recast.types.builders.objectExpression([
+                //       recast.types.builders.property(
+                //         'init',
+                //         recast.types.builders.identifier('name'),
+                //         recast.types.builders.stringLiteral(data.title + '详情')
+                //       ),
+                //       recast.types.builders.property(
+                //         'init',
+                //         recast.types.builders.identifier('noResourceUrl'),
+                //         recast.types.builders.stringLiteral('true')
+                //       )
+                //     ])
+                //   )
+                // ]);
 
-                // 插入新路由到 children 数组
-                childrenProp.value.elements.push(detailRoute);
+                // // 插入新路由到 children 数组
+                // childrenProp.value.elements.push(detailRoute);
 
                 // 构建编辑页
                 const editRoute = recast.types.builders.objectExpression([
@@ -300,7 +300,7 @@ async function main () {
   const list = [
     { templateName: 'index.vue' },
     { templateName: 'edit.vue' },
-    { templateName: 'detail.vue' },
+    // { templateName: 'detail.vue' },
     // { templateName: 'editDialog.vue', templatePath: '/components/' },
     { templateName: 'api.js', outPath: `src/api/${data.modulePath}`, outName: 'index.js' }
   ];
