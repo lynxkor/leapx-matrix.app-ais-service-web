@@ -12,7 +12,6 @@
           :defaultForm="defaultForm"
           :submitRequest="submitRequest"
           :detailRequest="getDetailData"
-          saveText="ssfsf"
         >
           <template #default="{formApi}">
             <el-main>
