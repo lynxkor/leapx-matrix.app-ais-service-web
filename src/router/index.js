@@ -1089,8 +1089,7 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
-    },
-    {
+    }, {
       path: '/claimreturn/oldpart/inventory/oem',
       name: 'oemInventory',
       component: () => import('@/views/claimreturn/oldpart/inventory/oem'),
@@ -1098,8 +1097,7 @@ const routes = [
         name: '新页面',
         keepAlive: true
       }
-    },
-    {
+    }, {
       path: '/claimreturn/oldpart/inventory/oem/detail',
       name: 'oemInventoryDetail',
       component: () => import('@/views/claimreturn/oldpart/inventory/oem/detail.vue'),
@@ -1116,8 +1114,25 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
-    }
-    ]
+    }, {
+      path: '/sparepart/warehouse/warehouse',
+      name: 'warehouse',
+      component: () => import('@/views/sparepart/warehouse/warehouse/index.vue'),
+
+      meta: {
+        name: '门店仓库',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/warehouse/warehouse/edit',
+      name: 'warehouseEdit',
+      component: () => import('@/views/sparepart/warehouse/warehouse/edit.vue'),
+
+      meta: {
+        name: '门店仓库详情',
+        noResourceUrl: 'true'
+      }
+    }]
   }
 ];
 
