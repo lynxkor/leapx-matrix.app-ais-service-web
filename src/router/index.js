@@ -1089,7 +1089,35 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
-    }]
+    },
+    {
+      path: '/claimreturn/oldpart/inventory/oem',
+      name: 'oemInventory',
+      component: () => import('@/views/claimreturn/oldpart/inventory/oem'),
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    },
+    {
+      path: '/claimreturn/oldpart/inventory/oem/detail',
+      name: 'oemInventoryDetail',
+      component: () => import('@/views/claimreturn/oldpart/inventory/oem/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/oldpart/inventory/oem/edit',
+      name: 'oemInventoryEdit',
+      component: () => import('@/views/claimreturn/oldpart/inventory/oem/edit.vue'),
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }
+    ]
   }
 ];
 
