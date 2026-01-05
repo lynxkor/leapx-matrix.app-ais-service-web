@@ -27,7 +27,7 @@
               </div>
               <div class="common-section-body">
                 <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"  v-if="isEditing || !_id">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
                 {{{#cols}}}
                 {{{#isDate}}}
                   <el-form-item label="{{{description}}}" prop="{{{key}}}">
@@ -367,7 +367,7 @@ export default {
                   this.getDetailData();
                 } else {
                   this.$router.push({
-                    path: '/claimreturn/claim/basic/freeMaintenancePolicy/edit',
+                    path: '/{{{{modulePath}}}}/edit',
                     query: {
                       id
                     }
