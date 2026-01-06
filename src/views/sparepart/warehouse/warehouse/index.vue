@@ -16,14 +16,55 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="门店名称（组织名称）">
-        <el-input
-          placeholder="请输入"
-          v-model="form.dealerName"
+      <el-form-item label="门店名称">
+        <fetch-select
+          filterable
           clearable
+          remote
+          multiple
+          reserve-keyword
+          v-model="form.dealerCodeList"
+          :remote-method="getDealerList"
+          value-key="orgCode"
+          label-key="orgName"
+        />
+      </el-form-item>
+      <el-form-item label="是否启用" v-show="visibleCount === 3 || show">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="BooleanEnum"
+          v-model="form.statusIncludeList"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
         />
       </el-form-item>
       <template v-if="show">
+      <el-form-item label="创建时间">
+        <el-date-picker
+        :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
+      <el-form-item label="修改时间">
+        <el-date-picker
+        :default-time="['00:00:00', '23:59:59']"
+          v-model="form.updateTime"
+          type="daterange"
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -77,8 +118,9 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/warehouse/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
+import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
@@ -89,7 +131,9 @@ import EditPage from './edit.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   warehouseName: '',
-  dealerName: '',
+  statusIncludeList: null,
+  createTime: '',
+  updateTime: '',
 };
 
 const pageSize = 20;
@@ -102,15 +146,16 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
+    FetchSelect,
     EditPage,
     Upload
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '门店仓库',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-warehouse',
+      moduleKey: 'AISPART-warehouse',
       form: {
         ...defaultForm
       },
@@ -120,6 +165,7 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      storeOptions: [], // 门店
       clickItemId: '',
       optionObj: {
         id: 'warehouseTable',
@@ -148,11 +194,11 @@ export default {
             }]
           },
           { props: 'warehouseCode', label: '仓库编码', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码（组织code）', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称（组织名称）', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'provinceName', label: '省', visible: true, width: 200 },
           { props: 'cityName', label: '市', visible: true, width: 200 },
-          { props: 'districtName', label: '区&#x2F;县名称', visible: true, width: 200 },
+          { props: 'districtName', label: '区', visible: true, width: 200 },
           { props: 'address', label: '详细地址', visible: true, width: 200 },
           { props: 'status', label: '状态', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
@@ -321,6 +367,13 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = this.form.updateTime[1];
+        }
+      }
 
       return data;
     },
@@ -360,29 +413,12 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
-    }
+    },
+    // 门店远程搜索
+    async getDealerList (query) {
+      const res = await listOrgStoreInfo({ name: query });
+      return res;
+    },
   }
 };
 </script>
