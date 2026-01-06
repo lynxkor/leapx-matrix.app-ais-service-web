@@ -10,11 +10,7 @@
       class="ais-search-form"
     >
       <el-form-item label="备件编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.partCodeLike"
-          clearable
-        />
+        <tag-input v-model="form.partCodeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="备件名称">
         <el-input
@@ -176,10 +172,11 @@ import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, getEndOfDayString, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  partCodeLike: '',
+  partCodeList: '',
   partNameLike: '',
   minOrderQuantity: '',
   salePrice: '',
@@ -208,7 +205,8 @@ export default {
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
@@ -461,6 +459,11 @@ export default {
           data.createTimeStart = this.form.createTime[0];
           data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
         }
+      }
+
+      if (Array.isArray(this.form.partCodeList) && this.form.partCodeList.length <= 1) {
+        delete data.partCodeList;
+        data.partCodeLike = this.form.partCodeList[0] || '';
       }
 
       return data;
