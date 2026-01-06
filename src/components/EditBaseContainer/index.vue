@@ -9,6 +9,7 @@
  * @param {Boolean} isEditing - 是否为编辑状态
  * @param {Function} submitRequest 保存接口
  * @param {Function} detailRequest 详情接口
+ * @param {Function} dataTransform DataTransformFunction
  *
  * @event submit - 没有传递submitRequest时，会触发submit提交
  *
@@ -27,6 +28,11 @@
  * @method resetToDefault - (内部业务逻辑方法)
  *
  *
+ * 详情接口数据转换函数
+ * @callback DataTransformFunction
+ * @param {Object} detailData - 从详情接口获取的原始数据
+ * @returns {Object} 转换后的表单数据，会直接赋值给组件的 this.form
+ *
  * 使用案例可以查看文件 views/claimreturn/claim/basic/techServiceActivity/edit.vue
  * 页面访问 http://localhost:7779/service/claimreturn/claim/basic/techServiceActivity/edit
  *
@@ -37,10 +43,9 @@
     :title="`活动编码：${form.activityCode}`"
     :isEditing.sync="isEditing"
     :form.sync="form"
-    :originalForm="originalForm"
-    :defaultForm="defaultForm"
     :submitRequest="submitRequest"
-    :detailRequest="getDetailData"
+    :detailRequest="detailRequest"
+    :dataTransform="dataTransform"
   >
     <template #default="{formApi}">
       <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"  class="form-edit" v-show="isEditing || !_id">
@@ -51,44 +56,47 @@
  */
 </script>
 <template>
-  <el-container direction="vertical">
-    <edit-base-header
-      v-bind="$attrs"
-      :id="id"
-      :title="title"
-      :isEditing="isEditing"
-      :loading="loading"
-      @edit="handleEdit"
-      @cancel="handleCancel"
-      @refresh="handleRefresh"
-      @submit="handleSubmit"
-    >
-      <!-- 使用具名插槽传递 header -->
-      <template v-if="$slots.header" #header>
-        <slot name="header"></slot>
-      </template>
-    </edit-base-header>
-    <!-- 使用作用域插槽 -->
-    <slot :formApi="formApi"></slot>
-    <edit-base-footer
-      v-if="!id"
-      v-bind="$attrs"
-      :id="id"
-      :loading="loading"
-      @cancel="handleBack"
-      @reset="handleReset"
-      @submit="handleSubmit"
-    >
-      <!-- 使用具名插槽传递 footer -->
-      <template v-if="$slots.footer" #footer>
-        <slot name="footer"></slot>
-      </template>
-    </edit-base-footer>
-  </el-container>
+  <div class="page-common-edit">
+    <el-container direction="vertical">
+      <edit-base-header
+        v-bind="$attrs"
+        :id="id"
+        :title="title"
+        :isEditing="isEditing"
+        :loading="loading"
+        @edit="handleEdit"
+        @cancel="handleCancel"
+        @refresh="handleRefresh"
+        @submit="handleSubmit"
+      >
+        <!-- 使用具名插槽传递 header -->
+        <template v-if="$slots.header" #header>
+          <slot name="header"></slot>
+        </template>
+      </edit-base-header>
+      <!-- 使用作用域插槽 -->
+      <slot :formApi="formApi"></slot>
+      <edit-base-footer
+        v-if="!id"
+        v-bind="$attrs"
+        :id="id"
+        :loading="loading"
+        @cancel="handleBack"
+        @reset="handleReset"
+        @submit="handleSubmit"
+      >
+        <!-- 使用具名插槽传递 footer -->
+        <template v-if="$slots.footer" #footer>
+          <slot name="footer"></slot>
+        </template>
+      </edit-base-footer>
+    </el-container>
+  </div>
 </template>
 <script>
-import EditBaseHeader from '@/components/EditBaseHeader';
-import EditBaseFooter from '@/components/EditBaseFooter';
+import EditBaseHeader from '../EditBaseHeader';
+import EditBaseFooter from '../EditBaseFooter';
+import { cloneDeep } from 'lodash';
 
 export default {
   name: 'EditBaseContainer',
@@ -102,14 +110,6 @@ export default {
      * 表单数据
      */
     form: Object,
-    /**
-     * 表单详情数据
-     */
-    originalForm: Object,
-    /**
-     * 表单默认初始数据
-     */
-    defaultForm: Object,
     /**
      * 详情页id
      */
@@ -143,12 +143,22 @@ export default {
       type: Function,
       default: null,
     },
+    /**
+     * 详情数据转换函数
+     */
+    dataTransform: {
+      type: Function,
+      default: (data) => data
+    },
   },
   data () {
     return {
       // 存储表单引用
       formRefs: [],
       loading: false,
+      // 表单初始值
+      defaultForm: {},
+      originalForm: {},
     };
   },
   computed: {
@@ -161,9 +171,26 @@ export default {
     }
   },
   mounted () {
-
+    this.defaultForm = cloneDeep(this.form);
+    this.loadDetail();
   },
   methods: {
+    async loadDetail() {
+      if (!this.detailRequest) {
+        return;
+      }
+      try {
+        const res = await this.detailRequest?.();
+        if (!res) {
+          return;
+        }
+        const transformedData = this.dataTransform ? this.dataTransform(res): res;
+        const newForm = { ...this.defaultForm, ...transformedData };
+        this.updateForm(newForm);
+        this.originalForm = cloneDeep(newForm);
+      } catch (error) {
+      }
+    },
     // 表单注册
     registerForm (formRef) {
       if (!this.formRefs.includes(formRef)) {
@@ -248,11 +275,11 @@ export default {
     },
     // 编辑，操作刷新时需要恢复操作前状态
     resetToOriginal () {
-      this.updateForm(JSON.parse(JSON.stringify(this.originalForm)));
+      this.updateForm(cloneDeep(this.originalForm));
     },
     // 保存&再建一个 操作成功后需要初始化
     resetToDefault () {
-      this.updateForm(JSON.parse(JSON.stringify(this.defaultForm)));
+      this.updateForm(cloneDeep(this.defaultForm));
     },
     // 显示成功消息
     showSuccessMessage () {
