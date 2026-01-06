@@ -20,188 +20,77 @@
             </section>
             <section class="common-section">
               <div class="common-section-header">
-                <h2>基础信息</h2>
+                <h2>仓库信息</h2>
               </div>
               <div class="common-section-body">
                 <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
                 <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
-                  <el-form-item label="仓库名称" prop="warehouseName">
+                  <el-form-item label="仓库名称：" prop="warehouseName">
                     <el-input
                       placeholder="请输入"
                       v-model="form.warehouseName"
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="仓库编码" prop="warehouseCode">
+                  <el-form-item label="门店名称：" prop="dealerName">
+                    <fetch-select
+                      filterable
+                      clearable
+                      remote
+                      reserve-keyword
+                      v-model="form.dealerCode"
+                      :remote-method="getDealerList"
+                      :params="form.dealerName"
+                      value-key="orgCode"
+                      label-key="orgName"
+                      @change="categorySpareSalesChange"
+                    />
+                  </el-form-item>
+                  <el-form-item label="仓库编码：" prop="warehouseCode">
                     <el-input
                       placeholder="请输入"
                       v-model="form.warehouseCode"
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="门店编码（组织code）" prop="dealerCode">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.dealerCode"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="门店名称（组织名称）" prop="dealerName">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.dealerName"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="省" prop="provinceName">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.provinceName"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="市" prop="cityName">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.cityName"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="区&#x2F;县名称" prop="districtName">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.districtName"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="详细地址" prop="address">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.address"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="状态" prop="status">
+                  <el-form-item label="是否启用：" prop="status">
                     <fetch-select
                       :request="fetchOptions"
-                      enumCode="xxx"
+                      enumCode="BooleanEnum"
                       v-model="form.status"
                       placeholder="请选择"
                       clearable
                       filterable
                     />
                   </el-form-item>
-                  <el-form-item label="备注" prop="remark">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.remark"
-                      clearable
-                    />
+                  <el-form-item label="省市区：" prop="provinceCityCountyCode">
+                    <el-cascader
+                      placeholder="请选择省市区"
+                      v-model="form.provinceCityCountyCode"
+                      :props="orgProps"
+                      :options="areaOptions"
+                      filterable
+                      clearable>
+                    </el-cascader>
                   </el-form-item>
-                  <el-form-item label="停用原因" prop="disableReason">
+                  <el-form-item label="停用原因：" prop="disableReason">
                     <el-input
                       placeholder="请输入"
                       v-model="form.disableReason"
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="创建时间" prop="createTime">
-                    <el-date-picker
-                      :default-time="['00:00:00', '23:59:59']"
-                      v-model="form.createTime"
-                      :picker-options="pickerOptions"
-                      value-format="yyyy-MM-dd HH:mm:ss"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
-                    />
-                  </el-form-item>
-                  <el-form-item label="修改时间" prop="updateTime">
-                    <el-date-picker
-                      :default-time="['00:00:00', '23:59:59']"
-                      v-model="form.updateTime"
-                      :picker-options="pickerOptions"
-                      value-format="yyyy-MM-dd HH:mm:ss"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
-                    />
-                  </el-form-item>
-                  <el-form-item label="主键" prop="id">
+                  <el-form-item label="详细地址：" prop="address">
                     <el-input
                       placeholder="请输入"
-                      v-model="form.id"
+                      v-model="form.address"
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="创建者" prop="creator">
+                  <el-form-item label="备注：" prop="remark">
                     <el-input
                       placeholder="请输入"
-                      v-model="form.creator"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="创建者名称" prop="creatorName">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.creatorName"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="修改者" prop="modifier">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.modifier"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="修改者名称" prop="modifierName">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.modifierName"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="状态变更描述" prop="statusDesc">
-                    <fetch-select
-                      :request="fetchOptions"
-                      enumCode="xxx"
-                      v-model="form.statusDesc"
-                      placeholder="请选择"
-                      clearable
-                      filterable
-                    />
-                  </el-form-item>
-                  <el-form-item label="数据来源，150:新销服; 老销服:10" prop="dataSource">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.dataSource"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="省code" prop="provinceCode">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.provinceCode"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="市code" prop="cityCode">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.cityCode"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="区&#x2F;县编码" prop="districtCode">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.districtCode"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="库位列表" prop="locationRespList">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.locationRespList"
+                      v-model="form.remark"
                       clearable
                     />
                   </el-form-item>
@@ -213,10 +102,10 @@
                   <el-form-item label="仓库编码：" prop="warehouseCode">
                     {{ form.warehouseCode }}
                   </el-form-item>
-                  <el-form-item label="门店编码（组织code）：" prop="dealerCode">
+                  <el-form-item label="门店编码：" prop="dealerCode">
                     {{ form.dealerCode }}
                   </el-form-item>
-                  <el-form-item label="门店名称（组织名称）：" prop="dealerName">
+                  <el-form-item label="门店名称：" prop="dealerName">
                     {{ form.dealerName }}
                   </el-form-item>
                   <el-form-item label="省：" prop="provinceName">
@@ -225,67 +114,28 @@
                   <el-form-item label="市：" prop="cityName">
                     {{ form.cityName }}
                   </el-form-item>
-                  <el-form-item label="区&#x2F;县名称：" prop="districtName">
+                  <el-form-item label="区：" prop="districtName">
                     {{ form.districtName }}
                   </el-form-item>
-                  <el-form-item label="详细地址：" prop="address">
-                    {{ form.address }}
-                  </el-form-item>
-                  <el-form-item label="状态：" prop="status">
+                  <el-form-item label="是否启用：" prop="status">
                     {{ form.status }}
-                  </el-form-item>
-                  <el-form-item label="备注：" prop="remark">
-                    {{ form.remark }}
                   </el-form-item>
                   <el-form-item label="停用原因：" prop="disableReason">
                     {{ form.disableReason }}
                   </el-form-item>
-                  <el-form-item label="创建时间：" prop="createTime">
-                    {{ form.createTime }}
+                  <el-form-item label="详细地址：" prop="address">
+                    {{ form.address }}
                   </el-form-item>
-                  <el-form-item label="修改时间：" prop="updateTime">
-                    {{ form.updateTime }}
-                  </el-form-item>
-                  <el-form-item label="主键：" prop="id">
-                    {{ form.id }}
-                  </el-form-item>
-                  <el-form-item label="创建者：" prop="creator">
-                    {{ form.creator }}
-                  </el-form-item>
-                  <el-form-item label="创建者名称：" prop="creatorName">
-                    {{ form.creatorName }}
-                  </el-form-item>
-                  <el-form-item label="修改者：" prop="modifier">
-                    {{ form.modifier }}
-                  </el-form-item>
-                  <el-form-item label="修改者名称：" prop="modifierName">
-                    {{ form.modifierName }}
-                  </el-form-item>
-                  <el-form-item label="状态变更描述：" prop="statusDesc">
-                    {{ form.statusDesc }}
-                  </el-form-item>
-                  <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
-                    {{ form.dataSource }}
-                  </el-form-item>
-                  <el-form-item label="省code：" prop="provinceCode">
-                    {{ form.provinceCode }}
-                  </el-form-item>
-                  <el-form-item label="市code：" prop="cityCode">
-                    {{ form.cityCode }}
-                  </el-form-item>
-                  <el-form-item label="区&#x2F;县编码：" prop="districtCode">
-                    {{ form.districtCode }}
-                  </el-form-item>
-                  <el-form-item label="库位列表：" prop="locationRespList">
-                    {{ form.locationRespList }}
+                  <el-form-item label="备注：" prop="remark">
+                    {{ form.remark }}
                   </el-form-item>
                 </el-form>
               </div>
             </section>
             <section class="common-section">
               <div class="common-section-header">
-                <h2>区块标题</h2>
-                <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+                <h2>库位信息</h2>
+                <el-button v-if="canAddOrUpdate" size="small" @click="openPane"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
               </div>
               <div class="common-section-body">
                 <div class="common-section-table">
@@ -322,7 +172,7 @@ import { getDetail, addOrUpdate } from '@/api/sparepart/warehouse/warehouse/inde
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
-import { getEnum } from '@/api/common';
+import { getEnum, listOrgStoreInfo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -338,22 +188,10 @@ const defaultForm = {
   cityName: '',
   districtName: '',
   address: '',
-  status: '',
+  status: null,
   remark: '',
-  disableReason: '',
-  createTime: '',
-  updateTime: '',
   id: '',
-  creator: '',
-  creatorName: '',
-  modifier: '',
-  modifierName: '',
-  statusDesc: '',
-  dataSource: '',
-  provinceCode: '',
-  cityCode: '',
-  districtCode: '',
-  locationRespList: '',
+  provinceCityCountyCode: ''
 };
 
 export default {
@@ -384,15 +222,39 @@ export default {
         }
       },
       immediate: true
+    },
+    'form.status': {
+      handler (newVal) {
+        if (Number(newVal) === 0) {
+          this.rules.disableReason[0].required = true;
+        } else {
+          // 状态变为1时清除验证信息
+          this.rules.disableReason[0].required = false;
+          this.$nextTick(() => {
+            this.$refs.ruleForm.clearValidate('disableReason');
+          });
+        }
+      },
+      immediate: true,
+      deep: true
     }
   },
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      // 省市区
+      areaOptions: JSON.parse(localStorage.areaTree),
+      orgProps: {
+        checkStrictly: true,
+        emitPath: false,
+        label: 'name',
+        value: 'code',
+        children: 'child'
+      },
+      pageTitle: '门店仓库',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-warehouse',
+      moduleKey: 'AISPART-warehouse',
       isEditing: false,
       loading: false,
       submitLoading: false,
@@ -437,78 +299,12 @@ export default {
         },
       ],
       rules: {
-        warehouseName: [
-          { required: true, message: '请输入仓库名称', trigger: 'change' }
-        ],
-        warehouseCode: [
-          { required: true, message: '请输入仓库编码', trigger: 'change' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码（组织code）', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称（组织名称）', trigger: 'change' }
-        ],
-        provinceName: [
-          { required: true, message: '请输入省', trigger: 'change' }
-        ],
-        cityName: [
-          { required: true, message: '请输入市', trigger: 'change' }
-        ],
-        districtName: [
-          { required: true, message: '请输入区&#x2F;县名称', trigger: 'change' }
-        ],
-        address: [
-          { required: true, message: '请输入详细地址', trigger: 'change' }
-        ],
         status: [
           { required: true, message: '请选择状态', trigger: 'change' }
         ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
         disableReason: [
-          { required: true, message: '请输入停用原因', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，150:新销服; 老销服:10', trigger: 'change' }
-        ],
-        provinceCode: [
-          { required: true, message: '请输入省code', trigger: 'change' }
-        ],
-        cityCode: [
-          { required: true, message: '请输入市code', trigger: 'change' }
-        ],
-        districtCode: [
-          { required: true, message: '请输入区&#x2F;县编码', trigger: 'change' }
-        ],
-        locationRespList: [
-          { required: true, message: '请输入库位列表', trigger: 'change' }
-        ],
+          { required: false, message: '请填写停用原因', trigger: 'blur' }
+        ]
       }
     };
   },
@@ -533,13 +329,14 @@ export default {
     getDetailData () {
       const id = this._id;
       if (!this.id) {
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', `${id ? '详情' : '新建'}`]);
+        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['门店仓库', `${id ? '详情' : '新建'}`]);
       }
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
           Object.assign(this.form, res);
           Object.assign(this.originalForm, res);
+          this.tableData = this.form.locationRespList;
         });
       }
     },
@@ -550,7 +347,7 @@ export default {
           if (valid) {
             this.submitLoading = true;
             // TIPS: customKey 根据接口格式修改
-            addOrUpdate({ ...this.form, customKey: tableData }).then(res => {
+            addOrUpdate({ ...this.form, locationRespList: tableData }).then(res => {
               this.$message({
                 message: '保存成功',
                 type: 'success'
@@ -617,7 +414,17 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    // 门店
+    async getDealerList (query) {
+      const res = await listOrgStoreInfo({ name: query });
+      return res;
+    },
+    // 点击门店 赋值
+    categorySpareSalesChange (val, all) {
+      this.form.dealerCode = all.orgCode;
+      this.form.dealerName = all.orgName;
+    },
   }
 };
 </script>
