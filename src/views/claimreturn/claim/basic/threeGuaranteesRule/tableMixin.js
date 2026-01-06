@@ -66,22 +66,21 @@ export default {
           {
             required: true,
             message: '请输入判断单位（次数，天数）',
-            trigger: 'blur',
+            trigger: 'change',
           },
         ],
         accumulation: [
           {
             required: true,
             message: '请输入累计方式（单一零件，任意零件）',
-            trigger: 'blur',
+            trigger: 'change',
           },
         ],
         vehicleProperty: [
           {
             required: true,
-            message:
-              '请输入车辆属性（家用，营运，B级车，J级车，J1级车，专车，报废灭失）',
-            trigger: 'blur',
+            message: '请选择',
+            trigger: 'change',
           },
         ],
         saleStartDate: [

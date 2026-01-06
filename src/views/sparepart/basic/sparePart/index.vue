@@ -10,16 +10,12 @@
       class="ais-search-form"
     >
       <el-form-item label="备件编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.partCode"
-          clearable
-        />
+        <tag-input v-model="form.partCodeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="备件名称">
         <el-input
           placeholder="请输入"
-          v-model="form.partName"
+          v-model="form.partNameLike"
           clearable
         />
       </el-form-item>
@@ -176,11 +172,12 @@ import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, getEndOfDayString, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  partCode: '',
-  partName: '',
+  partCodeList: '',
+  partNameLike: '',
   minOrderQuantity: '',
   salePrice: '',
   purchasePrice: '',
@@ -208,7 +205,8 @@ export default {
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
@@ -253,14 +251,18 @@ export default {
             }]
           },
           { props: 'partName', label: '备件名称', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称（组织名称）', visible: true, width: 200 },
-          { props: 'saleableIs', label: '是否可销售', visible: true, width: 200 },
-          { props: 'standingInventoryIs', label: '是否常备库存件', visible: true, width: 200 },
+          { props: 'minOrderQuantity', label: '最小订购量', visible: true, width: 200 },
+          { props: 'salePrice', label: '销售价格', visible: true, width: 200 },
+          { props: 'purchasePrice', label: '采购价格', visible: true, width: 200 },
+          { props: 'oemPartLabel', label: '是否OEM件', visible: true, width: 200 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'saleableIsLabel', label: '是否可销售', visible: true, width: 200 },
+          { props: 'standingInventoryIsLabel', label: '是否常备库存件', visible: true, width: 200 },
           { props: 'partsEngineer', label: '备件工程师', visible: true, width: 200 },
-          { props: 'vfgName', label: 'VFG', visible: true, width: 200 },
-          { props: 'vrtName', label: 'VRT', visible: true, width: 200 },
+          { props: 'vfgName', label: 'VFG名称', visible: true, width: 200 },
+          { props: 'vrtName', label: 'VRT名称', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'status', label: '状态', visible: true, width: 200 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -457,6 +459,11 @@ export default {
           data.createTimeStart = this.form.createTime[0];
           data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
         }
+      }
+
+      if (Array.isArray(this.form.partCodeList) && this.form.partCodeList.length <= 1) {
+        delete data.partCodeList;
+        data.partCodeLike = this.form.partCodeList[0] || '';
       }
 
       return data;

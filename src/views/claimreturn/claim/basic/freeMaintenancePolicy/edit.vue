@@ -3,6 +3,7 @@
   <edit-page-layout ref="editLayout" :title="pannelTitle" :width="40">
     <template #left>
       <edit-base-container
+        ref="containerRef"
         :id="_id"
         :title="`政策名称：${form.policyName}`"
         :isEditing.sync="isEditing"
@@ -297,9 +298,11 @@ export default {
   watch: {
     id: {
       handler (val) {
-        if (val) {
-          this.detailRequest();
+        if (this.$refs.editLayout) {
           this.$refs.editLayout.closePane();
+        }
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
         }
       },
       immediate: true
@@ -398,16 +401,6 @@ export default {
         pageNum: 1,
       });
     },
-    handleBack () {
-      this.$router.back();
-    },
-    handleCancel () {
-      this.$refs.ruleForm.clearValidate();
-      this.isEditing = false;
-    },
-    handleEdit () {
-      this.isEditing = true;
-    },
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -416,10 +409,6 @@ export default {
     },
     async submitRequest () {
       return addOrUpdate({ ...this.form });
-    },
-    resetForm (formName) {
-      this.$refs[formName].resetFields();
-      this.form = this.getDefautlForm();
     },
     getDefautlForm () {
       return {
