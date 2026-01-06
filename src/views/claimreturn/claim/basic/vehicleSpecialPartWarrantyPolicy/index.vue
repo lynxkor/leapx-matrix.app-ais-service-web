@@ -219,7 +219,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/basic/vehicleSpecialPartWarrantyPolicy/detail',
+                  path: '/claimreturn/claim/basic/vehicleSpecialPartWarrantyPolicy/edit',
                   query: {
                     id: row.id
                   }

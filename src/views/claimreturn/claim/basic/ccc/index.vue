@@ -192,7 +192,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/basic/ccc/detail',
+                  path: '/claimreturn/claim/basic/ccc/edit',
                   query: {
                     id: row.id
                   }
@@ -211,7 +211,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/basic/vfg/detail',
+                  path: '/claimreturn/claim/basic/vfg/edit',
                   query: {
                     id: row.vfgId
                   }
@@ -229,7 +229,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/basic/vrt/detail',
+                  path: '/claimreturn/claim/basic/vrt/edit',
                   query: {
                     id: row.vrtId
                   }

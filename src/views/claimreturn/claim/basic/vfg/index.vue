@@ -181,7 +181,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/basic/vfg/detail',
+                  path: '/claimreturn/claim/basic/vfg/edit',
                   query: {
                     id: row.id
                   }

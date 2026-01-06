@@ -303,7 +303,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/basic/serviceActivityVehicle/detail',
+                  path: '/claimreturn/claim/basic/serviceActivityVehicle/edit',
                   query: {
                     id: row.id
                   }

@@ -22,7 +22,7 @@
               <div class="common-section-body">
                 <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
                 <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-                <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="VRT编码：" prop="vrtCode">
                     <el-input
                       placeholder="请输入"
@@ -52,7 +52,7 @@
                     />
                   </el-form-item>
                 </el-form>
-                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form :inline="true" label-width="150px" class="form-detail" v-show="!(isEditing || !_id)">
                   <el-form-item label="VRT编码：" prop="vrtCode">
                     {{ form.vrtCode }}
                   </el-form-item>
@@ -112,7 +112,10 @@ export default {
       type: [String, Number],
       default: null
     },
-    showBackBtn: Boolean,
+    showBackBtn: {
+      type: Boolean,
+      default: true,
+    },
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {

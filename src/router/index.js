@@ -517,15 +517,6 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/vrt/detail',
-      name: 'vrtDetail',
-      component: () => import('@/views/claimreturn/claim/basic/vrt/detail.vue'),
-
-      meta: {
-        name: 'VRT详情',
-        noResourceUrl: 'true'
-      }
-    }, {
       path: '/claimreturn/claim/basic/vrt/edit',
       name: 'vrtEdit',
       component: () => import('@/views/claimreturn/claim/basic/vrt/edit.vue'),
@@ -544,15 +535,6 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/vfg/detail',
-      name: 'vfgDetail',
-      component: () => import('@/views/claimreturn/claim/basic/vfg/detail.vue'),
-
-      meta: {
-        name: '新页面详情',
-        noResourceUrl: 'true'
-      }
-    }, {
       path: '/claimreturn/claim/basic/vfg/edit',
       name: 'vfgEdit',
       component: () => import('@/views/claimreturn/claim/basic/vfg/edit.vue'),
@@ -569,15 +551,6 @@ const routes = [
       meta: {
         name: 'CCC管理',
         keepAlive: true
-      }
-    }, {
-      path: '/claimreturn/claim/basic/ccc/detail',
-      name: 'cccDetail',
-      component: () => import('@/views/claimreturn/claim/basic/ccc/detail.vue'),
-
-      meta: {
-        name: 'CCC详情',
-        noResourceUrl: 'true'
       }
     }, {
       path: '/claimreturn/claim/basic/ccc/edit',
@@ -623,15 +596,6 @@ const routes = [
       meta: {
         name: '整车保修政策设置管理',
         keepAlive: true
-      }
-    }, {
-      path: '/claimreturn/claim/basic/vehiclewarrantypolicy/detail',
-      name: 'vehicleWarrantyPolicyDetail',
-      component: () => import('@/views/claimreturn/claim/basic/vehicleWarrantyPolicy/detail.vue'),
-
-      meta: {
-        name: '新页面详情',
-        noResourceUrl: 'true'
       }
     }, {
       path: '/claimreturn/claim/basic/vehiclewarrantypolicy/edit',
@@ -838,15 +802,6 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/serviceactivityvehicle/detail',
-      name: 'serviceActivityVehicleDetail',
-      component: () => import('@/views/claimreturn/claim/basic/serviceActivityVehicle/detail.vue'),
-
-      meta: {
-        name: '新页面详情',
-        noResourceUrl: 'true'
-      }
-    }, {
       path: '/sparepart/basic/sparePart',
       name: 'sparePart',
       component: () => import('@/views/sparepart/basic/sparePart/index.vue'),
@@ -962,15 +917,6 @@ const routes = [
       meta: {
         name: '新页面',
         keepAlive: true
-      }
-    }, {
-      path: '/claimreturn/claim/basic/threeguaranteesrule/detail',
-      name: 'threeGuaranteesRuleDetail',
-      component: () => import('@/views/claimreturn/claim/basic/threeGuaranteesRule/detail.vue'),
-
-      meta: {
-        name: '新页面详情',
-        noResourceUrl: 'true'
       }
     }, {
       path: '/claimreturn/claim/basic/threeguaranteesrule/edit',

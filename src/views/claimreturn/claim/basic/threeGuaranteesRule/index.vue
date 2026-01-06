@@ -154,7 +154,7 @@ export default {
               {
                 click: (rowIndex, row) => {
                   this.$router.push({
-                    path: '/claimreturn/claim/basic/threeGuaranteesRule/detail',
+                    path: '/claimreturn/claim/basic/threeGuaranteesRule/edit',
                     query: {
                       id: row.id,
                     },
