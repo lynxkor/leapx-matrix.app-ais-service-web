@@ -1150,6 +1150,35 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/oldpart/returnorder',
+      name: 'fastReturnOrder',
+      component: () => import('@/views/claimreturn/oldpart/returnorder/index.vue'),
+      meta: {
+        name: '旧件回运单',
+        returnType: '30',
+        moduleKey: 'AISCR-oldPartReturnOrder',
+        keepAlive: true
+      }
+    },
+    {
+      path: '/claimreturn/oldpart/returnorder/fast',
+      name: 'fastReturnOrder',
+      component: () => import('@/views/claimreturn/oldpart/returnorder/index.vue'),
+      meta: {
+        name: '快返回运单',
+        returnType: '40',
+        moduleKey: 'AISCR-oldPartReturnOrderFast',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/oldpart/returnorder/edit',
+      name: 'fastReturnOrderEdit',
+      component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
+      meta: {
+        name: '回运单详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
