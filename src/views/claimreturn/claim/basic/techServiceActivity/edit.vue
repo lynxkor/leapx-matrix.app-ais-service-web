@@ -2,19 +2,15 @@
   <!-- TIPS: 如果填写项大于15项，使用类名page-common-edit替换page-common-add -->
    <edit-page-layout ref="editLayout" title="添加方案" >
     <template #left>
-      <div class="page-common-edit">
-        <edit-base-container
-          :id="_id"
-          :title="`活动编码：${form.activityCode}`"
-          :isEditing="isEditing"
-          :submitLoading="submitLoading"
-          :canAddOrUpdate="canAddOrUpdate"
-          @submit="submitForm"
-          @edit="baseMixinEdit"
-          @cancel="baseMixinCancel"
-          @refresh="baseMixinRefresh"
-          @reset="baseMixinReset"
-        >
+      <edit-base-container
+        :id="_id"
+        :title="`活动编码：${form.activityCode}`"
+        :isEditing.sync="isEditing"
+        :form.sync="form"
+        :submitRequest="submitRequest"
+        :detailRequest="detailRequest"
+        :dataTransform="dataTransform"
+      >
         <template #default="{formApi}">
           <el-main>
             <section class="common-section">
@@ -247,8 +243,7 @@
             />
           </el-main>
         </template>
-        </edit-base-container>
-      </div>
+      </edit-base-container>
      </template>
     <template #right>
       <div class="page-common-edit">
@@ -272,7 +267,6 @@ import { getDetail, addOrUpdate } from '../../../../../api/claimreturn/claim/bas
 import PlanInfo from './PlanInfo.vue';
 import FileConfig from './FileConfig/index.vue';
 import { formatDateTime } from '@/libs/utils';
-import editContainerMixin from '@/components/EditBaseContainer/editContainerMixin';
 import EditBaseContainer from '@/components/EditBaseContainer';
 
 const defaultForm = {
@@ -319,7 +313,7 @@ export default {
       default: null
     }
   },
-  mixins: [routeGuard, permissions, commonMixins, editContainerMixin],
+  mixins: [routeGuard, permissions, commonMixins],
   components: {
     EditBaseContainer,
     FetchSelect,
@@ -337,7 +331,7 @@ export default {
     id: {
       handler (val) {
         if (val) {
-          this.getDetailData();
+          this.detailRequest();
         }
       },
       immediate: true
@@ -350,13 +344,9 @@ export default {
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-techServiceActivity',
-      loading: false,
-      submitLoading: false,
       isEditing: false,
       yes_no_enum: YES_NO_ENUM,
-      defaultForm: defaultForm,
       form: { ...form },
-      originalForm: { ...form },
       rules: {
         activityCode: [
           { required: true, message: '请输入活动编码', trigger: 'blur' }
@@ -435,64 +425,39 @@ export default {
     };
   },
   mounted () {
-    this.getDetailData();
+    this.initBreadcrumb();
   },
   methods: {
-    getDetailData () {
+    initBreadcrumb () {
       const id = this._id;
-      if (!this.id) { // 非嵌入集中视图时才更新标题
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['技术服务活动', `${id ? '详情' : '新建'}`]);
-      }
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['技术服务活动', `${id ? '详情' : '新建'}`]);
+    },
+    detailRequest () {
+      const id = this._id;
       if (id) {
-        getDetail(id).then(res => {
-          this.loading = false;
-          Object.assign(this.form, res);
-          this.form.activityTime = [
-            new Date(res.startTime),
-            new Date(res.endTime),
-          ];
-          this.form.autoApprove = res.autoApprove === '1';
-          this.form.attachmentRequired = res.attachmentRequired === '1';
-          //
-          Object.assign(this.originalForm, this.form);
-        });
+        return getDetail(id);
       }
     },
-    async submitForm (defer) {
-      try {
-        this.submitLoading = true;
-        const startTime = formatDateTime(this.form.activityTime[0]);
-        const endTime = formatDateTime(this.form.activityTime[1]);
-        return addOrUpdate({
-          ...this.form,
-          startTime,
-          endTime,
-          autoApprove: this.form.autoApprove ? '1' : '0',
-          attachmentRequired: this.form.attachmentRequired ? '1' : '0',
-        }).then(res => {
-          this.$message({
-            message: '保存成功',
-            type: 'success'
-          });
-
-          const id = res;
-          // 编辑时必须调用
-          if (this.form.id) {
-            if (defer) {
-              defer.resolve();
-            } else {
-              this.getDetailData();
-            }
-          } else if (defer && id) {
-            // 新建时必须调用
-            defer.resolve(id);
-          }
-        }).finally(() => {
-          this.submitLoading = false;
-        });
-      } catch (e) {
-        //
-      }
+    dataTransform (data) {
+      Object.assign(this.form, data);
+      this.form.activityTime = [
+        new Date(data.startTime),
+        new Date(data.endTime),
+      ];
+      this.form.autoApprove = data.autoApprove === '1';
+      this.form.attachmentRequired = data.attachmentRequired === '1';
+      return this.form;
+    },
+    async submitRequest () {
+      const startTime = formatDateTime(this.form.activityTime[0]);
+      const endTime = formatDateTime(this.form.activityTime[1]);
+      return addOrUpdate({
+        ...this.form,
+        startTime,
+        endTime,
+        autoApprove: this.form.autoApprove ? '1' : '0',
+        attachmentRequired: this.form.attachmentRequired ? '1' : '0',
+      });
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等

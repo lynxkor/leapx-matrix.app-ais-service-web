@@ -27,10 +27,10 @@
               </div>
               <div class="common-section-body">
                 <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"  v-if="isEditing || !_id">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
                 {{{#cols}}}
                 {{{#isDate}}}
-                  <el-form-item label="{{{description}}}" prop="{{{key}}}">
+                  <el-form-item label="{{{description}}}：" prop="{{{key}}}">
                     <el-date-picker
                       :default-time="['00:00:00', '23:59:59']"
                       v-model="form.{{{key}}}"
@@ -42,7 +42,7 @@
                   </el-form-item>
                 {{{/isDate}}}
                 {{{#isSelect}}}
-                  <el-form-item label="{{{description}}}" prop="{{{key}}}">
+                  <el-form-item label="{{{description}}}：" prop="{{{key}}}">
                     <fetch-select
                       :request="fetchOptions"
                       enumCode="xxx"
@@ -54,14 +54,14 @@
                   </el-form-item>
                 {{{/isSelect}}}
                 {{{#isBoolean}}}
-                  <el-form-item label="{{{description}}}" prop="{{{key}}}">
+                  <el-form-item label="{{{description}}}：" prop="{{{key}}}">
                     <el-radio-group v-model="form.{{{key}}}">
                       <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
                     </el-radio-group>
                   </el-form-item>
                 {{{/isBoolean}}}
                 {{{#isNormal}}}
-                  <el-form-item label="{{{description}}}" prop="{{{key}}}">
+                  <el-form-item label="{{{description}}}：" prop="{{{key}}}">
                     <el-input
                       placeholder="请输入"
                       v-model="form.{{{key}}}"
@@ -367,7 +367,7 @@ export default {
                   this.getDetailData();
                 } else {
                   this.$router.push({
-                    path: '/claimreturn/claim/basic/freeMaintenancePolicy/edit',
+                    path: '/{{{{modulePath}}}}/edit',
                     query: {
                       id
                     }

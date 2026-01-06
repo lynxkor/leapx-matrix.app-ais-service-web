@@ -31,7 +31,19 @@
                   no-param-load
                   filterable
                   clearable
+                  label-key="code"
+                  second-line-key="name"
+                  @change="handlePartChange"
                   :params="{oemPart: 1}" />
+              </el-form-item>
+              <el-form-item label="零件名称">
+                <el-input
+                  placeholder="请输入"
+                  v-model="form.partName"
+                  maxlength="100"
+                  clearable
+                  disabled
+                />
               </el-form-item>
               <el-form-item label="车系名称" prop="seriesId">
                 <list-select
@@ -275,15 +287,14 @@ export default {
         // ownerName: userInfo.userName,
       };
     },
-    // handleJumpAuditLog () {
-    //   this.$router.push({
-    //     path: '/xxx/auditLog',
-    //     query: {
-    //       tableCode: '',
-    //       tableId: ''
-    //     }
-    //   });
-    // },
+    handlePartChange (val, item) {
+      console.log(val, item);
+      if (val) {
+        this.form.partName = item.name;
+      } else {
+        this.form.partName = '';
+      }
+    },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);

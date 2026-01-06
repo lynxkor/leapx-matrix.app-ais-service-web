@@ -2,19 +2,16 @@
   <!-- TIPS: 如果填写项小于15项，使用类名page-common-add替换page-common-edit -->
   <edit-page-layout ref="editLayout" :title="pannelTitle" :width="40">
     <template #left>
-      <div class="page-common-edit">
-        <el-container>
+      <edit-base-container
+        :id="_id"
+        :title="`政策名称：${form.policyName}`"
+        :isEditing.sync="isEditing"
+        :form.sync="form"
+        :submitRequest="submitRequest"
+        :detailRequest="detailRequest"
+      >
+        <template #default="{formApi}">
           <el-main>
-            <section class="common-title" v-if="_id">
-              <h2>政策名称：{{ form.policyName }}</h2>
-              <div v-if="isEditing">
-                <el-button size="small" @click="handleCancel">取消</el-button>
-                <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-              </div>
-              <div v-else>
-                <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
-              </div>
-            </section>
             <section class="common-section">
               <div class="common-section-header">
                 <h2>基础信息</h2>
@@ -22,7 +19,7 @@
               <div class="common-section-body">
                 <!-- TIPS: 如果填写项小于15项，去掉 :inline="true" -->
                 <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
+                <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
                   <el-form-item label="政策名称：" prop="policyName">
                     <el-input
                       placeholder="请输入"
@@ -150,19 +147,19 @@
               </div>
               <div class="common-section-body">
                 <section class="common-section">
-                  <fetch-tabs
+                  <enhanced-tabs
                     v-model="currentVehicleId"
-                    :loadParams="loadParams"
-                    :loadData="loadData"
-                    :itemConfig="{
+                    :load-params="loadParams"
+                    :load-data="loadData"
+                    :item-config="{
                       valueKey: 'vehicleRegisteredModelId',
                       labelKey: 'vehicleRegisteredModelName',
                       disableCloseKey: 'disableClose',
                       disableFirst: true,
                     }"
-                    closeTip="确定删除该公共车型吗？"
-                    :remoteMethod="remoteMethod"
-                    :selectConfig="{
+                    close-tip="确定删除该公共车型吗？"
+                    :remote-method="remoteMethod"
+                    :select-config="{
                       valueKey: 'id',
                       labelKey: 'name',
                       placeholder: '请输入公告车型代码/名称',
@@ -209,16 +206,8 @@
               </div>
             </section>
           </el-main>
-          <el-footer height="60px" v-if="!_id">
-            <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-            <el-button
-              size="small"
-              @click="handleBack"
-              >取消</el-button
-            >
-          </el-footer>
-        </el-container>
-      </div>
+        </template>
+      </edit-base-container>
      </template>
     <template #right>
       <div class="page-common-edit">
@@ -245,11 +234,12 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import { getList } from '@/api/maintain/basic/repairItem';
 import { debounce } from 'lodash';
 import { uIntRule } from '@/validation/rule';
-import FetchTabs from '@/libs/components/FetchTabs';
+import EnhancedTabs from '@/libs/components/EnhancedTabs';
 import { getDetail, addOrUpdate, freeMaintenancePolicyPartDetailList, freeMaintenancePolicyPartDetailDeleteVehicle } from '../../../../../api/claimreturn/claim/basic/freeMaintenancePolicy';
 import { vehicleSalesVersionList, getEnum, sparePartList } from '../../../../../api/common';
 import PartTable from './PartTable.vue';
 import ReplaceTable from './ReplaceTable.vue';
+import EditBaseContainer from '@/components/EditBaseContainer';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -288,10 +278,11 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
+    EditBaseContainer,
     FetchSelect,
     PartTable,
     EditPageLayout,
-    FetchTabs,
+    EnhancedTabs,
     FetchBox,
     ReplaceTable,
   },
@@ -307,7 +298,7 @@ export default {
     id: {
       handler (val) {
         if (val) {
-          this.getDetailData();
+          this.detailRequest();
           this.$refs.editLayout.closePane();
         }
       },
@@ -322,8 +313,6 @@ export default {
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-freeMaintenancePolicy',
       isEditing: false,
-      loading: false,
-      submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       pannelTitle: '',
       form: { ...form },
@@ -384,9 +373,13 @@ export default {
     };
   },
   mounted () {
-    this.getDetailData();
+    this.initBreadcrumb();
   },
   methods: {
+    initBreadcrumb () {
+      const id = this._id;
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['免费保养政策', `${id ? '详情' : '新建'}`]);
+    },
     // 项目维修代码
     handleRepairItemChange (val, record) {
       if (record) {
@@ -415,53 +408,14 @@ export default {
     handleEdit () {
       this.isEditing = true;
     },
-    getDetailData () {
+    detailRequest () {
       const id = this._id;
-      if (!this.id) { // 非嵌入集中视图时才更新标题
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['免费保养政策', `${id ? '详情' : '新建'}`]);
-      }
       if (id) {
-        getDetail(id).then(res => {
-          this.loading = false;
-          Object.assign(this.form, res);
-          Object.assign(this.originalForm, res);
-        });
+        return getDetail(id);
       }
     },
-    async submitForm (formName, rest = false) {
-      try {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            this.submitLoading = true;
-            // TIPS: customKey 根据接口格式修改
-            addOrUpdate({ ...this.form }).then(res => {
-              this.$message({
-                message: '保存成功',
-                type: 'success'
-              });
-              const id = res;
-              if (rest || !id) {
-                this.resetForm(formName);
-              } else {
-                if (this.form.id) {
-                  this.getDetailData();
-                } else {
-                  this.$router.push({
-                    path: '/claimreturn/claim/basic/freeMaintenancePolicy/edit',
-                    query: {
-                      id
-                    }
-                  });
-                }
-              }
-            }).finally(() => {
-              this.submitLoading = false;
-            });
-          }
-        });
-      } catch (error) {
-        console.log(error);
-      }
+    async submitRequest () {
+      return addOrUpdate({ ...this.form });
     },
     resetForm (formName) {
       this.$refs[formName].resetFields();

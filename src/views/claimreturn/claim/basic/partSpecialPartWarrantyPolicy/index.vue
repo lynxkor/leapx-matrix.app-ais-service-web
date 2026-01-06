@@ -12,7 +12,7 @@
       <el-form-item label="政策名称">
         <el-input
           placeholder="请输入"
-          v-model="form.policyName"
+          v-model="form.policyNameLike"
           clearable
         />
       </el-form-item>

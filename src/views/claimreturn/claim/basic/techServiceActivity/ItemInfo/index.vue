@@ -2,27 +2,27 @@
   <section class="common-section">
     <div class="common-section-body" v-if="id && schemeId">
       <section class="common-section">
-        <fetch-tabs
-          ref="fetchTabs"
+        <enhanced-tabs
+          ref="tabs"
           type="rect"
           v-model="partId"
-          :loadParams="loadParams"
-          :loadData="loadData"
-          :itemConfig="{
+          :load-params="loadParams"
+          :load-data="loadData"
+          :item-config="{
             valueKey: 'id',
             labelKey: 'repairItemName',
             disableCloseKey: 'disableClose',
             disableFirst: false,
             labelFormat: '${repairItemName}(${repairItemCode})',
           }"
-          :remoteMethod="repairRemote"
-          :selectConfig="{
+          :remote-method="repairRemote"
+          :select-config="{
             valueKey: 'id',
             labelKey: 'name',
             labelFormat: '${name}(${code})',
             placeholder: '输入项目零件代码、名称',
           }"
-          closeTip="确定删除该项目零件吗？"
+          close-tip="确定删除该项目零件吗？"
           :disabled="!isEditing"
           @remove="onRemove"
           @add="onTabAdd"
@@ -182,7 +182,7 @@ import {
 import { getList as repairList } from '@/api/maintain/basic/repairItem';
 import { getList as repairTypeList } from '@/api/maintain/basic/repairItemType';
 import permissions from '@/libs/mixins/permissions';
-import FetchTabs from '@/libs/components/FetchTabs/index.vue';
+import EnhancedTabs from '@/libs/components/EnhancedTabs/index.vue';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum, sparePartList } from '@/api/common';
@@ -226,7 +226,7 @@ export default {
   },
   mixins: [permissions],
   components: {
-    FetchTabs,
+    EnhancedTabs,
     BaseInput,
     FetchSelect,
     PartTable,
