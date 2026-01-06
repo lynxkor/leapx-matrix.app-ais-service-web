@@ -1132,6 +1132,24 @@ const routes = [
         name: '门店仓库详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/outbound/maintenanceOutboundOrder',
+      name: 'maintenanceOutboundOrder',
+      component: () => import('@/views/sparepart/outbound/maintenanceOutboundOrder/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/outbound/maintenanceoutboundorder/edit',
+      name: 'maintenanceOutboundOrderEdit',
+      component: () => import('@/views/sparepart/outbound/maintenanceOutboundOrder/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
