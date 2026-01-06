@@ -9,21 +9,28 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="维修出库单编号">
+      <el-form-item label="出库单号">
         <el-input
           placeholder="请输入"
           v-model="form.maintenanceOutboundOrderCode"
           clearable
         />
       </el-form-item>
-      <el-form-item label="门店编码（组织code）">
+      <el-form-item label="接车施工单ID">
+          <el-input
+            placeholder="请输入"
+            v-model="form.serviceProxyId"
+            clearable
+          />
+        </el-form-item>
+      <el-form-item label="门店编码">
         <el-input
           placeholder="请输入"
           v-model="form.dealerCode"
           clearable
         />
       </el-form-item>
-      <el-form-item label="门店名称（组织名称）"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="门店名称"  v-show="this.visibleCount === 3 || show">
         <el-input
           placeholder="请输入"
           v-model="form.dealerName"
@@ -31,17 +38,10 @@
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="仓库ID">
+        <el-form-item label="备件仓库">
           <el-input
             placeholder="请输入"
             v-model="form.warehouseId"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="接车施工单ID">
-          <el-input
-            placeholder="请输入"
-            v-model="form.serviceProxyId"
             clearable
           />
         </el-form-item>
@@ -59,10 +59,10 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="出库状态:0待出库,1已出库,2已作废,3部分出库">
+        <el-form-item label="出库状态">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
+            enumCode="MaintenanceOutboundStatusEnum"
             v-model="form.outboundStatus"
             placeholder="请选择"
             clearable
@@ -106,12 +106,13 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handlePringConfig"><i class="iconfont icon-lxppc-plus"></i>打印设置</el-button>
+      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -187,10 +188,10 @@ export default {
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '维修出库',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-maintenanceOutboundOrder',
+      moduleKey: 'AISPART-maintenanceOutboundOrder',
       form: {
         ...defaultForm
       },
@@ -211,7 +212,7 @@ export default {
         dataProp: [
           {
             props: 'maintenanceOutboundOrderCode',
-            label: '维修出库单编号',
+            label: '出库单号',
             visible: true,
             width: 200,
             fixed: 'left',
@@ -227,13 +228,13 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码（组织code）', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称（组织名称）', visible: true, width: 200 },
-          { props: 'warehouseId', label: '仓库ID', visible: true, width: 200 },
-          { props: 'serviceProxyId', label: '接车施工单ID', visible: true, width: 200 },
-          { props: 'vehProfileVin', label: 'vin码', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'warehouseIdLabel', label: '备件仓库', visible: true, width: 200 },
+          { props: 'serviceProxyId', label: '接车施工单', visible: true, width: 200 },
+          { props: 'vehProfileVin', label: 'vin', visible: true, width: 200 },
           { props: 'carPlate', label: '车牌号', visible: true, width: 200 },
-          { props: 'outboundStatus', label: '出库状态:0待出库,1已出库,2已作废,3部分出库', visible: true, width: 200 },
+          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
