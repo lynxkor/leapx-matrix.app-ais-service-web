@@ -7,9 +7,10 @@
  * @param {String} id - 详情页id
  * @param {String} title - 详情页标题
  * @param {Boolean} isEditing - 是否为编辑状态
- * @param {Function} submitRequest 保存接口
- * @param {Function} detailRequest 详情接口
- * @param {Function} dataTransform DataTransformFunction
+ * @param {Function} submitRequest 表单的保存接口，保存，保存&关闭、保存&再建一个都是调用这个方法
+ * @param {Function} detailRequest 获取表单内容的详情接口，编辑查看详情时使用；
+ * @param {DataTransformFunction} dataTransform 详情接口数据转换函数，将详情接口数据转换成表单数据
+ * @param {Boolean} direction 表单是横向排列，还是纵向排列，横向排列具有响应式，根据屏幕宽度自动换行
  *
  * @event submit - 没有传递submitRequest时，会触发submit提交
  *
@@ -56,11 +57,13 @@
  */
 </script>
 <template>
-  <div class="page-common-edit">
-    <el-container direction="vertical">
+  <div class="page-common-edit" :class="{
+    'vertical page-common-add': direction === 'vertical',
+  }">
+    <el-container direction="vertical" v-loading="detailLoading">
       <edit-base-header
+        v-if="id"
         v-bind="$attrs"
-        :id="id"
         :title="title"
         :isEditing="isEditing"
         :loading="loading"
@@ -79,9 +82,8 @@
       <edit-base-footer
         v-if="!id"
         v-bind="$attrs"
-        :id="id"
         :loading="loading"
-        @cancel="handleBack"
+        :inEditMode="false"
         @reset="handleReset"
         @submit="handleSubmit"
       >
@@ -150,6 +152,13 @@ export default {
       type: Function,
       default: (data) => data
     },
+    /**
+     * 表单是横向排列，还是纵向排列
+     */
+    direction: {
+      type: 'vertical' | 'horizontal',
+      default: 'horizontal',
+    }
   },
   data () {
     return {
@@ -159,6 +168,8 @@ export default {
       // 表单初始值
       defaultForm: {},
       originalForm: {},
+      //
+      detailLoading: false,
     };
   },
   computed: {
@@ -180,7 +191,9 @@ export default {
         return;
       }
       try {
+        this.detailLoading = true;
         const res = await this.detailRequest?.();
+        this.detailLoading = false;
         if (!res) {
           return;
         }
@@ -189,6 +202,7 @@ export default {
         this.updateForm(newForm);
         this.originalForm = cloneDeep(newForm);
       } catch (error) {
+        this.detailLoading = false;
       }
     },
     // 表单注册
@@ -201,7 +215,7 @@ export default {
       this.$router.back();
     },
     // 保存操作
-    async handleSubmit (defer) {
+    async handleSubmit (success) {
       for (let formRef of this.formRefs) {
         await formRef.validate();
       }
@@ -218,14 +232,14 @@ export default {
 
             // 编辑时必须调用
             if (this.id) {
-              if (defer) { // 保存并关闭，回到列表页
-                defer.resolve();
+              if (success) { // 保存并关闭，回到列表页
+                success();
               } else if (this.detailRequest) {
-                this.detailRequest?.(); // 普通保存重新获取数据（留在当页）
+                this.loadDetail?.(); // 普通保存重新获取数据（留在当页）
               }
-            } else if (defer) {
+            } else if (success) {
               // 新建时必须调用
-              defer.resolve(id);
+              success(id);
             }
             this.showSuccessMessage();
           }).finally(() => {
@@ -235,9 +249,6 @@ export default {
           this.loading = false;
         }
       } else {
-        function success(id) {
-          defer.resolve(id);
-        }
         this.$emit('submit', success);
       }
     },
@@ -258,6 +269,7 @@ export default {
     },
     handleRefresh () {
       this.resetToOriginal();
+      this.loadDetail();
     },
     updateForm (newForm) {
       this.$emit('update:form', newForm);

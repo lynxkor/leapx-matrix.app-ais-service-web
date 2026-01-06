@@ -52,8 +52,8 @@
             <el-form-item label="备注：" prop="remark">
               {{ info.remark  }}
             </el-form-item>
-            <el-form-item label="状态：" prop="status">
-              {{ info.status  }}
+            <el-form-item label="是否启用：" prop="status">
+              {{ info.statusLabel  }}
             </el-form-item>
             <el-form-item label="创建时间：" prop="createTime">
               {{ info.createTime  }}
@@ -86,7 +86,7 @@
               {{ info.categorySpareSupplyName  }}
             </el-form-item>
             <el-form-item label="营销分类：" prop="marketingType">
-              {{ info.marketingType  }}
+              {{ info.marketingTypeLabel  }}
             </el-form-item>
             <el-form-item label="采购状态：" prop="purchaseType">
               {{ info.purchaseTypeLabel  }}

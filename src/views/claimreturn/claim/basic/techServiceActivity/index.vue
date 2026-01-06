@@ -127,7 +127,7 @@
         @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
       >
-        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+        <EditPage slot="centralizedViewSlot" :id="clickItemId" :showBackBtn="false"/>
       </LPVxeTable>
     </div>
   </div>

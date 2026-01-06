@@ -1,8 +1,8 @@
 <template>
   <!-- TIPS: 如果填写项大于15项，使用类名page-common-edit替换page-common-add -->
   <div class="page-common-add">
-    <el-container>
-      <el-main>
+    <el-container direction="vertical">
+      <el-main v-loading="loading">
         <section class="common-section">
           <div class="common-section-header">
             <h2>基础信息</h2>
@@ -81,13 +81,13 @@
           </div>
         </section>
       </el-main>
-      <el-footer height="60px">
-        <el-button v-if="canAddOrUpdate && form.finished!=='1'" size="small" type="primary" @click="submitForm('ruleForm')"
-                   :loading="submitLoading">保存
-        </el-button>
-        <el-button size="small" @click="handleBack">取消</el-button>
-        <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
-      </el-footer>
+      <edit-base-footer
+        :inEditMode="Boolean(_id)"
+        :loading="submitLoading"
+        @reset="resetForm('ruleForm')"
+        @submit="(success) => submitForm('ruleForm', success)"
+        @refresh="getDetailData"
+      />
     </el-container>
   </div>
 </template>
@@ -102,6 +102,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import DealerSelect from '@/components/dealer-select/index.vue';
 import LPEncrypted from '@/libs/components/LPEncrypted';
+import EditBaseFooter from '@/components/EditBaseFooter';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -164,9 +165,15 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
+    EditBaseFooter,
     DealerSelect,
     ListSelect,
     LPEncrypted
+  },
+  computed: {
+    _id () {
+      return this.id || this.$route.query.id || this.form.id;
+    }
   },
   watch: {
     id: {
@@ -215,14 +222,16 @@ export default {
         this.$store.commit('SET_ACTIVE_BREADCRUMB', ['服务活动车辆', `${id ? '编辑' : '新建'}`]);
       }
       if (id) {
+        this.loading = true;
         getDetail(id).then(res => {
-          this.loading = false;
           Object.assign(this.form, res);
           Object.assign(this.originalForm, res);
+        }).finally(() => {
+          this.loading = false;
         });
       }
     },
-    submitForm (formName, rest = false) {
+    submitForm (formName, success) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.submitLoading = true;
@@ -231,11 +240,21 @@ export default {
               message: '保存成功',
               type: 'success'
             });
-            const id = res;
-            if (rest || !id) {
-              this.resetForm(formName);
-            } else if (this.form.id) {
-              this.getDetailData();
+            // 新建保存时需要用到这个id
+            let id;
+            if (typeof res === 'string') {
+              id = res;
+            }
+
+            // 编辑
+            if (this.id) {
+              if (success) {
+                success();
+              } else if (this.getDetailData) {
+                this.getDetailData?.();
+              }
+            } else if (success) { // 新建
+              success(id);
             }
           }).finally(() => {
             this.submitLoading = false;
