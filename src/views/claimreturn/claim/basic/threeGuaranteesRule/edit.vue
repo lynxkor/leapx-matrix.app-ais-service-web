@@ -1,7 +1,7 @@
 <template>
   <!-- TIPS: 如果填写项小于15项，使用类名page-common-add替换page-common-edit -->
   <div class="page-common-edit">
-    <el-container>
+    <el-container direction="vertical" v-loading="loading">
       <el-main>
         <section class="common-section">
           <div class="common-section-header">
@@ -100,7 +100,7 @@
                   maxLength="100"
                 />
               </el-form-item>
-              <el-form-item label="预警里程起（天）" prop="warningMileageFrom">
+              <el-form-item label="预警里程起（公里）" prop="warningMileageFrom">
                 <el-input
                   placeholder="请输入"
                   v-model="form.warningMileageFrom"
@@ -108,7 +108,7 @@
                   maxLength="100"
                 />
               </el-form-item>
-              <el-form-item label="预警里程止（天）" prop="warningMileageTo">
+              <el-form-item label="预警里程止（公里）" prop="warningMileageTo">
                 <el-input
                   placeholder="请输入"
                   v-model="form.warningMileageTo"
@@ -234,21 +234,13 @@
           </div>
         </section>
       </el-main>
-      <el-footer height="60px">
-        <el-button
-          v-if="canAddOrUpdate"
-          size="small"
-          type="primary"
-          @click="submitForm('ruleForm')"
-          :loading="submitLoading"
-          >保存</el-button
-        >
-        <el-button
-          size="small"
-          @click="handleBack"
-          >取消</el-button
-        >
-      </el-footer>
+      <edit-base-footer
+        :inEditMode="Boolean(_id)"
+        :loading="submitLoading"
+        @reset="resetForm('ruleForm')"
+        @submit="(success) => submitForm('ruleForm', success)"
+        @refresh="getDetailData"
+      />
     </el-container>
   </div>
 </template>
@@ -266,6 +258,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import tableMixin from './tableMixin';
+import EditBaseFooter from '@/components/EditBaseFooter';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -314,6 +307,7 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins, tableMixin],
   components: {
+    EditBaseFooter,
     FetchSelect,
     EditTable,
   },
@@ -381,14 +375,16 @@ export default {
         `${id ? '编辑' : '新建'}`,
       ]);
       if (id) {
+        this.loading = true;
         getDetail(id).then((res) => {
-          this.loading = false;
           Object.assign(this.form, res);
           Object.assign(this.originalForm, res);
+        }).finally(() => {
+          this.loading = false;
         });
       }
     },
-    async submitForm (formName, reset = false) {
+    async submitForm (formName, success) {
       try {
         // const tableData = await this.handleSaveTable();
         this.$refs[formName].validate((valid) => {
@@ -401,20 +397,21 @@ export default {
                   message: '保存成功',
                   type: 'success',
                 });
-                const id = res;
-                if (!id) {
-                  this.resetForm(formName);
-                } else {
-                  if (this.form.id) {
-                    this.getDetailData();
-                  } else {
-                    this.$router.push({
-                      path: '/claimreturn/claim/basic/threeGuaranteesRule/edit',
-                      query: {
-                        id
-                      }
-                    });
+                // 新建保存时需要用到这个id
+                let id;
+                if (typeof res === 'string') {
+                  id = res;
+                }
+
+                // 编辑
+                if (this.id) {
+                  if (success) {
+                    success();
+                  } else if (this.getDetailData) {
+                    this.getDetailData?.();
                   }
+                } else if (success) { // 新建
+                  success(id);
                 }
               })
               .finally(() => {

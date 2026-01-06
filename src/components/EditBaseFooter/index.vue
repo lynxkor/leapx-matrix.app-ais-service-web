@@ -11,7 +11,6 @@
  *
  * 支持通过插槽自定义底部内容
  *
- * @param {String} id - 详情页id，用于保存后重定向
  * @param {Boolean} loading - 提交加载状态，控制按钮的加载动画
  * @param {String} cancelText - 返回按钮文本，默认 '返回'
  * @param {String} saveText - 保存按钮文本，默认 '保存'
@@ -33,24 +32,18 @@
     <!-- 支持自定义插槽 -->
     <slot name="footer">
       <el-button size="small" @click="handleCancel">{{ cancelText }}</el-button>
+      <el-button v-if="inEditMode" size="small" type="primary" @click="$emit('refresh')">{{refreshText}}</el-button>
       <el-button size="small" type="primary" @click="handleSave" :loading="loading">{{ saveText }}</el-button>
       <el-button size="small" type="primary" @click="handleSaveAndClose" :loading="loading">{{ saveAndCloseText }}</el-button>
-      <el-button size="small" type="primary" @click="handleSaveAndNext" :loading="loading">{{ saveAndNextText }}</el-button>
+      <el-button v-if="!inEditMode" size="small" type="primary" @click="handleSaveAndNext" :loading="loading">{{ saveAndNextText }}</el-button>
     </slot>
   </el-footer>
 </template>
 <script>
-import { createDefer } from '@/libs/utils/defer';
 import { getRouterPath } from '@/router';
 
 export default {
   props: {
-    /**
-     * 详情页id
-     */
-    id: {
-      type: String,
-    },
     /**
      * 提交加载状态
      */
@@ -84,15 +77,31 @@ export default {
     saveAndNextText: {
       type: String,
       default: '保存&再建一个'
-    }
+    },
+    /**
+     * 刷新按钮文本
+     */
+    refreshText: {
+      type: String,
+      default: '刷新'
+    },
+    /**
+     * 是否为编辑状态
+     * @description 标识组件是否处于编辑页面场景中
+     * @type {Boolean}
+     * @default true
+     */
+    inEditMode: {
+      type: Boolean,
+      default: true,
+    },
   },
   methods: {
     handleCancel () {
       this.$router.back();
     },
     submitForm (params = {}) {
-      const defer = createDefer();
-      defer.promise.then(id => {
+      const success = (id) => {
         if (params?.close) {
           this.handleCancel();
         } else if (params?.next) {
@@ -106,8 +115,8 @@ export default {
             }
           });
         }
-      });
-      this.$emit('submit', defer);
+      }
+      this.$emit('submit', success);
     },
     handleSave () {
       this.submitForm();

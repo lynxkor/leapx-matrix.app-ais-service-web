@@ -3,6 +3,7 @@
    <edit-page-layout ref="editLayout" title="添加方案" >
     <template #left>
       <edit-base-container
+        ref="containerRef"
         :id="_id"
         :title="`活动编码：${form.activityCode}`"
         :isEditing.sync="isEditing"
@@ -330,8 +331,8 @@ export default {
   watch: {
     id: {
       handler (val) {
-        if (val) {
-          this.detailRequest();
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
         }
       },
       immediate: true
