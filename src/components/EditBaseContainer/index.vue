@@ -57,10 +57,10 @@
 </script>
 <template>
   <div class="page-common-edit">
-    <el-container direction="vertical">
+    <el-container direction="vertical" v-loading="detailLoading">
       <edit-base-header
+        v-if="id"
         v-bind="$attrs"
-        :id="id"
         :title="title"
         :isEditing="isEditing"
         :loading="loading"
@@ -79,9 +79,8 @@
       <edit-base-footer
         v-if="!id"
         v-bind="$attrs"
-        :id="id"
         :loading="loading"
-        @cancel="handleBack"
+        :inEditMode="false"
         @reset="handleReset"
         @submit="handleSubmit"
       >
@@ -159,6 +158,8 @@ export default {
       // 表单初始值
       defaultForm: {},
       originalForm: {},
+      //
+      detailLoading: false,
     };
   },
   computed: {
@@ -180,7 +181,9 @@ export default {
         return;
       }
       try {
+        this.detailLoading = true;
         const res = await this.detailRequest?.();
+        this.detailLoading = false;
         if (!res) {
           return;
         }
@@ -189,6 +192,7 @@ export default {
         this.updateForm(newForm);
         this.originalForm = cloneDeep(newForm);
       } catch (error) {
+        this.detailLoading = false;
       }
     },
     // 表单注册
@@ -201,7 +205,7 @@ export default {
       this.$router.back();
     },
     // 保存操作
-    async handleSubmit (defer) {
+    async handleSubmit (success) {
       for (let formRef of this.formRefs) {
         await formRef.validate();
       }
@@ -218,14 +222,14 @@ export default {
 
             // 编辑时必须调用
             if (this.id) {
-              if (defer) { // 保存并关闭，回到列表页
-                defer.resolve();
+              if (success) { // 保存并关闭，回到列表页
+                success();
               } else if (this.detailRequest) {
-                this.detailRequest?.(); // 普通保存重新获取数据（留在当页）
+                this.loadDetail?.(); // 普通保存重新获取数据（留在当页）
               }
-            } else if (defer) {
+            } else if (success) {
               // 新建时必须调用
-              defer.resolve(id);
+              success(id);
             }
             this.showSuccessMessage();
           }).finally(() => {
@@ -235,9 +239,6 @@ export default {
           this.loading = false;
         }
       } else {
-        function success(id) {
-          defer.resolve(id);
-        }
         this.$emit('submit', success);
       }
     },
@@ -258,6 +259,7 @@ export default {
     },
     handleRefresh () {
       this.resetToOriginal();
+      this.loadDetail();
     },
     updateForm (newForm) {
       this.$emit('update:form', newForm);

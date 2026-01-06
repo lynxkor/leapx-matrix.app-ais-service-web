@@ -9,11 +9,11 @@
  *
  * 用户交互方法统一前缀：使用 handle 前缀表示用户触发的操作
  *
- * @param {String} id - 详情页id，用于控制组件是否显示
  * @param {String} title - 详情页标题文本
  * @param {Boolean} isEditing - 是否为编辑状态，控制按钮组的显示，默认 false
+ * @param {Boolean} showBackBtn - 是否显示取消按钮，默认 true
  * @param {Boolean} loading - 加载状态，控制保存按钮的加载动画
- * @param {String} cancelText - 返回按钮文本，默认 '返回'
+ * @param {String} backText - 返回按钮文本，默认 '返回'
  * @param {String} saveText - 保存按钮文本，默认 '保存'
  * @param {String} saveAndCloseText - 保存并关闭按钮文本，默认 '保存&关闭'
  * @param {String} refreshText - 刷新按钮文本，默认 '刷新'
@@ -31,12 +31,12 @@
  */
 </script>
 <template>
-  <section class="common-title px-5" v-if="id">
+  <section class="common-title px-5">
     <h2>{{title}}</h2>
     <slot name="header">
       <div v-if="isEditing">
         <el-button size="small" @click="handleCancel">取消</el-button>
-        <el-button size="small" @click="handleBack">{{cancelText}}</el-button>
+        <el-button v-if="showBackBtn" size="small" @click="handleBack">{{backText}}</el-button>
         <el-button size="small" type="primary" @click="$emit('refresh')">{{refreshText}}</el-button>
         <el-button size="small" type="primary" @click="handleSave" :loading="loading">{{saveText}}</el-button>
         <el-button size="small" type="primary" @click="handleSaveAndClose" :loading="loading">{{ saveAndCloseText }}</el-button>
@@ -49,17 +49,10 @@
 </template>
 <script>
 
-import { createDefer } from '@/libs/utils/defer';
 import { getRouterPath } from '@/router';
 
 export default {
   props: {
-    /**
-     * 详情页id
-     */
-    id: {
-      type: String,
-    },
     /**
      * 详情页标题
      */
@@ -80,9 +73,16 @@ export default {
     /**
      * 返回按钮文本
      */
-    cancelText: {
+    backText: {
       type: String,
       default: '返回'
+    },
+    /**
+     * 是否显示取消按钮，默认 true
+     */
+    showBackBtn: {
+      type: Boolean,
+      default: true,
     },
     /**
      * 保存按钮文本
@@ -104,11 +104,13 @@ export default {
     refreshText: {
       type: String,
       default: '刷新'
-    }
+    },
   },
   data () {
     return {
     };
+  },
+  mounted () {
   },
   methods: {
     handleCancel () {
@@ -117,9 +119,14 @@ export default {
     handleBack () {
       const path = getRouterPath();
       const str = '/edit';
-      const suffixRegex = new RegExp(`${str}$`);
-      const _path = path.replace(suffixRegex, '');
-      this.$router.push(_path);
+      // 在编辑页中进行操作
+      if (path.endsWith(str)) {
+        const suffixRegex = new RegExp(`${str}$`);
+        const _path = path.replace(suffixRegex, '');
+        this.$router.push(_path);
+      } else {
+        // 在列表页进行操作
+      }
     },
     handleEdit () {
       this.$emit('edit');
@@ -128,11 +135,7 @@ export default {
       this.$emit('submit');
     },
     handleSaveAndClose () {
-      const defer = createDefer();
-      defer.promise.then(() => {
-        this.handleBack();
-      });
-      this.$emit('submit', defer);
+      this.$emit('submit', this.handleBack);
     }
   }
 };
