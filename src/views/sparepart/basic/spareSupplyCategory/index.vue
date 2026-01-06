@@ -27,7 +27,7 @@
         <el-form-item label="是否启用">
           <fetch-select
             :request="fetchOptions"
-            enumCode="StatusEnum"
+            enumCode="BooleanEnum"
             v-model="form.statusIncludeList"
             placeholder="请选择"
             clearable
