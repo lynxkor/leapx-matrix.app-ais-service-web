@@ -7,9 +7,10 @@
  * @param {String} id - 详情页id
  * @param {String} title - 详情页标题
  * @param {Boolean} isEditing - 是否为编辑状态
- * @param {Function} submitRequest 保存接口
- * @param {Function} detailRequest 详情接口
- * @param {Function} dataTransform DataTransformFunction
+ * @param {Function} submitRequest 表单的保存接口，保存，保存&关闭、保存&再建一个都是调用这个方法
+ * @param {Function} detailRequest 获取表单内容的详情接口，编辑查看详情时使用；
+ * @param {DataTransformFunction} dataTransform 详情接口数据转换函数，将详情接口数据转换成表单数据
+ * @param {Boolean} direction 表单是横向排列，还是纵向排列，横向排列具有响应式，根据屏幕宽度自动换行
  *
  * @event submit - 没有传递submitRequest时，会触发submit提交
  *
@@ -56,7 +57,9 @@
  */
 </script>
 <template>
-  <div class="page-common-edit">
+  <div class="page-common-edit" :class="{
+    'vertical page-common-add': direction === 'vertical',
+  }">
     <el-container direction="vertical" v-loading="detailLoading">
       <edit-base-header
         v-if="id"
@@ -149,6 +152,13 @@ export default {
       type: Function,
       default: (data) => data
     },
+    /**
+     * 表单是横向排列，还是纵向排列
+     */
+    direction: {
+      type: 'vertical' | 'horizontal',
+      default: 'horizontal',
+    }
   },
   data () {
     return {
