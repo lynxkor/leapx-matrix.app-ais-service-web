@@ -234,7 +234,7 @@ export default {
         dataProp: [
           {
             props: 'partCode',
-            label: '备件编码',
+            label: '零件编码',
             visible: true,
             width: 200,
             fixed: 'left',
@@ -250,7 +250,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'partName', label: '备件名称', visible: true, width: 200 },
+          { props: 'partName', label: '零件名称', visible: true, width: 200 },
           { props: 'minOrderQuantity', label: '最小订购量', visible: true, width: 200 },
           { props: 'salePrice', label: '销售价格', visible: true, width: 200 },
           { props: 'purchasePrice', label: '采购价格', visible: true, width: 200 },

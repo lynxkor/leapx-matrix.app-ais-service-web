@@ -6,7 +6,7 @@
           <el-main>
             <section class="common-title" v-if="_id">
               <div>
-                <h2>维修出库单编号：{{ form.maintenanceOutboundOrderCode }}</h2>
+                <h2>出库单号：{{ form.maintenanceOutboundOrderCode }}</h2>
                 <!-- TIPS: 子标题格式如下 -->
                 <!-- <h5>活动编码：{{ form.activityCode }}</h5> -->
               </div>
@@ -25,35 +25,35 @@
               <div class="common-section-body">
                 <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
                 <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
-                  <el-form-item label="维修出库单编号" prop="maintenanceOutboundOrderCode">
+                  <el-form-item label="出库单号" prop="maintenanceOutboundOrderCode">
                     <el-input
                       placeholder="请输入"
                       v-model="form.maintenanceOutboundOrderCode"
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="门店编码（组织code）" prop="dealerCode">
+                  <el-form-item label="门店编码" prop="dealerCode">
                     <el-input
                       placeholder="请输入"
                       v-model="form.dealerCode"
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="门店名称（组织名称）" prop="dealerName">
+                  <el-form-item label="门店名称" prop="dealerName">
                     <el-input
                       placeholder="请输入"
                       v-model="form.dealerName"
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="仓库ID" prop="warehouseId">
+                  <el-form-item label="备件仓库" prop="warehouseId">
                     <el-input
                       placeholder="请输入"
                       v-model="form.warehouseId"
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="接车施工单ID" prop="serviceProxyId">
+                  <el-form-item label="接车施工单" prop="serviceProxyId">
                     <el-input
                       placeholder="请输入"
                       v-model="form.serviceProxyId"
@@ -74,7 +74,7 @@
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="出库状态:0待出库,1已出库,2已作废,3部分出库" prop="outboundStatus">
+                  <el-form-item label="出库状态" prop="outboundStatus">
                     <fetch-select
                       :request="fetchOptions"
                       enumCode="xxx"
@@ -166,14 +166,14 @@
                       filterable
                     />
                   </el-form-item>
-                  <el-form-item label="数据来源，150:零小跑; 10:E10" prop="dataSource">
+                  <el-form-item label="数据来源" prop="dataSource">
                     <el-input
                       placeholder="请输入"
                       v-model="form.dataSource"
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="退料状态:0待入库,1已入库,2部分入库" prop="returnMaterialStatus">
+                  <el-form-item label="退料状态" prop="returnMaterialStatus">
                     <fetch-select
                       :request="fetchOptions"
                       enumCode="xxx"
@@ -188,16 +188,16 @@
                   <el-form-item label="维修出库单编号：" prop="maintenanceOutboundOrderCode">
                     {{ form.maintenanceOutboundOrderCode }}
                   </el-form-item>
-                  <el-form-item label="门店编码（组织code）：" prop="dealerCode">
+                  <el-form-item label="门店编码：" prop="dealerCode">
                     {{ form.dealerCode }}
                   </el-form-item>
-                  <el-form-item label="门店名称（组织名称）：" prop="dealerName">
+                  <el-form-item label="门店名称：" prop="dealerName">
                     {{ form.dealerName }}
                   </el-form-item>
-                  <el-form-item label="仓库ID：" prop="warehouseId">
+                  <el-form-item label="备件仓库：" prop="warehouseId">
                     {{ form.warehouseId }}
                   </el-form-item>
-                  <el-form-item label="接车施工单ID：" prop="serviceProxyId">
+                  <el-form-item label="接车施工单：" prop="serviceProxyId">
                     {{ form.serviceProxyId }}
                   </el-form-item>
                   <el-form-item label="vin码：" prop="vehProfileVin">
@@ -206,7 +206,7 @@
                   <el-form-item label="车牌号：" prop="carPlate">
                     {{ form.carPlate }}
                   </el-form-item>
-                  <el-form-item label="出库状态:0待出库,1已出库,2已作废,3部分出库：" prop="outboundStatus">
+                  <el-form-item label="出库状态：" prop="outboundStatus">
                     {{ form.outboundStatus }}
                   </el-form-item>
                   <el-form-item label="备注：" prop="remark">
@@ -239,10 +239,10 @@
                   <el-form-item label="状态变更描述：" prop="statusDesc">
                     {{ form.statusDesc }}
                   </el-form-item>
-                  <el-form-item label="数据来源，150:零小跑; 10:E10：" prop="dataSource">
+                  <el-form-item label="数据来源：" prop="dataSource">
                     {{ form.dataSource }}
                   </el-form-item>
-                  <el-form-item label="退料状态:0待入库,1已入库,2部分入库：" prop="returnMaterialStatus">
+                  <el-form-item label="退料状态：" prop="returnMaterialStatus">
                     {{ form.returnMaterialStatus }}
                   </el-form-item>
                 </el-form>
@@ -354,7 +354,7 @@ export default {
       pageTitle: '新页面',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-maintenanceOutboundOrder',
+      moduleKey: 'AISPART-maintenanceOutboundOrder',
       isEditing: false,
       loading: false,
       submitLoading: false,

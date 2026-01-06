@@ -1,98 +1,46 @@
 <template>
   <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
-      <div class="page-common-edit">
-        <el-container>
+      <edit-base-container :id="_id" :title="`仓库名称：${form.warehouseName}`" :isEditing.sync="isEditing" :form.sync="form"
+        :submitRequest="submitRequest" :detailRequest="detailRequest">
+        <template>
           <el-main>
-            <section class="common-title" v-if="_id">
-              <div>
-                <h2>仓库名称：{{ form.warehouseName }}</h2>
-                <!-- TIPS: 子标题格式如下 -->
-                <!-- <h5>活动编码：{{ form.activityCode }}</h5> -->
-              </div>
-              <div v-if="isEditing">
-                <el-button size="small" @click="handleCancel">取消</el-button>
-                <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-              </div>
-              <div v-else>
-                <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
-              </div>
-            </section>
             <section class="common-section">
               <div class="common-section-header">
                 <h2>仓库信息</h2>
               </div>
               <div class="common-section-body">
                 <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"
+                  class="form-edit" v-if="isEditing || !_id">
                   <el-form-item label="仓库名称：" prop="warehouseName">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.warehouseName"
-                      clearable
-                    />
+                    <el-input placeholder="请输入" v-model="form.warehouseName" clearable />
                   </el-form-item>
                   <el-form-item label="门店名称：" prop="dealerName">
-                    <fetch-select
-                      filterable
-                      clearable
-                      remote
-                      reserve-keyword
-                      v-model="form.dealerCode"
-                      :remote-method="getDealerList"
-                      :params="form.dealerName"
-                      value-key="orgCode"
-                      label-key="orgName"
-                      @change="categorySpareSalesChange"
-                    />
+                    <fetch-select filterable clearable remote reserve-keyword v-model="form.dealerCode"
+                      :remote-method="getDealerList" :params="form.dealerName" value-key="orgCode" label-key="orgName"
+                      @change="categorySpareSalesChange" />
                   </el-form-item>
                   <el-form-item label="仓库编码：" prop="warehouseCode">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.warehouseCode"
-                      clearable
-                    />
+                    <el-input placeholder="请输入" v-model="form.warehouseCode" clearable />
                   </el-form-item>
                   <el-form-item label="是否启用：" prop="status">
-                    <fetch-select
-                      :request="fetchOptions"
-                      enumCode="BooleanEnum"
-                      v-model="form.status"
-                      placeholder="请选择"
-                      clearable
-                      filterable
-                    />
+                    <fetch-select :request="fetchOptions" enumCode="BooleanEnum" v-model="form.status" placeholder="请选择"
+                      clearable filterable />
                   </el-form-item>
                   <el-form-item label="省市区：" prop="provinceCityCountyCode">
-                    <el-cascader
-                      placeholder="请选择省市区"
-                      v-model="form.provinceCityCountyCode"
-                      :props="orgProps"
-                      :options="areaOptions"
-                      filterable
-                      clearable>
+                    <el-cascader placeholder="请选择省市区" v-model="form.provinceCityCountyCode" :props="orgProps"
+                      :options="areaOptions" filterable clearable>
                     </el-cascader>
                   </el-form-item>
                   <el-form-item label="停用原因：" prop="disableReason">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.disableReason"
-                      clearable
-                    />
+                    <el-input placeholder="请输入" v-model="form.disableReason" clearable />
                   </el-form-item>
                   <el-form-item label="详细地址：" prop="address">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.address"
-                      clearable
-                    />
+                    <el-input placeholder="请输入" v-model="form.address" clearable />
                   </el-form-item>
                   <el-form-item label="备注：" prop="remark">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.remark"
-                      clearable
-                    />
+                    <el-input placeholder="请输入" v-model="form.remark" clearable />
                   </el-form-item>
                 </el-form>
                 <el-form :inline="true" class="form-detail" v-else>
@@ -132,34 +80,38 @@
                 </el-form>
               </div>
             </section>
-            <section class="common-section">
+            <section class="common-section" v-if="_id">
               <div class="common-section-header">
                 <h2>库位信息</h2>
-                <el-button v-if="canAddOrUpdate" size="small" @click="openPane"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
               </div>
               <div class="common-section-body">
+                <div class="ais-select-group" v-if="canAddOrUpdate">
+                  <el-select style="width: 305px;" v-model="noDealerCodes" filterable clearable remote placeholder="请选择"
+                    :remote-method="getLocation" @change="handleStoreChange" collapse-tags>
+                    <el-option v-for="item in storeOptions" :key="item.value" :label="item.label" :value="item.value">
+                    </el-option>
+                  </el-select>
+                  <el-button type="primary" @click="openPane" size="small">
+                    添加
+                  </el-button>
+                </div>
                 <div class="common-section-table">
-                  <edit-table
-                    ref="editTable"
-                    :columns="columns"
-                    :data="tableData"
-                    :defaultNewRow="defaultNewRow"
-                    :show-toolbar="false"
-                    :options="options"
-                    :auth="{edit: canAddOrUpdate, delete: canDelete}"
-                  />
+                  <!-- <edit-table ref="editTable" :columns="columns" :data="tableData" :defaultNewRow="defaultNewRow"
+                    :show-toolbar="false" :options="options" :auth="{ edit: canAddOrUpdate, delete: canDelete }" /> -->
+                  <part-table
+                    :moduleKey="moduleKey"
+                    ref="partTable"
+                    :currentVehicleId="currentVehicleId"
+                    :id="id"
+                    @replace="onReplace"
+                    >
+                  </part-table>
                 </div>
               </div>
             </section>
           </el-main>
-          <el-footer height="60px" v-if="!_id">
-            <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-            <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
-            <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
-            <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
-          </el-footer>
-        </el-container>
-      </div>
+        </template>
+      </edit-base-container>
     </template>
     <template #right>
       <!-- 右侧栏组件，自行开发 -->
@@ -177,6 +129,9 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { locationListShort } from '@/libs/api/common';
+import EditBaseContainer from '@/components/EditBaseContainer';
+import PartTable from './PartTable.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -206,8 +161,10 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     EditPageLayout,
-    EditTable,
-    FetchSelect
+    // EditTable,
+    FetchSelect,
+    EditBaseContainer,
+    PartTable
   },
   computed: {
     _id () {
@@ -275,9 +232,9 @@ export default {
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
-          field: 'name',
-          title: '姓名',
-          width: '33%',
+          field: 'locationName',
+          title: '席位名称',
+          width: '20%',
           editable: true,
           editRender: { name: 'ElInput' },
           rules: [
@@ -285,16 +242,22 @@ export default {
           ]
         },
         {
-          field: 'age',
-          title: '年龄',
+          field: 'remark',
+          title: '备注',
           editable: true,
-          width: '33%',
+          width: '20%',
           editRender: { name: 'ElInput', props: { type: 'number' } }
         },
         {
-          field: 'email',
-          title: '邮箱',
-          width: '33%',
+          field: 'createTime',
+          title: '创建时间',
+          width: '20%',
+          editRender: { name: 'ElInput' }
+        },
+        {
+          field: 'updateTime',
+          title: '修改时间',
+          width: '20%',
           editRender: { name: 'ElInput' }
         },
       ],
@@ -376,6 +339,15 @@ export default {
         console.log(error);
       }
     },
+    detailRequest () {
+      const id = this._id;
+      if (id) {
+        return getDetail(id);
+      }
+    },
+    async submitRequest () {
+      return addOrUpdate({ ...this.form });
+    },
     resetForm (formName) {
       this.$refs[formName].resetFields();
       this.tableData = [];
@@ -425,6 +397,16 @@ export default {
       this.form.dealerCode = all.orgCode;
       this.form.dealerName = all.orgName;
     },
+    // 席位信息
+    getLocation () {
+
+    }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.ais-select-group {
+  margin-bottom: 12px;
+}
+</style>
