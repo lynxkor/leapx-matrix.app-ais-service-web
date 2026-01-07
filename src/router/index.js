@@ -1106,6 +1106,14 @@ const routes = [
         moduleKey: 'AISCR-oldPartReturnOrder',
         keepAlive: true
       }
+    }, {
+      path: '/claimreturn/oldpart/returnorder/edit',
+      name: 'fastReturnOrderEdit',
+      component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
+      meta: {
+        name: '回运单详情',
+        noResourceUrl: 'true'
+      }
     },
     {
       path: '/claimreturn/oldpart/returnorder/fast',
@@ -1118,7 +1126,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/oldpart/returnorder/edit',
+      path: '/claimreturn/oldpart/returnorder/fast/edit',
       name: 'fastReturnOrderEdit',
       component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
       meta: {

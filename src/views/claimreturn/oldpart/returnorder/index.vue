@@ -190,7 +190,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/oldpart/returnorder/edit',
+                  path: this.editPath,
                   query: {
                     id: row.id
                   }
@@ -235,7 +235,7 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/oldpart/returnorder/edit',
+                  path: this.editPath,
                   query: {
                     id: row.id
                   }
@@ -244,6 +244,9 @@ export default {
               type: 'info'
             }, {
               name: '删除',
+              show: (row) => {
+                return row.returnStatus === '10' && this.canDelete;
+              },
               popconfirmTitle: '此操作将永久删除, 是否继续?',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
@@ -274,13 +277,13 @@ export default {
     this.pageTitle = this.$route.meta.name;
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
-    console.log(this.moduleKey);
-    console.log(this.canDelete);
-    console.log(this.permissions.has('AISCR-oldPartReturnOrderFast-delete'));
   },
   computed: {
     isFastReturn () {
       return this.$route.meta.returnType === '40';
+    },
+    editPath () {
+      return this.isFastReturn ? '/claimreturn/oldpart/returnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
     },
   },
   methods: {
@@ -295,7 +298,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/claimreturn/oldpart/returnorder/edit'
+        path: this.editPath
       });
     },
     onSubmit () {
@@ -410,6 +413,15 @@ export default {
     },
     // 批量删除
     handleBatchDelete () {
+      this.selectionList.forEach(item => {
+        if (item.returnStatus !== '10') {
+          this.$message({
+            type: 'error',
+            message: '仅草稿状态数据允许删除!'
+          });
+          throw new Error('仅草稿状态数据允许删除!');
+        }
+      });
       const ids = this.selectionList.map(item => item.id) || [];
       this.$confirm('此操作将永久删除, 是否继续?', '提示', {
         confirmButtonText: '确定',
