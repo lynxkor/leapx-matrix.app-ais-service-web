@@ -113,7 +113,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction/index.vue';
-import { getList, deleteItem, enableItem } from '@/api/claimreturn/oldpart/returnorder';
+import { getList, deleteItem, enableItem, publish } from '@/api/claimreturn/oldpart/returnorder';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import Upload from '@/libs/components/UploadDialog/index.vue';
@@ -242,6 +242,24 @@ export default {
                 });
               },
               type: 'info'
+            },
+            {
+              name: '下发',
+              show: (row) => {
+                return row.returnStatus === '10' && this.canPublish;
+              },
+              popconfirmTitle: '是否继续下发?',
+              click: (rowIndex, row) => {
+                publish(row.id).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '下发成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                });
+              },
+              type: 'info'
             }, {
               name: '删除',
               show: (row) => {
@@ -285,6 +303,9 @@ export default {
     editPath () {
       return this.isFastReturn ? '/claimreturn/oldpart/returnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
     },
+    canPublish () {
+      return this.permissions.has(`${this.moduleKey}-publish`);
+    }
   },
   methods: {
     handleListSelect (row) {

@@ -1130,7 +1130,7 @@ const routes = [
       name: 'fastReturnOrderEdit',
       component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
       meta: {
-        name: '回运单详情',
+        name: '快返回运单详情',
         noResourceUrl: 'true'
       }
     }]
