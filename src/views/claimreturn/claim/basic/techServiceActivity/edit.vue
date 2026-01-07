@@ -194,7 +194,7 @@
               </div>
               <div class="common-section-body">
                 <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                  <el-form-item label="结算类型：" prop="checkoutTypeName">
+                  <el-form-item label="结算类型：" prop="checkoutTypeId">
                     <fetch-select
                       filterable
                       clearable
@@ -208,7 +208,7 @@
                       label-key="name"
                     />
                   </el-form-item>
-                  <el-form-item label="保修类型：" prop="repairItemTypeName">
+                  <el-form-item label="保修类型：" prop="repairItemTypeId">
                     <fetch-select
                       filterable
                       clearable
