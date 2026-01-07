@@ -242,7 +242,6 @@ export default {
       pageType: 'edit',
       moduleKey: 'AISCR-serviceActivityVehicle',
       loading: false,
-      isEditing: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
@@ -257,13 +256,8 @@ export default {
     };
   },
   mounted () {
-    this.initBreadcrumb();
   },
   methods: {
-    initBreadcrumb () {
-      const id = this._id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['服务活动车辆', `${id ? '编辑' : '新建'}`]);
-    },
     getDetailDecryptField (id, field) {
       return getDetailDecryptField(id, field);
     },

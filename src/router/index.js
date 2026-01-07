@@ -1114,8 +1114,7 @@ const routes = [
         name: '回运单详情',
         noResourceUrl: 'true'
       }
-    },
-    {
+    }, {
       path: '/claimreturn/oldpart/returnorder/fast',
       name: 'fastReturnOrder',
       component: () => import('@/views/claimreturn/oldpart/returnorder/index.vue'),
@@ -1131,6 +1130,24 @@ const routes = [
       component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
       meta: {
         name: '快返回运单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/sp/serviceProxy',
+      name: 'serviceProxy',
+      component: () => import('@/views/maintain/sp/serviceProxy/index.vue'),
+
+      meta: {
+        name: '接车施工单管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/serviceproxy/edit',
+      name: 'serviceProxyEdit',
+      component: () => import('@/views/maintain/sp/serviceProxy/edit.vue'),
+
+      meta: {
+        name: '接车施工单管理详情',
         noResourceUrl: 'true'
       }
     }]

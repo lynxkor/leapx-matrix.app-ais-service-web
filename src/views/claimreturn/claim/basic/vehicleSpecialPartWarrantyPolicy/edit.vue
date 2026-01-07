@@ -244,9 +244,8 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: '整车特殊零件保修政策设置',
       pageType: 'edit',
-      isEditing: false,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-vehicleSpecialPartWarrantyPolicy',
       loading: false,
@@ -282,13 +281,8 @@ export default {
     }
   },
   mounted () {
-    this.initBreadcrumb();
   },
   methods: {
-    initBreadcrumb () {
-      const id = this._id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['整车特殊零件保修政策设置', `${id ? '编辑' : '新建'}`]);
-    },
     detailRequest () {
       const id = this._id;
       if (id) {

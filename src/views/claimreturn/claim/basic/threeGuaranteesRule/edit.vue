@@ -396,7 +396,6 @@ export default {
     return {
       pageTitle: '三包配置规则',
       pageType: 'edit',
-      isEditing: false,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-threeGuaranteesRule',
       loading: false,
@@ -406,16 +405,8 @@ export default {
     };
   },
   mounted () {
-    this.initBreadcrumb();
   },
   methods: {
-    initBreadcrumb () {
-      const id = this._id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', [
-        '三包配置规则',
-        `${id ? '编辑' : '新建'}`,
-      ]);
-    },
     detailRequest () {
       const id = this._id;
       if (id) {

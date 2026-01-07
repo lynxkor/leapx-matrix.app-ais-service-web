@@ -131,7 +131,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: 'VRT',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-vrt',
@@ -139,8 +139,6 @@ export default {
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
-      originalForm: { ...form },
-      isEditing: false,
       rules: {
         vrtCode: [
           { required: true, message: '请输入VRT编码', trigger: 'blur' }
@@ -155,13 +153,8 @@ export default {
     };
   },
   mounted () {
-    this.initBreadcrumb();
   },
   methods: {
-    initBreadcrumb () {
-      const id = this._id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VRT', `${id ? '详情' : '新建'}`]);
-    },
     detailRequest () {
       const id = this._id;
       this.form.status = 1;

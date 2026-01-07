@@ -199,7 +199,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/basic/vrt/detail',
+                  path: '/claimreturn/claim/basic/vrt/edit',
                   query: {
                     id: row.vrtId
                   }
@@ -225,7 +225,8 @@ export default {
                 this.$router.push({
                   path: '/claimreturn/claim/basic/vfg/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true,
                   }
                 });
               },
@@ -238,7 +239,6 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },
   methods: {
