@@ -228,7 +228,8 @@ export default {
                 this.$router.push({
                   path: '/claimreturn/claim/basic/freeMaintenancePolicy/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true,
                   }
                 });
               },
@@ -259,7 +260,6 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },
   methods: {

@@ -5,7 +5,7 @@
       <edit-base-container
         ref="containerRef"
         :id="_id"
-        :title="`VRT名称：${form.vrtName}`"
+        :title="`VFG编码：${form.vfgCode}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
         direction="vertical"
@@ -23,18 +23,6 @@
                 <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
                 <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
                 <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                  <el-form-item label="VRT名称：" prop="vrtId">
-                    <list-select
-                      listUrl="/claimreturn/claim/web/basic/vrt/list"
-                      placeholder="请选择"
-                      v-model="form.vrtId"
-                      query-key="vrtNameLike"
-                      auto-load-options
-                      no-param-load
-                      filterable
-                      clearable
-                      :params="{}" />
-                  </el-form-item>
                   <el-form-item label="VFG编码：" prop="vfgCode">
                     <el-input
                       placeholder="请输入"
@@ -52,6 +40,18 @@
                       clearable
                     />
                   </el-form-item>
+                  <el-form-item label="VRT名称：" prop="vrtId">
+                    <list-select
+                      listUrl="/claimreturn/claim/web/basic/vrt/list"
+                      placeholder="请选择"
+                      v-model="form.vrtId"
+                      query-key="vrtNameLike"
+                      auto-load-options
+                      no-param-load
+                      filterable
+                      clearable
+                      :params="{}" />
+                  </el-form-item>
                   <el-form-item label="状态：" prop="status">
                     <fetch-select
                       :request="fetchOptions"
@@ -65,14 +65,14 @@
                   </el-form-item>
                 </el-form>
                 <el-form  label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                  <el-form-item label="VRT名称：" prop="vrtName">
-                    {{ form.vrtName }}
-                  </el-form-item>
                   <el-form-item label="VFG编码：" prop="vfgCode">
                     {{ form.vfgCode }}
                   </el-form-item>
                   <el-form-item label="VFG名称：" prop="vfgName">
                     {{ form.vfgName }}
+                  </el-form-item>
+                  <el-form-item label="VRT名称：" prop="vrtName">
+                    {{ form.vrtName }}
                   </el-form-item>
                   <el-form-item label="状态：" prop="status">
                     {{ form.statusLabel }}
@@ -151,9 +151,8 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: 'VFG',
       pageType: 'edit',
-      isEditing: false,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-vfg',
       loading: false,
@@ -175,13 +174,8 @@ export default {
     };
   },
   mounted () {
-    this.initBreadcrumb();
   },
   methods: {
-    initBreadcrumb () {
-      const id = this._id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VFG', `${id ? '编辑' : '新建'}`]);
-    },
     detailRequest () {
       const id = this._id;
       if (id) {

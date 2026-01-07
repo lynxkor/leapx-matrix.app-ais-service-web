@@ -250,7 +250,8 @@ export default {
                 this.$router.push({
                   path: '/claimreturn/claim/basic/vehicleWarrantyPolicy/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true,
                   }
                 });
               },
@@ -281,7 +282,6 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['整车保修政策设置']);
     this.getData();
   },
   methods: {

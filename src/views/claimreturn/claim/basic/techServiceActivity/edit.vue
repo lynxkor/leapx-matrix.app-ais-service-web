@@ -346,11 +346,10 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: '技术服务活动',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-techServiceActivity',
-      isEditing: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       rules: {
@@ -400,44 +399,12 @@ export default {
           { required: true, message: '请选择保修类型名称', trigger: 'change' }
         ],
       },
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近一个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近三个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
-      },
       schemeId: '',
     };
   },
   mounted () {
-    this.initBreadcrumb();
   },
   methods: {
-    initBreadcrumb () {
-      const id = this._id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['技术服务活动', `${id ? '详情' : '新建'}`]);
-    },
     detailRequest () {
       const id = this._id;
       if (id) {
