@@ -10,11 +10,7 @@
       class="ais-search-form"
     >
       <el-form-item label="备件编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.partCodeLike"
-          clearable
-        />
+        <tag-input v-model="form.partCodeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="备件名称">
         <el-input
@@ -152,6 +148,7 @@ import TagInput from '@/libs/components/TagInput';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   partCodeLike: '',
+  partCodeList: [],
   partNameLike: '',
   vehicleSeriesIds: [],
   vehicleModelIds: [],
@@ -171,7 +168,8 @@ export default {
     ListSelect,
     PageSearchAction,
     LPVxeTable,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
@@ -418,6 +416,10 @@ export default {
           data.updateTimeStart = this.form.updateTime[0];
           data.updateTimeEnd = getEndOfDayString(this.form.updateTime[1]);
         }
+      }
+      if (Array.isArray(this.form.partCodeList) && this.form.partCodeList.length <= 1) {
+        delete data.partCodeList;
+        data.partCodeLike = this.form.partCodeList[0] || '';
       }
 
       return data;

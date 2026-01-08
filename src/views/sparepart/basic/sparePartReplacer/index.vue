@@ -10,18 +10,10 @@
       class="ais-search-form"
     >
       <el-form-item label="替换前备件编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.beforePartCodeLike"
-          clearable
-        />
+        <tag-input v-model="form.beforePartCodeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="替换后前备件编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.afterPartCodeLike"
-          clearable
-        />
+        <tag-input v-model="form.afterPartCodeList" placeholder="请输入" />
       </el-form-item>
       <template v-if="show">
         <el-form-item label="替换前备件名称">
@@ -174,7 +166,8 @@ export default {
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
@@ -442,6 +435,15 @@ export default {
           data.updateTimeStart = this.form.updateTime[0];
           data.updateTimeEnd = getEndOfDayString(this.form.updateTime[1]);
         }
+      }
+
+      if (Array.isArray(this.form.beforePartCodeList) && this.form.beforePartCodeList.length <= 1) {
+        delete data.beforePartCodeList;
+        data.beforePartCodeLike = this.form.beforePartCodeList[0] || '';
+      }
+      if (Array.isArray(this.form.afterPartCodeList) && this.form.afterPartCodeList.length <= 1) {
+        delete data.afterPartCodeList;
+        data.afterPartCodeLike = this.form.afterPartCodeList[0] || '';
       }
 
       return data;
