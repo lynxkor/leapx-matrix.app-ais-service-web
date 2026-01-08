@@ -10,19 +10,11 @@
       class="ais-search-form"
     >
       <el-form-item label="供应商编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.supplierCodeLike"
-          clearable
-        />
+        <tag-input v-model="form.supplierCodeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="备件编码">
-          <el-input
-            placeholder="请输入"
-            v-model="form.partCodeLike"
-            clearable
-          />
-        </el-form-item>
+        <tag-input v-model="form.partCodeList" placeholder="请输入" />
+      </el-form-item>
       <template v-if="show">
         <el-form-item label="供应商名称"  v-show="this.visibleCount === 3 || show">
         <el-input
@@ -130,13 +122,16 @@ import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   id: '',
   supplierCodeLike: '',
+  supplierCodeList: '',
   supplierNameLike: '',
   partCodeLike: '',
+  partCodeList: '',
   partNameLike: '',
   createTime: '',
   updateTime: '',
@@ -154,7 +149,8 @@ export default {
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
@@ -218,10 +214,9 @@ export default {
           { props: 'supplierName', label: '供应商名称', visible: true, width: 200 },
           {
             props: 'partCode',
-            label: '备件编码',
+            label: '零件编码',
             visible: true,
             width: 200,
-            fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -234,47 +229,29 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'partName', label: '备件名称', visible: true, width: 200 },
+          { props: 'partName', label: '零件名称', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-          // {
-          //   props: 'operate',
-          //   label: '操作',
-          //   type: 'operate',
-          //   visible: true,
-          //   fixed: 'right',
-          //   buttons: [{
-          //     name: '编辑',
-          //     click: (rowIndex, row) => {
-          //       this.$router.push({
-          //         path: '/sparepart/basic/sparePartSupplier/edit',
-          //         query: {
-          //           id: row.id
-          //         }
-          //       });
-          //     },
-          //     type: 'info'
-          //   }, {
-          //     name: '删除',
-          //     popconfirmTitle: '此操作将永久删除, 是否继续?',
-          //     click: (rowIndex, row) => {
-          //       deleteItem([row.id]).then(() => {
-          //         this.$message({
-          //           type: 'success',
-          //           message: '删除成功!'
-          //         });
-          //         this.getData();
-          //       }).catch(() => {
-          //         this.$message({
-          //           type: 'error',
-          //           message: '删除失败!'
-          //         });
-          //       });
-          //     },
-          //     type: 'danger'
-          //   }]
-          // }
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
+            buttons: [{
+              name: '编辑',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/sparePartSupplier/edit',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'info'
+            }]
+          }
         ],
         total: 0
       },
@@ -423,6 +400,23 @@ export default {
           data.createTimeStart = this.form.createTime[0];
           data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
         }
+      }
+
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = getEndOfDayString(this.form.updateTime[1]);
+        }
+      }
+
+      if (Array.isArray(this.form.partCodeList) && this.form.partCodeList.length <= 1) {
+        delete data.partCodeList;
+        data.partCodeLike = this.form.partCodeList[0] || '';
+      }
+      if (Array.isArray(this.form.supplierCodeList) && this.form.supplierCodeList.length <= 1) {
+        delete data.supplierCodeList;
+        data.supplierCodeLike = this.form.supplierCodeList[0] || '';
       }
 
       return data;

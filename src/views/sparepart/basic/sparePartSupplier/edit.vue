@@ -34,14 +34,14 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="零件编码" prop="sparePartCode">
+              <el-form-item label="零件编码" prop="partCode">
                 <fetch-select
-                  prop="sparePartCode"
+                  prop="partCode"
                   filterable
                   clearable
                   remote
                   reserve-keyword
-                  v-model="form.sparePartCode"
+                  v-model="form.partCode"
                   :remote-method="listSparePart"
                   :disabled="this.$route.query.id"
                   value-key="id"
@@ -49,10 +49,10 @@
                   @change="listSparePartChange"
                 />
               </el-form-item>
-              <el-form-item label="零件名称" prop="sparePartName">
+              <el-form-item label="零件名称" prop="partName">
                 <el-input
                   placeholder="请输入"
-                  v-model="form.sparePartName"
+                  v-model="form.partName"
                   disabled="true"
                   clearable
                 />
@@ -136,7 +136,7 @@ export default {
         supplierCode: [
           { required: true, message: '请选择供应商', trigger: 'blur' }
         ],
-        sparePartCode: [
+        partCode: [
           { required: true, message: '请选择备件', trigger: 'blur' }
         ],
         quota: [
@@ -194,15 +194,15 @@ export default {
     },
     listSparePartChange (val, all) {
       this.form.sparePartId = all.id;
-      this.form.sparePartCode = all.code;
-      this.form.sparePartName = all.name;
+      this.form.partCode = all.code;
+      this.form.partName = all.name;
     },
     handleBack () {
       this.$router.back();
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['备件关联供应商', `${id ? '编辑' : '新建'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['供应商零配件关系', `${id ? '编辑' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;

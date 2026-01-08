@@ -489,6 +489,30 @@ export default {
         }
       }
 
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = getEndOfDayString(this.form.updateTime[1]);
+        }
+      }
+
+      if (this.form.effectiveStartDate) {
+        delete data.effectiveStartDate;
+        if (this.form.effectiveStartDate.length > 1) {
+          data.effectiveStartDateStart = this.form.effectiveStartDate[0];
+          data.effectiveStartDateEnd = getEndOfDayString(this.form.effectiveStartDate[1]);
+        }
+      }
+
+      if (this.form.effectiveEndDatetime) {
+        delete data.effectiveEndDatetime;
+        if (this.form.effectiveEndDatetime.length > 1) {
+          data.effectiveEndDatetimeStart = this.form.effectiveEndDatetime[0];
+          data.effectiveEndDatetimeEnd = getEndOfDayString(this.form.effectiveEndDatetime[1]);
+        }
+      }
+
       return data;
     },
     async fetchOptions (code) {

@@ -463,6 +463,14 @@ export default {
         }
       }
 
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = getEndOfDayString(this.form.updateTime[1]);
+        }
+      }
+
       if (Array.isArray(this.form.partCodeList) && this.form.partCodeList.length <= 1) {
         delete data.partCodeList;
         data.partCodeLike = this.form.partCodeList[0] || '';
