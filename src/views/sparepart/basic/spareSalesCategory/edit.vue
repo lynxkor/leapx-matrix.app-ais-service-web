@@ -41,17 +41,6 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="是否启用">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="BooleanEnum"
-                  v-model="form.status"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                  :disabled="!this.$route.query.id"
-                />
-              </el-form-item>
             </el-form>
           </div>
         </section>
@@ -230,7 +219,6 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
-    FetchSelect,
   },
   data () {
     const form = this.getDefautlForm();
