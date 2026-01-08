@@ -34,7 +34,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="零件编码" prop="partCode">
+              <el-form-item label="备件编码" prop="partCode">
                 <fetch-select
                   prop="partCode"
                   filterable
@@ -49,7 +49,7 @@
                   @change="listSparePartChange"
                 />
               </el-form-item>
-              <el-form-item label="零件名称" prop="partName">
+              <el-form-item label="备件名称" prop="partName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.partName"
@@ -179,7 +179,7 @@ export default {
 
     async listSupplier (query) {
       console.log('wode');
-      var a = await getSupplier({ partCodeOrNameLike: query });
+      var a = await getSupplier({ supplierCodeOrNameLike: query });
       return a;
     },
     listSupplierChange (val, all) {

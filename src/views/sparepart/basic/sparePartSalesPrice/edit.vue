@@ -11,7 +11,7 @@
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="零件编码">
+              <el-form-item label="备件编码">
                 <fetch-select
                   prop="sparePartCode"
                   filterable
@@ -26,7 +26,7 @@
                   @change="listSparePartChange"
                 />
               </el-form-item>
-              <el-form-item label="零件名称" prop="sparePartName">
+              <el-form-item label="备件名称" prop="sparePartName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.sparePartName"

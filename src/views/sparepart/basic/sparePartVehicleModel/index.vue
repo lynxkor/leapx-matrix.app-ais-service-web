@@ -9,14 +9,14 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="零件编码">
+      <el-form-item label="备件编码">
         <el-input
           placeholder="请输入"
           v-model="form.partCodeLike"
           clearable
         />
       </el-form-item>
-      <el-form-item label="零件名称">
+      <el-form-item label="备件名称">
         <el-input
           placeholder="请输入"
           v-model="form.partNameLike"
