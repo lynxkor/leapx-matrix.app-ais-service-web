@@ -104,6 +104,7 @@ export default {
     EditBaseHeader,
     EditBaseFooter,
   },
+  inject: ['formRefs'], // 注入表单实例
   props: {
     /**
      * 表单数据
@@ -159,8 +160,6 @@ export default {
   },
   data () {
     return {
-      // 存储表单引用
-      formRefs: [],
       loading: false,
       // 表单初始值
       defaultForm: {},
@@ -176,52 +175,13 @@ export default {
         // 注册表单（备用方法）
         registerForm: this.registerForm,
       };
-    }
+    },
   },
   mounted () {
     this.defaultForm = cloneDeep(this.form);
     this.loadDetail();
-    this.$nextTick(() => {
-      this.findFormRefsByComponent();
-    });
   },
   methods: {
-    // 通过组件树查找
-    findFormRefsByComponent() {
-      // 递归查找 el-form 组件
-      const findForms = (vm, currentDepth) => {
-        const forms = [];
-        // 如果超过最大深度，直接返回
-        if (currentDepth >= 6) {
-          return forms;
-        }
-        if (vm.$children && vm.$children.length > 0) {
-          vm.$children.forEach(child => {
-            // 检查是否是 el-form 组件
-            if (child.$options.name === 'ElForm') {
-              forms.push(child);
-            }
-            // 递归查找子组件
-            forms.push(...findForms(child, currentDepth + 1));
-          });
-        }
-        return forms;
-      };
-
-      const foundForms = findForms(this, 1);
-
-      foundForms.forEach(form => {
-        if (!this.formRefs.includes(form)) {
-          this.formRefs.push(form);
-        }
-      });
-      if (!this.formRefs.length) {
-        console.log(
-          '%c未找到表单实例，表单验证需手动在submitRequest中调用验证方法。',
-          'color: red; font-weight: bold;',
-        );
-      }
-    },
     async loadDetail() {
       if (!this.detailRequest) {
         return;
@@ -336,6 +296,44 @@ export default {
         type: 'success'
       });
     },
+    // 通过组件树查找
+    /*
+    findFormRefsByComponent() {
+      // 递归查找 el-form 组件
+      const findForms = (vm, currentDepth) => {
+        const forms = [];
+        // 如果超过最大深度，直接返回
+        if (currentDepth >= 6) {
+          return forms;
+        }
+        if (vm.$children && vm.$children.length > 0) {
+          vm.$children.forEach(child => {
+            // 检查是否是 el-form 组件
+            if (child.$options.name === 'ElForm') {
+              forms.push(child);
+            }
+            // 递归查找子组件
+            forms.push(...findForms(child, currentDepth + 1));
+          });
+        }
+        return forms;
+      };
+
+      const foundForms = findForms(this, 1);
+
+      foundForms.forEach(form => {
+        if (!this.formRefs.includes(form)) {
+          this.formRefs.push(form);
+        }
+      });
+      if (!this.formRefs.length) {
+        console.log(
+          '%c未找到表单实例，表单验证需手动在submitRequest中调用验证方法。',
+          'color: red; font-weight: bold;',
+        );
+      }
+    },
+    */
   }
 };
 </script>
