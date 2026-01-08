@@ -5,7 +5,7 @@ import { getRouter } from './router';
 import store from './store';
 import ElementUI from 'element-ui';
 import Vuex from 'vuex';
-import '@/libs/directive/permissions.js';
+import '@/libs/directive/index.js';
 import '@/common/css/element-variables.scss';
 import '@/common/css/base.css';
 import '@/libs/assets/styles/index.scss';
