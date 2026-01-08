@@ -16,7 +16,7 @@
                   placeholder="请输入"
                   v-model="form.categoryCode"
                   clearable
-                  :disabled="partsId"
+                  :disabled="!!partsId"
                 />
               </el-form-item>
               <el-form-item label="分类名称" prop="categoryName">
@@ -40,6 +40,17 @@
                     :value="item.value">
                   </el-option>
                 </el-select>
+              </el-form-item>
+              <el-form-item label="是否启用">
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="BooleanEnum"
+                  v-model="form.status"
+                  placeholder="请选择"
+                  clearable
+                  filterable
+                  :disabled="!this.$route.query.id"
+                />
               </el-form-item>
             </el-form>
           </div>
@@ -202,7 +213,7 @@ const defaultForm = {
   modifier: '',
   modifierName: '',
   remark: '',
-  status: '',
+  status: '1',
   dataSource: '',
   categoryType: '',
   buildTypeCode: [],
@@ -322,6 +333,10 @@ export default {
               type: 'success'
             });
             this.partsId = res || '';
+            if (this.partsId) { // 判断新增时 获取到id 就赋值 调整为编辑状态 传参id
+              this.form.id = this.partsId;
+            }
+            this.form.id = this.partsId;
             const id = this.$route.query.id;
             if (res) {
               this.getDetailData();
@@ -422,6 +437,7 @@ export default {
       this.getPurchaseDealer(this.partsId, val);
       this.dealerCodes = ''; // 可采购门店列表
       this.noDealerCodes = ''; // 不可采购门店列表
+      this.storeParams = {}; // 添加以后清空
     },
     // 查询可采购门店数据
     async getPurchaseDealer (val, status) {

@@ -19,9 +19,6 @@
             <el-form-item label="分类名称：" prop="categoryName">
               {{ info.categoryName  }}
             </el-form-item>
-            <el-form-item label="状态变更描述：" prop="statusDesc">
-              {{ info.statusDesc  }}
-            </el-form-item>
             <el-form-item label="创建时间：" prop="createTime">
               {{ info.createTime  }}
             </el-form-item>
@@ -43,17 +40,20 @@
             <el-form-item label="修改者名称：" prop="modifierName">
               {{ info.modifierName  }}
             </el-form-item>
+            <el-form-item label="状态：" prop="statusLabel">
+              {{ info.statusLabel  }}
+            </el-form-item>
+            <el-form-item label="数据来源：" prop="dataSourceLabel">
+              {{ info.dataSourceLabel  }}
+            </el-form-item>
+            <el-form-item label="分类类型：" prop="categoryType">
+              {{ info.categoryType  }}
+            </el-form-item>
+            <el-form-item label="状态变更描述：" prop="statusDesc">
+              {{ info.statusDesc  }}
+            </el-form-item>
             <el-form-item label="备注：" prop="remark">
               {{ info.remark  }}
-            </el-form-item>
-            <el-form-item label="状态：" prop="status">
-              {{ info.status  }}
-            </el-form-item>
-            <el-form-item label="数据来源，140:新销服; 老销服:10：" prop="dataSource">
-              {{ info.dataSource  }}
-            </el-form-item>
-            <el-form-item label="分类类型：工程分类、营销分类、供应分类：" prop="categoryType">
-              {{ info.categoryType  }}
             </el-form-item>
           </el-form>
         </div>

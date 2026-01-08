@@ -34,7 +34,7 @@
             multiple
             filterable
           />
-      </el-form-item>
+        </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
@@ -167,17 +167,17 @@ export default {
             visible: true,
             width: 200,
             fixed: 'left',
-            // buttons: [{
-            //   click: (rowIndex, row) => {
-            //     this.$router.push({
-            //       path: '/sparepart/basic/spareSalesCategory/detail',
-            //       query: {
-            //         id: row.id
-            //       }
-            //     });
-            //   },
-            //   type: 'primary'
-            // }]
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/spareSalesCategory/detail',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'primary'
+            }]
           },
           { props: 'categoryName', label: '营销分类名称', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
