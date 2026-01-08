@@ -201,7 +201,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/basic/partWarrantyPolicy/detail',
+                  path: '/claimreturn/claim/basic/partWarrantyPolicy/edit',
                   query: {
                     id: row.id
                   }
@@ -230,7 +230,8 @@ export default {
                 this.$router.push({
                   path: '/claimreturn/claim/basic/partWarrantyPolicy/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true,
                   }
                 });
               },
@@ -261,7 +262,6 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },
   methods: {

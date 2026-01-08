@@ -154,7 +154,7 @@ export default {
               {
                 click: (rowIndex, row) => {
                   this.$router.push({
-                    path: '/claimreturn/claim/basic/threeGuaranteesRule/detail',
+                    path: '/claimreturn/claim/basic/threeGuaranteesRule/edit',
                     query: {
                       id: row.id,
                     },
@@ -278,6 +278,7 @@ export default {
                     path: '/claimreturn/claim/basic/threeGuaranteesRule/edit',
                     query: {
                       id: row.id,
+                      isEditing: true,
                     },
                   });
                 },
@@ -311,7 +312,6 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },
   methods: {

@@ -1,95 +1,139 @@
 <template>
   <!-- TIPS: 如果填写项大于15项，使用类名page-common-edit替换page-common-add -->
-  <div class="page-common-add">
-    <el-container direction="vertical">
-      <el-main v-loading="loading">
-        <section class="common-section">
-          <div class="common-section-header">
-            <h2>基础信息</h2>
-          </div>
-          <div class="common-section-body">
-            <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
-            <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-            <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="活动编码" prop="activityId">
-                <list-select
-                  v-if="!$route.query.id||form.id"
-                  listUrl="/claimreturn/claim/web/basic/techServiceActivity/listFull"
-                  placeholder="请选择"
-                  v-model="form.activityId"
-                  query-key="activityCodeLike"
-                  clearable
-                  :disabled="$route.query.id!=null"
-                  auto-load-options
-                  collapseTags
-                  no-param-load
-                  labelKey="activityCode"
-                  @change="handleActivityChange"
-                  filterable
-                />
-              </el-form-item>
-              <el-form-item label="活动名称" prop="activityName">
-                {{ form.activityName }}
-              </el-form-item>
-              <el-form-item label="VIN" prop="vin">
-                <!-- todo 车辆档案 -->
-                <LPEncrypted
-                  :value.sync="form.vin"
-                  :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
-                >
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vin"
-                    :disabled="$route.query.id!=null"
-                    clearable
-                  />
-                </LPEncrypted>
-              </el-form-item>
-              <el-form-item label="计划实施门店名称" prop="plannedDealerCode">
-                <dealer-select
-                  :disabled="form.finished==='1'"
-                  v-model="form.plannedDealerCode"
-                  :defaultDealerName="form.plannedDealerName"
-                />
-              </el-form-item>
-              <el-form-item label="车主姓名" prop="ownerName">
-                {{ form.ownerName }}
-              </el-form-item>
-              <el-form-item label="车主手机号码" prop="ownerPhone">
-                <LPEncrypted
-                  :value.sync="form.ownerPhone"
-                  :decryptMethod="() => getDetailDecryptField(form.id, 'ownerPhone')"
-                />
-              </el-form-item>
-              <el-form-item label="是否完成" prop="finished">
-                {{ form.finishedLabel }}
-              </el-form-item>
-              <el-form-item label="完成时间" prop="finishTime">
-                {{ form.finishTime }}
-              </el-form-item>
-              <el-form-item label="实际施工门店名称" prop="actualDealerName">
-                {{ form.actualDealerName }}
-              </el-form-item>
-              <el-form-item label="施工单号" prop="workOrderNo">
-                {{ form.workOrderNo }}
-              </el-form-item>
-
-              <el-form-item label="施工方案" prop="schemeName">
-                {{ form.schemeName }}
-              </el-form-item>
-            </el-form>
-          </div>
-        </section>
-      </el-main>
-      <edit-base-footer
-        :inEditMode="Boolean(_id)"
-        :loading="submitLoading"
-        @reset="resetForm('ruleForm')"
-        @submit="(success) => submitForm('ruleForm', success)"
-        @refresh="getDetailData"
-      />
-    </el-container>
-  </div>
+  <edit-page-layout ref="editLayout" title="" >
+    <template #left>
+      <edit-base-container
+        ref="containerRef"
+        :id="_id"
+        :title="`活动编码：${form.activityCode}`"
+        :isEditing.sync="isEditing"
+        :form.sync="form"
+        direction="vertical"
+        :showBackBtn="showBackBtn"
+        :submitRequest="submitRequest"
+        :detailRequest="detailRequest"
+      >
+        <template #default="{formApi}">
+          <el-main v-loading="loading">
+            <section class="common-section">
+              <div class="common-section-header">
+                <h2>基础信息</h2>
+              </div>
+              <div class="common-section-body">
+                <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
+                <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+                 <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                  <el-form-item label="活动编码：" prop="activityId">
+                    <list-select
+                      listUrl="/claimreturn/claim/web/basic/techServiceActivity/listFull"
+                      placeholder="请选择"
+                      v-model="form.activityId"
+                      query-key="activityCodeLike"
+                      clearable
+                      :disabled="Boolean(_id)"
+                      auto-load-options
+                      collapseTags
+                      no-param-load
+                      labelKey="activityCode"
+                      @change="handleActivityChange"
+                      filterable
+                    />
+                  </el-form-item>
+                  <el-form-item label="活动名称：" prop="activityName">
+                    {{ form.activityName }}
+                  </el-form-item>
+                  <el-form-item label="VIN：" prop="vin">
+                    <!-- todo 车辆档案 -->
+                    <LPEncrypted
+                      :value.sync="form.vin"
+                      :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
+                    >
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.vin"
+                        :disabled="Boolean(_id)"
+                        clearable
+                      />
+                    </LPEncrypted>
+                  </el-form-item>
+                  <el-form-item label="计划实施门店名称：" prop="plannedDealerCode">
+                    <dealer-select
+                      :disabled="form.finished==='1'"
+                      v-model="form.plannedDealerCode"
+                      :defaultDealerName="form.plannedDealerName"
+                    />
+                  </el-form-item>
+                  <el-form-item label="车主姓名：" prop="ownerName">
+                    {{ form.ownerName }}
+                  </el-form-item>
+                  <el-form-item label="车主手机号码：" prop="ownerPhone">
+                    <LPEncrypted
+                      :value.sync="form.ownerPhone"
+                      :decryptMethod="() => getDetailDecryptField(form.id, 'ownerPhone')"
+                    />
+                  </el-form-item>
+                  <el-form-item label="是否完成：" prop="finished">
+                    {{ form.finishedLabel }}
+                  </el-form-item>
+                  <el-form-item label="完成时间：" prop="finishTime">
+                    {{ form.finishTime }}
+                  </el-form-item>
+                  <el-form-item label="实际施工门店名称：" prop="actualDealerName">
+                    {{ form.actualDealerName }}
+                  </el-form-item>
+                  <el-form-item label="施工单号：" prop="workOrderNo">
+                    {{ form.workOrderNo }}
+                  </el-form-item>
+                  <el-form-item label="施工方案：" prop="schemeName">
+                    {{ form.schemeName }}
+                  </el-form-item>
+                </el-form>
+                <el-form :inline="true" label-width="150px"  class="form-detail" v-show="!(isEditing || !_id)">
+                  <el-form-item label="活动编码：" prop="activityId">
+                    {{ form.activityId }}
+                  </el-form-item>
+                  <el-form-item label="活动名称：" prop="activityName">
+                    {{ form.activityName }}
+                  </el-form-item>
+                  <el-form-item label="VIN：" prop="vin">
+                    {{ form.vin }}
+                  </el-form-item>
+                  <el-form-item label="计划实施门店名称：" prop="plannedDealerCode">
+                    {{ form.plannedDealerCode }}
+                  </el-form-item>
+                  <el-form-item label="车主姓名：" prop="ownerName">
+                    {{ form.ownerName }}
+                  </el-form-item>
+                  <el-form-item label="车主手机号码：" prop="ownerPhone">
+                    {{ form.ownerPhone }}
+                  </el-form-item>
+                  <el-form-item label="是否完成：" prop="finished">
+                    {{ form.finished }}
+                  </el-form-item>
+                  <el-form-item label="完成时间：" prop="finishTime">
+                    {{ form.finishTime }}
+                  </el-form-item>
+                  <el-form-item label="实际施工门店名称：" prop="actualDealerName">
+                    {{ form.actualDealerName }}
+                  </el-form-item>
+                  <el-form-item label="施工单号：" prop="workOrderNo">
+                    {{ form.workOrderNo }}
+                  </el-form-item>
+                  <el-form-item label="施工方案：" prop="schemeName">
+                    {{ form.schemeName }}
+                  </el-form-item>
+                </el-form>
+              </div>
+            </section>
+          </el-main>
+        </template>
+      </edit-base-container>
+    </template>
+    <template #right>
+      <div class="page-common-edit">
+      </div>
+    </template>
+  </edit-page-layout>
 </template>
 
 <script>
@@ -102,7 +146,8 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import DealerSelect from '@/components/dealer-select/index.vue';
 import LPEncrypted from '@/libs/components/LPEncrypted';
-import EditBaseFooter from '@/components/EditBaseFooter';
+import EditBaseContainer from '@/components/EditBaseContainer';
+import EditPageLayout from '@/libs/components/EditPageLayout';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -161,11 +206,16 @@ export default {
     id: {
       type: [String, Number],
       default: null
-    }
+    },
+    showBackBtn: {
+      type: Boolean,
+      default: true,
+    },
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
-    EditBaseFooter,
+    EditBaseContainer,
+    EditPageLayout,
     DealerSelect,
     ListSelect,
     LPEncrypted
@@ -178,8 +228,8 @@ export default {
   watch: {
     id: {
       handler (val) {
-        if (val) {
-          this.getDetailData();
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
         }
       },
       immediate: true
@@ -195,7 +245,6 @@ export default {
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
-      originalForm: { ...form },
       rules: {
         activityId: [
           { required: true, message: '请输入活动编码', trigger: 'blur' }
@@ -207,65 +256,19 @@ export default {
     };
   },
   mounted () {
-    this.getDetailData();
   },
   methods: {
     getDetailDecryptField (id, field) {
       return getDetailDecryptField(id, field);
     },
-    handleBack () {
-      this.$router.back();
-    },
-    getDetailData () {
-      const id = this.id || this.$route.query.id;
-      if (!id) { // 非嵌入集中视图时更新标题
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['服务活动车辆', `${id ? '编辑' : '新建'}`]);
-      }
+    detailRequest () {
+      const id = this._id;
       if (id) {
-        this.loading = true;
-        getDetail(id).then(res => {
-          Object.assign(this.form, res);
-          Object.assign(this.originalForm, res);
-        }).finally(() => {
-          this.loading = false;
-        });
+        return getDetail(id);
       }
     },
-    submitForm (formName, success) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          this.submitLoading = true;
-          addOrUpdate({ ...this.form }).then(res => {
-            this.$message({
-              message: '保存成功',
-              type: 'success'
-            });
-            // 新建保存时需要用到这个id
-            let id;
-            if (typeof res === 'string') {
-              id = res;
-            }
-
-            // 编辑
-            if (this.id) {
-              if (success) {
-                success();
-              } else if (this.getDetailData) {
-                this.getDetailData?.();
-              }
-            } else if (success) { // 新建
-              success(id);
-            }
-          }).finally(() => {
-            this.submitLoading = false;
-          });
-        }
-      });
-    },
-    resetForm (formName) {
-      this.$refs[formName].resetFields();
-      this.tableData = [];
-      this.form = this.getDefautlForm();
+    submitRequest () {
+      return addOrUpdate({ ...this.form });
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
@@ -276,15 +279,6 @@ export default {
         // ownerName: userInfo.userName,
       };
     },
-    // handleJumpAuditLog () {
-    //   this.$router.push({
-    //     path: '/xxx/auditLog',
-    //     query: {
-    //       tableCode: '',
-    //       tableId: ''
-    //     }
-    //   });
-    // },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);

@@ -37,6 +37,7 @@
     "moment": "^2.30.1",
     "moment-locales-webpack-plugin": "^1.2.0",
     "mustache": "^4.2.0",
+    "qrcode.vue": "^1.7.0",
     "qs": "^6.10.1",
     "recast": "^0.23.11",
     "vue": "^2.6.11",
@@ -47,7 +48,7 @@
     "vxe-table": "^3.15.17"
   },
   "devDependencies": {
-    "@leapmotor/design": "^0.1.7-alpha.28",
+    "@leapmotor/design": "^0.1.7-alpha.32",
     "@types/lodash": "^4.17.21",
     "@vue/cli-plugin-babel": "^4.2.0",
     "@vue/cli-plugin-eslint": "^4.2.0",

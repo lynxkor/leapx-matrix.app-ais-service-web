@@ -109,7 +109,7 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-permission="moduleKey + '-batchPrintTag'" size="small" type="primary" @click="handleAdd"><i class="iconfont"></i>批量打印标签</el-button>
+      <el-button v-permission="moduleKey + '-batchPrintTag'" size="small" type="primary" @click="handlePrint"><i class="iconfont"></i>批量打印标签</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
@@ -417,6 +417,16 @@ export default {
     handleAdd () {
       this.$router.push({
         path: '/claimreturn/oldpart/oemInventory/edit'
+      });
+    },
+    handlePrint () {
+      console.log(this.selectionList);
+      this.$print.show({
+        id: 'xxxx', // 必选，对应数据id
+        template: 'oldpart', // 必选，对应 ./template/文件名.vue
+        title: 'test', // 可选，打印标题
+        data: { id: 'xxx' }, // 可选，其他数据对象
+        width: 1122,
       });
     },
     onSubmit () {

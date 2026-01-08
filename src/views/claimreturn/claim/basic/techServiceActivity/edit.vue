@@ -139,7 +139,7 @@
                     />
                   </el-form-item>
                 </el-form>
-                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form :inline="true"  label-width="150px" class="form-detail" v-show="!(isEditing || !_id)">
                   <el-form-item label="活动编码：">
                     {{ form.activityCode }}
                   </el-form-item>
@@ -194,7 +194,7 @@
               </div>
               <div class="common-section-body">
                 <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                  <el-form-item label="结算类型：" prop="checkoutTypeName">
+                  <el-form-item label="结算类型：" prop="checkoutTypeId">
                     <fetch-select
                       filterable
                       clearable
@@ -208,7 +208,7 @@
                       label-key="name"
                     />
                   </el-form-item>
-                  <el-form-item label="保修类型：" prop="repairItemTypeName">
+                  <el-form-item label="保修类型：" prop="repairItemTypeId">
                     <fetch-select
                       filterable
                       clearable
@@ -346,11 +346,10 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: '技术服务活动',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-techServiceActivity',
-      isEditing: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       rules: {
@@ -400,44 +399,12 @@ export default {
           { required: true, message: '请选择保修类型名称', trigger: 'change' }
         ],
       },
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近一个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近三个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
-      },
       schemeId: '',
     };
   },
   mounted () {
-    this.initBreadcrumb();
   },
   methods: {
-    initBreadcrumb () {
-      const id = this._id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['技术服务活动', `${id ? '详情' : '新建'}`]);
-    },
     detailRequest () {
       const id = this._id;
       if (id) {

@@ -32,10 +32,9 @@
     <!-- 支持自定义插槽 -->
     <slot name="footer">
       <el-button size="small" @click="handleCancel">{{ cancelText }}</el-button>
-      <el-button v-if="inEditMode" size="small" type="primary" @click="$emit('refresh')">{{refreshText}}</el-button>
       <el-button size="small" type="primary" @click="handleSave" :loading="loading">{{ saveText }}</el-button>
       <el-button size="small" type="primary" @click="handleSaveAndClose" :loading="loading">{{ saveAndCloseText }}</el-button>
-      <el-button v-if="!inEditMode" size="small" type="primary" @click="handleSaveAndNext" :loading="loading">{{ saveAndNextText }}</el-button>
+      <el-button size="small" type="primary" @click="handleSaveAndNext" :loading="loading">{{ saveAndNextText }}</el-button>
     </slot>
   </el-footer>
 </template>
@@ -84,16 +83,6 @@ export default {
     refreshText: {
       type: String,
       default: '刷新'
-    },
-    /**
-     * 是否为编辑状态
-     * @description 标识组件是否处于编辑页面场景中
-     * @type {Boolean}
-     * @default true
-     */
-    inEditMode: {
-      type: Boolean,
-      default: true,
     },
   },
   methods: {

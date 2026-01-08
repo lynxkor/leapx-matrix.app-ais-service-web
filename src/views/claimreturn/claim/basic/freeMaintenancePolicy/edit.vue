@@ -311,11 +311,10 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: '免费保养政策',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-freeMaintenancePolicy',
-      isEditing: false,
       yes_no_enum: YES_NO_ENUM,
       pannelTitle: '',
       form: { ...form },
@@ -376,13 +375,8 @@ export default {
     };
   },
   mounted () {
-    this.initBreadcrumb();
   },
   methods: {
-    initBreadcrumb () {
-      const id = this._id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['免费保养政策', `${id ? '详情' : '新建'}`]);
-    },
     // 项目维修代码
     handleRepairItemChange (val, record) {
       if (record) {

@@ -8,6 +8,7 @@
           v-model="partId"
           :load-params="loadParams"
           :load-data="loadData"
+          :autoSelectFirst="true"
           :item-config="{
             valueKey: 'id',
             labelKey: 'repairItemName',
@@ -29,7 +30,7 @@
           :menus="menus"
           />
         </section>
-        <section class="common-section">
+        <section class="common-section" v-if="partId">
           <el-form
             v-if="isEditing"
             :inline="true"
@@ -126,7 +127,7 @@
             </el-form-item> -->
           </el-form>
         </section>
-        <section class="common-section">
+        <section class="common-section" v-if="partId">
           <div class="sub-title">
             零件明细
           </div>
@@ -313,10 +314,12 @@ export default {
         isMainRepairItem: data.isMainRepairItem ? '1' : '0',
       });
     },
+    // 获取项目零件列表
     loadData (params) {
       return techServiceActivityItemPage(params);
     },
     getDetail (id) {
+      // 获取项目零件
       techServiceActivityItemGet(id).then(data => {
         Object.keys(this.form).forEach(key => {
           if (key === 'allowDelete' || key === 'isMainRepairItem') {

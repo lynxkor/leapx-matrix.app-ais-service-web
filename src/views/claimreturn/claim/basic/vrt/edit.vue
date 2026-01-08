@@ -22,7 +22,7 @@
               <div class="common-section-body">
                 <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
                 <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-                <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="VRT编码：" prop="vrtCode">
                     <el-input
                       placeholder="请输入"
@@ -52,7 +52,7 @@
                     />
                   </el-form-item>
                 </el-form>
-                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form :inline="true" label-width="150px" class="form-detail" v-show="!(isEditing || !_id)">
                   <el-form-item label="VRT编码：" prop="vrtCode">
                     {{ form.vrtCode }}
                   </el-form-item>
@@ -112,7 +112,10 @@ export default {
       type: [String, Number],
       default: null
     },
-    showBackBtn: Boolean,
+    showBackBtn: {
+      type: Boolean,
+      default: true,
+    },
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
@@ -128,7 +131,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: 'VRT',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-vrt',
@@ -136,8 +139,6 @@ export default {
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
-      originalForm: { ...form },
-      isEditing: false,
       rules: {
         vrtCode: [
           { required: true, message: '请输入VRT编码', trigger: 'blur' }
@@ -152,13 +153,8 @@ export default {
     };
   },
   mounted () {
-    this.initBreadcrumb();
   },
   methods: {
-    initBreadcrumb () {
-      const id = this._id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['VRT', `${id ? '详情' : '新建'}`]);
-    },
     detailRequest () {
       const id = this._id;
       this.form.status = 1;
