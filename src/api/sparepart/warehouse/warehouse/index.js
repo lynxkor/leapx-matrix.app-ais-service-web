@@ -1,7 +1,8 @@
 import api from '@/axios';
+import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
-const prefix = 'sp/web/warehouse/warehouse/';
+const prefix = SPARE_PREFIX + '/web/warehouse/warehouse/';
 
 /**
  * 查询列表
