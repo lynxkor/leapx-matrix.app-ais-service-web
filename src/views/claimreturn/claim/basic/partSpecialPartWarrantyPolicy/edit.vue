@@ -13,152 +13,150 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
-        <template #default="{formApi}">
-          <el-main>
-            <section class="common-section">
-              <div class="common-section-header">
-                <h2>基础信息</h2>
-              </div>
-              <div class="common-section-body">
-                <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
-                <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-                <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                  <el-form-item label="政策名称：" prop="policyName">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.policyName"
-                      maxlength="100"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="零件编码：" prop="partId">
-                    <list-select
-                      listUrl="/sp/web/basic/sparePart/list"
-                      placeholder="请选择"
-                      v-model="form.partId"
-                      :disabled="Boolean(_id)"
-                      query-key="partCodeOrNameLike"
-                      auto-load-options
-                      no-param-load
-                      filterable
-                      clearable
-                      label-key="code"
-                      second-line-key="name"
-                      @change="handlePartChange"
-                      :params="{oemPart: 1}" />
-                  </el-form-item>
-                  <el-form-item label="零件名称：" prop="partName">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.partName"
-                      maxlength="100"
-                      clearable
-                      disabled
-                    />
-                  </el-form-item>
-                  <el-form-item label="车系名称：" prop="seriesId">
-                    <list-select
-                      listUrl="/datacenter/web/materials/vehicleSeries/list"
-                      placeholder="请选择"
-                      v-model="form.seriesId"
-                      query-key="seriesNameLike"
-                      auto-load-options
-                      no-param-load
-                      :disabled="Boolean(_id)"
-                      filterable
-                      clearable
-                      :params="{}" />
-                  </el-form-item>
-                  <el-form-item label="里程数（KM）：" prop="mileage">
-                    <el-input-number
-                      placeholder="请输入"
-                      v-model="form.mileage"
-                      :controls="false"
-                      :precision="0"
-                      :min="0"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="保修期（月）：" prop="warrantyPeriod">
-                    <el-input-number
-                      placeholder="请输入"
-                      v-model="form.warrantyPeriod"
-                      :controls="false"
-                      :precision="0"
-                      :min="0"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="车型名称：" prop="modelId">
-                    <list-select
-                      listUrl="/datacenter/web/materials/vehicleModel/list"
-                      placeholder="请选择"
-                      v-model="form.modelId"
-                      query-key="modelNameLike"
-                      auto-load-options
-                      :disabled="Boolean(_id)"
-                      collapseTags
-                      filterable
-                      clearable
-                      :params="{seriesIdList: form.seriesId?[form.seriesId]:[]}" />
-                  </el-form-item>
-                  <el-form-item label="车辆年款：" prop="yearTypeId">
-                    <list-select
-                      listUrl="/datacenter/web/materials/vehicleYearType/list"
-                      placeholder="请选择"
-                      v-model="form.yearTypeId"
-                      :disabled="Boolean(_id)"
-                      query-key="yearTypeNameLike"
-                      collapseTags
-                      no-param-load
-                      auto-load-options
-                      filterable
-                      :params="{}" />
-                  </el-form-item>
-                  <el-form-item label="备注：" prop="remark">
-                    <el-input
-                      type="textarea"
-                      placeholder="请输入"
-                      v-model="form.remark"
-                      maxlength="500"
-                      show-word-limit
-                      clearable
-                    />
-                  </el-form-item>
-                </el-form>
-                <el-form :inline="true" label-width="150px"  class="form-detail" v-show="!(isEditing || !_id)">
-                  <el-form-item label="政策名称：" prop="policyName">
-                    {{ form.policyName }}
-                  </el-form-item>
-                  <el-form-item label="零件编码：" prop="partCode">
-                    {{ form.partCode }}
-                  </el-form-item>
-                  <el-form-item label="零件名称：" prop="partName">
-                    {{ form.partName }}
-                  </el-form-item>
-                  <el-form-item label="车系名称：" prop="seriesName">
-                    {{ form.seriesName }}
-                  </el-form-item>
-                  <el-form-item label="里程数（KM）：" prop="mileage">
-                    {{ form.mileage }}
-                  </el-form-item>
-                  <el-form-item label="保修期（月）：" prop="warrantyPeriod">
-                    {{ form.warrantyPeriod }}
-                  </el-form-item>
-                  <el-form-item label="车型名称：" prop="modelName">
-                    {{ form.modelName }}
-                  </el-form-item>
-                  <el-form-item label="车辆年款：" prop="yearTypeName">
-                    {{ form.yearTypeName }}
-                  </el-form-item>
-                  <el-form-item label="备注：" prop="remark">
-                    {{ form.remark }}
-                  </el-form-item>
-                </el-form>
-              </div>
-            </section>
-          </el-main>
-          </template>
+        <el-main>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>基础信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form  :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="政策名称：" prop="policyName">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.policyName"
+                    maxlength="100"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="零件编码：" prop="partId">
+                  <list-select
+                    listUrl="/sp/web/basic/sparePart/list"
+                    placeholder="请选择"
+                    v-model="form.partId"
+                    :disabled="Boolean(_id)"
+                    query-key="partCodeOrNameLike"
+                    auto-load-options
+                    no-param-load
+                    filterable
+                    clearable
+                    label-key="code"
+                    second-line-key="name"
+                    @change="handlePartChange"
+                    :params="{oemPart: 1}" />
+                </el-form-item>
+                <el-form-item label="零件名称：" prop="partName">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.partName"
+                    maxlength="100"
+                    clearable
+                    disabled
+                  />
+                </el-form-item>
+                <el-form-item label="车系名称：" prop="seriesId">
+                  <list-select
+                    listUrl="/datacenter/web/materials/vehicleSeries/list"
+                    placeholder="请选择"
+                    v-model="form.seriesId"
+                    query-key="seriesNameLike"
+                    auto-load-options
+                    no-param-load
+                    :disabled="Boolean(_id)"
+                    filterable
+                    clearable
+                    :params="{}" />
+                </el-form-item>
+                <el-form-item label="里程数（KM）：" prop="mileage">
+                  <el-input-number
+                    placeholder="请输入"
+                    v-model="form.mileage"
+                    :controls="false"
+                    :precision="0"
+                    :min="0"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="保修期（月）：" prop="warrantyPeriod">
+                  <el-input-number
+                    placeholder="请输入"
+                    v-model="form.warrantyPeriod"
+                    :controls="false"
+                    :precision="0"
+                    :min="0"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="车型名称：" prop="modelId">
+                  <list-select
+                    listUrl="/datacenter/web/materials/vehicleModel/list"
+                    placeholder="请选择"
+                    v-model="form.modelId"
+                    query-key="modelNameLike"
+                    auto-load-options
+                    :disabled="Boolean(_id)"
+                    collapseTags
+                    filterable
+                    clearable
+                    :params="{seriesIdList: form.seriesId?[form.seriesId]:[]}" />
+                </el-form-item>
+                <el-form-item label="车辆年款：" prop="yearTypeId">
+                  <list-select
+                    listUrl="/datacenter/web/materials/vehicleYearType/list"
+                    placeholder="请选择"
+                    v-model="form.yearTypeId"
+                    :disabled="Boolean(_id)"
+                    query-key="yearTypeNameLike"
+                    collapseTags
+                    no-param-load
+                    auto-load-options
+                    filterable
+                    :params="{}" />
+                </el-form-item>
+                <el-form-item label="备注：" prop="remark">
+                  <el-input
+                    type="textarea"
+                    placeholder="请输入"
+                    v-model="form.remark"
+                    maxlength="500"
+                    show-word-limit
+                    clearable
+                  />
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" label-width="150px"  class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="政策名称：" prop="policyName">
+                  {{ form.policyName }}
+                </el-form-item>
+                <el-form-item label="零件编码：" prop="partCode">
+                  {{ form.partCode }}
+                </el-form-item>
+                <el-form-item label="零件名称：" prop="partName">
+                  {{ form.partName }}
+                </el-form-item>
+                <el-form-item label="车系名称：" prop="seriesName">
+                  {{ form.seriesName }}
+                </el-form-item>
+                <el-form-item label="里程数（KM）：" prop="mileage">
+                  {{ form.mileage }}
+                </el-form-item>
+                <el-form-item label="保修期（月）：" prop="warrantyPeriod">
+                  {{ form.warrantyPeriod }}
+                </el-form-item>
+                <el-form-item label="车型名称：" prop="modelName">
+                  {{ form.modelName }}
+                </el-form-item>
+                <el-form-item label="车辆年款：" prop="yearTypeName">
+                  {{ form.yearTypeName }}
+                </el-form-item>
+                <el-form-item label="备注：" prop="remark">
+                  {{ form.remark }}
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+        </el-main>
       </edit-base-container>
     </template>
     <template #right>
