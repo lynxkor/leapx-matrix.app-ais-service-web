@@ -34,7 +34,7 @@
         <el-form-item label="是否启用">
           <fetch-select
             :request="fetchOptions"
-            enumCode="StatusEnum"
+            enumCode="BooleanEnum"
             v-model="form.statusIncludeList"
             placeholder="请选择"
             clearable
@@ -123,6 +123,7 @@ import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -265,6 +266,8 @@ export default {
     },
     onReset () {
       this.form = { ...defaultForm };
+      this.optionObj.form.page = 1;
+      this.optionObj.form.pageSize = pageSize;
       this.getData();
     },
     exportExcel () {
@@ -357,6 +360,14 @@ export default {
         if (this.form.createTime.length > 1) {
           data.createTimeStart = this.form.createTime[0];
           data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
+        }
+      }
+
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = getEndOfDayString(this.form.updateTime[1]);
         }
       }
 

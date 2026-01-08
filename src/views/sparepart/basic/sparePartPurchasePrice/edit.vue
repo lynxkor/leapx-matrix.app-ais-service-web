@@ -51,7 +51,7 @@
                     </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="零件编码" prop="sparePartCode"  v-if="form.pricingModel != 'dealerPriceRatio'">
+              <el-form-item label="备件编码" prop="sparePartCode"  v-if="form.pricingModel != 'dealerPriceRatio'">
                 <fetch-select
                   prop="sparePartCode"
                   filterable
@@ -66,7 +66,7 @@
                   @change="listSparePartChange"
                 />
               </el-form-item>
-              <el-form-item label="零件名称"  v-if="form.pricingModel != 'dealerPriceRatio'">
+              <el-form-item label="备件名称"  v-if="form.pricingModel != 'dealerPriceRatio'">
                 <el-input
                   placeholder="请输入"
                   v-model="form.sparePartName"

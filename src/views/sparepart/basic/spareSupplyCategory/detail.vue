@@ -3,7 +3,7 @@
     <el-skeleton v-if="loading" :rows="6" animated />
     <template v-else>
       <section class="common-title">
-        <h2>状态：{{ info.status }}</h2>
+        <h2>供应分类编码：{{ info.categoryCode }}</h2>
         <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
       </section>
       <section class="common-section">
@@ -13,14 +13,11 @@
         <div class="common-section-body">
           <el-form :inline="true" ref="ruleForm" label-width="120px">
             <!-- TIPS: 根据实际情况调整展示字段 -->
-            <el-form-item label="状态：" prop="status">
-              {{ info.status  }}
-            </el-form-item>
-            <el-form-item label="分类编码：" prop="categoryCode">
-              {{ info.categoryCode  }}
-            </el-form-item>
-            <el-form-item label="分类名称：" prop="categoryName">
+            <el-form-item label="供应分类名称：" prop="categoryName">
               {{ info.categoryName  }}
+            </el-form-item>
+            <el-form-item label="是否启用：" prop="status">
+              {{ info.statusLabel  }}
             </el-form-item>
             <el-form-item label="状态变更描述：" prop="statusDesc">
               {{ info.statusDesc  }}
@@ -31,30 +28,9 @@
             <el-form-item label="修改时间：" prop="updateTime">
               {{ info.updateTime  }}
             </el-form-item>
-            <el-form-item label="主键：" prop="id">
-              {{ info.id  }}
-            </el-form-item>
-            <el-form-item label="创建者：" prop="creator">
-              {{ info.creator  }}
-            </el-form-item>
-            <el-form-item label="创建者名称：" prop="creatorName">
-              {{ info.creatorName  }}
-            </el-form-item>
-            <el-form-item label="修改者：" prop="modifier">
-              {{ info.modifier  }}
-            </el-form-item>
-            <el-form-item label="修改者名称：" prop="modifierName">
-              {{ info.modifierName  }}
-            </el-form-item>
-            <el-form-item label="备注：" prop="remark">
+            <!-- <el-form-item label="备注：" prop="remark">
               {{ info.remark  }}
-            </el-form-item>
-            <el-form-item label="数据来源，140:新销服; 老销服:10：" prop="dataSource">
-              {{ info.dataSource  }}
-            </el-form-item>
-            <el-form-item label="分类类型：工程分类、营销分类、供应分类：" prop="categoryType">
-              {{ info.categoryType  }}
-            </el-form-item>
+            </el-form-item> -->
           </el-form>
         </div>
       </section>

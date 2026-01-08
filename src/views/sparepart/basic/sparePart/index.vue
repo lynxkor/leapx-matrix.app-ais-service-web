@@ -43,7 +43,7 @@
         <el-form-item label="备件工程师">
           <el-input
             placeholder="请输入"
-            v-model="form.partsEngineer"
+            v-model="form.partsEngineerLike"
             clearable
           />
         </el-form-item>
@@ -185,7 +185,7 @@ const defaultForm = {
   dealerName: '',
   saleableIs: undefined,
   standingInventoryIs: undefined,
-  partsEngineer: '',
+  partsEngineerLike: '',
   vfgId: '',
   vrtId: '',
   remark: '',
@@ -234,7 +234,7 @@ export default {
         dataProp: [
           {
             props: 'partCode',
-            label: '零件编码',
+            label: '备件编码',
             visible: true,
             width: 200,
             fixed: 'left',
@@ -250,7 +250,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'partName', label: '零件名称', visible: true, width: 200 },
+          { props: 'partName', label: '备件名称', visible: true, width: 200 },
           { props: 'minOrderQuantity', label: '最小订购量', visible: true, width: 200 },
           { props: 'salePrice', label: '销售价格', visible: true, width: 200 },
           { props: 'purchasePrice', label: '采购价格', visible: true, width: 200 },
@@ -366,6 +366,8 @@ export default {
     },
     onReset () {
       this.form = { ...defaultForm };
+      this.optionObj.form.page = 1;
+      this.optionObj.form.pageSize = pageSize;
       this.getData();
     },
     exportExcel () {
@@ -458,6 +460,14 @@ export default {
         if (this.form.createTime.length > 1) {
           data.createTimeStart = this.form.createTime[0];
           data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
+        }
+      }
+
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = getEndOfDayString(this.form.updateTime[1]);
         }
       }
 

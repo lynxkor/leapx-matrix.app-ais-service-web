@@ -10,18 +10,10 @@
       class="ais-search-form"
     >
       <el-form-item label="替换前备件编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.beforePartCodeLike"
-          clearable
-        />
+        <tag-input v-model="form.beforePartCodeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="替换后前备件编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.afterPartCodeLike"
-          clearable
-        />
+        <tag-input v-model="form.afterPartCodeList" placeholder="请输入" />
       </el-form-item>
       <template v-if="show">
         <el-form-item label="替换前备件名称">
@@ -148,6 +140,7 @@ import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -173,7 +166,8 @@ export default {
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
@@ -331,6 +325,8 @@ export default {
     },
     onReset () {
       this.form = { ...defaultForm };
+      this.optionObj.form.page = 1;
+      this.optionObj.form.pageSize = pageSize;
       this.getData();
     },
     exportExcel () {
@@ -431,6 +427,23 @@ export default {
           data.createTimeStart = this.form.createTime[0];
           data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
         }
+      }
+
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = getEndOfDayString(this.form.updateTime[1]);
+        }
+      }
+
+      if (Array.isArray(this.form.beforePartCodeList) && this.form.beforePartCodeList.length <= 1) {
+        delete data.beforePartCodeList;
+        data.beforePartCodeLike = this.form.beforePartCodeList[0] || '';
+      }
+      if (Array.isArray(this.form.afterPartCodeList) && this.form.afterPartCodeList.length <= 1) {
+        delete data.afterPartCodeList;
+        data.afterPartCodeLike = this.form.afterPartCodeList[0] || '';
       }
 
       return data;

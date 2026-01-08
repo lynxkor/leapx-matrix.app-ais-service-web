@@ -11,7 +11,7 @@
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="分类编码" prop="categoryCode">
+              <el-form-item label="供应分类编码" prop="categoryCode">
                 <el-input
                   placeholder="请输入"
                   v-model="form.categoryCode"
@@ -19,7 +19,7 @@
                   :disabled="this.$route.query.id"
                 />
               </el-form-item>
-              <el-form-item label="分类名称" prop="categoryName">
+              <el-form-item label="供应分类名称" prop="categoryName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.categoryName"
@@ -93,10 +93,10 @@ export default {
           { required: true, message: '请选择状态', trigger: 'change' }
         ],
         categoryCode: [
-          { required: true, message: '请输入分类编码', trigger: 'blur' }
+          { required: true, message: '请输入供应分类编码', trigger: 'blur' }
         ],
         categoryName: [
-          { required: true, message: '请输入分类名称', trigger: 'blur' }
+          { required: true, message: '请输入供应分类名称', trigger: 'blur' }
         ],
       },
       pickerOptions: {

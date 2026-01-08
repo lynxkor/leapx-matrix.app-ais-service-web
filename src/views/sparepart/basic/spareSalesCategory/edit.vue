@@ -11,15 +11,15 @@
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form inline :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="分类编码" prop="categoryCode">
+              <el-form-item label="营销分类编码" prop="categoryCode">
                 <el-input
                   placeholder="请输入"
                   v-model="form.categoryCode"
                   clearable
-                  :disabled="partsId"
+                  :disabled="!!partsId"
                 />
               </el-form-item>
-              <el-form-item label="分类名称" prop="categoryName">
+              <el-form-item label="营销分类名称" prop="categoryName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.categoryName"
@@ -202,7 +202,7 @@ const defaultForm = {
   modifier: '',
   modifierName: '',
   remark: '',
-  status: '',
+  status: '1',
   dataSource: '',
   categoryType: '',
   buildTypeCode: [],
@@ -219,7 +219,6 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
-    FetchSelect,
   },
   data () {
     const form = this.getDefautlForm();
@@ -244,10 +243,10 @@ export default {
       noTableData: [], // 不可采购门店列表
       rules: {
         categoryCode: [
-          { required: true, message: '请输入分类编码', trigger: 'blur' }
+          { required: true, message: '请输入营销分类编码', trigger: 'blur' }
         ],
         categoryName: [
-          { required: true, message: '请输入分类名称', trigger: 'blur' }
+          { required: true, message: '请输入营销分类名称', trigger: 'blur' }
         ],
         status: [
           { required: true, message: '请选择状态', trigger: 'change' }
@@ -322,6 +321,10 @@ export default {
               type: 'success'
             });
             this.partsId = res || '';
+            if (this.partsId) { // 判断新增时 获取到id 就赋值 调整为编辑状态 传参id
+              this.form.id = this.partsId;
+            }
+            this.form.id = this.partsId;
             const id = this.$route.query.id;
             if (res) {
               this.getDetailData();
@@ -422,6 +425,7 @@ export default {
       this.getPurchaseDealer(this.partsId, val);
       this.dealerCodes = ''; // 可采购门店列表
       this.noDealerCodes = ''; // 不可采购门店列表
+      this.storeParams = {}; // 添加以后清空
     },
     // 查询可采购门店数据
     async getPurchaseDealer (val, status) {
