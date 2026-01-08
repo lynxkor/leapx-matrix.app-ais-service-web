@@ -47,7 +47,7 @@
               {{ info.supplierType  }}
             </el-form-item>
             <el-form-item label="是否OEM：" prop="oemFlag">
-              {{ info.oemFlag  }}
+              {{ info.oemFlagLabel  }}
             </el-form-item>
             <el-form-item label="门店名称：" prop="dealerName">
               {{ info.dealerName  }}

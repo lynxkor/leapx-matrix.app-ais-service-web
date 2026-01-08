@@ -43,7 +43,7 @@
         <el-form-item label="备件工程师">
           <el-input
             placeholder="请输入"
-            v-model="form.partsEngineer"
+            v-model="form.partsEngineerLike"
             clearable
           />
         </el-form-item>
@@ -185,7 +185,7 @@ const defaultForm = {
   dealerName: '',
   saleableIs: undefined,
   standingInventoryIs: undefined,
-  partsEngineer: '',
+  partsEngineerLike: '',
   vfgId: '',
   vrtId: '',
   remark: '',

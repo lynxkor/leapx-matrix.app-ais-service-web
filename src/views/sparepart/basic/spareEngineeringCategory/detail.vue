@@ -3,7 +3,7 @@
     <el-skeleton v-if="loading" :rows="6" animated />
     <template v-else>
       <section class="common-title">
-        <h2>分类编码：{{ info.categoryCode }}</h2>
+        <h2>工程分类编码：{{ info.categoryCode }}</h2>
         <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
       </section>
       <section class="common-section">
@@ -13,7 +13,7 @@
         <div class="common-section-body">
           <el-form :inline="true" ref="ruleForm" label-width="120px">
             <!-- TIPS: 根据实际情况调整展示字段 -->
-            <el-form-item label="分类名称：" prop="categoryName">
+            <el-form-item label="工程分类名称：" prop="categoryName">
               {{ info.categoryName  }}
             </el-form-item>
             <el-form-item label="是否启用：" prop="statusLabel">
