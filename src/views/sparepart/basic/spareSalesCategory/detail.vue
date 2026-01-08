@@ -13,11 +13,11 @@
         <div class="common-section-body">
           <el-form :inline="true" ref="ruleForm" label-width="120px">
             <!-- TIPS: 根据实际情况调整展示字段 -->
-            <el-form-item label="分类编码：" prop="categoryCode">
-              {{ info.categoryCode  }}
-            </el-form-item>
             <el-form-item label="分类名称：" prop="categoryName">
               {{ info.categoryName  }}
+            </el-form-item>
+            <el-form-item label="是否启用：" prop="status">
+              {{ info.statusLabel  }}
             </el-form-item>
             <el-form-item label="创建时间：" prop="createTime">
               {{ info.createTime  }}
@@ -25,17 +25,8 @@
             <el-form-item label="修改时间：" prop="updateTime">
               {{ info.updateTime  }}
             </el-form-item>
-            <el-form-item label="主键：" prop="id">
-              {{ info.id  }}
-            </el-form-item>
-            <el-form-item label="创建者：" prop="creator">
-              {{ info.creator  }}
-            </el-form-item>
             <el-form-item label="创建者名称：" prop="creatorName">
               {{ info.creatorName  }}
-            </el-form-item>
-            <el-form-item label="修改者：" prop="modifier">
-              {{ info.modifier  }}
             </el-form-item>
             <el-form-item label="修改者名称：" prop="modifierName">
               {{ info.modifierName  }}

@@ -162,9 +162,9 @@ export default {
         },
         dataProp: [
           {
-            props: 'status',
-            label: '状态',
-            visible: false,
+            props: 'categoryCode',
+            label: '工程分类编码',
+            visible: true,
             width: 200,
             fixed: 'left',
             buttons: [{
@@ -179,7 +179,6 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'categoryCode', label: '工程分类编码', visible: true, width: 200 },
           { props: 'categoryName', label: '工程分类名称', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
@@ -256,6 +255,8 @@ export default {
     },
     onReset () {
       this.form = { ...defaultForm };
+      this.optionObj.form.page = 1;
+      this.optionObj.form.pageSize = pageSize;
       this.getData();
     },
     exportExcel () {
