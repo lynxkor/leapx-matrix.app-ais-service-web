@@ -29,7 +29,7 @@
               </el-form-item>
               <el-form-item label="拼音简码">
                 <el-input
-                  placeholder="请输入"
+                  placeholder="保存后自动生成"
                   v-model="form.pinyincode"
                   clearable
                   disabled="true"
@@ -55,7 +55,7 @@
               <el-form-item label="省市区" prop="provinceCode">
                 <el-cascader
                   placeholder="请选择省市区"
-                  v-model="form.provinceCode"
+                  v-model="form.provinceCityCountyCode"
                   :props="orgProps"
                   :options="areaOptions"
                   filterable
@@ -152,7 +152,7 @@ const defaultForm = {
   supplierSafetyStock: '',
   countryCode: 'CN',
   countryName: '中国',
-  provinceCode: '',
+  provinceCityCountyCode: '',
   provinceName: '',
   cityCode: '',
   cityName: '',
@@ -345,7 +345,6 @@ export default {
 
     handleSupplierNameChange () {
       console.log('handleSupplierNameChange');
-      // TODO 获取供应商名称  supplierName 获取 pinyincode 王涛
       this.form.pinyinCode = this.form.supplierName;
     },
     handleBack () {
@@ -363,7 +362,6 @@ export default {
       }
     },
     submitForm (formName, rest = false) {
-      this.form.pinyinCode = 'todo pingying';
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.submitLoading = true;

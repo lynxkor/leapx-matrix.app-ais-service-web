@@ -11,7 +11,7 @@
           <h2>基础信息</h2>
         </div>
         <div class="common-section-body">
-          <el-form :inline="true" ref="ruleForm" label-width="120px">
+          <el-form :inline="true" ref="ruleForm" label-width="150px">
             <!-- TIPS: 根据实际情况调整展示字段 -->
             <el-form-item label="供应商编码：" prop="supplierCode">
               {{ info.supplierCode  }}
@@ -37,7 +37,7 @@
             <el-form-item label="修改者名称：" prop="modifierName">
               {{ info.modifierName  }}
             </el-form-item> -->
-            <el-form-item label="状态：" prop="status">
+            <el-form-item label="是否启用：" prop="status">
               {{ info.statusLabel  }}
             </el-form-item>
             <el-form-item label="拼音简码：" prop="pinyinCode">
@@ -49,7 +49,7 @@
             <el-form-item label="是否OEM：" prop="oemFlag">
               {{ info.oemFlag  }}
             </el-form-item>
-            <el-form-item label="门店名称（组织名称）：" prop="dealerName">
+            <el-form-item label="门店名称：" prop="dealerName">
               {{ info.dealerName  }}
             </el-form-item>
             <el-form-item label="供应商等级：" prop="supplierLevel">
@@ -61,34 +61,26 @@
             <el-form-item label="国家：" prop="countryName">
               {{ info.countryName  }}
             </el-form-item>
-            <el-form-item label="省市区" prop="provinceCode">
-                <el-cascader
-                  placeholder="请选择省市区"
-                  v-model="info.provinceCode"
-                  :props="orgProps"
-                  :options="areaOptions"
-                  filterable
-                  clearable>
-                </el-cascader>
-              </el-form-item>
-            <!-- <el-form-item label="省code：" prop="provinceCode">
-              {{ info.provinceCode  }}
-            </el-form-item>
             <el-form-item label="省：" prop="provinceName">
               {{ info.provinceName  }}
-            </el-form-item>
-            <el-form-item label="市code：" prop="cityCode">
-              {{ info.cityCode  }}
             </el-form-item>
             <el-form-item label="市：" prop="cityName">
               {{ info.cityName  }}
             </el-form-item>
-            <el-form-item label="区&#x2F;县编码：" prop="districtCode">
-              {{ info.districtCode  }}
-            </el-form-item>
-            <el-form-item label="区&#x2F;县名称：" prop="districtName">
+            <!-- <el-form-item label="区、县：" prop="districtName">
               {{ info.districtName  }}
             </el-form-item> -->
+            <!-- <el-form-item label="省code：" prop="provinceCode">
+              {{ info.provinceCode  }}
+            </el-form-item>
+
+            <el-form-item label="市code：" prop="cityCode">
+              {{ info.cityCode  }}
+            </el-form-item>
+
+            <el-form-item label="区&#x2F;县编码：" prop="districtCode">
+              {{ info.districtCode  }}
+            </el-form-item>-->
             <el-form-item label="详细地址：" prop="address">
               {{ info.address  }}
             </el-form-item>
