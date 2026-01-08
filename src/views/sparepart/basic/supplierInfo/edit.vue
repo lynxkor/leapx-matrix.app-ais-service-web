@@ -59,12 +59,14 @@
                   :props="orgProps"
                   :options="areaOptions"
                   filterable
+                  :disabled="permissions.has('web:basic:supplierInfo:oemColumn')"
                   clearable>
                 </el-cascader>
               </el-form-item>
               <el-form-item label="地址" prop="address">
                 <el-input
                   placeholder="请输入"
+                  :disabled="permissions.has('web:basic:supplierInfo:oemColumn')"
                   v-model="form.address"
                   clearable
                 />
@@ -79,6 +81,7 @@
               <el-form-item label="联系人姓名" prop="contactName">
                 <el-input
                   placeholder="请输入"
+                  :disabled="permissions.has('web:basic:supplierInfo:oemColumn')"
                   v-model="form.contactName"
                   clearable
                 />
@@ -86,6 +89,7 @@
               <el-form-item label="联系人电话" prop="contactPhone">
                 <el-input
                   placeholder="请输入"
+                  :disabled="permissions.has('web:basic:supplierInfo:oemColumn')"
                   v-model="form.contactPhone"
                   clearable
                 />
@@ -93,6 +97,7 @@
               <el-form-item label="联系人邮箱" prop="contactEmail">
                 <el-input
                   placeholder="请输入"
+                  :disabled="permissions.has('web:basic:supplierInfo:oemColumn')"
                   v-model="form.contactEmail"
                   clearable
                 />
@@ -100,6 +105,7 @@
               <el-form-item label="联系人传真" prop="contactFax">
                 <el-input
                   placeholder="请输入"
+                  :disabled="permissions.has('web:basic:supplierInfo:oemColumn')"
                   v-model="form.contactFax"
                   clearable
                 />
