@@ -17,7 +17,7 @@
               {{ info.categoryName  }}
             </el-form-item>
             <el-form-item label="是否启用：" prop="statusLabel">
-              {{ info.status  }}
+              {{ info.statusLabel  }}
             </el-form-item>
             <el-form-item label="状态变更描述：" prop="statusDesc">
               {{ info.statusDesc  }}
