@@ -223,9 +223,6 @@ export default {
         remark: [
           { required: true, message: '请输入备注', trigger: 'change' }
         ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
         dataSource: [
           { required: true, message: '请输入数据来源，150:新销服; 老销服:10', trigger: 'change' }
         ],

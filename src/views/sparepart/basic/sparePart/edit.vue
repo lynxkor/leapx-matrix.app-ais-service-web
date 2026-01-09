@@ -664,9 +664,6 @@ export default {
         status: [
           { required: false, message: '请选择状态', trigger: 'change' }
         ],
-        statusDesc: [
-          { required: false, message: '请选择状态变更描述', trigger: 'change' }
-        ],
         oemRemark: [
           { required: false, message: '请输入OEM备注', trigger: 'blur' }
         ],
