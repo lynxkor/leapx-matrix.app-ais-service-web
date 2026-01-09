@@ -1150,6 +1150,24 @@ const routes = [
         name: '接车施工单管理详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/fund/account',
+      name: 'account',
+      component: () => import('@/views/sparepart/fund/account/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/fund/account/edit',
+      name: 'accountEdit',
+      component: () => import('@/views/sparepart/fund/account/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
