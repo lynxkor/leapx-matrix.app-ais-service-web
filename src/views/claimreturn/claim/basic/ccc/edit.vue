@@ -13,91 +13,89 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
-        <template #default="{formApi}">
-          <el-main>
-            <section class="common-section">
-              <div class="common-section-header">
-                <h2>基础信息</h2>
-              </div>
-              <div class="common-section-body">
-                <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
-                <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-                <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                  <el-form-item label="CCC编码：" prop="cccCode">
-                    <el-input
-                      placeholder="请输入"
-                      :disabled="form.id!==''"
-                      v-model="form.cccCode"
-                      maxlength="100"
-                      clearable
+        <el-main>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>基础信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="CCC编码：" prop="cccCode">
+                  <el-input
+                    placeholder="请输入"
+                    :disabled="form.id!==''"
+                    v-model="form.cccCode"
+                    maxlength="100"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="CCC名称：" prop="cccName">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.cccName"
+                    maxlength="100"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="VRT名称：" prop="vrtId">
+                  <list-select
+                    listUrl="/claimreturn/claim/web/basic/vrt/list"
+                    placeholder="请选择"
+                    v-model="form.vrtId"
+                    query-key="vrtNameLike"
+                    auto-load-options
+                    no-param-load
+                    clearable
+                    filterable
+                    :params="{}" />
+                </el-form-item>
+                <el-form-item label="VFG名称：" prop="vfgId">
+                  <list-select
+                    listUrl="/claimreturn/claim/web/basic/vfg/list"
+                    placeholder="请选择"
+                    v-model="form.vfgId"
+                    query-key="vfgNameLike"
+                    auto-load-options
+                    clearable
+                    filterable
+                    :disabled="!Boolean(form.vrtId)"
+                    :params="{vrtId: form.vrtId}"
                     />
-                  </el-form-item>
-                  <el-form-item label="CCC名称：" prop="cccName">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.cccName"
-                      maxlength="100"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="VRT名称：" prop="vrtId">
-                    <list-select
-                      listUrl="/claimreturn/claim/web/basic/vrt/list"
-                      placeholder="请选择"
-                      v-model="form.vrtId"
-                      query-key="vrtNameLike"
-                      auto-load-options
-                      no-param-load
-                      clearable
-                      filterable
-                      :params="{}" />
-                  </el-form-item>
-                  <el-form-item label="VFG名称：" prop="vfgId">
-                    <list-select
-                      listUrl="/claimreturn/claim/web/basic/vfg/list"
-                      placeholder="请选择"
-                      v-model="form.vfgId"
-                      query-key="vfgNameLike"
-                      auto-load-options
-                      clearable
-                      filterable
-                      :disabled="!Boolean(form.vrtId)"
-                      :params="{vrtId: form.vrtId}"
-                      />
-                  </el-form-item>
-                  <el-form-item label="状态：" prop="status">
-                    <fetch-select
-                      :request="fetchOptions"
-                      enumCode="StatusEnum"
-                      v-model="form.status"
-                      placeholder="请选择"
-                      disabled="disabled"
-                      clearable
-                      filterable
-                    />
-                  </el-form-item>
-                </el-form>
-                <el-form :inline="true" label-width="150px"  class="form-detail" v-show="!(isEditing || !_id)">
-                  <el-form-item label="CCC编码：" prop="cccCode">
-                    {{ form.cccCode }}
-                  </el-form-item>
-                  <el-form-item label="CCC名称：" prop="cccName">
-                    {{ form.cccName }}
-                  </el-form-item>
-                  <el-form-item label="VRT名称：" prop="vrtName">
-                    {{ form.vrtName }}
-                  </el-form-item>
-                  <el-form-item label="VFG名称：" prop="vfgName">
-                    {{ form.vfgName }}
-                  </el-form-item>
-                  <el-form-item label="状态：" prop="status">
-                    {{ form.statusLabel }}
-                  </el-form-item>
-                </el-form>
-              </div>
-            </section>
-          </el-main>
-        </template>
+                </el-form-item>
+                <el-form-item label="状态：" prop="status">
+                  <fetch-select
+                    :request="fetchOptions"
+                    enumCode="StatusEnum"
+                    v-model="form.status"
+                    placeholder="请选择"
+                    disabled="disabled"
+                    clearable
+                    filterable
+                  />
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" label-width="150px"  class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="CCC编码：" prop="cccCode">
+                  {{ form.cccCode }}
+                </el-form-item>
+                <el-form-item label="CCC名称：" prop="cccName">
+                  {{ form.cccName }}
+                </el-form-item>
+                <el-form-item label="VRT名称：" prop="vrtName">
+                  {{ form.vrtName }}
+                </el-form-item>
+                <el-form-item label="VFG名称：" prop="vfgName">
+                  {{ form.vfgName }}
+                </el-form-item>
+                <el-form-item label="状态：" prop="status">
+                  {{ form.statusLabel }}
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+        </el-main>
       </edit-base-container>
     </template>
     <template #right>

@@ -2,120 +2,107 @@
   {{{#isProForm}}}
   <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
-      <div class="page-common-edit">
-        <el-container>
-          <el-main>
-            <section class="common-title" v-if="_id">
-              {{{#top1List}}}
-              <div>
-                <h2>{{{description}}}：{{ form.{{{key}}} }}</h2>
-                <!-- TIPS: 子标题格式如下 -->
-                <!-- <h5>活动编码：{{ form.activityCode }}</h5> -->
-              </div>
-              {{{/top1List}}}
-              <div v-if="isEditing">
-                <el-button size="small" @click="handleCancel">取消</el-button>
-                <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-              </div>
-              <div v-else>
-                <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
-              </div>
-            </section>
-            <section class="common-section">
-              <div class="common-section-header">
-                <h2>基础信息</h2>
-              </div>
-              <div class="common-section-body">
-                <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
-                {{{#cols}}}
-                {{{#isDate}}}
-                  <el-form-item label="{{{description}}}：" prop="{{{key}}}">
-                    <el-date-picker
-                      :default-time="['00:00:00', '23:59:59']"
-                      v-model="form.{{{key}}}"
-                      :picker-options="pickerOptions"
-                      value-format="yyyy-MM-dd HH:mm:ss"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
-                    />
-                  </el-form-item>
-                {{{/isDate}}}
-                {{{#isSelect}}}
-                  <el-form-item label="{{{description}}}：" prop="{{{key}}}">
-                    <fetch-select
-                      :request="fetchOptions"
-                      enumCode="xxx"
-                      v-model="form.{{{key}}}"
-                      placeholder="请选择"
-                      clearable
-                      filterable
-                    />
-                  </el-form-item>
-                {{{/isSelect}}}
-                {{{#isBoolean}}}
-                  <el-form-item label="{{{description}}}：" prop="{{{key}}}">
-                    <el-radio-group v-model="form.{{{key}}}">
-                      <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
-                    </el-radio-group>
-                  </el-form-item>
-                {{{/isBoolean}}}
-                {{{#isNormal}}}
-                  <el-form-item label="{{{description}}}：" prop="{{{key}}}">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.{{{key}}}"
-                      clearable
-                    />
-                  </el-form-item>
-                {{{/isNormal}}}
-                {{{/cols}}}
-                </el-form>
-                <el-form :inline="true" class="form-detail" v-else>
-                {{{#cols}}}
-                  <el-form-item label="{{{description}}}：" prop="{{{key}}}">
-                    {{{#isBoolean}}}
-                    {{ yes_no_enum_map[form.{{{key}}}] }}
-                    {{{/isBoolean}}}
-                    {{{^isBoolean}}}
-                    {{ form.{{{key}}} }}
-                    {{{/isBoolean}}}
-                  </el-form-item>
-                {{{/cols}}}
-                </el-form>
-              </div>
-            </section>
-            <section class="common-section">
-              <div class="common-section-header">
-                <h2>区块标题</h2>
-                <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
-              </div>
-              <div class="common-section-body">
-                <div class="common-section-table">
-                  <edit-table
-                    ref="editTable"
-                    :columns="columns"
-                    :data="tableData"
-                    :defaultNewRow="defaultNewRow"
-                    :show-toolbar="false"
-                    :options="options"
-                    :auth="{edit: canAddOrUpdate, delete: canDelete}"
+      <edit-base-container
+        ref="containerRef"
+        :id="_id"
+        :title="title"
+        :isEditing.sync="isEditing"
+        :form.sync="form"
+        :showBackBtn="showBackBtn"
+        :submitRequest="submitRequest"
+        :detailRequest="detailRequest"
+      >
+        <el-main>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>基础信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              {{{#cols}}}
+              {{{#isDate}}}
+                <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+                  <el-date-picker
+                    :default-time="['00:00:00', '23:59:59']"
+                    v-model="form.{{{key}}}"
+                    :picker-options="pickerOptions"
+                    value-format="yyyy-MM-dd HH:mm:ss"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
                   />
-                </div>
+                </el-form-item>
+              {{{/isDate}}}
+              {{{#isSelect}}}
+                <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+                  <fetch-select
+                    :request="fetchOptions"
+                    enumCode="xxx"
+                    v-model="form.{{{key}}}"
+                    placeholder="请选择"
+                    clearable
+                    filterable
+                  />
+                </el-form-item>
+              {{{/isSelect}}}
+              {{{#isBoolean}}}
+                <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+                  <el-radio-group v-model="form.{{{key}}}">
+                    <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              {{{/isBoolean}}}
+              {{{#isNormal}}}
+                <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.{{{key}}}"
+                    clearable
+                  />
+                </el-form-item>
+              {{{/isNormal}}}
+              {{{/cols}}}
+              </el-form>
+              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              {{{#cols}}}
+                <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+                  {{{#isBoolean}}}
+                  {{ yes_no_enum_map[form.{{{key}}}] }}
+                  {{{/isBoolean}}}
+                  {{{^isBoolean}}}
+                  {{ form.{{{key}}} }}
+                  {{{/isBoolean}}}
+                </el-form-item>
+              {{{/cols}}}
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>区块标题</h2>
+              <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-table">
+                <edit-table
+                  ref="editTable"
+                  :columns="columns"
+                  :data="tableData"
+                  :defaultNewRow="defaultNewRow"
+                  :show-toolbar="false"
+                  :options="options"
+                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                />
               </div>
-            </section>
-          </el-main>
-          <el-footer height="60px" v-if="!_id">
-            <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-            <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
-            <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
-            <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
-          </el-footer>
-        </el-container>
-      </div>
+            </div>
+          </section>
+        </el-main>
+      </edit-base-container>
     </template>
     <template #right>
-      <!-- 右侧栏组件，自行开发 -->
+      <div class="page-common-edit">
+        <!-- 右侧栏组件，自行开发 -->
+      </div>
     </template>
   </edit-page-layout>
   {{{/isProForm}}}
@@ -194,6 +181,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 {{{#isProForm}}}
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
+import EditBaseContainer from '@/components/EditBaseContainer';
 {{{/isProForm}}}
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -215,12 +203,17 @@ export default {
     id: {
       type: [String, Number],
       default: null
-    }
+    },
+    showBackBtn: {
+      type: Boolean,
+      default: true,
+    },
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     {{{#isProForm}}}
     EditPageLayout,
+    EditBaseContainer,
     EditTable,
     {{{/isProForm}}}
     FetchSelect
@@ -245,9 +238,11 @@ export default {
     return {
       pageTitle: '{{{title}}}',
       pageType: 'edit',
+      {{{#top1List}}}
+      title: '{{{description}}}：' + form.{{{key}}},
+      {{{/top1List}}}
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-{{{name}}}',
-      isEditing: false,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -314,30 +309,47 @@ export default {
     };
   },
   mounted () {
+    {{{^isProForm}}}
     this.getDetailData();
+    {{{/isProForm}}}
   },
   methods: {
     {{{#isProForm}}}
+    detailRequest () {
+      const id = this._id;
+      if (id) {
+        return getDetail(id);
+      }
+    },
+    submitRequest () {
+      return addOrUpdate({ ...this.form });
+    },
     // 打开侧边栏
     openPane () {
       this.$refs.editLayout.openPane();
     },
-    handleCancel () {
-      this.$refs.ruleForm.clearValidate();
-      this.isEditing = false;
+    // 详情表格相关数据
+    handleAddRow () {
+      // 通过引用直接调用子组件方法
+      this.$refs.editTable.addRow();
     },
-    handleEdit () {
-      this.isEditing = true;
+    handleSaveTable (data) {
+      // 调用保存方法并处理结果
+      return new Promise((resolve, reject) => {
+        this.$refs.editTable.saveAll().then(data => {
+          resolve(data);
+        }).catch(error => {
+          reject(error);
+        });
+      });
     },
     {{{/isProForm}}}
+    {{{^isProForm}}}
     handleBack () {
       this.$router.back();
     },
     getDetailData () {
       const id = this._id;
-      if (!this.id) {
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['{{{title}}}', `${id ? '详情' : '新建'}`]);
-      }
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
@@ -346,45 +358,6 @@ export default {
         });
       }
     },
-    {{{#isProForm}}}
-    async submitForm (formName, rest = false) {
-      try {
-        const tableData = await this.handleSaveTable();
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            this.submitLoading = true;
-            // TIPS: customKey 根据接口格式修改
-            addOrUpdate({ ...this.form, customKey: tableData }).then(res => {
-              this.$message({
-                message: '保存成功',
-                type: 'success'
-              });
-              const id = res;
-              if (rest || !id) {
-                this.resetForm(formName);
-              } else {
-                if (this.form.id) {
-                  this.getDetailData();
-                } else {
-                  this.$router.push({
-                    path: '/{{{{modulePath}}}}/edit',
-                    query: {
-                      id
-                    }
-                  });
-                }
-              }
-            }).finally(() => {
-              this.submitLoading = false;
-            });
-          }
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    {{{/isProForm}}}
-    {{{^isProForm}}}
     submitForm (formName, rest = false) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -406,12 +379,12 @@ export default {
         }
       });
     },
-    {{{/isProForm}}}
     resetForm (formName) {
       this.$refs[formName].resetFields();
       this.tableData = [];
       this.form = this.getDefautlForm();
     },
+    {{{/isProForm}}}
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
       // const userInfo = this.$store.state.user.userInfo;
@@ -425,23 +398,6 @@ export default {
     // handleJumpAuditLog () {
     //   this.$auditLog.show({ id: 123 });
     // },
-    {{{#isProForm}}}
-    // 详情表格相关数据
-    handleAddRow () {
-      // 通过引用直接调用子组件方法
-      this.$refs.editTable.addRow();
-    },
-    handleSaveTable (data) {
-      // 调用保存方法并处理结果
-      return new Promise((resolve, reject) => {
-        this.$refs.editTable.saveAll().then(data => {
-          resolve(data);
-        }).catch(error => {
-          reject(error);
-        });
-      });
-    },
-    {{{/isProForm}}}
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);

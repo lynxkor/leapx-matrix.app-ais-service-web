@@ -5,7 +5,7 @@ import { getRouter } from './router';
 import store from './store';
 import ElementUI from 'element-ui';
 import Vuex from 'vuex';
-import '@/libs/directive/permissions.js';
+import '@/libs/directive/index.js';
 import '@/common/css/element-variables.scss';
 import '@/common/css/base.css';
 import '@/libs/assets/styles/index.scss';
@@ -33,7 +33,6 @@ import '@/common/css/vxe-table-variable.scss';
 
 // 导入默认的语言
 import zhCN from 'vxe-table/lib/locale/lang/zh-CN';
-import formRegister from './directives/formRegister';
 
 VxeUi.setI18n('zh-CN', zhCN);
 VxeUi.setLanguage('zh-CN');
@@ -55,7 +54,6 @@ Vue.use(AuditLogPlugin);
 Vue.use(PrintPlugin);
 
 /* -------------------- 注册指令 ----------------- */
-Vue.directive('form-register', formRegister);
 
 // 监听全局分辨率
 const onResize = () => {

@@ -11,203 +11,201 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
-        <template #default="{formApi}">
-          <el-main>
-            <section class="common-section">
-              <div class="common-section-header">
-                <h2>基础信息</h2>
-              </div>
-              <div class="common-section-body">
-                <!-- TIPS: 如果填写项小于15项，去掉 :inline="true" -->
-                <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-                <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
-                  <el-form-item label="政策名称：" prop="policyName">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.policyName"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="政策类型：" prop="policyType">
-                    <fetch-select
-                      :request="fetchOptions"
-                      enumCode="claim_free_maintenance_policy_type"
-                      v-model="form.policyType"
-                      placeholder="请选择"
-                      clearable
-                      filterable
-                    />
-                  </el-form-item>
-                  <el-form-item label="维修项目代码：" prop="repairItemId">
-                    <fetch-select
-                      filterable
-                      clearable
-                      remote
-                      reserve-keyword
-                      v-model="form.repairItemId"
-                      :remote-method="repairItemSearch"
-                      :params="form.repairItemCode"
-                      @change="handleRepairItemChange"
-                      value-key="id"
-                      label-key="code"
-                    />
-                  </el-form-item>
-                  <el-form-item label="维修项目名称：" prop="repairItemName">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.repairItemName"
-                      clearable
-                      maxLength="100"
-                      disabled
-                    />
-                  </el-form-item>
-                  <el-form-item label="工时数：" prop="workhour">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.workhour"
-                      clearable
-                      maxLength="100"
-                      disabled
-                    />
-                  </el-form-item>
-                  <el-form-item label="免保时间：" prop="freePeriod">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.freePeriod"
-                      clearable
-                      maxLength="100"
-                    >
-                      <template slot="append">月</template>
-                    </el-input>
-                  </el-form-item>
-                  <el-form-item label="里程：" prop="mileage">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.mileage"
-                      clearable
-                      maxLength="100"
-                    >
-                      <template slot="append">公里</template>
-                    </el-input>
-                  </el-form-item>
-                  <el-form-item label="延后天数：" prop="delayDays">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.delayDays"
-                      clearable
-                      maxLength="100"
-                    >
-                      <template slot="append">天</template>
-                    </el-input>
-                  </el-form-item>
-                  <el-form-item label="延后里程：" prop="delayMileage">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.delayMileage"
-                      clearable
-                      maxLength="100"
-                    >
-                      <template slot="append">公里</template>
-                    </el-input>
-                  </el-form-item>
-                </el-form>
-                <el-form :inline="true" class="form-detail" v-else>
-                  <el-form-item label="政策名称：" prop="policyName">
-                    {{ form.policyName }}
-                  </el-form-item>
-                  <el-form-item label="政策类型：" prop="policyType">
-                    {{ form.policyTypeLabel }}
-                  </el-form-item>
-                  <el-form-item label="维修项目代码：" prop="repairItemCode">
-                    {{ form.repairItemCode }}
-                  </el-form-item>
-                  <el-form-item label="维修项目名称：" prop="repairItemName">
-                    {{ form.repairItemName }}
-                  </el-form-item>
-                  <el-form-item label="工时数：" prop="workhour">
-                    {{ form.workhour }}
-                  </el-form-item>
-                  <el-form-item label="免保时间：" prop="freePeriod">
-                    {{ form.freePeriod }}
-                  </el-form-item>
-                  <el-form-item label="里程：" prop="mileage">
-                    {{ form.mileage }}
-                  </el-form-item>
-                  <el-form-item label="延后天数：" prop="delayDays">
-                    {{ form.delayDays }}
-                  </el-form-item>
-                  <el-form-item label="延后里程：" prop="delayMileage">
-                    {{ form.delayMileage }}
-                  </el-form-item>
-                </el-form>
-              </div>
-            </section>
-            <section class="common-section" v-if="_id">
-              <div class="common-section-header common-section-tip">
-                <h2>零件信息</h2><span class="p-1">个别公告车型使用不同零件时可以添加多套方案，常规只需使用默认方案即可。</span>
-              </div>
-              <div class="common-section-body">
+        <el-main>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>基础信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 如果填写项小于15项，去掉 :inline="true" -->
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
+                <el-form-item label="政策名称：" prop="policyName">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.policyName"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="政策类型：" prop="policyType">
+                  <fetch-select
+                    :request="fetchOptions"
+                    enumCode="claim_free_maintenance_policy_type"
+                    v-model="form.policyType"
+                    placeholder="请选择"
+                    clearable
+                    filterable
+                  />
+                </el-form-item>
+                <el-form-item label="维修项目代码：" prop="repairItemId">
+                  <fetch-select
+                    filterable
+                    clearable
+                    remote
+                    reserve-keyword
+                    v-model="form.repairItemId"
+                    :remote-method="repairItemSearch"
+                    :params="form.repairItemCode"
+                    @change="handleRepairItemChange"
+                    value-key="id"
+                    label-key="code"
+                  />
+                </el-form-item>
+                <el-form-item label="维修项目名称：" prop="repairItemName">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.repairItemName"
+                    clearable
+                    maxLength="100"
+                    disabled
+                  />
+                </el-form-item>
+                <el-form-item label="工时数：" prop="workhour">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.workhour"
+                    clearable
+                    maxLength="100"
+                    disabled
+                  />
+                </el-form-item>
+                <el-form-item label="免保时间：" prop="freePeriod">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.freePeriod"
+                    clearable
+                    maxLength="100"
+                  >
+                    <template slot="append">月</template>
+                  </el-input>
+                </el-form-item>
+                <el-form-item label="里程：" prop="mileage">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.mileage"
+                    clearable
+                    maxLength="100"
+                  >
+                    <template slot="append">公里</template>
+                  </el-input>
+                </el-form-item>
+                <el-form-item label="延后天数：" prop="delayDays">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.delayDays"
+                    clearable
+                    maxLength="100"
+                  >
+                    <template slot="append">天</template>
+                  </el-input>
+                </el-form-item>
+                <el-form-item label="延后里程：" prop="delayMileage">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.delayMileage"
+                    clearable
+                    maxLength="100"
+                  >
+                    <template slot="append">公里</template>
+                  </el-input>
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" class="form-detail" v-else>
+                <el-form-item label="政策名称：" prop="policyName">
+                  {{ form.policyName }}
+                </el-form-item>
+                <el-form-item label="政策类型：" prop="policyType">
+                  {{ form.policyTypeLabel }}
+                </el-form-item>
+                <el-form-item label="维修项目代码：" prop="repairItemCode">
+                  {{ form.repairItemCode }}
+                </el-form-item>
+                <el-form-item label="维修项目名称：" prop="repairItemName">
+                  {{ form.repairItemName }}
+                </el-form-item>
+                <el-form-item label="工时数：" prop="workhour">
+                  {{ form.workhour }}
+                </el-form-item>
+                <el-form-item label="免保时间：" prop="freePeriod">
+                  {{ form.freePeriod }}
+                </el-form-item>
+                <el-form-item label="里程：" prop="mileage">
+                  {{ form.mileage }}
+                </el-form-item>
+                <el-form-item label="延后天数：" prop="delayDays">
+                  {{ form.delayDays }}
+                </el-form-item>
+                <el-form-item label="延后里程：" prop="delayMileage">
+                  {{ form.delayMileage }}
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header common-section-tip">
+              <h2>零件信息</h2><span class="p-1">个别公告车型使用不同零件时可以添加多套方案，常规只需使用默认方案即可。</span>
+            </div>
+            <div class="common-section-body">
+              <section class="common-section">
+                <enhanced-tabs
+                  v-model="currentVehicleId"
+                  :load-params="loadParams"
+                  :load-data="loadData"
+                  :item-config="{
+                    valueKey: 'vehicleRegisteredModelId',
+                    labelKey: 'vehicleRegisteredModelName',
+                    disableCloseKey: 'disableClose',
+                    disableFirst: true,
+                  }"
+                  close-tip="确定删除该公共车型吗？"
+                  :remote-method="remoteMethod"
+                  :select-config="{
+                    valueKey: 'id',
+                    labelKey: 'name',
+                    placeholder: '请输入公告车型代码/名称',
+                  }"
+                  @remove="onRemove"
+                  />
+                </section>
                 <section class="common-section">
-                  <enhanced-tabs
-                    v-model="currentVehicleId"
-                    :load-params="loadParams"
-                    :load-data="loadData"
-                    :item-config="{
-                      valueKey: 'vehicleRegisteredModelId',
-                      labelKey: 'vehicleRegisteredModelName',
-                      disableCloseKey: 'disableClose',
-                      disableFirst: true,
-                    }"
-                    close-tip="确定删除该公共车型吗？"
-                    :remote-method="remoteMethod"
-                    :select-config="{
-                      valueKey: 'id',
-                      labelKey: 'name',
-                      placeholder: '请输入公告车型代码/名称',
-                    }"
-                    @remove="onRemove"
-                    />
-                  </section>
-                  <section class="common-section">
-                    <div
-                      v-if="canAddOrUpdate && _id"
-                      class="common-section-header"
+                  <div
+                    v-if="canAddOrUpdate && _id"
+                    class="common-section-header"
+                  >
+                    <fetch-box v-if="canAddOrUpdate">
+                      <fetch-select
+                        filterable
+                        clearable
+                        remote
+                        reserve-keyword
+                        v-model="part"
+                        :remote-method="partRemote"
+                        @change="handlePartChange"
+                        value-key="id"
+                        label-key="partName"
+                        placeholder="请输入零件编码/名称"
+                      />
+                      <el-button
+                        type="primary"
+                        size="small"
+                        @click="handleAddPart"
+                        >
+                        添加
+                      </el-button>
+                    </fetch-box>
+                  </div>
+                  <part-table
+                    :moduleKey="moduleKey"
+                    ref="partTable"
+                    :currentVehicleId="currentVehicleId"
+                    :id="id"
+                    @replace="onReplace"
                     >
-                      <fetch-box v-if="canAddOrUpdate">
-                        <fetch-select
-                          filterable
-                          clearable
-                          remote
-                          reserve-keyword
-                          v-model="part"
-                          :remote-method="partRemote"
-                          @change="handlePartChange"
-                          value-key="id"
-                          label-key="partName"
-                          placeholder="请输入零件编码/名称"
-                        />
-                        <el-button
-                          type="primary"
-                          size="small"
-                          @click="handleAddPart"
-                          >
-                          添加
-                        </el-button>
-                      </fetch-box>
-                    </div>
-                    <part-table
-                      :moduleKey="moduleKey"
-                      ref="partTable"
-                      :currentVehicleId="currentVehicleId"
-                      :id="id"
-                      @replace="onReplace"
-                      >
-                    </part-table>
-                  </section>
-              </div>
-            </section>
-          </el-main>
-        </template>
+                  </part-table>
+                </section>
+            </div>
+          </section>
+        </el-main>
       </edit-base-container>
      </template>
     <template #right>
