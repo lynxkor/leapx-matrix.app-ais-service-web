@@ -43,3 +43,27 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 门店备件库位表新增/编辑
+ * @param {Object} data
+ */
+export function locationOrUpdate (data) {
+  return api.jsonPost('sp/web/warehouse/location/addOrUpdate', data);
+}
+
+/**
+ * 门店备件库位表分页查询
+ * @param {Object} data
+ */
+export function locationPage (data) {
+  return api.jsonPost('sp/web/warehouse/location/page', data);
+}
+
+/**
+ * 门店备件库位表删除
+ * @param {Object} data
+ */
+export function locationDel (data) {
+  return api.jsonPost('sp/web/warehouse/location/delete', data);
+}
