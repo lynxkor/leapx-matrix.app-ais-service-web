@@ -13,7 +13,7 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
-        <template #default="{formApi}">
+        <template>
           <el-main>
             <section class="common-section">
               <div class="common-section-header">
@@ -22,7 +22,7 @@
               <div class="common-section-body">
                 <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
                 <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-                <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="VFG编码：" prop="vfgCode">
                     <el-input
                       placeholder="请输入"

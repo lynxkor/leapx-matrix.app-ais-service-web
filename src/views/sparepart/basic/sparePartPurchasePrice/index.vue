@@ -10,11 +10,7 @@
       class="ais-search-form"
     >
       <el-form-item label="备件编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.sparePartCodeLike"
-          clearable
-        />
+        <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="备件名称"  v-show="this.visibleCount === 3 || show">
         <el-input
@@ -169,6 +165,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 import FetchSelect from '@/libs/components/FetchSelect';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -199,7 +196,8 @@ export default {
     FetchSelect,
     PageSearchAction,
     LPVxeTable,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
@@ -487,6 +485,35 @@ export default {
           data.createTimeStart = this.form.createTime[0];
           data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
         }
+      }
+
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = getEndOfDayString(this.form.updateTime[1]);
+        }
+      }
+
+      if (this.form.effectiveStartDate) {
+        delete data.effectiveStartDate;
+        if (this.form.effectiveStartDate.length > 1) {
+          data.effectiveStartDateStart = this.form.effectiveStartDate[0];
+          data.effectiveStartDateEnd = getEndOfDayString(this.form.effectiveStartDate[1]);
+        }
+      }
+
+      if (this.form.effectiveEndDatetime) {
+        delete data.effectiveEndDatetime;
+        if (this.form.effectiveEndDatetime.length > 1) {
+          data.effectiveEndDatetimeStart = this.form.effectiveEndDatetime[0];
+          data.effectiveEndDatetimeEnd = getEndOfDayString(this.form.effectiveEndDatetime[1]);
+        }
+      }
+
+      if (Array.isArray(this.form.sparePartCodeList) && this.form.sparePartCodeList.length <= 1) {
+        delete data.sparePartCodeList;
+        data.sparePartCodeLike = this.form.sparePartCodeList[0] || '';
       }
 
       return data;

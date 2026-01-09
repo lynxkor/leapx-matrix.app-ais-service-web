@@ -13,14 +13,14 @@
         :detailRequest="detailRequest"
         :dataTransform="dataTransform"
       >
-        <template #default="{formApi}">
+        <template>
           <el-main>
             <section class="common-section">
               <div class="common-section-header">
                 <h2>基础信息</h2>
               </div>
               <div class="common-section-body">
-                <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"  class="form-edit" v-show="isEditing || !_id">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"  class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="活动编码：" prop="activityCode">
                     <base-input
                       placeholder="请输入"
@@ -193,7 +193,7 @@
                 <h2>结算类型</h2>
               </div>
               <div class="common-section-body">
-                <el-form v-form-register="formApi" :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="结算类型：" prop="checkoutTypeId">
                     <fetch-select
                       filterable

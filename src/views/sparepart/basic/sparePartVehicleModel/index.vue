@@ -9,14 +9,10 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="零件编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.partCodeLike"
-          clearable
-        />
+      <el-form-item label="备件编码">
+        <tag-input v-model="form.partCodeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="零件名称">
+      <el-form-item label="备件名称">
         <el-input
           placeholder="请输入"
           v-model="form.partNameLike"
@@ -146,10 +142,13 @@ import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import ListSelect from '@/libs/components/list-select/index.vue';
+import { getEndOfDayString } from '@/libs/utils';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   partCodeLike: '',
+  partCodeList: [],
   partNameLike: '',
   vehicleSeriesIds: [],
   vehicleModelIds: [],
@@ -169,7 +168,8 @@ export default {
     ListSelect,
     PageSearchAction,
     LPVxeTable,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
@@ -407,8 +407,19 @@ export default {
         delete data.createTime;
         if (this.form.createTime.length > 1) {
           data.createTimeStart = this.form.createTime[0];
-          data.createTimeEnd = this.form.createTime[1];
+          data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
         }
+      }
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = getEndOfDayString(this.form.updateTime[1]);
+        }
+      }
+      if (Array.isArray(this.form.partCodeList) && this.form.partCodeList.length <= 1) {
+        delete data.partCodeList;
+        data.partCodeLike = this.form.partCodeList[0] || '';
       }
 
       return data;
