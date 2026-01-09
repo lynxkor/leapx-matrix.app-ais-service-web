@@ -1,5 +1,5 @@
 <template>
-  <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
+  <edit-page-layout ref="editLayout" title="库位详情" showPaneFooter @save="handleSave">
     <template #left>
       <edit-base-container :id="_id" :title="`仓库名称：${form.warehouseName}`" :isEditing.sync="isEditing" :form.sync="form"
         :submitRequest="submitRequest" :detailRequest="detailRequest">
@@ -86,24 +86,17 @@
               </div>
               <div class="common-section-body">
                 <div class="ais-select-group" v-if="canAddOrUpdate">
-                  <el-select style="width: 305px;" v-model="noDealerCodes" filterable clearable remote placeholder="请选择"
-                    :remote-method="getLocation" @change="handleStoreChange" collapse-tags>
-                    <el-option v-for="item in storeOptions" :key="item.value" :label="item.label" :value="item.value">
-                    </el-option>
-                  </el-select>
-                  <el-button type="primary" @click="openPane" size="small">
+                  <el-input placeholder="请输入" style="width: 305px;" v-model="locationName" clearable />
+                  <el-button type="primary" @click="addLocation" size="small">
                     添加
                   </el-button>
                 </div>
                 <div class="common-section-table">
-                  <!-- <edit-table ref="editTable" :columns="columns" :data="tableData" :defaultNewRow="defaultNewRow"
-                    :show-toolbar="false" :options="options" :auth="{ edit: canAddOrUpdate, delete: canDelete }" /> -->
                   <part-table
                     :moduleKey="moduleKey"
                     ref="partTable"
-                    :currentVehicleId="currentVehicleId"
                     :id="id"
-                    @replace="onReplace"
+                    @openPane="openPane"
                     >
                   </part-table>
                 </div>
@@ -115,12 +108,21 @@
     </template>
     <template #right>
       <!-- 右侧栏组件，自行开发 -->
+      <div class="page-common-edit">
+        <replace-table
+          :moduleKey="moduleKey"
+          ref="replaceTable"
+          :id="id"
+          :replaceData="replaceData"
+          >
+        </replace-table>
+      </div>
     </template>
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/warehouse/warehouse/index';
+import { getDetail, addOrUpdate, locationOrUpdate } from '@/api/sparepart/warehouse/warehouse/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -132,6 +134,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import { locationListShort } from '@/libs/api/common';
 import EditBaseContainer from '@/components/EditBaseContainer';
 import PartTable from './PartTable.vue';
+import ReplaceTable from './ReplaceTable.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -164,7 +167,8 @@ export default {
     // EditTable,
     FetchSelect,
     EditBaseContainer,
-    PartTable
+    PartTable,
+    ReplaceTable
   },
   computed: {
     _id () {
@@ -188,7 +192,7 @@ export default {
           // 状态变为1时清除验证信息
           this.rules.disableReason[0].required = false;
           this.$nextTick(() => {
-            this.$refs.ruleForm.clearValidate('disableReason');
+            this.$refs.ruleForm?.clearValidate?.();
           });
         }
       },
@@ -215,6 +219,8 @@ export default {
       isEditing: false,
       loading: false,
       submitLoading: false,
+      locationName: '', // 库位信息
+      replaceData: {}, // 库位当行信息
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -276,11 +282,12 @@ export default {
   },
   methods: {
     // 打开侧边栏
-    openPane () {
+    openPane (val, idx) {
+      this.replaceData = val;
       this.$refs.editLayout.openPane();
     },
     handleCancel () {
-      this.$refs.ruleForm.clearValidate();
+      this.$refs.ruleForm?.clearValidate?.();
       this.isEditing = false;
     },
     handleEdit () {
@@ -397,9 +404,31 @@ export default {
       this.form.dealerCode = all.orgCode;
       this.form.dealerName = all.orgName;
     },
-    // 席位信息
-    getLocation () {
-
+    // 库位信息添加
+    async addLocation () {
+      if (!this.locationName) {
+        this.$message.error('请输入席位名称,再添加!');
+        return;
+      };
+      const params = {
+        warehouseId: this.$route.query.id,
+        locationName: this.locationName
+      };
+      await locationOrUpdate(params);
+      this.$refs.partTable.getDetailPageApi();
+      this.locationName = '';
+      this.$message.success('添加成功');
+    },
+    // 编辑行信息
+    async handleSave () {
+      try {
+        // 等待 saveRowEdit 完成
+        await this.$refs.replaceTable?.saveRowEdit();
+        // 然后执行 getDetailPageApi
+        // this.$refs.partTable.getDetailPageApi();
+      } catch (error) {
+        console.error('保存失败:', error);
+      }
     }
   }
 };
