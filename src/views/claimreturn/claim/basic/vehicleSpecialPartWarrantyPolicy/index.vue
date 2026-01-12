@@ -136,6 +136,7 @@
       :visible="uploadDialogVisible"
       id="vehicleSpecialPartWarrantyPolicy"
       @close="handleUploadDialogClose"
+      @getData="getData"
     />
   </div>
 </template>
