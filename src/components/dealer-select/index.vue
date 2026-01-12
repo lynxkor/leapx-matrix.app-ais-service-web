@@ -42,6 +42,7 @@ export default {
     return {
       orgId: null,
       options: [],
+      selectedOptions: []
     };
   },
   watch: {
@@ -65,19 +66,52 @@ export default {
   methods: {
     // 门店模糊搜索方法（带防抖）
     storeSearch (query) {
-      if (query && query.length < 2) {
+      if (!query || (query && query.length < 2)) {
         return;
       }
       listOrgStoreInfo({ name: query }).then(res => {
-        this.options = res.map(item => {
-          return {
-            ...item
-          };
+        this.options = [];
+        res.forEach(item1 => {
+          this.options.push(item1);
+        });
+        this.selectedOptions.forEach(item1 => {
+          if (!this.options.find(item => item.orgCode === item1.orgCode)) {
+            this.options.push(item1);
+          }
         });
       });
     },
     handleChange (val) {
-      console.log('handleChange', val);
+      let selectValArray = val;
+      if (!this.multiple) {
+        if (val) {
+          selectValArray = [val];
+        } else {
+          selectValArray = [];
+        }
+      }
+      // 同步 selectedOptions
+      let selectedOptionsLength = this.selectedOptions.length;
+      if (selectedOptionsLength > 0) {
+        let existed = false;
+        while (selectedOptionsLength--) {
+          for (let selectValArrayElement of selectValArray) {
+            if (selectValArrayElement === this.selectedOptions[selectedOptionsLength].orgCode) {
+              existed = true;
+            }
+          }
+          if (!existed) {
+            this.selectedOptions.splice(selectedOptionsLength, 1);
+          }
+        }
+      }
+      for (let selectVal of selectValArray) {
+        let find = this.selectedOptions.find(item => item.orgCode === selectVal);
+        if (!find) {
+          let selectedOption = this.options.find(item => item.orgCode === selectVal);
+          this.selectedOptions.push(selectedOption);
+        }
+      }
     }
   }
 };
