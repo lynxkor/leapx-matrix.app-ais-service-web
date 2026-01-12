@@ -50,3 +50,11 @@ export function enableItem (data) {
 export function publish (data) {
   return api.jsonPost(prefix + 'publish', data);
 }
+
+/**
+ * 批量签收
+ * @param {Array<Number>} data
+ */
+export function signByIds (data) {
+  return api.jsonPost(prefix + 'signByIds', data);
+}

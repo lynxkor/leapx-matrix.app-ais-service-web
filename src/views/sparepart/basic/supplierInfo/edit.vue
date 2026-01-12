@@ -52,21 +52,22 @@
                   filterable
                 />
               </el-form-item>
-              <el-form-item label="省市区" prop="provinceCode">
+              <el-form-item label="省市区" prop="provinceCode"
+              v-if="permissions.has('web:basic:supplierInfo:oemColumn')"
+              >
                 <el-cascader
                   placeholder="请选择省市区"
                   v-model="form.provinceCityCountyCode"
                   :props="orgProps"
                   :options="areaOptions"
                   filterable
-                  :disabled="permissions.has('web:basic:supplierInfo:oemColumn')"
                   clearable>
                 </el-cascader>
               </el-form-item>
-              <el-form-item label="地址" prop="address">
+              <el-form-item label="地址" prop="address"
+              v-if="permissions.has('web:basic:supplierInfo:oemColumn')">
                 <el-input
                   placeholder="请输入"
-                  :disabled="permissions.has('web:basic:supplierInfo:oemColumn')"
                   v-model="form.address"
                   clearable
                 />
@@ -78,34 +79,34 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="联系人姓名" prop="contactName">
+              <el-form-item label="联系人姓名" prop="contactName"
+              v-if="permissions.has('web:basic:supplierInfo:oemColumn')">
                 <el-input
                   placeholder="请输入"
-                  :disabled="permissions.has('web:basic:supplierInfo:oemColumn')"
                   v-model="form.contactName"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="联系人电话" prop="contactPhone">
+              <el-form-item label="联系人电话" prop="contactPhone"
+              v-if="permissions.has('web:basic:supplierInfo:oemColumn')">
                 <el-input
                   placeholder="请输入"
-                  :disabled="permissions.has('web:basic:supplierInfo:oemColumn')"
                   v-model="form.contactPhone"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="联系人邮箱" prop="contactEmail">
+              <el-form-item label="联系人邮箱" prop="contactEmail"
+              v-if="permissions.has('web:basic:supplierInfo:oemColumn')">
                 <el-input
                   placeholder="请输入"
-                  :disabled="permissions.has('web:basic:supplierInfo:oemColumn')"
                   v-model="form.contactEmail"
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="联系人传真" prop="contactFax">
+              <el-form-item label="联系人传真" prop="contactFax"
+              v-if="permissions.has('web:basic:supplierInfo:oemColumn')">
                 <el-input
                   placeholder="请输入"
-                  :disabled="permissions.has('web:basic:supplierInfo:oemColumn')"
                   v-model="form.contactFax"
                   clearable
                 />

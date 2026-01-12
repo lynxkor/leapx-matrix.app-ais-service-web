@@ -181,3 +181,11 @@ export function sparePartList (data) {
 export function sparePartListShort (data) {
   return api.jsonPost('/sp/web/basic/sparePart/list', data);
 }
+
+/**
+ * 母公司列表查询
+ * @param {*} data
+ */
+export function getParentCompany (data) {
+  return api.jsonPost('/network/portal/parentCompany/page', data);
+}
