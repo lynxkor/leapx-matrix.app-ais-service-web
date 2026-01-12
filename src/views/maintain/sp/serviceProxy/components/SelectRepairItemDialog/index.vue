@@ -1,108 +1,607 @@
 <template>
   <el-dialog
-    class="m-serviceActivityVehicle-dialog"
-    title="选择维修项目"
+    class="m-add-repair-item-dialog"
+    title="添加维修项目"
     width="1000px"
     :visible.sync="dialogVisible"
     @close="close"
     @closed="closed"
   >
-    <el-form size="small" ref="form" :model="form" :rules="rules" :label-width="formLabelWidth">
-      <el-row>
-        <el-col :span="22">
-          <el-form-item label="完成时间：" prop="finishTime">
-            <!-- <el-input v-model="form.nextDate" autocomplete="off" /> -->
-            <el-date-picker type="datetime" placeholder="选择日期" v-model="form.finishTime" value-format="yyyy-MM-dd HH:mm:ss" style="width: 100%;" />
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="22">
-          <el-form-item label="完成说明：" prop="manualCompletionNote">
-            <el-input type="textarea" rows="3" v-model="form.manualCompletionNote"  maxlength="500" show-word-limit/>
-          </el-form-item>
-        </el-col>
-      </el-row>
-    </el-form>
+    <!-- 顶部信息栏 -->
+    <div class="info-bar">
+      <div class="info-item">
+        <span class="label">VIN:</span>
+        <span class="value">{{ vehicleInfo.vin }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">车型:</span>
+        <span class="value">{{ vehicleInfo.model }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">门店:</span>
+        <span class="value">{{ vehicleInfo.store }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">优惠模式:</span>
+        <el-select
+          v-model="discountMode"
+          placeholder="请选择"
+          size="small"
+          style="width: 120px;"
+        >
+          <el-option label="标准优惠" value="standard"></el-option>
+          <el-option label="会员优惠" value="member"></el-option>
+        </el-select>
+      </div>
+      <div class="info-item">
+        <span class="label">维修项目合计:</span>
+        <span class="value highlight">¥{{ itemTotal.toFixed(2) }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">维修配件合计:</span>
+        <span class="value highlight">¥{{ partTotal.toFixed(2) }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">费用合计:</span>
+        <span class="value total">¥{{ totalCost.toFixed(2) }}</span>
+      </div>
+    </div>
+
+    <!-- 维修类型标签页 -->
+    <div class="type-tabs">
+      <div
+        v-for="tab in typeTabs"
+        :key="tab.value"
+        class="type-tab"
+        :class="{ active: activeTypeTab === tab.value }"
+        @click="activeTypeTab = tab.value"
+      >
+        {{ tab.label }}
+      </div>
+    </div>
+
+    <!-- Tab内容区 -->
+    <div class="tab-content">
+      <!-- 维修项目 tab -->
+      <div class="tab-panel">
+        <div class="panel-header">
+          <h3>维修项目</h3>
+        </div>
+        <edit-table
+          ref="itemTable"
+          :columns="itemColumns"
+          :data="itemData"
+          :show-toolbar="false"
+          :options="itemOptions"
+          :auth="{edit: false, delete: true}"
+          :default-new-row="defaultItemRow"
+          emptyText="请添加数据"
+        />
+        <div class="add-row ais-select-group">
+          <el-input
+            v-model="itemSearchKey"
+            placeholder="请输入维修项目/套餐代码名称拼音简码模糊搜索"
+            size="small"
+            style="width: 400px;"
+          >
+            <i slot="prefix" class="el-input__icon el-icon-search"></i>
+          </el-input>
+          <el-button type="primary" size="small" icon="el-icon-plus" @click="addItem">添加</el-button>
+        </div>
+      </div>
+
+      <!-- 维修配件 tab -->
+      <div class="tab-panel">
+        <div class="panel-header">
+          <h3>维修配件</h3>
+        </div>
+        <edit-table
+          ref="partTable"
+          :columns="partColumns"
+          :data="partData"
+          :show-toolbar="false"
+          :options="partOptions"
+          :auth="{edit: false, delete: true}"
+          :default-new-row="defaultPartRow"
+          emptyText="请添加数据"
+        />
+        <div class="add-row ais-select-group">
+          <el-input
+            v-model="partSearchKey"
+            placeholder="请输入零件代码名称拼音简码模糊搜索"
+            size="small"
+            style="width: 400px;"
+          >
+            <i slot="prefix" class="el-input__icon el-icon-search"></i>
+          </el-input>
+          <el-button type="primary" size="small" icon="el-icon-plus" @click="addPart">添加</el-button>
+        </div>
+      </div>
+    </div>
+
     <template v-slot:footer>
       <div class="dialog-footer">
-        <el-button size="small" @click="$emit('update:visible', false)">取 消</el-button>
-        <el-button size="small" :loading="submitLoading" type="primary" @click="submit()">确 定</el-button>
+        <el-button size="small" @click="close">取 消</el-button>
+        <el-button size="small" :loading="submitLoading" type="primary" @click="submit">保 存</el-button>
       </div>
     </template>
   </el-dialog>
 </template>
 
 <script>
-import { finish } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
+import EditTable from '@/libs/components/EditTable';
+
 export default {
-  name: 'EditDialog',
+  name: 'SelectRepairItemDialog',
+  components: {
+    EditTable
+  },
   props: {
     visible: {
       type: Boolean,
       default: false
     },
-    info: {
+    vehicleInfo: {
       type: Object,
-      default: () => {
-        return {};
-      }
+      default: () => ({
+        vin: 'LFZ63AL5XPD080206',
+        model: 'C01增程-316智享版',
+        store: '武汉零跑中心兴业路店'
+      })
     }
   },
   data () {
     return {
       dialogVisible: this.visible,
-      form: {
-        finishTime: '',
-        manualCompletionNote: ''
+      discountMode: '',
+      activeTypeTab: 'items',
+      itemSearchKey: '',
+      partSearchKey: '',
+      submitLoading: false,
+
+      // 维修类型标签
+      typeTabs: [
+        { label: '保养', value: 'maintenance' },
+        { label: '一般维修', value: 'general' },
+        { label: '钣喷', value: 'body' },
+        { label: '美容装潢', value: 'beauty' },
+        { label: '精品附件', value: 'premium' },
+        { label: '三电维修', value: 'electric' }
+      ],
+
+      // 维修项目表格配置
+      itemData: [
+        {
+          id: 1,
+          code: '999999',
+          name: '万能工时',
+          type: 'maintenance',
+          settlementType: 'self',
+          warrantyType: 'none',
+          laborHours: 1.0,
+          unitPrice: 100.00,
+          discountRate: 0.5
+        },
+        {
+          id: 2,
+          code: '9217839293',
+          name: '更换风道上部',
+          type: 'maintenance',
+          settlementType: 'self',
+          warrantyType: 'none',
+          laborHours: 1.2,
+          unitPrice: 1000.00,
+          discountRate: 0.5
+        }
+      ],
+      defaultItemRow: {
+        code: '',
+        name: '',
+        type: 'maintenance',
+        settlementType: 'self',
+        warrantyType: 'none',
+        laborHours: 0,
+        unitPrice: 0,
+        discountRate: 1
       },
-      rules: {
-        manualCompletionNote: [
-          { required: true, message: '完成说明必填', trigger: 'blur' },
-          { min: 1, max: 500, message: '长度在 1 到 500 个字', trigger: 'blur' }
+      itemOptions: {
+        type: [
+          { label: '保养', value: 'maintenance' },
+          { label: '一般维修', value: 'general' },
+          { label: '钣喷', value: 'body' },
+          { label: '美容装潢', value: 'beauty' },
+          { label: '精品附件', value: 'premium' },
+          { label: '三电维修', value: 'electric' }
         ],
-        finishTime: [
-          { required: true, message: '完成时间必填', trigger: 'blur' }
+        settlementType: [
+          { label: '自费', value: 'self' },
+          { label: '保修', value: 'warranty' },
+          { label: '保险', value: 'insurance' }
+        ],
+        warrantyType: [
+          { label: '无', value: 'none' },
+          { label: '整车保修', value: 'vehicle' },
+          { label: '备件保修', value: 'part' }
         ]
       },
-      submitLoading: false,
-      formLabelWidth: '120px'
+
+      // 维修配件表格配置
+      partData: [
+        {
+          id: 1,
+          code: '9217839293',
+          name: '空调滤芯',
+          type: 'maintenance',
+          settlementType: 'self',
+          warrantyType: 'none',
+          isOriginal: 'yes',
+          quantity: 1,
+          unitPrice: 37.6,
+          discountRate: 0.5
+        }
+      ],
+      defaultPartRow: {
+        code: '',
+        name: '',
+        type: 'maintenance',
+        settlementType: 'self',
+        warrantyType: 'none',
+        isOriginal: 'yes',
+        quantity: 1,
+        unitPrice: 0,
+        discountRate: 1
+      },
+      partOptions: {
+        type: [
+          { label: '保养', value: 'maintenance' },
+          { label: '一般维修', value: 'general' },
+          { label: '钣喷', value: 'body' },
+          { label: '美容装潢', value: 'beauty' },
+          { label: '精品附件', value: 'premium' },
+          { label: '三电维修', value: 'electric' }
+        ],
+        settlementType: [
+          { label: '自费', value: 'self' },
+          { label: '保修', value: 'warranty' },
+          { label: '保险', value: 'insurance' }
+        ],
+        warrantyType: [
+          { label: '无', value: 'none' },
+          { label: '整车保修', value: 'vehicle' },
+          { label: '备件保修', value: 'part' }
+        ],
+        isOriginal: [
+          { label: '是', value: 'yes' },
+          { label: '否', value: 'no' }
+        ]
+      }
     };
+  },
+  computed: {
+    // 维修项目列配置
+    itemColumns () {
+      return [
+        {
+          field: 'index',
+          title: '序号',
+          width: '60px',
+          formatter: (_value, _row, rowIndex) => rowIndex + 1
+        },
+        {
+          field: 'code',
+          title: '维修项目代码',
+          width: '140px',
+          editable: true,
+          editRender: { name: 'ElInput', props: { placeholder: '请输入代码' } }
+        },
+        {
+          field: 'name',
+          title: '维修项目名称',
+          width: '180px',
+          editable: true,
+          editRender: { name: 'ElInput', props: { placeholder: '请输入名称' } }
+        },
+        {
+          field: 'type',
+          title: '维修类型',
+          width: '120px',
+          editable: true,
+          editRender: { name: 'ElSelect', props: { placeholder: '请选择' } }
+        },
+        {
+          field: 'settlementType',
+          title: '结算类型',
+          width: '110px',
+          editable: true,
+          editRender: { name: 'ElSelect', props: { placeholder: '请选择' } }
+        },
+        {
+          field: 'warrantyType',
+          title: '保修类型',
+          width: '110px',
+          editable: true,
+          editRender: { name: 'ElSelect', props: { placeholder: '请选择' } }
+        },
+        {
+          field: 'laborHours',
+          title: '工时',
+          width: '100px',
+          editable: true,
+          editRender: { name: 'ElInputNumber', props: { precision: 1, min: 0, controlsPosition: 'right' } }
+        },
+        {
+          field: 'unitPrice',
+          title: '单价',
+          width: '110px',
+          editable: true,
+          editRender: { name: 'ElInputNumber', props: { precision: 2, min: 0, controlsPosition: 'right' } },
+          formatter: (value) => `¥${(value || 0).toFixed(2)}`
+        },
+        {
+          field: 'discountRate',
+          title: '折扣率',
+          width: '100px',
+          editable: true,
+          editRender: { name: 'ElInputNumber', props: { precision: 2, min: 0, max: 1, step: 0.1, controlsPosition: 'right' } },
+          formatter: (value) => `${(value || 0).toFixed(2)}`
+        }
+      ];
+    },
+    // 维修配件列配置
+    partColumns () {
+      return [
+        {
+          field: 'index',
+          title: '序号',
+          width: '60px',
+          formatter: (value, row, rowIndex) => rowIndex + 1
+        },
+        {
+          field: 'code',
+          title: '零件代码',
+          width: '140px',
+          editable: true,
+          editRender: { name: 'ElInput', props: { placeholder: '请输入代码' } }
+        },
+        {
+          field: 'name',
+          title: '零件名称',
+          width: '180px',
+          editable: true,
+          editRender: { name: 'ElInput', props: { placeholder: '请输入名称' } }
+        },
+        {
+          field: 'type',
+          title: '维修类型',
+          width: '120px',
+          editable: true,
+          editRender: { name: 'ElSelect', props: { placeholder: '请选择' } }
+        },
+        {
+          field: 'settlementType',
+          title: '结算类型',
+          width: '110px',
+          editable: true,
+          editRender: { name: 'ElSelect', props: { placeholder: '请选择' } }
+        },
+        {
+          field: 'warrantyType',
+          title: '保修类型',
+          width: '110px',
+          editable: true,
+          editRender: { name: 'ElSelect', props: { placeholder: '请选择' } }
+        },
+        {
+          field: 'isOriginal',
+          title: '是否原厂',
+          width: '100px',
+          editable: true,
+          editRender: { name: 'ElSelect', props: { placeholder: '请选择' } },
+          formatter: (value) => value === 'yes' ? '是' : '否'
+        },
+        {
+          field: 'quantity',
+          title: '数量',
+          width: '100px',
+          editable: true,
+          editRender: { name: 'ElInputNumber', props: { precision: 1, min: 0, controlsPosition: 'right' } }
+        },
+        {
+          field: 'unitPrice',
+          title: '单价',
+          width: '110px',
+          editable: true,
+          editRender: { name: 'ElInputNumber', props: { precision: 2, min: 0, controlsPosition: 'right' } },
+          formatter: (value) => `¥${(value || 0).toFixed(2)}`
+        },
+        {
+          field: 'discountRate',
+          title: '折扣率',
+          width: '100px',
+          editable: true,
+          editRender: { name: 'ElInputNumber', props: { precision: 2, min: 0, max: 1, step: 0.1, controlsPosition: 'right' } },
+          formatter: (value) => `${(value || 0).toFixed(2)}`
+        }
+      ];
+    },
+    // 维修项目合计
+    itemTotal () {
+      return this.itemData.reduce((sum, item) => {
+        return sum + (item.laborHours || 0) * (item.unitPrice || 0) * (item.discountRate || 1);
+      }, 0);
+    },
+    // 维修配件合计
+    partTotal () {
+      return this.partData.reduce((sum, part) => {
+        return sum + (part.quantity || 0) * (part.unitPrice || 0) * (part.discountRate || 1);
+      }, 0);
+    },
+    // 费用合计
+    totalCost () {
+      return this.itemTotal + this.partTotal;
+    }
   },
   watch: {
     visible (val) {
       this.dialogVisible = val;
-
-      if (val) {
-        Object.keys(this.form).forEach(key => {
-          this.form[key] = this.info[key];
-        });
-      }
+    },
+    dialogVisible (val) {
+      this.$emit('update:visible', val);
     }
   },
   methods: {
     close () {
-      this.$emit('update:visible', false);
+      this.dialogVisible = false;
     },
     closed () {
-      this.$refs.form.resetFields();
+      // 重置数据
+      this.itemData = [];
+      this.partData = [];
+      this.discountMode = '';
+      this.activeTypeTab = 'items';
+    },
+    addItem () {
+      const newItem = {
+        ...this.defaultItemRow,
+        id: Date.now()
+      };
+      this.itemData.push(newItem);
+    },
+    addPart () {
+      const newPart = {
+        ...this.defaultPartRow,
+        id: Date.now()
+      };
+      this.partData.push(newPart);
     },
     submit () {
-      this.$refs.form.validate(valid => {
-        if (valid) {
-          this.submitLoading = true;
-          // this.$emit('submit', { ...this.info, ...this.form });
-          finish({ ...this.info, ...this.form }).then(res => {
-            this.$emit('update:visible', false);
-            this.$emit('refresh', res);
-            this.closed();
-          }).finally(() => {
-            this.submitLoading = false;
-          });
-        }
-      });
-    }
+      // 验证数据
+      if (this.itemData.length === 0 && this.partData.length === 0) {
+        this.$message.warning('请至少添加一个维修项目或维修配件');
+        return;
+      }
 
+      this.submitLoading = true;
+
+      // 模拟提交
+      setTimeout(() => {
+        const data = {
+          items: this.itemData,
+          parts: this.partData,
+          discountMode: this.discountMode,
+          itemTotal: this.itemTotal,
+          partTotal: this.partTotal,
+          totalCost: this.totalCost
+        };
+
+        this.$emit('submit', data);
+        this.$emit('update:visible', false);
+        this.submitLoading = false;
+        this.$message.success('保存成功');
+      }, 500);
+    }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.m-add-repair-item-dialog {
+  .info-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 25%;
+
+      .label {
+        color: var(--leap-color-default);
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .value {
+        color: var(--leap-color-default);
+        font-size: 14px;
+        font-weight: 500;
+
+        &.highlight {
+          color: var(--leap-color-primary);
+        }
+
+        &.total {
+          color: var(--leap-color-primary);
+          font-weight: bold;
+        }
+      }
+    }
+  }
+
+  .type-tabs {
+    display: flex;
+    margin-bottom: 16px;
+
+    .type-tab {
+      padding: 5px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--leap-color-default-light-1);
+      transition: all 0.3s;
+      border: 1px solid var(--leap-color-default-light-4);
+      background-color: #ffffff;
+      position: relative;
+      margin-left: -1px;
+
+      &:first-child {
+        border-radius: 4px 0 0 4px;
+        margin-left: 0;
+      }
+
+      &:last-child {
+        border-radius: 0 4px 4px 0;
+      }
+
+      &:hover {
+        border-color: var(--leap-color-primary);
+        color: var(--leap-color-primary);
+        z-index: 1;
+      }
+
+      &.active {
+        background-color: var(--leap-color-primary);
+        color: #ffffff;
+        border-color: var(--leap-color-primary);
+        z-index: 2;
+      }
+    }
+  }
+
+  .tab-content {
+    .tab-panel {
+      margin-bottom: 20px;
+      .panel-header {
+        margin-bottom: 8px;
+
+        h3 {
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--leap-color-default);
+          margin: 0;
+        }
+      }
+
+      .add-row {
+        display: flex;
+        align-items: center;
+        margin-top: 12px;
+      }
+    }
+  }
+}
+</style>
