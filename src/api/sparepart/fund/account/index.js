@@ -43,3 +43,19 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 备件账户流水表分页查询
+ * @param {Object} data
+ */
+export function accountFlowPage (data) {
+  return api.jsonPost('sp/web/fund/accountFlow/page', data);
+}
+
+/**
+ * 备件账户表查询冻结账户流水
+ * @param {Object} data
+ */
+export function frozenPage (data) {
+  return api.jsonPost('sp/web/fund/accountFlow/frozenPage', data);
+}
