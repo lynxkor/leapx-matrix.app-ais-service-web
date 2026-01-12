@@ -127,6 +127,7 @@
             multiple
             filterable
             clearable
+            collapse-tags
             :params="{}" />
         </el-form-item>
         <el-form-item label="创建时间">
@@ -195,6 +196,7 @@
       :visible="uploadDialogVisible"
       id="serviceActivityVehicle"
       @close="handleUploadDialogClose"
+      @getData="getData"
     />
     <!-- 完成活动弹窗 -->
     <FinishActDialog

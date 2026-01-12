@@ -13,11 +13,12 @@
                     <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
                   </div>
                   <ButtonGroup maxWidth="50%" v-else>
-                    <el-button size="small" @click="handleCancel">预检确认</el-button>
-                    <el-button size="small" @click="handleCancel">作废</el-button>
-                    <el-button size="small" @click="handleCancel">查询卡券&终身</el-button>
+                    <el-button size="small" @click="handlePreCheck">预检确认</el-button>
+                    <el-button size="small" @click="selectRepairItemDialogVisible = true">选择维修项目</el-button>
+                    <el-button size="small" @click="discardDialogVisible = true">作废</el-button>
+                    <el-button size="small" @click="couponsDialogVisible = true">查询卡券&终身</el-button>
                     <el-button size="small" @click="handleCancel">预警信息</el-button>
-                    <el-button size="small" @click="handleCancel">打印工单</el-button>
+                    <el-button size="small" @click="handlePrint">打印工单</el-button>
                     <el-button size="small" @click="handleCancel">上传附件</el-button>
                     <el-button size="small" @click="handleShowLog">审核日志</el-button>
                     <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
@@ -52,6 +53,46 @@
           </el-footer>
         </el-container>
       </div>
+      <!-- 制单确认并签字 -->
+      <ConfirmDocDialog
+        :visible.sync="confirmDocDialogVisible"
+        @refresh="handleRefresh"
+      />
+      <!-- 选择维修项目 -->
+      <SelectRepairItemDialog
+        :visible.sync="selectRepairItemDialogVisible"
+        @refresh="handleRefresh"
+      />
+      <!-- 派工 -->
+      <DispatchWorkDialog
+        :visible.sync="dispatchWorkDialogVisible"
+        @refresh="handleRefresh"
+      />
+      <!-- 派工 -->
+      <StartWorkDialog
+        :visible.sync="startWorkDialogVisible"
+        @refresh="handleRefresh"
+      />
+      <!-- 项目终检 -->
+      <FinalCheckDialog
+        :visible.sync="finalCheckDialogVisible"
+        @refresh="handleRefresh"
+      />
+      <!-- 接车施工单作废 -->
+      <DiscardDialog
+        :visible.sync="discardDialogVisible"
+        @refresh="handleRefresh"
+      />
+      <!-- 退料 -->
+      <MaterialReturnDialog
+        :visible.sync="materialReturnDialogVisible"
+        @refresh="handleRefresh"
+      />
+      <!-- 查询卡券&终身 -->
+      <CouponsDialog
+        :visible.sync="couponsDialogVisible"
+        @refresh="handleRefresh"
+      />
     </template>
     <template #right>
       <!-- 右侧栏组件，自行开发 -->
@@ -61,8 +102,6 @@
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/maintain/sp/serviceProxy/index';
-import FetchSelect from '@/libs/components/FetchSelect';
-import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import NavTop from './components/NavTop';
 import { getEnum } from '@/api/common';
@@ -79,6 +118,14 @@ import InquiryInfo from './components/InquiryInfo';
 import SparepartsInfo from './components/SparepartsInfo';
 import Attachment from './components/Attachment';
 import RepairInfo from './components/RepairInfo';
+import ConfirmDocDialog from './components/ConfirmDocDialog';
+import CouponsDialog from './components/CouponsDialog';
+import DiscardDialog from './components/DiscardDialog';
+import FinalCheckDialog from './components/FinalCheckDialog';
+import MaterialReturnDialog from './components/MaterialReturnDialog';
+import SelectRepairItemDialog from './components/SelectRepairItemDialog';
+import StartWorkDialog from './components/StartWorkDialog';
+import DispatchWorkDialog from './components/DispatchWorkDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -239,7 +286,15 @@ export default {
     InquiryInfo,
     SparepartsInfo,
     Attachment,
-    RepairInfo
+    RepairInfo,
+    ConfirmDocDialog,
+    CouponsDialog,
+    DiscardDialog,
+    FinalCheckDialog,
+    MaterialReturnDialog,
+    SelectRepairItemDialog,
+    StartWorkDialog,
+    DispatchWorkDialog
   },
   computed: {
     _id () {
@@ -266,6 +321,14 @@ export default {
       isEditing: false,
       loading: false,
       submitLoading: false,
+      confirmDocDialogVisible: false,
+      selectRepairItemDialogVisible: false,
+      dispatchWorkDialogVisible: false,
+      startWorkDialogVisible: false,
+      finalCheckDialogVisible: false,
+      discardDialogVisible: false,
+      materialReturnDialogVisible: false,
+      couponsDialogVisible: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -814,6 +877,30 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    handleRefresh () {
+      this.getDetailData();
+    },
+    // 预检确认
+    handlePreCheck () {
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>此操作将完成预检，工单进入制单环节，是否继续？</div>';
+      this.$confirm(message, '', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(() => {
+        // 调用接口
+      }).catch(() => {
+      });
+    },
+    handlePrint () {
+      this.$print.show({
+        id: 'xxxx', // 必选，对应数据id
+        template: 'demo', // 必选，对应 ./template/文件名.vue
+        title: 'test'// 可选，打印标题
+      });
     }
   }
 };
