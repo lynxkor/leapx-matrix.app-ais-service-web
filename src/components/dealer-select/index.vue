@@ -119,12 +119,10 @@ export default {
 
 <style scoped lang="scss">
   .org_name {
-    color: #333333;
     font-size: 14px;
     height: 20px;
   }
   .org_code {
-    color: #999999;
     height: 20px;
   }
   .el-select {

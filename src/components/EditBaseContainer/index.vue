@@ -213,7 +213,7 @@ export default {
     // 保存操作
     async handleSubmit (success) {
       for (let formRef of this.formRefs) {
-        await formRef.validate();
+        await formRef?.validate();
       }
       if (this.submitRequest) {
         this.loading = true;
@@ -251,7 +251,7 @@ export default {
     // 新建时，再建一个
     handleReset () {
       for (let formRef of this.formRefs) {
-        formRef.resetFields();
+        formRef?.resetFields();
       }
       this.resetToDefault();
     },
@@ -259,7 +259,7 @@ export default {
     handleCancel () {
       // 清除验证
       for (let formRef of this.formRefs) {
-        formRef.clearValidate();
+        formRef?.clearValidate();
       }
       this.cancelEdit();
     },

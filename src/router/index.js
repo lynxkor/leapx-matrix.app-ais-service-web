@@ -1044,15 +1044,6 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/oldpart/inventory/oem/detail',
-      name: 'oemInventoryDetail',
-      component: () => import('@/views/claimreturn/oldpart/inventory/oem/detail.vue'),
-
-      meta: {
-        name: '新页面详情',
-        noResourceUrl: 'true'
-      }
-    }, {
       path: '/claimreturn/oldpart/inventory/oem/edit',
       name: 'oemInventoryEdit',
       component: () => import('@/views/claimreturn/oldpart/inventory/oem/edit.vue'),
