@@ -2,6 +2,7 @@
   {{{#isProForm}}}
   <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
+      <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container
         ref="containerRef"
         :id="_id"
