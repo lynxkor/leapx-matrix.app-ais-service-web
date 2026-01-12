@@ -10,13 +10,13 @@
                 <!-- TIPS: 子标题格式如下 -->
                 <!-- <h5>活动编码：{{ form.activityCode }}</h5> -->
               </div>
-              <div v-if="isEditing">
+              <!-- <div v-if="isEditing">
                 <el-button size="small" @click="handleCancel">取消</el-button>
                 <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
               </div>
               <div v-else>
                 <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
-              </div>
+              </div> -->
             </section>
             <section class="common-section">
               <div class="common-section-header">
@@ -243,8 +243,7 @@
             </section>
             <section class="common-section">
               <div class="common-section-header">
-                <h2>账户流水</h2>
-                <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+                <h2>账户流水 <el-button size="small" @click="handleAddRow">导出账户流水</el-button></h2>
               </div>
               <div class="common-section-body">
                 <div class="common-section-table">
@@ -252,10 +251,36 @@
                     ref="editTable"
                     :columns="columns"
                     :data="tableData"
-                    :defaultNewRow="defaultNewRow"
                     :show-toolbar="false"
-                    :options="options"
-                    :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                    :isFocusNewRow="false"
+                    :showPagination="true"
+                    :current="pagination.current"
+                    :pageSize="pagination.pageSize"
+                    :total="pagination.total"
+                    @page-size-change="pageSizeChange"
+                    @current-page-change="currentPageChange"
+                  />
+                </div>
+              </div>
+            </section>
+            <section class="common-section">
+              <div class="common-section-header">
+                <h2>冻结流水 <el-button size="small" @click="handleAddRow">导出冻结流水</el-button></h2>
+              </div>
+              <div class="common-section-body">
+                <div class="common-section-table">
+                  <edit-table
+                    ref="editTable"
+                    :columns="djColumns"
+                    :data="djTableData"
+                    :show-toolbar="false"
+                    :isFocusNewRow="false"
+                    :showPagination="true"
+                    :current="djPagination.current"
+                    :pageSize="djPagination.pageSize"
+                    :total="djPagination.total"
+                    @page-size-change="djPageSizeChange"
+                    @current-page-change="djCurrentPageChange"
                   />
                 </div>
               </div>
@@ -277,7 +302,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/fund/account/index';
+import { getDetail, addOrUpdate, accountFlowPage, frozenPage } from '@/api/sparepart/fund/account/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -356,115 +381,142 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      defaultNewRow: {
-        name: '',
+      pagination: {
+        current: 1,
+        pageSize: 10,
+        total: 0,
       },
+      djPagination: {
+        current: 1,
+        pageSize: 10,
+        total: 0,
+      },
+      djTableData: [],
       tableData: [
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
-          field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
+          field: 'transactionNo',
+          title: '交易流水号',
+          width: '10%',
         },
         {
-          field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
+          field: 'transactionAmount',
+          title: '交易金额',
+          width: '10%',
         },
         {
-          field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
+          field: 'transactionTypeLabel',
+          title: '交易类型',
+          width: '10%',
+        },
+        {
+          field: 'accountBalance',
+          title: '账户余额',
+          width: '10%',
+        },
+        {
+          field: 'remark',
+          title: '备注',
+          width: '10%',
+        },
+        {
+          field: 'sapFlowNo',
+          title: 'SAP流水号',
+          width: '10%',
+        },
+        {
+          field: 'dealerCode',
+          title: '门店编码',
+          width: '10%',
+        },
+        {
+          field: 'dealerName',
+          title: '门店名称',
+          width: '10%',
+        },
+        {
+          field: 'businessTypeLabel',
+          title: '业务类型',
+          width: '10%',
+        },
+        {
+          field: 'businessNo',
+          title: '业务单号',
+          width: '10%',
+        },
+        {
+          field: 'taxInvoiceNo',
+          title: '税务发票号',
+          width: '10%',
+        },
+        {
+          field: 'invoiceDate',
+          title: '开票日期',
+          width: '10%',
+        },
+        {
+          field: 'postingTime',
+          title: '入账时间',
+          width: '10%',
         },
       ],
-      rules: {
-        accountNo: [
-          { required: true, message: '请输入账户编号', trigger: 'change' }
-        ],
-        companyCode: [
-          { required: true, message: '请输入公司编码', trigger: 'change' }
-        ],
-        companyName: [
-          { required: true, message: '请输入公司名称', trigger: 'change' }
-        ],
-        bankName: [
-          { required: true, message: '请输入开户银行', trigger: 'change' }
-        ],
-        bankAccountHolder: [
-          { required: true, message: '请输入银行户主', trigger: 'change' }
-        ],
-        bankAccount: [
-          { required: true, message: '请输入开户账户', trigger: 'change' }
-        ],
-        availableAmount: [
-          { required: true, message: '请输入可用资金', trigger: 'change' }
-        ],
-        frozenAmount: [
-          { required: true, message: '请输入冻结资金', trigger: 'change' }
-        ],
-        marginAmount: [
-          { required: true, message: '请输入保证资金', trigger: 'change' }
-        ],
-        totalAmount: [
-          { required: true, message: '请输入账户总额', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，150:新销服; 老销服:10', trigger: 'change' }
-        ],
-        accountType: [
-          { required: true, message: '请选择账户类型 资金账户 返利账户', trigger: 'change' }
-        ],
-      }
+      djColumns: [
+        {
+          field: 'businessTypeLabel',
+          title: '业务类型',
+          width: '12%',
+        },
+        {
+          field: 'businessNo',
+          title: '业务单号',
+          width: '12%',
+        },
+        {
+          field: 'dealerCode',
+          title: '门店编码',
+          width: '12%',
+        },
+        {
+          field: 'dealerName',
+          title: '门店名称',
+          width: '12%',
+        },
+        {
+          field: 'companyCode',
+          title: '零件/商品编码',
+          width: '12%',
+        },
+        {
+          field: 'companyName',
+          title: '零件/商品名称',
+          width: '12%',
+        },
+        {
+          field: 'frozenQty',
+          title: '冻结数量',
+          width: '12%',
+        },
+        {
+          field: 'cashUnitPrice',
+          title: '现金单价',
+          width: '12%',
+        },
+        {
+          field: 'frozenAmount',
+          title: '冻结金额',
+          width: '12%',
+        },
+      ]
     };
   },
   mounted () {
     this.getDetailData();
+    this.getAccountFlow();
+    this.getFrozenPage();
   },
   methods: {
     // 打开侧边栏
@@ -493,6 +545,46 @@ export default {
           Object.assign(this.originalForm, res);
         });
       }
+    },
+    // 账户流水
+    async getAccountFlow () {
+      const params = {
+        pageNum: this.pagination.current,
+        pageSize: this.pagination.pageSize,
+        accountId: this.$route.query.id
+      };
+      const res = await accountFlowPage(params);
+      this.tableData = res.records || [];
+      this.pagination.total = res.total;
+    },
+    // 冻结账户流水
+    async getFrozenPage () {
+      const params = {
+        pageNum: this.djPagination.current,
+        pageSize: this.djPagination.pageSize,
+        accountId: this.$route.query.id
+      };
+      const res = await accountFlowPage(params);
+      this.djTableData = res.records || [];
+      this.djPagination.total = res.total;
+    },
+    pageSizeChange (pageSize) {
+      this.pagination.pageSize = pageSize;
+      this.pagination.current = 1;
+      this.getAccountFlow();
+    },
+    currentPageChange (current) {
+      this.pagination.current = current;
+      this.getAccountFlow();
+    },
+    djPageSizeChange (pageSize) {
+      this.djPagination.pageSize = pageSize;
+      this.djPagination.current = 1;
+      this.getFrozenPage();
+    },
+    djCurrentPageChange (current) {
+      this.djPagination.current = current;
+      this.getFrozenPage();
     },
     async submitForm (formName, rest = false) {
       try {
