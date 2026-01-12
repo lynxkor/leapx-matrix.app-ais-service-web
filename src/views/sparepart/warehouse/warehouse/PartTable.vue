@@ -6,7 +6,7 @@
       :defaultNewRow="defaultNewRow"
       :show-toolbar="false"
       :options="options"
-      :auth="{ edit: canAddOrUpdate, delete: canAddOrUpdate }"
+      :auth="{ delete: canAddOrUpdate }"
       :isFocusNewRow="false"
       :enableSingleRowSave="true"
       :showPagination="true"
@@ -24,7 +24,7 @@
       <template #btn-middle="{ row, rowIndex }">
         <el-button
           type="text"
-          @click="onReplace(row, rowIndex)"
+          @click="openPane(row, rowIndex)"
           class="action-button btn-edit"
           :disabled="disabled"
           :class="{
@@ -32,21 +32,19 @@
             'disabled': disabled,
           }"
           >
-          替换件
+          编辑
         </el-button>
       </template>
     </edit-table>
   </template>
 <script>
 import { uIntRule } from '@/validation/rule';
+import { locationPage, locationOrUpdate, locationDel } from '@/api/sparepart/warehouse/warehouse/index';
 import EditTable from '@/libs/components/EditTable';
 import permissions from '@/libs/mixins/permissions';
 
 export default {
   props: {
-    currentVehicleId: {
-      type: String,
-    },
     moduleKey: {
       type: String,
     },
@@ -86,18 +84,13 @@ export default {
           field: 'locationName',
           title: '席位名称',
           width: '20%',
-          editable: true,
           editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
         },
         {
           field: 'remark',
           title: '备注',
-          editable: true,
           width: '20%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
+          editRender: { name: 'ElInput', props: { type: 'string' } }
         },
         {
           field: 'createTime',
@@ -116,11 +109,6 @@ export default {
     };
   },
   watch: {
-    currentVehicleId: {
-      handler () {
-        this.getDetailPageApi();
-      }
-    },
     id: {
       handler (val) {
         this.getDetailPageApi();
@@ -135,42 +123,40 @@ export default {
   methods: {
     // 表格数据
     getDetailPageApi () {
-    //   freeMaintenancePolicyPartDetailPage({
-    //     vehicleRegisteredModelId: this.currentVehicleId || '',
-    //     freeMaintenancePolicyId: this._id,
-    //     pageSize: this.pageSize,
-    //     pageNum: this.current,
-    //   }).then((res) => {
-    //     this.tableData = res.records;
-    //     this.total = res.total;
-    //   });
+      locationPage({
+        warehouseId: this._id,
+        pageSize: this.pageSize,
+        pageNum: this.current,
+      }).then((res) => {
+        this.tableData = res.records;
+        this.total = res.total;
+      });
     },
     handleRemoveRow (row, index, defer) {
-    //   if (!row.id) {
-    //     return;
-    //   }
-    //   freeMaintenancePolicyPartDetailDelete([row.id]).then((d) => {
-    //     defer.resolve();
-    //     this.$message.success('删除成功');
-    //   }).catch(() => {
-    //     defer.reject();
-    //   });
+      if (!row.id) {
+        return;
+      }
+      locationDel([row.id]).then((d) => {
+        defer.resolve();
+        this.$message.success('删除成功');
+        this.getDetailPageApi();
+      }).catch(() => {
+        defer.reject();
+      });
     },
     // 行保存
     saveRowEdit (row, defer) {
       const parmas = {
         id: row.id,
-        partId: row.partId, // 零件ID
-        partQuantity: row.partQuantity, // 零件数量
-        freeMaintenancePolicyId: this._id, // 免保政策ID
-        vehicleRegisteredModelId: this.currentVehicleId, // 公告车型ID
+        warehouseId: this._id, // 仓库ID
+        locationName: row.locationName, // 席位名称
       };
-    //   freeMaintenancePolicyPartDetailUpdate(parmas).then(id => {
-    //     defer.resolve(id);
-    //     this.$message.success('更新成功');
-    //   }).catch(e => {
-    //     defer.reject();
-    //   });
+      locationOrUpdate(parmas).then(id => {
+        defer.resolve(id);
+        this.$message.success('更新成功');
+      }).catch(e => {
+        defer.reject();
+      });
     },
     pageSizeChange (pageSize) {
       this.pageSize = pageSize;
@@ -185,9 +171,9 @@ export default {
     handleAdd (newItem) {
       this.$refs.editTable.addRow(newItem);
     },
-    onReplace (row, rowIndex) {
+    openPane (row, rowIndex) {
       this.selectedRow = row;
-      this.$emit('replace', row, rowIndex);
+      this.$emit('openPane', row, rowIndex);
     }
   },
 };

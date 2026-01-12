@@ -19,9 +19,6 @@
             <el-form-item label="是否启用：" prop="status">
               {{ info.statusLabel  }}
             </el-form-item>
-            <el-form-item label="状态变更描述：" prop="statusDesc">
-              {{ info.statusDesc  }}
-            </el-form-item>
             <el-form-item label="创建时间：" prop="createTime">
               {{ info.createTime  }}
             </el-form-item>

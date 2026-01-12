@@ -186,6 +186,9 @@
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
+    <div class="ais-tabs">
+      <div v-for="item in tabList" :key="item.label" :class="{'ais-tabs-item': true, 'active': item.value == form.orderStatus}" @click="handleTabClick(item.value)">{{item.label}}</div>
+    </div>
     <div
       class="ais-table-c"
     >
@@ -341,7 +344,7 @@ export default {
               },
               type: 'info'
             }, {
-              name: '删除',
+              name: '保存',
               popconfirmTitle: '此操作将永久删除, 是否继续?',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
@@ -362,7 +365,37 @@ export default {
           }
         ],
         total: 0
-      }
+      },
+      tabList: [
+        {
+          label: '全部',
+          value: ''
+        },
+        {
+          label: '接车预检中(273)',
+          value: 1
+        },
+        {
+          label: '制单中(23)',
+          value: 2
+        },
+        {
+          label: '待派工(435)',
+          value: 3
+        },
+        {
+          label: '施工中(45)',
+          value: 4
+        },
+        {
+          label: '待终检(145)',
+          value: 5
+        },
+        {
+          label: '待交车(98)',
+          value: 6
+        },
+      ]
     };
   },
   created () {
@@ -546,6 +579,11 @@ export default {
       //     });
       //   });
       // });
+    },
+    handleTabClick (v) {
+      this.form.orderStatus = v;
+      this.optionObj.form.page = 1;
+      this.debouncedGetData();
     }
   }
 };
@@ -553,5 +591,14 @@ export default {
 
 <style lang="scss" scoped>
 .m-service-proxy-list {
+  ::v-deep .m-vxe-table .m-vxe-table-options {
+    top: -96px;
+  }
+  .ais-actions {
+    margin-bottom: 8px;
+  }
+  .ais-table-c {
+    height: calc(100% - 168px);
+  }
 }
 </style>

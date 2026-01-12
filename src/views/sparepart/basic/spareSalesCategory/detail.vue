@@ -25,24 +25,6 @@
             <el-form-item label="修改时间：" prop="updateTime">
               {{ info.updateTime  }}
             </el-form-item>
-            <el-form-item label="创建者名称：" prop="creatorName">
-              {{ info.creatorName  }}
-            </el-form-item>
-            <el-form-item label="修改者名称：" prop="modifierName">
-              {{ info.modifierName  }}
-            </el-form-item>
-            <el-form-item label="状态：" prop="statusLabel">
-              {{ info.statusLabel  }}
-            </el-form-item>
-            <el-form-item label="数据来源：" prop="dataSourceLabel">
-              {{ info.dataSourceLabel  }}
-            </el-form-item>
-            <el-form-item label="分类类型：" prop="categoryType">
-              {{ info.categoryType  }}
-            </el-form-item>
-            <el-form-item label="状态变更描述：" prop="statusDesc">
-              {{ info.statusDesc  }}
-            </el-form-item>
             <el-form-item label="备注：" prop="remark">
               {{ info.remark  }}
             </el-form-item>

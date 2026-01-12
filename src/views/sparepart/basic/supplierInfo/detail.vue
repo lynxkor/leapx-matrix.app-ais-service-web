@@ -59,7 +59,7 @@
               {{ info.supplierSafetyStock  }}
             </el-form-item>
             <el-form-item label="国家：" prop="countryName">
-              {{ info.countryName  }}
+              {{ info.countryCodeLabel  }}
             </el-form-item>
             <el-form-item label="省：" prop="provinceName">
               {{ info.provinceName  }}

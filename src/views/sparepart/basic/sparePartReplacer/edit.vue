@@ -56,16 +56,6 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="状态变更描述" prop="statusDesc">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="xxx"
-                  v-model="form.statusDesc"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                />
-              </el-form-item>
               <el-form-item label="创建时间" prop="createTime">
                 <el-date-picker
                   v-model="form.createTime"
