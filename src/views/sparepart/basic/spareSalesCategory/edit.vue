@@ -77,33 +77,29 @@
               </el-button>
             </div>
             <div class="common-section-table">
-              <el-table
+              <edit-table
+                ref="editTablePj"
+                :columns="columns"
                 :data="tableData"
-                style="width: 100%"
-                fit
-                stripe
-                highlight-current-row
+                :defaultNewRow="defaultNewRow"
+                :show-toolbar="false"
+                :delTitle="'确认删除该门店吗？'"
               >
-                <el-table-column prop="dealerName" label="门店名称" width="280"></el-table-column>
-                <el-table-column prop="dealerCode" label="门店编码" width="280"></el-table-column>
-                <el-table-column prop="createTime" label="添加时间" width="280"></el-table-column>
-                <el-table-column prop="creatorName" label="操作人" width="280"></el-table-column>
-                <el-table-column label="操作" width="100" fixed="right">
-                  <template slot-scope="scope">
-                    <el-popconfirm
-                      title="确认删除该门店吗？"
-                      @confirm="handleDeleteStore(scope.row.id)"
+                <template #btn-middle="{ row, rowIndex }">
+                  <el-button
+                    type="text"
+                    @click="openPane(row, rowIndex)"
+                    class="action-button btn-edit"
+                    :disabled="disabled"
+                    :class="{
+                      'active': selectedRow.id === row.id,
+                      'disabled': disabled,
+                    }"
                     >
-                      <span
-                        slot="reference"
-                        class="action-button btn-delete"
-                      >
-                        删除
-                      </span>
-                    </el-popconfirm>
-                  </template>
-                </el-table-column>
-              </el-table>
+                    删除
+                  </el-button>
+                </template>
+              </edit-table>
             </div>
           </div>
         </section>
@@ -140,33 +136,15 @@
               </el-button>
             </div>
             <div class="common-section-table">
-              <el-table
+              <edit-table
+                ref="editTablePj"
+                :columns="columns"
                 :data="noTableData"
-                style="width: 100%"
-                fit
-                stripe
-                highlight-current-row
-              >
-                <el-table-column prop="dealerName" label="门店名称" width="280"></el-table-column>
-                <el-table-column prop="dealerCode" label="门店编码" width="280"></el-table-column>
-                <el-table-column prop="createTime" label="添加时间" width="280"></el-table-column>
-                <el-table-column prop="creatorName" label="操作人" width="280"></el-table-column>
-                <el-table-column label="操作" width="100" fixed="right">
-                  <template slot-scope="scope">
-                    <el-popconfirm
-                      title="确认删除该门店吗？"
-                      @confirm="handleDeleteStore(scope.row.id)"
-                    >
-                      <span
-                        slot="reference"
-                        class="action-button btn-delete"
-                      >
-                        删除
-                      </span>
-                    </el-popconfirm>
-                  </template>
-                </el-table-column>
-              </el-table>
+                :defaultNewRow="defaultNewRow"
+                :show-toolbar="false"
+                :delTitle="'确认删除该门店吗？'"
+                :auth="{delete: canDelete}"
+              />
             </div>
           </div>
         </section>
@@ -188,6 +166,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import EditTable from '@/libs/components/EditTable';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -219,6 +198,7 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
+    EditTable
   },
   data () {
     const form = this.getDefautlForm();
@@ -252,6 +232,34 @@ export default {
           { required: true, message: '请选择状态', trigger: 'change' }
         ],
       },
+      defaultNewRow: {
+        dealerName: '',
+        dealerCode: '',
+        createTime: '',
+        creatorName: '',
+      },
+      columns: [ // 适配车型
+        {
+          field: 'dealerName',
+          title: '门店名称',
+          width: '20%',
+        },
+        {
+          field: 'dealerCode',
+          title: '门店编码',
+          width: '20%',
+        },
+        {
+          field: 'createTime',
+          title: '添加时间',
+          width: '20%',
+        },
+        {
+          field: 'creatorName',
+          title: '操作人',
+          width: '20%',
+        }
+      ],
       pickerOptions: {
         shortcuts: [{
           text: '最近一周',
@@ -465,6 +473,23 @@ export default {
   }
   &.btn-delete{
     color:#B91919;
+  }
+}
+.common-section-table {
+  margin-top: 20px;
+}
+.action-button{
+  margin: 0 5px;
+  cursor: pointer;
+  &.btn-edit{
+    color:#4C4CD6;
+  }
+  &.active{
+    text-decoration: underline;
+  }
+  &.disabled{
+    cursor: not-allowed;
+    color: var(--disabled-color);
   }
 }
 </style>

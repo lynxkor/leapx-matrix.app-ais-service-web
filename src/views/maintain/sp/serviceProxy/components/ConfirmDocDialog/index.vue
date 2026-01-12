@@ -1,8 +1,8 @@
 <template>
   <el-dialog
-    class="m-serviceActivityVehicle-dialog"
+    class="m-confirmdoc-dialog"
     title="制单确认并签字"
-    width="600px"
+    width="400px"
     :visible.sync="dialogVisible"
     @close="close"
     @closed="closed"
@@ -10,16 +10,11 @@
     <el-form size="small" ref="form" :model="form" :rules="rules" :label-width="formLabelWidth">
       <el-row>
         <el-col :span="22">
-          <el-form-item label="完成时间：" prop="finishTime">
-            <!-- <el-input v-model="form.nextDate" autocomplete="off" /> -->
-            <el-date-picker type="datetime" placeholder="选择日期" v-model="form.finishTime" value-format="yyyy-MM-dd HH:mm:ss" style="width: 100%;" />
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="22">
-          <el-form-item label="完成说明：" prop="manualCompletionNote">
-            <el-input type="textarea" rows="3" v-model="form.manualCompletionNote"  maxlength="500" show-word-limit/>
+          <el-form-item label="" prop="type">
+            <el-radio-group v-model="form.type">
+              <el-radio :label="1">APP/短信/零小跑</el-radio>
+              <el-radio :label="2">纸质单据</el-radio>
+            </el-radio-group>
           </el-form-item>
         </el-col>
       </el-row>
@@ -36,7 +31,7 @@
 <script>
 import { finish } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
 export default {
-  name: 'EditDialog',
+  name: 'ConfirmDocDialog',
   props: {
     visible: {
       type: Boolean,
@@ -53,20 +48,15 @@ export default {
     return {
       dialogVisible: this.visible,
       form: {
-        finishTime: '',
-        manualCompletionNote: ''
+        type: '',
       },
       rules: {
-        manualCompletionNote: [
-          { required: true, message: '完成说明必填', trigger: 'blur' },
-          { min: 1, max: 500, message: '长度在 1 到 500 个字', trigger: 'blur' }
-        ],
-        finishTime: [
-          { required: true, message: '完成时间必填', trigger: 'blur' }
+        type: [
+          { required: true, message: '类型必选', trigger: 'blur' }
         ]
       },
       submitLoading: false,
-      formLabelWidth: '120px'
+      formLabelWidth: '0'
     };
   },
   watch: {
@@ -106,3 +96,14 @@ export default {
   }
 };
 </script>
+<style lang="scss" scoped>
+  .m-confirmdoc-dialog{
+    ::v-deep .el-radio-group{
+      display: flex;
+      flex-direction: column;
+      .el-radio{
+        margin: 8px 0;
+      }
+    }
+  }
+</style>
