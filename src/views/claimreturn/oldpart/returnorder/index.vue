@@ -238,7 +238,8 @@ export default {
                 this.$router.push({
                   path: this.editPath,
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true,
                   }
                 });
               },
