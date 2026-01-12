@@ -93,4 +93,9 @@ export default {
     color: #999999;
     height: 20px;
   }
+  .el-select {
+    ::v-deep .el-select__tags {
+      max-width: 100% !important;
+    }
+  }
 </style>

@@ -195,6 +195,7 @@
       :visible="uploadDialogVisible"
       id="serviceActivityVehicle"
       @close="handleUploadDialogClose"
+      @getData="getData"
     />
     <!-- 完成活动弹窗 -->
     <FinishActDialog
