@@ -127,6 +127,7 @@
             multiple
             filterable
             clearable
+            collapse-tags
             :params="{}" />
         </el-form-item>
         <el-form-item label="创建时间">
