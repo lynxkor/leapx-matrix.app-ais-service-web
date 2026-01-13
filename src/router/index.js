@@ -1195,6 +1195,24 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/warehouse/oemWarehouse',
+      name: 'oemWarehouse',
+      component: () => import('@/views/sparepart/warehouse/oemWarehouse/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/warehouse/oemwarehouse/edit',
+      name: 'oemWarehouseEdit',
+      component: () => import('@/views/sparepart/warehouse/oemWarehouse/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
