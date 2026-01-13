@@ -1,10 +1,10 @@
 <template>
+  <!-- .png,.jpg,.jpeg,.gif,.pdf,.ppt,.pptx,.xlsx,.xls,.docx,.doc,.rar,.zip,.mp4 -->
   <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
       <edit-base-container
         ref="containerRef"
         :id="_id"
-        :title="`门店回运单号：${form.returnOrderNo}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
         direction="horizontal"
@@ -12,7 +12,24 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
+        <template #title>
+          <span>{{ `门店回运单号：${form.returnOrderNo}` }}</span>
+          <span class="status" :class="{
+            status10: form.returnStatus === '10',
+            status20: form.returnStatus === '20',
+            status30: form.returnStatus === '30',
+            status40: form.returnStatus === '40',
+          }">
+            {{ form.returnStatusLabel }}
+          </span>
+        </template>
+        <template #extraButtons>
+          <el-button v-if="canAddOrUpdate" size="small">adsfsf</el-button>
+        </template>
         <el-main>
+          <div class="header-desc">
+            保修月份：{{ form.warrantyMonth }}&nbsp;&nbsp;|&nbsp;&nbsp;旧件返还类型：{{ form.returnTypeLabel }}
+          </div>
           <section class="common-section">
             <div class="common-section-header">
               <h2>基础信息</h2>
@@ -25,6 +42,7 @@
                     placeholder="请输入"
                     v-model="form.returnOrderNo"
                     clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="回运状态：" prop="returnStatus">
@@ -35,6 +53,7 @@
                     placeholder="请选择"
                     clearable
                     filterable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="旧件返回类型：" prop="returnType">
@@ -45,13 +64,22 @@
                     placeholder="请选择"
                     clearable
                     filterable
+                    disabled
                   />
                 </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerName">
-                  <base-input
-                    placeholder="请输入"
-                    v-model="form.dealerName"
+                <el-form-item label="门店名称：" prop="dealerCode">
+                  <fetch-select
+                    :disabled="form.returnStatus!=='10'"
+                    filterable
                     clearable
+                    remote
+                    reserve-keyword
+                    v-model="form.dealerCode"
+                    :remote-method="dealerSearch"
+                    :params="form.dealerCode"
+                    @change="dealerChange"
+                    value-key="orgCode"
+                    label-key="orgName"
                   />
                 </el-form-item>
                 <el-form-item label="回运地址：" prop="receiverAddress">
@@ -59,10 +87,12 @@
                     placeholder="请输入"
                     v-model="form.receiverAddress"
                     clearable
+                    :disabled="form.returnStatus!=='10'"
                   />
                 </el-form-item>
                 <el-form-item label="回运日期：" prop="returnDate">
                   <el-date-picker
+                    :disabled="form.returnStatus==='40'"
                     v-model="form.returnDate"
                     type="datetime"
                     format="yyyy-MM-dd HH:mm"
@@ -75,6 +105,7 @@
                     placeholder="请输入"
                     v-model="form.receiverContact"
                     clearable
+                    :disabled="form.returnStatus!=='10'"
                   />
                 </el-form-item>
                 <el-form-item label="收货电话：" prop="receiverPhone">
@@ -83,6 +114,7 @@
                     v-model="form.receiverPhone"
                     clearable
                     maxlength="11"
+                    :disabled="form.returnStatus!=='10'"
                   />
                 </el-form-item>
                 <el-form-item label="回运件数（纸箱/木架）：" prop="returnUnit">
@@ -90,6 +122,7 @@
                     placeholder="请输入"
                     v-model="form.returnUnit"
                     clearable
+                    :disabled="form.returnStatus==='40'"
                   />
                 </el-form-item>
                 <el-form-item label="物流商：" prop="logisticsCompany">
@@ -97,6 +130,7 @@
                     placeholder="请输入"
                     v-model="form.logisticsCompany"
                     clearable
+                    :disabled="form.returnStatus==='40'"
                   />
                 </el-form-item>
                 <el-form-item label="物流单号：" prop="logisticsTrackingNo">
@@ -104,6 +138,7 @@
                     placeholder="请输入"
                     v-model="form.logisticsTrackingNo"
                     clearable
+                    :disabled="form.returnStatus==='40'"
                   />
                 </el-form-item>
                 <el-form-item label="是否验收完成：" prop="isChecked">
@@ -114,11 +149,13 @@
                     placeholder="请选择"
                     clearable
                     filterable
+                    :disabled="form.returnStatus!=='40'"
                   />
                 </el-form-item>
                 <el-form-item label="签收日期：" prop="signReceiveDate">
                   <el-date-picker
                     v-model="form.signReceiveDate"
+                    disabled
                     type="datetime"
                     format="yyyy-MM-dd HH:mm"
                     value-format="yyyy-MM-dd HH:mm:ss"
@@ -127,6 +164,7 @@
                 </el-form-item>
                 <el-form-item label="预计到达日期：" prop="estimatedArrivalDate">
                   <el-date-picker
+                    :disabled="form.returnStatus!=='20'"
                     v-model="form.estimatedArrivalDate"
                     type="datetime"
                     format="yyyy-MM-dd HH:mm"
@@ -141,6 +179,7 @@
                     clearable
                     maxlength="1000"
                     type="textarea"
+                    :disabled="form.returnStatus==='40'"
                   />
                 </el-form-item>
                 <el-form-item class="form-item-full" label="签收备注：" prop="signRemark">
@@ -150,56 +189,57 @@
                     clearable
                     maxlength="1000"
                     type="textarea"
+                    :disabled="form.returnStatus!=='40'"
                   />
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-else>
-                <el-form-item label="门店回运单号：" prop="returnOrderNo">
+                <el-form-item label="门店回运单号：">
                   {{ form.returnOrderNo }}
                 </el-form-item>
-                <el-form-item label="回运状态：" prop="returnStatus">
-                  {{ form.returnStatus }}
+                <el-form-item label="回运状态：">
+                  {{ form.returnStatusLabel }}
                 </el-form-item>
-                <el-form-item label="旧件返回类型：" prop="returnType">
-                  {{ form.returnType }}
+                <el-form-item label="旧件返回类型：">
+                  {{ form.returnTypeLabel }}
                 </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerName">
+                <el-form-item label="门店名称：">
                   {{ form.dealerName }}
                 </el-form-item>
-                <el-form-item label="回运地址：" prop="receiverAddress">
+                <el-form-item label="回运地址：">
                   {{ form.receiverAddress }}
                 </el-form-item>
-                <el-form-item label="回运日期：" prop="returnDate">
+                <el-form-item label="回运日期：">
                   {{ form.returnDate }}
                 </el-form-item>
-                <el-form-item label="收货联系人：" prop="receiverContact">
+                <el-form-item label="收货联系人：">
                   {{ form.receiverContact }}
                 </el-form-item>
-                <el-form-item label="收货电话：" prop="receiverPhone">
+                <el-form-item label="收货电话：">
                   {{ form.receiverPhone }}
                 </el-form-item>
-                <el-form-item label="回运件数（纸箱/木架）：" prop="returnUnit">
+                <el-form-item label="回运件数（纸箱/木架）：">
                   {{ form.returnUnit }}
                 </el-form-item>
-                <el-form-item label="物流商：" prop="logisticsCompany">
+                <el-form-item label="物流商：">
                   {{ form.logisticsCompany }}
                 </el-form-item>
-                <el-form-item label="物流单号：" prop="logisticsTrackingNo">
+                <el-form-item label="物流单号：">
                   {{ form.logisticsTrackingNo }}
                 </el-form-item>
-                <el-form-item label="是否验收完成：" prop="isChecked">
+                <el-form-item label="是否验收完成：">
                   {{ form.isChecked == '1' ? '是' : '否' }}
                 </el-form-item>
-                <el-form-item label="签收日期：" prop="signReceiveDate">
+                <el-form-item label="签收日期：">
                   {{ form.signReceiveDate }}
                 </el-form-item>
-                <el-form-item label="预计到达日期：" prop="estimatedArrivalDate">
+                <el-form-item label="预计到达日期：">
                   {{ form.estimatedArrivalDate }}
                 </el-form-item>
-                <el-form-item class="form-item-full" label="备注：" prop="remark">
+                <el-form-item class="form-item-full" label="备注：">
                   {{ form.remark }}
                 </el-form-item>
-                <el-form-item class="form-item-full" label="签收备注：" prop="signRemark">
+                <el-form-item class="form-item-full" label="签收备注：">
                   {{ form.signRemark }}
                 </el-form-item>
               </el-form>
@@ -207,7 +247,7 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>区块标题</h2>
+              <h2>旧件明细</h2>
               <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
             </div>
             <div class="common-section-body">
@@ -238,7 +278,7 @@
 import { getDetail, addOrUpdate } from '@/api/claimreturn/oldpart/returnorder';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import EditTable from '@/libs/components/EditTable/index.vue';
-import { getEnum } from '@/api/common';
+import { getEnum, listOrgStoreInfo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -255,7 +295,7 @@ const defaultForm = {
   returnStatus: '10', // 10 草稿; 20待回运; 30 已回运; 40 已签收
   isChecked: '',
   returnDate: '',
-  returnType: '',
+  returnType: '40', // 10 无旧件; 20 不返件; 30 正常返件; 40 快速返还
   receiverAddress: '',
   receiverContact: '',
   logisticsTrackingNo: '',
@@ -321,7 +361,7 @@ export default {
       pageTitle: '旧件快返回运单',
       pageType: 'edit',
       // TIPS: 权限前缀 AISCR，根据实际情况修改
-      moduleKey: 'AISCR-fastReturnOrder',
+      moduleKey: this.$route.meta.moduleKey,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -363,24 +403,58 @@ export default {
           editRender: { name: 'ElInput' }
         },
       ],
-      rules: {
-        returnOrderNo: [
-          { required: true, message: '请输入门店回运单号', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称', trigger: 'change' }
-        ],
+      rules: {},
+    };
+  },
+  created () {
+    this.updateRules(this.form.returnStatus);
+  },
+  mounted () {
+  },
+  methods: {
+    // 门店名称搜索
+    async dealerSearch (query) {
+      return listOrgStoreInfo({
+        name: query || '',
+      });
+    },
+    dealerChange (val, record) {
+      if (record) {
+        this.form.dealerCode = record.orgCode;
+        this.form.dealerName = record.orgName;
+      }
+    },
+    // 打开侧边栏
+    openPane () {
+      this.$refs.editLayout.openPane();
+    },
+    updateRules (returnStatus) {
+      const status10 = returnStatus === '10'; // 草稿
+      const status20 = returnStatus === '20'; // 待回运
+      const status30 = returnStatus === '30'; // 已回运
+      const status40 = returnStatus === '40'; // 已签收
+
+      this.rules = {
         dealerCode: [
-          { required: true, message: '请输入门店编码', trigger: 'change' }
+          { required: status10, message: '请选择门店', trigger: 'change' }
         ],
-        returnStatus: [
-          { required: true, message: '请选择回运状态', trigger: 'change' }
+        receiverAddress: [
+          { required: status10, message: '请输入回运地址', trigger: 'change' }
         ],
-        returnType: [
-          { required: true, message: '请选择旧件返回类型', trigger: 'change' }
+        returnDate: [
+          { required: status20 || status30, message: '请选择回运日期', trigger: 'change' }
+        ],
+        returnUnit: [
+          { required: status20 || status30, message: '请输入回运件数', trigger: 'change' }
+        ],
+        logisticsCompany: [
+          { required: status20 || status30, message: '请输入物流商', trigger: 'change' }
+        ],
+        logisticsTrackingNo: [
+          { required: status20 || status30, message: '请输入物流单号', trigger: 'change' }
         ],
         receiverContact: [
-          { required: true, message: '请输入收货联系人', trigger: 'change' }
+          { required: status10, message: '请输入收货联系人', trigger: 'change' }
         ],
         createTime: [
           { required: true, message: '请选择创建时间', trigger: 'change' }
@@ -394,23 +468,29 @@ export default {
         warrantyMonth: [
           { required: true, message: '请输入保修月份', trigger: 'change' }
         ],
-        receiverPhone: [
-          { required: true, message: '请输入收货电话，手机号输入限制', trigger: 'change' }
+        estimatedArrivalDate: [
+          { required: status20, message: '请选择预计到达日期', trigger: 'change' }
         ],
-      }
-    };
-  },
-  mounted () {
-  },
-  methods: {
-    // 打开侧边栏
-    openPane () {
-      this.$refs.editLayout.openPane();
+        receiverPhone: [
+          { required: status10, message: '请输入收货电话', trigger: 'change' },
+          {
+            pattern: /^1[3-9]\d{9}$/,
+            message: '请输入正确的手机号码',
+            trigger: 'blur'
+          }
+        ],
+        signRemark: [
+          { required: status40, message: '请输入签收备注', trigger: 'change' }
+        ],
+      };
     },
     detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id);
+        return getDetail(id).then(data => {
+          this.updateRules(data.returnStatus);
+          return data;
+        });
       }
     },
     submitRequest () {
@@ -455,3 +535,37 @@ export default {
   }
 };
 </script>
+<style lang="scss" scoped>
+.header-desc {
+  height: 24px;
+  line-height: 24px;
+  font-size: 12px;
+  color: #6C6E6C;
+  margin-top: 8px;
+}
+
+.status {
+  display: inline-block;
+  padding: 2px 10px;
+  color: #2261DD;
+  line-height: 20px;
+  font-size: 12px;
+  background: #E9EEF9;
+  margin-left: 6px;
+  border-radius: 4px;
+  position: relative;
+  top: 1px;
+  &.status20 {
+    color: #C8A12B;
+    background: #FAF6EA;
+  }
+  &.status30 {
+    color: #009100;
+    background: #E6F4E6;
+  }
+  &.status40 {
+    color: #009100;
+    background: #E6F4E6;
+  }
+}
+</style>
