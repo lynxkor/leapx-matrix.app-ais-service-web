@@ -282,8 +282,8 @@ export default {
   watch: {
     id: {
       handler (val) {
-        if (val) {
-          // this.getDetailData();
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
         }
       },
       immediate: true

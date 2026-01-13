@@ -109,7 +109,10 @@ export default {
     /**
      * 表单数据
      */
-    form: Object,
+    form: {
+      type: Object,
+      default: () => ({}),
+    },
     /**
      * 详情页id
      */

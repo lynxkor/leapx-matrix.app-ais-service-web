@@ -225,6 +225,17 @@ export default {
     }
   },
   watch: {
+    {{{#isProForm}}}
+    id: {
+      handler (val) {
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
+        }
+      },
+      immediate: true
+    }
+    {{{/isProForm}}}
+    {{{^isProForm}}}
     id: {
       handler (val) {
         if (val) {
@@ -233,6 +244,7 @@ export default {
       },
       immediate: true
     }
+    {{{/isProForm}}}
   },
   data () {
     const form = this.getDefautlForm();

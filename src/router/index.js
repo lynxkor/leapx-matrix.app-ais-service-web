@@ -1159,6 +1159,24 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/warehouse/inventory',
+      name: 'inventory',
+      component: () => import('@/views/sparepart/warehouse/inventory/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/warehouse/inventory/edit',
+      name: 'inventoryEdit',
+      component: () => import('@/views/sparepart/warehouse/inventory/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
