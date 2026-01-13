@@ -24,11 +24,11 @@
             filterable
               />
         </el-form-item>
-      <el-form-item label="订单类型：">
+      <el-form-item label="订单类型">
         <fetch-select
           :request="fetchOptions"
-          enumCode="xxx"
-          v-model="form.orderType"
+          enumCode="PurchaseOrderTypeEnum"
+          v-model="form.orderTypeList"
           placeholder="请选择"
           clearable
           multiple
@@ -43,15 +43,14 @@
           v-model="form.status"
           placeholder="请选择"
           clearable
-          multiple
           filterable
         />
       </el-form-item>
         <el-form-item label="优惠券有效期">
           <fetch-select
             :request="fetchOptions"
-            enumCode="BooleanEnum"
-            v-model="form.couponValidityPeriod"
+            enumCode="CouponValidityPeriodEnum"
+            v-model="form.couponValidityPeriodList"
             placeholder="请选择"
             clearable
             multiple
@@ -61,8 +60,8 @@
         <el-form-item label="优惠券发放时间">
           <fetch-select
             :request="fetchOptions"
-            enumCode="BooleanEnum"
-            v-model="form.couponIssueTime"
+            enumCode="CouponIssuanceTimeEnum"
+            v-model="form.couponIssueTimeList"
             placeholder="请选择"
             clearable
             multiple
@@ -159,10 +158,10 @@ import EditPage from './edit.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   dealerCodeList: null,
-  orderType: '',
+  orderTypeList: null,
   status: '',
-  couponValidityPeriod: '',
-  couponIssueTime: '',
+  couponValidityPeriodList: null,
+  couponIssueTimeList: null,
   createTime: '',
   updateTime: '',
 };
@@ -225,12 +224,12 @@ export default {
           },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'orderTypeLabel', label: '订单类型：', visible: true, width: 200 },
+          { props: 'orderTypeLabel', label: '订单类型', visible: true, width: 200 },
           { props: 'percent', label: '调价比例%', visible: true, width: 200 },
           { props: 'originalPriceCoupon', label: '原价优惠券数', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
-          { props: 'couponValidityPeriod', label: '优惠券有效期', visible: true, width: 200 },
-          { props: 'couponIssueTime', label: '优惠券发放时间', visible: true, width: 200 },
+          { props: 'couponValidityPeriodLabel', label: '优惠券有效期', visible: true, width: 200 },
+          { props: 'couponIssueTimeLabel', label: '优惠券发放时间', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
