@@ -224,9 +224,8 @@ export default {
       const res = await listVehicleYearType({ status: 1 });
       // 在数组开头添加"无年款"选项
       this.options.vehicleYearTypeName = [
-        { value: 0, label: '无年款' },
+        { value: '0', label: '无年款' },
         ...(res?.map(item => ({
-          ...item,
           value: item.id, // 或 item.value，根据实际数据结构
           label: item.name // 或 item.label
         })) || [])
@@ -308,7 +307,6 @@ export default {
         // 使用 $set 确保响应式更新
         const updatedRow = {
           ...this.tableData[arrayIndex],
-          sparePartId: this.modelId,
           vehicleYearTypeId: row.option?.value,
           vehicleYearTypeName: row.option?.label
         };
@@ -329,6 +327,7 @@ export default {
     // 处理确定按钮
     async handleConfirm () {
       await this.addModel();
+      this.getData(this.modelId);
       this.$emit('success');
       this.handleClose();
       // 车系 年款  车型 全部初始化 表格数据清空
