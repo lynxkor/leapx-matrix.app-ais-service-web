@@ -16,6 +16,7 @@
                     <el-button size="small" @click="handlePreCheck">预检确认</el-button>
                     <el-button size="small" @click="selectRepairItemDialogVisible = true">选择维修项目</el-button>
                     <el-button size="small" @click="confirmDocDialogVisible = true">制单确认并签字</el-button>
+                    <el-button size="small" @click="dispatchWorkDialogVisible = true">派工</el-button>
                     <el-button size="small" @click="discardDialogVisible = true">作废</el-button>
                     <el-button size="small" @click="couponsDialogVisible = true">查询卡券&终身</el-button>
                     <el-button size="small" @click="handleCancel">预警信息</el-button>
@@ -40,11 +41,11 @@
             <BasicInfo :formData="form" :rules="rules" :isEditing="isEditing" :_id="_id"/>
             <EntrustInfo :formData="form" :rules="rules" :isEditing="isEditing" :_id="_id"/>
             <BatteryInfo :formData="form" :rules="rules" :isEditing="isEditing" :_id="_id"/>
-            <InquiryInfo />
-            <RepairInfo />
-            <SparepartsInfo />
-            <Attachment />
-            <MaintainInfo />
+            <InquiryInfo :formData="form"/>
+            <RepairInfo :formData="form"/>
+            <SparepartsInfo :formData="form"/>
+            <Attachment :formData="form"/>
+            <MaintainInfo :formData="form"/>
           </el-main>
           <el-footer height="60px" v-if="!_id">
             <el-button size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
@@ -374,399 +375,399 @@ export default {
         code: [
           { required: true, message: '请输入单据编号', trigger: 'change' }
         ],
-        dataSource: [
-          { required: true, message: '请输入数据来源', trigger: 'change' }
-        ],
-        orderStatus: [
-          { required: true, message: '请选择工单状态', trigger: 'change' }
-        ],
-        warrantyTypeCollect: [
-          { required: true, message: '请选择保修类型（汇总）', trigger: 'change' }
-        ],
-        customerName: [
-          { required: true, message: '请输入车主姓名', trigger: 'change' }
-        ],
-        custType: [
-          { required: true, message: '请选择客户类型', trigger: 'change' }
-        ],
-        vehModelName: [
-          { required: true, message: '请输入基本车型', trigger: 'change' }
-        ],
-        carPlate: [
-          { required: true, message: '请输入车牌号', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称', trigger: 'change' }
-        ],
-        appointmentNo: [
-          { required: true, message: '请输入预约单号', trigger: 'change' }
-        ],
-        mileage: [
-          { required: true, message: '请输入进店里程数', trigger: 'change' }
-        ],
-        lastMileage: [
-          { required: true, message: '请输入上次进店里程数', trigger: 'change' }
-        ],
-        startWarrantyDate: [
-          { required: true, message: '请选择保修开始日期', trigger: 'change' }
-        ],
-        exclusiveServiceDealerName: [
-          { required: true, message: '请输入专属服务���店名称', trigger: 'change' }
-        ],
-        expectFinishAt: [
-          { required: true, message: '请选择预计交车时间', trigger: 'change' }
-        ],
-        createStatementInfoDate: [
-          { required: true, message: '请选择生成结算单时间', trigger: 'change' }
-        ],
-        serviceOwnerId: [
-          { required: true, message: '请输入负责人', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        pickStatus: [
-          { required: true, message: '请选择领料状态', trigger: 'change' }
-        ],
-        ownerOrgId: [
-          { required: true, message: '请输入归属门店ID（组织ID），当数据权限归属到本组织以及本下级', trigger: 'change' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码', trigger: 'change' }
-        ],
-        shuttleName: [
-          { required: true, message: '请输入送修人', trigger: 'change' }
-        ],
-        shuttlePhone: [
-          { required: true, message: '请输入送修人手机', trigger: 'change' }
-        ],
-        payType: [
-          { required: true, message: '请选择支付方式', trigger: 'change' }
-        ],
-        warrantyCompany: [
-          { required: true, message: '请输入保险公司名称', trigger: 'change' }
-        ],
-        signChannel: [
-          { required: true, message: '请输入签字渠道（1、短信 2、APP  3、零小跑）', trigger: 'change' }
-        ],
-        signCompletedOn: [
-          { required: true, message: '请选择签字完成时间', trigger: 'change' }
-        ],
-        signGeneratedOn: [
-          { required: true, message: '请选择签字生成时间', trigger: 'change' }
-        ],
-        signStatus: [
-          { required: true, message: '请选择签字状态（1、待签字 2、已签字）', trigger: 'change' }
-        ],
-        signUrlExpiredOn: [
-          { required: true, message: '请选择短信签字链接过期时间', trigger: 'change' }
-        ],
-        appointmentType: [
-          { required: true, message: '请选择预约方式', trigger: 'change' }
-        ],
-        serviceAdvisorId: [
-          { required: true, message: '请输入客户经理', trigger: 'change' }
-        ],
-        preAuthType: [
-          { required: true, message: '请选择预授权类型', trigger: 'change' }
-        ],
-        isLockLive: [
-          { required: true, message: '请输入是否锁定直播开关', trigger: 'change' }
-        ],
-        serviceActivityId: [
-          { required: true, message: '请输入技术服务活动', trigger: 'change' }
-        ],
-        isCreateWarranty: [
-          { required: true, message: '请输入是否已生成保修单', trigger: 'change' }
-        ],
-        isOutboundOrder: [
-          { required: true, message: '请输入是否已生成出库单', trigger: 'change' }
-        ],
-        isVehRetentionRemind: [
-          { required: true, message: '请输入是否已提醒留车调查', trigger: 'change' }
-        ],
-        isCancelStorage: [
-          { required: true, message: '请输入是否作废并入库', trigger: 'change' }
-        ],
-        discountId: [
-          { required: true, message: '请输入优惠模式', trigger: 'change' }
-        ],
-        finalCheckAt: [
-          { required: true, message: '请选择终检时间', trigger: 'change' }
-        ],
-        finalCheckerId: [
-          { required: true, message: '请输入终检人', trigger: 'change' }
-        ],
-        finalChecker: [
-          { required: true, message: '请输入终检人', trigger: 'change' }
-        ],
-        ticketStep: [
-          { required: true, message: '请输入开单步骤', trigger: 'change' }
-        ],
-        batteryApply: [
-          { required: true, message: '请输入电池维修申请单', trigger: 'change' }
-        ],
-        warrantyStatus: [
-          { required: true, message: '请选择保修单状态', trigger: 'change' }
-        ],
-        claimItemAmount: [
-          { required: true, message: '请输入索赔工时费用（总）', trigger: 'change' }
-        ],
-        claimOtherAmount: [
-          { required: true, message: '请输入索赔其他费用（总）', trigger: 'change' }
-        ],
-        claimPartsAmount: [
-          { required: true, message: '请输入索赔材料费用（总）', trigger: 'change' }
-        ],
-        departureMileage: [
-          { required: true, message: '请输入离店里程数', trigger: 'change' }
-        ],
-        inPower: [
-          { required: true, message: '请输入进店电量%', trigger: 'change' }
-        ],
-        outPower: [
-          { required: true, message: '请输入离店电量%', trigger: 'change' }
-        ],
-        netMileage: [
-          { required: true, message: '请输入车联网里程数（总）', trigger: 'change' }
-        ],
-        departureNetMileage: [
-          { required: true, message: '请输入离店车联网里程数（总）', trigger: 'change' }
-        ],
-        inNetPower: [
-          { required: true, message: '请输入进店车联网电量%', trigger: 'change' }
-        ],
-        outNetPower: [
-          { required: true, message: '请输入离店车联网电量%', trigger: 'change' }
-        ],
-        departureNetMileageElectricity: [
-          { required: true, message: '请输入离店车联网里程数（纯）', trigger: 'change' }
-        ],
-        departureNetMileageExtend: [
-          { required: true, message: '请输入离店车联网里程数（增）', trigger: 'change' }
-        ],
-        netMileageElectricity: [
-          { required: true, message: '请输入车联网里程数（纯）', trigger: 'change' }
-        ],
-        netMileageExtend: [
-          { required: true, message: '请输入车联网里程数（增）', trigger: 'change' }
-        ],
-        vehProfileId: [
-          { required: true, message: '请输入整车档案id', trigger: 'change' }
-        ],
-        vehProfileVin: [
-          { required: true, message: '请输入VIN码', trigger: 'change' }
-        ],
-        maintenanceMileage: [
-          { required: true, message: '请输入建议保养里程', trigger: 'change' }
-        ],
-        maintenanceTime: [
-          { required: true, message: '请选择建议保养时间', trigger: 'change' }
-        ],
-        saleDate: [
-          { required: true, message: '请选择销售日期', trigger: 'change' }
-        ],
-        exclusiveServiceDealerCode: [
-          { required: true, message: '请输入专属服务门店编码', trigger: 'change' }
-        ],
-        customerPhone: [
-          { required: true, message: '请输入车主手机', trigger: 'change' }
-        ],
-        bindingPhone: [
-          { required: true, message: '请输入绑车人手机号码', trigger: 'change' }
-        ],
-        bindingUser: [
-          { required: true, message: '请输入绑车人姓名', trigger: 'change' }
-        ],
-        bindingUserId: [
-          { required: true, message: '请输入绑车人用户ID', trigger: 'change' }
-        ],
-        vehModelId: [
-          { required: true, message: '请输入基本车型id', trigger: 'change' }
-        ],
-        vehRegisteredModelId: [
-          { required: true, message: '请输入公告车型id', trigger: 'change' }
-        ],
-        vehRegisteredModelName: [
-          { required: true, message: '请输入公告车型', trigger: 'change' }
-        ],
-        vehYearTypeId: [
-          { required: true, message: '请选择年型id', trigger: 'change' }
-        ],
-        vehYearTypeName: [
-          { required: true, message: '请选择年型', trigger: 'change' }
-        ],
-        dedicatedServiceManagerId: [
-          { required: true, message: '请输入专属客户经理', trigger: 'change' }
-        ],
-        dedicatedServiceManager: [
-          { required: true, message: '请输入专属客户经理', trigger: 'change' }
-        ],
-        motorModel: [
-          { required: true, message: '请输入电机型号', trigger: 'change' }
-        ],
-        motorSerialNumber: [
-          { required: true, message: '请输入电机序列号', trigger: 'change' }
-        ],
-        batteryModel: [
-          { required: true, message: '请输入电池型号', trigger: 'change' }
-        ],
-        batterySerialNumber: [
-          { required: true, message: '请输入电池序列号', trigger: 'change' }
-        ],
-        engineNumber: [
-          { required: true, message: '请输入发动机号', trigger: 'change' }
-        ],
-        repairItemTypeDetailCollect: [
-          { required: true, message: '请选择维修类型（汇总）', trigger: 'change' }
-        ],
-        businessType: [
-          { required: true, message: '请选择业务类型', trigger: 'change' }
-        ],
-        alarmLevel: [
-          { required: true, message: '请输入三包预警', trigger: 'change' }
-        ],
-        isLive: [
-          { required: true, message: '请输入是否直播', trigger: 'change' }
-        ],
-        haveRework: [
-          { required: true, message: '请输入是否返修', trigger: 'change' }
-        ],
-        isCarWash: [
-          { required: true, message: '请输入是否洗车', trigger: 'change' }
-        ],
-        isRetainOldParts: [
-          { required: true, message: '请输入是否保留旧件', trigger: 'change' }
-        ],
-        inCustomerContent: [
-          { required: true, message: '请输入车联网故障描述', trigger: 'change' }
-        ],
-        customerComment: [
-          { required: true, message: '请输入客户诉求', trigger: 'change' }
-        ],
-        testResult: [
-          { required: true, message: '请输入客户经理建议', trigger: 'change' }
-        ],
-        currentFault: [
-          { required: true, message: '请输入本次进店是否存在故障', trigger: 'change' }
-        ],
-        customerContent: [
-          { required: true, message: '请输入客户故障描述', trigger: 'change' }
-        ],
-        invaildDesc: [
-          { required: true, message: '请输入作废描述', trigger: 'change' }
-        ],
-        anomalyDescription: [
-          { required: true, message: '请输入异常描述', trigger: 'change' }
-        ],
-        previewingFinishAt: [
-          { required: true, message: '请选择预检完成时间', trigger: 'change' }
-        ],
-        confirmedOn: [
-          { required: true, message: '请选择制单完成时间', trigger: 'change' }
-        ],
-        expectStartAt: [
-          { required: true, message: '请选择计划作业时间', trigger: 'change' }
-        ],
-        startAt: [
-          { required: true, message: '请选择实际作业时间', trigger: 'change' }
-        ],
-        finishAt: [
-          { required: true, message: '请选择完成作业时间', trigger: 'change' }
-        ],
-        faultSolve: [
-          { required: true, message: '请输入客户反馈故障是否全部解决', trigger: 'change' }
-        ],
-        currentSituation: [
-          { required: true, message: '请输入本次进店情况（周期内）', trigger: 'change' }
-        ],
-        faultAlert: [
-          { required: true, message: '请输入故障提醒内容', trigger: 'change' }
-        ],
-        faultPeriod: [
-          { required: true, message: '请输入故障统计周期（天）', trigger: 'change' }
-        ],
-        earliestfaultServiceProxy: [
-          { required: true, message: '请输入最早故障施工单（周期内）', trigger: 'change' }
-        ],
-        recentlyfaultServiceProxy: [
-          { required: true, message: '请输入最近故障施工单（周期内）', trigger: 'change' }
-        ],
-        faultModule: [
-          { required: true, message: '请输入故障统计模块', trigger: 'change' }
-        ],
-        isCreateStatementInfo: [
-          { required: true, message: '请选择是否已生成结算单', trigger: 'change' }
-        ],
-        isPreAuth: [
-          { required: true, message: '请输入是否需要提报预授权', trigger: 'change' }
-        ],
-        isCreatePreAuth: [
-          { required: true, message: '请输入是否已经生成预授权', trigger: 'change' }
-        ],
-        preAuthId: [
-          { required: true, message: '请输入预授权信息', trigger: 'change' }
-        ],
-        unresolvedReason: [
-          { required: true, message: '请输入未解决问题原因', trigger: 'change' }
-        ],
-        faultDesc: [
-          { required: true, message: '请输入原因说明', trigger: 'change' }
-        ],
-        batteryUnitId: [
-          { required: true, message: '请输入电池去向单位', trigger: 'change' }
-        ],
-        targetUnitCode: [
-          { required: true, message: '请输入去向单位统一代码', trigger: 'change' }
-        ],
-        beforeChangeCode: [
-          { required: true, message: '请输入更换前编号', trigger: 'change' }
-        ],
-        afterChangeCode: [
-          { required: true, message: '请输入更换后编号', trigger: 'change' }
-        ],
-        exteriorPhotos: [
-          { required: true, message: '请输入车外检查', trigger: 'change' }
-        ],
-        interiorPhotos: [
-          { required: true, message: '请输入车内检查', trigger: 'change' }
-        ],
-        repairItemResps: [
-          { required: true, message: '请输入维修项目', trigger: 'change' }
-        ],
-        sparePartResps: [
-          { required: true, message: '请输入维修零配件', trigger: 'change' }
-        ],
-        partOutboundResps: [
-          { required: true, message: '请输入维修零配件出库单', trigger: 'change' }
-        ],
+        // dataSource: [
+        //   { required: true, message: '请输入数据来源', trigger: 'change' }
+        // ],
+        // orderStatus: [
+        //   { required: true, message: '请选择工单状态', trigger: 'change' }
+        // ],
+        // warrantyTypeCollect: [
+        //   { required: true, message: '请选择保修类型（汇总）', trigger: 'change' }
+        // ],
+        // customerName: [
+        //   { required: true, message: '请输入车主姓名', trigger: 'change' }
+        // ],
+        // custType: [
+        //   { required: true, message: '请选择客户类型', trigger: 'change' }
+        // ],
+        // vehModelName: [
+        //   { required: true, message: '请输入基本车型', trigger: 'change' }
+        // ],
+        // carPlate: [
+        //   { required: true, message: '请输入车牌号', trigger: 'change' }
+        // ],
+        // dealerName: [
+        //   { required: true, message: '请输入门店名称', trigger: 'change' }
+        // ],
+        // appointmentNo: [
+        //   { required: true, message: '请输入预约单号', trigger: 'change' }
+        // ],
+        // mileage: [
+        //   { required: true, message: '请输入进店里程数', trigger: 'change' }
+        // ],
+        // lastMileage: [
+        //   { required: true, message: '请输入上次进店里程数', trigger: 'change' }
+        // ],
+        // startWarrantyDate: [
+        //   { required: true, message: '请选择保修开始日期', trigger: 'change' }
+        // ],
+        // exclusiveServiceDealerName: [
+        //   { required: true, message: '请输入专属服务���店名称', trigger: 'change' }
+        // ],
+        // expectFinishAt: [
+        //   { required: true, message: '请选择预计交车时间', trigger: 'change' }
+        // ],
+        // createStatementInfoDate: [
+        //   { required: true, message: '请选择生成结算单时间', trigger: 'change' }
+        // ],
+        // serviceOwnerId: [
+        //   { required: true, message: '请输入负责人', trigger: 'change' }
+        // ],
+        // id: [
+        //   { required: true, message: '请输入主键', trigger: 'change' }
+        // ],
+        // creator: [
+        //   { required: true, message: '请输入创建者', trigger: 'change' }
+        // ],
+        // creatorName: [
+        //   { required: true, message: '请输入创建者名称', trigger: 'change' }
+        // ],
+        // createTime: [
+        //   { required: true, message: '请选择创建时间', trigger: 'change' }
+        // ],
+        // modifier: [
+        //   { required: true, message: '请输入修改者', trigger: 'change' }
+        // ],
+        // modifierName: [
+        //   { required: true, message: '请输入修改者名称', trigger: 'change' }
+        // ],
+        // updateTime: [
+        //   { required: true, message: '请选择修改时间', trigger: 'change' }
+        // ],
+        // remark: [
+        //   { required: true, message: '请输入备注', trigger: 'change' }
+        // ],
+        // status: [
+        //   { required: true, message: '请选择状态', trigger: 'change' }
+        // ],
+        // statusDesc: [
+        //   { required: true, message: '请选择状态变更描述', trigger: 'change' }
+        // ],
+        // pickStatus: [
+        //   { required: true, message: '请选择领料状态', trigger: 'change' }
+        // ],
+        // ownerOrgId: [
+        //   { required: true, message: '请输入归属门店ID（组织ID），当数据权限归属到本组织以及本下级', trigger: 'change' }
+        // ],
+        // dealerCode: [
+        //   { required: true, message: '请输入门店编码', trigger: 'change' }
+        // ],
+        // shuttleName: [
+        //   { required: true, message: '请输入送修人', trigger: 'change' }
+        // ],
+        // shuttlePhone: [
+        //   { required: true, message: '请输入送修人手机', trigger: 'change' }
+        // ],
+        // payType: [
+        //   { required: true, message: '请选择支付方式', trigger: 'change' }
+        // ],
+        // warrantyCompany: [
+        //   { required: true, message: '请输入保险公司名称', trigger: 'change' }
+        // ],
+        // signChannel: [
+        //   { required: true, message: '请输入签字渠道（1、短信 2、APP  3、零小跑）', trigger: 'change' }
+        // ],
+        // signCompletedOn: [
+        //   { required: true, message: '请选择签字完成时间', trigger: 'change' }
+        // ],
+        // signGeneratedOn: [
+        //   { required: true, message: '请选择签字生成时间', trigger: 'change' }
+        // ],
+        // signStatus: [
+        //   { required: true, message: '请选择签字状态（1、待签字 2、已签字）', trigger: 'change' }
+        // ],
+        // signUrlExpiredOn: [
+        //   { required: true, message: '请选择短信签字链接过期时间', trigger: 'change' }
+        // ],
+        // appointmentType: [
+        //   { required: true, message: '请选择预约方式', trigger: 'change' }
+        // ],
+        // serviceAdvisorId: [
+        //   { required: true, message: '请输入客户经理', trigger: 'change' }
+        // ],
+        // preAuthType: [
+        //   { required: true, message: '请选择预授权类型', trigger: 'change' }
+        // ],
+        // isLockLive: [
+        //   { required: true, message: '请输入是否锁定直播开关', trigger: 'change' }
+        // ],
+        // serviceActivityId: [
+        //   { required: true, message: '请输入技术服务活动', trigger: 'change' }
+        // ],
+        // isCreateWarranty: [
+        //   { required: true, message: '请输入是否已生成保修单', trigger: 'change' }
+        // ],
+        // isOutboundOrder: [
+        //   { required: true, message: '请输入是否已生成出库单', trigger: 'change' }
+        // ],
+        // isVehRetentionRemind: [
+        //   { required: true, message: '请输入是否已提醒留车调查', trigger: 'change' }
+        // ],
+        // isCancelStorage: [
+        //   { required: true, message: '请输入是否作废并入库', trigger: 'change' }
+        // ],
+        // discountId: [
+        //   { required: true, message: '请输入优惠模式', trigger: 'change' }
+        // ],
+        // finalCheckAt: [
+        //   { required: true, message: '请选择终检时间', trigger: 'change' }
+        // ],
+        // finalCheckerId: [
+        //   { required: true, message: '请输入终检人', trigger: 'change' }
+        // ],
+        // finalChecker: [
+        //   { required: true, message: '请输入终检人', trigger: 'change' }
+        // ],
+        // ticketStep: [
+        //   { required: true, message: '请输入开单步骤', trigger: 'change' }
+        // ],
+        // batteryApply: [
+        //   { required: true, message: '请输入电池维修申请单', trigger: 'change' }
+        // ],
+        // warrantyStatus: [
+        //   { required: true, message: '请选择保修单状态', trigger: 'change' }
+        // ],
+        // claimItemAmount: [
+        //   { required: true, message: '请输入索赔工时费用（总）', trigger: 'change' }
+        // ],
+        // claimOtherAmount: [
+        //   { required: true, message: '请输入索赔其他费用（总）', trigger: 'change' }
+        // ],
+        // claimPartsAmount: [
+        //   { required: true, message: '请输入索赔材料费用（总）', trigger: 'change' }
+        // ],
+        // departureMileage: [
+        //   { required: true, message: '请输入离店里程数', trigger: 'change' }
+        // ],
+        // inPower: [
+        //   { required: true, message: '请输入进店电量%', trigger: 'change' }
+        // ],
+        // outPower: [
+        //   { required: true, message: '请输入离店电量%', trigger: 'change' }
+        // ],
+        // netMileage: [
+        //   { required: true, message: '请输入车联网里程数（总）', trigger: 'change' }
+        // ],
+        // departureNetMileage: [
+        //   { required: true, message: '请输入离店车联网里程数（总）', trigger: 'change' }
+        // ],
+        // inNetPower: [
+        //   { required: true, message: '请输入进店车联网电量%', trigger: 'change' }
+        // ],
+        // outNetPower: [
+        //   { required: true, message: '请输入离店车联网电量%', trigger: 'change' }
+        // ],
+        // departureNetMileageElectricity: [
+        //   { required: true, message: '请输入离店车联网里程数（纯）', trigger: 'change' }
+        // ],
+        // departureNetMileageExtend: [
+        //   { required: true, message: '请输入离店车联网里程数（增）', trigger: 'change' }
+        // ],
+        // netMileageElectricity: [
+        //   { required: true, message: '请输入车联网里程数（纯）', trigger: 'change' }
+        // ],
+        // netMileageExtend: [
+        //   { required: true, message: '请输入车联网里程数（增）', trigger: 'change' }
+        // ],
+        // vehProfileId: [
+        //   { required: true, message: '请输入整车档案id', trigger: 'change' }
+        // ],
+        // vehProfileVin: [
+        //   { required: true, message: '请输入VIN码', trigger: 'change' }
+        // ],
+        // maintenanceMileage: [
+        //   { required: true, message: '请输入建议保养里程', trigger: 'change' }
+        // ],
+        // maintenanceTime: [
+        //   { required: true, message: '请选择建议保养时间', trigger: 'change' }
+        // ],
+        // saleDate: [
+        //   { required: true, message: '请选择销售日期', trigger: 'change' }
+        // ],
+        // exclusiveServiceDealerCode: [
+        //   { required: true, message: '请输入专属服务门店编码', trigger: 'change' }
+        // ],
+        // customerPhone: [
+        //   { required: true, message: '请输入车主手机', trigger: 'change' }
+        // ],
+        // bindingPhone: [
+        //   { required: true, message: '请输入绑车人手机号码', trigger: 'change' }
+        // ],
+        // bindingUser: [
+        //   { required: true, message: '请输入绑车人姓名', trigger: 'change' }
+        // ],
+        // bindingUserId: [
+        //   { required: true, message: '请输入绑车人用户ID', trigger: 'change' }
+        // ],
+        // vehModelId: [
+        //   { required: true, message: '请输入基本车型id', trigger: 'change' }
+        // ],
+        // vehRegisteredModelId: [
+        //   { required: true, message: '请输入公告车型id', trigger: 'change' }
+        // ],
+        // vehRegisteredModelName: [
+        //   { required: true, message: '请输入公告车型', trigger: 'change' }
+        // ],
+        // vehYearTypeId: [
+        //   { required: true, message: '请选择年型id', trigger: 'change' }
+        // ],
+        // vehYearTypeName: [
+        //   { required: true, message: '请选择年型', trigger: 'change' }
+        // ],
+        // dedicatedServiceManagerId: [
+        //   { required: true, message: '请输入专属客户经理', trigger: 'change' }
+        // ],
+        // dedicatedServiceManager: [
+        //   { required: true, message: '请输入专属客户经理', trigger: 'change' }
+        // ],
+        // motorModel: [
+        //   { required: true, message: '请输入电机型号', trigger: 'change' }
+        // ],
+        // motorSerialNumber: [
+        //   { required: true, message: '请输入电机序列号', trigger: 'change' }
+        // ],
+        // batteryModel: [
+        //   { required: true, message: '请输入电池型号', trigger: 'change' }
+        // ],
+        // batterySerialNumber: [
+        //   { required: true, message: '请输入电池序列号', trigger: 'change' }
+        // ],
+        // engineNumber: [
+        //   { required: true, message: '请输入发动机号', trigger: 'change' }
+        // ],
+        // repairItemTypeDetailCollect: [
+        //   { required: true, message: '请选择维修类型（汇总）', trigger: 'change' }
+        // ],
+        // businessType: [
+        //   { required: true, message: '请选择业务类型', trigger: 'change' }
+        // ],
+        // alarmLevel: [
+        //   { required: true, message: '请输入三包预警', trigger: 'change' }
+        // ],
+        // isLive: [
+        //   { required: true, message: '请输入是否直播', trigger: 'change' }
+        // ],
+        // haveRework: [
+        //   { required: true, message: '请输入是否返修', trigger: 'change' }
+        // ],
+        // isCarWash: [
+        //   { required: true, message: '请输入是否洗车', trigger: 'change' }
+        // ],
+        // isRetainOldParts: [
+        //   { required: true, message: '请输入是否保留旧件', trigger: 'change' }
+        // ],
+        // inCustomerContent: [
+        //   { required: true, message: '请输入车联网故障描述', trigger: 'change' }
+        // ],
+        // customerComment: [
+        //   { required: true, message: '请输入客户诉求', trigger: 'change' }
+        // ],
+        // testResult: [
+        //   { required: true, message: '请输入客户经理建议', trigger: 'change' }
+        // ],
+        // currentFault: [
+        //   { required: true, message: '请输入本次进店是否存在故障', trigger: 'change' }
+        // ],
+        // customerContent: [
+        //   { required: true, message: '请输入客户故障描述', trigger: 'change' }
+        // ],
+        // invaildDesc: [
+        //   { required: true, message: '请输入作废描述', trigger: 'change' }
+        // ],
+        // anomalyDescription: [
+        //   { required: true, message: '请输入异常描述', trigger: 'change' }
+        // ],
+        // previewingFinishAt: [
+        //   { required: true, message: '请选择预检完成时间', trigger: 'change' }
+        // ],
+        // confirmedOn: [
+        //   { required: true, message: '请选择制单完成时间', trigger: 'change' }
+        // ],
+        // expectStartAt: [
+        //   { required: true, message: '请选择计划作业时间', trigger: 'change' }
+        // ],
+        // startAt: [
+        //   { required: true, message: '请选择实际作业时间', trigger: 'change' }
+        // ],
+        // finishAt: [
+        //   { required: true, message: '请选择完成作业时间', trigger: 'change' }
+        // ],
+        // faultSolve: [
+        //   { required: true, message: '请输入客户反馈故障是否全部解决', trigger: 'change' }
+        // ],
+        // currentSituation: [
+        //   { required: true, message: '请输入本次进店情况（周期内）', trigger: 'change' }
+        // ],
+        // faultAlert: [
+        //   { required: true, message: '请输入故障提醒内容', trigger: 'change' }
+        // ],
+        // faultPeriod: [
+        //   { required: true, message: '请输入故障统计周期（天）', trigger: 'change' }
+        // ],
+        // earliestfaultServiceProxy: [
+        //   { required: true, message: '请输入最早故障施工单（周期内）', trigger: 'change' }
+        // ],
+        // recentlyfaultServiceProxy: [
+        //   { required: true, message: '请输入最近故障施工单（周期内）', trigger: 'change' }
+        // ],
+        // faultModule: [
+        //   { required: true, message: '请输入故障统计模块', trigger: 'change' }
+        // ],
+        // isCreateStatementInfo: [
+        //   { required: true, message: '请选择是否已生成结算单', trigger: 'change' }
+        // ],
+        // isPreAuth: [
+        //   { required: true, message: '请输入是否需要提报预授权', trigger: 'change' }
+        // ],
+        // isCreatePreAuth: [
+        //   { required: true, message: '请输入是否已经生成预授权', trigger: 'change' }
+        // ],
+        // preAuthId: [
+        //   { required: true, message: '请输入预授权信息', trigger: 'change' }
+        // ],
+        // unresolvedReason: [
+        //   { required: true, message: '请输入未解决问题原因', trigger: 'change' }
+        // ],
+        // faultDesc: [
+        //   { required: true, message: '请输入原因说明', trigger: 'change' }
+        // ],
+        // batteryUnitId: [
+        //   { required: true, message: '请输入电池去向单位', trigger: 'change' }
+        // ],
+        // targetUnitCode: [
+        //   { required: true, message: '请输入去向单位统一代码', trigger: 'change' }
+        // ],
+        // beforeChangeCode: [
+        //   { required: true, message: '请输入更换前编号', trigger: 'change' }
+        // ],
+        // afterChangeCode: [
+        //   { required: true, message: '请输入更换后编号', trigger: 'change' }
+        // ],
+        // exteriorPhotos: [
+        //   { required: true, message: '请输入车外检查', trigger: 'change' }
+        // ],
+        // interiorPhotos: [
+        //   { required: true, message: '请输入车内检查', trigger: 'change' }
+        // ],
+        // repairItemResps: [
+        //   { required: true, message: '请输入维修项目', trigger: 'change' }
+        // ],
+        // sparePartResps: [
+        //   { required: true, message: '请输入维修零配件', trigger: 'change' }
+        // ],
+        // partOutboundResps: [
+        //   { required: true, message: '请输入维修零配件出库单', trigger: 'change' }
+        // ],
       }
     };
   },

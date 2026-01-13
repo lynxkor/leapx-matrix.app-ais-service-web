@@ -59,7 +59,6 @@
                 placeholder="请选择"
                 :remote-method="getStoreByName"
                 @change="handleStoreChange"
-                collapse-tags
                 >
                   <el-option
                     v-for="item in storeOptions"
@@ -77,29 +76,19 @@
               </el-button>
             </div>
             <div class="common-section-table">
-              <edit-table
-                ref="editTablePj"
-                :columns="columns"
-                :data="tableData"
-                :defaultNewRow="defaultNewRow"
-                :show-toolbar="false"
-                :delTitle="'确认删除该门店吗？'"
-              >
-                <template #btn-middle="{ row, rowIndex }">
-                  <el-button
-                    type="text"
-                    @click="openPane(row, rowIndex)"
-                    class="action-button btn-edit"
-                    :disabled="disabled"
-                    :class="{
-                      'active': selectedRow.id === row.id,
-                      'disabled': disabled,
-                    }"
-                    >
-                    删除
-                  </el-button>
-                </template>
-              </edit-table>
+                <expand-table
+                  ref="expandTable"
+                  :columns="columns"
+                  :data="tableData"
+                  :auth="{
+                    add: false,
+                    edit: false,
+                    delete: true,
+                  }"
+                  :delTitle="'确认删除该门店吗？'"
+                  :show-toolbar="false"
+                  @remove-row="handleDeleteStore"
+                />
             </div>
           </div>
         </section>
@@ -118,7 +107,6 @@
                 placeholder="请选择"
                 :remote-method="getStoreByName"
                 @change="handleStoreChange"
-                collapse-tags
                 >
                   <el-option
                     v-for="item in storeOptions"
@@ -136,14 +124,18 @@
               </el-button>
             </div>
             <div class="common-section-table">
-              <edit-table
-                ref="editTablePj"
+              <expand-table
+                ref="expandTable"
                 :columns="columns"
                 :data="noTableData"
-                :defaultNewRow="defaultNewRow"
-                :show-toolbar="false"
+                :auth="{
+                  add: false,
+                  edit: false,
+                  delete: true,
+                }"
                 :delTitle="'确认删除该门店吗？'"
-                :auth="{delete: canDelete}"
+                :show-toolbar="false"
+                @remove-row="handleDeleteStore"
               />
             </div>
           </div>
@@ -160,13 +152,12 @@
 
 <script>
 import { getDetail, addOrUpdate, categoryPurchaseDealer, addDealer, deleteDealer } from '@/api/sparepart/basic/spareSalesCategory/index';
-import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum, getBuildType, listOrgStoreInfo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import EditTable from '@/libs/components/EditTable';
+import expandTable from '@/libs/components/expandTable';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -198,7 +189,7 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
-    EditTable
+    expandTable
   },
   data () {
     const form = this.getDefautlForm();
@@ -454,7 +445,7 @@ export default {
     },
     // 处理删除门店事件
     async handleDeleteStore (value) {
-      await deleteDealer([value]);
+      await deleteDealer([value.id]);
       this.getPurchaseDealer(this.partsId);
     }
   }

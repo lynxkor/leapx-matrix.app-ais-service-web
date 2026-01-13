@@ -1161,6 +1161,60 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/warehouse/inventory',
+      name: 'inventory',
+      component: () => import('@/views/sparepart/warehouse/inventory/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/warehouse/inventory/edit',
+      name: 'inventoryEdit',
+      component: () => import('@/views/sparepart/warehouse/inventory/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/purchasePrice',
+      name: 'purchasePrice',
+      component: () => import('@/views/sparepart/basic/purchasePrice/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/purchaseprice/edit',
+      name: 'purchasePriceEdit',
+      component: () => import('@/views/sparepart/basic/purchasePrice/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/warehouse/oemWarehouse',
+      name: 'oemWarehouse',
+      component: () => import('@/views/sparepart/warehouse/oemWarehouse/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/warehouse/oemwarehouse/edit',
+      name: 'oemWarehouseEdit',
+      component: () => import('@/views/sparepart/warehouse/oemWarehouse/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];

@@ -27,12 +27,12 @@
         <div class="section-title">年款</div>
         <div class="selection-items">
             <div
-            v-for="(year, index) in yearList"
+            v-for="(year, index) in options.vehicleYearTypeName"
             :key="'year-' + index"
             :class="['selection-item', { 'selected': selectedYearIndex === index }]"
             @click="selectYear(index, year)"
             >
-            {{ year.name }}
+            {{ year.label }}
             </div>
         </div>
         </div>
@@ -54,79 +54,25 @@
 
     <!-- 表格区域 -->
     <div class="table-container">
-        <el-table
+      <expand-table
+        ref="expandTable"
+        :columns="columns"
         :data="tableData"
-        style="width: 100%"
-        stripe
-        size="medium"
-        >
-        <el-table-column
-            prop="index"
-            label="序号"
-            width="80"
-            align="center"
-        >
-            <template slot-scope="scope">
-            {{ scope.$index + 1 }}
-            </template>
-        </el-table-column>
-
-        <el-table-column
-            prop="series"
-            label="车系"
-            width="150"
-            align="center"
-        >
-            <template slot-scope="scope">
-            {{ scope.row.vehicleSeriesName }}
-            </template>
-        </el-table-column>
-
-        <el-table-column
-            prop="applicableModel"
-            label="适用车型"
-            align="center"
-        >
-            <template slot-scope="scope">
-            {{ scope.row.vehicleModelName }}
-            </template>
-        </el-table-column>
-
-        <el-table-column
-            prop="year"
-            label="年款"
-            width="150"
-            align="center"
-        >
-            <template slot-scope="scope">
-            <el-select
-                v-model="scope.row.vehicleYearTypeId"
-                placeholder="请选择"
-                size="small"
-                @change="handleYearChange($event, scope.$index)"
-            >
-                <el-option
-                v-for="(year, index) in yearList"
-                :key="index"
-                :label="year.name"
-                :value="year.id"
-                ></el-option>
-            </el-select>
-            <!-- <span v-else>{{ scope.row.year }}</span> -->
-            </template>
-        </el-table-column>
-
-        <el-table-column
-            label="操作"
-            width="120"
-            align="center"
-            fixed="right"
-        >
-            <template slot-scope="scope">
-            <el-popconfirm
-              v-if="scope.row.id"
+        :options="options"
+        :auth="{
+          add: false,
+          edit: false,
+          delete: false,
+        }"
+        :delTitle="'确认删除该门店吗？'"
+        :show-toolbar="false"
+        @value-change="handleYearChange"
+      >
+        <template #btn-middle="{ row, rowIndex }">
+          <el-popconfirm
+              v-if="row.id"
               title="确定要停用此车型吗？"
-              @confirm="toggleStatus(scope.row)"
+              @confirm="toggleStatus(row)"
             >
               <span
                 slot="reference"
@@ -136,17 +82,15 @@
               </span>
             </el-popconfirm>
             <el-button
-              v-if="!scope.row.id"
+              v-if="!row.id"
               type="text"
-              size="small"
-              style="color: #B91919 !important;"
-              @click="delStatus(scope.row, scope.$index)"
+              class="btn-move"
+              @click="delStatus(row, rowIndex)"
             >
               移除
             </el-button>
-            </template>
-        </el-table-column>
-        </el-table>
+        </template>
+      </expand-table>
     </div>
 
     <!-- 弹窗底部按钮 -->
@@ -160,6 +104,7 @@
 <script>
 import { listVehicleSeries, listVehicleYearTypeFull, listVehicleYearType } from '@/api/common';
 import { searchVehicleModel, addOrUpdateVehicleModel, deleteVehicleModel } from '@/api/sparepart/basic/sparePart/index';
+import expandTable from '@/libs/components/expandTable';
 
 export default {
   name: 'SeriesYearDialog',
@@ -178,6 +123,9 @@ export default {
       default: () => []
     }
   },
+  components: {
+    expandTable
+  },
   data () {
     return {
       // 车系数据
@@ -191,7 +139,41 @@ export default {
       applicableModelList: [],
       selectedModelIndex: null,
       // 表格 选择数据
-      tableData: []
+      tableData: [],
+      columns: [ // 适配车型
+        {
+          field: 'index',
+          title: '序号',
+          width: '20%',
+        },
+        {
+          field: 'vehicleSeriesName',
+          title: '车系',
+          width: '20%',
+        },
+        {
+          field: 'vehicleModelName',
+          title: '适用车型',
+          width: '20%',
+        },
+        {
+          field: 'vehicleYearTypeName',
+          title: '年款',
+          width: '20%',
+          editable: true,
+          editRender: {
+            name: 'ElSelect',
+            props: {
+              clearable: true,
+              'suffix-icon': 'el-icon-search',
+              placeholder: '请选择年款',
+            },
+          },
+        }
+      ],
+      options: {
+        vehicleYearTypeName: []
+      }
     };
   },
   watch: {
@@ -222,7 +204,12 @@ export default {
         sparePartId: val,
       };
       const res = await searchVehicleModel(params);
-      this.tableData = res.records || [];
+      this.tableData = res.records.map((item, index) => {
+        return {
+          ...item,
+          index: index + 1 // 添加序号字段
+        };
+      });
     },
     async getVehicleList () {
       const res = await listVehicleSeries({ status: 1 });
@@ -236,9 +223,12 @@ export default {
     async getYearList () {
       const res = await listVehicleYearType({ status: 1 });
       // 在数组开头添加"无年款"选项
-      this.yearList = [
-        { id: 0, name: '无年款' },
-        ...(res || [])
+      this.options.vehicleYearTypeName = [
+        { value: '0', label: '无年款' },
+        ...(res?.map(item => ({
+          value: item.id, // 或 item.value，根据实际数据结构
+          label: item.name // 或 item.label
+        })) || [])
       ];
     },
     // 确定提交
@@ -269,9 +259,12 @@ export default {
         // 如果是单个对象，包装成数组
         modelArray = [model];
       }
+      // 获取当前 tableData 的长度作为起始索引
+      const startIndex = this.tableData.length;
       // 更新当前行的车型选择
-      const list = modelArray.map(item => {
+      const list = modelArray.map((item) => {
         return {
+          index: startIndex + 1,
           value: item.id,
           label: item.modelName,
           vehicleModelId: item.id,
@@ -283,7 +276,6 @@ export default {
           vehicleYearTypeName: this.yearDetail.vehicleYearTypeName,
         };
       }) || [];
-
       this.tableData.push(...list);
     },
     // 选择车系
@@ -298,15 +290,28 @@ export default {
     selectYear (index, year) {
       this.selectedYearIndex = index;
       this.yearDetail = {
-        vehicleYearTypeId: year?.id,
-        vehicleYearTypeName: year?.name,
+        vehicleYearTypeId: year?.value,
+        vehicleYearTypeName: year?.label,
       };
     },
 
     // 年款下拉选择变更
-    handleYearChange (ele, row) {
-      // ele当前选择的id  row当前行索引  更新当前行的年款名称 id已有
-      this.tableData[row].vehicleYearType = this.yearList.find(item => item.id === ele).name;
+    handleYearChange (row) {
+      console.log('选择的年款数据:', row);
+
+      // 计算数组下标：row.row.index 是从1开始的序号，需要减1得到数组下标
+      const arrayIndex = row.row.index - 1;
+
+      // 检查下标是否有效
+      if (arrayIndex >= 0 && arrayIndex < this.tableData.length) {
+        // 使用 $set 确保响应式更新
+        const updatedRow = {
+          ...this.tableData[arrayIndex],
+          vehicleYearTypeId: row.option?.value,
+          vehicleYearTypeName: row.option?.label
+        };
+        this.$set(this.tableData, arrayIndex, updatedRow);
+      }
     },
 
     // 停用
@@ -320,10 +325,11 @@ export default {
     },
 
     // 处理确定按钮
-    handleConfirm () {
-      this.addModel();
-      this.handleClose();
+    async handleConfirm () {
+      await this.addModel();
+      this.getData(this.modelId);
       this.$emit('success');
+      this.handleClose();
       // 车系 年款  车型 全部初始化 表格数据清空
       this.selectSeries(0);
       this.selectYear(0);
@@ -422,6 +428,23 @@ export default {
   }
   &.btn-delete{
     color:#B91919;
+  }
+}
+.btn-move {
+  color:#B91919 !important;
+}
+.action-button{
+  margin: 0 5px;
+  cursor: pointer;
+  &.btn-edit{
+    color:#4C4CD6;
+  }
+  &.active{
+    text-decoration: underline;
+  }
+  &.disabled{
+    cursor: not-allowed;
+    color: var(--disabled-color);
   }
 }
   </style>

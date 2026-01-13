@@ -14,30 +14,32 @@
                 <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"
                   class="form-edit" v-if="isEditing || !_id">
                   <el-form-item label="仓库名称：" prop="warehouseName">
-                    <el-input placeholder="请输入" v-model="form.warehouseName" clearable />
-                  </el-form-item>
-                  <el-form-item label="门店名称：" prop="dealerName">
-                    <fetch-select filterable clearable remote reserve-keyword v-model="form.dealerCode"
-                      :remote-method="getDealerList" :params="form.dealerName" value-key="orgCode" label-key="orgName"
-                      @change="categorySpareSalesChange" />
+                    {{ form.warehouseName }}
                   </el-form-item>
                   <el-form-item label="仓库编码：" prop="warehouseCode">
-                    <el-input placeholder="请输入" v-model="form.warehouseCode" clearable />
+                    {{ form.warehouseCode }}
                   </el-form-item>
-                  <el-form-item label="是否启用：" prop="status">
-                    <fetch-select :request="fetchOptions" enumCode="BooleanEnum" v-model="form.status" placeholder="请选择"
-                      clearable filterable />
-                  </el-form-item>
-                  <el-form-item label="省市区：" prop="provinceCityCountyCode">
-                    <el-cascader placeholder="请选择省市区" v-model="form.provinceCityCountyCode" :props="orgProps"
-                      :options="areaOptions" filterable clearable>
+                  <el-form-item label="省市区：" prop="provinceCode">
+                    <el-cascader
+                      placeholder="请选择省市区"
+                      v-model="form.provinceCityCountyCode"
+                      :props="orgProps"
+                      :options="areaOptions"
+                      filterable
+                      clearable>
                     </el-cascader>
-                  </el-form-item>
-                  <el-form-item label="停用原因：" prop="disableReason">
-                    <el-input placeholder="请输入" v-model="form.disableReason" clearable />
                   </el-form-item>
                   <el-form-item label="详细地址：" prop="address">
                     <el-input placeholder="请输入" v-model="form.address" clearable />
+                  </el-form-item>
+                  <el-form-item label="门店名称：" prop="dealerName">
+                    {{ form.dealerName }}
+                  </el-form-item>
+                  <el-form-item label="是否启用：">
+                    {{ form.statusLabel }}
+                  </el-form-item>
+                  <el-form-item label="停用原因：">
+                    {{ form.statusDesc }}
                   </el-form-item>
                   <el-form-item label="备注：" prop="remark">
                     <el-input placeholder="请输入" v-model="form.remark" clearable />
@@ -50,12 +52,6 @@
                   <el-form-item label="仓库编码：" prop="warehouseCode">
                     {{ form.warehouseCode }}
                   </el-form-item>
-                  <el-form-item label="门店编码：" prop="dealerCode">
-                    {{ form.dealerCode }}
-                  </el-form-item>
-                  <el-form-item label="门店名称：" prop="dealerName">
-                    {{ form.dealerName }}
-                  </el-form-item>
                   <el-form-item label="省：" prop="provinceName">
                     {{ form.provinceName }}
                   </el-form-item>
@@ -65,14 +61,17 @@
                   <el-form-item label="区：" prop="districtName">
                     {{ form.districtName }}
                   </el-form-item>
-                  <el-form-item label="是否启用：" prop="status">
-                    {{ form.status }}
-                  </el-form-item>
-                  <el-form-item label="停用原因：" prop="disableReason">
-                    {{ form.disableReason }}
-                  </el-form-item>
                   <el-form-item label="详细地址：" prop="address">
                     {{ form.address }}
+                  </el-form-item>
+                  <el-form-item label="门店名称：" prop="dealerName">
+                    {{ form.dealerName }}
+                  </el-form-item>
+                  <el-form-item label="是否启用：" >
+                    {{ form.statusLabel }}
+                  </el-form-item>
+                  <el-form-item label="停用原因：">
+                    {{ form.statusDesc }}
                   </el-form-item>
                   <el-form-item label="备注：" prop="remark">
                     {{ form.remark }}
@@ -123,15 +122,13 @@
 
 <script>
 import { getDetail, addOrUpdate, locationOrUpdate } from '@/api/sparepart/warehouse/warehouse/index';
-import FetchSelect from '@/libs/components/FetchSelect';
-import EditTable from '@/libs/components/EditTable';
+// import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import { getEnum, listOrgStoreInfo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { locationListShort } from '@/libs/api/common';
 import EditBaseContainer from '@/components/EditBaseContainer';
 import PartTable from './PartTable.vue';
 import ReplaceTable from './ReplaceTable.vue';
@@ -165,7 +162,7 @@ export default {
   components: {
     EditPageLayout,
     // EditTable,
-    FetchSelect,
+    // FetchSelect,
     EditBaseContainer,
     PartTable,
     ReplaceTable

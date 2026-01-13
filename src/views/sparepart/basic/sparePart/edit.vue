@@ -21,7 +21,7 @@
               <el-form-item label="备件名称" prop="partName">
                 <el-input
                   v-model="form.partName"
-                  disabled="true"
+                  disabled
                   clearable
                 />
               </el-form-item>
@@ -57,17 +57,6 @@
                   <el-radio label="1">是</el-radio>
                   <el-radio label="0">否</el-radio>
                 </el-radio-group>
-              </el-form-item>
-              <el-form-item label="备注" prop="remark">
-                <el-input
-                  type="textarea"
-                  placeholder="请输入"
-                  :disabled="!permissions.has('web:basic:sparePart:salesImport')"
-                  v-model="form.remark"
-                  clearable
-                  maxLength="500"
-                  show-word-limit
-                />
               </el-form-item>
               <el-form-item label="是否可销售" prop="saleableIs">
                 <el-radio-group
@@ -115,17 +104,6 @@
                   <el-radio label="1">是</el-radio>
                   <el-radio label="0">否</el-radio>
                 </el-radio-group>
-              </el-form-item>
-              <el-form-item label="OEM备注" prop="oemRemark">
-                <el-input
-                  type="textarea"
-                  placeholder="请输入"
-                  :disabled="!permissions.has('web:basic:sparePart:salesImport') || !permissions.has('web:basic:sparePart:transportImport') || !permissions.has('web:basic:sparePart:purchaseImport')"
-                  v-model="form.oemRemark"
-                  clearable
-                  maxLength="500"
-                  show-word-limit
-                />
               </el-form-item>
               <el-form-item label="采购状态" prop="purchaseType">
                 <fetch-select
@@ -207,6 +185,28 @@
                   <el-radio label="1">是</el-radio>
                   <el-radio label="0">否</el-radio>
                 </el-radio-group>
+              </el-form-item>
+              <el-form-item label="备注" prop="remark" class="form-item-full">
+                <el-input
+                  type="textarea"
+                  placeholder="请输入"
+                  :disabled="!permissions.has('web:basic:sparePart:salesImport')"
+                  v-model="form.remark"
+                  clearable
+                  maxLength="500"
+                  show-word-limit
+                />
+              </el-form-item>
+              <el-form-item label="OEM备注" prop="oemRemark" class="form-item-full">
+                <el-input
+                  type="textarea"
+                  placeholder="请输入"
+                  :disabled="!permissions.has('web:basic:sparePart:salesImport') || !permissions.has('web:basic:sparePart:transportImport') || !permissions.has('web:basic:sparePart:purchaseImport')"
+                  v-model="form.oemRemark"
+                  clearable
+                  maxLength="500"
+                  show-word-limit
+                />
               </el-form-item>
             </el-form>
           </div>
