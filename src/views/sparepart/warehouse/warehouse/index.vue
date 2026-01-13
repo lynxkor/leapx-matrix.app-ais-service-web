@@ -12,21 +12,31 @@
       <el-form-item label="仓库名称">
         <el-input
           placeholder="请输入"
-          v-model="form.warehouseName"
+          v-model="form.warehouseNameLike"
           clearable
         />
       </el-form-item>
       <el-form-item label="门店名称">
         <fetch-select
-          filterable
+            :remote-method="getDealerList"
+            remote
+            v-model="form.dealerCodeList"
+            placeholder="请输入门店编码或名称"
+            labelKey="orgName"
+            valueKey="orgCode"
+            subLabelKey="orgCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
+              />
+      </el-form-item>
+      <template v-if="show">
+        <el-form-item label="仓库编码">
+        <el-input
+          placeholder="请输入"
+          v-model="form.warehouseCodeLike"
           clearable
-          remote
-          multiple
-          reserve-keyword
-          v-model="form.dealerCodeList"
-          :remote-method="getDealerList"
-          value-key="orgCode"
-          label-key="orgName"
         />
       </el-form-item>
       <el-form-item label="是否启用" v-show="visibleCount === 3 || show">
@@ -40,7 +50,6 @@
           filterable
         />
       </el-form-item>
-      <template v-if="show">
       <el-form-item label="创建时间">
         <el-date-picker
         :default-time="['00:00:00', '23:59:59']"
@@ -78,9 +87,9 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button> -->
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
+      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
@@ -118,7 +127,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/warehouse/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -130,7 +139,8 @@ import EditPage from './edit.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  warehouseName: '',
+  warehouseCodeLike: '',
+  warehouseNameLike: '',
   statusIncludeList: null,
   createTime: '',
   updateTime: '',
@@ -200,9 +210,9 @@ export default {
           { props: 'cityName', label: '市', visible: true, width: 200 },
           { props: 'districtName', label: '区', visible: true, width: 200 },
           { props: 'address', label: '详细地址', visible: true, width: 200 },
-          { props: 'status', label: '状态', visible: true, width: 200 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'disableReason', label: '停用原因', visible: true, width: 200 },
+          { props: 'statusDesc', label: '停用原因', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -414,10 +424,14 @@ export default {
         refreshFunc: this.getData
       });
     },
-    // 门店远程搜索
+
     async getDealerList (query) {
-      const res = await listOrgStoreInfo({ name: query });
-      return res;
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     },
   }
 };
