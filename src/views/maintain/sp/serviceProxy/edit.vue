@@ -16,6 +16,7 @@
                     <el-button size="small" @click="handlePreCheck">预检确认</el-button>
                     <el-button size="small" @click="selectRepairItemDialogVisible = true">选择维修项目</el-button>
                     <el-button size="small" @click="confirmDocDialogVisible = true">制单确认并签字</el-button>
+                    <el-button size="small" @click="dispatchWorkDialogVisible = true">派工</el-button>
                     <el-button size="small" @click="discardDialogVisible = true">作废</el-button>
                     <el-button size="small" @click="couponsDialogVisible = true">查询卡券&终身</el-button>
                     <el-button size="small" @click="handleCancel">预警信息</el-button>

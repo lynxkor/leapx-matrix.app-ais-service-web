@@ -16,36 +16,21 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="数据来源">
+      <el-form-item label="车牌号">
         <el-input
           placeholder="请输入"
-          v-model="form.dataSource"
+          v-model="form.carPlate"
           clearable
         />
       </el-form-item>
-      <el-form-item label="工单状态"  v-show="this.visibleCount === 3 || show">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="xxx"
-          v-model="form.orderStatus"
-          placeholder="请选择"
+      <el-form-item label="VIN码" v-show="this.visibleCount === 3 || show">
+        <el-input
+          placeholder="请输入"
+          v-model="form.vehProfileVin"
           clearable
-          multiple
-          filterable
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="保修类型（汇总）">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.warrantyTypeCollect"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
         <el-form-item label="车主姓名">
           <el-input
             placeholder="请输入"
@@ -53,35 +38,17 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="客户类型">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.custType"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
-        <el-form-item label="基本车型">
+        <el-form-item label="车主手机">
           <el-input
             placeholder="请输入"
-            v-model="form.vehModelName"
+            v-model="form.customerPhone"
             clearable
           />
         </el-form-item>
-        <el-form-item label="车牌号">
+        <el-form-item label="送修人手机">
           <el-input
             placeholder="请输入"
-            v-model="form.carPlate"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="门店名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dealerName"
+            v-model="form.shuttlePhone"
             clearable
           />
         </el-form-item>
@@ -92,81 +59,8 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="进店里程数">
-          <el-input
-            placeholder="请输入"
-            v-model="form.mileage"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="上次进店里程数">
-          <el-input
-            placeholder="请输入"
-            v-model="form.lastMileage"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="保修开始日期">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.startWarrantyDate"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="专属服务门店">
-          <el-input
-            placeholder="请输入"
-            v-model="form.exclusiveServiceDealerName"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="预计交车时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.expectFinishAt"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="生成结算单时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createStatementInfoDate"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="生成结算单时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.startWarrantyDate"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="负责人">
-          <el-input
-            placeholder="请输入"
-            v-model="form.serviceOwnerId"
-            clearable
-          />
+        <el-form-item label="门店">
+          <dealer-select v-model="form.dealerCodes" multiple/>
         </el-form-item>
       </template>
       <page-search-action
@@ -188,7 +82,10 @@
       <!-- <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div class="ais-tabs">
-      <div v-for="item in tabList" :key="item.label" :class="{'ais-tabs-item': true, 'active': item.value == form.orderStatus}" @click="handleTabClick(item.value)">{{item.label}}</div>
+      <div v-for="(item, index) in tabList" :key="item.orderStatusLabel" :class="{'ais-tabs-item': true, 'active': item.orderStatus == form.orderStatus}" @click="handleTabClick(item.orderStatus)">
+        {{item.orderStatusLabel}}
+        <span v-if="index">({{ item.count }})</span>
+      </div>
     </div>
     <div
       class="ais-table-c"
@@ -233,6 +130,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import DealerSelect from '@/components/dealer-select/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -265,9 +163,9 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    FetchSelect,
     EditPage,
-    Upload
+    Upload,
+    DealerSelect
   },
   data () {
     return {
@@ -311,8 +209,8 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dataSource', label: '数据来源', visible: true, width: 200 },
-          { props: 'orderStatus', label: '工单状态', visible: true, width: 200 },
+          { props: 'dataSourceLabel', label: '数据来源', visible: true, width: 200 },
+          { props: 'orderStatusLabel', label: '工单状态', visible: true, width: 200 },
           { props: 'warrantyTypeCollect', label: '保修类型（汇总）', visible: true, width: 200 },
           { props: 'customerName', label: '车主姓名', visible: true, width: 200 },
           { props: 'custType', label: '客户类型', visible: true, width: 200 },
@@ -367,41 +265,13 @@ export default {
         ],
         total: 0
       },
-      tabList: [
-        {
-          label: '全部',
-          value: ''
-        },
-        {
-          label: '接车预检中(273)',
-          value: 1
-        },
-        {
-          label: '制单中(23)',
-          value: 2
-        },
-        {
-          label: '待派工(435)',
-          value: 3
-        },
-        {
-          label: '施工中(45)',
-          value: 4
-        },
-        {
-          label: '待终检(145)',
-          value: 5
-        },
-        {
-          label: '待交车(98)',
-          value: 6
-        },
-      ]
+      tabList: []
     };
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    this.getTabsList();
   },
   methods: {
     handleListSelect (row) {
@@ -585,6 +455,20 @@ export default {
       this.form.orderStatus = v;
       this.optionObj.form.page = 1;
       this.debouncedGetData();
+    },
+    getTabsList () {
+      getStatistics().then(res => {
+        const target = res || {};
+        this.tabList = [
+          { orderStatusLabel: '全部', orderStatus: '', count: null },
+          target.preCheckCount,
+          target.makeOrderCount,
+          target.dispatchCount,
+          target.constructionCount,
+          target.finalCheckCount,
+          target.outboundCount,
+        ];
+      });
     }
   }
 };
