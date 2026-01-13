@@ -1177,6 +1177,24 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/basic/purchasePrice',
+      name: 'purchasePrice',
+      component: () => import('@/views/sparepart/basic/purchasePrice/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/purchaseprice/edit',
+      name: 'purchasePriceEdit',
+      component: () => import('@/views/sparepart/basic/purchasePrice/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
