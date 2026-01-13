@@ -32,14 +32,15 @@
     <!-- 支持自定义插槽 -->
     <slot name="footer">
       <el-button size="small" @click="handleCancel">{{ cancelText }}</el-button>
-      <el-button size="small" type="primary" @click="handleSave" :loading="loading">{{ saveText }}</el-button>
-      <el-button size="small" type="primary" @click="handleSaveAndClose" :loading="loading">{{ saveAndCloseText }}</el-button>
-      <el-button size="small" type="primary" @click="handleSaveAndNext" :loading="loading">{{ saveAndNextText }}</el-button>
+      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleSave" :loading="loading">{{ saveText }}</el-button>
+      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleSaveAndClose" :loading="loading">{{ saveAndCloseText }}</el-button>
+      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleSaveAndNext" :loading="loading">{{ saveAndNextText }}</el-button>
     </slot>
   </el-footer>
 </template>
 <script>
 import { getRouterPath } from '@/router';
+import permissions from '@/libs/mixins/permissions';
 
 export default {
   props: {
@@ -84,6 +85,13 @@ export default {
       type: String,
       default: '刷新'
     },
+  },
+  inject: ['moduleKey'],
+  mixins: [permissions],
+  created () {
+    if (!this.moduleKey) {
+      console.log(`%c未能获取到moduleKey，按钮权限丢失`, 'color: red; font-weight: bold;');
+    }
   },
   methods: {
     handleCancel () {

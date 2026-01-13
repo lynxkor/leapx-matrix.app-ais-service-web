@@ -1103,6 +1103,7 @@ const routes = [
       component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
       meta: {
         name: '回运单详情',
+        moduleKey: 'AISCR-oldPartReturnOrder',
         noResourceUrl: 'true'
       }
     }, {
@@ -1121,6 +1122,7 @@ const routes = [
       component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
       meta: {
         name: '快返回运单详情',
+        moduleKey: 'AISCR-oldPartReturnOrderFast',
         noResourceUrl: 'true'
       }
     }, {

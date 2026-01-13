@@ -15,7 +15,6 @@
 /**
  * 门店选择组件
  */
-import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { listOrgStoreInfo } from '@/api/common';
 
 export default {
