@@ -52,9 +52,6 @@
         </div>
     </div>
 
-    <!-- 分隔线 -->
-    <el-divider></el-divider>
-
     <!-- 表格区域 -->
     <div class="table-container">
         <el-table
@@ -345,14 +342,14 @@ export default {
   /* 选择区域样式 */
   .selection-section {
     display: flex;;
-    align-items: center;
+    /* align-items: center; */
     margin-bottom: 20px;
   }
 
   .section-title {
     white-space: nowrap;
     font-size: 14px;
-    margin-right: 12px;
+    margin: 6px 12px 6px 0;
     color: #333;
   }
 
@@ -363,7 +360,7 @@ export default {
   }
 
   .selection-item {
-    padding: 8px 16px;
+    padding: 0 16px;
     border: 1px solid #E6E6E5;
     border-radius: 4px;
     background-color: #ffffff;
@@ -372,6 +369,8 @@ export default {
     transition: all 0.3s;
     font-size: 14px;
     user-select: none;
+    height: 32px;
+    line-height: 32px;
   }
 
   .selection-item:hover {
@@ -382,6 +381,7 @@ export default {
 
   .selection-item.selected {
     background-color: #009100;
+    border: 1px solid #009100;
     color: #fff;
     border-radius: 4px;
   }

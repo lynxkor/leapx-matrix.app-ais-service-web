@@ -150,14 +150,15 @@
           />
         </el-form-item>
         <el-form-item label="生成结算单时间">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.createStatementInfoDate"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="form.startWarrantyDate"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
           />
         </el-form-item>
         <el-form-item label="负责人">
@@ -180,11 +181,14 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <!-- <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
+      <!-- <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button> -->
+      <!-- <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
+    </div>
+    <div class="ais-tabs">
+      <div v-for="item in tabList" :key="item.label" :class="{'ais-tabs-item': true, 'active': item.value == form.orderStatus}" @click="handleTabClick(item.value)">{{item.label}}</div>
     </div>
     <div
       class="ais-table-c"
@@ -219,7 +223,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/maintain/sp/serviceProxy/index';
+import { getList, deleteItem, enableItem, getStatistics } from '@/api/maintain/sp/serviceProxy/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -341,7 +345,7 @@ export default {
               },
               type: 'info'
             }, {
-              name: '删除',
+              name: '保存',
               popconfirmTitle: '此操作将永久删除, 是否继续?',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
@@ -362,7 +366,37 @@ export default {
           }
         ],
         total: 0
-      }
+      },
+      tabList: [
+        {
+          label: '全部',
+          value: ''
+        },
+        {
+          label: '接车预检中(273)',
+          value: 1
+        },
+        {
+          label: '制单中(23)',
+          value: 2
+        },
+        {
+          label: '待派工(435)',
+          value: 3
+        },
+        {
+          label: '施工中(45)',
+          value: 4
+        },
+        {
+          label: '待终检(145)',
+          value: 5
+        },
+        {
+          label: '待交车(98)',
+          value: 6
+        },
+      ]
     };
   },
   created () {
@@ -546,6 +580,11 @@ export default {
       //     });
       //   });
       // });
+    },
+    handleTabClick (v) {
+      this.form.orderStatus = v;
+      this.optionObj.form.page = 1;
+      this.debouncedGetData();
     }
   }
 };
@@ -553,5 +592,14 @@ export default {
 
 <style lang="scss" scoped>
 .m-service-proxy-list {
+  ::v-deep .m-vxe-table .m-vxe-table-options {
+    top: -96px;
+  }
+  .ais-actions {
+    margin-bottom: 8px;
+  }
+  .ais-table-c {
+    height: calc(100% - 168px);
+  }
 }
 </style>

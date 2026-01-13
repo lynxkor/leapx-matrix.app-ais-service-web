@@ -119,11 +119,11 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button> -->
-      <el-button v-permission="moduleKey + '-salesImport'" size="small" @click="handleImport('sparePartSalesImport')">销售导入</el-button>
-      <el-button v-permission="moduleKey + '-transportImport'" size="small" @click="handleImport('sparePartTransportImport')">物流导入</el-button>
-      <el-button v-permission="moduleKey + '-purchaseImport'" size="small" @click="handleImport('sparePartPurchaseImport')">采购导入</el-button>
-      <el-button v-permission="moduleKey + '-modelImport'" size="small" @click="handleImport('sparePartModelImport')">车型导入</el-button>
-      <el-button v-permission="moduleKey + '-vfgImport'" size="small" @click="handleImport('sparePartVfgImport')">VFG导入</el-button>
+      <el-button v-permission="moduleKey + '-salesImport'" size="small" @click="handleImport('sparePartSalesImport', '销售导入模板')">销售导入</el-button>
+      <el-button v-permission="moduleKey + '-transportImport'" size="small" @click="handleImport('sparePartTransportImport', '物流导入模板')">物流导入</el-button>
+      <el-button v-permission="moduleKey + '-purchaseImport'" size="small" @click="handleImport('sparePartPurchaseImport', '采购导入模板')">采购导入</el-button>
+      <el-button v-permission="moduleKey + '-modelImport'" size="small" @click="handleImport('sparePartModelImport', '车型导入模板')">车型导入</el-button>
+      <el-button v-permission="moduleKey + '-vfgImport'" size="small" @click="handleImport('sparePartVfgImport', 'VFG导入模板')">VFG导入</el-button>
       <el-button v-permission="moduleKey + '-printImport'" size="small">打印报价单</el-button>
       <!-- <el-button v-permission="moduleKey + '-detail'" size="small">集中视图</el-button> -->
 
@@ -152,6 +152,7 @@
     <Upload
       :visible="uploadDialogVisible"
       :id="importType"
+      :downloadTitle="downloadTitle"
       @close="handleUploadDialogClose"
     />
   </div>
@@ -210,7 +211,8 @@ export default {
   },
   data () {
     return {
-      importType: '',
+      importType: '', // 导出id
+      downloadTitle: '销售导入模板', // 导出标题
       pageTitle: '备件主数据',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
@@ -348,9 +350,9 @@ export default {
       return vrtlist({ vrtNameLike: query });
     },
 
-    handleImport (type) {
-      console.log(type);
+    handleImport (type, val) {
       this.importType = type;
+      this.downloadTitle = val;
       this.uploadDialogVisible = true;
     },
     handleUploadDialogClose () {

@@ -219,7 +219,6 @@
             <el-form inline :model="form" :rules="rules" ref="ruleForm" label-width="160px">
               <el-form-item label="门店名称" prop="dealerName">
                 <el-select
-                  style="width: 305px;"
                   v-model="form.dealerCode"
                   filterable
                   clearable
@@ -428,35 +427,30 @@
           </div>
           <div class="common-section-body">
             <div class="common-section-table">
-              <el-table
+              <edit-table
+                ref="editTable"
+                :columns="supplierColumns"
                 :data="supplierData"
-                style="width: 100%"
-                fit
-                stripe
-                highlight-current-row
-              >
-                <el-table-column prop="supplierCode" label="供应商代码" width="280"></el-table-column>
-                <el-table-column prop="supplierName" label="供应商名称" width="280"></el-table-column>
-              </el-table>
+                :show-toolbar="false"
+                :isFocusNewRow="false"
+              />
             </div>
           </div>
         </section>
         <section class="common-section">
-          <div class="common-section-header">
-            <h2>车型信息 <el-button type="primary" size="small" plain @click.stop="handleModel">维护车型</el-button></h2>
+          <div class="common-section-header modeZb">
+            <h2>车型信息</h2>
+            <div class="modeBtn" @click.stop="handleModel">维护车型</div>
           </div>
           <div class="common-section-body">
             <div class="common-section-table">
-              <el-table
+              <edit-table
+                ref="editTable"
+                :columns="modelColumns"
                 :data="modelData"
-                style="width: 100%"
-                fit
-                stripe
-                highlight-current-row
-              >
-                <el-table-column prop="vehicleYearTypeName" label="车辆年型" width="280"></el-table-column>
-                <el-table-column prop="vehicleModelName" label="车型名称" width="280"></el-table-column>
-              </el-table>
+                :show-toolbar="false"
+                :isFocusNewRow="false"
+              />
             </div>
           </div>
         </section>
@@ -466,23 +460,13 @@
           </div>
           <div class="common-section-body">
             <div class="common-section-table">
-              <el-table
+              <edit-table
+                ref="editTable"
+                :columns="replacementColumns"
                 :data="replacementData"
-                style="width: 100%"
-                fit
-                stripe
-                highlight-current-row
-              >
-                <el-table-column prop="replacementType" label="替换关系" width="180">
-                  <template slot-scope="scope">
-                    {{ scope.row.replacementType === 1 ? '单向替换' : '双向替换' }}
-                  </template>
-                </el-table-column>
-                <el-table-column prop="beforePartCode" label="替换前件号" width="180"></el-table-column>
-                <el-table-column prop="beforePartName" label="替换前名称" width="180"></el-table-column>
-                <el-table-column prop="afterPartCode" label="替换后件号" width="180"></el-table-column>
-                <el-table-column prop="afterPartName" label="替换后名称" width="180"></el-table-column>
-              </el-table>
+                :show-toolbar="false"
+                :isFocusNewRow="false"
+              />
             </div>
           </div>
         </section>
@@ -511,6 +495,7 @@ import { getSupplyList } from '@/api/sparepart/basic/spareSupplyCategory';
 import { getEngineeringList } from '@/api/sparepart/basic/spareEngineeringCategory';
 import { getSalesList } from '@/api/sparepart/basic/spareSalesCategory';
 import ListSelect from '@/libs/components/list-select/index.vue';
+import EditTable from '@/libs/components/EditTable';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -574,7 +559,8 @@ export default {
   components: {
     ListSelect,
     FetchSelect,
-    ModelDialog
+    ModelDialog,
+    EditTable
   },
   data () {
     const form = this.getDefautlForm();
@@ -594,6 +580,57 @@ export default {
       replacementData: [], // 替换件信息
       modelDialogVisible: false, // 适配车型弹窗
       storeOptions: [], // 门店列表
+      supplierColumns: [
+        {
+          field: 'supplierCode',
+          title: '供应商代码',
+          width: '30%',
+        },
+        {
+          field: 'supplierName',
+          title: '供应商名称',
+          width: '70%',
+        }
+      ],
+      modelColumns: [
+        {
+          field: 'vehicleYearTypeName',
+          title: '车辆年型',
+          width: '30%',
+        },
+        {
+          field: 'vehicleModelName',
+          title: '车型名称',
+          width: '70%',
+        }
+      ],
+      replacementColumns: [
+        {
+          field: 'replacementTypeLabel',
+          title: '替换关系',
+          width: '20%',
+        },
+        {
+          field: 'beforePartCode',
+          title: '替换前件号',
+          width: '20%',
+        },
+        {
+          field: 'beforePartName',
+          title: '替换前名称',
+          width: '20%',
+        },
+        {
+          field: 'afterPartCode',
+          title: '替换后件号',
+          width: '20%',
+        },
+        {
+          field: 'afterPartName',
+          title: '替换后名称',
+          width: '20%',
+        }
+      ],
       rules: {
         partCode: [
           { required: true, message: '请输入备件编码', trigger: 'blur' }
@@ -995,3 +1032,26 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+  .modeZb {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: flex-start !important; /* 居左排列 */
+    align-items: center !important; /* 垂直居中 */
+  }
+  .modeZb .modeBtn {
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 14px;
+    border: 1px solid #009100;
+    color: #009100;
+    border-radius: 4px;
+    padding: 0 8px;
+    height: 24px;
+    line-height: 24px;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+  }
+</style>

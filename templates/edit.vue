@@ -2,6 +2,7 @@
   {{{#isProForm}}}
   <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
+      <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container
         ref="containerRef"
         :id="_id"
@@ -224,6 +225,17 @@ export default {
     }
   },
   watch: {
+    {{{#isProForm}}}
+    id: {
+      handler (val) {
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
+        }
+      },
+      immediate: true
+    }
+    {{{/isProForm}}}
+    {{{^isProForm}}}
     id: {
       handler (val) {
         if (val) {
@@ -232,6 +244,7 @@ export default {
       },
       immediate: true
     }
+    {{{/isProForm}}}
   },
   data () {
     const form = this.getDefautlForm();

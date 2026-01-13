@@ -59,8 +59,8 @@
                   <el-form-item label="VRT名称：" prop="vrtName">
                     {{ form.vrtName }}
                   </el-form-item>
-                  <el-form-item label="状态：" prop="status">
-                    {{ form.status }}
+                  <el-form-item label="状态：" prop="statusLabel">
+                    {{ form.statusLabel }}
                   </el-form-item>
                 </el-form>
               </div>

@@ -79,6 +79,7 @@
       <el-button v-if="canAddOrUpdate&&isFastReturn" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button  v-if="canDelete"  size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
+      <el-button  v-if="canSign"  size="small" @click="handleBatchSign" :disabled="selectionList.length === 0">批量签收</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -113,7 +114,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction/index.vue';
-import { getList, deleteItem, enableItem, publish } from '@/api/claimreturn/oldpart/returnorder';
+import { getList, deleteItem, enableItem, publish, signByIds } from '@/api/claimreturn/oldpart/returnorder';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import Upload from '@/libs/components/UploadDialog/index.vue';
@@ -237,7 +238,8 @@ export default {
                 this.$router.push({
                   path: this.editPath,
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true,
                   }
                 });
               },
@@ -248,7 +250,7 @@ export default {
               show: (row) => {
                 return row.returnStatus === '10' && this.canPublish;
               },
-              popconfirmTitle: '是否继续下发?',
+              popconfirmTitle: '是否下发?',
               click: (rowIndex, row) => {
                 publish(row.id).then(() => {
                   this.$message({
@@ -305,6 +307,9 @@ export default {
     },
     canPublish () {
       return this.permissions.has(`${this.moduleKey}-publish`);
+    },
+    canSign () {
+      return this.permissions.has(`${this.moduleKey}-sign`);
     }
   },
   methods: {
@@ -460,6 +465,32 @@ export default {
             type: 'error',
             message: '删除失败!'
           });
+        });
+      }).catch(() => {});
+    },
+    // 批量签收
+    handleBatchSign () {
+      this.selectionList.forEach(item => {
+        if (item.returnStatus !== '30') {
+          this.$message({
+            type: 'error',
+            message: '仅已回运状态数据允许签收!'
+          });
+          throw new Error('仅已回运状态数据允许签收!');
+        }
+      });
+      const ids = this.selectionList.map(item => item.id) || [];
+      this.$confirm('是否签收?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        signByIds(ids).then(() => {
+          this.$message({
+            type: 'success',
+            message: '签收成功!'
+          });
+          this.getData();
         });
       }).catch(() => {});
     },

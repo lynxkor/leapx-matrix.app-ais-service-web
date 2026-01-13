@@ -243,7 +243,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/oldpart/inventory/oem/detail',
+                  path: '/claimreturn/oldpart/inventory/oem/edit',
                   query: {
                     id: row.id
                   }
@@ -368,7 +368,7 @@ export default {
               name: '查看详情',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/oldpart/inventory/oem/detail',
+                  path: '/claimreturn/oldpart/inventory/oem/edit',
                   query: {
                     id: row.id
                   }
