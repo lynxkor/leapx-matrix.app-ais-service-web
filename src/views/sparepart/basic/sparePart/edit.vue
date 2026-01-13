@@ -21,7 +21,7 @@
               <el-form-item label="备件名称" prop="partName">
                 <el-input
                   v-model="form.partName"
-                  disabled="true"
+                  disabled
                   clearable
                 />
               </el-form-item>
