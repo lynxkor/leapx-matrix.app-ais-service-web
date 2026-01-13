@@ -164,7 +164,9 @@
             placeholder="请输入"
             v-model="form.mileage"
             clearable
-          />
+          >
+          <template slot="append">KM</template>
+        </el-input>
         </el-form-item>
         <el-form-item label="车联网里程数（总）：" prop="netMileage">
           <el-input
@@ -194,14 +196,18 @@
             placeholder="请输入"
             v-model="form.departureMileage"
             clearable
-          />
+          >
+          <template slot="append">KM</template>
+        </el-input>
         </el-form-item>
         <el-form-item label="离店车联网里程数（总）：" prop="departureNetMileage">
           <el-input
             placeholder="请输入"
             v-model="form.departureNetMileage"
             clearable
-          />
+          >
+            <template slot="append">KM</template>
+          </el-input>
         </el-form-item>
         <el-form-item label="车辆车型（L）：" prop="departureNetMileage">
           <el-input
@@ -223,7 +229,9 @@
             placeholder="请输入"
             v-model="form.inPower"
             clearable
-          />
+          >
+            <template slot="append">%</template>
+          </el-input>
         </el-form-item>
         <el-form-item label="进店车联网电量%：" prop="inNetPower">
           <el-input
@@ -231,7 +239,9 @@
             v-model="form.inNetPower"
             clearable
             disabled
-          />
+          >
+            <template slot="append">%</template>
+          </el-input>
         </el-form-item>
         <el-form-item label="支付方式：" prop="payType">
           <fetch-select
@@ -256,7 +266,9 @@
             placeholder="请输入"
             v-model="form.outPower"
             clearable
-          />
+          >
+            <template slot="append">%</template>
+          </el-input>
         </el-form-item>
         <el-form-item label="离店车联网电量%：" prop="outNetPower">
           <el-input
@@ -264,7 +276,9 @@
             v-model="form.outNetPower"
             clearable
             disabled
-          />
+          >
+            <template slot="append">%</template>
+          </el-input>
         </el-form-item>
         <el-form-item label="保险公司名称：" prop="warrantyCompany">
           <el-input
@@ -278,6 +292,7 @@
             placeholder="请输入"
             v-model="form.bindingPhone"
             clearable
+            disabled
           />
         </el-form-item>
         <el-form-item label="车联网里程数（纯）：" prop="netMileageElectricity">
@@ -285,6 +300,7 @@
             placeholder="请输入"
             v-model="form.netMileageElectricity"
             clearable
+            disabled
           />
         </el-form-item>
         <el-form-item label="离店车联网里程数（纯）：" prop="departureNetMileageElectricity">
@@ -292,6 +308,7 @@
             placeholder="请输入"
             v-model="form.departureNetMileageElectricity"
             clearable
+            disabled
           />
         </el-form-item>
         <el-form-item label="车联网里程数（增）：" prop="netMileageExtend">
@@ -299,6 +316,7 @@
             placeholder="请输入"
             v-model="form.netMileageExtend"
             clearable
+            disabled
           />
         </el-form-item>
         <el-form-item label="离店车联网里程数（增）：" prop="departureNetMileageExtend">
@@ -306,6 +324,7 @@
             placeholder="请输入"
             v-model="form.departureNetMileageExtend"
             clearable
+            disabled
           />
         </el-form-item>
           <el-form-item label="签字渠道：" prop="signChannel">
@@ -313,6 +332,7 @@
             placeholder="请输入"
             v-model="form.signChannel"
             clearable
+            disabled
           />
         </el-form-item>
         <el-form-item label="签字生成时间：" prop="signGeneratedOn">
@@ -323,6 +343,7 @@
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
+            disabled
           />
         </el-form-item>
         <el-form-item label="签字完成时间：" prop="signCompletedOn">
@@ -333,6 +354,7 @@
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
+            disabled
           />
         </el-form-item>
         <el-form-item label="短信签字链接过期时间：" prop="signUrlExpiredOn">
@@ -343,6 +365,7 @@
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
+            disabled
           />
         </el-form-item>
       </el-form>
@@ -478,16 +501,18 @@
   </section>
 </template>
 <script>
+import FetchSelect from '@/libs/components/FetchSelect';
+
 export default {
   props: {
     formData: {
       type: Object,
       default: () => {}
     },
-    rules: {
-      type: Object,
-      default: () => {}
-    },
+    // rules: {
+    //   type: Object,
+    //   default: () => {}
+    // },
     isEditing: {
       type: Boolean,
       default: false
@@ -498,19 +523,36 @@ export default {
     }
   },
   components: {
+    FetchSelect
   },
   watch: {
     formData: {
       handler (val) {
         if (val) {
+          console.log(val);
           this.form = val;
         }
-      }
+      },
+      immediate: true
     }
   },
   data () {
     return {
-      form: {}
+      form: {},
+      rules: {
+        vehProfileVin: [
+          { required: true, message: '请输入VIN', trigger: 'change' }
+        ],
+        mileage: [
+          { required: true, message: '请输入进店里程数', trigger: 'change' }
+        ],
+        shuttleName: [
+          { required: true, message: '请输入送修人姓名', trigger: 'change' }
+        ],
+        shuttlePhone: [
+          { required: true, message: '请输入送修人手机', trigger: 'change' }
+        ],
+      }
     };
   }
 };

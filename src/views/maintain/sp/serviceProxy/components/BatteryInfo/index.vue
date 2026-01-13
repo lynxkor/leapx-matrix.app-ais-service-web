@@ -79,7 +79,8 @@ export default {
         if (val) {
           this.form = val;
         }
-      }
+      },
+      immediate: true
     }
   },
   data () {

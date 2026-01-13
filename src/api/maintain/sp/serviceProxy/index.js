@@ -32,7 +32,7 @@ export function deleteItem (data) {
  * @param {Object} data
  */
 export function getDetail (data) {
-  return api.jsonPost(prefix + 'get', data);
+  return api.jsonPost(prefix + 'detail', data);
 }
 
 /**

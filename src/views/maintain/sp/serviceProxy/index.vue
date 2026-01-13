@@ -122,7 +122,6 @@ import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, getStatistics } from '@/api/maintain/sp/serviceProxy/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
-import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -211,20 +210,54 @@ export default {
           },
           { props: 'dataSourceLabel', label: '数据来源', visible: true, width: 200 },
           { props: 'orderStatusLabel', label: '工单状态', visible: true, width: 200 },
+          { props: 'vehProfileVin', label: 'VIN', visible: true, width: 200 },
           { props: 'warrantyTypeCollect', label: '保修类型（汇总）', visible: true, width: 200 },
           { props: 'customerName', label: '车主姓名', visible: true, width: 200 },
           { props: 'custType', label: '客户类型', visible: true, width: 200 },
-          { props: 'vehModelName', label: '基本车型', visible: true, width: 200 },
+          {
+            props: 'vehModelName',
+            label: '车型',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/sales/datacenter/materials/vehicleModel/detail?id=${row.vehModelId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'carPlate', label: '车牌号', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          {
+            props: 'dealerName',
+            label: '门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopBasicsMessageDetails?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'appointmentNo', label: '预约单号', visible: true, width: 200 },
           { props: 'mileage', label: '进店里程数', visible: true, width: 200 },
           { props: 'lastMileage', label: '上次进店里程数', visible: true, width: 200 },
           { props: 'startWarrantyDate', label: '保修开始日期', visible: true, width: 200 },
-          { props: 'exclusiveServiceDealerName', label: '专属服务门店', visible: true, width: 200 },
+          {
+            props: 'exclusiveServiceDealerName',
+            label: '专属服务门店',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopBasicsMessageDetails?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'expectFinishAt', label: '预计交车时间', visible: true, width: 200 },
-          { props: 'createStatementInfoDate', label: '生成结算单时间', visible: true, width: 200 },
-          { props: 'serviceOwnerId', label: '负责人', visible: true, width: 200 },
+          { props: 'creatorName', label: '登记人', visible: true, width: 200 },
+          { props: 'createTime', label: '开单时间', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',
