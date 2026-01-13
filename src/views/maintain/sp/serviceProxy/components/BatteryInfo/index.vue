@@ -6,10 +6,13 @@
     <div class="common-section-body">
       <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
         <el-form-item label="电池去向单位：" prop="batteryUnitId">
-          <el-input
-            placeholder="请输入"
-            v-model="form.batteryUnitId"
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="StatusEnum"
+            v-model="form.businessType"
+            placeholder="请选择"
             clearable
+            filterable
           />
         </el-form-item>
         <el-form-item label="去向单位统一代码：" prop="targetUnitCode">
@@ -17,6 +20,7 @@
             placeholder="请输入"
             v-model="form.targetUnitCode"
             clearable
+            disabled
           />
         </el-form-item>
         <el-form-item label="更换前编号：" prop="beforeChangeCode">
@@ -52,6 +56,9 @@
   </section>
 </template>
 <script>
+import FetchSelect from '@/libs/components/FetchSelect';
+import { getEnum } from '@/api/common';
+
 export default {
   props: {
     formData: {
@@ -72,6 +79,7 @@ export default {
     }
   },
   components: {
+    FetchSelect
   },
   watch: {
     formData: {
@@ -87,6 +95,26 @@ export default {
     return {
       form: {}
     };
+  },
+  methods: {
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
+    },
+    getFormData () {
+      return new Promise((resolve, reject) => {
+        this.$refs.ruleForm.validate((valid) => {
+          if (valid) {
+            resolve(this.form);
+          }
+        });
+      });
+    },
+    clearValidate () {
+      this.$refs.ruleForm.clearValidate();
+    }
   }
 };
 
