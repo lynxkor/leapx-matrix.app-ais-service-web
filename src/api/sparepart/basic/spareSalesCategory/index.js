@@ -3,7 +3,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/basic/spareSalesCategory/';
-const prefixDeale = '/sp/web/basic/categoryPurchaseDealer/';
+const prefixDeale = SPARE_PREFIX + '/web/basic/categoryPurchaseDealer/';
 
 export function getSalesList (data) {
   return api.jsonPost(prefix + 'list', data);

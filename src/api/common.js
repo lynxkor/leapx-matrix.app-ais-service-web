@@ -100,6 +100,14 @@ export function listOrgStoreInfo (data) {
 }
 
 /**
+ * 门店搜索加强：code或name 模糊搜索
+ * @param {*} data
+ */
+export function listOrgStoreInfoByParam (data) {
+  return api.jsonPost('/accountService/orgInfo/listOrgStoreInfoByParam', data);
+}
+
+/**
  * 车型统一 id  name 搜索
  * @param {*} data
  */

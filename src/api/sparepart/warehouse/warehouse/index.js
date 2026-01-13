@@ -3,6 +3,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/warehouse/warehouse/';
+const localtion_prefix = SPARE_PREFIX + '/web/warehouse/location/';
 
 /**
  * 查询列表
@@ -42,6 +43,14 @@ export function getDetail (data) {
  */
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
+}
+
+/**
+ * 门店备件库位表新增/编辑
+ * @param {Object} data
+ */
+export function locationList (data) {
+  return api.jsonPost(localtion_prefix + 'list', data);
 }
 
 /**
