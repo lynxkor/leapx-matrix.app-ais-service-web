@@ -27,7 +27,7 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="门店编码">
+                <el-form-item label="门店编码：" prop="dealerCode">
                   <fetch-select
                     :remote-method="getDealerList"
                     remote
@@ -39,30 +39,30 @@
                     clearable
                     collapseTags
                     filterable
-                      />
+                    @change="handleDealerChange"
+                  />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.dealerName"
+                    clearable
+                    disabled
+                  />
                 </el-form-item>
                 <el-form-item label="订单类型：" prop="orderType">
                   <fetch-select
                     :request="fetchOptions"
-                    enumCode="xxx"
+                    enumCode="PurchaseOrderTypeEnum"
                     v-model="form.orderType"
                     placeholder="请选择"
                     clearable
                     filterable
                   />
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
-                </el-form-item>
                 <el-form-item label="调价比例%：" prop="percent">
                   <el-input
+                    type="number"
                     placeholder="请输入"
                     v-model="form.percent"
                     clearable
@@ -70,6 +70,7 @@
                 </el-form-item>
                 <el-form-item label="原价优惠券数：" prop="originalPriceCoupon">
                   <el-input
+                    type="number"
                     placeholder="请输入"
                     v-model="form.originalPriceCoupon"
                     clearable
@@ -78,21 +79,29 @@
                 <el-form-item label="优惠券有效期：" prop="couponValidityPeriod">
                   <fetch-select
                     :request="fetchOptions"
-                    enumCode="xxx"
+                    enumCode="CouponValidityPeriodEnum"
                     v-model="form.couponValidityPeriod"
                     placeholder="请选择"
                     clearable
-                    filterable
                   />
                 </el-form-item>
                 <el-form-item label="优惠券发放时间：" prop="couponIssueTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
+                  <fetch-select
+                    :request="fetchOptions"
+                    enumCode="CouponIssuanceTimeEnum"
                     v-model="form.couponIssueTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
+                    placeholder="请选择"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="备注：" prop="remark" class="full-width-item">
+                  <el-input
+                    type="textarea"
+                    show-word-limit
+                    maxlength="500"
+                    placeholder="请输入"
+                    v-model="form.remark"
+                    clearable
                   />
                 </el-form-item>
               </el-form>
@@ -109,9 +118,6 @@
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
-                </el-form-item>
                 <el-form-item label="调价比例%：" prop="percent">
                   {{ form.percent }}
                 </el-form-item>
@@ -124,25 +130,72 @@
                 <el-form-item label="优惠券发放时间：" prop="couponIssueTime">
                   {{ form.couponIssueTimeLabel }}
                 </el-form-item>
+                <el-form-item label="备注：" prop="remark" class="full-width-item">
+                  {{ form.remark }}
+                </el-form-item>
               </el-form>
             </div>
           </section>
-          <section class="common-section">
+          <section class="common-section" v-if="_id || couponId">
             <div class="common-section-header">
-              <h2>区块标题</h2>
-              <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              <h2>优惠券信息</h2>
             </div>
             <div class="common-section-body">
+              <div>
+                <el-form :inline="true" :model="form" ref="ruleForm" label-width="100px" class="form-edit">
+                  <el-form-item label="新增原价券数：" prop="name">
+                    <el-input
+                      type="number"
+                      placeholder="请输入"
+                      v-model="couponObj.count"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="新增原因：" prop="name">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="couponObj.remark"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button class="ais-button" plain size="small" type="primary" @click="handleSubmit">新增优惠券</el-button>
+                  </el-form-item>
+                </el-form>
+              </div>
               <div class="common-section-table">
                 <edit-table
                   ref="editTable"
                   :columns="columns"
                   :data="tableData"
-                  :defaultNewRow="defaultNewRow"
                   :show-toolbar="false"
-                  :options="options"
-                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
-                />
+                  :defaultNewRow="defaultNewRow"
+                  :auth="{
+                    add: false,
+                    edit: false,
+                    delete: false,
+                  }"
+                  :current="current"
+                  :pageSize="pageSize"
+                  :total="total"
+                  @page-size-change="pageSizeChange"
+                  @current-page-change="currentPageChange"
+                >
+                  <template #btn-middle="{ row }">
+                    <el-popconfirm
+                      v-if="row.couponStatus == 10"
+                      title="确定要将此优惠券作废吗？"
+                      @confirm="disableStatus(row)"
+                    >
+                      <span
+                        slot="reference"
+                        class="action-button"
+                      >
+                      失效
+                      </span>
+                    </el-popconfirm>
+                  </template>
+                </edit-table>
               </div>
             </div>
           </section>
@@ -158,12 +211,12 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/basic/purchasePrice/index';
+import { getDetail, addOrUpdate, addCoupon, listCoupon, enableOrDisable } from '@/api/sparepart/basic/purchasePrice/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
+import { getEnum, listOrgStoreInfoByParam } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -181,20 +234,6 @@ const defaultForm = {
   couponValidityPeriod: '',
   couponIssueTime: '',
   remark: '',
-  createTime: '',
-  updateTime: '',
-  id: '',
-  creator: '',
-  creatorName: '',
-  modifier: '',
-  modifierName: '',
-  statusDesc: '',
-  orderTypeList: '',
-  dealerCodeList: '',
-  adjustmentType: '',
-  adjustmentTypeList: '',
-  couponValidityPeriodList: '',
-  couponIssueTimeList: '',
 };
 
 export default {
@@ -245,6 +284,14 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
+      couponObj: {
+        count: null,
+        remark: ''
+      },
+      couponId: '',
+      current: 1,
+      pageSize: 10,
+      total: 0,
       defaultNewRow: {
         name: '',
       },
@@ -259,27 +306,44 @@ export default {
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
-          field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
+          field: 'id',
+          title: '优惠券ID',
+          width: '13%',
         },
         {
-          field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
+          field: 'validStart',
+          title: '有效开始日期',
+          width: '13%',
         },
         {
-          field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
+          field: 'validEnd',
+          title: '有效结束日期',
+          width: '13%',
+        },
+        {
+          field: 'couponStatusLabel',
+          title: '优惠券状态',
+          width: '13%',
+        },
+        {
+          field: 'purchaseOrderId',
+          title: '业务单据',
+          width: '13%',
+        },
+        {
+          field: 'useTime',
+          title: '使用时间',
+          width: '13%',
+        },
+        {
+          field: 'remark',
+          title: '备注',
+          width: '13%',
+        },
+        {
+          field: 'createTime',
+          title: '创建时间',
+          width: '13%',
         },
       ],
       rules: {
@@ -290,10 +354,10 @@ export default {
           { required: true, message: '请输入门店编码', trigger: 'change' }
         ],
         dealerName: [
-          { required: true, message: '请输入门店名称', trigger: 'change' }
+          { required: false, message: '请输入门店名称', trigger: 'change' }
         ],
         orderType: [
-          { required: true, message: '请选择订单类型：1-普通订单，2-紧急订单，3-铺货订单，4-定制订单，5-领料订单，6-活动订单', trigger: 'change' }
+          { required: true, message: '请选择订单类型：', trigger: 'change' }
         ],
         percent: [
           { required: true, message: '请输入调价比例%', trigger: 'change' }
@@ -301,64 +365,19 @@ export default {
         originalPriceCoupon: [
           { required: true, message: '请输入原价优惠券数', trigger: 'change' }
         ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
         couponValidityPeriod: [
-          { required: true, message: '请选择优惠券有效期：1-按月', trigger: 'change' }
+          { required: true, message: '请选择优惠券有效期：', trigger: 'change' }
         ],
         couponIssueTime: [
-          { required: true, message: '请选择优惠券发放时间：1-每月1号', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        orderTypeList: [
-          { required: true, message: '请选择', trigger: 'change' }
-        ],
-        dealerCodeList: [
-          { required: true, message: '请输入', trigger: 'change' }
-        ],
-        adjustmentType: [
-          { required: true, message: '请选择调价类型：1-追加邮费', trigger: 'change' }
-        ],
-        adjustmentTypeList: [
-          { required: true, message: '请选择', trigger: 'change' }
-        ],
-        couponValidityPeriodList: [
-          { required: true, message: '请选择', trigger: 'change' }
-        ],
-        couponIssueTimeList: [
-          { required: true, message: '请选择', trigger: 'change' }
+          { required: true, message: '请选择优惠券发放时间：', trigger: 'change' }
         ],
       }
     };
   },
   mounted () {
+    if (this.$route.query.id) {
+      this.getCouponList(this.$route.query.id);
+    }
   },
   methods: {
     detailRequest () {
@@ -368,7 +387,10 @@ export default {
       }
     },
     submitRequest () {
-      return addOrUpdate({ ...this.form });
+      addOrUpdate({ ...this.form }).then((res) => {
+        this.couponId = res || '';
+        this.getCouponList(this.couponId);
+      });
     },
     // 打开侧边栏
     openPane () {
@@ -407,7 +429,74 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    // 门店
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        return [];
+      }
+    },
+    // 点击带出门店名称
+    handleDealerChange (val, ele) {
+      this.form.dealerName = ele.orgName;
+    },
+    // 新增优惠券信息
+    async handleSubmit () {
+      const id = this._id ?? this.couponId;
+      const params = {
+        purchasePriceId: id,
+        count: Number(this.couponObj.count),
+        remark: this.couponObj.remark
+      };
+      await addCoupon(params);
+      this.couponObj = {};
+      this.getCouponList(id);
+    },
+    // 请求优惠券信息
+    async getCouponList (val) {
+      const params = {
+        purchasePriceId: val,
+        pageNum: this.current,
+        pageSize: this.pageSize
+      };
+      const res = await listCoupon(params);
+      this.tableData = res.records || [];
+      this.total = res.total || 0;
+    },
+    pageSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.current = 1;
+      const id = this._id ?? this.couponId;
+      this.getCouponList(id);
+    },
+    currentPageChange (current) {
+      this.current = current;
+      const id = this._id ?? this.couponId;
+      this.getCouponList(id);
+    },
+    // 停用优惠券
+    async disableStatus (row) {
+      const id = this._id ?? this.couponId;
+      const params = { id: row.id };
+      await enableOrDisable(params);
+      this.getCouponList(id);
     }
   }
 };
 </script>
+<style lang="scss" scoped>
+.full-width-item {
+  width: 100%;
+}
+.ais-button {
+  margin-left: 20px;
+}
+.action-button{
+  margin: 0 5px;
+  cursor: pointer;
+  color: #B91919;
+}
+</style>
