@@ -13,6 +13,8 @@
                     <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
                   </div>
                   <ButtonGroup maxWidth="50%" v-else>
+                    <el-button size="small" @click="materialReturnDialogVisible = true">退料</el-button>
+                    <el-button size="small" @click="startWorkDialogVisible = true">作业开始</el-button>
                     <el-button size="small" @click="handlePreCheck">预检确认</el-button>
                     <el-button size="small" @click="selectRepairItemDialogVisible = true">选择维修项目</el-button>
                     <el-button size="small" @click="confirmDocDialogVisible = true">制单确认并签字</el-button>
@@ -27,20 +29,18 @@
                   </ButtonGroup>
               </div>
               <h5>
-                <span>签字状态：{{ form.activityCode }}</span>
+                <span>签字状态：{{ form.signStatus || '-' }}</span>
                 <i>|</i>
-                <span>工单状态：{{ form.activityCode }}</span>
+                <span>工单状态：{{ form.orderStatusLabel || '-' }}</span>
                 <i>|</i>
-                <span>领料状态：{{ form.activityCode }}</span>
+                <span>领料状态：{{ form.pickStatus || '-' }}</span>
                 <i>|</i>
-                <span>领料状态：{{ form.activityCode }}</span>
-                <i>|</i>
-                <span>开单时间：{{ form.activityCode }}</span>
+                <span>开单时间：{{ form.createTime || '-' }}</span>
               </h5>
             </section>
-            <BasicInfo :formData="form" :rules="rules" :isEditing="isEditing" :_id="_id"/>
-            <EntrustInfo :formData="form" :rules="rules" :isEditing="isEditing" :_id="_id"/>
-            <BatteryInfo :formData="form" :rules="rules" :isEditing="isEditing" :_id="_id"/>
+            <BasicInfo :formData="form" :rules="rules" :isEditing="isEditing" :_id="_id" ref="basicInfoRef"/>
+            <EntrustInfo :formData="form" :rules="rules" :isEditing="isEditing" :_id="_id" ref="entrustInfoRef"/>
+            <BatteryInfo :formData="form" :rules="rules" :isEditing="isEditing" :_id="_id" ref="batteryInfoRef"/>
             <InquiryInfo :formData="form"/>
             <RepairInfo :formData="form"/>
             <SparepartsInfo :formData="form"/>
@@ -49,7 +49,7 @@
           </el-main>
           <el-footer height="60px" v-if="!_id">
             <el-button size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-            <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
+            <el-button size="small" type="primary" plain @click="submitForm('ruleForm', true)">保存并下一个</el-button>
             <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
             <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
           </el-footer>
@@ -780,7 +780,8 @@ export default {
       this.$refs.editLayout.openPane();
     },
     handleCancel () {
-      this.$refs.basicForm.clearValidate();
+      this.$refs.basicInfoRef.clearValidate();
+      this.$refs.entrustInfoRef.clearValidate();
       this.isEditing = false;
     },
     handleShowLog () {
@@ -807,35 +808,32 @@ export default {
     },
     async submitForm (formName, rest = false) {
       try {
-        const tableData = await this.handleSaveTable();
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            this.submitLoading = true;
-            // TIPS: customKey 根据接口格式修改
-            addOrUpdate({ ...this.form, customKey: tableData }).then(res => {
-              this.$message({
-                message: '保存成功',
-                type: 'success'
-              });
-              const id = res;
-              if (rest || !id) {
-                this.resetForm(formName);
-              } else {
-                if (this.form.id) {
-                  this.getDetailData();
-                } else {
-                  this.$router.push({
-                    path: '/maintain/sp/serviceProxy/edit',
-                    query: {
-                      id
-                    }
-                  });
+        const basicInfo = await this.$refs.basicInfoRef.getFormData();
+        const entrustInfo = await this.$refs.entrustInfoRef.getFormData();
+        const batteryInfo = await this.$refs.batteryInfoRef.getFormData();
+        this.submitLoading = true;
+        addOrUpdate({ ...this.form, ...basicInfo, ...entrustInfo, ...batteryInfo }).then(res => {
+          this.$message({
+            message: '保存成功',
+            type: 'success'
+          });
+          const id = res;
+          if (rest || !id) {
+            this.resetForm(formName);
+          } else {
+            if (this.form.id) {
+              this.getDetailData();
+            } else {
+              this.$router.push({
+                path: '/maintain/sp/serviceProxy/edit',
+                query: {
+                  id
                 }
-              }
-            }).finally(() => {
-              this.submitLoading = false;
-            });
+              });
+            }
           }
+        }).finally(() => {
+          this.submitLoading = false;
         });
       } catch (error) {
         console.log(error);

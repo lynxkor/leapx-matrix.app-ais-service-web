@@ -50,3 +50,19 @@ export function enableItem (data) {
 export function getStatistics (data) {
   return api.jsonPost(prefix + 'statistics', data);
 }
+
+/**
+ * 获取字典
+ * @param {Object} data
+ */
+export function getEnum (code) {
+  return api.jsonPost(`maintain/web/common/enum/${code}`);
+}
+
+/**
+ * 查询车辆档案
+ * @param {Object} data
+ */
+export function getVehicleProfile (data) {
+  return api.jsonPost('datacenter/web/vehicle/vehicleProfile/listFull', data);
+}

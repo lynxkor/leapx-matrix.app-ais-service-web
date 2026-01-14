@@ -5,7 +5,7 @@
     </div>
     <div class="common-section-body">
       <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-      <el-form :inline="true" :model="form" :rules="rules" ref="basicForm" label-width="180px" class="form-edit" v-if="isEditing || !_id">
+      <el-form :inline="true" :model="form" :rules="rules" ref="basicForm" label-width="190px" class="form-edit" v-if="isEditing || !_id">
         <el-form-item label="单据编号：" prop="code">
           <el-input
             placeholder="请输入"
@@ -15,10 +15,16 @@
           />
         </el-form-item>
         <el-form-item label="VIN码：" prop="vehProfileVin">
-          <el-input
-            placeholder="请输入"
-            v-model="form.vehProfileVin"
+          <fetch-select
+            filterable
             clearable
+            remote
+            reserve-keyword
+            v-model="form.vehProfileVin"
+            :remote-method="searchVehicle"
+            @change="handleVinChange"
+            value-key="id"
+            label-key="carSalesVersionName"
           />
         </el-form-item>
         <el-form-item label="车牌号：" prop="carPlate">
@@ -66,7 +72,7 @@
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.saleDate"
-            :picker-options="pickerOptions"
+            placeholder="请选择日期"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -93,7 +99,7 @@
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.maintenanceTime"
-            :picker-options="pickerOptions"
+            placeholder="请选择日期"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -104,7 +110,7 @@
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.startWarrantyDate"
-            :picker-options="pickerOptions"
+            placeholder="请选择日期"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -222,6 +228,7 @@
             placeholder="请输入"
             v-model="form.shuttlePhone"
             clearable
+            maxlength="11"
           />
         </el-form-item>
         <el-form-item label="进店电量%：" prop="inPower">
@@ -339,7 +346,7 @@
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.signGeneratedOn"
-            :picker-options="pickerOptions"
+            placeholder="请选择日期"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -350,7 +357,7 @@
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.signCompletedOn"
-            :picker-options="pickerOptions"
+            placeholder="请选择日期"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -361,7 +368,7 @@
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.signUrlExpiredOn"
-            :picker-options="pickerOptions"
+            placeholder="请选择日期"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -502,6 +509,8 @@
 </template>
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
+import { getEnum } from '@/api/common';
+import { getVehicleProfile } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   props: {
@@ -529,7 +538,6 @@ export default {
     formData: {
       handler (val) {
         if (val) {
-          console.log(val);
           this.form = val;
         }
       },
@@ -554,6 +562,54 @@ export default {
         ],
       }
     };
+  },
+  methods: {
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
+    },
+    getFormData () {
+      return new Promise((resolve, reject) => {
+        this.$refs.basicForm.validate((valid) => {
+          if (valid) {
+            resolve(this.form);
+          }
+        });
+      });
+    },
+    clearValidate () {
+      this.$refs.basicForm.clearValidate();
+    },
+    searchVehicle (query) { return getVehicleProfile({ searchVin: query }); },
+    handleVinChange (val, record) {
+      if (record) {
+        const data = {
+          vehProfileVin: record.carSalesVersionName,
+          carPlate: record.vehiclePlateNo,
+          maintenanceMileage: record.vehicleProfileServiceResp.nextMaintainMileages, // 建议保养里程
+          maintenanceTime: record.vehicleProfileServiceResp.nextMaintainDate, // 建议保养时间
+          customerName: record.vehicleProfileOwnerResp.ownerName, // 车主姓名
+          customerPhone: record.vehicleProfileOwnerResp.mobilephone, // 车主手机
+          exclusiveServiceDealerId: record.vehicleProfileServiceResp.serviceDealerCode, // 专属服务门店
+          exclusiveServiceDealerName: record.vehicleProfileServiceResp.serviceDealerName, // 专属服务门店
+          dedicatedServiceManagerId: record.vehicleProfileServiceResp.serviceUserId, // 专属客户经理
+          startWarrantyDate: record.vehicleProfileServiceResp.warrantyStartdate, // 保修开始日期
+          saleDate: record.salesDate, // 销售日期
+          motorModel: record.motorModel, // 电机型号
+          motorSerialNumber: record.motorSerialNumber, // 电机序列号
+          batteryModel: record.batteryModel, // 电池型号
+          batterySerialNumber: record.batterySerialNumber, // 电池序列号
+          vehModelId: record.vehicleModelId, // 基本车型
+          vehRegisteredModelId: record.carSaleSversionId, // 公告车型
+          vehYearTypeId: record.vehicleYearId, // 车辆车型（L）
+          engineNumber: record.enginenNumber, // 发动机号
+        };
+        Object.assign(this.form, { ...data });
+        console.log(data);
+      }
+    }
   }
 };
 

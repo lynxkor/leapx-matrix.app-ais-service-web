@@ -43,3 +43,27 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 零件特殊采购价优惠券表新增/编辑
+ * @param {Object} data
+ */
+export function addCoupon (data) {
+  return api.jsonPost('sp/web/basic/purchasePriceCoupon/addOrUpdate', data);
+}
+
+/**
+ * 零件特殊采购价优惠券表分页查询
+ * @param {Object} data
+ */
+export function listCoupon (data) {
+  return api.jsonPost('sp/web/basic/purchasePriceCoupon/page', data);
+}
+
+/**
+ * 零件特殊采购价优惠券表启用/禁用
+ * @param {Object} data
+ */
+export function enableOrDisable (data) {
+  return api.jsonPost('sp/web/basic/purchasePriceCoupon/disable', data);
+}

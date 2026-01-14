@@ -8,7 +8,7 @@
         <el-form-item label="维修类型（汇总）：" prop="repairItemTypeDetailCollect">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
+            enumCode="StatusEnum"
             v-model="form.repairItemTypeDetailCollect"
             placeholder="请选择"
             clearable
@@ -19,7 +19,7 @@
         <el-form-item label="业务类型：" prop="businessType">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
+            enumCode="BusinessTypeEnum"
             v-model="form.businessType"
             placeholder="请选择"
             clearable
@@ -37,7 +37,7 @@
         <el-form-item label="是否已生成结算单：" prop="isCreateStatementInfo">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
+            enumCode="StatusEnum"
             v-model="form.isCreateStatementInfo"
             placeholder="请选择"
             clearable
@@ -48,8 +48,8 @@
         <el-form-item label="预计交车时间：" prop="expectFinishAt">
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
+            placeholder="请选择日期"
             v-model="form.expectFinishAt"
-            :picker-options="pickerOptions"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -66,8 +66,8 @@
         <el-form-item label="预检完成时间：" prop="previewingFinishAt">
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
+            placeholder="请选择日期"
             v-model="form.previewingFinishAt"
-            :picker-options="pickerOptions"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -77,8 +77,8 @@
         <el-form-item label="生成结算单时间：" prop="createStatementInfoDate">
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
+            placeholder="请选择日期"
             v-model="form.createStatementInfoDate"
-            :picker-options="pickerOptions"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -98,8 +98,8 @@
         <el-form-item label="制单完成时间：" prop="confirmedOn">
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
+            placeholder="请选择日期"
             v-model="form.confirmedOn"
-            :picker-options="pickerOptions"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -119,8 +119,8 @@
         <el-form-item label="计划作业时间：" prop="expectStartAt">
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
+            placeholder="请选择日期"
             v-model="form.expectStartAt"
-            :picker-options="pickerOptions"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -138,8 +138,8 @@
         <el-form-item label="实际作业时间：" prop="startAt">
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
+            placeholder="请选择日期"
             v-model="form.startAt"
-            :picker-options="pickerOptions"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -157,8 +157,8 @@
         <el-form-item label="完成作业时间：" prop="finishAt">
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
+            placeholder="请选择日期"
             v-model="form.finishAt"
-            :picker-options="pickerOptions"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -378,6 +378,7 @@
 </template>
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
+import { getEnum } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   props: {
@@ -426,6 +427,26 @@ export default {
         ],
       }
     };
+  },
+  methods: {
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
+    },
+    getFormData () {
+      return new Promise((resolve, reject) => {
+        this.$refs.ruleForm.validate((valid) => {
+          if (valid) {
+            resolve(this.form);
+          }
+        });
+      });
+    },
+    clearValidate () {
+      this.$refs.ruleForm.clearValidate();
+    }
   }
 };
 
