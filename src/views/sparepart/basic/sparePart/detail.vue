@@ -152,6 +152,54 @@
           </el-form>
         </div>
       </section>
+      <section class="common-section">
+          <div class="common-section-header">
+            <h2>供应商信息</h2>
+          </div>
+          <div class="common-section-body">
+            <div class="common-section-table">
+              <edit-table
+                ref="editTable"
+                :columns="supplierColumns"
+                :data="supplierData"
+                :show-toolbar="false"
+                :isFocusNewRow="false"
+              />
+            </div>
+          </div>
+        </section>
+        <section class="common-section">
+          <div class="common-section-header">
+            <h2>车型信息</h2>
+          </div>
+          <div class="common-section-body">
+            <div class="common-section-table">
+              <edit-table
+                ref="editTable"
+                :columns="modelColumns"
+                :data="modelData"
+                :show-toolbar="false"
+                :isFocusNewRow="false"
+              />
+            </div>
+          </div>
+        </section>
+        <section class="common-section">
+          <div class="common-section-header">
+            <h2>替换件信息</h2>
+          </div>
+          <div class="common-section-body">
+            <div class="common-section-table">
+              <edit-table
+                ref="editTable"
+                :columns="replacementColumns"
+                :data="replacementData"
+                :show-toolbar="false"
+                :isFocusNewRow="false"
+              />
+            </div>
+          </div>
+        </section>
     </template>
   </div>
 </template>
@@ -161,11 +209,13 @@ import { getDetail } from '@/api/sparepart/basic/sparePart/index';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import EditTable from '@/libs/components/EditTable';
 
 export default {
   name: 'sparePartDetail',
   mixins: [permissions, commonMixins],
   components: {
+    EditTable
   },
   data () {
     return {
@@ -175,6 +225,60 @@ export default {
       moduleKey: 'AISPART-sparePart',
       loading: true,
       info: {},
+      modelData: [], // 车型信息
+      supplierData: [], // 供应商信息
+      replacementData: [], // 替换件信息
+      supplierColumns: [
+        {
+          field: 'supplierCode',
+          title: '供应商代码',
+          width: '30%',
+        },
+        {
+          field: 'supplierName',
+          title: '供应商名称',
+          width: '70%',
+        }
+      ],
+      modelColumns: [
+        {
+          field: 'vehicleYearTypeName',
+          title: '车辆年型',
+          width: '30%',
+        },
+        {
+          field: 'vehicleModelName',
+          title: '车型名称',
+          width: '70%',
+        }
+      ],
+      replacementColumns: [
+        {
+          field: 'replacementTypeLabel',
+          title: '替换关系',
+          width: '20%',
+        },
+        {
+          field: 'beforePartCode',
+          title: '替换前件号',
+          width: '20%',
+        },
+        {
+          field: 'beforePartName',
+          title: '替换前名称',
+          width: '20%',
+        },
+        {
+          field: 'afterPartCode',
+          title: '替换后件号',
+          width: '20%',
+        },
+        {
+          field: 'afterPartName',
+          title: '替换后名称',
+          width: '20%',
+        }
+      ],
       yes_no_enum_map: YES_NO_ENUM_MAP
     };
   },
@@ -195,6 +299,9 @@ export default {
       getDetail(this.$route.query.id).then(res => {
         this.loading = false;
         this.info = res;
+        this.supplierData = res.sparePartSupplierRespList || []; // 供应商信息
+        this.modelData = res.sparePartVehicleModelRespList || []; // 车型信息
+        this.replacementData = res.sparePartReplacerRespList || []; // 替换件信息
       }).catch(() => {
         this.loading = false;
       });
