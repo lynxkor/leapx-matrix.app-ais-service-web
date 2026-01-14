@@ -59,7 +59,7 @@
                   {{form.vin}}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  <el-button @click="$router.push(`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}&num=2`)" type="text">{{form.dealerName}}</el-button>
+                  <el-button @click="goToDealer(form.dealerCode)" type="text">{{form.dealerName}}</el-button>
                 </el-form-item>
                 <el-form-item label="接车施工单：" prop="serviceProxyNo">
                   <el-button @click="$router.push(`/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`)" type="text">{{form.serviceProxyNo}}</el-button>

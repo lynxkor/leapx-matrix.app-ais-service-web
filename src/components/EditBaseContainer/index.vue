@@ -71,8 +71,8 @@
         @submit="handleSubmit"
       >
         <!-- headers -->
-        <template v-if="$slots.title" #title>
-          <slot name="title"></slot>
+        <template v-if="$slots.status" #status>
+          <slot name="status"></slot>
         </template>
         <template v-if="$slots.extraButtons" #extraButtons>
           <slot name="extraButtons"></slot>
