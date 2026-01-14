@@ -238,10 +238,7 @@
                 </el-select>
               </el-form-item>
               <el-form-item label="是否启用" prop="status">
-                <el-radio-group v-model="form.status" disabled="false">
-                  <el-radio label="1">是</el-radio>
-                  <el-radio label="0">否</el-radio>
-                </el-radio-group>
+                {{ form.statusLabel  }}
               </el-form-item>
               <el-form-item label="供应商起订量" prop="supplierMinOrderQuantity">
                 <el-input

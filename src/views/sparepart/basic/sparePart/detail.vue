@@ -64,7 +64,7 @@
             <el-form-item label="营销分类：" prop="marketingType">
               {{ info.marketingTypeLabel  }}
             </el-form-item>
-            <el-form-item label="销售物料分类" prop="categorySpareSalesId">
+            <el-form-item label="销售物料分类：" prop="categorySpareSalesId">
               {{ info.categorySpareSalesName  }}
             </el-form-item>
             <el-form-item label="VFG：" prop="vfgId">
