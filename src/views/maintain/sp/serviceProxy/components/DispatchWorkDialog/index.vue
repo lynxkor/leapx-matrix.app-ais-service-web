@@ -2,7 +2,7 @@
   <el-dialog
     class="m-dispatch-work-dialog"
     title="派工"
-    width="1000px"
+    width="1200px"
     :visible.sync="dialogVisible"
     @close="close"
     @closed="closed"
@@ -10,45 +10,55 @@
     <div class="dispatch-work-content">
       <!-- 筛选区域 -->
       <div class="filter-section">
-        <el-form size="small" :model="filterForm" :inline="true">
-          <el-form-item label="工位：">
-            <el-select v-model="filterForm.workstation" placeholder="请选择" clearable>
-              <el-option
-                v-for="item in workstationOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="班组：">
-            <el-select v-model="filterForm.team" placeholder="请选择" clearable>
-              <el-option
-                v-for="item in teamOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="技师：">
-            <el-select v-model="filterForm.technician" placeholder="请选择" clearable>
-              <el-option
-                v-for="item in technicianOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="计划作业时间：">
-            <el-date-picker
-              v-model="filterForm.plannedTime"
-              type="datetime"
-              placeholder="选择日期时间"
-              value-format="yyyy-MM-dd HH:mm:ss"
-            />
-          </el-form-item>
+        <el-form size="small" :model="filterForm" :inline="true" style="width:100%">
+          <el-row>
+            <el-col span="6">
+              <el-form-item label="工位：">
+                <el-select v-model="filterForm.workstation" placeholder="请选择" clearable>
+                  <el-option
+                    v-for="item in workstationOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col span="6">
+              <el-form-item label="班组：">
+                <el-select v-model="filterForm.team" placeholder="请选择" clearable>
+                  <el-option
+                    v-for="item in teamOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col span="6">
+              <el-form-item label="技师：">
+                <el-select v-model="filterForm.technician" placeholder="请选择" clearable>
+                  <el-option
+                    v-for="item in technicianOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col span="6">
+              <el-form-item label="计划作业时间：">
+                <el-date-picker
+                  v-model="filterForm.plannedTime"
+                  type="datetime"
+                  placeholder="选择日期时间"
+                  value-format="yyyy-MM-dd HH:mm:ss"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-form>
       </div>
 
@@ -60,22 +70,25 @@
 
       <!-- 数据表格 -->
       <div class="table-section">
-        <el-table
+        <vxe-table
           ref="dispatchTable"
           :data="tableData"
-          border
           stripe
-          size="small"
-          :header-cell-style="{ background: '#f8f9fa', color: '#333', fontWeight: 'bold' }"
-          @selection-change="handleSelectionChange"
+          show-overflow
+          resizable
+          border="inner"
+          size="medium"
+          @checkbox-change="handleSelectionChange"
+          @checkbox-all="handleSelectionChange"
+          :checkbox-config="{ checkField: 'checked' }"
         >
-          <el-table-column type="selection" width="55" align="center" />
-          <el-table-column type="index" label="序号" width="60" align="center" />
-          <el-table-column prop="code" label="维修项目代码" width="120" />
-          <el-table-column prop="name" label="维修项目名称" min-width="150" show-overflow-tooltip />
-          <el-table-column label="工位" width="120">
-            <template slot-scope="scope">
-              <el-select v-model="scope.row.workstation" size="mini" placeholder="请选择">
+          <vxe-column type="checkbox" width="60" align="center" />
+          <vxe-column type="seq" title="序号" width="60" align="center" />
+          <vxe-column field="code" title="维修项目代码" width="150" />
+          <vxe-column field="name" title="维修项目名称" min-width="150" show-overflow />
+          <vxe-column title="工位" width="150">
+            <template #default="{ row }">
+              <el-select v-model="row.workstation" size="mini" placeholder="请选择">
                 <el-option
                   v-for="item in workstationOptions"
                   :key="item.value"
@@ -84,10 +97,10 @@
                 />
               </el-select>
             </template>
-          </el-table-column>
-          <el-table-column label="班组" width="120">
-            <template slot-scope="scope">
-              <el-select v-model="scope.row.team" size="mini" placeholder="请选择">
+          </vxe-column>
+          <vxe-column title="班组" width="150">
+            <template #default="{ row }">
+              <el-select v-model="row.team" size="mini" placeholder="请选择">
                 <el-option
                   v-for="item in teamOptions"
                   :key="item.value"
@@ -96,10 +109,10 @@
                 />
               </el-select>
             </template>
-          </el-table-column>
-          <el-table-column label="维修技师" width="120">
-            <template slot-scope="scope">
-              <el-select v-model="scope.row.technician" size="mini" placeholder="请选择">
+          </vxe-column>
+          <vxe-column title="维修技师" width="150">
+            <template #default="{ row }">
+              <el-select v-model="row.technician" size="mini" placeholder="请选择">
                 <el-option
                   v-for="item in technicianOptions"
                   :key="item.value"
@@ -108,24 +121,19 @@
                 />
               </el-select>
             </template>
-          </el-table-column>
-          <el-table-column prop="plannedHours" label="计划作业时间" width="100" align="center" />
-          <el-table-column label="派工" width="80" align="center">
-            <template slot-scope="scope">
-              <el-tag :type="scope.row.isDispatched ? 'success' : 'info'" size="small">
-                {{ scope.row.isDispatched ? '是' : '否' }}
+          </vxe-column>
+          <vxe-column field="plannedHours" title="计划作业时间" width="150" align="center" />
+          <vxe-column title="派工" width="80" align="center">
+            <template #default="{ row }">
+              <el-tag :type="row.isDispatched ? 'success' : 'info'" size="small">
+                {{ row.isDispatched ? '是' : '否' }}
               </el-tag>
             </template>
-          </el-table-column>
-          <el-table-column prop="dispatchTime" label="派工时间" width="160" show-overflow-tooltip />
-        </el-table>
+          </vxe-column>
+          <vxe-column field="dispatchTime" title="派工时间" width="160" show-overflow />
+        </vxe-table>
       </div>
     </div>
-
-    <template v-slot:footer>
-      <div class="dialog-footer">
-      </div>
-    </template>
   </el-dialog>
 </template>
 
@@ -258,10 +266,10 @@ export default {
         technician: '',
         plannedTime: ''
       };
-      this.$refs.dispatchTable && this.$refs.dispatchTable.clearSelection();
+      this.$refs.dispatchTable && this.$refs.dispatchTable.clearCheckboxRow();
     },
-    handleSelectionChange (selection) {
-      this.selectedRows = selection;
+    handleSelectionChange ({ records }) {
+      this.selectedRows = records;
     },
     handleDispatch () {
       if (this.selectedRows.length === 0) {
@@ -278,7 +286,7 @@ export default {
         });
         this.$message.success('派工成功');
         this.dispatchLoading = false;
-        this.$refs.dispatchTable.clearSelection();
+        this.$refs.dispatchTable.clearCheckboxRow();
         this.$emit('refresh');
       }, 500);
     },
@@ -305,7 +313,7 @@ export default {
           });
           this.$message.success('删除派工成功');
           this.deleteLoading = false;
-          this.$refs.dispatchTable.clearSelection();
+          this.$refs.dispatchTable.clearCheckboxRow();
           this.$emit('refresh');
         }, 500);
       }).catch(() => {});
@@ -325,24 +333,18 @@ export default {
 
 <style lang="scss" scoped>
 .m-dispatch-work-dialog {
-  ::v-deep .el-dialog__body {
-    padding: 15px 20px;
+  ::v-deep .vxe-table--render-default.size--medium .vxe-header--column.is--padding .vxe-cell,
+  ::v-deep .vxe-table--render-default .vxe-body--column:not(.col--active).col--ellipsis > .vxe-cell,
+  ::v-deep .vxe-table--render-default.size--medium .vxe-body--column.is--padding .vxe-cell {
+    padding: 8px 12px!important;
   }
-
   .dispatch-work-content {
     .filter-section {
       margin-bottom: 15px;
-      padding-bottom: 15px;
+      padding-bottom: 6px;
       border-bottom: 1px solid #e8e8e8;
-
       .el-form {
-        display: flex;
-        flex-wrap: wrap;
-
         .el-form-item {
-          margin-right: 15px;
-          margin-bottom: 10px;
-
           &:last-child {
             margin-right: 0;
           }
@@ -354,34 +356,10 @@ export default {
         }
       }
     }
-
     .action-buttons {
       margin-bottom: 15px;
       display: flex;
-      gap: 10px;
-
-      .el-button {
-        min-width: 90px;
-      }
     }
-
-    .table-section {
-      ::v-deep .el-table {
-        .el-table__header-wrapper {
-          th {
-            background-color: #f8f9fa;
-          }
-        }
-
-        .el-select {
-          width: 100%;
-        }
-      }
-    }
-  }
-
-  .dialog-footer {
-    text-align: right;
   }
 }
 </style>

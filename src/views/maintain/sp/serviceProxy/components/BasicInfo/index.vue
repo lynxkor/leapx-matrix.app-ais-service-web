@@ -15,10 +15,16 @@
           />
         </el-form-item>
         <el-form-item label="VIN码：" prop="vehProfileVin">
-          <el-input
-            placeholder="请输入"
-            v-model="form.vehProfileVin"
+          <fetch-select
+            filterable
             clearable
+            remote
+            reserve-keyword
+            v-model="form.vehProfileVin"
+            :remote-method="searchVehicle"
+            @change="handleVinChange"
+            value-key="id"
+            label-key="carSalesVersionName"
           />
         </el-form-item>
         <el-form-item label="车牌号：" prop="carPlate">
@@ -504,6 +510,7 @@
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
+import { getVehicleProfile } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   props: {
@@ -574,6 +581,34 @@ export default {
     },
     clearValidate () {
       this.$refs.basicForm.clearValidate();
+    },
+    searchVehicle (query) { return getVehicleProfile({ searchVin: query }); },
+    handleVinChange (val, record) {
+      if (record) {
+        const data = {
+          vehProfileVin: record.carSalesVersionName,
+          carPlate: record.vehiclePlateNo,
+          maintenanceMileage: record.vehicleProfileServiceResp.nextMaintainMileages, // 建议保养里程
+          maintenanceTime: record.vehicleProfileServiceResp.nextMaintainDate, // 建议保养时间
+          customerName: record.vehicleProfileOwnerResp.ownerName, // 车主姓名
+          customerPhone: record.vehicleProfileOwnerResp.mobilephone, // 车主手机
+          exclusiveServiceDealerId: record.vehicleProfileServiceResp.serviceDealerCode, // 专属服务门店
+          exclusiveServiceDealerName: record.vehicleProfileServiceResp.serviceDealerName, // 专属服务门店
+          dedicatedServiceManagerId: record.vehicleProfileServiceResp.serviceUserId, // 专属客户经理
+          startWarrantyDate: record.vehicleProfileServiceResp.warrantyStartdate, // 保修开始日期
+          saleDate: record.salesDate, // 销售日期
+          motorModel: record.motorModel, // 电机型号
+          motorSerialNumber: record.motorSerialNumber, // 电机序列号
+          batteryModel: record.batteryModel, // 电池型号
+          batterySerialNumber: record.batterySerialNumber, // 电池序列号
+          vehModelId: record.vehicleModelId, // 基本车型
+          vehRegisteredModelId: record.carSaleSversionId, // 公告车型
+          vehYearTypeId: record.vehicleYearId, // 车辆车型（L）
+          engineNumber: record.enginenNumber, // 发动机号
+        };
+        Object.assign(this.form, { ...data });
+        console.log(data);
+      }
     }
   }
 };
