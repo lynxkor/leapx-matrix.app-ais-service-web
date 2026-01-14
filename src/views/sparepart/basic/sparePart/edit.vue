@@ -69,7 +69,7 @@
               <el-form-item label="最小订购量" prop="minOrderQuantity">
                 <el-input
                   type="number"
-                  :disabled="!permissions.has('AISPART-sparePart-salesImport') ||!permissions.has('AISPART-sparePart-transportImport') "
+                  :disabled="!(permissions.has('AISPART-sparePart-salesImport') ||permissions.has('AISPART-sparePart-transportImport')) "
                   placeholder="请输入"
                   v-model="form.minOrderQuantity"
                   clearable
