@@ -162,10 +162,10 @@ export default {
   },
   data () {
     return {
-      pageTitle: '门店仓库',
+      pageTitle: '门店仓库设置',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISPART-warehouse',
+      moduleKey: 'AISPART-oemWarehouse',
       form: {
         ...defaultForm
       },

@@ -1,5 +1,5 @@
 <template>
-  <div class="page-common m-oem-warehouse-list">
+  <div class="page-common m-warehouse-list">
     <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
     <el-form
       :inline="true"
@@ -9,21 +9,70 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="仓库编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.warehouseCode"
-          clearable
-        />
-      </el-form-item>
       <el-form-item label="仓库名称">
         <el-input
           placeholder="请输入"
-          v-model="form.warehouseName"
+          v-model="form.warehouseNameLike"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="仓库编码">
+        <el-input
+          placeholder="请输入"
+          v-model="form.warehouseCodeLike"
           clearable
         />
       </el-form-item>
       <template v-if="show">
+        <el-form-item label="联系人姓名">
+        <el-input
+          placeholder="请输入"
+          v-model="form.contactNameLike"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="联系人手机">
+        <el-input
+          placeholder="请输入"
+          v-model="form.contactPhoneLike"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="是否启用" v-show="visibleCount === 3 || show">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="BooleanEnum"
+          v-model="form.statusIncludeList"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
+        />
+      </el-form-item>
+      <el-form-item label="创建时间">
+        <el-date-picker
+        :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
+      <el-form-item label="修改时间">
+        <el-date-picker
+        :default-time="['00:00:00', '23:59:59']"
+          v-model="form.updateTime"
+          type="daterange"
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -37,9 +86,9 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
+      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
@@ -77,8 +126,9 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/oemWarehouse/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
+import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
@@ -88,8 +138,13 @@ import EditPage from './edit.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  warehouseCode: '',
-  warehouseName: '',
+  warehouseCodeLike: '',
+  contactNameLike: '',
+  contactPhoneLike: '',
+  warehouseNameLike: '',
+  statusIncludeList: null,
+  createTime: '',
+  updateTime: '',
 };
 
 const pageSize = 20;
@@ -102,15 +157,16 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
+    FetchSelect,
     EditPage,
     Upload
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '主机厂仓库设置',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-oemWarehouse',
+      moduleKey: 'AISPART-oemWarehouse',
       form: {
         ...defaultForm
       },
@@ -120,9 +176,10 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      storeOptions: [], // 门店
       clickItemId: '',
       optionObj: {
-        id: 'oemWarehouseTable',
+        id: 'warehouseTable',
         dataList: [],
         form: {
           page: 1,
@@ -130,9 +187,9 @@ export default {
         },
         dataProp: [
           {
-            props: 'id',
-            label: '主键',
-            visible: false,
+            props: 'warehouseName',
+            label: '仓库名称',
+            visible: true,
             width: 200,
             fixed: 'left',
             buttons: [{
@@ -148,7 +205,15 @@ export default {
             }]
           },
           { props: 'warehouseCode', label: '仓库编码', visible: true, width: 200 },
-          { props: 'warehouseName', label: '仓库名称', visible: true, width: 200 },
+          { props: 'provinceName', label: '省', visible: true, width: 200 },
+          { props: 'cityName', label: '市', visible: true, width: 200 },
+          { props: 'districtName', label: '区', visible: true, width: 200 },
+          { props: 'address', label: '详细地址', visible: true, width: 200 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
+          { props: 'remark', label: '备注', visible: true, width: 200 },
+          { props: 'statusDesc', label: '停用原因', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',
@@ -223,7 +288,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '新页面',
-        dataFetchPath: 'sparepart/web/warehouse/oemWarehouse/page',
+        dataFetchPath: 'sparepart/web/warehouse/warehouse/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
@@ -311,6 +376,13 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = this.form.updateTime[1];
+        }
+      }
 
       return data;
     },
@@ -350,34 +422,21 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
-    }
+    },
+
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.m-oem-warehouse-list {
+.m-warehouse-list {
 }
 </style>
