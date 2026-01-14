@@ -35,6 +35,7 @@ export default {
   top: 0px;
   z-index: 10;
   background-color: #fff;
+  gap: 8px 0;
   .nav-item {
     height: 32px;
     line-height: 32px;

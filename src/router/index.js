@@ -1215,6 +1215,24 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/basic/purchasePriceCoupon',
+      name: 'purchasePriceCoupon',
+      component: () => import('@/views/sparepart/basic/purchasePriceCoupon/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/purchasepricecoupon/edit',
+      name: 'purchasePriceCouponEdit',
+      component: () => import('@/views/sparepart/basic/purchasePriceCoupon/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];

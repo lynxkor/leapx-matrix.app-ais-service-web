@@ -69,7 +69,7 @@
               <el-form-item label="最小订购量" prop="minOrderQuantity">
                 <el-input
                   type="number"
-                  :disabled="!permissions.has('AISPART-sparePart-salesImport') ||!permissions.has('AISPART-sparePart-transportImport') "
+                  :disabled="!(permissions.has('AISPART-sparePart-salesImport') ||permissions.has('AISPART-sparePart-transportImport')) "
                   placeholder="请输入"
                   v-model="form.minOrderQuantity"
                   clearable
@@ -279,7 +279,7 @@
                   <el-radio label="0">否</el-radio>
                 </el-radio-group>
               </el-form-item>
-              <el-form-item label="包装前长(mm)" prop="domesticPrePackageLengthMm">
+              <el-form-item label="国内包装前长(mm)" prop="domesticPrePackageLengthMm">
                 <el-input
                   type="number"
                   placeholder="请输入"
@@ -288,7 +288,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="包装前宽(mm)" prop="domesticPrePackageWidthMm">
+              <el-form-item label="国内包装前宽(mm)" prop="domesticPrePackageWidthMm">
                 <el-input
                   type="number"
                   :disabled="!permissions.has('AISPART-sparePart-transportImport')"
@@ -297,7 +297,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="包装前高(mm)" prop="domesticPrePackageHeightMm">
+              <el-form-item label="国内包装前高(mm)" prop="domesticPrePackageHeightMm">
                 <el-input
                   type="number"
                   placeholder="请输入"
@@ -306,7 +306,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="包装前体积(cm³)" prop="domesticPrePackageVolumeCm3">
+              <el-form-item label="国内包装前体积(cm³)" prop="domesticPrePackageVolumeCm3">
                 <el-input
                   type="number"
                   disabled
@@ -315,7 +315,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="包装前重量(kg)" prop="domesticPrePackageWeightKg">
+              <el-form-item label="国内包装前重量(kg)" prop="domesticPrePackageWeightKg">
                 <el-input
                   type="number"
                   placeholder="请输入"
@@ -347,7 +347,7 @@
                   @change="categorySpareSupplyChange"
                 />
               </el-form-item>
-              <el-form-item label="包装后长(mm)" prop="domesticPostPackageLengthMm">
+              <el-form-item label="国内包装后长(mm)" prop="domesticPostPackageLengthMm">
                 <el-input
                   type="number"
                   :disabled="!permissions.has('AISPART-sparePart-transportImport')"
@@ -356,7 +356,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="包装前后宽(mm)" prop="domesticPostPackageWidthMm">
+              <el-form-item label="国内包装后宽(mm)" prop="domesticPostPackageWidthMm">
                 <el-input
                   type="number"
                   :disabled="!permissions.has('AISPART-sparePart-transportImport')"
@@ -365,7 +365,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="包装前后高(mm)" prop="domesticPostPackageHeightMm">
+              <el-form-item label="国内包装前后高(mm)" prop="domesticPostPackageHeightMm">
                 <el-input
                   type="number"
                   :disabled="!permissions.has('AISPART-sparePart-transportImport')"
@@ -374,7 +374,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="包装后体积(cm³)" prop="domesticPostPackageVolumeCm3">
+              <el-form-item label="国内包装后体积(cm³)" prop="domesticPostPackageVolumeCm3">
                 <el-input
                   type="number"
                   disabled
@@ -383,7 +383,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="包装后重量(kg)" prop="domesticPostPackageWeightKg">
+              <el-form-item label="国内包装后重量(kg)" prop="domesticPostPackageWeightKg">
                 <el-input
                   type="number"
                   :disabled="!permissions.has('AISPART-sparePart-transportImport')"

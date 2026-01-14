@@ -209,7 +209,7 @@ export default {
         value: 'code',
         children: 'child'
       },
-      pageTitle: '门店仓库',
+      pageTitle: '门店仓库设置',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-warehouse',
@@ -296,7 +296,7 @@ export default {
     getDetailData () {
       const id = this._id;
       if (!this.id) {
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['门店仓库', `${id ? '详情' : '新建'}`]);
+        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['门店仓库设置', `${id ? '详情' : '新建'}`]);
       }
       if (id) {
         getDetail(id).then(res => {
