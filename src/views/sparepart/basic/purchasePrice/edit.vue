@@ -44,7 +44,7 @@
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
                 </el-form-item>
-                <el-form-item label="订单类型：1-普通订单，2-紧急订单，3-铺货订单，4-定制订单，5-领料订单，6-活动订单：" prop="orderType">
+                <el-form-item label="订单类型：" prop="orderType">
                   <fetch-select
                     :request="fetchOptions"
                     enumCode="xxx"

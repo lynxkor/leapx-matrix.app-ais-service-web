@@ -13,7 +13,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="CouponStatusEnum"
-            v-model="form.statusIncludeList"
+            v-model="form.couponStatusIncludeList"
             placeholder="请选择"
             clearable
             multiple
@@ -21,11 +21,7 @@
           />
         </el-form-item>
         <el-form-item label="业务单据">
-          <el-input
-            placeholder="请输入"
-            v-model="form.purchaseOrderId"
-            clearable
-          />
+          <tag-input v-model="form.purchaseCodeList" placeholder="请输入" />
         </el-form-item>
       <template v-if="show">
         <el-form-item label="优惠券ID">
@@ -177,6 +173,7 @@ const defaultForm = {
   validStart: '',
   validEnd: '',
   couponStatus: '',
+  couponStatusIncludeList: null,
   purchaseOrderId: '',
   useTime: '',
   createTime: '',
@@ -228,24 +225,24 @@ export default {
             visible: true,
             width: 200,
             fixed: 'left',
-            buttons: [{
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/basic/purchasePriceCoupon/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'primary'
-            }]
+            // buttons: [{
+            //   click: (rowIndex, row) => {
+            //     this.$router.push({
+            //       path: '/sparepart/basic/purchasePriceCoupon/edit',
+            //       query: {
+            //         id: row.id
+            //       }
+            //     });
+            //   },
+            //   type: 'primary'
+            // }]
           },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'couponType', label: '优惠券类型', visible: true, width: 200 },
+          { props: 'couponTypeLabel', label: '优惠券类型', visible: true, width: 200 },
           { props: 'validStart', label: '有效开始日期', visible: true, width: 200 },
           { props: 'validEnd', label: '有效结束日期', visible: true, width: 200 },
-          { props: 'statusLabel', label: '优惠券状态', visible: true, width: 200 },
+          { props: 'couponStatusLabel', label: '优惠券状态', visible: true, width: 200 },
           { props: 'purchaseCode', label: '业务单据', visible: true, width: 200 },
           { props: 'useTime', label: '使用时间', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
@@ -444,10 +441,10 @@ export default {
       }).catch(() => {});
     },
     // 批量启用停用
-    handleBatchEnable (status) {
+    handleBatchEnable (couponStatus) {
       handleBatchStatusChange.call(this, {
         selectionList: this.selectionList,
-        targetStatus: status,
+        targetStatus: couponStatus,
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
