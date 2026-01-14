@@ -19,7 +19,7 @@
         <el-form-item label="业务类型：" prop="businessType">
           <fetch-select
             :request="fetchOptions"
-            enumCode="StatusEnum"
+            enumCode="BusinessTypeEnum"
             v-model="form.businessType"
             placeholder="请选择"
             clearable
@@ -378,7 +378,7 @@
 </template>
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getEnum } from '@/api/common';
+import { getEnum } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   props: {
