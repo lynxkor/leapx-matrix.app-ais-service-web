@@ -3,6 +3,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/basic/sparePart/';
+const modelPrefix = SPARE_PREFIX + '/web/basic/sparePartVehicleModel/';
 
 /**
  * 查询列表
@@ -53,7 +54,7 @@ export function enableItem (data) {
  * @param {Object} data
  */
 export function searchVehicleModel (data) {
-  return api.jsonPost('/sp/web/basic/sparePartVehicleModel/page', data);
+  return api.jsonPost(modelPrefix + 'page', data);
 }
 
 /**
@@ -61,7 +62,7 @@ export function searchVehicleModel (data) {
  * @param {Object} data
  */
 export function addOrUpdateVehicleModel (data) {
-  return api.jsonPost('/sp/web/basic/sparePartVehicleModel/addOrUpdate', data);
+  return api.jsonPost(modelPrefix + 'addOrUpdate', data);
 }
 
 /**
@@ -69,5 +70,5 @@ export function addOrUpdateVehicleModel (data) {
  * @param {Object} data
  */
 export function deleteVehicleModel (data) {
-  return api.jsonPost('/sp/web/basic/sparePartVehicleModel/delete', data);
+  return api.jsonPost(modelPrefix + 'delete', data);
 }

@@ -152,7 +152,6 @@
 
 <script>
 import { getDetail, addOrUpdate, categoryPurchaseDealer, addDealer, deleteDealer } from '@/api/sparepart/basic/spareSalesCategory/index';
-import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum, getBuildType, listOrgStoreInfo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';

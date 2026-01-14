@@ -122,15 +122,13 @@
 
 <script>
 import { getDetail, addOrUpdate, locationOrUpdate } from '@/api/sparepart/warehouse/warehouse/index';
-import FetchSelect from '@/libs/components/FetchSelect';
-import EditTable from '@/libs/components/EditTable';
+// import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import { getEnum, listOrgStoreInfo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { locationListShort } from '@/libs/api/common';
 import EditBaseContainer from '@/components/EditBaseContainer';
 import PartTable from './PartTable.vue';
 import ReplaceTable from './ReplaceTable.vue';
@@ -164,7 +162,7 @@ export default {
   components: {
     EditPageLayout,
     // EditTable,
-    FetchSelect,
+    // FetchSelect,
     EditBaseContainer,
     PartTable,
     ReplaceTable

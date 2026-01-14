@@ -70,13 +70,22 @@
         @refresh="handleRefresh"
         @submit="handleSubmit"
       >
+        <!-- headers -->
+        <template v-if="$slots.title" #title>
+          <slot name="title"></slot>
+        </template>
+        <template v-if="$slots.extraButtons" #extraButtons>
+          <slot name="extraButtons"></slot>
+        </template>
+        <!-- headers -->
+
         <!-- 使用具名插槽传递 header -->
         <template v-if="$slots.header" #header>
           <slot name="header"></slot>
         </template>
       </edit-base-header>
       <!-- 使用作用域插槽 -->
-      <slot :formApi="formApi"></slot>
+      <slot></slot>
       <edit-base-footer
         v-if="!id"
         v-bind="$attrs"
@@ -172,13 +181,6 @@ export default {
     };
   },
   computed: {
-    // 提供给插槽的API（保持向后兼容）
-    formApi () {
-      return {
-        // 注册表单（备用方法）
-        registerForm: this.registerForm,
-      };
-    },
   },
   mounted () {
     this.defaultForm = cloneDeep(this.form);
@@ -299,47 +301,8 @@ export default {
         type: 'success'
       });
     },
-    // 通过组件树查找
-    /*
-    findFormRefsByComponent() {
-      // 递归查找 el-form 组件
-      const findForms = (vm, currentDepth) => {
-        const forms = [];
-        // 如果超过最大深度，直接返回
-        if (currentDepth >= 6) {
-          return forms;
-        }
-        if (vm.$children && vm.$children.length > 0) {
-          vm.$children.forEach(child => {
-            // 检查是否是 el-form 组件
-            if (child.$options.name === 'ElForm') {
-              forms.push(child);
-            }
-            // 递归查找子组件
-            forms.push(...findForms(child, currentDepth + 1));
-          });
-        }
-        return forms;
-      };
-
-      const foundForms = findForms(this, 1);
-
-      foundForms.forEach(form => {
-        if (!this.formRefs.includes(form)) {
-          this.formRefs.push(form);
-        }
-      });
-      if (!this.formRefs.length) {
-        console.log(
-          '%c未找到表单实例，表单验证需手动在submitRequest中调用验证方法。',
-          'color: red; font-weight: bold;',
-        );
-      }
-    },
-    */
   }
 };
 </script>
 <style lang="scss" scoped>
-
 </style>
