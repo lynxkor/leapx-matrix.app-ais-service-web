@@ -13,6 +13,7 @@
                     <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
                   </div>
                   <ButtonGroup maxWidth="50%" v-else>
+                    <el-button size="small" @click="materialReturnDialogVisible = true">退料</el-button>
                     <el-button size="small" @click="startWorkDialogVisible = true">作业开始</el-button>
                     <el-button size="small" @click="handlePreCheck">预检确认</el-button>
                     <el-button size="small" @click="selectRepairItemDialogVisible = true">选择维修项目</el-button>
