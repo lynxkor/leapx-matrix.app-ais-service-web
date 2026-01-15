@@ -208,7 +208,7 @@ export default {
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+                this.goToDealer(row.dealerCode);
               },
               type: 'primary'
             }]

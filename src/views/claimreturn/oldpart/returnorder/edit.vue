@@ -5,6 +5,7 @@
       <edit-base-container
         ref="containerRef"
         :id="_id"
+        :title="`门店回运单号：${form.returnOrderNo}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
         direction="horizontal"
@@ -12,22 +13,33 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
-        <template #title>
-          <span>{{ `门店回运单号：${form.returnOrderNo}` }}</span>
+        <template #status>
           <span class="status" :class="{
-            status10: form.returnStatus === '10',
-            status20: form.returnStatus === '20',
-            status30: form.returnStatus === '30',
-            status40: form.returnStatus === '40',
+            primary: form.returnStatus === '10',
+            warning: form.returnStatus === '20',
+            success: form.returnStatus === '30',
+            success: form.returnStatus === '40',
           }">
             {{ form.returnStatusLabel }}
           </span>
         </template>
-        <template #extraButtons>
-          <el-button v-if="canAddOrUpdate" size="small">adsfsf</el-button>
+        <template #extraButtons v-if="!isEditing">
+          <template v-if="form.returnStatus==='10'">
+            <el-button v-if="canDelete" size="small">删除</el-button>
+            <el-button v-if="canAddOrUpdate" size="small">下发</el-button>
+          </template>
+          <template v-if="form.returnStatus==='20'">
+            <el-button v-if="canAddOrUpdate" size="small">回运出库</el-button>
+          </template>
+          <template v-if="form.returnStatus==='30'">
+            <el-button v-if="canAddOrUpdate" size="small">签收</el-button>
+          </template>
+          <el-button v-if="canAddOrUpdate" size="small">打印回运单</el-button>
+          <el-button v-if="canAddOrUpdate" size="small">打印标签</el-button>
+          <el-button v-if="canAddOrUpdate" size="small">打印外包装标签</el-button>
         </template>
         <el-main>
-          <div class="header-desc">
+          <div v-if="isEditing" class="header-desc">
             保修月份：{{ form.warrantyMonth }}&nbsp;&nbsp;|&nbsp;&nbsp;旧件返还类型：{{ form.returnTypeLabel }}
           </div>
           <section class="common-section">
@@ -544,28 +556,4 @@ export default {
   margin-top: 8px;
 }
 
-.status {
-  display: inline-block;
-  padding: 2px 10px;
-  color: #2261DD;
-  line-height: 20px;
-  font-size: 12px;
-  background: #E9EEF9;
-  margin-left: 6px;
-  border-radius: 4px;
-  position: relative;
-  top: 1px;
-  &.status20 {
-    color: #C8A12B;
-    background: #FAF6EA;
-  }
-  &.status30 {
-    color: #009100;
-    background: #E6F4E6;
-  }
-  &.status40 {
-    color: #009100;
-    background: #E6F4E6;
-  }
-}
 </style>
