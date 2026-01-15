@@ -4,7 +4,7 @@
       <div class="page-common-edit">
         <el-container>
           <el-main>
-            <NavTop />
+            <NavTop :current="form.orderStatus"/>
             <section class="common-title common-title-extend" v-if="_id">
               <div class="common-title-main">
                 <h2>单据编号：{{ form.code }}</h2>
@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/maintain/sp/serviceProxy/index';
+import { getDetail, addOrUpdate, precheck } from '@/api/maintain/sp/serviceProxy/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import NavTop from './components/NavTop';
 import { getEnum } from '@/api/common';
@@ -892,6 +892,9 @@ export default {
         showClose: false
       }).then(() => {
         // 调用接口
+        precheck(this._id).then(res => {
+          this.getDetailData();
+        });
       }).catch(() => {
       });
     },
