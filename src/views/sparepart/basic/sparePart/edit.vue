@@ -53,10 +53,7 @@
                 />
               </el-form-item>
               <el-form-item label="是否OEM件" prop="oemPart">
-                <el-radio-group v-model="form.oemPart">
-                  <el-radio label="1">是</el-radio>
-                  <el-radio label="0">否</el-radio>
-                </el-radio-group>
+                {{ form.oemPartLabel  }}
               </el-form-item>
               <el-form-item label="是否可销售" prop="saleableIs">
                 <el-radio-group
@@ -92,10 +89,7 @@
                 />
               </el-form-item>
               <el-form-item label="BO调拨" prop="boTransferIs">
-                <el-radio-group v-model="form.boTransferIs">
-                  <el-radio label="1">是</el-radio>
-                  <el-radio label="0">否</el-radio>
-                </el-radio-group>
+                {{ form.boTransferIsLabel  }}
               </el-form-item>
               <el-form-item label="是否常备库存件" prop="standingInventoryIs">
                 <el-radio-group
@@ -118,6 +112,7 @@
               </el-form-item>
               <el-form-item label="旧件返还类型" prop="oldReturnType">
                 <fetch-select
+                  disabled
                   :request="fetchOptions"
                   enumCode="OldReturnTypeEnum"
                   v-model="form.oldReturnType"
@@ -181,10 +176,7 @@
                    />
               </el-form-item>
               <el-form-item label="技术是否启用" prop="technicalIs">
-                <el-radio-group v-model="form.technicalIs">
-                  <el-radio label="1">是</el-radio>
-                  <el-radio label="0">否</el-radio>
-                </el-radio-group>
+                {{ form.technicalIsLabel }}
               </el-form-item>
               <el-form-item label="备注" prop="remark" class="form-item-full">
                 <el-input
@@ -249,10 +241,7 @@
                 />
               </el-form-item>
               <el-form-item label="是否追溯件" prop="traceableIs">
-                <el-radio-group v-model="form.traceableIs">
-                  <el-radio label="1">是</el-radio>
-                  <el-radio label="0">否</el-radio>
-                </el-radio-group>
+                {{ form.traceableIsLabel }}
               </el-form-item>
               <el-form-item label="是否可快递" prop="expressAvailableIs">
                 <el-radio-group
@@ -263,10 +252,7 @@
                 </el-radio-group>
               </el-form-item>
               <el-form-item label="保修是否拆分" prop="maintenanceSplitQuantityIs">
-                <el-radio-group v-model="form.maintenanceSplitQuantityIs">
-                  <el-radio label="1">是</el-radio>
-                  <el-radio label="0">否</el-radio>
-                </el-radio-group>
+                {{ form.maintenanceSplitQuantityIsLabel }}
               </el-form-item>
               <el-form-item label="是否关键件" prop="keyPartIs">
                 <el-radio-group
