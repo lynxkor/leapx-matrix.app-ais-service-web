@@ -10,31 +10,24 @@
       class="ais-search-form"
     >
       <el-form-item label="出库单号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.maintenanceOutboundOrderCode"
-          clearable
-        />
+        <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="接车施工单ID">
-          <el-input
-            placeholder="请输入"
-            v-model="form.serviceProxyId"
-            clearable
-          />
+        <tag-input v-model="form.serviceProxyIdList" placeholder="请输入" />
         </el-form-item>
-      <el-form-item label="门店编码">
-        <el-input
+      <el-form-item label="门店名称" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :remote-method="getDealerList"
+          remote
+          v-model="form.dealerCodeList"
           placeholder="请输入"
-          v-model="form.dealerCode"
+          labelKey="orgName"
+          valueKey="orgCode"
+          subLabelKey="orgCode"
           clearable
-        />
-      </el-form-item>
-      <el-form-item label="门店名称"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.dealerName"
-          clearable
+          multiple
+          collapseTags
+          filterable
         />
       </el-form-item>
       <template v-if="show">
@@ -148,7 +141,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/outbound/maintenanceOutboundOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -157,14 +150,15 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  maintenanceOutboundOrderCode: '',
-  dealerCode: '',
+  codeList: [],
+  dealerCodeList: [],
   dealerName: '',
   warehouseId: '',
-  serviceProxyId: '',
+  serviceProxyIdList: [],
   vehProfileVin: '',
   carPlate: '',
   outboundStatus: '',
@@ -184,7 +178,8 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
@@ -211,7 +206,7 @@ export default {
         },
         dataProp: [
           {
-            props: 'maintenanceOutboundOrderCode',
+            props: 'code',
             label: '出库单号',
             visible: true,
             width: 200,
@@ -400,7 +395,22 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = this.form.updateTime[1];
+        }
+      }
 
+      if (Array.isArray(this.form.codeList) && this.form.codeList.length <= 1) {
+        delete data.codeList;
+        data.code = this.form.codeList[0] || '';
+      }
+      if (Array.isArray(this.form.serviceProxyIdList) && this.form.serviceProxyIdList.length <= 1) {
+        delete data.serviceProxyIdList;
+        data.serviceProxyId = this.form.serviceProxyIdList[0] || '';
+      }
       return data;
     },
     async fetchOptions (code) {
@@ -439,29 +449,15 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
-    }
+    },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
   }
 };
 </script>
