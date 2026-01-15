@@ -9,7 +9,6 @@
         :isEditing.sync="isEditing"
         :form.sync="form"
         direction="horizontal"
-        :showBackBtn="showBackBtn"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
@@ -23,7 +22,7 @@
             {{ form.returnStatusLabel }}
           </span>
         </template>
-        <template #extraButtons v-if="!isEditing">
+        <template #extraButtons>
           <template v-if="form.returnStatus==='10'">
             <el-button v-if="canDelete" size="small">删除</el-button>
             <el-button v-if="canAddOrUpdate" size="small">下发</el-button>
@@ -295,7 +294,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import EditBaseContainer from '@/components/EditBaseContainer';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
 
@@ -338,10 +337,6 @@ export default {
     id: {
       type: [String, Number],
       default: null
-    },
-    showBackBtn: {
-      type: Boolean,
-      default: true,
     },
   },
   mixins: [routeGuard, permissions, commonMixins],
