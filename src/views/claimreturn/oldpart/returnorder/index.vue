@@ -208,7 +208,12 @@ export default {
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
-                this.goToDealer(row.dealerCode);
+                this.navigateToRoute({
+                  path: '/partner/channelManagement/shopDetail',
+                  query: {
+                    dealerCode: row.dealerCode,
+                  },
+                });
               },
               type: 'primary'
             }]
