@@ -1262,10 +1262,6 @@ function toLoginPage (to, next) {
 }
 
 const appPrefix = process.env.VUE_APP_ROUTER_BASE;
-const prefixRegex = new RegExp(`^${appPrefix}`);
-export const getRouterPath = () => {
-  return location.pathname.replace(prefixRegex, '');
-};
 
 export function getRouter () {
   const router = new VueRouter({

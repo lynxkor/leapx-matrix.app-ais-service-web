@@ -146,7 +146,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import DealerSelect from '@/components/dealer-select/index.vue';
 import LPEncrypted from '@/libs/components/LPEncrypted';
-import EditBaseContainer from '@/components/EditBaseContainer';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 
 const defaultForm = {

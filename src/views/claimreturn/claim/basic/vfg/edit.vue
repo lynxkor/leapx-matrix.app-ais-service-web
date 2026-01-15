@@ -99,7 +99,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
-import EditBaseContainer from '@/components/EditBaseContainer';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import commonMixins from '@/libs/mixins/commonMixins';
 

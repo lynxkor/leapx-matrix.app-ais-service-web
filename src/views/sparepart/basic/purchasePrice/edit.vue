@@ -215,7 +215,7 @@ import { getDetail, addOrUpdate, addCoupon, listCoupon, enableOrDisable } from '
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
-import EditBaseContainer from '@/components/EditBaseContainer';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, listOrgStoreInfoByParam } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';

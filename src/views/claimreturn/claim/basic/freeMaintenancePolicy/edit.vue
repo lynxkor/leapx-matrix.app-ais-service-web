@@ -238,7 +238,7 @@ import { getDetail, addOrUpdate, freeMaintenancePolicyPartDetailList, freeMainte
 import { vehicleSalesVersionList, getEnum, sparePartList } from '../../../../../api/common';
 import PartTable from './PartTable.vue';
 import ReplaceTable from './ReplaceTable.vue';
-import EditBaseContainer from '@/components/EditBaseContainer';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复

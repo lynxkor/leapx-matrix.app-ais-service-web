@@ -9,10 +9,16 @@
         :title="title"
         :isEditing.sync="isEditing"
         :form.sync="form"
-        :showBackBtn="showBackBtn"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
+        <template #status>
+          <span class="status primary">状态</span>
+        </template>
+        <template #extraButtons>
+          <el-button size="small">按钮1</el-button>
+          <el-button size="small">按钮2</el-button>
+        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
@@ -182,7 +188,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 {{{#isProForm}}}
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
-import EditBaseContainer from '@/components/EditBaseContainer';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 {{{/isProForm}}}
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -204,10 +210,6 @@ export default {
     id: {
       type: [String, Number],
       default: null
-    },
-    showBackBtn: {
-      type: Boolean,
-      default: true,
     },
   },
   mixins: [routeGuard, permissions, commonMixins],
