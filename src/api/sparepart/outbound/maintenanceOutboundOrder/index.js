@@ -42,3 +42,19 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 维修出库领料明细表分页查询
+ * @param {Object} data
+ */
+export function collarPage (data) {
+  return api.jsonPost('sp/web/maintenance/maintenanceOutboundOrderDetail/page', data);
+}
+
+/**
+ * 维修出库退料明细表分页查询
+ * @param {Object} data
+ */
+export function goPage (data) {
+  return api.jsonPost('sp/web/maintenance/maintenanceOutboundOrderDetail/page', data);
+}
