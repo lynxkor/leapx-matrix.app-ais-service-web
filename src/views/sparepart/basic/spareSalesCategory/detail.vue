@@ -31,6 +31,38 @@
           </el-form>
         </div>
       </section>
+      <section class="common-section">
+          <div class="common-section-header">
+            <h2>可采购门店</h2>
+          </div>
+          <div class="common-section-body">
+            <div class="common-section-table">
+              <edit-table
+                ref="editTable"
+                :columns="columns"
+                :data="tableData"
+                :show-toolbar="false"
+                :isFocusNewRow="false"
+              />
+            </div>
+          </div>
+        </section>
+        <section class="common-section">
+          <div class="common-section-header">
+            <h2>不可采购门店</h2>
+          </div>
+          <div class="common-section-body">
+            <div class="common-section-table">
+              <edit-table
+                ref="editTable"
+                :columns="columns"
+                :data="noTableData"
+                :show-toolbar="false"
+                :isFocusNewRow="false"
+              />
+            </div>
+          </div>
+        </section>
     </template>
   </div>
 </template>
@@ -39,11 +71,13 @@
 import { getDetail } from '@/api/sparepart/basic/spareSalesCategory/index';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
 import permissions from '@/libs/mixins/permissions';
+import EditTable from '@/libs/components/EditTable';
 
 export default {
   name: 'spareSalesCategoryDetail',
   mixins: [permissions],
   components: {
+    EditTable
   },
   data () {
     return {
@@ -51,7 +85,31 @@ export default {
       moduleKey: 'AISPART-spareSalesCategory',
       loading: true,
       info: {},
-      yes_no_enum_map: YES_NO_ENUM_MAP
+      yes_no_enum_map: YES_NO_ENUM_MAP,
+      tableData: [], // 可采购门店列表
+      noTableData: [], // 不可采购门店列表
+      columns: [ // 适配车型
+        {
+          field: 'dealerName',
+          title: '门店名称',
+          width: '25%',
+        },
+        {
+          field: 'dealerCode',
+          title: '门店编码',
+          width: '25%',
+        },
+        {
+          field: 'createTime',
+          title: '添加时间',
+          width: '25%',
+        },
+        {
+          field: 'creatorName',
+          title: '操作人',
+          width: '25%',
+        }
+      ],
     };
   },
   created () {
@@ -71,6 +129,8 @@ export default {
       getDetail(this.$route.query.id).then(res => {
         this.loading = false;
         this.info = res;
+        this.tableData = res.categoryPurchaseDealerRespList || [];
+        this.noTableData = res.categoryBuildTypeRespList || [];
       }).catch(() => {
         this.loading = false;
       });
