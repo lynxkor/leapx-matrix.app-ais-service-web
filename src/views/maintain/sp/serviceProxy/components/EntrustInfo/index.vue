@@ -93,7 +93,7 @@
           />
         </el-form-item>
         <el-form-item label="是否洗车：" prop="isCarWash">
-          <el-switch v-model="form.isCarWash" />
+          <el-switch active-value="1" inactive-value="0" v-model="form.isCarWash" />
         </el-form-item>
         <el-form-item label="制单完成时间：" prop="confirmedOn">
           <el-date-picker
@@ -114,7 +114,7 @@
           />
         </el-form-item>
         <el-form-item label="是否保留旧件：" prop="isRetainOldParts">
-          <el-switch v-model="form.isRetainOldParts" />
+          <el-switch active-value="1" inactive-value="0" v-model="form.isRetainOldParts" />
         </el-form-item>
         <el-form-item label="计划作业时间：" prop="expectStartAt">
           <el-date-picker
@@ -245,7 +245,7 @@
           />
         </el-form-item>
         <el-form-item label="本次进店是否存在故障：" prop="currentFault">
-          <el-switch v-model="form.currentFault" />
+          <el-switch active-value="1" inactive-value="0" v-model="form.currentFault" />
         </el-form-item>
         <el-form-item label="客户故障描述：" prop="customerContent" class="form-item-half">
           <el-input

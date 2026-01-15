@@ -66,3 +66,27 @@ export function getEnum (code) {
 export function getVehicleProfile (data) {
   return api.jsonPost('datacenter/web/vehicle/vehicleProfile/listFull', data);
 }
+
+/**
+ * 查询车联网信息
+ * @param {Object} data
+ */
+export function getCarInfo (data) {
+  return api.jsonPost(prefix + 'getCarInfo', data);
+}
+
+/**
+ * vin校验
+ * @param {Object} data
+ */
+export function checkVinTag (data) {
+  return api.jsonPost('maintain/web/basic/vehicleTag/checkVinTag', data);
+}
+
+/**
+ * 预检确认
+ * @param {Object} data
+ */
+export function precheck (data) {
+  return api.jsonPost(prefix + 'precheck', data);
+}

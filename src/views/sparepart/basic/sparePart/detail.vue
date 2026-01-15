@@ -104,9 +104,6 @@
             <el-form-item label="是否关键件：" prop="keyPartIs">
               {{ info.keyPartIsLabel  }}
             </el-form-item>
-            <el-form-item label="销售物料分类：" prop="categorySpareSalesId">
-              {{ info.categorySpareSalesName  }}
-            </el-form-item>
             <el-form-item label="国内包装前长（mm）：" prop="domesticPrePackageLengthMm">
               {{ info.domesticPrePackageLengthMm  }}
             </el-form-item>
@@ -125,7 +122,7 @@
             <el-form-item label="是否翻包：" prop="needRepackIs">
               {{ info.needRepackIsLabel  }}
             </el-form-item>
-            <el-form-item label="供应物料分类" prop="categorySpareSupplyId">
+            <el-form-item label="供应物料分类：" prop="categorySpareSupplyId">
               {{ info.categorySpareSupplyName  }}
             </el-form-item>
             <el-form-item label="国内包装后长（mm）：" prop="domesticPostPackageLengthMm">

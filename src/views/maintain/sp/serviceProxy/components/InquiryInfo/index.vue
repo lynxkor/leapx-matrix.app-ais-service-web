@@ -1,9 +1,9 @@
 <template>
 	<section class="common-section">
-		<div class="common-section-header">
+		<div class="common-section-header fold">
 			<h2>问诊信息</h2>
 		</div>
-		<div class="common-section-body">
+		<div class="common-section-body" style="display: none;">
 			<div class="common-section-table">
 				<edit-table
 				ref="editTable"
