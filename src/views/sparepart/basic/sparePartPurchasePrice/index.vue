@@ -12,25 +12,25 @@
       <el-form-item label="备件编码">
         <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="备件名称"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="备件名称">
         <el-input
           placeholder="请输入"
           v-model="form.sparePartNameLike"
           clearable
         />
       </el-form-item>
+      <el-form-item label="定价模式" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="PricingModelEnum"
+          v-model="form.pricingModels"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
+        />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="定价模式">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="PricingModelEnum"
-            v-model="form.pricingModels"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
         <el-form-item label="门店编码">
           <el-input
             placeholder="请输入"
