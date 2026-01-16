@@ -5,7 +5,7 @@
       <el-main>
         <section class="common-section">
           <div class="common-section-header">
-            <h2>基础信息 <span v-if="form.pricingModel !== 'dealerPriceRatio'" class="text-time">生效开始日期晚于或者等于当天,才可以修改采购价格。</span></h2>
+            <h2>基础信息</h2>
           </div>
           <div class="common-section-body">
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
@@ -348,9 +348,4 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.text-time {
-  font-weight: 400;
-  font-size: 12px;
-  color: red;
-}
 </style>

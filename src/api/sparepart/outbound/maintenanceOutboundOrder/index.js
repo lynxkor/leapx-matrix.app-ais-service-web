@@ -56,5 +56,5 @@ export function collarPage (data) {
  * @param {Object} data
  */
 export function goPage (data) {
-  return api.jsonPost('sp/web/maintenance/maintenanceOutboundOrderDetail/page', data);
+  return api.jsonPost('sp/web/maintenance/maintenanceOutboundReturnDetail/page', data);
 }

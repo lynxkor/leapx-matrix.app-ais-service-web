@@ -133,6 +133,12 @@
       :id="'1'"
       @close="handleUploadDialogClose"
     />
+    <RepairDialog
+      ref="repairDialogRef"
+      :id="maintenanceId"
+      :visible="repairDialogVisible"
+      @close="handleRepairDialogClose"
+    />
   </div>
 </template>
 
@@ -151,6 +157,7 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
+import RepairDialog from './RepairDialog.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -179,7 +186,8 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    TagInput
+    TagInput,
+    RepairDialog
   },
   data () {
     return {
@@ -196,6 +204,8 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      repairDialogVisible: false, // 维修出库弹窗
+      maintenanceId: '', // 维修出库id
       clickItemId: '',
       optionObj: {
         id: 'maintenanceOutboundOrderTable',
@@ -240,14 +250,9 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
-              name: '编辑',
+              name: '出库',
               click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/outbound/maintenanceOutboundOrder/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
+                this.repairPopup(row);
               },
               type: 'info'
             }, {
@@ -383,7 +388,7 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+        if (data[key] === '' || data[key] === null || data[key].length === 0) {
           delete data[key];
         }
       });
@@ -458,6 +463,14 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
+    // 维修出库弹窗
+    repairPopup (val) {
+      this.maintenanceId = val.id;
+      this.repairDialogVisible = true;
+    },
+    handleRepairDialogClose () {
+      this.repairDialogVisible = false;
+    }
   }
 };
 </script>

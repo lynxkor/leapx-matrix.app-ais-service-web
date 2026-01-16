@@ -1,7 +1,7 @@
 <template>
     <el-dialog
       class="m-start-work-dialog"
-      title="作业开始"
+      title="维修出库"
       width="1000px"
       :visible.sync="dialogVisible"
       @close="close"
@@ -22,11 +22,10 @@
             @checkbox-all="handleSelectionChange"
           >
             <vxe-column type="checkbox" width="60" align="center" />
-            <vxe-column type="seq" title="序号" width="70" align="center" />
-            <vxe-column field="code" title="备件编码" width="130" />
-            <vxe-column field="name" title="备件名称" min-width="150" show-overflow />
-            <vxe-column field="actualTime" title="可用库存" width="170" />
-            <vxe-column field="actualTime" title="出库数量" width="170" />
+            <vxe-column field="sparePartCode" title="备件编码" width="130" />
+            <vxe-column field="sparePartName" title="备件名称" width="150" show-overflow />
+            <vxe-column field="availableQty" title="可用库存" width="170" />
+            <vxe-column field="outboundQty" title="出库数量" width="170" />
             <vxe-column title="工位" width="130">
               <template #default="{ row }">
                 <el-select v-model="row.workstation" size="mini" placeholder="请选择">
@@ -53,6 +52,8 @@
   </template>
 
 <script>
+import { collarPage } from '@/api/sparepart/outbound/maintenanceOutboundOrder/index';
+
 export default {
   name: 'StartWorkDialog',
   props: {
@@ -65,6 +66,10 @@ export default {
       default: () => {
         return {};
       }
+    },
+    id: {
+      type: String,
+      default: ''
     }
   },
   data () {
@@ -158,12 +163,18 @@ export default {
   },
   methods: {
     initData () {
-      // 初始化默认时间为当前时间
-      this.batchForm.actualTime = this.formatDate(new Date());
-      console.log('初始化批量修改数据', this.info);
+      const params = {
+        pageNum: 1,
+        pageSize: 50,
+        maintenanceOutboundOrderId: this.id,
+        outboundIs: 0
+      };
+      collarPage(params).then(res => {
+        this.tableData = res || [];
+      });
     },
     close () {
-      this.$emit('update:visible', false);
+      this.$emit('close');
     },
     closed () {
       this.batchForm = {

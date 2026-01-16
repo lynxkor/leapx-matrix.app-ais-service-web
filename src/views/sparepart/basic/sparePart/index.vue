@@ -190,7 +190,6 @@ const defaultForm = {
   vfgId: '',
   vrtId: '',
   remark: '',
-  status: 1,
   createTime: '',
   updateTime: '',
 };

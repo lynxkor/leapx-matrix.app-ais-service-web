@@ -272,22 +272,22 @@ export default {
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
-          field: 'sparePartId',
+          field: 'sparePartCode',
           title: '备件编码',
           width: '8%',
         },
         {
-          field: 'age',
+          field: 'sparePartName',
           title: '备件名称',
           width: '8%',
         },
         {
-          field: 'email',
+          field: 'locationName',
           title: '库位',
           width: '8%',
         },
         {
-          field: 'email',
+          field: 'availableQty',
           title: '可用库存',
           width: '8%',
         },
@@ -297,17 +297,17 @@ export default {
           width: '8%',
         },
         {
-          field: 'costUnitPrice',
+          field: 'price',
           title: '单价',
           width: '8%',
         },
         {
-          field: 'email',
+          field: 'discountAmount',
           title: '优惠金额',
           width: '8%',
         },
         {
-          field: 'email',
+          field: 'partsAmount',
           title: '应付金额',
           width: '8%',
         },
@@ -339,17 +339,17 @@ export default {
       ],
       columnsTl: [
         {
-          field: 'sparePartId',
+          field: 'sparePartCode',
           title: '备件编码',
           width: '9%',
         },
         {
-          field: 'age',
+          field: 'sparePartName',
           title: '备件名称',
           width: '9%',
         },
         {
-          field: 'email',
+          field: 'locationName',
           title: '库位',
           width: '9%',
         },
