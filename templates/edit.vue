@@ -13,6 +13,7 @@
         :detailRequest="detailRequest"
       >
         <template #status>
+          <!-- 支持primary,warning,success,danger等状态 -->
           <span class="status primary">状态</span>
         </template>
         <template #extraButtons>

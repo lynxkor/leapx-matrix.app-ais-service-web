@@ -23,6 +23,18 @@
                 <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
                 <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
                 <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                  <el-form-item label="VRT名称：" prop="vrtId">
+                    <list-select
+                      listUrl="/claimreturn/claim/web/basic/vrt/list"
+                      placeholder="请选择"
+                      v-model="form.vrtId"
+                      query-key="vrtNameLike"
+                      auto-load-options
+                      no-param-load
+                      filterable
+                      clearable
+                      :params="{}" />
+                  </el-form-item>
                   <el-form-item label="VFG编码：" prop="vfgCode">
                     <el-input
                       placeholder="请输入"
@@ -39,18 +51,6 @@
                       maxlength="100"
                       clearable
                     />
-                  </el-form-item>
-                  <el-form-item label="VRT名称：" prop="vrtId">
-                    <list-select
-                      listUrl="/claimreturn/claim/web/basic/vrt/list"
-                      placeholder="请选择"
-                      v-model="form.vrtId"
-                      query-key="vrtNameLike"
-                      auto-load-options
-                      no-param-load
-                      filterable
-                      clearable
-                      :params="{}" />
                   </el-form-item>
                   <el-form-item label="状态：" prop="status">
                     <fetch-select

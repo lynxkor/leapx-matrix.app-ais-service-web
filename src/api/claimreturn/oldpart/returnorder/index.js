@@ -58,3 +58,21 @@ export function publish (data) {
 export function signByIds (data) {
   return api.jsonPost(prefix + 'signByIds', data);
 }
+
+/**
+ * 添加明细
+ * @param {Object} data
+ * @returns
+ */
+export function addDetail (data) {
+  return api.jsonPost(prefix + 'addDetail', data);
+}
+
+/**
+ * 删除明细
+ * @param {Object} data
+ * @returns
+ */
+export function removeDetail (data) {
+  return api.jsonPost(prefix + 'removeDetail', data);
+}

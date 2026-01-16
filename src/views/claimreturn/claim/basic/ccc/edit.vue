@@ -22,23 +22,6 @@
               <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="CCC编码：" prop="cccCode">
-                  <el-input
-                    placeholder="请输入"
-                    :disabled="form.id!==''"
-                    v-model="form.cccCode"
-                    maxlength="100"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="CCC名称：" prop="cccName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.cccName"
-                    maxlength="100"
-                    clearable
-                  />
-                </el-form-item>
                 <el-form-item label="VRT名称：" prop="vrtId">
                   <list-select
                     listUrl="/claimreturn/claim/web/basic/vrt/list"
@@ -64,6 +47,23 @@
                     :params="{vrtId: form.vrtId}"
                     />
                 </el-form-item>
+                <el-form-item label="CCC编码：" prop="cccCode">
+                  <el-input
+                    placeholder="请输入"
+                    :disabled="form.id!==''"
+                    v-model="form.cccCode"
+                    maxlength="100"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="CCC名称：" prop="cccName">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.cccName"
+                    maxlength="100"
+                    clearable
+                  />
+                </el-form-item>
                 <el-form-item label="状态：" prop="status">
                   <fetch-select
                     :request="fetchOptions"
@@ -77,17 +77,17 @@
                 </el-form-item>
               </el-form>
               <el-form :inline="true" label-width="150px"  class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="CCC编码：" prop="cccCode">
-                  {{ form.cccCode }}
-                </el-form-item>
-                <el-form-item label="CCC名称：" prop="cccName">
-                  {{ form.cccName }}
-                </el-form-item>
                 <el-form-item label="VRT名称：" prop="vrtName">
                   {{ form.vrtName }}
                 </el-form-item>
                 <el-form-item label="VFG名称：" prop="vfgName">
                   {{ form.vfgName }}
+                </el-form-item>
+                <el-form-item label="CCC编码：" prop="cccCode">
+                  {{ form.cccCode }}
+                </el-form-item>
+                <el-form-item label="CCC名称：" prop="cccName">
+                  {{ form.cccName }}
                 </el-form-item>
                 <el-form-item label="状态：" prop="status">
                   {{ form.statusLabel }}
