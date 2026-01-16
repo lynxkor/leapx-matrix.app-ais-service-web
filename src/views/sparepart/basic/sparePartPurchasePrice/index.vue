@@ -124,8 +124,8 @@
       <!-- <el-button >集中视图</el-button> -->
       <!-- <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button> -->
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">失效</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -202,7 +202,7 @@ export default {
   data () {
     return {
       storeOptions: [],
-      pageTitle: '零配件采购价格',
+      pageTitle: '备件采购价格',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-sparePartPurchasePrice',
@@ -286,24 +286,6 @@ export default {
                 });
               },
               type: 'info'
-            }, {
-              name: '失效',
-              popconfirmTitle: '确认失效?',
-              click: (rowIndex, row) => {
-                enableItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '失效成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '失效失败!'
-                  });
-                });
-              },
-              type: 'danger'
             }]
           }
         ],
@@ -392,7 +374,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '零配件采购价格',
+        businessType: '备件采购价格',
         dataFetchPath: 'sparepart/web/basic/sparePartPurchasePrice/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),

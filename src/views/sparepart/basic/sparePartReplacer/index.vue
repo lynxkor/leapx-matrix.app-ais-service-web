@@ -171,7 +171,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '零配件替换关系',
+      pageTitle: '备件替换件关系',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-sparePartReplacer',
@@ -332,7 +332,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '零配件替换关系',
+        businessType: '备件替换件关系',
         dataFetchPath: 'sparepart/web/basic/sparePartReplacer/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),

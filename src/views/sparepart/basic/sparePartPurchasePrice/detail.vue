@@ -112,7 +112,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['零配件采购价格', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['备件采购价格', '详情']);
     this.getData();
   },
   methods: {

@@ -240,7 +240,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['零配件销售价格']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['备件销售价格']);
     this.getData();
   },
   methods: {
@@ -267,7 +267,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '零配件销售价格',
+        businessType: '备件销售价格',
         dataFetchPath: 'sparepart/web/basic/sparePartSalesPrice/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
