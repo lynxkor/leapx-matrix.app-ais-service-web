@@ -25,6 +25,9 @@
             <el-form-item label="修改时间：" prop="updateTime">
               {{ info.updateTime  }}
             </el-form-item>
+            <el-form-item label="建店类型：" prop="categoryBuildTypeRespList">
+              {{ info.categoryBuildTypeRespList.map(item => item.buildTypeName).join('、')  }}
+            </el-form-item>
             <el-form-item label="备注：" prop="remark">
               {{ info.remark  }}
             </el-form-item>
@@ -55,7 +58,7 @@
             <div class="common-section-table">
               <edit-table
                 ref="editTable"
-                :columns="columnsNo"
+                :columns="columns"
                 :data="noTableData"
                 :show-toolbar="false"
                 :isFocusNewRow="false"
@@ -110,28 +113,6 @@ export default {
           width: '25%',
         }
       ],
-      columnsNo: [
-        {
-          field: 'buildTypeName',
-          title: '门店名称',
-          width: '25%',
-        },
-        {
-          field: 'buildTypeCode',
-          title: '门店编码',
-          width: '25%',
-        },
-        {
-          field: 'createTime',
-          title: '添加时间',
-          width: '25%',
-        },
-        {
-          field: 'creatorName',
-          title: '操作人',
-          width: '25%',
-        }
-      ]
     };
   },
   created () {
@@ -152,7 +133,7 @@ export default {
         this.loading = false;
         this.info = res;
         this.tableData = res.categoryPurchaseDealerRespList || [];
-        this.noTableData = res.categoryBuildTypeRespList || [];
+        this.noTableData = res.notCategoryPurchaseDealerRespList || [];
       }).catch(() => {
         this.loading = false;
       });
