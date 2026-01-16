@@ -12,18 +12,10 @@
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form inline :model="form" :rules="rules" ref="ruleForm" label-width="160px">
               <el-form-item label="备件编码" prop="partCode">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.partCode"
-                  clearable
-                />
+                {{form.partCode}}
               </el-form-item>
               <el-form-item label="备件名称" prop="partName">
-                <el-input
-                  v-model="form.partName"
-                  disabled
-                  clearable
-                />
+                {{form.partName}}
               </el-form-item>
               <el-form-item label="拼音简码" prop="pinyinCode">
                 <el-input
@@ -423,7 +415,7 @@
         <section class="common-section">
           <div class="common-section-header modeZb">
             <h2>车型信息</h2>
-            <div class="modeBtn" @click.stop="handleModel">维护车型</div>
+            <el-button class="modeBtn" type="primary" size="small" plain v-permission:disabled="'AISPART-sparePartVehicleModel-addOrUpdate'" @click.stop="handleModel">维护车型</el-button>
           </div>
           <div class="common-section-body">
             <div class="common-section-table">
@@ -455,7 +447,7 @@
         </section>
       </el-main>
       <el-footer height="60px">
-        <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
+        <el-button size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
         <el-button size="small" @click="handleBack">取消</el-button>
         <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
       </el-footer>
@@ -1024,17 +1016,6 @@ export default {
     align-items: center !important; /* 垂直居中 */
   }
   .modeZb .modeBtn {
-    cursor: pointer;
     margin-left: 10px;
-    font-size: 14px;
-    border: 1px solid #009100;
-    color: #009100;
-    border-radius: 4px;
-    padding: 0 8px;
-    height: 24px;
-    line-height: 24px;
-    display: inline-flex;
-    align-items: center;
-    vertical-align: middle;
   }
 </style>
