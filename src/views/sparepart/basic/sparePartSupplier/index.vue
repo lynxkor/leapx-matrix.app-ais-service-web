@@ -154,7 +154,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '供应商零配件关系',
+      pageTitle: '供应商备件关系',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-sparePartSupplier',

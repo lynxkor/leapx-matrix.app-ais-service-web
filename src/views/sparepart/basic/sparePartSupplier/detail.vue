@@ -92,7 +92,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['供应商零配件关系', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['供应商备件关系', '详情']);
     this.getData();
   },
   methods: {
