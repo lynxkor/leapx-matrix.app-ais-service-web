@@ -81,7 +81,8 @@
             <el-form-item label="区&#x2F;县编码：" prop="districtCode">
               {{ info.districtCode  }}
             </el-form-item>-->
-            <el-form-item label="详细地址：" prop="address">
+            <el-form-item label="详细地址：" prop="address"
+            v-if="permissions.has('web:basic:supplierInfo:oemColumn')">
               {{ info.address  }}
             </el-form-item>
             <el-form-item label="联系人姓名：" prop="contactName">

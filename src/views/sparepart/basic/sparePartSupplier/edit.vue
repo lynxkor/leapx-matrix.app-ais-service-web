@@ -140,7 +140,32 @@ export default {
           { required: true, message: '请选择备件', trigger: 'blur' }
         ],
         quota: [
-          { required: false, message: '请输入配额数值', trigger: 'blur' }
+          { required: false, message: '请输入配额数值', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              // 非必填，允许为空
+              if (value === null || value === undefined || value === '') {
+                callback();
+                return;
+              }
+              // 转换为数字
+              const num = Number(value);
+              // 检查转换是否有效
+              if (isNaN(num)) {
+                callback(new Error('请输入有效的数字'));
+                return;
+              }
+              // 根据需求选择条件：
+              // 1. 大于0的整数：num > 0
+              // 2. 大于等于0的整数：num >= 0
+              if (num < 0) {
+                callback(new Error('请输入大于等于0的数'));
+                return;
+              }
+              callback();
+            },
+            trigger: 'blur'
+          }
         ],
       },
       pickerOptions: {
@@ -202,7 +227,7 @@ export default {
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['供应商零配件关系', `${id ? '编辑' : '新建'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['供应商备件关系', `${id ? '编辑' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;

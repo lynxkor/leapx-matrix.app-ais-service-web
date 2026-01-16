@@ -190,7 +190,6 @@ const defaultForm = {
   vfgId: '',
   vrtId: '',
   remark: '',
-  status: 1,
   createTime: '',
   updateTime: '',
 };
@@ -274,7 +273,11 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
-              name: '编辑',
+              name: '编辑 ',
+              disabled: () => {
+                const a = this.permissions.has('AISPART-sparePart-vfgImport') || this.permissions.has('AISPART-sparePartVehicleModel-addOrUpdate') || this.permissions.has('AISPART-sparePart-purchaseImport') || this.permissions.has('AISPART-sparePart-transportImport') || this.permissions.has('AISPART-sparePart-salesImport');
+                return !a;
+              },
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/basic/sparePart/edit',
@@ -284,24 +287,6 @@ export default {
                 });
               },
               type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
             }]
           }
         ],

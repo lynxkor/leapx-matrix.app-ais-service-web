@@ -25,6 +25,9 @@
             <el-form-item label="修改时间：" prop="updateTime">
               {{ info.updateTime  }}
             </el-form-item>
+            <el-form-item label="建店类型：" prop="categoryBuildTypeRespList">
+              {{ info.categoryBuildTypeRespList.map(item => item.buildTypeName).join('、')  }}
+            </el-form-item>
             <el-form-item label="备注：" prop="remark">
               {{ info.remark  }}
             </el-form-item>
@@ -130,7 +133,7 @@ export default {
         this.loading = false;
         this.info = res;
         this.tableData = res.categoryPurchaseDealerRespList || [];
-        this.noTableData = res.categoryBuildTypeRespList || [];
+        this.noTableData = res.notCategoryPurchaseDealerRespList || [];
       }).catch(() => {
         this.loading = false;
       });

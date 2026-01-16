@@ -12,25 +12,25 @@
       <el-form-item label="备件编码">
         <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="备件名称"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="备件名称">
         <el-input
           placeholder="请输入"
           v-model="form.sparePartNameLike"
           clearable
         />
       </el-form-item>
+      <el-form-item label="定价模式" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="PricingModelEnum"
+          v-model="form.pricingModels"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
+        />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="定价模式">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="PricingModelEnum"
-            v-model="form.pricingModels"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
         <el-form-item label="门店编码">
           <el-input
             placeholder="请输入"
@@ -124,8 +124,8 @@
       <!-- <el-button >集中视图</el-button> -->
       <!-- <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button> -->
+      <!-- <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">失效</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -146,7 +146,7 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="sparePartPurchasePriceImport"
+      :id="'sparePartPurchasePriceImport'"
       @close="handleUploadDialogClose"
     />
   </div>
@@ -202,7 +202,7 @@ export default {
   data () {
     return {
       storeOptions: [],
-      pageTitle: '零配件采购价格',
+      pageTitle: '备件采购价格',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-sparePartPurchasePrice',
@@ -259,6 +259,7 @@ export default {
           },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
           { props: 'pricingModelLabel', label: '定价模式', visible: true, width: 200 },
+          { props: 'dealerPurchasePrice', label: '采购价格', visible: true, width: 200 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'adjustmentRatio', label: '调价比例（%）', visible: true, width: 200 },
@@ -274,36 +275,30 @@ export default {
             type: 'operate',
             visible: true,
             fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/basic/sparePartPurchasePrice/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
+            buttons: [
+              {
+                name: '失效',
+                click: (rowIndex, row) => {
+                  this.handleFailure(row.id, 0);
+                },
+                disabled: (row) => {
+                  // 根据 row.canInvalid 值决定是否禁用
+                  return row.canInvalid === 0;
+                },
+                type: 'info'
               },
-              type: 'info'
-            }, {
-              name: '失效',
-              popconfirmTitle: '确认失效?',
-              click: (rowIndex, row) => {
-                enableItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '失效成功!'
+              {
+                name: '编辑',
+                click: (rowIndex, row) => {
+                  this.$router.push({
+                    path: '/sparepart/basic/sparePartPurchasePrice/edit',
+                    query: {
+                      id: row.id
+                    }
                   });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '失效失败!'
-                  });
-                });
-              },
-              type: 'danger'
-            }]
+                },
+                type: 'info'
+              }]
           }
         ],
         total: 0
@@ -391,7 +386,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '零配件采购价格',
+        businessType: '备件采购价格',
         dataFetchPath: 'sparepart/web/basic/sparePartPurchasePrice/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -555,6 +550,38 @@ export default {
         refreshFunc: this.getData
       });
     },
+    // 单条信息停用
+    handleFailure (val) {
+      console.log('val', val);
+      const promptConfig = {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        showClose: true,
+        message: '失效说明'
+      };
+
+      this.$prompt(promptConfig.message, promptConfig).then(({ value }) => {
+        if (value) {
+          const params = {
+            idSet: [val],
+            status: 0,
+            statusDesc: value
+          };
+          enableItem(params).then(() => {
+            this.$message({
+              type: 'success',
+              message: '失效成功!'
+            });
+            this.getData();
+          }).catch(() => {
+            this.$message({
+              type: 'error',
+              message: '失效失败!'
+            });
+          });
+        }
+      }).catch(() => {});
+    }
   }
 };
 </script>
