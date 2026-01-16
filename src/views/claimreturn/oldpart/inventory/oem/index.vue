@@ -423,9 +423,9 @@ export default {
       console.log(this.selectionList);
       this.$print.show({
         id: 'xxxx', // 必选，对应数据id
-        template: 'oldpart', // 必选，对应 ./template/文件名.vue
-        title: 'test', // 可选，打印标题
-        data: { id: 'xxx' }, // 可选，其他数据对象
+        template: 'OldPartMark', // 必选，对应 ./template/文件名.vue
+        title: '', // 可选，打印标题
+        data: { id: '' }, // 可选，其他数据对象
         width: 1122,
       });
     },

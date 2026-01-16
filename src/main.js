@@ -23,7 +23,7 @@ import {
 import {
   VxeTable,
   VxeColumn,
-  VxeToolbar
+  VxeToolbar,
 } from 'vxe-table';
 
 // 导入主题变量，也可以重写主题变量

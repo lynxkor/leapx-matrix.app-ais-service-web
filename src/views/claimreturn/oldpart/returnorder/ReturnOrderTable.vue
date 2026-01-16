@@ -3,13 +3,13 @@
     <div class="common-section-header">
       <h2>
         <span>旧件明细</span>
-        <div class="btns">
-          <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
-          <el-button v-if="canAddOrUpdate" size="small" @click.stop="handleAddRow">删除</el-button>
+        <div v-if="_id" class="btns">
+          <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="openAdd"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+          <el-button v-if="canAddOrUpdate" size="small" @click.stop="handleRemoveRow">删除</el-button>
         </div>
       </h2>
     </div>
-    <div class="common-section-body">
+    <div v-if="_id" class="common-section-body">
       <div class="common-section-table">
         <edit-table
           ref="editTable"
@@ -32,13 +32,17 @@
         />
       </div>
     </div>
+    <div class="common-section-body not-commit" v-else>
+      提交新建后，即可添加
+    </div>
     <old-part-dialog
-      :visible="true"
+      :visible.sync="visible"
+      :_id="_id"
+      :dealerCode="dealerCode"
       />
   </section>
 </template>
 <script>
-import { uIntRule } from '@/validation/rule';
 import {
   getList, // 旧件库存详情分页查询
 } from '@/api/claimreturn/oldpart/inventory/oem/index';
@@ -53,7 +57,13 @@ export default {
   props: {
     canAddOrUpdate: {
       type: Boolean,
-    }
+    },
+    _id: {
+      type: String,
+    },
+    dealerCode: {
+      type: String,
+    },
   },
   components: {
     EditTable,
@@ -82,6 +92,8 @@ export default {
       pageSize: 10,
       total: 0,
       tableData: [],
+      //
+      visible: false,
       // 表格内的下拉列表
       options: {
         partCode: [],
@@ -122,100 +134,6 @@ export default {
           editRender: { name: 'ElInput' },
         },
       ],
-      rules: {
-        judgmentBasis: [
-          { required: true, message: '请输入判断依据', trigger: 'blur' },
-        ],
-        determineUnit: [
-          {
-            required: true,
-            message: '请输入判断单位（次数，天数）',
-            trigger: 'change',
-          },
-        ],
-        accumulation: [
-          {
-            required: true,
-            message: '请输入累计方式（单一零件，任意零件）',
-            trigger: 'change',
-          },
-        ],
-        vehicleProperty: [
-          {
-            required: true,
-            message: '请选择',
-            trigger: 'change',
-          },
-        ],
-        saleStartDate: [
-          { required: true, message: '请输入销售开始日期', trigger: 'blur' },
-        ],
-        saleEndDate: [
-          { required: true, message: '请输入销售结束日期', trigger: 'blur' },
-        ],
-        warningVehicleAgeFrom: [
-          { required: true, message: '请输入预警车龄起', trigger: 'blur' },
-          uIntRule,
-        ],
-        warningVehicleAgeTo: [
-          { required: true, message: '请输入预警车龄止', trigger: 'blur' },
-          uIntRule,
-        ],
-        warningMileageFrom: [
-          { required: true, message: '请输入预警里程起', trigger: 'blur' },
-          uIntRule,
-        ],
-        warningMileageTo: [
-          { required: true, message: '请输入预警里程止', trigger: 'blur' },
-          uIntRule,
-        ],
-        greenWarning1: [
-          // { required: true, message: '请输入绿色预警区间1', trigger: 'blur' },
-          uIntRule,
-        ],
-        greenWarning2: [
-          // { required: true, message: '请输入绿色预警区间2', trigger: 'blur' },
-          uIntRule,
-        ],
-        yellowWarning2: [
-          // { required: true, message: '请输入黄色预警区间2', trigger: 'blur' },
-          uIntRule,
-        ],
-        yellowWarning1: [
-          // { required: true, message: '请输入黄色预警区间1', trigger: 'blur' },
-          uIntRule,
-        ],
-        redWarning1: [
-          // { required: true, message: '请输入红色预警区间1', trigger: 'blur' },
-          uIntRule,
-        ],
-        redWarning2: [
-          // { required: true, message: '请输入红色预警区间2', trigger: 'blur' },
-          uIntRule,
-        ],
-        status: [{ required: true, message: '请选择状态', trigger: 'change' }],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' },
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' },
-        ],
-        id: [{ required: true, message: '请输入主键', trigger: 'blur' }],
-        remark: [{ required: true, message: '请输入备注', trigger: 'blur' }],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' },
-        ],
-        reminderItem: [
-          { required: true, message: '请输入警示条款', trigger: 'blur' },
-        ],
-        reminderContent: [
-          { required: true, message: '请输入警示内容', trigger: 'blur' },
-        ],
-        warningContent: [
-          { required: true, message: '请输入预警内容', trigger: 'blur' },
-        ],
-        details: [{ required: true, message: '请输入明细', trigger: 'blur' }],
-      },
     };
   },
   mounted () {
@@ -237,11 +155,15 @@ export default {
       }).then((res) => {
         this.tableData = res.records;
         this.total = res.total;
+        this.$emit('getTableData', this.tableData);
       });
     },
-    handleAddRow () {
-      // 通过引用直接调用子组件方法
-      // this.$refs.editTable.addRow();
+    openAdd () {
+      if (!this.dealerCode) {
+        this.$message.info('');
+        return;
+      }
+      this.visible = true;
     },
     handleRemoveRow (row, index, defer) {
       if (!row.id) {

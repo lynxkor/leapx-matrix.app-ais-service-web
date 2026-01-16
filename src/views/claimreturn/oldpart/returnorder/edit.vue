@@ -33,7 +33,7 @@
           <template v-if="form.returnStatus==='30'">
             <el-button v-if="canAddOrUpdate" size="small">签收</el-button>
           </template>
-          <el-button v-if="canAddOrUpdate" size="small">打印回运单</el-button>
+          <el-button v-if="canAddOrUpdate" @click="onPrintReturnOrder" size="small">打印回运单</el-button>
           <el-button v-if="canAddOrUpdate" size="small">打印标签</el-button>
           <el-button v-if="canAddOrUpdate" size="small">打印外包装标签</el-button>
         </template>
@@ -266,6 +266,9 @@
           </section>
           <ReturnOrderTable
             :canAddOrUpdate="canAddOrUpdate"
+            :_id="_id"
+            :dealerCode="dealerCode"
+            @getTableData="getTableData"
           />
         </el-main>
       </edit-base-container>
@@ -288,7 +291,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
-import ReturnOrderTable from './Table.vue';
+import ReturnOrderTable from './ReturnOrderTable.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -371,6 +374,8 @@ export default {
         // 如 type: [{label: 'xxx', value: 'xxx'}]
       },
       rules: {},
+      dealerCode: '',
+      existTableData: false,
     };
   },
   created () {
@@ -379,6 +384,10 @@ export default {
   mounted () {
   },
   methods: {
+    getTableData (data) {
+      this.existTableData = Boolean(data?.length > 0);
+      this.tableData = data;
+    },
     // 门店名称搜索
     async dealerSearch (query) {
       return listOrgStoreInfo({
@@ -455,6 +464,7 @@ export default {
       const id = this._id;
       if (id) {
         return getDetail(id).then(data => {
+          this.dealerCode = data.dealerCode;
           this.updateRules(data.returnStatus);
           return data;
         });
@@ -523,8 +533,38 @@ export default {
       }).catch(() => {});
     },
     onNext () {
-      // 当前旧件回运单没有添加明细
-      publish(this._id).then(res => {});
+      if (!this.existTableData) {
+        this.$message.warning('当前旧件回运单没有添加明细');
+        return;
+      }
+      // 是否确认下发
+      this.$confirm('是否确认下发？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        publish(this._id).then(() => {
+          this.$message({
+            type: 'success',
+            message: '下发成功'
+          });
+          this.$refs.containerRef.loadDetail();
+        }).catch(() => {
+
+        });
+      }).catch(() => {});
+    },
+    onPrintReturnOrder () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'ReturnOrder',
+        title: '打印回运单',
+        data: {
+          form: this.form,
+          tableData: this.tableData,
+        },
+        width: 1122,
+      });
     }
   }
 };
