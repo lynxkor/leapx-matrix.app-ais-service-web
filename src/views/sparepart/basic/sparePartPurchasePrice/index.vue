@@ -146,7 +146,7 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="sparePartPurchasePriceImport"
+      :id="'sparePartPurchasePriceImport'"
       @close="handleUploadDialogClose"
     />
   </div>
@@ -259,6 +259,7 @@ export default {
           },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
           { props: 'pricingModelLabel', label: '定价模式', visible: true, width: 200 },
+          { props: 'dealerPurchasePrice', label: '采购价格', visible: true, width: 200 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'adjustmentRatio', label: '调价比例（%）', visible: true, width: 200 },
