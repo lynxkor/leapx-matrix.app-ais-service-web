@@ -1,7 +1,7 @@
 <template>
     <el-dialog
       class="m-start-work-dialog"
-      title="作业开始"
+      title="维修出库"
       width="1000px"
       :visible.sync="dialogVisible"
       @close="close"
@@ -163,7 +163,7 @@ export default {
       console.log('初始化批量修改数据', this.info);
     },
     close () {
-      this.$emit('update:visible', false);
+      this.$emit('close');
     },
     closed () {
       this.batchForm = {
