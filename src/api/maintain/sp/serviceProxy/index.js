@@ -90,3 +90,27 @@ export function checkVinTag (data) {
 export function precheck (data) {
   return api.jsonPost(prefix + 'precheck', data);
 }
+
+/**
+ * 优惠模式
+ * @param {Object} data
+ */
+export function getDiscountType (data) {
+  return api.jsonPost('maintain/web/basic/dealerDiscount/repairItem', data);
+}
+
+/**
+ * 维修项目--详情
+ * @param {Object} data
+ */
+export function getRepairItemInfo (data) {
+  return api.jsonPost(prefix + 'repairItemInfo', data);
+}
+
+/**
+ * 维修项目--详情
+ * @param {Object} data
+ */
+export function filterRepairItem (data) {
+  return api.jsonPost(prefix + 'repairItem/filter', data);
+}

@@ -2,7 +2,7 @@
   <el-dialog
     class="m-add-repair-item-dialog"
     title="添加维修项目"
-    width="1000px"
+    width="1200px"
     :visible.sync="dialogVisible"
     @close="close"
     @closed="closed"
@@ -11,15 +11,15 @@
     <div class="info-bar">
       <div class="info-item">
         <span class="label">VIN:</span>
-        <span class="value">{{ vehicleInfo.vin }}</span>
+        <span class="value">{{ vehicleInfo.vehProfileVin || '-' }}</span>
       </div>
       <div class="info-item">
         <span class="label">车型:</span>
-        <span class="value">{{ vehicleInfo.model }}</span>
+        <span class="value">{{ vehicleInfo.vehModelName || '-' }}</span>
       </div>
       <div class="info-item">
         <span class="label">门店:</span>
-        <span class="value">{{ vehicleInfo.store }}</span>
+        <span class="value">{{ vehicleInfo.dealerName || '-' }}</span>
       </div>
       <div class="info-item">
         <span class="label">优惠模式:</span>
@@ -29,26 +29,25 @@
           size="small"
           style="width: 120px;"
         >
-          <el-option label="标准优惠" value="standard"></el-option>
-          <el-option label="会员优惠" value="member"></el-option>
+          <el-option :label="item.name" :value="item.code" v-for="item in discountType" :key="item.code"></el-option>
         </el-select>
       </div>
       <div class="info-item">
         <span class="label">维修项目合计:</span>
-        <span class="value highlight">¥{{ itemTotal.toFixed(2) }}</span>
+        <span class="value">¥{{ info.workCostCount || 0 }}</span>
       </div>
       <div class="info-item">
         <span class="label">维修配件合计:</span>
-        <span class="value highlight">¥{{ partTotal.toFixed(2) }}</span>
+        <span class="value">¥{{ info.barkCostCount || 0 }}</span>
       </div>
       <div class="info-item">
         <span class="label">费用合计:</span>
-        <span class="value total">¥{{ totalCost.toFixed(2) }}</span>
+        <span class="value">¥{{ info.maintenanceCostEstimation || 0 }}</span>
       </div>
     </div>
 
     <!-- 维修类型标签页 -->
-    <div class="type-tabs">
+    <!-- <div class="type-tabs">
       <div
         v-for="tab in typeTabs"
         :key="tab.value"
@@ -58,7 +57,7 @@
       >
         {{ tab.label }}
       </div>
-    </div>
+    </div> -->
 
     <!-- Tab内容区 -->
     <div class="tab-content">
@@ -66,6 +65,26 @@
       <div class="tab-panel">
         <div class="panel-header">
           <h3>维修项目</h3>
+        </div>
+        <div class="add-row ais-select-group">
+          <el-autocomplete
+            v-model="itemSearchKey"
+            placeholder="输入维修项目代码、名称、拼音简码"
+            :fetch-suggestions="searchRepairItem"
+            @select="handleSelect"
+            size="small"
+            style="width: 500px;"
+          >
+            <template slot="prepend">
+              <div>
+                维修类型：
+                <el-select v-model="repairType" placeholder="请选择" style="width: 110px;">
+                  <el-option v-for="item in itemOptions.type" :label="item.label" :value="item.value" :key="item.value"></el-option>
+                </el-select>
+              </div>
+            </template>
+          </el-autocomplete>
+          <el-button type="primary" size="small" @click="addItem">添加</el-button>
         </div>
         <edit-table
           ref="itemTable"
@@ -76,18 +95,8 @@
           :auth="{edit: false, delete: true}"
           :default-new-row="defaultItemRow"
           emptyText="请添加数据"
+          seq
         />
-        <div class="add-row ais-select-group">
-          <el-input
-            v-model="itemSearchKey"
-            placeholder="请输入维修项目/套餐代码名称拼音简码模糊搜索"
-            size="small"
-            style="width: 400px;"
-          >
-            <i slot="prefix" class="el-input__icon el-icon-search"></i>
-          </el-input>
-          <el-button type="primary" size="small" icon="el-icon-plus" @click="addItem">添加</el-button>
-        </div>
       </div>
 
       <!-- 维修配件 tab -->
@@ -95,27 +104,35 @@
         <div class="panel-header">
           <h3>维修配件</h3>
         </div>
+        <div class="add-row ais-select-group">
+          <el-input
+            v-model="partSearchKey"
+            placeholder="输入维修项目代码、名称、拼音简码"
+            size="small"
+            style="width: 500px;"
+          >
+            <template slot="prepend">
+              <div>
+                维修类型：
+                <el-select v-model="partRepairType" placeholder="请选择" style="width: 110px;">
+                  <el-option v-for="item in itemOptions.type" :label="item.label" :value="item.value" :key="item.value"></el-option>
+                </el-select>
+              </div>
+            </template>
+          </el-input>
+          <el-button type="primary" size="small" @click="addItem">添加</el-button>
+        </div>
         <edit-table
           ref="partTable"
           :columns="partColumns"
           :data="partData"
           :show-toolbar="false"
-          :options="partOptions"
+          :options="itemOptions"
           :auth="{edit: false, delete: true}"
           :default-new-row="defaultPartRow"
           emptyText="请添加数据"
+          seq
         />
-        <div class="add-row ais-select-group">
-          <el-input
-            v-model="partSearchKey"
-            placeholder="请输入零件代码名称拼音简码模糊搜索"
-            size="small"
-            style="width: 400px;"
-          >
-            <i slot="prefix" class="el-input__icon el-icon-search"></i>
-          </el-input>
-          <el-button type="primary" size="small" icon="el-icon-plus" @click="addPart">添加</el-button>
-        </div>
       </div>
     </div>
 
@@ -130,6 +147,7 @@
 
 <script>
 import EditTable from '@/libs/components/EditTable';
+import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   name: 'SelectRepairItemDialog',
@@ -144,9 +162,9 @@ export default {
     vehicleInfo: {
       type: Object,
       default: () => ({
-        vin: 'LFZ63AL5XPD080206',
-        model: 'C01增程-316智享版',
-        store: '武汉零跑中心兴业路店'
+        // vin: 'LFZ63AL5XPD080206',
+        // model: 'C01增程-316智享版',
+        // store: '武汉零跑中心兴业路店'
       })
     }
   },
@@ -158,41 +176,39 @@ export default {
       itemSearchKey: '',
       partSearchKey: '',
       submitLoading: false,
+      repairType: '',
+      partRepairType: '',
 
-      // 维修类型标签
-      typeTabs: [
-        { label: '保养', value: 'maintenance' },
-        { label: '一般维修', value: 'general' },
-        { label: '钣喷', value: 'body' },
-        { label: '美容装潢', value: 'beauty' },
-        { label: '精品附件', value: 'premium' },
-        { label: '三电维修', value: 'electric' }
-      ],
+      // 优惠模式
+      discountType: [],
+
+      // 详情信息
+      info: {},
 
       // 维修项目表格配置
       itemData: [
-        {
-          id: 1,
-          code: '999999',
-          name: '万能工时',
-          type: 'maintenance',
-          settlementType: 'self',
-          warrantyType: 'none',
-          laborHours: 1.0,
-          unitPrice: 100.00,
-          discountRate: 0.5
-        },
-        {
-          id: 2,
-          code: '9217839293',
-          name: '更换风道上部',
-          type: 'maintenance',
-          settlementType: 'self',
-          warrantyType: 'none',
-          laborHours: 1.2,
-          unitPrice: 1000.00,
-          discountRate: 0.5
-        }
+        // {
+        //   id: 1,
+        //   code: '999999',
+        //   name: '万能工时',
+        //   type: 'maintenance',
+        //   settlementType: 'self',
+        //   warrantyType: 'none',
+        //   laborHours: 1.0,
+        //   unitPrice: 100.00,
+        //   discountRate: 0.5
+        // },
+        // {
+        //   id: 2,
+        //   code: '9217839293',
+        //   name: '更换风道上部',
+        //   type: 'maintenance',
+        //   settlementType: 'self',
+        //   warrantyType: 'none',
+        //   laborHours: 1.2,
+        //   unitPrice: 1000.00,
+        //   discountRate: 0.5
+        // }
       ],
       defaultItemRow: {
         code: '',
@@ -206,39 +222,39 @@ export default {
       },
       itemOptions: {
         type: [
-          { label: '保养', value: 'maintenance' },
-          { label: '一般维修', value: 'general' },
-          { label: '钣喷', value: 'body' },
-          { label: '美容装潢', value: 'beauty' },
-          { label: '精品附件', value: 'premium' },
-          { label: '三电维修', value: 'electric' }
+          // { label: '保养', value: 'maintenance' },
+          // { label: '一般维修', value: 'general' },
+          // { label: '钣喷', value: 'body' },
+          // { label: '美容装潢', value: 'beauty' },
+          // { label: '精品附件', value: 'premium' },
+          // { label: '三电维修', value: 'electric' }
         ],
         settlementType: [
-          { label: '自费', value: 'self' },
-          { label: '保修', value: 'warranty' },
-          { label: '保险', value: 'insurance' }
+          // { label: '自费', value: 'self' },
+          // { label: '保修', value: 'warranty' },
+          // { label: '保险', value: 'insurance' }
         ],
         warrantyType: [
-          { label: '无', value: 'none' },
-          { label: '整车保修', value: 'vehicle' },
-          { label: '备件保修', value: 'part' }
+          // { label: '无', value: 'none' },
+          // { label: '整车保修', value: 'vehicle' },
+          // { label: '备件保修', value: 'part' }
         ]
       },
 
       // 维修配件表格配置
       partData: [
-        {
-          id: 1,
-          code: '9217839293',
-          name: '空调滤芯',
-          type: 'maintenance',
-          settlementType: 'self',
-          warrantyType: 'none',
-          isOriginal: 'yes',
-          quantity: 1,
-          unitPrice: 37.6,
-          discountRate: 0.5
-        }
+        // {
+        //   id: 1,
+        //   code: '9217839293',
+        //   name: '空调滤芯',
+        //   type: 'maintenance',
+        //   settlementType: 'self',
+        //   warrantyType: 'none',
+        //   isOriginal: 'yes',
+        //   quantity: 1,
+        //   unitPrice: 37.6,
+        //   discountRate: 0.5
+        // }
       ],
       defaultPartRow: {
         code: '',
@@ -253,26 +269,26 @@ export default {
       },
       partOptions: {
         type: [
-          { label: '保养', value: 'maintenance' },
-          { label: '一般维修', value: 'general' },
-          { label: '钣喷', value: 'body' },
-          { label: '美容装潢', value: 'beauty' },
-          { label: '精品附件', value: 'premium' },
-          { label: '三电维修', value: 'electric' }
+          // { label: '保养', value: 'maintenance' },
+          // { label: '一般维修', value: 'general' },
+          // { label: '钣喷', value: 'body' },
+          // { label: '美容装潢', value: 'beauty' },
+          // { label: '精品附件', value: 'premium' },
+          // { label: '三电维修', value: 'electric' }
         ],
         settlementType: [
-          { label: '自费', value: 'self' },
-          { label: '保修', value: 'warranty' },
-          { label: '保险', value: 'insurance' }
+          // { label: '自费', value: 'self' },
+          // { label: '保修', value: 'warranty' },
+          // { label: '保险', value: 'insurance' }
         ],
         warrantyType: [
-          { label: '无', value: 'none' },
-          { label: '整车保修', value: 'vehicle' },
-          { label: '备件保修', value: 'part' }
+          // { label: '无', value: 'none' },
+          // { label: '整车保修', value: 'vehicle' },
+          // { label: '备件保修', value: 'part' }
         ],
         isOriginal: [
-          { label: '是', value: 'yes' },
-          { label: '否', value: 'no' }
+          // { label: '是', value: 'yes' },
+          // { label: '否', value: 'no' }
         ]
       }
     };
@@ -282,59 +298,53 @@ export default {
     itemColumns () {
       return [
         {
-          field: 'index',
-          title: '序号',
-          width: '60px',
-          formatter: (_value, _row, rowIndex) => rowIndex + 1
-        },
-        {
           field: 'code',
           title: '维修项目代码',
           width: '140px',
           editable: true,
-          editRender: { name: 'ElInput', props: { placeholder: '请输入代码' } }
+          editRender: { name: 'ElInput', props: { size: 'small', placeholder: '请输入代码' } }
         },
         {
           field: 'name',
           title: '维修项目名称',
           width: '180px',
           editable: true,
-          editRender: { name: 'ElInput', props: { placeholder: '请输入名称' } }
+          editRender: { name: 'ElInput', props: { size: 'small', placeholder: '请输入名称' } }
         },
         {
           field: 'type',
           title: '维修类型',
           width: '120px',
           editable: true,
-          editRender: { name: 'ElSelect', props: { placeholder: '请选择' } }
+          editRender: { name: 'ElSelect', props: { size: 'small', placeholder: '请选择' } }
         },
         {
           field: 'settlementType',
           title: '结算类型',
           width: '110px',
           editable: true,
-          editRender: { name: 'ElSelect', props: { placeholder: '请选择' } }
+          editRender: { name: 'ElSelect', props: { size: 'small', placeholder: '请选择' } }
         },
         {
           field: 'warrantyType',
           title: '保修类型',
           width: '110px',
           editable: true,
-          editRender: { name: 'ElSelect', props: { placeholder: '请选择' } }
+          editRender: { name: 'ElSelect', props: { size: 'small', placeholder: '请选择' } }
         },
         {
           field: 'laborHours',
           title: '工时',
           width: '100px',
           editable: true,
-          editRender: { name: 'ElInputNumber', props: { precision: 1, min: 0, controlsPosition: 'right' } }
+          editRender: { name: 'ElInputNumber', props: { size: 'small', precision: 1, min: 0, controlsPosition: 'right' } }
         },
         {
           field: 'unitPrice',
           title: '单价',
           width: '110px',
           editable: true,
-          editRender: { name: 'ElInputNumber', props: { precision: 2, min: 0, controlsPosition: 'right' } },
+          editRender: { name: 'ElInputNumber', props: { size: 'small', precision: 2, min: 0, controlsPosition: 'right' } },
           formatter: (value) => `¥${(value || 0).toFixed(2)}`
         },
         {
@@ -342,7 +352,7 @@ export default {
           title: '折扣率',
           width: '100px',
           editable: true,
-          editRender: { name: 'ElInputNumber', props: { precision: 2, min: 0, max: 1, step: 0.1, controlsPosition: 'right' } },
+          editRender: { name: 'ElInputNumber', props: { size: 'small', precision: 2, min: 0, max: 1, step: 0.1, controlsPosition: 'right' } },
           formatter: (value) => `${(value || 0).toFixed(2)}`
         }
       ];
@@ -350,12 +360,6 @@ export default {
     // 维修配件列配置
     partColumns () {
       return [
-        {
-          field: 'index',
-          title: '序号',
-          width: '60px',
-          formatter: (value, row, rowIndex) => rowIndex + 1
-        },
         {
           field: 'code',
           title: '零件代码',
@@ -444,6 +448,10 @@ export default {
   watch: {
     visible (val) {
       this.dialogVisible = val;
+      if (val) {
+        this.getEnumData();
+        this.getRepairItemInfo();
+      }
     },
     dialogVisible (val) {
       this.$emit('update:visible', val);
@@ -499,6 +507,54 @@ export default {
         this.submitLoading = false;
         this.$message.success('保存成功');
       }, 500);
+    },
+    getEnumData () {
+      getEnum('MaintenanceTypeEnum').then(res => {
+        this.itemOptions.type = (res || []).map(item => ({
+          label: item.message,
+          value: item.code
+        }));
+        this.repairType = res?.[0].code;
+        this.partRepairType = res?.[0].code;
+      });
+      getDiscountType().then(res => {
+        this.discountType = (res || []);
+      });
+      getEnum('StatementTypeEnum').then(res => {
+        this.itemOptions.settlementType = (res || []).map(item => ({
+          label: item.message,
+          value: item.code
+        }));
+      });
+      getEnum('WarrantyTypeEnum').then(res => {
+        this.itemOptions.warrantyType = (res || []).map(item => ({
+          label: item.message,
+          value: item.code
+        }));
+      });
+    },
+    getRepairItemInfo () {
+      getRepairItemInfo(this.vehicleInfo.id).then(res => {
+        this.info = res;
+        this.itemData = res.repairItemRespList || [];
+        this.partData = res.sparePartRespList || [];
+      });
+    },
+    searchRepairItem (queryString, cb) {
+      const tp = [
+        { label: '保养', value: 'maintenance' },
+        { label: '一般维修', value: 'general' },
+        { label: '钣喷', value: 'body' },
+        { label: '美容装潢', value: 'beauty' },
+        { label: '精品附件', value: 'premium' },
+        { label: '三电维修', value: 'electric' }
+      ];
+      cb(tp);
+      // filterRepairItem({ nameOrCodeOrPinyinLike: queryString, serviceProxyId: this.vehicleInfo.id }).then(res => {
+      // });
+    },
+    handleSelect (v) {
+      console.log(v);
     }
   }
 };
@@ -513,6 +569,7 @@ export default {
     padding: 12px 16px;
     border-radius: 4px;
     margin-bottom: 16px;
+    background-color: var(--leap-color-default-light-5);
 
     .info-item {
       display: flex;
@@ -521,13 +578,13 @@ export default {
       width: 25%;
 
       .label {
-        color: var(--leap-color-default);
-        font-weight: 500;
+        color: var(--leap-color-default-light-1);
+        font-weight: 400;
         font-size: 14px;
       }
 
       .value {
-        color: var(--leap-color-default);
+        color: var(--leap-color-default-dark-1);
         font-size: 14px;
         font-weight: 500;
 
@@ -599,8 +656,14 @@ export default {
       .add-row {
         display: flex;
         align-items: center;
-        margin-top: 12px;
+        margin-bottom: 12px;
       }
+    }
+    .el-select{
+      color: var(--leap-color-default);
+    }
+    ::v-deep .el-select .el-input .el-select__caret {
+      color: var(--leap-color-default);
     }
   }
 }
