@@ -544,7 +544,7 @@ export default {
       this.tableData = res.records || [];
       this.total = res.total || 0;
     },
-    pageSizeChange (pageSize) {
+    pageSizeChange (pageSize) { // 多个相同方法 没优化 等后端给我提供数据 再来优化
       this.collarParams.pageSize = pageSize;
       this.collarParams.current = 1;
       this.getCollar();

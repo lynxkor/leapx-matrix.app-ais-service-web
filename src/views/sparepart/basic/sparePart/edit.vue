@@ -181,7 +181,7 @@
                   show-word-limit
                 />
               </el-form-item>
-              <el-form-item label="OEM备注" prop="oemRemark" class="form-item-full">
+              <el-form-item label="OEM备注" prop="oemRemark" class="form-item-full" v-if="permissions.has('AISPART-sparePart-dealer')">
                 <el-input
                   type="textarea"
                   placeholder="请输入"
@@ -301,7 +301,7 @@
               </el-form-item>
               <el-form-item label="是否翻包" prop="needRepackIs">
                 <el-radio-group
-                :disabled="!permissions.has('AISPART-sparePart-salesImport')"
+                :disabled="!(permissions.has('AISPART-sparePart-salesImport')||permissions.has('AISPART-sparePart-transportImport'))"
                  v-model="form.needRepackIs">
                   <el-radio label="1">是</el-radio>
                   <el-radio label="0">否</el-radio>
@@ -312,7 +312,7 @@
                   filterable
                   clearable
                   remote
-                  :disabled="!permissions.has('AISPART-sparePart-salesImport')"
+                  :disabled="!(permissions.has('AISPART-sparePart-salesImport')||permissions.has('AISPART-sparePart-purchaseImport'))"
                   reserve-keyword
                   v-model="form.categorySpareSupplyId"
                   :remote-method="getSupplyList"
