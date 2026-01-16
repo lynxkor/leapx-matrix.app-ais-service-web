@@ -187,7 +187,7 @@ import { getDetail, addOrUpdate } from '@/api/sparepart/warehouse/inventory/inde
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
-import EditBaseContainer from '@/components/EditBaseContainer';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
 import { locationList } from '@/api/sparepart/warehouse/warehouse/index';
 import { YES_NO_ENUM } from '@/libs/constants';

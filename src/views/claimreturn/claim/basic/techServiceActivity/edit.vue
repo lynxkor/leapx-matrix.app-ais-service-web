@@ -269,7 +269,7 @@ import { getDetail, addOrUpdate } from '../../../../../api/claimreturn/claim/bas
 import PlanInfo from './PlanInfo.vue';
 import FileConfig from './FileConfig/index.vue';
 import { formatDateTime } from '@/libs/utils';
-import EditBaseContainer from '@/components/EditBaseContainer';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复

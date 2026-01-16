@@ -50,23 +50,19 @@
           </div>
           <div class="common-section-body">
             <div class="ais-select-group" v-if="partsId">
-              <el-select
+              <fetch-select
                 style="width: 305px;"
-                v-model="dealerCodes"
-                filterable
-                clearable
+                :remote-method="getDealerList"
                 remote
+                v-model="dealerCodes"
                 placeholder="请选择"
-                :remote-method="getStoreByName"
+                labelKey="orgName"
+                valueKey="orgCode"
+                subLabelKey="orgName"
+                clearable
+                filterable
                 @change="handleStoreChange"
-                >
-                  <el-option
-                    v-for="item in storeOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-              </el-select>
+              />
               <el-button
                 type="primary"
                 @click="handleAddStore(1)"
@@ -98,23 +94,19 @@
           </div>
           <div class="common-section-body">
             <div class="ais-select-group" v-if="partsId">
-              <el-select
+              <fetch-select
                 style="width: 305px;"
-                v-model="noDealerCodes"
-                filterable
-                clearable
+                :remote-method="getDealerList"
                 remote
+                v-model="noDealerCodes"
                 placeholder="请选择"
-                :remote-method="getStoreByName"
+                labelKey="orgName"
+                valueKey="orgCode"
+                subLabelKey="orgName"
+                clearable
+                filterable
                 @change="handleStoreChange"
-                >
-                  <el-option
-                    v-for="item in storeOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-              </el-select>
+              />
               <el-button
                 type="primary"
                 @click="handleAddStore(0)"
@@ -152,12 +144,13 @@
 
 <script>
 import { getDetail, addOrUpdate, categoryPurchaseDealer, addDealer, deleteDealer } from '@/api/sparepart/basic/spareSalesCategory/index';
-import { getEnum, getBuildType, listOrgStoreInfo } from '@/api/common';
+import { getEnum, getBuildType, listOrgStoreInfo, listOrgStoreInfoByParam } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import expandTable from '@/libs/components/expandTable';
+import FetchSelect from '@/libs/components/FetchSelect';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -189,7 +182,8 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
-    expandTable
+    expandTable,
+    FetchSelect
   },
   data () {
     const form = this.getDefautlForm();
@@ -391,6 +385,14 @@ export default {
       }
     },
     // 可采购/不可采购门店
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        return [];
+      }
+    },
     getStoreByName (query) {
       listOrgStoreInfo({
         name: query
@@ -405,12 +407,10 @@ export default {
       });
     },
     // 处理选择门店时拿到所有的数据
-    handleStoreChange (val) {
-      // 根据 value 在 storeOptions 中查找完整的对象
-      const selectedItem = this.storeOptions.find(item => item.orgCode === val);
+    handleStoreChange (val, ele) {
       this.storeParams = {
-        dealerCode: selectedItem.orgCode,
-        dealerName: selectedItem.orgName,
+        dealerCode: ele.orgCode,
+        dealerName: ele.orgName,
         categorySpareId: this.partsId
       };
     },

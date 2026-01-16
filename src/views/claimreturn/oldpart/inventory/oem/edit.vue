@@ -23,7 +23,7 @@
                   {{ form.oldPartUniqueCode }}
                 </el-form-item>
                 <el-form-item label="旧件编码：" prop="oldPartCode">
-                  <el-button @click="$router.push('/sparepart/basic/sparePart/detail?id=' + form.oldPartId)" type="text">{{form.oldPartCode}}</el-button>
+                  <el-button class="link" @click="$router.push('/sparepart/basic/sparePart/detail?id=' + form.oldPartId)" type="text">{{form.oldPartCode}}</el-button>
                 </el-form-item>
                 <el-form-item label="旧件名称：" prop="oldPartName">
                   {{form.oldPartName}}
@@ -32,7 +32,7 @@
                   {{form.returnTypeLabel}}
                 </el-form-item>
                 <el-form-item label="换上零件编码：" prop="partCode">
-                  <el-button @click="$router.push('/sparepart/basic/sparePart/detail?id=' + form.partId)" type="text">{{form.partCode}}</el-button>
+                  <el-button class="link" @click="$router.push('/sparepart/basic/sparePart/detail?id=' + form.partId)" type="text">{{form.partCode}}</el-button>
                 </el-form-item>
                 <el-form-item label="换上零件名称：" prop="partName">
                   {{form.partName}}
@@ -47,22 +47,22 @@
                   {{'-------'}}
                 </el-form-item>
                 <el-form-item label="旧件供应商：" prop="oldPartSupplierName">
-                  <el-button @click="$router.push('/sparepart/basic/supplierInfo/detail?id=' + form.oldPartSupplierId)" type="text">{{form.oldPartSupplierName}}</el-button>
+                  <el-button class="link" @click="$router.push('/sparepart/basic/supplierInfo/detail?id=' + form.oldPartSupplierId)" type="text">{{form.oldPartSupplierName}}</el-button>
                 </el-form-item>
                 <el-form-item label="是否主因零部件：" prop="isMainPartLabel">
                   {{form.isMainPartLabel}}
                 </el-form-item>
                 <el-form-item label="主因件供应商：" prop="mainPartSupplierName">
-                  <el-button @click="$router.push('/sparepart/basic/supplierInfo/detail?id=' + form.mainPartSupplierId)" type="text">{{form.mainPartSupplierName}}</el-button>
+                  <el-button class="link" @click="$router.push('/sparepart/basic/supplierInfo/detail?id=' + form.mainPartSupplierId)" type="text">{{form.mainPartSupplierName}}</el-button>
                 </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
                   {{form.vin}}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  <el-button @click="goToDealer(form.dealerCode)" type="text">{{form.dealerName}}</el-button>
+                  <el-button class="link" @click="goToDealer(form.dealerCode)" type="text">{{form.dealerName}}</el-button>
                 </el-form-item>
                 <el-form-item label="接车施工单：" prop="serviceProxyNo">
-                  <el-button @click="$router.push(`/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`)" type="text">{{form.serviceProxyNo}}</el-button>
+                  <el-button class="link" @click="$router.push(`/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`)" type="text">{{form.serviceProxyNo}}</el-button>
                 </el-form-item>
                 <!-- TODO 这里需要跳转 -->
                 <el-form-item label="保修申请单：" prop="warrantyNo">
@@ -183,7 +183,7 @@ import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
-import EditBaseContainer from '@/components/EditBaseContainer';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import commonMixins from '@/libs/mixins/commonMixins';
 import BaseInput from '@/libs/components/BaseInput/index.vue';

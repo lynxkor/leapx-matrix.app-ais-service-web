@@ -23,8 +23,8 @@
             v-model="form.vehProfileVin"
             :remote-method="searchVehicle"
             @change="handleVinChange"
-            value-key="id"
-            label-key="carSalesVersionName"
+            value-key="vin"
+            label-key="vin"
           />
         </el-form-item>
         <el-form-item label="车牌号：" prop="carPlate">
@@ -171,8 +171,26 @@
             v-model="form.mileage"
             clearable
           >
-          <template slot="append">KM</template>
-        </el-input>
+            <template slot="append">KM</template>
+            <el-popover
+              placement="bottom"
+              width="250"
+              slot="suffix"
+              trigger="manual"
+              v-if="popconfirmTitle"
+              v-model="popoverVisible">
+              <p>{{ popconfirmTitle }}</p>
+              <div style="text-align: right; margin: 0">
+                <el-button size="mini" type="text" @click="popoverVisible = false">取消</el-button>
+                <el-button type="primary" size="mini" @click="handleApply">应用</el-button>
+              </div>
+              <i
+                class="el-icon-warning-outline el-input__icon"
+                @click="popoverVisible = true"
+                slot="reference"
+              />
+            </el-popover>
+          </el-input>
         </el-form-item>
         <el-form-item label="车联网里程数（总）：" prop="netMileage">
           <el-input
@@ -203,8 +221,8 @@
             v-model="form.departureMileage"
             clearable
           >
-          <template slot="append">KM</template>
-        </el-input>
+            <template slot="append">KM</template>
+          </el-input>
         </el-form-item>
         <el-form-item label="离店车联网里程数（总）：" prop="departureNetMileage">
           <el-input
@@ -510,7 +528,7 @@
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
-import { getVehicleProfile } from '@/api/maintain/sp/serviceProxy/index';
+import { getVehicleProfile, getCarInfo, checkVinTag } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   props: {
@@ -547,12 +565,14 @@ export default {
   data () {
     return {
       form: {},
+      popoverVisible: false,
       rules: {
         vehProfileVin: [
           { required: true, message: '请输入VIN', trigger: 'change' }
         ],
         mileage: [
-          { required: true, message: '请输入进店里程数', trigger: 'change' }
+          { required: true, message: '请输入进店里程数', trigger: 'change' },
+          { pattern: /^\d+\.*\d*$/, message: '进店里程数必须为数字', trigger: 'blur' }
         ],
         shuttleName: [
           { required: true, message: '请输入送修人姓名', trigger: 'change' }
@@ -560,7 +580,8 @@ export default {
         shuttlePhone: [
           { required: true, message: '请输入送修人手机', trigger: 'change' }
         ],
-      }
+      },
+      popconfirmTitle: ''
     };
   },
   methods: {
@@ -572,43 +593,83 @@ export default {
     },
     getFormData () {
       return new Promise((resolve, reject) => {
-        this.$refs.basicForm.validate((valid) => {
-          if (valid) {
-            resolve(this.form);
-          }
-        });
+        if (+this.form.mileage < +this.form.lastMileage) {
+          this.$message.error(`本次进店里程数：${this.form.mileage}需要大于等于上次进店里程数${this.form.lastMileage},请重新填写进店里程数`);
+        } else if (+this.form.mileage >= +this.form.netMileage + 100) {
+          this.popconfirmTitle = '进店里程数大于车联网里程数，请确认是否清空重新录入';
+          this.$nextTick(() => {
+            this.popoverVisible = true;
+          });
+        } else if (+this.form.mileage + 100 < +this.form.netMileage) {
+          this.popconfirmTitle = '进店里程数小于车联网里程数，请确认是否清空重新录入';
+          this.$nextTick(() => {
+            this.popoverVisible = true;
+          });
+        } else {
+          this.$refs.basicForm.validate((valid) => {
+            if (valid) {
+              resolve(this.form);
+            }
+          });
+        }
       });
+    },
+    handleApply () {
+      this.popconfirmTitle = '';
+      this.form.mileage = '';
+      this.popoverVisible = false;
     },
     clearValidate () {
       this.$refs.basicForm.clearValidate();
     },
     searchVehicle (query) { return getVehicleProfile({ searchVin: query }); },
     handleVinChange (val, record) {
-      if (record) {
-        const data = {
-          vehProfileVin: record.carSalesVersionName,
-          carPlate: record.vehiclePlateNo,
-          maintenanceMileage: record.vehicleProfileServiceResp.nextMaintainMileages, // 建议保养里程
-          maintenanceTime: record.vehicleProfileServiceResp.nextMaintainDate, // 建议保养时间
-          customerName: record.vehicleProfileOwnerResp.ownerName, // 车主姓名
-          customerPhone: record.vehicleProfileOwnerResp.mobilephone, // 车主手机
-          exclusiveServiceDealerId: record.vehicleProfileServiceResp.serviceDealerCode, // 专属服务门店
-          exclusiveServiceDealerName: record.vehicleProfileServiceResp.serviceDealerName, // 专属服务门店
-          dedicatedServiceManagerId: record.vehicleProfileServiceResp.serviceUserId, // 专属客户经理
-          startWarrantyDate: record.vehicleProfileServiceResp.warrantyStartdate, // 保修开始日期
-          saleDate: record.salesDate, // 销售日期
-          motorModel: record.motorModel, // 电机型号
-          motorSerialNumber: record.motorSerialNumber, // 电机序列号
-          batteryModel: record.batteryModel, // 电池型号
-          batterySerialNumber: record.batterySerialNumber, // 电池序列号
-          vehModelId: record.vehicleModelId, // 基本车型
-          vehRegisteredModelId: record.carSaleSversionId, // 公告车型
-          vehYearTypeId: record.vehicleYearId, // 车辆车型（L）
-          engineNumber: record.enginenNumber, // 发动机号
-        };
-        Object.assign(this.form, { ...data });
-        console.log(data);
+      if (record.vin) {
+        checkVinTag(record.vin).then(res => {
+          const data = {
+            carPlate: record.vehiclePlateNo, // 车牌号
+            maintenanceMileage: record.vehicleProfileServiceResp.nextMaintainMileages, // 建议保养里程
+            maintenanceTime: record.vehicleProfileServiceResp.nextMaintainDate, // 建议保养时间
+            customerName: record.vehicleProfileOwnerResp.ownerName, // 车主姓名
+            customerPhone: record.vehicleProfileOwnerResp.mobilephone, // 车主手机
+            exclusiveServiceDealerId: record.vehicleProfileServiceResp.serviceDealerCode, // 专属服务门店
+            exclusiveServiceDealerName: record.vehicleProfileServiceResp.serviceDealerName, // 专属服务门店
+            dedicatedServiceManagerId: record.vehicleProfileServiceResp.serviceUserId, // 专属客户经理
+            startWarrantyDate: record.vehicleProfileServiceResp.warrantyStartdate, // 保修开始日期
+            saleDate: record.salesDate, // 销售日期
+            motorModel: record.motorModel, // 电机型号
+            motorSerialNumber: record.motorSerialNumber, // 电机序列号
+            batteryModel: record.batteryModel, // 电池型号
+            batterySerialNumber: record.batterySerialNumber, // 电池序列号
+            vehModelId: record.vehicleModelId, // 基本车型
+            vehRegisteredModelId: record.carSaleSversionId, // 公告车型
+            vehYearTypeId: record.vehicleYearId, // 车辆车型（L）
+            engineNumber: record.enginenNumber, // 发动机号
+            lastMileage: record.vehicleProfileServiceResp.lastMileage, // 上次进店里程
+            bindingUserId: record.vehicleProfileOwnerResp.bindingUserId, // 绑车人用户ID
+            bindingUser: record.vehicleProfileOwnerResp.bindingUser, // 绑车人姓名
+            bindingPhone: record.vehicleProfileOwnerResp.bindingPhone, // 绑车人手机号
+          };
+          Object.assign(this.form, { ...data });
+          this.getNetworkCarInfo();
+        });
       }
+    },
+    getNetworkCarInfo () {
+      getCarInfo(this.form.vehProfileVin).then(res => {
+        Object.assign(this.form, {
+          // netMileage: res.mileage, // 车联网总里程
+          // inPower: res.electricity, // 进店电量
+          netMileageElectricity: res.electricalMileage,
+          // departureNetMileageElectricity: ,
+          netMileageExtend: res.oilMileage,
+          // departureNetMileageExtend: '',
+          inNetPower: res.electricity,
+          mileage: res.mileage
+        });
+        if (!this.form.netMileage) this.form.netMileage = res.mileage;
+        if (!this.form.inPower) this.form.inPower = res.electricity;
+      });
     }
   }
 };

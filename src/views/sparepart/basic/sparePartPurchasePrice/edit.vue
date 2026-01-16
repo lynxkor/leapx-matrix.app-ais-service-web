@@ -5,7 +5,7 @@
       <el-main>
         <section class="common-section">
           <div class="common-section-header">
-            <h2>基础信息</h2>
+            <h2>基础信息 <span v-if="form.pricingModel !== 'dealerPriceRatio'" class="text-time">生效开始日期晚于或者等于当天,才可以修改采购价格。</span></h2>
           </div>
           <div class="common-section-body">
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
@@ -70,19 +70,22 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.sparePartName"
-                  disabled="true"
+                  disabled
                   clearable
                 />
               </el-form-item>
               <el-form-item label="采购价格" prop="dealerPurchasePrice" v-if="form.pricingModel != 'dealerPriceRatio'">
                 <el-input
+                  type="number"
                   placeholder="请输入"
                   v-model="form.dealerPurchasePrice"
                   clearable
+                  :disabled="!canEditPurchasePrice"
                 />
               </el-form-item>
               <el-form-item label="调价比例(%)" prop="adjustmentRatio" v-if="form.pricingModel == 'dealerPriceRatio'">
                 <el-input
+                  type="number"
                   placeholder="请输入"
                   v-model="form.adjustmentRatio"
                   clearable
@@ -90,20 +93,17 @@
               </el-form-item>
               <el-form-item label="生效开始日期" prop="effectiveStartDate">
                 <el-date-picker
+                  type="date"
                   v-model="form.effectiveStartDate"
-                  :picker-options="effectiveStartDate"
-                  range-separator="至"
                   value-format="yyyy-MM-dd HH:mm:ss"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
+                  @change="handleDateChange"
                 />
               </el-form-item>
               <el-form-item label="生效结束时间"  v-if="form.pricingModel != 'standardPrice'">
                 <el-date-picker
+                  type="date"
                   v-model="form.effectiveEndDatetime"
-                  disabled="true"
-                  :picker-options="effectiveEndDatetime"
-                  range-separator="至"
+                  disabled
                   value-format="yyyy-MM-dd HH:mm:ss"
                 />
               </el-form-item>
@@ -128,7 +128,6 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import { getSparePart } from '@/api/sparepart/basic/sparePart/index';
-import DealerSelect from '@/components/dealer-select/index.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -144,18 +143,6 @@ const defaultForm = {
   effectiveEndDatetime: '',
   invalidOperator: '',
   invalidReason: '',
-  createTime: '',
-  updateTime: '',
-  creator: '',
-  creatorName: '',
-  modifier: '',
-  modifierName: '',
-  remark: '',
-  status: '',
-  statusDesc: '',
-  dataSource: '',
-  sparePartId: '',
-  dealerId: '',
 };
 
 export default {
@@ -170,7 +157,6 @@ export default {
   mixins: [routeGuard, permissions],
   components: {
     FetchSelect,
-    DealerSelect,
   },
   data () {
     const form = this.getDefautlForm();
@@ -191,7 +177,7 @@ export default {
           { required: true, message: '请输入备件编码', trigger: 'blur' }
         ],
         sparePartName: [
-          { required: true, message: '请输入备件名称', trigger: 'blur' }
+          { required: false, message: '请输入备件名称', trigger: 'blur' }
         ],
         pricingModel: [
           { required: true, message: '请输入定价模式', trigger: 'blur' }
@@ -199,59 +185,8 @@ export default {
         dealerPurchasePrice: [
           { required: true, message: '请输入门店采购价格', trigger: 'blur' }
         ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码（组织code）', trigger: 'blur' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称（组织名称）', trigger: 'blur' }
-        ],
-        adjustmentRatio: [
-          { required: true, message: '请输入调价比例（%）', trigger: 'blur' }
-        ],
         effectiveStartDate: [
           { required: true, message: '请输入生效开始日期', trigger: 'blur' }
-        ],
-        effectiveEndDatetime: [
-          { required: true, message: '请选择生效结束时间', trigger: 'change' }
-        ],
-        invalidOperator: [
-          { required: true, message: '请输入失效操作人', trigger: 'blur' }
-        ],
-        invalidReason: [
-          { required: true, message: '请输入失效原因', trigger: 'blur' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'blur' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'blur' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'blur' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'blur' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，140:新销服; 老销服:10', trigger: 'blur' }
-        ],
-        sparePartId: [
-          { required: true, message: '请输入备件ID', trigger: 'blur' }
-        ],
-        dealerId: [
-          { required: true, message: '请输入门店ID（组织ID）', trigger: 'blur' }
         ],
       },
       pickerOptions: {
@@ -283,10 +218,34 @@ export default {
       }
     };
   },
+  computed: {
+    // 计算是否可以编辑采购价格
+    canEditPurchasePrice () {
+      if (!this.form.effectiveStartDate) {
+        return false; // 没有选择日期时不能编辑
+      }
+
+      const selectedDate = new Date(this.form.effectiveStartDate);
+      const today = new Date();
+
+      // 设置今天的时间为 00:00:00 以便只比较日期
+      today.setHours(0, 0, 0, 0);
+      selectedDate.setHours(0, 0, 0, 0);
+
+      // 生效开始日期晚于或等于当天
+      return selectedDate >= today;
+    }
+  },
   mounted () {
     this.getDetailData();
   },
   methods: {
+    handleDateChange () {
+      // 如果日期不符合条件，清空采购价格
+      if (!this.canEditPurchasePrice && this.form.dealerPurchasePrice) {
+        this.form.dealerPurchasePrice = '';
+      }
+    },
     // 门店
     getStoreByName (query) {
       listOrgStoreInfo({
@@ -388,3 +347,10 @@ export default {
   }
 };
 </script>
+<style lang="scss" scoped>
+.text-time {
+  font-weight: 400;
+  font-size: 12px;
+  color: red;
+}
+</style>
