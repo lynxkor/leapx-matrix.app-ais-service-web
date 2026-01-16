@@ -420,12 +420,15 @@ export default {
       });
     },
     handlePrint () {
-      console.log(this.selectionList);
+      if (!this.selectionList?.length) {
+        this.$message.warning('请选择打印数据');
+        return;
+      }
       this.$print.show({
-        id: 'xxxx', // 必选，对应数据id
-        template: 'OldPartMark', // 必选，对应 ./template/文件名.vue
-        title: '', // 可选，打印标题
-        data: { id: '' }, // 可选，其他数据对象
+        id: new Date().getTime() + '',
+        template: 'OldPartMark',
+        title: '保修旧件标签',
+        data: this.selectionList,
         width: 1122,
       });
     },
