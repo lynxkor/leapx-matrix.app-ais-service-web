@@ -135,6 +135,7 @@
     />
     <RepairDialog
       ref="repairDialogRef"
+      :id="maintenanceId"
       :visible="repairDialogVisible"
       @close="handleRepairDialogClose"
     />
@@ -204,6 +205,7 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       repairDialogVisible: false, // 维修出库弹窗
+      maintenanceId: '', // 维修出库id
       clickItemId: '',
       optionObj: {
         id: 'maintenanceOutboundOrderTable',
@@ -463,6 +465,7 @@ export default {
     },
     // 维修出库弹窗
     repairPopup (val) {
+      this.maintenanceId = val.id;
       this.repairDialogVisible = true;
     },
     handleRepairDialogClose () {
