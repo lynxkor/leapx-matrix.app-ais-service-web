@@ -30,26 +30,23 @@
                   filterable
                 />
               </el-form-item>
-              <el-form-item label="门店" prop="dealerCode" v-if="form.pricingModel != 'standardPrice'">
-                <el-select
-                  style="width: 305px;"
-                  v-model="form.dealerCode"
-                  filterable
-                  clearable
+              <el-form-item label="门店编码" prop="dealerCode" v-if="form.pricingModel != 'standardPrice'">
+                <fetch-select
+                  :remote-method="getDealerList"
                   remote
-                  :disabled="this.$route.query.id"
-                  placeholder="请选择"
-                  :remote-method="getStoreByName"
-                  @change="handleStoreChange"
-                  collapse-tags
-                  >
-                    <el-option
-                      v-for="item in storeOptions"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
-                    </el-option>
-                </el-select>
+                  v-model="form.dealerCode"
+                  placeholder="请输入门店编码或名称"
+                  labelKey="orgCode"
+                  valueKey="orgCode"
+                  subLabelKey="orgName"
+                  clearable
+                  collapseTags
+                  filterable
+                  @change="listDealerChange"
+                    />
+              </el-form-item>
+              <el-form-item label="门店名称" v-if="form.pricingModel != 'standardPrice'">
+                {{form.dealerName}}
               </el-form-item>
               <el-form-item label="备件编码" prop="sparePartCode"  v-if="form.pricingModel != 'dealerPriceRatio'">
                 <fetch-select
@@ -59,20 +56,16 @@
                   remote
                   reserve-keyword
                   v-model="form.sparePartCode"
-                  :remote-method="listSparePart"
+                  :remote-method="getSparePart"
                   :disabled="this.$route.query.id"
-                  value-key="id"
-                  label-key="name"
+                  labelKey="code"
+                  valueKey="code"
+                  subLabelKey="name"
                   @change="listSparePartChange"
                 />
               </el-form-item>
-              <el-form-item label="备件名称"  v-if="form.pricingModel != 'dealerPriceRatio'">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.sparePartName"
-                  disabled
-                  clearable
-                />
+              <el-form-item label="备件名称" v-if="form.pricingModel != 'dealerPriceRatio'">
+                {{form.sparePartName}}
               </el-form-item>
               <el-form-item label="采购价格" prop="dealerPurchasePrice" v-if="form.pricingModel != 'dealerPriceRatio'">
                 <el-input
@@ -123,7 +116,7 @@
 <script>
 import { getDetail, addOrUpdate } from '@/api/sparepart/basic/sparePartPurchasePrice/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getEnum, listOrgStoreInfo } from '@/api/common';
+import { getEnum, listOrgStoreInfo, listOrgStoreInfoByParam, sparePartListShort } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -274,6 +267,30 @@ export default {
     async listSparePart (query) {
       var a = await getSparePart({ partCodeOrNameLike: query });
       return a;
+    },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    async getSparePart (query) {
+      try {
+        const res = await sparePartListShort({ partCodeLikeOrList: query });
+        // res.records = res.records?.map(item => ({
+        //   ...item,
+        //   displayName: item.companyName + `(${item.companyCode})`
+        // }));
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    listDealerChange (val, all) {
+      this.form.dealerCode = all.orgCode;
+      this.form.dealerName = all.orgName;
     },
     listSparePartChange (val, all) {
       this.form.sparePartId = all.id;
