@@ -125,7 +125,7 @@
       <!-- <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button> -->
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">失效</el-button>
+      <!-- <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">失效</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -275,18 +275,30 @@ export default {
             type: 'operate',
             visible: true,
             fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/basic/sparePartPurchasePrice/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
+            buttons: [
+              {
+                name: '失效',
+                click: (rowIndex, row) => {
+                  this.handleFailure(row.id, 0);
+                },
+                disabled: (row) => {
+                  // 根据 row.canInvalid 值决定是否禁用
+                  return row.canInvalid === 0;
+                },
+                type: 'info'
               },
-              type: 'info'
-            }]
+              {
+                name: '编辑',
+                click: (rowIndex, row) => {
+                  this.$router.push({
+                    path: '/sparepart/basic/sparePartPurchasePrice/edit',
+                    query: {
+                      id: row.id
+                    }
+                  });
+                },
+                type: 'info'
+              }]
           }
         ],
         total: 0
@@ -538,6 +550,38 @@ export default {
         refreshFunc: this.getData
       });
     },
+    // 单条信息停用
+    handleFailure (val) {
+      console.log('val', val);
+      const promptConfig = {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        showClose: true,
+        message: '失效说明'
+      };
+
+      this.$prompt(promptConfig.message, promptConfig).then(({ value }) => {
+        if (value) {
+          const params = {
+            idSet: [val],
+            status: 0,
+            statusDesc: value
+          };
+          enableItem(params).then(() => {
+            this.$message({
+              type: 'success',
+              message: '失效成功!'
+            });
+            this.getData();
+          }).catch(() => {
+            this.$message({
+              type: 'error',
+              message: '失效失败!'
+            });
+          });
+        }
+      }).catch(() => {});
+    }
   }
 };
 </script>
