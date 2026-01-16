@@ -55,7 +55,7 @@
             <div class="common-section-table">
               <edit-table
                 ref="editTable"
-                :columns="columns"
+                :columns="columnsNo"
                 :data="noTableData"
                 :show-toolbar="false"
                 :isFocusNewRow="false"
@@ -110,6 +110,28 @@ export default {
           width: '25%',
         }
       ],
+      columnsNo: [
+        {
+          field: 'buildTypeName',
+          title: '门店名称',
+          width: '25%',
+        },
+        {
+          field: 'buildTypeCode',
+          title: '门店编码',
+          width: '25%',
+        },
+        {
+          field: 'createTime',
+          title: '添加时间',
+          width: '25%',
+        },
+        {
+          field: 'creatorName',
+          title: '操作人',
+          width: '25%',
+        }
+      ]
     };
   },
   created () {
