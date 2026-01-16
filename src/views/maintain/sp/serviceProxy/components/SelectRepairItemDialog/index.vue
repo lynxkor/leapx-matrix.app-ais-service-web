@@ -79,7 +79,7 @@
               <div>
                 维修类型：
                 <el-select v-model="repairType" placeholder="请选择" style="width: 110px;">
-                  <el-option v-for="item in itemOptions.type" :label="item.label" :value="item.value" :key="item.value"></el-option>
+                  <el-option v-for="item in itemOptions.repairItemTypeName" :label="item.label" :value="item.value" :key="item.value"></el-option>
                 </el-select>
               </div>
             </template>
@@ -96,6 +96,7 @@
           :default-new-row="defaultItemRow"
           emptyText="请添加数据"
           seq
+          :actionWidth="100"
         />
       </div>
 
@@ -115,7 +116,7 @@
               <div>
                 维修类型：
                 <el-select v-model="partRepairType" placeholder="请选择" style="width: 110px;">
-                  <el-option v-for="item in itemOptions.type" :label="item.label" :value="item.value" :key="item.value"></el-option>
+                  <el-option v-for="item in itemOptions.repairItemTypeName" :label="item.label" :value="item.value" :key="item.value"></el-option>
                 </el-select>
               </div>
             </template>
@@ -132,6 +133,7 @@
           :default-new-row="defaultPartRow"
           emptyText="请添加数据"
           seq
+          :actionWidth="100"
         />
       </div>
     </div>
@@ -298,62 +300,98 @@ export default {
     itemColumns () {
       return [
         {
-          field: 'code',
+          field: 'repairItemCode',
           title: '维修项目代码',
           width: '140px',
-          editable: true,
-          editRender: { name: 'ElInput', props: { size: 'small', placeholder: '请输入代码' } }
         },
         {
-          field: 'name',
+          field: 'repairItemName',
           title: '维修项目名称',
           width: '180px',
-          editable: true,
-          editRender: { name: 'ElInput', props: { size: 'small', placeholder: '请输入名称' } }
         },
         {
-          field: 'type',
+          field: 'repairItemTypeName',
           title: '维修类型',
+          width: '150px',
+          editable: true,
+          editRender: {
+            name: 'ElSelect',
+            props: {
+              size: 'small',
+              placeholder: '请选择',
+              clearable: true,
+              filterable: true
+            }
+          }
+        },
+        {
+          field: 'checkoutTypeName',
+          title: '结算类型',
           width: '120px',
           editable: true,
-          editRender: { name: 'ElSelect', props: { size: 'small', placeholder: '请选择' } }
+          editRender: {
+            name: 'ElSelect',
+            props: {
+              size: 'small',
+              placeholder: '请选择',
+              clearable: true,
+              filterable: true
+            }
+          }
         },
         {
-          field: 'settlementType',
-          title: '结算类型',
-          width: '110px',
-          editable: true,
-          editRender: { name: 'ElSelect', props: { size: 'small', placeholder: '请选择' } }
-        },
-        {
-          field: 'warrantyType',
+          field: 'warrantyTypeName',
           title: '保修类型',
-          width: '110px',
+          width: '150px',
           editable: true,
-          editRender: { name: 'ElSelect', props: { size: 'small', placeholder: '请选择' } }
+          editRender: {
+            name: 'ElSelect',
+            props: {
+              size: 'small',
+              placeholder: '请选择',
+              clearable: true,
+              filterable: true
+            }
+          }
         },
         {
-          field: 'laborHours',
+          field: 'workHour',
           title: '工时',
-          width: '100px',
+          width: '120px',
           editable: true,
-          editRender: { name: 'ElInputNumber', props: { size: 'small', precision: 1, min: 0, controlsPosition: 'right' } }
+          editRender: { name: 'ElInput', props: { type: 'number', size: 'small', precision: 1, min: 0, controlsPosition: 'right' } }
         },
         {
-          field: 'unitPrice',
+          field: 'price',
           title: '单价',
-          width: '110px',
-          editable: true,
-          editRender: { name: 'ElInputNumber', props: { size: 'small', precision: 2, min: 0, controlsPosition: 'right' } },
-          formatter: (value) => `¥${(value || 0).toFixed(2)}`
+          width: '120px',
         },
         {
           field: 'discountRate',
           title: '折扣率',
-          width: '100px',
+          width: '120px',
+        },
+        {
+          field: 'discountAmount',
+          title: '优惠金额',
+          width: '120px',
           editable: true,
-          editRender: { name: 'ElInputNumber', props: { size: 'small', precision: 2, min: 0, max: 1, step: 0.1, controlsPosition: 'right' } },
-          formatter: (value) => `${(value || 0).toFixed(2)}`
+          editRender: { name: 'ElInput', props: { type: 'number', size: 'small', precision: 1, min: 0, controlsPosition: 'right' } }
+        },
+        {
+          field: 'repairAmount',
+          title: '项目金额',
+          width: '120px',
+        },
+        {
+          field: 'statusDesc',
+          title: '维修项目状态',
+          width: '120px',
+        },
+        {
+          field: 'packageCode',
+          title: '套餐代码',
+          width: '120px',
         }
       ];
     },
@@ -361,70 +399,84 @@ export default {
     partColumns () {
       return [
         {
-          field: 'code',
+          field: 'partsCode',
           title: '零件代码',
           width: '140px',
-          editable: true,
-          editRender: { name: 'ElInput', props: { placeholder: '请输入代码' } }
         },
         {
-          field: 'name',
+          field: 'partsName',
           title: '零件名称',
           width: '180px',
-          editable: true,
-          editRender: { name: 'ElInput', props: { placeholder: '请输入名称' } }
         },
         {
-          field: 'type',
+          field: 'repairItemTypeName',
           title: '维修类型',
+          width: '150px',
+          editable: true,
+          editRender: { name: 'ElSelect', props: { size: 'small', placeholder: '请选择' } }
+        },
+        {
+          field: 'checkoutTypeName',
+          title: '结算类型',
           width: '120px',
           editable: true,
-          editRender: { name: 'ElSelect', props: { placeholder: '请选择' } }
+          editRender: { name: 'ElSelect', props: { size: 'small', placeholder: '请选择' } }
         },
         {
-          field: 'settlementType',
-          title: '结算类型',
-          width: '110px',
-          editable: true,
-          editRender: { name: 'ElSelect', props: { placeholder: '请选择' } }
-        },
-        {
-          field: 'warrantyType',
+          field: 'warrantyTypeName',
           title: '保修类型',
-          width: '110px',
+          width: '150px',
           editable: true,
-          editRender: { name: 'ElSelect', props: { placeholder: '请选择' } }
+          editRender: { name: 'ElSelect', props: { size: 'small', placeholder: '请选择' } }
         },
         {
-          field: 'isOriginal',
+          field: 'isOemPart',
           title: '是否原厂',
-          width: '100px',
-          editable: true,
-          editRender: { name: 'ElSelect', props: { placeholder: '请选择' } },
-          formatter: (value) => value === 'yes' ? '是' : '否'
+          width: '120px',
+          formatter: (value) => value === '1' ? '是' : '否'
         },
         {
           field: 'quantity',
           title: '数量',
-          width: '100px',
+          width: '120px',
           editable: true,
-          editRender: { name: 'ElInputNumber', props: { precision: 1, min: 0, controlsPosition: 'right' } }
+          editRender: { name: 'ElInput', props: { size: 'small', type: 'number', precision: 1, min: 0, controlsPosition: 'right' } }
         },
         {
-          field: 'unitPrice',
+          field: 'price',
           title: '单价',
-          width: '110px',
+          width: '120px',
           editable: true,
-          editRender: { name: 'ElInputNumber', props: { precision: 2, min: 0, controlsPosition: 'right' } },
-          formatter: (value) => `¥${(value || 0).toFixed(2)}`
+          editRender: { name: 'ElInput', props: { size: 'small', type: 'number', precision: 2, min: 0, controlsPosition: 'right' } },
+          // formatter: (value) => `¥${(value || 0).toFixed(2)}`
         },
         {
           field: 'discountRate',
           title: '折扣率',
-          width: '100px',
+          width: '120px',
+        },
+        {
+          field: 'discountAmount',
+          title: '优惠金额',
+          width: '120px',
           editable: true,
-          editRender: { name: 'ElInputNumber', props: { precision: 2, min: 0, max: 1, step: 0.1, controlsPosition: 'right' } },
-          formatter: (value) => `${(value || 0).toFixed(2)}`
+          editRender: { name: 'ElInput', props: { size: 'small', type: 'number', precision: 2, min: 0, max: 1, step: 0.1, controlsPosition: 'right' } },
+          // formatter: (value) => `${(value || 0).toFixed(2)}`
+        },
+        {
+          field: 'partsAmount',
+          title: '配件金额',
+          width: '120px',
+        },
+        {
+          field: 'repairItemName',
+          title: '维修项目名称',
+          width: '180px',
+        },
+        {
+          field: 'packageCode',
+          title: '套餐代码',
+          width: '120px',
         }
       ];
     },
@@ -510,7 +562,9 @@ export default {
     },
     getEnumData () {
       getEnum('MaintenanceTypeEnum').then(res => {
-        this.itemOptions.type = (res || []).map(item => ({
+        this.itemOptions.repairItemTypeName = (res || []).map(item => ({
+          repairItemTypeId: item.code,
+          repairItemTypeName: item.message,
           label: item.message,
           value: item.code
         }));
@@ -521,13 +575,17 @@ export default {
         this.discountType = (res || []);
       });
       getEnum('StatementTypeEnum').then(res => {
-        this.itemOptions.settlementType = (res || []).map(item => ({
+        this.itemOptions.checkoutTypeName = (res || []).map(item => ({
+          checkoutTypeId: item.code,
+          checkoutTypeName: item.message,
           label: item.message,
           value: item.code
         }));
       });
       getEnum('WarrantyTypeEnum').then(res => {
-        this.itemOptions.warrantyType = (res || []).map(item => ({
+        this.itemOptions.warrantyTypeName = (res || []).map(item => ({
+          warrantyTypeId: item.code,
+          warrantyTypeName: item.message,
           label: item.message,
           value: item.code
         }));
@@ -541,20 +599,25 @@ export default {
       });
     },
     searchRepairItem (queryString, cb) {
-      const tp = [
-        { label: '保养', value: 'maintenance' },
-        { label: '一般维修', value: 'general' },
-        { label: '钣喷', value: 'body' },
-        { label: '美容装潢', value: 'beauty' },
-        { label: '精品附件', value: 'premium' },
-        { label: '三电维修', value: 'electric' }
-      ];
-      cb(tp);
-      // filterRepairItem({ nameOrCodeOrPinyinLike: queryString, serviceProxyId: this.vehicleInfo.id }).then(res => {
-      // });
+      // const tp = [
+      //   { label: '保养', value: 'maintenance' },
+      //   { label: '一般维修', value: 'general' },
+      //   { label: '钣喷', value: 'body' },
+      //   { label: '美容装潢', value: 'beauty' },
+      //   { label: '精品附件', value: 'premium' },
+      //   { label: '三电维修', value: 'electric' }
+      // ];
+      if (!queryString) return;
+      filterRepairItem({ nameOrCodeOrPinyinLike: queryString, serviceProxyId: this.vehicleInfo.id }).then(res => {
+        const data = res.map(item => ({
+          ...item,
+          value: item.code
+        }));
+        cb(data);
+      });
     },
-    handleSelect (v) {
-      console.log(v);
+    handleSelect (item) {
+      console.log(item);
     }
   }
 };
