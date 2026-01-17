@@ -108,9 +108,25 @@ export function getRepairItemInfo (data) {
 }
 
 /**
- * 维修项目--详情
+ * 维修项目--筛选
  * @param {Object} data
  */
 export function filterRepairItem (data) {
   return api.jsonPost(prefix + 'repairItem/filter', data);
+}
+
+/**
+ * 维修零件-筛选
+ * @param {Object} data
+ */
+export function filterSparePartItem (data) {
+  return api.jsonPost('sp/web/basic/sparePart/repairItem/filter', data);
+}
+
+/**
+ * 维修项目--签字
+ * @param {Object} data
+ */
+export function confirmToSign (data) {
+  return api.jsonPost(prefix + 'confirmToSign', data);
 }

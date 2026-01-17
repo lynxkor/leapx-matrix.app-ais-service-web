@@ -28,6 +28,7 @@
           placeholder="请选择"
           size="small"
           style="width: 120px;"
+          @change="handleDiscountModeChange"
         >
           <el-option :label="item.name" :value="item.code" v-for="item in discountType" :key="item.code"></el-option>
         </el-select>
@@ -106,9 +107,11 @@
           <h3>维修配件</h3>
         </div>
         <div class="add-row ais-select-group">
-          <el-input
+          <el-autocomplete
             v-model="partSearchKey"
-            placeholder="输入维修项目代码、名称、拼音简码"
+            placeholder="输入维修配件代码、名称、拼音简码"
+            :fetch-suggestions="searchRepairPart"
+            @select="handleSelectPart"
             size="small"
             style="width: 500px;"
           >
@@ -120,8 +123,8 @@
                 </el-select>
               </div>
             </template>
-          </el-input>
-          <el-button type="primary" size="small" @click="addItem">添加</el-button>
+          </el-autocomplete>
+          <el-button type="primary" size="small" @click="addPart">添加</el-button>
         </div>
         <edit-table
           ref="partTable"
@@ -149,7 +152,7 @@
 
 <script>
 import EditTable from '@/libs/components/EditTable';
-import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem } from '@/api/maintain/sp/serviceProxy/index';
+import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   name: 'SelectRepairItemDialog',
@@ -180,6 +183,8 @@ export default {
       submitLoading: false,
       repairType: '',
       partRepairType: '',
+      selectedRepairItem: null, // 选中的维修项目
+      selectedRepairPart: null, // 选中的维修配件
 
       // 优惠模式
       discountType: [],
@@ -519,20 +524,117 @@ export default {
       this.partData = [];
       this.discountMode = '';
       this.activeTypeTab = 'items';
+      this.itemSearchKey = '';
+      this.partSearchKey = '';
+      this.selectedRepairItem = null;
+      this.selectedRepairPart = null;
     },
     addItem () {
+      // 验证是否选择了维修项目
+      if (!this.selectedRepairItem) {
+        this.$message.warning('请先选择维修项目');
+        return;
+      }
+
+      // 验证是否选择了维修类型
+      if (!this.repairType) {
+        this.$message.warning('请先选择维修类型');
+        return;
+      }
+
+      const selectedItem = this.selectedRepairItem;
+
+      // 查找维修类型的显示名称
+      const repairTypeObj = this.itemOptions.repairItemTypeName?.find(
+        item => item.repairItemTypeId === this.repairType
+      );
+
+      // 查找结算类型的默认值（取第一个）
+      const checkoutTypeObj = this.itemOptions.checkoutTypeName?.[0];
+
+      // 查找保修类型的默认值（取第一个）
+      const warrantyTypeObj = this.itemOptions.warrantyTypeName?.[0];
+
       const newItem = {
-        ...this.defaultItemRow,
-        id: Date.now()
+        repairItemCode: selectedItem.code || '',
+        repairItemName: selectedItem.name || '',
+        repairItemTypeId: this.repairType,
+        repairItemTypeName: repairTypeObj?.repairItemTypeName || repairTypeObj?.label || '',
+        checkoutTypeId: checkoutTypeObj?.checkoutTypeId || '',
+        checkoutTypeName: checkoutTypeObj?.checkoutTypeName || checkoutTypeObj?.label || '',
+        warrantyTypeId: warrantyTypeObj?.warrantyTypeId || '',
+        warrantyTypeName: warrantyTypeObj?.warrantyTypeName || warrantyTypeObj?.label || '',
+        workHour: selectedItem.workhour || 0,
+        price: selectedItem.workhourPrice || 0,
+        discountRate: 1,
+        discountAmount: 0,
+        repairAmount: (selectedItem.workhour || 0) * (selectedItem.workhourPrice || 0),
+        statusDesc: '',
+        packageCode: selectedItem.packageCode || ''
       };
+
       this.itemData.push(newItem);
+
+      // 清空输入
+      this.itemSearchKey = '';
+      this.selectedRepairItem = null;
+
+      // 更新顶部合计
+      this.updateTotals();
     },
     addPart () {
+      // 验证是否选择了维修配件
+      if (!this.selectedRepairPart) {
+        this.$message.warning('请先选择维修配件');
+        return;
+      }
+
+      // 验证是否选择了维修类型
+      if (!this.partRepairType) {
+        this.$message.warning('请先选择维修类型');
+        return;
+      }
+
+      const selectedPart = this.selectedRepairPart;
+
+      // 查找维修类型的显示名称
+      const repairTypeObj = this.itemOptions.repairItemTypeName?.find(
+        item => item.repairItemTypeId === this.partRepairType
+      );
+
+      // 查找结算类型的默认值（取第一个）
+      const checkoutTypeObj = this.itemOptions.checkoutTypeName?.[0];
+
+      // 查找保修类型的默认值（取第一个）
+      const warrantyTypeObj = this.itemOptions.warrantyTypeName?.[0];
+
       const newPart = {
-        ...this.defaultPartRow,
-        id: Date.now()
+        partsCode: selectedPart.code || '',
+        partsName: selectedPart.name || '',
+        repairItemTypeId: this.partRepairType,
+        repairItemTypeName: repairTypeObj?.repairItemTypeName || repairTypeObj?.label || '',
+        checkoutTypeId: checkoutTypeObj?.checkoutTypeId || '',
+        checkoutTypeName: checkoutTypeObj?.checkoutTypeName || checkoutTypeObj?.label || '',
+        warrantyTypeId: warrantyTypeObj?.warrantyTypeId || '',
+        warrantyTypeName: warrantyTypeObj?.warrantyTypeName || warrantyTypeObj?.label || '',
+        isOemPart: selectedPart.isOemPart || '1',
+        quantity: 1,
+        price: selectedPart.workhourPrice || 0,
+        discountRate: 1,
+        discountAmount: 0,
+        partsAmount: selectedPart.price || 0,
+        repairItemName: selectedPart.repairItemName || '',
+        packageCode: selectedPart.packageCode || ''
       };
+
       this.partData.push(newPart);
+
+      // 清空输入
+      this.partSearchKey = '';
+      this.selectedRepairPart = null;
+
+      // 更新顶部合计
+      this.updateTotals();
     },
     submit () {
       // 验证数据
@@ -573,6 +675,13 @@ export default {
       });
       getDiscountType().then(res => {
         this.discountType = (res || []);
+        // test
+        // this.discountType.push({
+        //   code: 0.5,
+        //   name: 0.5,
+        //   discountPartRate: 0.5,
+        //   discountWorkhourRate: 0.5,
+        // });
       });
       getEnum('StatementTypeEnum').then(res => {
         this.itemOptions.checkoutTypeName = (res || []).map(item => ({
@@ -599,14 +708,6 @@ export default {
       });
     },
     searchRepairItem (queryString, cb) {
-      // const tp = [
-      //   { label: '保养', value: 'maintenance' },
-      //   { label: '一般维修', value: 'general' },
-      //   { label: '钣喷', value: 'body' },
-      //   { label: '美容装潢', value: 'beauty' },
-      //   { label: '精品附件', value: 'premium' },
-      //   { label: '三电维修', value: 'electric' }
-      // ];
       if (!queryString) return;
       filterRepairItem({ nameOrCodeOrPinyinLike: queryString, serviceProxyId: this.vehicleInfo.id }).then(res => {
         const data = res.map(item => ({
@@ -617,7 +718,62 @@ export default {
       });
     },
     handleSelect (item) {
-      console.log(item);
+      this.selectedRepairItem = item;
+    },
+    searchRepairPart (queryString, cb) {
+      if (!queryString) return;
+      filterSparePartItem({ nameOrCodeOrPinyinLike: queryString, serviceProxyId: this.vehicleInfo.id }).then(res => {
+        const data = res.map(item => ({
+          ...item,
+          value: item.code
+        }));
+        cb(data);
+      });
+    },
+    handleSelectPart (item) {
+      this.selectedRepairPart = item;
+    },
+    handleDiscountModeChange (value) {
+      // 查找选中的优惠模式
+      const selectedDiscount = this.discountType.find(item => item.code === value);
+      if (!selectedDiscount) return;
+
+      const { discountPartRate, discountWorkhourRate } = selectedDiscount;
+
+      // 更新维修项目的折扣率
+      this.itemData.forEach(item => {
+        item.discountRate = discountWorkhourRate || 1;
+        // 重新计算优惠金额和项目金额
+        const originalAmount = item.workHour * item.price;
+        item.discountAmount = originalAmount * (1 - item.discountRate);
+        item.repairAmount = originalAmount * item.discountRate;
+      });
+
+      // 更新维修配件的折扣率
+      this.partData.forEach(part => {
+        part.discountRate = discountPartRate || 1;
+        // 重新计算优惠金额和配件金额
+        const originalAmount = part.quantity * part.price;
+        part.discountAmount = originalAmount * (1 - part.discountRate);
+        part.partsAmount = originalAmount * part.discountRate;
+      });
+
+      // 更新顶部的合计信息
+      this.updateTotals();
+    },
+    updateTotals () {
+      // 计算维修项目合计
+      this.info.workCostCount = this.itemData.reduce((sum, item) => {
+        return sum + (item.repairAmount || 0);
+      }, 0);
+
+      // 计算维修配件合计
+      this.info.barkCostCount = this.partData.reduce((sum, part) => {
+        return sum + (part.partsAmount || 0);
+      }, 0);
+
+      // 计算费用合计
+      this.info.maintenanceCostEstimation = this.info.workCostCount + this.info.barkCostCount;
     }
   }
 };

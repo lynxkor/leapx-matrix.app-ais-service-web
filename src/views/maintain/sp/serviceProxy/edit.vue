@@ -28,11 +28,12 @@
                     <el-button size="small" @click="couponsDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus)">结算</el-button>
                     <el-button size="small" @click="couponsDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus)">取消结算</el-button>
                     <!-- <el-button size="small" @click="handleCancel">预警信息</el-button> -->
+                    <el-divider direction="vertical"></el-divider>
                     <el-button v-if="canAddOrUpdate" size="small" type="primary" plain @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
                   </ButtonGroup>
               </div>
               <h5>
-                <span>签字状态：{{ form.signStatus || '-' }}</span>
+                <span>签字状态：{{ form.signStatusLabel || '-' }}</span>
                 <i>|</i>
                 <span>工单状态：{{ form.orderStatusLabel || '-' }}</span>
                 <i>|</i>
@@ -67,6 +68,7 @@
       <!-- 制单确认并签字 -->
       <ConfirmDocDialog
         :visible.sync="confirmDocDialogVisible"
+        :serviceProxyId="_id"
         @refresh="handleRefresh"
       />
       <!-- 选择维修项目 -->
@@ -949,5 +951,8 @@ export default {
 .page-common-edit .common-title {
   position: sticky;
   top: 48px;
+  .el-divider--vertical {
+    height: auto;
+  }
 }
 </style>
