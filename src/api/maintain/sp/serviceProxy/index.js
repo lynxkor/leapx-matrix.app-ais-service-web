@@ -146,3 +146,19 @@ export function getRepairWorkRecord (data) {
 export function dispatchWorkers (data) {
   return api.jsonPost(prefix + 'dispatchWorkers', data);
 }
+
+/**
+ * 维修项目--开始作业
+ * @param {Object} data
+ */
+export function startWork (data) {
+  return api.jsonPost(prefix + 'startWork', data);
+}
+
+/**
+ * 作废
+ * @param {Object} data
+ */
+export function cancelItem (data) {
+  return api.jsonPost(prefix + 'cancel', data);
+}

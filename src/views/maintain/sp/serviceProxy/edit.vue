@@ -21,10 +21,11 @@
                     <el-button size="small" @click="couponsDialogVisible = true" v-if="[RepairOrderStatusEnum.CREATING_ORDER, RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">查询卡券&终身</el-button>
                     <el-button size="small" @click="finalCheckDialogVisible = true"  v-if="[RepairOrderStatusEnum.PENDING_FINAL_INSPECTION].includes(form.orderStatus)">终检</el-button>
                     <el-button size="small" @click="startWorkDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">作业开始</el-button>
+                    <el-button size="small" @click="endWorkDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">作业结束</el-button>
                     <el-button size="small" @click="handlePreCheck" v-if="[RepairOrderStatusEnum.RECEPTION_INSPECTION].includes(form.orderStatus)">预检确认</el-button>
                     <el-button size="small" @click="selectRepairItemDialogVisible = true" v-if="[RepairOrderStatusEnum.CREATING_ORDER, RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION, RepairOrderStatusEnum.PENDING_FINAL_INSPECTION, RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus)">选择维修项目</el-button>
                     <el-button size="small" @click="confirmDocDialogVisible = true" v-if="[RepairOrderStatusEnum.CREATING_ORDER].includes(form.orderStatus)">制单确认并签字</el-button>
-                    <el-button size="small" @click="dispatchWorkDialogVisible = true">派工</el-button>
+                    <el-button size="small" @click="dispatchWorkDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">派工</el-button>
                     <el-button size="small" @click="couponsDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus)">结算</el-button>
                     <el-button size="small" @click="couponsDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus)">取消结算</el-button>
                     <!-- <el-button size="small" @click="handleCancel">预警信息</el-button> -->
@@ -83,29 +84,42 @@
         :vehicleInfo="form"
         @refresh="handleRefresh"
       />
-      <!-- 派工 -->
+      <!-- 作业开始 -->
       <StartWorkDialog
         :visible.sync="startWorkDialogVisible"
+        :vehicleInfo="form"
+        mode="start"
+        @refresh="handleRefresh"
+      />
+      <!-- 作业结束 -->
+      <StartWorkDialog
+        :visible.sync="endWorkDialogVisible"
+        :vehicleInfo="form"
+        mode="end"
         @refresh="handleRefresh"
       />
       <!-- 项目终检 -->
       <FinalCheckDialog
         :visible.sync="finalCheckDialogVisible"
+        :vehicleInfo="form"
         @refresh="handleRefresh"
       />
       <!-- 接车施工单作废 -->
       <DiscardDialog
         :visible.sync="discardDialogVisible"
+        :vehicleInfo="form"
         @refresh="handleRefresh"
       />
       <!-- 退料 -->
       <MaterialReturnDialog
         :visible.sync="materialReturnDialogVisible"
+        :vehicleInfo="form"
         @refresh="handleRefresh"
       />
       <!-- 查询卡券&终身 -->
       <CouponsDialog
         :visible.sync="couponsDialogVisible"
+        :vehicleInfo="form"
         @refresh="handleRefresh"
       />
     </template>
@@ -359,6 +373,7 @@ export default {
       selectRepairItemDialogVisible: false,
       dispatchWorkDialogVisible: false,
       startWorkDialogVisible: false,
+      endWorkDialogVisible: false,
       finalCheckDialogVisible: false,
       discardDialogVisible: false,
       materialReturnDialogVisible: false,

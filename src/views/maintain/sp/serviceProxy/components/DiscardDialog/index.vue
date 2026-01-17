@@ -10,8 +10,8 @@
     <el-form size="small" ref="form" :model="form" :rules="rules" :label-width="formLabelWidth">
       <el-row>
         <el-col :span="22">
-          <el-form-item label="作废原因：" prop="manualCompletionNote">
-            <el-input type="textarea" placeholder="请输入" rows="3" v-model="form.manualCompletionNote"  maxlength="500" show-word-limit/>
+          <el-form-item label="作废原因：" prop="invaildDesc">
+            <el-input type="textarea" placeholder="请输入" rows="3" v-model="form.invaildDesc"  maxlength="500" show-word-limit/>
           </el-form-item>
         </el-col>
       </el-row>
@@ -26,7 +26,8 @@
 </template>
 
 <script>
-// import { finish } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
+import { cancelItem } from '@/api/maintain/sp/serviceProxy/index';
+
 export default {
   name: 'DiscardDialog',
   props: {
@@ -34,7 +35,7 @@ export default {
       type: Boolean,
       default: false
     },
-    info: {
+    vehicleInfo: {
       type: Object,
       default: () => {
         return {};
@@ -45,16 +46,12 @@ export default {
     return {
       dialogVisible: this.visible,
       form: {
-        finishTime: '',
-        manualCompletionNote: ''
+        invaildDesc: ''
       },
       rules: {
-        manualCompletionNote: [
+        invaildDesc: [
           { required: true, message: '完成说明必填', trigger: 'blur' },
           { min: 1, max: 500, message: '长度在 1 到 500 个字', trigger: 'blur' }
-        ],
-        finishTime: [
-          { required: true, message: '完成时间必填', trigger: 'blur' }
         ]
       },
       submitLoading: false,
@@ -64,12 +61,6 @@ export default {
   watch: {
     visible (val) {
       this.dialogVisible = val;
-
-      if (val) {
-        Object.keys(this.form).forEach(key => {
-          this.form[key] = this.info[key];
-        });
-      }
     }
   },
   methods: {
@@ -80,19 +71,22 @@ export default {
       this.$refs.form.resetFields();
     },
     submit () {
-      // this.$refs.form.validate(valid => {
-      //   if (valid) {
-      //     this.submitLoading = true;
-      //     // this.$emit('submit', { ...this.info, ...this.form });
-      //     finish({ ...this.info, ...this.form }).then(res => {
-      //       this.$emit('update:visible', false);
-      //       this.$emit('refresh', res);
-      //       this.closed();
-      //     }).finally(() => {
-      //       this.submitLoading = false;
-      //     });
-      //   }
-      // });
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          this.submitLoading = true;
+          const params = {
+            id: this.vehicleInfo.id,
+            invaildDesc: this.form.invaildDesc
+          };
+          cancelItem(params).then(res => {
+            this.$emit('update:visible', false);
+            this.$emit('refresh', res);
+            this.closed();
+          }).finally(() => {
+            this.submitLoading = false;
+          });
+        }
+      });
     }
 
   }
