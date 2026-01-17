@@ -170,3 +170,19 @@ export function cancelItem (data) {
 export function getPrintInfo (data) {
   return api.jsonPost(prefix + 'printServiceProxy', data);
 }
+
+/**
+ * 结算
+ * @param {Object} data
+ */
+export function addStatement (data) {
+  return api.jsonPost(prefix + 'statement/add', data);
+}
+
+/**
+ * 取消结算
+ * @param {Object} data
+ */
+export function cancelStatement (data) {
+  return api.jsonPost(prefix + 'statement/cancel', data);
+}

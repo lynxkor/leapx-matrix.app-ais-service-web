@@ -26,8 +26,8 @@
                     <el-button size="small" @click="selectRepairItemDialogVisible = true" v-if="[RepairOrderStatusEnum.CREATING_ORDER, RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION, RepairOrderStatusEnum.PENDING_FINAL_INSPECTION, RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus)">选择维修项目</el-button>
                     <el-button size="small" @click="confirmDocDialogVisible = true" v-if="[RepairOrderStatusEnum.CREATING_ORDER].includes(form.orderStatus)">制单确认并签字</el-button>
                     <el-button size="small" @click="dispatchWorkDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">派工</el-button>
-                    <el-button size="small" @click="couponsDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus)">结算</el-button>
-                    <el-button size="small" @click="couponsDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus)">取消结算</el-button>
+                    <el-button size="small" @click="handleSettlement(1)" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus) && !form.isCreateStatementInfo">结算</el-button>
+                    <el-button size="small" @click="handleSettlement(0)" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus) && form.isCreateStatementInfo">取消结算</el-button>
                     <!-- <el-button size="small" @click="handleCancel">预警信息</el-button> -->
                     <el-divider direction="vertical"></el-divider>
                     <el-button v-if="canAddOrUpdate" size="small" type="primary" plain @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
@@ -130,7 +130,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, precheck } from '@/api/maintain/sp/serviceProxy/index';
+import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement } from '@/api/maintain/sp/serviceProxy/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import NavTop from './components/NavTop';
 import { getEnum } from '@/api/common';
@@ -960,6 +960,42 @@ export default {
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
     },
+    // 结算与取消结算
+    handleSettlement (v) {
+      if (v) {
+        const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>您确定要生成结算单？</div>';
+        this.$confirm(message, '', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true,
+          customClass: 'ais-leave-tips',
+          showClose: false
+        }).then(() => {
+          // 调用接口
+          addStatement({ serviceProxyId: this._id }).then(res => {
+            this.$message.success('结算成功');
+            this.getDetailData();
+          });
+        }).catch(() => {
+        });
+      } else {
+        const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>您确定要取消结算吗？</div>';
+        this.$confirm(message, '', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true,
+          customClass: 'ais-leave-tips',
+          showClose: false
+        }).then(() => {
+          // 调用接口
+          cancelStatement({ serviceProxyId: this._id }).then(res => {
+            this.$message.success('取消结算成功');
+            this.getDetailData();
+          });
+        }).catch(() => {
+        });
+      }
+    }
   }
 };
 </script>
