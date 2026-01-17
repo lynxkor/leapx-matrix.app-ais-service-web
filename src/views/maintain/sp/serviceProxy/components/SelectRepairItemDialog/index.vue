@@ -264,15 +264,7 @@ export default {
         // }
       ],
       defaultPartRow: {
-        code: '',
-        name: '',
-        type: 'maintenance',
-        settlementType: 'self',
-        warrantyType: 'none',
-        isOriginal: 'yes',
-        quantity: 1,
-        unitPrice: 0,
-        discountRate: 1
+        repairItemName: '',
       },
       partOptions: {
         type: [

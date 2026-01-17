@@ -130,3 +130,19 @@ export function filterSparePartItem (data) {
 export function confirmToSign (data) {
   return api.jsonPost(prefix + 'confirmToSign', data);
 }
+
+/**
+ * 维修项目--待派工项目
+ * @param {Object} data
+ */
+export function getRepairWorkRecord (data) {
+  return api.jsonPost(prefix + 'repairWorkRecord', data);
+}
+
+/**
+ * 维修项目--派工
+ * @param {Object} data
+ */
+export function dispatchWorkers (data) {
+  return api.jsonPost(prefix + 'dispatchWorkers', data);
+}
