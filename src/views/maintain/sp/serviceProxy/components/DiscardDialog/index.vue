@@ -19,7 +19,7 @@
     <template v-slot:footer>
       <div class="dialog-footer">
         <el-button size="small" @click="$emit('update:visible', false)">取 消</el-button>
-        <el-button size="small" :loading="submitLoading" type="primary" @click="submit()">确 定</el-button>
+        <el-button size="small" :loading="submitLoading" type="primary" @click="submit()">作废</el-button>
       </div>
     </template>
   </el-dialog>

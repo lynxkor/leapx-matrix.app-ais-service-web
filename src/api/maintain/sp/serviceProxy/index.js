@@ -162,3 +162,11 @@ export function startWork (data) {
 export function cancelItem (data) {
   return api.jsonPost(prefix + 'cancel', data);
 }
+
+/**
+ * 打印详情
+ * @param {Object} data
+ */
+export function getPrintInfo (data) {
+  return api.jsonPost(prefix + 'printServiceProxy', data);
+}

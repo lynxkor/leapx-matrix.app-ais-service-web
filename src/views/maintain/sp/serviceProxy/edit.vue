@@ -949,9 +949,9 @@ export default {
     },
     handlePrint () {
       this.$print.show({
-        id: 'xxxx', // 必选，对应数据id
-        template: 'demo', // 必选，对应 ./template/文件名.vue
-        title: 'test'// 可选，打印标题
+        id: this._id, // 必选，对应数据id
+        template: 'ServiceProxy', // 必选，对应 ./template/文件名.vue
+        title: `接车施工单：${this.form.code}`// 可选，打印标题
       });
     },
     handleImport () {
