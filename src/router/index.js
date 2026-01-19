@@ -1233,6 +1233,24 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/maintain/sp/serviceStatement',
+      name: 'serviceStatement',
+      component: () => import('@/views/maintain/sp/serviceStatement/index.vue'),
+
+      meta: {
+        name: '结算单表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/servicestatement/edit',
+      name: 'serviceStatementEdit',
+      component: () => import('@/views/maintain/sp/serviceStatement/edit.vue'),
+
+      meta: {
+        name: '结算单表管理详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
