@@ -5,7 +5,7 @@
         <span>旧件明细</span>
         <div v-if="_id" class="btns">
           <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="openAdd"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
-          <el-button v-if="canAddOrUpdate" size="small" @click.stop="handleRemoveRow">删除</el-button>
+          <el-button v-if="canAddOrUpdate" size="small" @click.stop="handleRemoveRows">删除</el-button>
         </div>
       </h2>
     </div>
@@ -18,9 +18,9 @@
           :defaultNewRow="defaultNewRow"
           :show-toolbar="false"
           :options="options"
-          :auth="{ edit: canAddOrUpdate, delete: canAddOrUpdate }"
+          :auth="{ edit: false, delete: canAddOrUpdate }"
           :isFocusNewRow="false"
-          :enableSingleRowSave="true"
+          :enableSingleRowSave="false"
           :showPagination="true"
           :current="current"
           :pageSize="pageSize"
@@ -98,56 +98,99 @@ export default {
       options: {
         partCode: [],
       },
-      // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
+        {
+          field: 'serviceProxyNo',
+          title: '接车施工单',
+          width: '10%',
+        },
+        {
+          field: 'warrantyNo',
+          title: '保修申请单',
+          width: '10%',
+        },
+        {
+          field: 'oldPartUniqueCode',
+          title: '旧件唯一码',
+          width: '10%',
+        },
+        {
+          field: 'dealerName',
+          title: '厅店名称',
+          width: '10%',
+        },
+        {
+          field: 'dealerStatusLabel',
+          title: '门店库存状态',
+          width: '10%',
+        },
+        {
+          field: 'isMainPartLabel',
+          title: '是否主因零部件',
+          width: '10%',
+        },
+        {
+          field: 'vin',
+          title: 'VIN',
+          width: '10%',
+        },
+        {
+          field: 'oldPartSupplierName',
+          title: '零件供应商',
+          width: '10%',
+        },
+        {
+          field: 'mainPartSupplierName',
+          title: '主因件供应商',
+          width: '10%',
+        },
+        {
+          field: 'oldPartCode',
+          title: '旧件编码',
+          width: '10%',
+        },
+        {
+          field: 'oldPartName',
+          title: '旧件名称',
+          width: '10%',
+        },
         {
           field: 'partCode',
           title: '零件编码',
-          width: '33%',
-          editable: true,
-          editRender: {
-            name: 'ElSelect',
-            multiRow: true,
-            props: {
-              filterable: true,
-              clearable: true,
-              remote: true,
-              remoteMethod: this.sparePartListApi,
-              placeholder: '请选择',
-              'suffix-icon': 'el-icon-search',
-            },
-          },
-          rules: [
-            { required: true, message: '零件编码不能为空', trigger: 'blur' },
-          ],
+          width: '10%',
         },
         {
           field: 'partName',
           title: '零件名称',
-          width: '33%',
+          width: '10%',
         },
         {
-          field: 'remark',
-          title: '备注',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
+          field: 'checkRemark',
+          title: '验收备注',
+          width: '10%',
         },
-      ],
+      ]
     };
   },
+  watch: {
+    _id: {
+      handler () {
+        this.getTableData();
+      },
+      immediate: true
+    }
+  },
   mounted () {
-    this.getDetailPageApi();
+    this.getTableData();
   },
   beforeDestroy () {
   },
   methods: {
     // 表格数据
-    getDetailPageApi () {
+    getTableData () {
       if (!this._id) {
         return;
       }
-      // returnOrderIdNe
       getList({
         returnOrderId: this._id,
         pageSize: this.pageSize,
@@ -165,7 +208,10 @@ export default {
       }
       this.visible = true;
     },
-    handleRemoveRow (row, index, defer) {
+    handleRemoveRows () {
+      // 您确定要移除选择的【{N}】条数据吗？
+    },
+    handleRemoveRow (row) {
       if (!row.id) {
         return;
       }
@@ -173,10 +219,9 @@ export default {
         id: this._id,
         detailIdList: [row.id],
       }).then((d) => {
-        defer.resolve();
         this.$message.success('删除成功');
+        this.getTableData();
       }).catch(() => {
-        defer.reject();
       });
     },
     // 行保存
@@ -195,14 +240,18 @@ export default {
     pageSizeChange (pageSize) {
       this.pageSize = pageSize;
       this.current = 1;
-      this.getDetailPageApi();
+      this.getTableData();
     },
     currentPageChange (current) {
       this.current = current;
-      this.getDetailPageApi();
+      this.getTableData();
     },
   },
 };
 
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.btn-delete{
+  color: #B91919;
+}
+</style>

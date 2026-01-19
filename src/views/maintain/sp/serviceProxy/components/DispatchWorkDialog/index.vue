@@ -12,7 +12,7 @@
       <div class="filter-section">
         <el-form size="small" :model="filterForm" :inline="true" style="width:100%">
           <el-row>
-            <el-col span="6">
+            <el-col :span="6">
               <el-form-item label="工位：">
                 <el-select v-model="filterForm.workstation" placeholder="请选择" clearable>
                   <el-option
@@ -24,7 +24,7 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col span="6">
+            <el-col :span="6">
               <el-form-item label="班组：">
                 <el-select v-model="filterForm.team" placeholder="请选择" clearable>
                   <el-option
@@ -36,7 +36,7 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col span="6">
+            <el-col :span="6">
               <el-form-item label="技师：">
                 <el-select v-model="filterForm.technician" placeholder="请选择" clearable>
                   <el-option
@@ -48,7 +48,7 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col span="6">
+            <el-col :span="6">
               <el-form-item label="计划作业时间：">
                 <el-date-picker
                   v-model="filterForm.plannedTime"
@@ -64,8 +64,14 @@
 
       <!-- 操作按钮 -->
       <div class="action-buttons">
-        <el-button type="primary" size="small" :loading="dispatchLoading" @click="handleDispatch">派工</el-button>
-        <el-button type="danger" size="small" :loading="deleteLoading" @click="handleDeleteDispatch">删除派工</el-button>
+        <el-button
+          type="primary"
+          size="small"
+          :loading="dispatchLoading"
+          :disabled="!canDispatch"
+          @click="handleDispatch"
+        >派工</el-button>
+        <el-button type="danger" size="small" :disabled="!canDispatch" :loading="deleteLoading" @click="handleDeleteDispatch">删除派工</el-button>
       </div>
 
       <!-- 数据表格 -->
@@ -73,6 +79,7 @@
         <vxe-table
           ref="dispatchTable"
           :data="tableData"
+          :loading="tableLoading"
           stripe
           show-overflow
           resizable
@@ -84,50 +91,60 @@
         >
           <vxe-column type="checkbox" width="60" align="center" />
           <vxe-column type="seq" title="序号" width="60" align="center" />
-          <vxe-column field="code" title="维修项目代码" width="150" />
-          <vxe-column field="name" title="维修项目名称" min-width="150" show-overflow />
+          <vxe-column field="repairItemCode" title="维修项目代码" width="150" />
+          <vxe-column field="repairItemName" title="维修项目名称" min-width="150" show-overflow />
           <vxe-column title="工位" width="150">
             <template #default="{ row }">
-              <el-select v-model="row.workstation" size="mini" placeholder="请选择">
+              <el-select v-model="row.dealerStationId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1">
                 <el-option
                   v-for="item in workstationOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
                 />
               </el-select>
             </template>
           </vxe-column>
           <vxe-column title="班组" width="150">
             <template #default="{ row }">
-              <el-select v-model="row.team" size="mini" placeholder="请选择">
+              <el-select v-model="row.dealerWorkTeamId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1">
                 <el-option
                   v-for="item in teamOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
                 />
               </el-select>
             </template>
           </vxe-column>
           <vxe-column title="维修技师" width="150">
             <template #default="{ row }">
-              <el-select v-model="row.technician" size="mini" placeholder="请选择">
+              <el-select v-model="row.repairTechnicianId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1">
                 <el-option
                   v-for="item in technicianOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
                 />
               </el-select>
             </template>
           </vxe-column>
-          <vxe-column field="plannedHours" title="计划作业时间" width="150" align="center" />
+          <vxe-column field="startAt" title="计划作业时间" width="200" align="center" >
+            <template #default="{ row }">
+               <el-date-picker
+                  style="width:172px"
+                  v-model="row.startAt"
+                  type="datetime"
+                  size="mini"
+                  placeholder="选择日期时间"
+                  value-format="yyyy-MM-dd HH:mm:ss"
+                  :disabled="row.isDispatch === 1"
+                />
+            </template>
+          </vxe-column>
           <vxe-column title="派工" width="80" align="center">
             <template #default="{ row }">
-              <el-tag :type="row.isDispatched ? 'success' : 'info'" size="small">
-                {{ row.isDispatched ? '是' : '否' }}
-              </el-tag>
+              {{ row.isDispatch === 1 ? '是' : '否' }}
             </template>
           </vxe-column>
           <vxe-column field="dispatchTime" title="派工时间" width="160" show-overflow />
@@ -138,6 +155,8 @@
 </template>
 
 <script>
+import { getRepairWorkRecord, dispatchWorkers } from '@/api/maintain/sp/serviceProxy/index';
+
 export default {
   name: 'DispatchWorkDialog',
   props: {
@@ -145,7 +164,7 @@ export default {
       type: Boolean,
       default: false
     },
-    info: {
+    vehicleInfo: {
       type: Object,
       default: () => {
         return {};
@@ -162,86 +181,20 @@ export default {
         plannedTime: ''
       },
       selectedRows: [],
+      tableData: [],
       dispatchLoading: false,
       deleteLoading: false,
+      tableLoading: false,
       // 筛选选项
-      workstationOptions: [
-        { label: '保养', value: '保养' },
-        { label: '维修', value: '维修' },
-        { label: '钣金', value: '钣金' },
-        { label: '喷漆', value: '喷漆' }
-      ],
-      teamOptions: [
-        { label: '自费', value: '自费' },
-        { label: '自费自', value: '自费自' },
-        { label: '保修', value: '保修' },
-        { label: '索赔', value: '索赔' }
-      ],
-      technicianOptions: [
-        { label: '无', value: '无' },
-        { label: '张三', value: '张三' },
-        { label: '李四', value: '李四' },
-        { label: '王五', value: '王五' }
-      ],
-      // 模拟表格数据
-      tableData: [
-        {
-          id: 1,
-          code: '999999',
-          name: '万能工时',
-          workstation: '保养',
-          team: '自费',
-          technician: '无',
-          plannedHours: '1.0',
-          isDispatched: true,
-          dispatchTime: '2023-10-27 12:30:45'
-        },
-        {
-          id: 2,
-          code: '9217839293',
-          name: '更换风道上部',
-          workstation: '保养',
-          team: '自费自',
-          technician: '无',
-          plannedHours: '1.2',
-          isDispatched: false,
-          dispatchTime: '2023-10-27 12:35:20'
-        },
-        {
-          id: 3,
-          code: '8273618293',
-          name: '更换机油滤芯',
-          workstation: '维修',
-          team: '保修',
-          technician: '张三',
-          plannedHours: '0.5',
-          isDispatched: true,
-          dispatchTime: '2023-10-27 13:00:00'
-        },
-        {
-          id: 4,
-          code: '7362527281',
-          name: '更换空气滤芯',
-          workstation: '保养',
-          team: '自费',
-          technician: '李四',
-          plannedHours: '0.3',
-          isDispatched: false,
-          dispatchTime: ''
-        },
-        {
-          id: 5,
-          code: '6351616271',
-          name: '更换空调滤芯',
-          workstation: '保养',
-          team: '索赔',
-          technician: '王五',
-          plannedHours: '0.4',
-          isDispatched: true,
-          dispatchTime: '2023-10-27 14:15:30'
-        }
-      ]
+      workstationOptions: [],
+      teamOptions: [],
+      technicianOptions: []
     };
+  },
+  computed: {
+    canDispatch () {
+      return this.selectedRows.length > 0;
+    }
   },
   watch: {
     visible (val) {
@@ -249,12 +202,49 @@ export default {
       if (val) {
         this.initData();
       }
+    },
+    'filterForm.workstation': {
+      handler (val) {
+        this.updateUndispatchedRows('dealerStationId', val);
+      }
+    },
+    'filterForm.team': {
+      handler (val) {
+        this.updateUndispatchedRows('dealerWorkTeamId', val);
+      }
+    },
+    'filterForm.technician': {
+      handler (val) {
+        this.updateUndispatchedRows('repairTechnicianId', val);
+      }
+    },
+    'filterForm.plannedTime': {
+      handler (val) {
+        this.updateUndispatchedRows('startAt', val);
+      }
     }
   },
   methods: {
-    initData () {
-      // 初始化数据，可以在这里根据props.info加载数据
-      console.log('初始化派工数据', this.info);
+    updateUndispatchedRows (field, value) {
+      // 更新所有未派工的行数据
+      this.tableData.forEach(row => {
+        if (row.isDispatch !== 1) {
+          this.$set(row, field, value);
+        }
+      });
+    },
+    async initData () {
+      try {
+        this.tableLoading = true;
+        const res = await getRepairWorkRecord({ serviceProxyId: this.vehicleInfo.id });
+        console.log(res);
+        this.tableData = res || [];
+      } catch (error) {
+        console.error('获取派工数据失败', error);
+        this.$message.error('获取派工数据失败');
+      } finally {
+        this.tableLoading = false;
+      }
     },
     close () {
       this.$emit('update:visible', false);
@@ -267,28 +257,53 @@ export default {
         plannedTime: ''
       };
       this.$refs.dispatchTable && this.$refs.dispatchTable.clearCheckboxRow();
+      this.tableData = [];
+      this.selectedRows = [];
     },
     handleSelectionChange ({ records }) {
       this.selectedRows = records;
     },
-    handleDispatch () {
+    async handleDispatch () {
       if (this.selectedRows.length === 0) {
         this.$message.warning('请至少选择一条数据进行派工');
         return;
       }
 
-      this.dispatchLoading = true;
-      // 模拟派工操作
-      setTimeout(() => {
-        this.selectedRows.forEach(row => {
-          row.isDispatched = true;
-          row.dispatchTime = this.formatDate(new Date());
-        });
-        this.$message.success('派工成功');
+      // 校验是否选择工位、班组、技师
+      const invalidRows = this.selectedRows.filter(row => {
+        return !row.dealerStationId || !row.dealerWorkTeamId || !row.repairTechnicianId;
+      });
+
+      if (invalidRows.length > 0) {
+        this.$message.warning('请完善工位、班组、维修技师信息后再进行派工');
+        return;
+      }
+
+      try {
+        this.dispatchLoading = true;
+        const params = this.selectedRows.map(row => ({
+          repairItemId: row.repairItemId,
+          dealerStationId: row.dealerStationId,
+          dealerWorkTeamId: row.dealerWorkTeamId,
+          repairTechnicianId: row.repairTechnicianId,
+          startAt: row.startAt
+        }));
+
+        const res = await dispatchWorkers(params);
+        if (res.code === '0' || res.code === 0) {
+          this.$message.success('派工成功');
+          await this.initData();
+          this.$refs.dispatchTable.clearCheckboxRow();
+          this.$emit('refresh');
+        } else {
+          this.$message.error(res.msg || '派工失败');
+        }
+      } catch (error) {
+        console.error('派工失败', error);
+        this.$message.error('派工失败');
+      } finally {
         this.dispatchLoading = false;
-        this.$refs.dispatchTable.clearCheckboxRow();
-        this.$emit('refresh');
-      }, 500);
+      }
     },
     handleDeleteDispatch () {
       if (this.selectedRows.length === 0) {
@@ -302,30 +317,19 @@ export default {
         type: 'warning'
       }).then(() => {
         this.deleteLoading = true;
-        // 模拟删除派工操作
-        setTimeout(() => {
-          this.selectedRows.forEach(row => {
-            row.isDispatched = false;
-            row.dispatchTime = '';
-            row.workstation = '';
-            row.team = '';
-            row.technician = '';
-          });
-          this.$message.success('删除派工成功');
-          this.deleteLoading = false;
-          this.$refs.dispatchTable.clearCheckboxRow();
-          this.$emit('refresh');
-        }, 500);
+        // 删除派工操作
+        this.selectedRows.forEach(row => {
+          row.isDispatch = 0;
+          row.dispatchTime = '';
+          row.dealerStationId = '';
+          row.dealerWorkTeamId = '';
+          row.repairTechnicianId = '';
+        });
+        this.$message.success('删除派工成功');
+        this.deleteLoading = false;
+        this.$refs.dispatchTable.clearCheckboxRow();
+        this.$emit('refresh');
       }).catch(() => {});
-    },
-    formatDate (date) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     }
   }
 };

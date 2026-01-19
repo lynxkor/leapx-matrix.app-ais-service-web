@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     class="m-start-work-dialog"
-    title="作业开始"
+    :title="dialogTitle"
     width="1000px"
     :visible.sync="dialogVisible"
     @close="close"
@@ -11,13 +11,14 @@
       <!-- 顶部时间选择区域 -->
       <div class="time-section">
         <el-form size="small" :model="batchForm" :inline="true">
-          <el-form-item label="实际作业时间：">
+          <el-form-item :label="timeLabel">
             <el-date-picker
               v-model="batchForm.actualTime"
               type="datetime"
               placeholder="选择日期时间"
               value-format="yyyy-MM-dd HH:mm:ss"
               style="width: 220px;"
+              @change="handleTimeChange"
             />
           </el-form-item>
         </el-form>
@@ -39,53 +40,31 @@
         >
           <vxe-column type="checkbox" width="60" align="center" />
           <vxe-column type="seq" title="序号" width="70" align="center" />
-          <vxe-column field="code" title="维修项目代码" width="130" />
-          <vxe-column field="name" title="维修项目名称" min-width="150" show-overflow />
-          <vxe-column field="actualTime" title="实际作业时间" width="170" />
-          <vxe-column title="工位" width="130">
+          <vxe-column field="repairItemCode" title="维修项目代码" width="130" />
+          <vxe-column field="repairItemName" title="维修项目名称" min-width="150" show-overflow />
+          <vxe-column :field="timeField" :title="timeColumnLabel" width="200">
             <template #default="{ row }">
-              <el-select v-model="row.workstation" size="mini" placeholder="请选择">
-                <el-option
-                  v-for="item in workstationOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
+              <el-date-picker
+                style="width:172px"
+                v-model="row[timeField]"
+                type="datetime"
+                size="mini"
+                placeholder="选择日期时间"
+                value-format="yyyy-MM-dd HH:mm:ss"
+              />
             </template>
           </vxe-column>
-          <vxe-column title="班组" width="140">
-            <template #default="{ row }">
-              <el-select v-model="row.team" size="mini" placeholder="请选择">
-                <el-option
-                  v-for="item in teamOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </template>
-          </vxe-column>
-          <vxe-column title="维修技师" width="130">
-            <template #default="{ row }">
-              <el-select v-model="row.technician" size="mini" placeholder="请选择">
-                <el-option
-                  v-for="item in technicianOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </template>
-          </vxe-column>
+          <vxe-column field="dealerStationName" title="工位" width="130" />
+          <vxe-column field="dealerWorkTeamName" title="班组" width="140" />
+          <vxe-column field="repairTechnicianName" title="维修技师" width="130" />
           <vxe-column title="作业状态" width="120" align="center">
             <template #default="{ row }">
-              <el-tag :type="getStatusType(row.status)" size="small">
-                {{ row.status }}
+              <el-tag :type="getStatusType(row.finishAt)" size="small">
+                {{ getWorkStatus(row.finishAt) }}
               </el-tag>
             </template>
           </vxe-column>
-          <vxe-column field="planHours" title="计划" width="80" align="center" />
+          <vxe-column field="startAt" title="计划作业时间" width="160" />
         </vxe-table>
       </div>
     </div>
@@ -101,6 +80,8 @@
 </template>
 
 <script>
+import { getRepairWorkRecord, startWork } from '@/api/maintain/sp/serviceProxy/index';
+
 export default {
   name: 'StartWorkDialog',
   props: {
@@ -108,109 +89,43 @@ export default {
       type: Boolean,
       default: false
     },
-    info: {
+    vehicleInfo: {
       type: Object,
       default: () => {
         return {};
       }
+    },
+    // 工作模式: 'start' 作业开始, 'end' 作业结束
+    mode: {
+      type: String,
+      default: 'start'
     }
   },
   data () {
     return {
       dialogVisible: this.visible,
       submitLoading: false,
+      tableLoading: false,
       batchForm: {
         actualTime: ''
       },
       selectedRows: [],
-      // 工位选项
-      workstationOptions: [
-        { label: '零路机电', value: '零路机电' },
-        { label: '保养', value: '保养' },
-        { label: '维修', value: '维修' },
-        { label: '钣金', value: '钣金' },
-        { label: '喷漆', value: '喷漆' }
-      ],
-      // 班组选项
-      teamOptions: [
-        { label: '机电罗海民', value: '机电罗海民' },
-        { label: '自费', value: '自费' },
-        { label: '自费自', value: '自费自' },
-        { label: '保修', value: '保修' },
-        { label: '索赔', value: '索赔' }
-      ],
-      // 技师选项
-      technicianOptions: [
-        { label: '罗海民', value: '罗海民' },
-        { label: '无', value: '无' },
-        { label: '张三', value: '张三' },
-        { label: '李四', value: '李四' },
-        { label: '王五', value: '王五' }
-      ],
-      // 模拟表格数据
-      tableData: [
-        {
-          id: 1,
-          checked: true,
-          code: '999999',
-          name: '万维工时',
-          actualTime: '2023-10-27 12:12:12',
-          workstation: '零路机电',
-          team: '机电罗海民',
-          technician: '罗海民',
-          status: '作业未开始',
-          planHours: '20'
-        },
-        {
-          id: 2,
-          checked: false,
-          code: '9217839293',
-          name: '更换风道上部',
-          actualTime: '2023-10-27 12:12:12',
-          workstation: '零路机电',
-          team: '机电罗海民',
-          technician: '罗海民',
-          status: '作业未开始',
-          planHours: '20'
-        },
-        {
-          id: 3,
-          checked: false,
-          code: '8273618293',
-          name: '更换机油滤芯',
-          actualTime: '2023-10-27 13:00:00',
-          workstation: '保养',
-          team: '机电罗海民',
-          technician: '张三',
-          status: '作业中',
-          planHours: '15'
-        },
-        {
-          id: 4,
-          checked: false,
-          code: '7362527281',
-          name: '更换空气滤芯',
-          actualTime: '2023-10-27 14:15:30',
-          workstation: '保养',
-          team: '自费',
-          technician: '李四',
-          status: '已完成',
-          planHours: '10'
-        },
-        {
-          id: 5,
-          checked: false,
-          code: '6351616271',
-          name: '更换空调滤芯',
-          actualTime: '',
-          workstation: '保养',
-          team: '索赔',
-          technician: '王五',
-          status: '作业未开始',
-          planHours: '12'
-        }
-      ]
+      tableData: []
     };
+  },
+  computed: {
+    dialogTitle () {
+      return this.mode === 'end' ? '作业结束' : '作业开始';
+    },
+    timeLabel () {
+      return this.mode === 'end' ? '作业结束时间：' : '实际作业时间：';
+    },
+    timeColumnLabel () {
+      return this.mode === 'end' ? '作业结束时间' : '实际作业时间';
+    },
+    timeField () {
+      return this.mode === 'end' ? 'finishAt' : 'timeSpend';
+    }
   },
   watch: {
     visible (val) {
@@ -221,10 +136,18 @@ export default {
     }
   },
   methods: {
-    initData () {
-      // 初始化默认时间为当前时间
-      this.batchForm.actualTime = this.formatDate(new Date());
-      console.log('初始化批量修改数据', this.info);
+    async initData () {
+      try {
+        this.tableLoading = true;
+        // 获取维修作业记录数据
+        const res = await getRepairWorkRecord({ serviceProxyId: this.vehicleInfo.id });
+        this.tableData = res || [];
+      } catch (error) {
+        console.error('获取作业数据失败', error);
+        this.$message.error('获取作业数据失败');
+      } finally {
+        this.tableLoading = false;
+      }
     },
     close () {
       this.$emit('update:visible', false);
@@ -234,44 +157,63 @@ export default {
         actualTime: ''
       };
       this.$refs.workTable && this.$refs.workTable.clearCheckboxRow();
+      this.tableData = [];
+      this.selectedRows = [];
     },
     handleSelectionChange ({ records }) {
       this.selectedRows = records;
     },
-    submit () {
-      // 批量更新选中行的实际作业时间
-      if (this.batchForm.actualTime) {
+    handleTimeChange (val) {
+      // 时间选择器的 change 回调,更新表格中所有行的时间
+      this.updateAllRowsTime(val);
+    },
+    updateAllRowsTime (time) {
+      // 更新所有行的时间
+      const field = this.timeField;
+      this.tableData.forEach(row => {
+        this.$set(row, field, time);
+      });
+    },
+    async submit () {
+      if (this.selectedRows.length === 0) {
+        this.$message.warning(`请至少选择一条数据进行${this.mode === 'end' ? '作业结束' : '作业开始'}`);
+        return;
+      }
+
+      try {
         this.submitLoading = true;
-        setTimeout(() => {
-          this.selectedRows.forEach(row => {
-            row.actualTime = this.batchForm.actualTime;
-            row.checked = false;
-          });
-          this.$message.success('批量修改成功');
-          this.submitLoading = false;
-          this.$emit('refresh', this.tableData);
+        // 提交接口数据
+        const field = this.timeField;
+        const params = this.selectedRows.map(row => ({
+          repairItemId: row.repairItemId,
+          [field]: row[field]
+        }));
+        const res = await startWork(params);
+        if (res) {
+          this.$message.success(this.mode === 'end' ? '作业结束成功' : '作业开始成功');
+          this.$emit('refresh');
           this.close();
-        }, 500);
-      } else {
-        this.$message.warning('请选择实际作业时间');
+        }
+      } catch (error) {
+        console.error('操作失败', error);
+        this.$message.error('操作失败');
+      } finally {
+        this.submitLoading = false;
       }
     },
-    getStatusType (status) {
-      const statusMap = {
-        作业未开始: 'info',
-        作业中: 'warning',
-        已完成: 'success'
-      };
-      return statusMap[status] || 'info';
+    getWorkStatus (finishAt) {
+      // 根据 finishAt 判断作业状态
+      if (finishAt) {
+        return '已完成';
+      }
+      return '作业中';
     },
-    formatDate (date) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    getStatusType (finishAt) {
+      // 根据 finishAt 返回对应的 tag 类型
+      if (finishAt) {
+        return 'success';
+      }
+      return 'warning';
     }
   }
 };

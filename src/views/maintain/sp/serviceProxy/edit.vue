@@ -21,18 +21,20 @@
                     <el-button size="small" @click="couponsDialogVisible = true" v-if="[RepairOrderStatusEnum.CREATING_ORDER, RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">查询卡券&终身</el-button>
                     <el-button size="small" @click="finalCheckDialogVisible = true"  v-if="[RepairOrderStatusEnum.PENDING_FINAL_INSPECTION].includes(form.orderStatus)">终检</el-button>
                     <el-button size="small" @click="startWorkDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">作业开始</el-button>
+                    <el-button size="small" @click="endWorkDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">作业结束</el-button>
                     <el-button size="small" @click="handlePreCheck" v-if="[RepairOrderStatusEnum.RECEPTION_INSPECTION].includes(form.orderStatus)">预检确认</el-button>
                     <el-button size="small" @click="selectRepairItemDialogVisible = true" v-if="[RepairOrderStatusEnum.CREATING_ORDER, RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION, RepairOrderStatusEnum.PENDING_FINAL_INSPECTION, RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus)">选择维修项目</el-button>
                     <el-button size="small" @click="confirmDocDialogVisible = true" v-if="[RepairOrderStatusEnum.CREATING_ORDER].includes(form.orderStatus)">制单确认并签字</el-button>
                     <el-button size="small" @click="dispatchWorkDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">派工</el-button>
-                    <el-button size="small" @click="couponsDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus)">结算</el-button>
-                    <el-button size="small" @click="couponsDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus)">取消结算</el-button>
+                    <el-button size="small" @click="handleSettlement(1)" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus) && !form.isCreateStatementInfo">结算</el-button>
+                    <el-button size="small" @click="handleSettlement(0)" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus) && form.isCreateStatementInfo">取消结算</el-button>
                     <!-- <el-button size="small" @click="handleCancel">预警信息</el-button> -->
+                    <el-divider direction="vertical"></el-divider>
                     <el-button v-if="canAddOrUpdate" size="small" type="primary" plain @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
                   </ButtonGroup>
               </div>
               <h5>
-                <span>签字状态：{{ form.signStatus || '-' }}</span>
+                <span>签字状态：{{ form.signStatusLabel || '-' }}</span>
                 <i>|</i>
                 <span>工单状态：{{ form.orderStatusLabel || '-' }}</span>
                 <i>|</i>
@@ -67,6 +69,7 @@
       <!-- 制单确认并签字 -->
       <ConfirmDocDialog
         :visible.sync="confirmDocDialogVisible"
+        :serviceProxyId="_id"
         @refresh="handleRefresh"
       />
       <!-- 选择维修项目 -->
@@ -78,31 +81,45 @@
       <!-- 派工 -->
       <DispatchWorkDialog
         :visible.sync="dispatchWorkDialogVisible"
+        :vehicleInfo="form"
         @refresh="handleRefresh"
       />
-      <!-- 派工 -->
+      <!-- 作业开始 -->
       <StartWorkDialog
         :visible.sync="startWorkDialogVisible"
+        :vehicleInfo="form"
+        mode="start"
+        @refresh="handleRefresh"
+      />
+      <!-- 作业结束 -->
+      <StartWorkDialog
+        :visible.sync="endWorkDialogVisible"
+        :vehicleInfo="form"
+        mode="end"
         @refresh="handleRefresh"
       />
       <!-- 项目终检 -->
       <FinalCheckDialog
         :visible.sync="finalCheckDialogVisible"
+        :vehicleInfo="form"
         @refresh="handleRefresh"
       />
       <!-- 接车施工单作废 -->
       <DiscardDialog
         :visible.sync="discardDialogVisible"
+        :vehicleInfo="form"
         @refresh="handleRefresh"
       />
       <!-- 退料 -->
       <MaterialReturnDialog
         :visible.sync="materialReturnDialogVisible"
+        :vehicleInfo="form"
         @refresh="handleRefresh"
       />
       <!-- 查询卡券&终身 -->
       <CouponsDialog
         :visible.sync="couponsDialogVisible"
+        :vehicleInfo="form"
         @refresh="handleRefresh"
       />
     </template>
@@ -113,7 +130,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, precheck } from '@/api/maintain/sp/serviceProxy/index';
+import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement } from '@/api/maintain/sp/serviceProxy/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import NavTop from './components/NavTop';
 import { getEnum } from '@/api/common';
@@ -356,6 +373,7 @@ export default {
       selectRepairItemDialogVisible: false,
       dispatchWorkDialogVisible: false,
       startWorkDialogVisible: false,
+      endWorkDialogVisible: false,
       finalCheckDialogVisible: false,
       discardDialogVisible: false,
       materialReturnDialogVisible: false,
@@ -931,9 +949,9 @@ export default {
     },
     handlePrint () {
       this.$print.show({
-        id: 'xxxx', // 必选，对应数据id
-        template: 'demo', // 必选，对应 ./template/文件名.vue
-        title: 'test'// 可选，打印标题
+        id: this._id, // 必选，对应数据id
+        template: 'ServiceProxy', // 必选，对应 ./template/文件名.vue
+        title: `接车施工单：${this.form.code}`// 可选，打印标题
       });
     },
     handleImport () {
@@ -942,6 +960,42 @@ export default {
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
     },
+    // 结算与取消结算
+    handleSettlement (v) {
+      if (v) {
+        const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>您确定要生成结算单？</div>';
+        this.$confirm(message, '', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true,
+          customClass: 'ais-leave-tips',
+          showClose: false
+        }).then(() => {
+          // 调用接口
+          addStatement({ serviceProxyId: this._id }).then(res => {
+            this.$message.success('结算成功');
+            this.getDetailData();
+          });
+        }).catch(() => {
+        });
+      } else {
+        const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>您确定要取消结算吗？</div>';
+        this.$confirm(message, '', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true,
+          customClass: 'ais-leave-tips',
+          showClose: false
+        }).then(() => {
+          // 调用接口
+          cancelStatement({ serviceProxyId: this._id }).then(res => {
+            this.$message.success('取消结算成功');
+            this.getDetailData();
+          });
+        }).catch(() => {
+        });
+      }
+    }
   }
 };
 </script>
@@ -949,5 +1003,8 @@ export default {
 .page-common-edit .common-title {
   position: sticky;
   top: 48px;
+  .el-divider--vertical {
+    height: auto;
+  }
 }
 </style>

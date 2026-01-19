@@ -108,9 +108,81 @@ export function getRepairItemInfo (data) {
 }
 
 /**
- * 维修项目--详情
+ * 维修项目--筛选
  * @param {Object} data
  */
 export function filterRepairItem (data) {
   return api.jsonPost(prefix + 'repairItem/filter', data);
+}
+
+/**
+ * 维修零件-筛选
+ * @param {Object} data
+ */
+export function filterSparePartItem (data) {
+  return api.jsonPost('sp/web/basic/sparePart/repairItem/filter', data);
+}
+
+/**
+ * 维修项目--签字
+ * @param {Object} data
+ */
+export function confirmToSign (data) {
+  return api.jsonPost(prefix + 'confirmToSign', data);
+}
+
+/**
+ * 维修项目--待派工项目
+ * @param {Object} data
+ */
+export function getRepairWorkRecord (data) {
+  return api.jsonPost(prefix + 'repairWorkRecord', data);
+}
+
+/**
+ * 维修项目--派工
+ * @param {Object} data
+ */
+export function dispatchWorkers (data) {
+  return api.jsonPost(prefix + 'dispatchWorkers', data);
+}
+
+/**
+ * 维修项目--开始作业
+ * @param {Object} data
+ */
+export function startWork (data) {
+  return api.jsonPost(prefix + 'startWork', data);
+}
+
+/**
+ * 作废
+ * @param {Object} data
+ */
+export function cancelItem (data) {
+  return api.jsonPost(prefix + 'cancel', data);
+}
+
+/**
+ * 打印详情
+ * @param {Object} data
+ */
+export function getPrintInfo (data) {
+  return api.jsonPost(prefix + 'printServiceProxy', data);
+}
+
+/**
+ * 结算
+ * @param {Object} data
+ */
+export function addStatement (data) {
+  return api.jsonPost(prefix + 'statement/add', data);
+}
+
+/**
+ * 取消结算
+ * @param {Object} data
+ */
+export function cancelStatement (data) {
+  return api.jsonPost(prefix + 'statement/cancel', data);
 }

@@ -10,10 +10,9 @@
     <el-form size="small" ref="form" :model="form" :rules="rules" :label-width="formLabelWidth">
       <el-row>
         <el-col :span="22">
-          <el-form-item label="" prop="type">
-            <el-radio-group v-model="form.type">
-              <el-radio :label="1">APP/短信/零小跑</el-radio>
-              <el-radio :label="2">纸质单据</el-radio>
+          <el-form-item label="" prop="signChannel">
+            <el-radio-group v-model="form.signChannel">
+              <el-radio v-for="item in signChannelOptions" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
             </el-radio-group>
           </el-form-item>
         </el-col>
@@ -29,7 +28,8 @@
 </template>
 
 <script>
-import { finish } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
+import { getEnum, confirmToSign } from '@/api/maintain/sp/serviceProxy/index';
+
 export default {
   name: 'ConfirmDocDialog',
   props: {
@@ -37,36 +37,32 @@ export default {
       type: Boolean,
       default: false
     },
-    info: {
-      type: Object,
-      default: () => {
-        return {};
-      }
+    serviceProxyId: {
+      type: [String, Number],
+      default: ''
     }
   },
   data () {
     return {
       dialogVisible: this.visible,
       form: {
-        type: '',
+        signChannel: '',
       },
       rules: {
-        type: [
-          { required: true, message: '类型必选', trigger: 'blur' }
+        signChannel: [
+          { required: true, message: '请选择签字渠道', trigger: 'change' }
         ]
       },
       submitLoading: false,
-      formLabelWidth: '0'
+      formLabelWidth: '0',
+      signChannelOptions: []
     };
   },
   watch: {
     visible (val) {
       this.dialogVisible = val;
-
       if (val) {
-        Object.keys(this.form).forEach(key => {
-          this.form[key] = this.info[key];
-        });
+        this.getSignChannelEnum();
       }
     }
   },
@@ -77,15 +73,28 @@ export default {
     closed () {
       this.$refs.form.resetFields();
     },
+    getSignChannelEnum () {
+      getEnum('SignChannelEnum').then(res => {
+        this.signChannelOptions = res || [];
+        if (this.signChannelOptions.length > 0 && !this.form.signChannel) {
+          this.form.signChannel = this.signChannelOptions[0].code;
+        }
+      }).catch(() => {
+        this.signChannelOptions = [];
+      });
+    },
     submit () {
       this.$refs.form.validate(valid => {
         if (valid) {
           this.submitLoading = true;
-          // this.$emit('submit', { ...this.info, ...this.form });
-          finish({ ...this.info, ...this.form }).then(res => {
+          const params = {
+            serviceProxyId: this.serviceProxyId,
+            signChannel: this.form.signChannel
+          };
+          confirmToSign(params).then(res => {
+            this.$message.success('操作成功');
             this.$emit('update:visible', false);
-            this.$emit('refresh', res);
-            this.closed();
+            this.$emit('refresh');
           }).finally(() => {
             this.submitLoading = false;
           });

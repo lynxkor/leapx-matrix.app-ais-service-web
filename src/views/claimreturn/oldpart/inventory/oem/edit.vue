@@ -120,6 +120,11 @@
                 <el-form-item class="form-item-full" label="不合格描述：" prop="unqualifiedDesc">
                   {{form.unqualifiedDesc}}
                 </el-form-item>
+                <el-form-item class="form-item-full" label="关联快返回运单号：" prop="returnOrderHisList">
+                  <span @click="() => {}" v-for="item in form.returnOrderHisList" :key="item.id">
+                    {{ item.returnOrderNo }},
+                  </span>
+                </el-form-item>
                 <el-form-item class="form-item-full" label="附件材料：">
                   {{'---------'}}
                 </el-form-item>
