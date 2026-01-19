@@ -152,7 +152,7 @@
 
 <script>
 import EditTable from '@/libs/components/EditTable';
-import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem } from '@/api/maintain/sp/serviceProxy/index';
+import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   name: 'SelectRepairItemDialog',
@@ -188,35 +188,13 @@ export default {
 
       // 优惠模式
       discountType: [],
+      selectedDiscount: 1,
 
       // 详情信息
       info: {},
 
       // 维修项目表格配置
-      itemData: [
-        // {
-        //   id: 1,
-        //   code: '999999',
-        //   name: '万能工时',
-        //   type: 'maintenance',
-        //   settlementType: 'self',
-        //   warrantyType: 'none',
-        //   laborHours: 1.0,
-        //   unitPrice: 100.00,
-        //   discountRate: 0.5
-        // },
-        // {
-        //   id: 2,
-        //   code: '9217839293',
-        //   name: '更换风道上部',
-        //   type: 'maintenance',
-        //   settlementType: 'self',
-        //   warrantyType: 'none',
-        //   laborHours: 1.2,
-        //   unitPrice: 1000.00,
-        //   discountRate: 0.5
-        // }
-      ],
+      itemData: [],
       defaultItemRow: {
         code: '',
         name: '',
@@ -550,6 +528,7 @@ export default {
       const newItem = {
         repairItemCode: selectedItem.code || '',
         repairItemName: selectedItem.name || '',
+        repairItemId: selectedItem.id,
         repairItemTypeId: this.repairType,
         repairItemTypeName: repairTypeObj?.repairItemTypeName || repairTypeObj?.label || '',
         checkoutTypeId: checkoutTypeObj?.checkoutTypeId || '',
@@ -601,8 +580,8 @@ export default {
       const warrantyTypeObj = this.itemOptions.warrantyTypeName?.[0];
 
       const newPart = {
-        partsCode: selectedPart.code || '',
-        partsName: selectedPart.name || '',
+        partsCode: selectedPart.partCode || '',
+        partsName: selectedPart.partName || '',
         repairItemTypeId: this.partRepairType,
         repairItemTypeName: repairTypeObj?.repairItemTypeName || repairTypeObj?.label || '',
         checkoutTypeId: checkoutTypeObj?.checkoutTypeId || '',
@@ -611,10 +590,10 @@ export default {
         warrantyTypeName: warrantyTypeObj?.warrantyTypeName || warrantyTypeObj?.label || '',
         isOemPart: selectedPart.isOemPart || '1',
         quantity: 1,
-        price: selectedPart.workhourPrice || 0,
-        discountRate: 1,
+        price: selectedPart.salePrice || 0,
+        discountRate: this.selectedDiscount,
         discountAmount: 0,
-        partsAmount: selectedPart.price || 0,
+        partsAmount: 1,
         repairItemName: selectedPart.repairItemName || '',
         packageCode: selectedPart.packageCode || ''
       };
@@ -638,21 +617,20 @@ export default {
       this.submitLoading = true;
 
       // 模拟提交
-      setTimeout(() => {
-        const data = {
-          items: this.itemData,
-          parts: this.partData,
-          discountMode: this.discountMode,
-          itemTotal: this.itemTotal,
-          partTotal: this.partTotal,
-          totalCost: this.totalCost
-        };
+      const data = {
+        itemList: this.itemData,
+        partsList: this.partData,
+        discountId: this.discountMode,
+        serviceProxyId: this.vehicleInfo.id,
+      };
 
-        this.$emit('submit', data);
+      saveRepairItem(data).then(res => {
         this.$emit('update:visible', false);
         this.submitLoading = false;
         this.$message.success('保存成功');
-      }, 500);
+      }).catch(e => {
+        this.submitLoading = false;
+      });
     },
     getEnumData () {
       getEnum('MaintenanceTypeEnum').then(res => {
@@ -717,7 +695,7 @@ export default {
       filterSparePartItem({ nameOrCodeOrPinyinLike: queryString, serviceProxyId: this.vehicleInfo.id }).then(res => {
         const data = res.map(item => ({
           ...item,
-          value: item.code
+          value: item.partName
         }));
         cb(data);
       });
@@ -728,6 +706,7 @@ export default {
     handleDiscountModeChange (value) {
       // 查找选中的优惠模式
       const selectedDiscount = this.discountType.find(item => item.code === value);
+      this.selectedDiscount = selectedDiscount;
       if (!selectedDiscount) return;
 
       const { discountPartRate, discountWorkhourRate } = selectedDiscount;

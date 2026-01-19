@@ -19,15 +19,14 @@
           ref="materialTable"
           :data="tableData"
           stripe
-          show-overflow
           :row-config="{isHover: true}"
           resizable
           border="inner"
           size="medium"
         >
           <vxe-column type="seq" title="序号" width="70" align="center" />
-          <vxe-column field="partsCode" title="零配件代码" width="150" />
-          <vxe-column field="partsName" title="零配件名称" min-width="150" show-overflow />
+          <vxe-column field="partsCode" title="零配件代码" width="150" show-overflow="tooltip" />
+          <vxe-column field="partsName" title="零配件名称" width="150" show-overflow="tooltip" />
           <vxe-column field="isOutstock" title="是否出库" width="100" align="center">
             <template #default="{ row }">
               {{ row.isOutstock === 1 ? '是' : '否' }}
@@ -50,15 +49,15 @@
           </vxe-column>
           <vxe-column title="退料状态" width="120" align="center">
             <template #default="{ row }">
-              <el-tag :type="getReturnStatusType(row)" size="small">
-                {{ getReturnStatusText(row) }}
-              </el-tag>
+              {{ getReturnStatusText(row) }}
+              <!-- <el-tag :type="getReturnStatusType(row)" size="small">
+              </el-tag> -->
             </template>
           </vxe-column>
           <vxe-column title="操作" width="100" align="center" fixed="right" :resizable="false">
             <template #default="{ row }">
               <el-popconfirm
-                :title="`确定将该零配件退料吗？退料数量：${row.returnQuantity || 0}`"
+                title="确定要将该零配件退料吗？"
                 :disabled="!canReturn(row)"
                 @confirm="handleMaterialReturn(row)"
               >
@@ -125,7 +124,7 @@ export default {
           serviceProxyId: this.vehicleInfo.id
         });
 
-        this.tableData = (res || []).map(item => ({
+        this.tableData = (res.records || []).map(item => ({
           ...item,
           returnQuantity: this.getInitialReturnQuantity(item)
         }));
