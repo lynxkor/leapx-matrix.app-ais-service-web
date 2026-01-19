@@ -36,6 +36,7 @@
                   remote
                   v-model="form.dealerCode"
                   placeholder="请输入门店编码或名称"
+                  :disabled="this.$route.query.id"
                   labelKey="orgCode"
                   valueKey="orgCode"
                   subLabelKey="orgName"
@@ -234,6 +235,9 @@ export default {
   },
   methods: {
     handleDateChange () {
+      if (this.$route.query.id) {
+        return;
+      }
       // 如果日期不符合条件，清空采购价格
       if (!this.canEditPurchasePrice && this.form.dealerPurchasePrice) {
         this.form.dealerPurchasePrice = '';

@@ -21,8 +21,9 @@
                   v-model="form.supplierCode"
                   :remote-method="listSupplier"
                   :disabled="this.$route.query.id"
-                  value-key="id"
-                  label-key="name"
+                  labelKey="code"
+                  valueKey="id"
+                  subLabelKey="name"
                   @change="listSupplierChange"
                 />
               </el-form-item>
@@ -44,8 +45,9 @@
                   v-model="form.partCode"
                   :remote-method="listSparePart"
                   :disabled="this.$route.query.id"
-                  value-key="id"
-                  label-key="name"
+                  labelKey="code"
+                  valueKey="id"
+                  subLabelKey="name"
                   @change="listSparePartChange"
                 />
               </el-form-item>
