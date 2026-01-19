@@ -52,7 +52,7 @@
             <el-form-item label="是否常备库存件：" prop="standingInventoryIs">
               {{ info.standingInventoryIsLabel  }}
             </el-form-item>
-            <el-form-item label="OEM备注：" prop="oemRemark" v-if="permissions.has('AISPART-sparePart-dealer')">
+            <el-form-item label="OEM备注：" prop="oemRemark" v-if="permissions.has('AISPART-sparePart-oem')">
               {{ info.oemRemark  }}
             </el-form-item>
             <el-form-item label="采购状态：" prop="purchaseType">
