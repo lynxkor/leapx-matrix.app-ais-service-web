@@ -115,7 +115,7 @@
               />
               <el-button
                 type="primary"
-                @click="handleAddStore(0)"
+                @click="handleAddStores(0)"
                 size="small"
               >
                 添加
@@ -438,6 +438,9 @@ export default {
     },
     // 处理添加门店事件
     async handleAddStore (val) {
+      if (!this.dealerCodes) {
+        return;
+      }
       const params = {
         purchaseStatus: val,
         ...this.storeParams
@@ -445,6 +448,18 @@ export default {
       await addDealer(params);
       this.getPurchaseDealer(this.partsId, val);
       this.dealerCodes = ''; // 可采购门店列表
+      this.storeParams = {}; // 添加以后清空
+    },
+    async handleAddStores (val) {
+      if (!this.noDealerCodes) {
+        return;
+      }
+      const params = {
+        purchaseStatus: val,
+        ...this.storeParams
+      };
+      await addDealer(params);
+      this.getPurchaseDealer(this.partsId, val);
       this.noDealerCodes = ''; // 不可采购门店列表
       this.storeParams = {}; // 添加以后清空
     },
