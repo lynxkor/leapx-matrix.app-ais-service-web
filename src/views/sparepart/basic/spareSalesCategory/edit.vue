@@ -83,6 +83,12 @@
                   }"
                   :delTitle="'确认删除该门店吗？'"
                   :show-toolbar="false"
+                  showPagination
+                  :current="procurable.current"
+                  :pageSize="procurable.pageSize"
+                  :total="procurable.total"
+                  @page-size-change="pageSizeChange"
+                  @current-page-change="currentPageChange"
                   @remove-row="handleDeleteStore"
                 />
             </div>
@@ -127,6 +133,12 @@
                 }"
                 :delTitle="'确认删除该门店吗？'"
                 :show-toolbar="false"
+                showPagination
+                :current="noProcurable.current"
+                :pageSize="noProcurable.pageSize"
+                :total="noProcurable.total"
+                @page-size-change="noPageSizeChange"
+                @current-page-change="noCurrentPageChange"
                 @remove-row="handleDeleteStore"
               />
             </div>
@@ -198,6 +210,16 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       partsId: null, // 保存成功时ID
+      procurable: {
+        pageSize: 10,
+        total: 0,
+        current: 1,
+      },
+      noProcurable: {
+        pageSize: 10,
+        total: 0,
+        current: 1,
+      },
       storeTypeOptions: [], // 建店类型选项
       buildTypeList: [], // 可采购建店类型列表 传参字段
       tableData: [], // 可采购门店列表
@@ -227,22 +249,22 @@ export default {
         {
           field: 'dealerName',
           title: '门店名称',
-          width: '20%',
+          width: '23%',
         },
         {
           field: 'dealerCode',
           title: '门店编码',
-          width: '20%',
+          width: '23%',
         },
         {
           field: 'createTime',
           title: '添加时间',
-          width: '20%',
+          width: '23%',
         },
         {
           field: 'creatorName',
           title: '操作人',
-          width: '20%',
+          width: '23%',
         }
       ],
       pickerOptions: {
@@ -431,21 +453,54 @@ export default {
       const [status0Res, status1Res] = await Promise.all([
         categoryPurchaseDealer({ // 不可采购门店
           categorySpareId: val,
-          purchaseStatus: 0
+          purchaseStatus: 0,
+          pageSize: this.noProcurable.pageSize,
+          pageNum: this.noProcurable.current,
         }),
         categoryPurchaseDealer({ // 可采购门店
           categorySpareId: val,
-          purchaseStatus: 1
+          purchaseStatus: 1,
+          pageSize: this.procurable.pageSize,
+          pageNum: this.procurable.current,
         })
       ]);
 
       // 区分状态，分别存储
       this.noTableData = status0Res?.records || [];
+      this.noProcurable.total = status0Res?.total || 0;
       this.tableData = status1Res?.records || [];
+      this.procurable.total = status1Res?.total || 0;
     },
     // 处理删除门店事件
     async handleDeleteStore (value) {
       await deleteDealer([value.id]);
+      this.getPurchaseDealer(this.partsId);
+    },
+    pageSizeChange (pageSize) {
+      this.handleSizeChange(pageSize);
+    },
+
+    noPageSizeChange (pageSize) {
+      this.handleSizeChange(pageSize);
+    },
+
+    currentPageChange (current) {
+      this.handleCurrentChange(current);
+    },
+
+    noCurrentPageChange (current) {
+      this.handleCurrentChange(current);
+    },
+
+    // 实际的处理函数
+    handleSizeChange (pageSize) {
+      this.procurable.pageSize = pageSize;
+      this.procurable.current = 1;
+      this.getPurchaseDealer(this.partsId);
+    },
+
+    handleCurrentChange (current) {
+      this.procurable.current = current;
       this.getPurchaseDealer(this.partsId);
     }
   }
