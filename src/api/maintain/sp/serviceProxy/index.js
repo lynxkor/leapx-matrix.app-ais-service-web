@@ -186,3 +186,43 @@ export function addStatement (data) {
 export function cancelStatement (data) {
   return api.jsonPost(prefix + 'statement/cancel', data);
 }
+
+/**
+ * 工位
+ * @param {Object} data
+ */
+export function getDealerStation (data) {
+  return api.jsonPost('maintain/web/basic/dealerStation/list/v2', data);
+}
+
+/**
+ * 技师
+ * @param {Object} data
+ */
+export function getDealerTeamUserRelation (data) {
+  return api.jsonPost('maintain/web/basic/dealerRelationUser/list/v2', data);
+}
+
+/**
+ * 班组
+ * @param {Object} data
+ */
+export function getDealerWorkTeam (data) {
+  return api.jsonPost('maintain/web/basic/dealerWorkTeam/list/v2', data);
+}
+
+/**
+ * 退料列表
+ * @param {Object} data
+ */
+export function getSpSparePartList (data) {
+  return api.jsonPost('maintain/web/sp/spSparePart/page', data);
+}
+
+/**
+ * 退料
+ * @param {Object} data
+ */
+export function refundPart (data) {
+  return api.jsonPost('maintain/web/sp/spSparePart/refundPart', data);
+}
