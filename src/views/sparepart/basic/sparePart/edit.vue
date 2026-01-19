@@ -181,7 +181,7 @@
                   show-word-limit
                 />
               </el-form-item>
-              <el-form-item label="OEM备注" prop="oemRemark" class="form-item-full" v-if="permissions.has('AISPART-sparePart-dealer')">
+              <el-form-item label="OEM备注" prop="oemRemark" class="form-item-full" v-if="permissions.has('AISPART-sparePart-oem')">
                 <el-input
                   type="textarea"
                   placeholder="请输入"
