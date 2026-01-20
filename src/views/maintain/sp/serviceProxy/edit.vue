@@ -28,6 +28,7 @@
                     <el-button size="small" @click="dispatchWorkDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">派工</el-button>
                     <el-button size="small" @click="handleSettlement(1)" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus) && !form.isCreateStatementInfo">结算</el-button>
                     <el-button size="small" @click="handleSettlement(0)" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus) && form.isCreateStatementInfo">取消结算</el-button>
+                    <el-button size="small" @click="handleCancelFinal" v-if="[RepairOrderStatusEnum.ANTI_SETTLEMENT].includes(form.orderStatus)">取消终检</el-button>
                     <!-- <el-button size="small" @click="handleCancel">预警信息</el-button> -->
                     <el-divider direction="vertical"></el-divider>
                     <el-button v-if="canAddOrUpdate" size="small" type="primary" plain @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
@@ -130,7 +131,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement } from '@/api/maintain/sp/serviceProxy/index';
+import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal } from '@/api/maintain/sp/serviceProxy/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import NavTop from './components/NavTop';
 import { getEnum } from '@/api/common';
@@ -564,6 +565,23 @@ export default {
         }).catch(() => {
         });
       }
+    },
+    // 取消终检
+    handleCancelFinal () {
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>您确定要取消终检吗？</div>';
+      this.$confirm(message, '', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(() => {
+        // 调用接口
+        cancelFinal({ serviceProxyId: this._id }).then(res => {
+          this.$message.success('取消终检成功');
+        });
+      }).catch(() => {
+      });
     }
   }
 };

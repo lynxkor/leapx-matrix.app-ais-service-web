@@ -234,3 +234,11 @@ export function refundPart (data) {
 export function saveRepairItem (data) {
   return api.jsonPost(prefix + 'repairItem/save', data);
 }
+
+/**
+ * 取消终检
+ * @param {Object} data
+ */
+export function cancelFinal (data) {
+  return api.jsonPost(prefix + 'cancelFinal', data);
+}

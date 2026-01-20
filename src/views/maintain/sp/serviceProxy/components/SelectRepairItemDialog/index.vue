@@ -95,6 +95,7 @@
           :options="itemOptions"
           :auth="{edit: false, delete: true}"
           :default-new-row="defaultItemRow"
+          @remove-row="handleRemoveItemRow"
           emptyText="请添加数据"
           seq
           :actionWidth="100"
@@ -134,6 +135,7 @@
           :options="itemOptions"
           :auth="{edit: false, delete: true}"
           :default-new-row="defaultPartRow"
+          @remove-row="handleRemovePartRow"
           emptyText="请添加数据"
           seq
           :actionWidth="100"
@@ -580,6 +582,7 @@ export default {
       const warrantyTypeObj = this.itemOptions.warrantyTypeName?.[0];
 
       const newPart = {
+        partsId: selectedPart.id,
         partsCode: selectedPart.partCode || '',
         partsName: selectedPart.partName || '',
         repairItemTypeId: this.partRepairType,
@@ -735,16 +738,32 @@ export default {
     updateTotals () {
       // 计算维修项目合计
       this.info.workCostCount = this.itemData.reduce((sum, item) => {
-        return sum + (item.repairAmount || 0);
+        const amount = parseFloat(item.repairAmount) || 0;
+        return sum + amount;
       }, 0);
 
       // 计算维修配件合计
       this.info.barkCostCount = this.partData.reduce((sum, part) => {
-        return sum + (part.partsAmount || 0);
+        const amount = parseFloat(part.partsAmount) || 0;
+        return sum + amount;
       }, 0);
 
       // 计算费用合计
       this.info.maintenanceCostEstimation = this.info.workCostCount + this.info.barkCostCount;
+    },
+    // 处理维修项目表格删除行
+    handleRemoveItemRow (removedRow, index, defer) {
+      // 从 itemData 中移除该行数据（表格组件内部已经移除了，这里只需要同步）
+      this.itemData.splice(index, 1);
+      // 更新顶部合计
+      this.updateTotals();
+    },
+    // 处理维修配件表格删除行
+    handleRemovePartRow (removedRow, index, defer) {
+      // 从 partData 中移除该行数据（表格组件内部已经移除了，这里只需要同步）
+      this.partData.splice(index, 1);
+      // 更新顶部合计
+      this.updateTotals();
     }
   }
 };

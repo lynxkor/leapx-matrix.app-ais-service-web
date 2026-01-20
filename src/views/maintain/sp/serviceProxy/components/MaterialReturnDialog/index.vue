@@ -256,6 +256,10 @@ export default {
     .btn-back {
       color: var(--leap-color-link);
       cursor: pointer;
+      &.is-disabled{
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
     }
   }
 
