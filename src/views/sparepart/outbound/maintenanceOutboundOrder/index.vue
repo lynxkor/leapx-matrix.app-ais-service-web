@@ -138,6 +138,13 @@
       :id="maintenanceId"
       :visible="repairDialogVisible"
       @close="handleRepairDialogClose"
+      @success="handleRepairDialogSuccess"
+    />
+    <PrintSettings
+      ref="printSettingsRef"
+      :visible="printSettingsVisible"
+      @close="handlePrintSettingsClose"
+      @success="handlePrintSettingsSuccess"
     />
   </div>
 </template>
@@ -158,7 +165,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
 import RepairDialog from './RepairDialog.vue';
-
+import PrintSettings from './PrintSettings.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   codeList: [],
@@ -187,7 +194,8 @@ export default {
     EditPage,
     Upload,
     TagInput,
-    RepairDialog
+    RepairDialog,
+    PrintSettings
   },
   data () {
     return {
@@ -206,6 +214,7 @@ export default {
       uploadDialogVisible: false,
       repairDialogVisible: false, // 维修出库弹窗
       maintenanceId: '', // 维修出库id
+      printSettingsVisible: false, // 打印设置弹窗
       clickItemId: '',
       optionObj: {
         id: 'maintenanceOutboundOrderTable',
@@ -255,24 +264,6 @@ export default {
                 this.repairPopup(row);
               },
               type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
             }]
           }
         ],
@@ -468,8 +459,25 @@ export default {
       this.maintenanceId = val.id;
       this.repairDialogVisible = true;
     },
+    // 关闭弹窗
     handleRepairDialogClose () {
       this.repairDialogVisible = false;
+    },
+    handleRepairDialogSuccess () {
+      this.repairDialogVisible = false;
+      this.getData();
+    },
+    // 打印设置弹窗
+    handlePringConfig () {
+      this.printSettingsVisible = true;
+    },
+    // 关闭打印设置弹窗
+    handlePrintSettingsClose () {
+      this.printSettingsVisible = false;
+    },
+    handlePrintSettingsSuccess () {
+      this.printSettingsVisible = false;
+      this.getData();
     }
   }
 };
