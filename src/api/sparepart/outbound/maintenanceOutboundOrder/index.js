@@ -58,3 +58,11 @@ export function collarPage (data) {
 export function goPage (data) {
   return api.jsonPost('sp/web/maintenance/maintenanceOutboundReturnDetail/page', data);
 }
+
+/**
+ * 维修出库领料人
+ * @param {Object} data
+ */
+export function OutboundPeople (data) {
+  return api.jsonPost('sp/web/maintenance/maintenanceOutboundOrderDetail/outbound', data);
+}
