@@ -55,8 +55,8 @@
           <el-form-item label="出库状态">
             <fetch-select
               :request="fetchOptions"
-              enumCode="MaintenanceOutboundStatusEnum"
-              v-model="form.outboundStatus"
+              enumCode="MaintenanceReturnMaterialStatusEnum"
+              v-model="form.returnMaterialStatusList"
               placeholder="请选择"
               clearable
               multiple
@@ -99,7 +99,7 @@
       </el-form>
       <div class="ais-actions">
         <!--  TIPS:根据产品增删功能按钮  -->
-        <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handlePringConfig"><i class="iconfont icon-lxppc-plus"></i>打印设置</el-button>
+        <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handlePringConfig"><i class="iconfont icon-lxppc-plus"></i>打印设置</el-button> -->
         <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
         <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
         <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
@@ -133,18 +133,12 @@
         :id="'1'"
         @close="handleUploadDialogClose"
       />
-      <RepairDialog
-        ref="repairDialogRef"
+      <warehousingDialog
+        ref="warehousingDialogRef"
         :id="maintenanceId"
-        :visible="repairDialogVisible"
-        @close="handleRepairDialogClose"
-        @success="handleRepairDialogSuccess"
-      />
-      <PrintSettings
-        ref="printSettingsRef"
-        :visible="printSettingsVisible"
-        @close="handlePrintSettingsClose"
-        @success="handlePrintSettingsSuccess"
+        :visible="warehousingDialogVisible"
+        @close="handleWarehousingDialogClose"
+        @success="handleWarehousingDialogSuccess"
       />
     </div>
   </template>
@@ -164,6 +158,8 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
+import warehousingDialog from '@/views/sparepart/inbound/maintenanceReturnInbound/warehousingDialog.vue';
+
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   codeList: [],
@@ -173,7 +169,7 @@ const defaultForm = {
   serviceProxyIdList: [],
   vehProfileVin: '',
   carPlate: '',
-  outboundStatus: '',
+  returnMaterialStatusList: [],
   createTime: '',
   updateTime: '',
 };
@@ -192,10 +188,11 @@ export default {
     EditPage,
     Upload,
     TagInput,
+    warehousingDialog
   },
   data () {
     return {
-      pageTitle: '维修出库',
+      pageTitle: '维修退料入库',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-maintenanceReturnInbound',
@@ -209,8 +206,8 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       repairDialogVisible: false, // 维修出库弹窗
-      maintenanceId: '', // 维修出库id
-      printSettingsVisible: false, // 打印设置弹窗
+      warehousingDialogVisible: false, // 维修退料入库弹窗
+      maintenanceId: '', // 维修退料入库id
       clickItemId: '',
       optionObj: {
         id: 'maintenanceReturnInbound',
@@ -256,6 +253,9 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '入库',
+              show: (row) => {
+                return row.returnMaterialStatus !== '1';
+              },
               click: (rowIndex, row) => {
                 this.repairPopup(row);
               },
@@ -453,28 +453,16 @@ export default {
     // 维修出库弹窗
     repairPopup (val) {
       this.maintenanceId = val.id;
-      this.repairDialogVisible = true;
+      this.warehousingDialogVisible = true;
     },
     // 关闭弹窗
-    handleRepairDialogClose () {
-      this.repairDialogVisible = false;
+    handleWarehousingDialogClose () {
+      this.warehousingDialogVisible = false;
     },
-    handleRepairDialogSuccess () {
-      this.repairDialogVisible = false;
+    handleWarehousingDialogSuccess () {
+      this.warehousingDialogVisible = false;
       this.getData();
     },
-    // 打印设置弹窗
-    handlePringConfig () {
-      this.printSettingsVisible = true;
-    },
-    // 关闭打印设置弹窗
-    handlePrintSettingsClose () {
-      this.printSettingsVisible = false;
-    },
-    handlePrintSettingsSuccess () {
-      this.printSettingsVisible = false;
-      this.getData();
-    }
   }
 };
 </script>

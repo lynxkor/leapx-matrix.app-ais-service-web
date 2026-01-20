@@ -125,7 +125,7 @@ export default {
     },
     async submit () {
       if (!this.selectedRows.length) {
-        this.$message.warning('请选择要修改的行');
+        this.$message.warning('请选择需要出库的明细记录');
         return;
       }
       // 2. 检查所有勾选行是否都选择了领料人
