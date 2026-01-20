@@ -619,7 +619,6 @@ export default {
 
       this.submitLoading = true;
 
-      // 模拟提交
       const data = {
         itemList: this.itemData,
         partsList: this.partData,
@@ -631,6 +630,7 @@ export default {
         this.$emit('update:visible', false);
         this.submitLoading = false;
         this.$message.success('保存成功');
+        this.$emit('refresh');
       }).catch(e => {
         this.submitLoading = false;
       });

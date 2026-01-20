@@ -327,13 +327,7 @@ export default {
 
       try {
         this.dispatchLoading = true;
-        const params = this.selectedRows.map(row => ({
-          repairItemId: row.repairItemId,
-          dealerStationId: row.dealerStationId,
-          dealerWorkTeamId: row.dealerWorkTeamId,
-          repairTechnicianId: row.repairTechnicianId,
-          startAt: row.startAt
-        }));
+        const params = this.selectedRows;
 
         dispatchWorkers(params).then(res => {
           this.initData();
