@@ -1014,7 +1014,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchaseReminder/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件采购提醒设置',
         keepAlive: true
       }
     }, {
@@ -1023,7 +1023,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchaseReminder/detail.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件采购提醒设置',
         noResourceUrl: 'true'
       }
     }, {
@@ -1032,7 +1032,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchaseReminder/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件采购提醒设置详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -1311,7 +1311,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchasePartSaleable/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '订单类型采购备件设置',
         keepAlive: true
       }
     }, {
@@ -1320,7 +1320,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchasePartSaleable/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '订单类型采购备件设置详情',
         noResourceUrl: 'true'
       }
     }]
