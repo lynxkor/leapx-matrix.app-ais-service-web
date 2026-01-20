@@ -1088,6 +1088,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/sparepart/inbound/maintenanceReturnInbound',
+      name: 'maintenanceReturnInbound',
+      component: () => import('@/views/sparepart/inbound/maintenanceReturnInbound/index.vue'),
+
+      meta: {
+        name: '维修退料入库',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/inbound/maintenanceReturnInbound/edit',
+      name: 'maintenanceReturnInboundEdit',
+      component: () => import('@/views/sparepart/inbound/maintenanceReturnInbound/edit.vue'),
+
+      meta: {
+        name: '维修退料入库详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/claimreturn/oldpart/returnorder',
       name: 'fastReturnOrder',
       component: () => import('@/views/claimreturn/oldpart/returnorder/index.vue'),
