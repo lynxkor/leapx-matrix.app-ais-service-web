@@ -9,11 +9,11 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="订单类型：1-普通订单，2-紧急订单，3-铺货订单，4-定制订单，5-领料订单，6-活动订单">
+      <el-form-item label="订单类型">
         <fetch-select
           :request="fetchOptions"
-          enumCode="xxx"
-          v-model="form.orderType"
+          enumCode="PurchaseOrderTypeEnum"
+          v-model="form.orderTypes"
           placeholder="请选择"
           clearable
           multiple
@@ -21,11 +21,7 @@
         />
       </el-form-item>
       <el-form-item label="备件编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.partCode"
-          clearable
-        />
+        <tag-input v-model="form.partCodeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="备件名称"  v-show="this.visibleCount === 3 || show">
         <el-input
@@ -35,12 +31,15 @@
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="是否可售：0-否，1-是">
-          <el-input
-            placeholder="请输入"
-            v-model="form.saleableIs"
-            clearable
-          />
+        <el-form-item label="是否可售">
+          <fetch-select
+          :request="fetchOptions"
+          enumCode="BooleanEnum"
+          v-model="form.saleableIs"
+          placeholder="请选择"
+          clearable
+          filterable
+        />
         </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
@@ -128,6 +127,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -151,14 +151,15 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '订单类型采购备件设置',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-purchasePartSaleable',
+      moduleKey: 'AISPART-purchasePartSaleable',
       form: {
         ...defaultForm
       },
@@ -178,8 +179,8 @@ export default {
         },
         dataProp: [
           {
-            props: 'orderType',
-            label: '订单类型：1-普通订单，2-紧急订单，3-铺货订单，4-定制订单，5-领料订单，6-活动订单',
+            props: 'orderTypeLabel',
+            label: '订单类型',
             visible: true,
             width: 200,
             fixed: 'left',
@@ -195,9 +196,25 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'partCode', label: '备件编码', visible: true, width: 200 },
+          {
+            props: 'partCode',
+            label: '备件编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/sparePart/detail',
+                  query: {
+                    id: row.sparePartId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'partName', label: '备件名称', visible: true, width: 200 },
-          { props: 'saleableIs', label: '是否可售：0-否，1-是', visible: true, width: 200 },
+          { props: 'saleableIsLabel', label: '是否可售', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
