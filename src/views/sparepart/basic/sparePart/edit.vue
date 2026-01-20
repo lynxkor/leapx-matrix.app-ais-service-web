@@ -415,7 +415,7 @@
         <section class="common-section">
           <div class="common-section-header modeZb">
             <h2>车型信息</h2>
-            <el-button class="modeBtn" type="primary" size="small" plain v-permission:disabled="'AISPART-sparePartVehicleModel-addOrUpdate'" @click.stop="handleModel">维护车型</el-button>
+            <el-button class="modeBtn" type="primary" size="small" plain v-permission:disabled="'AISPART-sparePart-modelImport'" @click.stop="handleModel">维护车型</el-button>
           </div>
           <div class="common-section-body">
             <div class="common-section-table">
