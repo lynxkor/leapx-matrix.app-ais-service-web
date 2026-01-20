@@ -275,7 +275,7 @@ export default {
             buttons: [{
               name: '编辑 ',
               disabled: () => {
-                const a = this.permissions.has('AISPART-sparePart-vfgImport') || this.permissions.has('AISPART-sparePartVehicleModel-addOrUpdate') || this.permissions.has('AISPART-sparePart-purchaseImport') || this.permissions.has('AISPART-sparePart-transportImport') || this.permissions.has('AISPART-sparePart-salesImport');
+                const a = this.permissions.has('AISPART-sparePart-vfgImport') || this.permissions.has('AISPART-sparePart-modelImport') || this.permissions.has('AISPART-sparePart-purchaseImport') || this.permissions.has('AISPART-sparePart-transportImport') || this.permissions.has('AISPART-sparePart-salesImport');
                 return !a;
               },
               click: (rowIndex, row) => {

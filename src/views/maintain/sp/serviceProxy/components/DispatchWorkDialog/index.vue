@@ -14,36 +14,36 @@
           <el-row>
             <el-col :span="6">
               <el-form-item label="工位：">
-                <el-select v-model="filterForm.workstation" placeholder="请选择" clearable>
+                <el-select v-model="filterForm.workstation" placeholder="请选择" clearable filterable>
                   <el-option
                     v-for="item in workstationOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id"
                   />
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="6">
               <el-form-item label="班组：">
-                <el-select v-model="filterForm.team" placeholder="请选择" clearable>
+                <el-select v-model="filterForm.team" placeholder="请选择" clearable filterable>
                   <el-option
                     v-for="item in teamOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id"
                   />
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="6">
               <el-form-item label="技师：">
-                <el-select v-model="filterForm.technician" placeholder="请选择" clearable>
+                <el-select v-model="filterForm.technician" placeholder="请选择" clearable filterable>
                   <el-option
                     v-for="item in technicianOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
+                    :key="item.userId"
+                    :label="item.userName"
+                    :value="item.userId"
                   />
                 </el-select>
               </el-form-item>
@@ -107,7 +107,7 @@
           </vxe-column>
           <vxe-column title="班组" width="150">
             <template #default="{ row }">
-              <el-select v-model="row.dealerWorkTeamId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1">
+              <el-select v-model="row.dealerWorkTeamId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1" @change="handleTeamChange(row)">
                 <el-option
                   v-for="item in teamOptions"
                   :key="item.id"
@@ -119,12 +119,12 @@
           </vxe-column>
           <vxe-column title="维修技师" width="150">
             <template #default="{ row }">
-              <el-select v-model="row.repairTechnicianId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1">
+              <el-select v-model="row.repairTechnicianId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1 || !row.dealerWorkTeamId">
                 <el-option
                   v-for="item in technicianOptions"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id"
+                  :key="item.userId"
+                  :label="item.userName"
+                  :value="item.userId"
                 />
               </el-select>
             </template>
@@ -155,7 +155,7 @@
 </template>
 
 <script>
-import { getRepairWorkRecord, dispatchWorkers } from '@/api/maintain/sp/serviceProxy/index';
+import { getRepairWorkRecord, dispatchWorkers, getDealerStation, getDealerWorkTeam, getDealerTeamUserRelation } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   name: 'DispatchWorkDialog',
@@ -200,6 +200,7 @@ export default {
     visible (val) {
       this.dialogVisible = val;
       if (val) {
+        this.loadOptions();
         this.initData();
       }
     },
@@ -210,7 +211,10 @@ export default {
     },
     'filterForm.team': {
       handler (val) {
+        // 班组变化时清空技师并重新加载
+        this.filterForm.technician = '';
         this.updateUndispatchedRows('dealerWorkTeamId', val);
+        this.getTechnicianOptions();
       }
     },
     'filterForm.technician': {
@@ -233,6 +237,10 @@ export default {
         }
       });
     },
+    handleTeamChange (row) {
+      // 班组变化时清空该行的技师
+      this.$set(row, 'repairTechnicianId', '');
+    },
     async initData () {
       try {
         this.tableLoading = true;
@@ -245,6 +253,44 @@ export default {
       } finally {
         this.tableLoading = false;
       }
+    },
+    // 获取工位选项
+    async getWorkstationOptions () {
+      try {
+        const res = await getDealerStation();
+        this.workstationOptions = res || [];
+      } catch (error) {
+        console.error('获取工位数据失败', error);
+      }
+    },
+    // 获取班组选项
+    async getTeamOptions () {
+      try {
+        const res = await getDealerWorkTeam();
+        this.teamOptions = res || [];
+      } catch (error) {
+        console.error('获取班组数据失败', error);
+      }
+    },
+    // 获取技师选项
+    async getTechnicianOptions () {
+      if (!this.filterForm.team) return;
+      try {
+        const res = await getDealerTeamUserRelation({
+          teamId: this.filterForm.team
+        });
+        this.technicianOptions = res || [];
+      } catch (error) {
+        console.error('获取技师数据失败', error);
+      }
+    },
+    // 加载所有选项数据
+    async loadOptions () {
+      await Promise.all([
+        this.getWorkstationOptions(),
+        this.getTeamOptions(),
+        this.getTechnicianOptions()
+      ]);
     },
     close () {
       this.$emit('update:visible', false);
@@ -289,15 +335,11 @@ export default {
           startAt: row.startAt
         }));
 
-        const res = await dispatchWorkers(params);
-        if (res.code === '0' || res.code === 0) {
-          this.$message.success('派工成功');
-          await this.initData();
+        dispatchWorkers(params).then(res => {
+          this.initData();
           this.$refs.dispatchTable.clearCheckboxRow();
           this.$emit('refresh');
-        } else {
-          this.$message.error(res.msg || '派工失败');
-        }
+        });
       } catch (error) {
         console.error('派工失败', error);
         this.$message.error('派工失败');
@@ -325,11 +367,16 @@ export default {
           row.dealerWorkTeamId = '';
           row.repairTechnicianId = '';
         });
-        this.$message.success('删除派工成功');
-        this.deleteLoading = false;
-        this.$refs.dispatchTable.clearCheckboxRow();
-        this.$emit('refresh');
-      }).catch(() => {});
+        dispatchWorkers(this.selectedRow).then(res => {
+          this.$message.success('删除派工成功');
+          this.deleteLoading = false;
+          this.initData();
+          this.$refs.dispatchTable.clearCheckboxRow();
+          this.$emit('refresh');
+        });
+      }).catch(() => {}).finally(() => {
+        this.dispatchLoading = false;
+      });
     }
   }
 };

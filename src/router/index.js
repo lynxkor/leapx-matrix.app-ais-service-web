@@ -1233,6 +1233,60 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/maintain/sp/serviceStatement',
+      name: 'serviceStatement',
+      component: () => import('@/views/maintain/sp/serviceStatement/index.vue'),
+
+      meta: {
+        name: '结算单表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/servicestatement/edit',
+      name: 'serviceStatementEdit',
+      component: () => import('@/views/maintain/sp/serviceStatement/edit.vue'),
+
+      meta: {
+        name: '结算单表管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/datacenter/vehicle/vehicleProfile',
+      name: 'vehicleProfile',
+      component: () => import('@/views/datacenter/vehicle/vehicleProfile/index.vue'),
+
+      meta: {
+        name: '车辆档案主表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/datacenter/vehicle/vehicleprofile/edit',
+      name: 'vehicleProfileEdit',
+      component: () => import('@/views/datacenter/vehicle/vehicleProfile/edit.vue'),
+
+      meta: {
+        name: '车辆档案主表管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/datacenter/vehicle/serviceProxyHis',
+      name: 'serviceProxyHis',
+      component: () => import('@/views/datacenter/vehicle/serviceProxyHis/index.vue'),
+
+      meta: {
+        name: '接车施工单-维修履历信息管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/datacenter/vehicle/serviceproxyhis/edit',
+      name: 'serviceProxyHisEdit',
+      component: () => import('@/views/datacenter/vehicle/serviceProxyHis/edit.vue'),
+
+      meta: {
+        name: '接车施工单-维修履历信息管理详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];

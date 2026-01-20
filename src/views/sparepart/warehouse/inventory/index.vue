@@ -429,7 +429,7 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
-
+      console.log('类型' + this.$route.query.type);
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
