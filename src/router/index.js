@@ -1323,6 +1323,26 @@ const routes = [
         name: '订单类型采购备件设置详情',
         noResourceUrl: 'true'
       }
+    },
+    {
+      path: '/claimreturn/oldpart/outbound',
+      name: 'outbound',
+      component: () => import('@/views/claimreturn/oldpart/outbound/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    },
+    {
+      path: '/claimreturn/oldpart/outbound/edit',
+      name: 'outboundEdit',
+      component: () => import('@/views/claimreturn/oldpart/outbound/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
