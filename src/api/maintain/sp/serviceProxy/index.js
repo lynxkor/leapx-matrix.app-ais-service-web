@@ -226,3 +226,11 @@ export function getSpSparePartList (data) {
 export function refundPart (data) {
   return api.jsonPost('maintain/web/sp/spSparePart/refundPart', data);
 }
+
+/**
+ * 提交项目维修信息
+ * @param {Object} data
+ */
+export function saveRepairItem (data) {
+  return api.jsonPost(prefix + 'repairItem/save', data);
+}
