@@ -32,65 +32,239 @@
         </el-tab-pane>
       </el-tabs>
 
-      <!-- 筛选表单 -->
-      <div class="filter-section">
-        <el-form size="small" :model="filterForm" label-width="80px">
+      <!-- 维修项目 Tab 内容 -->
+      <div v-show="currentSubTab === '0'">
+        <!-- 筛选表单 -->
+        <div class="filter-section">
+          <el-form size="small" :model="filterForm" label-width="80px">
+            <el-row>
+              <el-col :span="6">
+                <el-form-item label="质检时间">
+                  <el-date-picker
+                    v-model="filterForm.qualityCheckAt"
+                    type="datetime"
+                    placeholder="选择日期时间"
+                    value-format="yyyy-MM-DD HH:mm:ss"
+                    style="width: 100%;"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item label="质检人">
+                  <fetch-select
+                    v-model="filterForm.qualityCheckerId"
+                    :remote-method="searchUser"
+                    value-key="userId"
+                    label-key="username"
+                    filterable
+                    remote
+                    clearable
+                    reserve-keyword
+                    placeholder="请选择质检人"
+                    style="width: 100%;"
+                    @change="handleQualityCheckerChange"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item label="终检时间">
+                  <el-date-picker
+                    v-model="filterForm.finalCheckTime"
+                    type="datetime"
+                    placeholder="选择日期时间"
+                    value-format="yyyy-MM-DD HH:mm:ss"
+                    style="width: 100%;"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item label="终检人">
+                  <fetch-select
+                    v-model="filterForm.finalCheckerId"
+                    :remote-method="searchUser"
+                    value-key="userId"
+                    label-key="username"
+                    filterable
+                    remote
+                    clearable
+                    reserve-keyword
+                    placeholder="请选择终检人"
+                    style="width: 100%;"
+                    @change="handleFinalCheckerChange"
+                  />
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-form>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-section">
+          <vxe-table
+            ref="workTable"
+            :data="tableData"
+            stripe
+            show-overflow
+            :row-config="{ isHover: true }"
+            resizable
+            border="inner"
+            size="medium"
+          >
+            <vxe-column type="seq" title="序号" width="70" align="center" />
+            <vxe-column field="qualityCheckAt" title="质检时间" width="180" />
+            <vxe-column field="qualityCheckerId" title="质检人" width="120" />
+            <vxe-column field="repairItemCode" title="维修项目代码" width="150" />
+            <vxe-column field="repairItemName" title="维修项目名称" min-width="150" show-overflow />
+            <vxe-column field="dealerStationName" title="工位" width="120" />
+            <vxe-column field="dealerWorkTeamName" title="班组" width="140" />
+            <vxe-column field="repairTechnicianName" title="维修技师" width="120" />
+            <vxe-column title="操作" width="120" align="center" fixed="right" :resizable="false">
+              <template #default="{ row }">
+                <el-popconfirm
+                  title="确定质检吗？"
+                  @confirm="handleQualityCheck(row, rowIndex)"
+                >
+                  <span
+                    class="action-button btn-back"
+                    slot="reference"
+                    type="text">
+                    质检
+                  </span>
+                </el-popconfirm>
+                <el-popconfirm
+                  title="确定返修吗？"
+                  @confirm="handleRepair(row, rowIndex)"
+                >
+                  <span
+                    class="action-button btn-back"
+                    slot="reference"
+                    type="text">
+                    返修
+                  </span>
+                </el-popconfirm>
+              </template>
+            </vxe-column>
+          </vxe-table>
+        </div>
+      </div>
+
+      <!-- 故障模块 Tab 内容 -->
+      <div v-show="currentSubTab === '1'" class="fault-module-content">
+        <!-- 故障存在询问 -->
+        <div class="fault-existence-section">
+          <div>
+            <span class="fault-label">本次进店是否存在故障</span>
+            <el-radio-group v-model="faultForm.faultFlag" @change="handleFaultExistenceChange">
+              <el-radio :label="1">是</el-radio>
+              <el-radio :label="0">否</el-radio>
+            </el-radio-group>
+          </div>
+          <div v-if="faultForm.faultFlag === 1" class="search-section">
+            <el-input
+              v-model="faultForm.searchKeyword"
+              placeholder="请输入VRT/VFG/CCC模糊搜索"
+              clearable
+              size="small"
+              @clear="handleFaultSearch"
+              @keyup.enter.native="handleFaultSearch"
+            >
+              <i slot="append" class="el-icon-search" @click="handleFaultSearch"></i>
+            </el-input>
+          </div>
+        </div>
+
+        <!-- 搜索区域 -->
+
+        <!-- 故障模块表格 -->
+        <div v-if="faultForm.faultFlag === 1" class="table-section">
+          <vxe-table
+            ref="faultTable"
+            :data="faultTableData"
+            stripe
+            show-overflow
+            :row-config="{ isHover: true }"
+            resizable
+            border="inner"
+            size="medium"
+          >
+            <vxe-column type="seq" title="序号" width="70" align="center" />
+            <vxe-column field="vrtName" title="VRT名称" min-width="150" show-overflow />
+            <vxe-column field="vfgName" title="VFG名称" min-width="150" show-overflow />
+            <vxe-column field="cccName" title="CCC名称" min-width="150" show-overflow />
+            <vxe-column field="alertModule" title="是否提醒模块" width="120" align="center">
+              <template #default="{ row }">
+                <span>{{ row.alertModule === 1 ? '是' : '否' }}</span>
+              </template>
+            </vxe-column>
+            <vxe-column field="currentSituationText" title="本次进店情况(周期内)" min-width="180" show-overflow />
+            <vxe-column field="faultAlert" title="故障提醒内容" min-width="250" show-overflow />
+            <vxe-column title="操作" width="100" align="center" fixed="right" :resizable="false">
+              <template #default="{ row }">
+                <el-popconfirm
+                  title="确定删除此故障吗？"
+                  @confirm="handleDeleteFault(row)"
+                >
+                  <span
+                    class="action-button btn-delete"
+                    slot="reference"
+                    type="text">
+                    删除故障
+                  </span>
+                </el-popconfirm>
+              </template>
+            </vxe-column>
+          </vxe-table>
+        </div>
+      </div>
+
+       <!-- 电池信息 Tab 内容 -->
+      <div v-show="currentSubTab === '2'">
+        <!-- 电池信息 -->
+        <el-form :inline="true" :rules="rules" :model="formInline" class="battert-form" size="small" label-width="150px">
           <el-row>
-            <el-col :span="6">
-              <el-form-item label="质检时间">
-                <el-date-picker
-                  v-model="filterForm.qualityCheckTime"
-                  type="datetime"
-                  placeholder="选择日期时间"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  style="width: 100%;"
+            <el-col :span="12">
+              <el-form-item label="电池去向单位：" prop="batteryUnitId">
+                <fetch-select
+                  v-model="formInline.batteryUnitId"
+                  :remote-method="searchBatteryUnit"
+                  value-key="id"
+                  label-key="name"
+                  filterable
+                  remote
+                  clearable
+                  reserve-keyword
+                  placeholder="请选择电池去向单位"
+                  style="width: 280px;"
+                  @change="handleBatteryUnitChange"
                 />
               </el-form-item>
             </el-col>
-            <el-col :span="6">
-              <el-form-item label="质检人">
-                <el-select v-model="filterForm.qualityChecker" placeholder="请选择" style="width: 100%;">
-                  <el-option
-                    v-for="item in qualityCheckerOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
+            <el-col :span="12">
+              <el-form-item label="去向单位统一代码：" prop="targetUnitCode">
+                <el-input v-model="formInline.targetUnitCode" placeholder="请填写去向单位统一代码" disabled></el-input>
               </el-form-item>
             </el-col>
-            <el-col :span="6">
-              <el-form-item label="终检时间">
-                <el-date-picker
-                  v-model="filterForm.finalCheckTime"
-                  type="datetime"
-                  placeholder="选择日期时间"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  style="width: 100%;"
-                />
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="更换前编号：" prop="beforeChangeCode">
+                <el-input v-model="formInline.beforeChangeCode" placeholder="请填写电池更换前编号"></el-input>
               </el-form-item>
             </el-col>
-            <el-col :span="6">
-              <el-form-item label="终检人">
-                <el-select v-model="filterForm.finalChecker" placeholder="请选择" style="width: 100%;">
-                  <el-option
-                    v-for="item in finalCheckerOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
+            <el-col :span="12">
+              <el-form-item label="更换前编号：" prop="afterChangeCode">
+                <el-input v-model="formInline.afterChangeCode" placeholder="请填写电池更换后编号"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
         </el-form>
       </div>
 
-      <!-- 数据表格 -->
-      <div class="table-section">
+      <!-- 追溯信息 Tab 内容 -->
+      <div v-show="currentSubTab === '3'">
         <vxe-table
-          ref="workTable"
-          :data="tableData"
+          ref="traceTable"
+          :data="partsTraceRecordResps"
           stripe
           show-overflow
           :row-config="{ isHover: true }"
@@ -99,37 +273,25 @@
           size="medium"
         >
           <vxe-column type="seq" title="序号" width="70" align="center" />
-          <vxe-column field="qualityCheckTime" title="质检时间" width="180" />
-          <vxe-column field="qualityChecker" title="质检人" width="120" />
-          <vxe-column field="itemCode" title="维修项目代码" width="150" />
-          <vxe-column field="itemName" title="维修项目名称" min-width="150" show-overflow />
-          <vxe-column field="workstation" title="工位" width="120" />
-          <vxe-column field="team" title="班组" width="140" />
-          <vxe-column field="technician" title="维修技师" width="120" />
-          <vxe-column title="操作" width="120" align="center" fixed="right" :resizable="false">
+          <vxe-column field="id" title="追溯编码" min-width="150" show-overflow />
+          <vxe-column field="partsCode" title="零件代码" min-width="150" show-overflow />
+          <vxe-column field="partsName" title="零件名称" min-width="150" show-overflow />
+          <vxe-column field="targetUnitName" title="去向单位" width="150" align="center">
             <template #default="{ row }">
-              <el-popconfirm
-                title="确定质检吗？"
-                @confirm="handleQualityCheck(row, rowIndex)"
-              >
-                <span
-                  class="action-button btn-back"
-                  slot="reference"
-                  type="text">
-                  质检
-                </span>
-              </el-popconfirm>
-              <el-popconfirm
-                title="确定返修吗？"
-                @confirm="handleRepair(row, rowIndex)"
-              >
-                <span
-                  class="action-button btn-back"
-                  slot="reference"
-                  type="text">
-                  返修
-                </span>
-              </el-popconfirm>
+              <el-select v-model="row.targetUnitName" placeholder="请选择" size="small">
+                <el-option label="区域一" value="shanghai"></el-option>
+                <el-option label="区域二" value="beijing"></el-option>
+              </el-select>
+            </template>
+          </vxe-column>
+          <vxe-column field="beforeChangeCode" title="更换前编码" min-width="250" show-overflow >
+            <template #default="{ row }">
+              <el-input v-model="row.beforeChangeCode" size="small"></el-input>
+            </template>
+          </vxe-column>
+          <vxe-column field="afterChangeCode" title="更换前编码" min-width="250" show-overflow >
+            <template #default="{ row }">
+              <el-input v-model="row.afterChangeCode" size="small"></el-input>
             </template>
           </vxe-column>
         </vxe-table>
@@ -146,14 +308,22 @@
 </template>
 
 <script>
+import { getFinalInspectionDetail, finalInspection } from '@/api/maintain/sp/serviceProxy/index';
+import { getUserByNameOrNo } from '@/libs/api/common';
+import { getListData } from '@/api/maintain/basic/batteryUnit/index';
+import FetchSelect from '@/libs/components/FetchSelect';
+
 export default {
   name: 'FinalCheckDialog',
+  components: {
+    FetchSelect
+  },
   props: {
     visible: {
       type: Boolean,
       default: false
     },
-    info: {
+    vehicleInfo: {
       type: Object,
       default: () => {
         return {};
@@ -164,6 +334,7 @@ export default {
     return {
       dialogVisible: this.visible,
       submitLoading: false,
+      loading: false,
       // 主 Tab
       mainTabs: ['质检', '故障模块确认', '电池信息确认', '追溯信息确认', '终检'],
       currentMainTab: 1,
@@ -172,48 +343,45 @@ export default {
       currentSubTab: '0',
       // 筛选表单
       filterForm: {
-        qualityCheckTime: '',
-        qualityChecker: '',
+        qualityCheckAt: '',
+        qualityCheckerId: '',
+        qualityCheckerName: '',
         finalCheckTime: '',
-        finalChecker: ''
+        finalCheckerId: '',
+        finalCheckerName: ''
       },
-      // 质检人选项
-      qualityCheckerOptions: [
-        { label: '刘榕汕', value: '刘榕汕' },
-        { label: '岑润丽', value: '岑润丽' },
-        { label: '张三', value: '张三' },
-        { label: '李四', value: '李四' }
-      ],
-      // 终检人选项
-      finalCheckerOptions: [
-        { label: '刘榕汕', value: '刘榕汕' },
-        { label: '岑润丽', value: '岑润丽' },
-        { label: '张三', value: '张三' },
-        { label: '李四', value: '李四' }
-      ],
+      formInline: {
+        batteryUnitId: '',
+        batteryUnitName: '',
+        targetUnitCode: '',
+        beforeChangeCode: '',
+        afterChangeCode: '',
+        faultFlag: ''
+      },
+      rules: {
+        batteryUnitId: [
+          { required: true, message: '请选择', trigger: 'change' }
+        ],
+        beforeChangeCode: [
+          { required: true, message: '请填写电池更换前编号', trigger: 'change' }
+        ],
+        afterChangeCode: [
+          { required: true, message: '请填写电池更换后编号', trigger: 'change' }
+        ]
+      },
       // 表格数据
-      tableData: [
-        {
-          id: 1,
-          qualityCheckTime: '2025-11-25 13:35:28',
-          qualityChecker: '刘榕汕',
-          itemCode: '999999',
-          itemName: '万能工时',
-          workstation: '零跑机电',
-          team: '机电罗海民',
-          technician: '2323'
-        },
-        {
-          id: 2,
-          qualityCheckTime: '2025-11-25 13:35:28',
-          qualityChecker: '岑润丽',
-          itemCode: '9217839293',
-          itemName: '更换风道上部',
-          workstation: '零跑机电',
-          team: '机电罗海民',
-          technician: '罗海民'
-        }
-      ]
+      tableData: [],
+      // 故障模块表单
+      faultForm: {
+        faultFlag: 1,
+        searchKeyword: ''
+      },
+      // 故障模块表格数据
+      faultTableData: [],
+      // 追溯信息表格数据
+      partsTraceRecordResps: [],
+      // 记录ID
+      recordId: ''
     };
   },
   watch: {
@@ -225,23 +393,75 @@ export default {
     }
   },
   methods: {
-    initData () {
-      console.log('初始化终检数据', this.info);
-      // 设置默认终检时间为当前时间
-      this.filterForm.finalCheckTime = this.formatDate(new Date());
+    async initData () {
+      this.loading = true;
+      try {
+        const res = await getFinalInspectionDetail(this.vehicleInfo.id);
+        if (res) {
+          this.recordId = res.id || '';
+          // 设置维修项目数据
+          this.tableData = res.repairWorkRecordResps || [];
+          // 设置故障模块数据
+          this.faultTableData = res.faultAlertRecordResps || [];
+          // 设置故障标志
+          this.faultForm.faultFlag = res.faultFlag !== undefined ? res.faultFlag : 1;
+          // 设置电池信息
+          this.formInline = {
+            batteryUnitId: res.batteryUnitId || '',
+            batteryUnitName: res.batteryUnitName || '',
+            targetUnitCode: res.targetUnitCode || '',
+            beforeChangeCode: res.beforeChangeCode || '',
+            afterChangeCode: res.afterChangeCode || '',
+            faultFlag: res.faultFlag || ''
+          };
+          // 设置质检人和终检人信息(用于反显)
+          // this.filterForm = {
+          //   qualityCheckAt: '',
+          //   qualityCheckerId: res.qualityCheckerId || '',
+          //   qualityCheckerName: res.qualityCheckerName || '',
+          //   finalCheckTime: this.formatDate(new Date()),
+          //   finalCheckerId: '',
+          //   finalCheckerName: ''
+          // };
+          // 设置追溯信息
+          this.partsTraceRecordResps = res.partsTraceRecordResps || [];
+        }
+      } catch (error) {
+        console.error('获取终检详情失败', error);
+        this.$message.error('获取数据失败');
+      } finally {
+        this.loading = false;
+      }
     },
     close () {
       this.$emit('update:visible', false);
     },
     closed () {
       this.filterForm = {
-        qualityCheckTime: '',
-        qualityChecker: '',
+        qualityCheckAt: '',
+        qualityCheckerId: '',
+        qualityCheckerName: '',
         finalCheckTime: '',
-        finalChecker: ''
+        finalCheckerId: '',
+        finalCheckerName: ''
       };
-      // this.currentMainTab = 4;
       this.currentSubTab = '0';
+      this.faultForm = {
+        faultFlag: 1,
+        searchKeyword: ''
+      };
+      this.formInline = {
+        batteryUnitId: '',
+        batteryUnitName: '',
+        targetUnitCode: '',
+        beforeChangeCode: '',
+        afterChangeCode: '',
+        faultFlag: ''
+      };
+      this.tableData = [];
+      this.faultTableData = [];
+      this.partsTraceRecordResps = [];
+      this.recordId = '';
     },
     handleMainTabChange (index) {
       this.currentMainTab = index;
@@ -254,23 +474,96 @@ export default {
       console.log('返修', row);
       this.$message.info('返修操作');
     },
-    submit () {
-      this.submitLoading = true;
-      setTimeout(() => {
-        this.$message.success('终检成功');
-        this.$emit('refresh');
-        this.close();
-        this.submitLoading = false;
-      }, 500);
+    // 质检人变更
+    handleQualityCheckerChange (val, record) {
+      console.log(val);
+      if (record) {
+        this.filterForm.qualityCheckerName = record.username;
+      }
     },
-    formatDate (date) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    // 终检人变更
+    handleFinalCheckerChange (val, record) {
+      if (record) {
+        this.filterForm.finalCheckerName = record.username;
+      }
+    },
+    // 电池去向单位变更
+    handleBatteryUnitChange (val, record) {
+      if (record) {
+        this.formInline.batteryUnitName = record.name;
+        this.formInline.targetUnitCode = record.unifiedSocialCreditCode || '';
+      }
+    },
+    // 搜索用户(质检人/终检人)
+    async searchUser (query) {
+      try {
+        const res = await getUserByNameOrNo({ name: query });
+        return res || [];
+      } catch (error) {
+        console.error('搜索用户失败', error);
+        return [];
+      }
+    },
+    // 搜索电池去向单位
+    async searchBatteryUnit (query) {
+      try {
+        const res = await getListData({ name: query });
+        return res || [];
+      } catch (error) {
+        console.error('搜索电池去向单位失败', error);
+        return [];
+      }
+    },
+    // 故障模块相关方法
+    handleFaultExistenceChange (val) {
+      console.log('故障存在状态变更', val);
+      if (val === 0) {
+        // 如果选择不存在故障，清空故障列表
+        this.faultTableData = [];
+      }
+    },
+    handleFaultSearch () {
+      console.log('搜索故障', this.faultForm.searchKeyword);
+      this.$message.info('搜索功能开发中');
+    },
+    handleDeleteFault (row) {
+      console.log('删除故障', row);
+      const index = this.faultTableData.findIndex(item => item.id === row.id);
+      if (index > -1) {
+        this.faultTableData.splice(index, 1);
+        this.$message.success('删除成功');
+      }
+    },
+    async submit () {
+      this.submitLoading = true;
+      try {
+        // 组装提交数据
+        const submitData = {
+          id: this.recordId,
+          repairWorkRecordResps: this.tableData,
+          faultAlertRecordResps: this.faultTableData,
+          partsTraceRecordResps: this.partsTraceRecordResps,
+          batteryUnitId: this.formInline.batteryUnitId,
+          targetUnitCode: this.formInline.targetUnitCode,
+          beforeChangeCode: this.formInline.beforeChangeCode,
+          afterChangeCode: this.formInline.afterChangeCode,
+          faultFlag: this.faultForm.faultFlag,
+          finalCheckAt: this.filterForm.finalCheckTime,
+          finalCheckerId: this.filterForm.finalCheckerId
+        };
+
+        const res = await finalInspection(submitData);
+        if (res) {
+          this.$message.success('终检成功');
+          this.$emit('refresh');
+          this.close();
+        }
+      } catch (error) {
+        console.error('终检提交失败', error);
+        this.$message.error('终检失败');
+      } finally {
+        this.submitLoading = false;
+      }
     }
   }
 };
@@ -381,11 +674,47 @@ export default {
         background-color: var(--leap-color-primary);
       }
     }
+
+    // 故障模块内容样式
+    .fault-module-content {
+      .fault-existence-section {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        height: 32px;
+
+        .fault-label {
+          margin-right: 20px;
+          font-size: 14px;
+          color: var(--leap-color-default);
+        }
+        .el-icon-search{
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  .battert-form {
+    margin-top: 16px;
+    .el-select,.el-input {
+      width: 280px;
+    }
   }
 
   .btn-back {
     color: var(--leap-color-link);
     cursor: pointer;
+  }
+
+  .btn-delete {
+    color: var(--leap-color-danger);
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+      color: var(--leap-color-danger-dark-1);
+    }
   }
 
   .dialog-footer {
