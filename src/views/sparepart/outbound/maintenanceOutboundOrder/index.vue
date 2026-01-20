@@ -244,7 +244,7 @@ export default {
           },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'warehouseIdLabel', label: '备件仓库', visible: true, width: 200 },
+          { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
           { props: 'serviceProxyId', label: '接车施工单', visible: true, width: 200 },
           { props: 'vehProfileVin', label: 'vin', visible: true, width: 200 },
           { props: 'carPlate', label: '车牌号', visible: true, width: 200 },
