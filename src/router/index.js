@@ -1075,7 +1075,7 @@ const routes = [
       component: () => import('@/views/sparepart/outbound/maintenanceOutboundOrder/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '维修出库',
         keepAlive: true
       }
     }, {
@@ -1084,7 +1084,7 @@ const routes = [
       component: () => import('@/views/sparepart/outbound/maintenanceOutboundOrder/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '维修出库详情',
         noResourceUrl: 'true'
       }
     }, {
