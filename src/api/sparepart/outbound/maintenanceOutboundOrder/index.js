@@ -58,3 +58,27 @@ export function collarPage (data) {
 export function goPage (data) {
   return api.jsonPost('sp/web/maintenance/maintenanceOutboundReturnDetail/page', data);
 }
+
+/**
+ * 维修出库领料人
+ * @param {Object} data
+ */
+export function OutboundPeople (data) {
+  return api.jsonPost('sp/web/maintenance/maintenanceOutboundOrderDetail/outbound', data);
+}
+
+/**
+ * 查询当前用户维修出库单打印设置
+ * @param {Object} data
+ */
+export function getCurrentUserSet (data) {
+  return api.jsonPost('sp/web/maintenance/maintenanceOutboundPrintSetting/getCurrentUserSet', data);
+}
+
+/**
+ * 维修出库单打印设置表新增/编辑
+ * @param {Object} data
+ */
+export function settingUpdate (data) {
+  return api.jsonPost('sp/web/maintenance/maintenanceOutboundPrintSetting/addOrUpdate', data);
+}

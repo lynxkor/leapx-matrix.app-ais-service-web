@@ -338,6 +338,7 @@ export default {
 
     // 处理取消按钮
     handleClose () {
+      this.$emit('success');
       this.$emit('close');
     },
   }

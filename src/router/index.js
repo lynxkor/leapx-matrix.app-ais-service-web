@@ -1075,7 +1075,7 @@ const routes = [
       component: () => import('@/views/sparepart/outbound/maintenanceOutboundOrder/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '维修出库',
         keepAlive: true
       }
     }, {
@@ -1084,7 +1084,25 @@ const routes = [
       component: () => import('@/views/sparepart/outbound/maintenanceOutboundOrder/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '维修出库详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/inbound/maintenanceReturnInbound',
+      name: 'maintenanceReturnInbound',
+      component: () => import('@/views/sparepart/inbound/maintenanceReturnInbound/index.vue'),
+
+      meta: {
+        name: '维修退料入库',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/inbound/maintenanceReturnInbound/edit',
+      name: 'maintenanceReturnInboundEdit',
+      component: () => import('@/views/sparepart/inbound/maintenanceReturnInbound/edit.vue'),
+
+      meta: {
+        name: '维修退料入库详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -1285,6 +1303,24 @@ const routes = [
 
       meta: {
         name: '接车施工单-维修履历信息管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/purchasePartSaleable',
+      name: 'purchasePartSaleable',
+      component: () => import('@/views/sparepart/basic/purchasePartSaleable/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/purchasepartsaleable/edit',
+      name: 'purchasePartSaleableEdit',
+      component: () => import('@/views/sparepart/basic/purchasePartSaleable/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
         noResourceUrl: 'true'
       }
     }]

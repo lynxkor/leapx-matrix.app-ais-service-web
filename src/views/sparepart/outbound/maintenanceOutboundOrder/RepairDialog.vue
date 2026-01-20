@@ -26,11 +26,19 @@
             <vxe-column field="sparePartName" title="备件名称" width="150" show-overflow />
             <vxe-column field="availableQty" title="可用库存" width="170" />
             <vxe-column field="outboundQty" title="出库数量" width="170" />
-            <vxe-column title="工位" width="130">
-              <template #default="{ row }">
-                <el-select v-model="row.workstation" size="mini" placeholder="请选择">
+            <vxe-column title="领料人" width="130">
+              <template #default="{ row, rowIndex }">
+                <el-select
+                  v-model="row.picker"
+                  size="mini"
+                  placeholder="请选择"
+                  filterable
+                  remote
+                  :remote-method="(query) => querySearchAsync(query, rowIndex)"
+                  @change="handleWorkstationChange(row, rowIndex, $event)"
+                >
                   <el-option
-                    v-for="item in workstationOptions"
+                    v-for="item in getFilteredUserList(rowIndex)"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
@@ -52,10 +60,11 @@
   </template>
 
 <script>
-import { collarPage } from '@/api/sparepart/outbound/maintenanceOutboundOrder/index';
+import { collarPage, OutboundPeople } from '@/api/sparepart/outbound/maintenanceOutboundOrder/index';
+import { getUserByNameOrNo } from '@/api/common';
 
 export default {
-  name: 'StartWorkDialog',
+  name: 'RepairDialog',
   props: {
     visible: {
       type: Boolean,
@@ -76,81 +85,13 @@ export default {
     return {
       dialogVisible: this.visible,
       submitLoading: false,
-      batchForm: {
-        actualTime: ''
-      },
       selectedRows: [],
-      // 工位选项
-      workstationOptions: [
-        { label: '零路机电', value: '零路机电' },
-        { label: '保养', value: '保养' },
-        { label: '维修', value: '维修' },
-        { label: '钣金', value: '钣金' },
-        { label: '喷漆', value: '喷漆' }
-      ],
+      // 领料人
+      userList: [],
+      sameAsPreviousId: 0, // 同上选项的固定ID
+      sameAsPreviousLabel: '同上',
       // 模拟表格数据
-      tableData: [
-        {
-          id: 1,
-          checked: true,
-          code: '999999',
-          name: '万维工时',
-          actualTime: '2023-10-27 12:12:12',
-          workstation: '零路机电',
-          team: '机电罗海民',
-          technician: '罗海民',
-          status: '作业未开始',
-          planHours: '20'
-        },
-        {
-          id: 2,
-          checked: false,
-          code: '9217839293',
-          name: '更换风道上部',
-          actualTime: '2023-10-27 12:12:12',
-          workstation: '零路机电',
-          team: '机电罗海民',
-          technician: '罗海民',
-          status: '作业未开始',
-          planHours: '20'
-        },
-        {
-          id: 3,
-          checked: false,
-          code: '8273618293',
-          name: '更换机油滤芯',
-          actualTime: '2023-10-27 13:00:00',
-          workstation: '保养',
-          team: '机电罗海民',
-          technician: '张三',
-          status: '作业中',
-          planHours: '15'
-        },
-        {
-          id: 4,
-          checked: false,
-          code: '7362527281',
-          name: '更换空气滤芯',
-          actualTime: '2023-10-27 14:15:30',
-          workstation: '保养',
-          team: '自费',
-          technician: '李四',
-          status: '已完成',
-          planHours: '10'
-        },
-        {
-          id: 5,
-          checked: false,
-          code: '6351616271',
-          name: '更换空调滤芯',
-          actualTime: '',
-          workstation: '保养',
-          team: '索赔',
-          technician: '王五',
-          status: '作业未开始',
-          planHours: '12'
-        }
-      ]
+      tableData: [],
     };
   },
   watch: {
@@ -159,7 +100,7 @@ export default {
       if (val) {
         this.initData();
       }
-    }
+    },
   },
   methods: {
     initData () {
@@ -170,56 +111,123 @@ export default {
         outboundIs: 0
       };
       collarPage(params).then(res => {
-        this.tableData = res || [];
+        this.tableData = res.records || [];
       });
     },
     close () {
       this.$emit('close');
     },
     closed () {
-      this.batchForm = {
-        actualTime: ''
-      };
       this.$refs.workTable && this.$refs.workTable.clearCheckboxRow();
     },
     handleSelectionChange ({ records }) {
       this.selectedRows = records;
     },
-    submit () {
+    async submit () {
+      if (!this.selectedRows.length) {
+        this.$message.warning('请选择要修改的行');
+        return;
+      }
+      // 2. 检查所有勾选行是否都选择了领料人
+      const rowsWithoutPicker = this.selectedRows.filter(row => !row.picker);
+      if (rowsWithoutPicker.length > 0) {
+        const rowNumbers = rowsWithoutPicker.map((row, index) => index + 1);
+        this.$message.warning(`第 ${rowNumbers.join('、')} 行未选择领料人`);
+        return;
+      }
+
+      //  构建参数
+      const params = {
+        maintenanceOutboundOrderId: this.id,
+        outboundPartList: this.selectedRows.map(row => ({
+          id: row.id, // 行数据的唯一标识
+          picker: row.picker // 领料人ID
+        }))
+      };
       // 批量更新选中行的实际作业时间
-      if (this.batchForm.actualTime) {
-        this.submitLoading = true;
-        setTimeout(() => {
-          this.selectedRows.forEach(row => {
-            row.actualTime = this.batchForm.actualTime;
-            row.checked = false;
-          });
-          this.$message.success('批量修改成功');
-          this.submitLoading = false;
-          this.$emit('refresh', this.tableData);
-          this.close();
-        }, 500);
-      } else {
-        this.$message.warning('请选择实际作业时间');
+      this.submitLoading = true;
+      try {
+        await OutboundPeople(params);
+        this.$message.success('修改成功');
+        this.submitLoading = false;
+        this.selectedRows = [];
+        this.$emit('success');
+      } catch (error) {
+        this.$message.error('修改失败');
+        this.submitLoading = false;
       }
     },
-    getStatusType (status) {
-      const statusMap = {
-        作业未开始: 'info',
-        作业中: 'warning',
-        已完成: 'success'
-      };
-      return statusMap[status] || 'info';
+    // 远程搜索方法，接收行索引参数
+    querySearchAsync (queryString, rowIndex) {
+      getUserByNameOrNo({ name: queryString }).then(res => {
+        const list = res?.map(item => {
+          return {
+            value: item.userId,
+            label: item.username
+          };
+        }) || [];
+
+        this.userList = list;
+      }).catch(error => {
+        console.log('搜索用户失败:', error);
+        this.userList = [];
+      });
     },
-    formatDate (date) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    }
+
+    // 获取过滤后的用户列表（根据行索引决定是否显示"同上"）
+    getFilteredUserList (rowIndex) {
+      // 如果是第一行，不显示"同上"选项
+      if (rowIndex === 0) {
+        return this.userList;
+      }
+
+      // 其他行，添加"同上"选项到列表前面
+      return [
+        {
+          value: this.sameAsPreviousId,
+          label: this.sameAsPreviousLabel
+        },
+        ...this.userList
+      ];
+    },
+
+    // 处理领料人选择变化
+    handleWorkstationChange (row, rowIndex, ele) {
+      row.picker = ele;
+      // 如果选择了"同上"
+      if (row.picker === this.sameAsPreviousId) {
+        // 获取上一行的值
+        const previousRow = this.tableData[rowIndex - 1];
+
+        if (previousRow && previousRow.picker !== this.sameAsPreviousId) {
+          // 如果上一行有值且不是"同上"，则使用上一行的值
+          row.picker = previousRow.picker;
+        } else if (previousRow && previousRow.picker === this.sameAsPreviousId) {
+          // 如果上一行也是"同上"，则需要递归找到实际值
+          let actualValue = this.findActualWorkstation(rowIndex - 1);
+          row.picker = actualValue || '';
+        } else {
+          // 上一行没有值，重置选择
+          row.picker = '';
+          this.$message.warning('上一行没有选择领料人，无法选择"同上"');
+        }
+      };
+    },
+
+    // 递归查找实际的工作站值（处理连续"同上"的情况）
+    findActualWorkstation (rowIndex) {
+      if (rowIndex < 0) return null;
+
+      const currentRow = this.tableData[rowIndex];
+
+      // 如果当前行不是"同上"，返回当前值
+      if (currentRow.picker !== this.sameAsPreviousId) {
+        return currentRow.picker;
+      }
+
+      // 如果是"同上"，继续向上查找
+      return this.findActualWorkstation(rowIndex - 1);
+    },
   }
 };
 </script>
