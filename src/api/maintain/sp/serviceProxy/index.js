@@ -243,7 +243,7 @@ export function cancelFinal (data) {
   return api.jsonPost(prefix + 'cancelFinal', data);
 }
 export function deleteDispatchWorkers (data) {
-  return api.jsonPost( prefix+'deleteWorkers', data);
+  return api.jsonPost(prefix + 'deleteWorkers', data);
 }
 
 /**

@@ -707,7 +707,6 @@ export default {
       this.selectedRepairPart = item;
     },
     handleDiscountModeChange (value) {
-
       // 查找选中的优惠模式
       const selectedDiscount = this.discountType.find(item => item.id === value);
       this.selectedDiscount = selectedDiscount;

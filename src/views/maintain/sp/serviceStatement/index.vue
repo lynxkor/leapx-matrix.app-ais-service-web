@@ -100,7 +100,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem,getStatistics } from '@/api/maintain/sp/serviceStatement/index';
+import { getList, deleteItem, enableItem, getStatistics } from '@/api/maintain/sp/serviceStatement/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -244,27 +244,27 @@ export default {
         ],
         total: 0
       },
-      tableList:[]
+      tableList: []
     };
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
-  this.getTabsList();
+    this.getTabsList();
   },
   methods: {
-  getTabsList () {
-        getStatistics().then(res => {
-          const target = res || {};
-          this.tabList = [
-            { statementStatusLabel: '全部', statementStatus: '', count: null },
-            target.pendingSettlementCount,
-            target.pendingReceiptCount
+    getTabsList () {
+      getStatistics().then(res => {
+        const target = res || {};
+        this.tabList = [
+          { statementStatusLabel: '全部', statementStatus: '', count: null },
+          target.pendingSettlementCount,
+          target.pendingReceiptCount
 
-          ];
-        });
-      },
-   handleTabClick (v) {
+        ];
+      });
+    },
+    handleTabClick (v) {
       this.form.statementStatus = v;
       this.optionObj.form.page = 1;
       this.debouncedGetData();
