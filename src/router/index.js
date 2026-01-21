@@ -1359,6 +1359,24 @@ const routes = [
         name: '旧件销毁单详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/basic/purchaseTimesLimit',
+      name: 'purchaseTimesLimit',
+      component: () => import('@/views/sparepart/basic/purchaseTimesLimit/index.vue'),
+
+      meta: {
+        name: '订单类型采购次数设置',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/purchasetimeslimit/edit',
+      name: 'purchaseTimesLimitEdit',
+      component: () => import('@/views/sparepart/basic/purchaseTimesLimit/edit.vue'),
+
+      meta: {
+        name: '订单类型采购次数设置详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
