@@ -308,7 +308,7 @@
 </template>
 
 <script>
-import { getFinalInspectionDetail, finalInspection } from '@/api/maintain/sp/serviceProxy/index';
+import { getFinalInspectionDetail, finalInspection,qualityInspection,repaired } from '@/api/maintain/sp/serviceProxy/index';
 import { getUserByNameOrNo } from '@/libs/api/common';
 import { getListData } from '@/api/maintain/basic/batteryUnit/index';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -467,18 +467,19 @@ export default {
       this.currentMainTab = index;
     },
     handleQualityCheck (row) {
-      console.log('质检', row);
+
       this.$message.info('质检操作');
     },
     handleRepair (row) {
-      console.log('返修', row);
+
       this.$message.info('返修操作');
     },
     // 质检人变更
     handleQualityCheckerChange (val, record) {
-      console.log(val);
+
       if (record) {
         this.filterForm.qualityCheckerName = record.username;
+        this.filterForm.qualityCheckerId = record.id;
       }
     },
     // 终检人变更

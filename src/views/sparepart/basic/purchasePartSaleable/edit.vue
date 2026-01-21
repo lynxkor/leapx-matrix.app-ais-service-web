@@ -125,7 +125,6 @@
 <script>
 import { getDetail, addOrUpdate } from '@/api/sparepart/basic/purchasePartSaleable/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, sparePartListShort } from '@/api/common';
@@ -333,3 +332,8 @@ export default {
   }
 };
 </script>
+<style lang="scss" scoped>
+  .full-width-item {
+    width: 100%;
+  }
+</style>
