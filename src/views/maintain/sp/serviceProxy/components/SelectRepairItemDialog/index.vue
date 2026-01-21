@@ -87,20 +87,117 @@
           </el-autocomplete>
           <el-button type="primary" size="small" @click="addItem">添加</el-button>
         </div>
-        <edit-table
+        <vxe-table
           ref="itemTable"
-          :columns="itemColumns"
           :data="itemData"
-          :show-toolbar="false"
-          :options="itemOptions"
-          :auth="{edit: false, delete: true}"
-          :default-new-row="defaultItemRow"
-          @remove-row="handleRemoveItemRow"
-          @value-change="handleRepairItemValueChange"
-          emptyText="请添加数据"
-          seq
-          :actionWidth="100"
-        />
+          stripe
+          show-overflow
+          resizable
+          border="inner"
+          size="medium"
+          min-height="0"
+          max-height="400px"
+        >
+          <vxe-column type="seq" width="70" title="序号" />
+          <vxe-column field="repairItemCode" title="维修项目代码" width="140px" />
+          <vxe-column field="repairItemName" title="维修项目名称" width="180px" />
+          <vxe-column field="repairItemTypeName" title="维修类型" width="150px">
+            <template #default="{ row }">
+              <el-select
+                v-model="row.repairItemTypeName"
+                size="small"
+                placeholder="请选择"
+                clearable
+                filterable
+                @change="handleRepairItemTypeChange(row)"
+              >
+                <el-option
+                  v-for="item in itemOptions.repairItemTypeName"
+                  :key="item.repairItemTypeId"
+                  :label="item.repairItemTypeName"
+                  :value="item.repairItemTypeName"
+                />
+              </el-select>
+            </template>
+          </vxe-column>
+          <vxe-column field="checkoutTypeName" title="结算类型" width="120px">
+            <template #default="{ row }">
+              <el-select
+                v-model="row.checkoutTypeName"
+                size="small"
+                placeholder="请选择"
+                clearable
+                filterable
+                @change="handleCheckoutTypeChange(row)"
+              >
+                <el-option
+                  v-for="item in itemOptions.checkoutTypeName"
+                  :key="item.checkoutTypeId"
+                  :label="item.checkoutTypeName"
+                  :value="item.checkoutTypeName"
+                />
+              </el-select>
+            </template>
+          </vxe-column>
+          <vxe-column field="warrantyTypeName" title="保修类型" width="150px">
+            <template #default="{ row }">
+              <el-select
+                v-model="row.warrantyTypeName"
+                size="small"
+                placeholder="请选择"
+                clearable
+                filterable
+                @change="handleWarrantyTypeChange(row)"
+              >
+                <el-option
+                  v-for="item in itemOptions.warrantyTypeName"
+                  :key="item.warrantyTypeId"
+                  :label="item.warrantyTypeName"
+                  :value="item.warrantyTypeName"
+                />
+              </el-select>
+            </template>
+          </vxe-column>
+          <vxe-column field="workHour" title="工时" width="160px">
+            <template #default="{ row }">
+              <el-input-number
+                v-model="row.workHour"
+                size="small"
+                :precision="1"
+                :min="0"
+                controls-position="right"
+                @change="handleWorkHourChange(row)"
+              />
+            </template>
+          </vxe-column>
+          <vxe-column field="price" title="单价" width="120px" />
+          <vxe-column field="discountRate" title="折扣率" width="120px" />
+          <vxe-column field="discountAmount" title="优惠金额" width="160px">
+            <template #default="{ row }">
+              <el-input-number
+                v-model="row.discountAmount"
+                size="small"
+                :precision="1"
+                :min="0"
+                controls-position="right"
+                @change="handleItemDiscountAmountChange(row)"
+              />
+            </template>
+          </vxe-column>
+          <vxe-column field="repairAmount" title="项目金额" width="120px" />
+          <vxe-column field="statusDesc" title="维修项目状态" width="120px" />
+          <vxe-column field="packageCode" title="套餐代码" width="120px" />
+          <vxe-column title="操作" width="100" align="center" fixed="right">
+            <template #default="{ rowIndex }">
+              <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleRemoveItemRow(rowIndex)">
+                <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
+              </el-popconfirm>
+            </template>
+          </vxe-column>
+          <template #empty>
+            <div class="m-vxe-table-empty-text">暂无数据</div>
+          </template>
+        </vxe-table>
       </div>
 
       <!-- 维修配件 tab -->
@@ -128,20 +225,145 @@
           </el-autocomplete>
           <el-button type="primary" size="small" @click="addPart">添加</el-button>
         </div>
-        <edit-table
+        <vxe-table
           ref="partTable"
-          :columns="partColumns"
           :data="partData"
-          :show-toolbar="false"
-          :options="itemOptions"
-          :auth="{edit: false, delete: true}"
-          :default-new-row="defaultPartRow"
-          @remove-row="handleRemovePartRow"
-          @value-change="handlePartValueChange"
-          emptyText="请添加数据"
-          seq
-          :actionWidth="100"
-        />
+          stripe
+          show-overflow
+          resizable
+          border="inner"
+          size="medium"
+          min-height="0"
+          max-height="400px"
+        >
+          <vxe-column type="seq" width="70" title="序号" />
+          <vxe-column field="partsCode" title="零件代码" width="140px" />
+          <vxe-column field="partsName" title="零件名称" width="180px" />
+          <vxe-column field="repairItemTypeName" title="维修类型" width="150px">
+            <template #default="{ row }">
+              <el-select
+                v-model="row.repairItemTypeName"
+                size="small"
+                placeholder="请选择"
+                clearable
+                filterable
+                @change="handlePartRepairItemTypeChange(row)"
+              >
+                <el-option
+                  v-for="item in itemOptions.repairItemTypeName"
+                  :key="item.repairItemTypeId"
+                  :label="item.repairItemTypeName"
+                  :value="item.repairItemTypeName"
+                />
+              </el-select>
+            </template>
+          </vxe-column>
+          <vxe-column field="checkoutTypeName" title="结算类型" width="120px">
+            <template #default="{ row }">
+              <el-select
+                v-model="row.checkoutTypeName"
+                size="small"
+                placeholder="请选择"
+                clearable
+                filterable
+                @change="handlePartCheckoutTypeChange(row)"
+              >
+                <el-option
+                  v-for="item in itemOptions.checkoutTypeName"
+                  :key="item.checkoutTypeId"
+                  :label="item.checkoutTypeName"
+                  :value="item.checkoutTypeName"
+                />
+              </el-select>
+            </template>
+          </vxe-column>
+          <vxe-column field="warrantyTypeName" title="保修类型" width="150px">
+            <template #default="{ row }">
+              <el-select
+                v-model="row.warrantyTypeName"
+                size="small"
+                placeholder="请选择"
+                clearable
+                filterable
+                @change="handlePartWarrantyTypeChange(row)"
+              >
+                <el-option
+                  v-for="item in itemOptions.warrantyTypeName"
+                  :key="item.warrantyTypeId"
+                  :label="item.warrantyTypeName"
+                  :value="item.warrantyTypeName"
+                />
+              </el-select>
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="isOemPart"
+            title="是否原厂"
+            width="120px"
+          >
+            <template #default="{ row }">
+              <span>{{ row.isOemPart === '1' ? '是' : '否' }}</span>
+            </template>
+          </vxe-column>
+          <vxe-column field="quantity" title="数量" width="160px">
+            <template #default="{ row }">
+              <el-input-number
+                v-model="row.quantity"
+                size="small"
+                :precision="1"
+                :min="0"
+                controls-position="right"
+                @change="handlePartQuantityChange(row)"
+              />
+            </template>
+          </vxe-column>
+          <vxe-column field="price" title="单价" width="120px" />
+          <vxe-column field="discountRate" title="折扣率" width="120px" />
+          <vxe-column field="discountAmount" title="优惠金额" width="160px">
+            <template #default="{ row }">
+              <el-input-number
+                v-model="row.discountAmount"
+                size="small"
+                :precision="2"
+                :min="0"
+                :step="0.1"
+                controls-position="right"
+                @change="handlePartDiscountAmountChange(row)"
+              />
+            </template>
+          </vxe-column>
+          <vxe-column field="partsAmount" title="配件金额" width="120px" />
+          <vxe-column field="repairItemName" title="维修项目名称" width="180px">
+            <template #default="{ row }">
+              <el-select
+                v-model="row.repairItemName"
+                size="small"
+                placeholder="请选择"
+                clearable
+                filterable
+                @change="handlePartRepairItemNameChange(row)"
+              >
+                <el-option
+                  v-for="item in repairItemNameOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </template>
+          </vxe-column>
+          <vxe-column field="packageCode" title="套餐代码" width="120px" />
+          <vxe-column title="操作" width="100" align="center" fixed="right">
+            <template #default="{ rowIndex }">
+              <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleRemovePartRow(rowIndex)">
+                <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
+              </el-popconfirm>
+            </template>
+          </vxe-column>
+          <template #empty>
+            <div class="m-vxe-table-empty-text">暂无数据</div>
+          </template>
+        </vxe-table>
       </div>
     </div>
 
@@ -155,13 +377,13 @@
 </template>
 
 <script>
-import EditTable from '@/libs/components/EditTable';
+// import EditTable from '@/libs/components/EditTable';
 import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   name: 'SelectRepairItemDialog',
   components: {
-    EditTable
+    // EditTable
   },
   props: {
     visible: {
@@ -199,296 +421,23 @@ export default {
 
       // 维修项目表格配置
       itemData: [],
-      defaultItemRow: {
-        code: '',
-        name: '',
-        type: 'maintenance',
-        settlementType: 'self',
-        warrantyType: 'none',
-        laborHours: 0,
-        unitPrice: 0,
-        discountRate: 1
-      },
       itemOptions: {
-        type: [
-          // { label: '保养', value: 'maintenance' },
-          // { label: '一般维修', value: 'general' },
-          // { label: '钣喷', value: 'body' },
-          // { label: '美容装潢', value: 'beauty' },
-          // { label: '精品附件', value: 'premium' },
-          // { label: '三电维修', value: 'electric' }
-        ],
-        settlementType: [
-          // { label: '自费', value: 'self' },
-          // { label: '保修', value: 'warranty' },
-          // { label: '保险', value: 'insurance' }
-        ],
-        warrantyType: [
-          // { label: '无', value: 'none' },
-          // { label: '整车保修', value: 'vehicle' },
-          // { label: '备件保修', value: 'part' }
-        ]
+        repairItemTypeName: [],
+        checkoutTypeName: [],
+        warrantyTypeName: []
       },
 
       // 维修配件表格配置
-      partData: [
-        // {
-        //   id: 1,
-        //   code: '9217839293',
-        //   name: '空调滤芯',
-        //   type: 'maintenance',
-        //   settlementType: 'self',
-        //   warrantyType: 'none',
-        //   isOriginal: 'yes',
-        //   quantity: 1,
-        //   unitPrice: 37.6,
-        //   discountRate: 0.5
-        // }
-      ],
-      defaultPartRow: {
-        repairItemName: '',
-      },
-      partOptions: {
-        type: [
-          // { label: '保养', value: 'maintenance' },
-          // { label: '一般维修', value: 'general' },
-          // { label: '钣喷', value: 'body' },
-          // { label: '美容装潢', value: 'beauty' },
-          // { label: '精品附件', value: 'premium' },
-          // { label: '三电维修', value: 'electric' }
-        ],
-        settlementType: [
-          // { label: '自费', value: 'self' },
-          // { label: '保修', value: 'warranty' },
-          // { label: '保险', value: 'insurance' }
-        ],
-        warrantyType: [
-          // { label: '无', value: 'none' },
-          // { label: '整车保修', value: 'vehicle' },
-          // { label: '备件保修', value: 'part' }
-        ],
-        isOriginal: [
-          // { label: '是', value: 'yes' },
-          // { label: '否', value: 'no' }
-        ]
-      }
+      partData: [],
     };
   },
   computed: {
-    // 维修项目列配置
-    itemColumns () {
-      return [
-        {
-          field: 'repairItemCode',
-          title: '维修项目代码',
-          width: '140px',
-        },
-        {
-          field: 'repairItemName',
-          title: '维修项目名称',
-          width: '180px',
-        },
-        {
-          field: 'repairItemTypeName',
-          title: '维修类型',
-          width: '150px',
-          editable: true,
-          editRender: {
-            name: 'ElSelect',
-            props: {
-              size: 'small',
-              placeholder: '请选择',
-              clearable: true,
-              filterable: true
-            }
-          }
-        },
-        {
-          field: 'checkoutTypeName',
-          title: '结算类型',
-          width: '120px',
-          editable: true,
-          editRender: {
-            name: 'ElSelect',
-            props: {
-              size: 'small',
-              placeholder: '请选择',
-              clearable: true,
-              filterable: true
-            }
-          }
-        },
-        {
-          field: 'warrantyTypeName',
-          title: '保修类型',
-          width: '150px',
-          editable: true,
-          editRender: {
-            name: 'ElSelect',
-            props: {
-              size: 'small',
-              placeholder: '请选择',
-              clearable: true,
-              filterable: true
-            }
-          }
-        },
-        {
-          field: 'workHour',
-          title: '工时',
-          width: '120px',
-          editable: true,
-          editRender: { name: 'ElInput', props: { type: 'number', size: 'small', precision: 1, min: 0, controlsPosition: 'right' } }
-        },
-        {
-          field: 'price',
-          title: '单价',
-          width: '120px',
-        },
-        {
-          field: 'discountRate',
-          title: '折扣率',
-          width: '120px',
-        },
-        {
-          field: 'discountAmount',
-          title: '优惠金额',
-          width: '120px',
-          editable: true,
-          editRender: { name: 'ElInput', props: { type: 'number', size: 'small', precision: 1, min: 0, controlsPosition: 'right' } }
-        },
-        {
-          field: 'repairAmount',
-          title: '项目金额',
-          width: '120px',
-        },
-        {
-          field: 'statusDesc',
-          title: '维修项目状态',
-          width: '120px',
-        },
-        {
-          field: 'packageCode',
-          title: '套餐代码',
-          width: '120px',
-        }
-      ];
-    },
-    // 维修配件列配置
-    partColumns () {
-      return [
-        {
-          field: 'partsCode',
-          title: '零件代码',
-          width: '140px',
-        },
-        {
-          field: 'partsName',
-          title: '零件名称',
-          width: '180px',
-        },
-        {
-          field: 'repairItemTypeName',
-          title: '维修类型',
-          width: '150px',
-          editable: true,
-          editRender: { name: 'ElSelect', props: { size: 'small', placeholder: '请选择' } }
-        },
-        {
-          field: 'checkoutTypeName',
-          title: '结算类型',
-          width: '120px',
-          editable: true,
-          editRender: { name: 'ElSelect', props: { size: 'small', placeholder: '请选择' } }
-        },
-        {
-          field: 'warrantyTypeName',
-          title: '保修类型',
-          width: '150px',
-          editable: true,
-          editRender: { name: 'ElSelect', props: { size: 'small', placeholder: '请选择' } }
-        },
-        {
-          field: 'isOemPart',
-          title: '是否原厂',
-          width: '120px',
-          formatter: (value) => value === '1' ? '是' : '否'
-        },
-        {
-          field: 'quantity',
-          title: '数量',
-          width: '120px',
-          editable: true,
-          editRender: { name: 'ElInput', props: { size: 'small', type: 'number', precision: 1, min: 0, controlsPosition: 'right' } }
-        },
-        {
-          field: 'price',
-          title: '单价',
-          width: '120px',
-          // editable: true,
-          // editRender: { name: 'ElInput', props: { size: 'small', type: 'number', precision: 2, min: 0, controlsPosition: 'right' } },
-          // formatter: (value) => `¥${(value || 0).toFixed(2)}`
-        },
-        {
-          field: 'discountRate',
-          title: '折扣率',
-          width: '120px',
-        },
-        {
-          field: 'discountAmount',
-          title: '优惠金额',
-          width: '120px',
-          editable: true,
-          editRender: { name: 'ElInput', props: { size: 'small', type: 'number', precision: 2, min: 0, max: 1, step: 0.1, controlsPosition: 'right' } },
-          // formatter: (value) => `${(value || 0).toFixed(2)}`
-        },
-        {
-          field: 'partsAmount',
-          title: '配件金额',
-          width: '120px',
-        },
-        {
-          field: 'repairItemName',
-          title: '维修项目名称',
-          width: '180px',
-          editable: true,
-          editRender: {
-            name: 'ElSelect',
-            props: {
-              size: 'small',
-              placeholder: '请选择',
-              clearable: true,
-              filterable: true,
-              disabled: false, // 默认可编辑，会在 formatter 中根据行数据动态设置
-              options: this.itemData.map(item => ({
-                label: item.repairItemName,
-                value: item.repairItemName
-              }))
-            }
-          }
-        },
-        {
-          field: 'packageCode',
-          title: '套餐代码',
-          width: '120px',
-        }
-      ];
-    },
-    // 维修项目合计
-    itemTotal () {
-      return this.itemData.reduce((sum, item) => {
-        return sum + (item.laborHours || 0) * (item.unitPrice || 0) * (item.discountRate || 1);
-      }, 0);
-    },
-    // 维修配件合计
-    partTotal () {
-      return this.partData.reduce((sum, part) => {
-        return sum + (part.quantity || 0) * (part.unitPrice || 0) * (part.discountRate || 1);
-      }, 0);
-    },
-    // 费用合计
-    totalCost () {
-      return this.itemTotal + this.partTotal;
+    // 维修配件的维修项目名称下拉选项（动态从已添加的维修项目获取）
+    repairItemNameOptions () {
+      return this.itemData.map(item => ({
+        label: item.repairItemName,
+        value: item.repairItemName
+      }));
     }
   },
   watch: {
@@ -806,8 +755,9 @@ export default {
       this.info.maintenanceCostEstimation = this.info.workCostCount + this.info.barkCostCount;
     },
     // 处理维修项目表格删除行
-    handleRemoveItemRow (removedRow, index, defer) {
-      // 从 itemData 中移除该行数据（表格组件内部已经移除了，这里只需要同步）
+    handleRemoveItemRow (index) {
+      const removedRow = this.itemData[index];
+      // 从 itemData 中移除该行数据
       this.itemData.splice(index, 1);
 
       // 删除该项目自动引入的零件
@@ -824,62 +774,127 @@ export default {
         for (let i = autoImportedPartIndices.length - 1; i >= 0; i--) {
           this.partData.splice(autoImportedPartIndices[i], 1);
         }
-
-        // 如果删除了零件，需要刷新表格
-        if (autoImportedPartIndices.length > 0 && this.$refs.partTable) {
-          this.$refs.partTable.$forceUpdate();
-        }
       }
 
       // 更新顶部合计
       this.updateTotals();
     },
     // 处理维修配件表格删除行
-    handleRemovePartRow (removedRow, index, defer) {
-      // 从 partData 中移除该行数据（表格组件内部已经移除了，这里只需要同步）
+    handleRemovePartRow (index) {
+      // 从 partData 中移除该行数据
       this.partData.splice(index, 1);
       // 更新顶部合计
       this.updateTotals();
     },
-    handlePartValueChange ({ row, column, value }) {
-      if (column.property === 'quantity') {
-        const part = this.partData.find(item => item.partsId === row.partsId);
-        part.quantity = value;
-        const discountAmount = Number(part.price) * (1 - (Number(part?.discountPartRate) || 1)) * Number(value);
-        part.discountAmount = discountAmount;
-        part.partsAmount = Number(part.quantity) * Number(part.price) - discountAmount;
-        this.updateTotals();
-      }
-      if (column.property === 'discountAmount') {
-        const part = this.partData.find(item => item.partsId === row.partsId);
-        part.discountAmount = value;
-        part.partsAmount = Number(part.quantity) * Number(part.price) - value;
-        this.updateTotals();
+    // ==================== 维修项目表格事件处理 ====================
+    // 维修类型变化
+    handleRepairItemTypeChange (row) {
+      const selected = this.itemOptions.repairItemTypeName.find(item => item.repairItemTypeName === row.repairItemTypeName);
+      if (selected) {
+        row.repairItemTypeId = selected.repairItemTypeId;
       }
     },
-    handleRepairItemValueChange ({ row, column, value }) {
-      if (column.property === 'workHour') {
-        const item = this.itemData.find(item => item.partsId === row.partsId);
-        item.workHour = Number(value);
-        const originalAmount = item.workHour * item.price;
-        item.discountAmount = originalAmount * (1 - item.discountRate);
-        item.repairAmount = originalAmount - item.discountAmount;
-        this.updateTotals();
+    // 结算类型变化
+    handleCheckoutTypeChange (row) {
+      const selected = this.itemOptions.checkoutTypeName.find(item => item.checkoutTypeName === row.checkoutTypeName);
+      if (selected) {
+        row.checkoutTypeId = selected.checkoutTypeId;
       }
-      if (column.property === 'discountAmount') {
-        const item = this.itemData.find(item => item.partsId === row.partsId);
-        item.discountAmount = Number(value);
-        const originalAmount = item.workHour * item.price;
-        item.repairAmount = originalAmount - item.discountAmount;
-        this.updateTotals();
+    },
+    // 保修类型变化
+    handleWarrantyTypeChange (row) {
+      const selected = this.itemOptions.warrantyTypeName.find(item => item.warrantyTypeName === row.warrantyTypeName);
+      if (selected) {
+        row.warrantyTypeId = selected.warrantyTypeId;
       }
-    }
+    },
+    // 工时变化
+    handleWorkHourChange (row) {
+      const workHour = Number(row.workHour) || 0;
+      const originalAmount = workHour * row.price;
+      row.discountAmount = originalAmount * (1 - row.discountRate);
+      row.repairAmount = originalAmount * row.discountRate;
+      this.updateTotals();
+    },
+    // 优惠金额变化
+    handleItemDiscountAmountChange (row) {
+      const originalAmount = row.workHour * row.price;
+      row.discountAmount = Number(row.discountAmount) || 0;
+      row.repairAmount = originalAmount - row.discountAmount;
+      this.updateTotals();
+    },
+
+    // ==================== 维修配件表格事件处理 ====================
+    // 维修类型变化
+    handlePartRepairItemTypeChange (row) {
+      const selected = this.itemOptions.repairItemTypeName.find(item => item.repairItemTypeName === row.repairItemTypeName);
+      if (selected) {
+        row.repairItemTypeId = selected.repairItemTypeId;
+      }
+    },
+    // 结算类型变化
+    handlePartCheckoutTypeChange (row) {
+      const selected = this.itemOptions.checkoutTypeName.find(item => item.checkoutTypeName === row.checkoutTypeName);
+      if (selected) {
+        row.checkoutTypeId = selected.checkoutTypeId;
+      }
+    },
+    // 保修类型变化
+    handlePartWarrantyTypeChange (row) {
+      const selected = this.itemOptions.warrantyTypeName.find(item => item.warrantyTypeName === row.warrantyTypeName);
+      if (selected) {
+        row.warrantyTypeId = selected.warrantyTypeId;
+      }
+    },
+    // 数量变化
+    handlePartQuantityChange (row) {
+      const quantity = Number(row.quantity) || 0;
+      const originalAmount = quantity * row.price;
+      row.discountAmount = originalAmount * (1 - row.discountRate);
+      row.partsAmount = originalAmount * row.discountRate;
+      this.updateTotals();
+    },
+    // 优惠金额变化
+    handlePartDiscountAmountChange (row) {
+      const originalAmount = row.quantity * row.price;
+      row.discountAmount = Number(row.discountAmount) || 0;
+      row.partsAmount = originalAmount - row.discountAmount;
+      this.updateTotals();
+    },
+    // 维修项目名称变化
+    handlePartRepairItemNameChange (row) {
+      const selectedItem = this.itemData.find(item => item.repairItemName === row.repairItemName);
+      if (selectedItem) {
+        row.repairItemId = selectedItem.repairItemId;
+      }
+    },
   }
 };
 </script>
 
 <style lang="scss" scoped>
 .m-add-repair-item-dialog {
+  ::v-deep .vxe-table--render-default.size--medium .vxe-header--column.is--padding .vxe-cell,
+  ::v-deep .vxe-table--render-default .vxe-body--column:not(.col--active).col--ellipsis > .vxe-cell,
+  ::v-deep .vxe-table--render-default.size--medium .vxe-body--column.is--padding .vxe-cell {
+    padding: 8px 12px!important;
+  }
+  .m-vxe-table-empty-text {
+    text-align: left;
+  }
+  ::v-deep .vxe-table--empty-content {
+    color: var(--leap-color-default-light-2);
+    width: 100%;
+    padding: 0 16px;
+  }
+  .btn-delete {
+    color: var(--leap-color-danger);
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+      color: var(--leap-color-danger-dark-1);
+    }
+  }
   .info-bar {
     display: flex;
     align-items: center;
