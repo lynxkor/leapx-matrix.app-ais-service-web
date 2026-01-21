@@ -22,11 +22,11 @@
             @checkbox-all="handleSelectionChange"
           >
             <vxe-column type="checkbox" width="60" align="center" />
-            <vxe-column field="sparePartCode" title="备件编码" width="130" />
-            <vxe-column field="sparePartName" title="备件名称" width="150" show-overflow />
-            <vxe-column field="availableQty" title="可用库存" width="170" />
-            <vxe-column field="outboundQty" title="出库数量" width="170" />
-            <vxe-column title="领料人" width="130">
+            <vxe-column field="sparePartCode" title="备件编码" width="180" />
+            <vxe-column field="sparePartName" title="备件名称" width="180" show-overflow />
+            <vxe-column field="availableQty" title="可用库存" width="180" />
+            <vxe-column field="outboundQty" title="出库数量" width="180" />
+            <vxe-column title="领料人" width="180">
               <template #default="{ row, rowIndex }">
                 <el-select
                   v-model="row.picker"
