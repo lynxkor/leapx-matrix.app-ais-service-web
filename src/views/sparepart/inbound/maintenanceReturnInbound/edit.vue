@@ -40,11 +40,11 @@
                         clearable
                       />
                     </el-form-item>
-                    <el-form-item label="入库状态：" prop="outboundStatus">
+                    <el-form-item label="入库状态：" prop="returnMaterialStatus">
                       <fetch-select
                         :request="fetchOptions"
                         enumCode="xxx"
-                        v-model="form.outboundStatus"
+                        v-model="form.returnMaterialStatus"
                         placeholder="请选择"
                         clearable
                         filterable
@@ -86,8 +86,8 @@
                     <el-form-item label="门店编码：" prop="dealerCode">
                       {{ form.dealerCode }}
                     </el-form-item>
-                    <el-form-item label="出库状态：" prop="outboundStatus">
-                      {{ form.outboundStatusLabel }}
+                    <el-form-item label="入库状态：" prop="returnMaterialStatusLabel">
+                      {{ form.returnMaterialStatusLabel }}
                     </el-form-item>
                     <el-form-item label="门店名称：" prop="dealerName">
                       {{ form.dealerName }}
@@ -109,28 +109,6 @@
               </section>
               <section class="common-section">
                 <div class="common-section-header">
-                  <h2>出库明细信息</h2>
-                </div>
-                <div class="common-section-body">
-                  <div class="common-section-table">
-                    <edit-table
-                      ref="editTable"
-                      :columns="columns"
-                      :data="tableData"
-                      :show-toolbar="false"
-                      :isFocusNewRow="false"
-                      :showPagination="true"
-                      :current="collarParams.current"
-                      :pageSize="collarParams.pageSize"
-                      :total="collarParams.total"
-                      @page-size-change="pageSizeChange"
-                      @current-page-change="currentPageChange"
-                    />
-                  </div>
-                </div>
-              </section>
-              <section class="common-section">
-                <div class="common-section-header">
                   <h2>退料明细信息</h2>
                 </div>
                 <div class="common-section-body">
@@ -147,6 +125,28 @@
                       :total="goParams.total"
                       @page-size-change="goPageSize"
                       @current-page-change="goCurrentPage"
+                    />
+                  </div>
+                </div>
+              </section>
+              <section class="common-section">
+                <div class="common-section-header">
+                  <h2>出库明细信息</h2>
+                </div>
+                <div class="common-section-body">
+                  <div class="common-section-table">
+                    <edit-table
+                      ref="editTable"
+                      :columns="columns"
+                      :data="tableData"
+                      :show-toolbar="false"
+                      :isFocusNewRow="false"
+                      :showPagination="true"
+                      :current="collarParams.current"
+                      :pageSize="collarParams.pageSize"
+                      :total="collarParams.total"
+                      @page-size-change="pageSizeChange"
+                      @current-page-change="currentPageChange"
                     />
                   </div>
                 </div>

@@ -30,7 +30,7 @@
           style="width: 120px;"
           @change="handleDiscountModeChange"
         >
-          <el-option :label="item.name" :value="item.code" v-for="item in discountType" :key="item.code"></el-option>
+          <el-option :label="item.name" :value="item.id" v-for="item in discountType" :key="item.id"></el-option>
         </el-select>
       </div>
       <div class="info-item">
@@ -96,6 +96,7 @@
           :auth="{edit: false, delete: true}"
           :default-new-row="defaultItemRow"
           @remove-row="handleRemoveItemRow"
+          @value-change="handleRepairItemValueChange"
           emptyText="请添加数据"
           seq
           :actionWidth="100"
@@ -136,6 +137,7 @@
           :auth="{edit: false, delete: true}"
           :default-new-row="defaultPartRow"
           @remove-row="handleRemovePartRow"
+          @value-change="handlePartValueChange"
           emptyText="请添加数据"
           seq
           :actionWidth="100"
@@ -423,8 +425,8 @@ export default {
           field: 'price',
           title: '单价',
           width: '120px',
-          editable: true,
-          editRender: { name: 'ElInput', props: { size: 'small', type: 'number', precision: 2, min: 0, controlsPosition: 'right' } },
+          // editable: true,
+          // editRender: { name: 'ElInput', props: { size: 'small', type: 'number', precision: 2, min: 0, controlsPosition: 'right' } },
           // formatter: (value) => `¥${(value || 0).toFixed(2)}`
         },
         {
@@ -449,6 +451,21 @@ export default {
           field: 'repairItemName',
           title: '维修项目名称',
           width: '180px',
+          editable: true,
+          editRender: {
+            name: 'ElSelect',
+            props: {
+              size: 'small',
+              placeholder: '请选择',
+              clearable: true,
+              filterable: true,
+              disabled: false, // 默认可编辑，会在 formatter 中根据行数据动态设置
+              options: this.itemData.map(item => ({
+                label: item.repairItemName,
+                value: item.repairItemName
+              }))
+            }
+          }
         },
         {
           field: 'packageCode',
@@ -539,7 +556,7 @@ export default {
         warrantyTypeName: warrantyTypeObj?.warrantyTypeName || warrantyTypeObj?.label || '',
         workHour: selectedItem.workhour || 0,
         price: selectedItem.workhourPrice || 0,
-        discountRate: 1,
+        discountRate: this.selectedDiscount?.discountWorkhourRate || 1,
         discountAmount: 0,
         repairAmount: (selectedItem.workhour || 0) * (selectedItem.workhourPrice || 0),
         statusDesc: '',
@@ -547,6 +564,36 @@ export default {
       };
 
       this.itemData.push(newItem);
+
+      // 如果维修项目带有关联零件列表，自动添加这些零件
+      if (selectedItem.partsRespList && selectedItem.partsRespList.length > 0) {
+        selectedItem.partsRespList.forEach(part => {
+          const discountAmount = Number(part.salePrice || 0) * (1 - (Number(this.selectedDiscount?.discountPartRate) || 1));
+          const newPart = {
+            partsId: part.id,
+            partsCode: part.partsCode || '',
+            partsName: part.partsName || '',
+            repairItemTypeId: this.repairType,
+            repairItemTypeName: repairTypeObj?.repairItemTypeName || repairTypeObj?.label || '',
+            checkoutTypeId: checkoutTypeObj?.checkoutTypeId || '',
+            checkoutTypeName: checkoutTypeObj?.checkoutTypeName || checkoutTypeObj?.label || '',
+            warrantyTypeId: warrantyTypeObj?.warrantyTypeId || '',
+            warrantyTypeName: warrantyTypeObj?.warrantyTypeName || warrantyTypeObj?.label || '',
+            isOemPart: part.isOemPart || '1',
+            quantity: part.quantity || 1,
+            price: part.salePrice || 0,
+            discountRate: this.selectedDiscount?.discountPartRate || 1,
+            discountAmount: discountAmount,
+            partsAmount: part.salePrice - discountAmount,
+            repairItemName: selectedItem.name || '',
+            packageCode: part.packageCode || '',
+            repairItemId: newItem.repairItemId, // 关联维修项目ID
+            repairitemcode: selectedItem.code,
+            isBindltem: 1, // 标记为自动导入
+          };
+          this.partData.push(newPart);
+        });
+      }
 
       // 清空输入
       this.itemSearchKey = '';
@@ -581,6 +628,7 @@ export default {
       // 查找保修类型的默认值（取第一个）
       const warrantyTypeObj = this.itemOptions.warrantyTypeName?.[0];
 
+      const discountAmount = Number(selectedPart.salePrice) * (1 - (Number(this.selectedDiscount?.discountPartRate) || 1));
       const newPart = {
         partsId: selectedPart.id,
         partsCode: selectedPart.partCode || '',
@@ -594,10 +642,11 @@ export default {
         isOemPart: selectedPart.isOemPart || '1',
         quantity: 1,
         price: selectedPart.salePrice || 0,
-        discountRate: this.selectedDiscount,
-        discountAmount: 0,
-        partsAmount: 1,
+        discountRate: this.selectedDiscount?.discountPartRate || 1,
+        discountAmount: discountAmount,
+        partsAmount: selectedPart.salePrice - discountAmount,
         repairItemName: selectedPart.repairItemName || '',
+        isBindltem: 0, // 手动添加的零件，标记为非自动导入
         packageCode: selectedPart.packageCode || ''
       };
 
@@ -677,7 +726,11 @@ export default {
       getRepairItemInfo(this.vehicleInfo.id).then(res => {
         this.info = res;
         this.itemData = res.repairItemRespList || [];
-        this.partData = res.sparePartRespList || [];
+        this.partData = (res.sparePartRespList || []).map(part => ({
+          ...part,
+          // 如果零件有关联的维修项目ID，标记为自动导入
+          isBindltem: !!part.repairItemId
+        }));
       });
     },
     searchRepairItem (queryString, cb) {
@@ -685,7 +738,7 @@ export default {
       filterRepairItem({ nameOrCodeOrPinyinLike: queryString, serviceProxyId: this.vehicleInfo.id }).then(res => {
         const data = res.map(item => ({
           ...item,
-          value: item.code
+          value: item.name
         }));
         cb(data);
       });
@@ -708,8 +761,9 @@ export default {
     },
     handleDiscountModeChange (value) {
       // 查找选中的优惠模式
-      const selectedDiscount = this.discountType.find(item => item.code === value);
+      const selectedDiscount = this.discountType.find(item => item.id === value);
       this.selectedDiscount = selectedDiscount;
+
       if (!selectedDiscount) return;
 
       const { discountPartRate, discountWorkhourRate } = selectedDiscount;
@@ -729,7 +783,7 @@ export default {
         // 重新计算优惠金额和配件金额
         const originalAmount = part.quantity * part.price;
         part.discountAmount = originalAmount * (1 - part.discountRate);
-        part.partsAmount = originalAmount * part.discountRate;
+        part.partsAmount = originalAmount - part.discountAmount;
       });
 
       // 更新顶部的合计信息
@@ -744,7 +798,7 @@ export default {
 
       // 计算维修配件合计
       this.info.barkCostCount = this.partData.reduce((sum, part) => {
-        const amount = parseFloat(part.partsAmount) || 0;
+        const amount = parseFloat(part.partsAmount);
         return sum + amount;
       }, 0);
 
@@ -755,6 +809,28 @@ export default {
     handleRemoveItemRow (removedRow, index, defer) {
       // 从 itemData 中移除该行数据（表格组件内部已经移除了，这里只需要同步）
       this.itemData.splice(index, 1);
+
+      // 删除该项目自动引入的零件
+      if (removedRow.repairItemId) {
+        // 找到所有关联该维修项目的自动导入零件
+        const autoImportedPartIndices = [];
+        this.partData.forEach((part, idx) => {
+          if (part.isBindltem && part.repairItemId === removedRow.repairItemId) {
+            autoImportedPartIndices.push(idx);
+          }
+        });
+
+        // 从后往前删除，避免索引变化
+        for (let i = autoImportedPartIndices.length - 1; i >= 0; i--) {
+          this.partData.splice(autoImportedPartIndices[i], 1);
+        }
+
+        // 如果删除了零件，需要刷新表格
+        if (autoImportedPartIndices.length > 0 && this.$refs.partTable) {
+          this.$refs.partTable.$forceUpdate();
+        }
+      }
+
       // 更新顶部合计
       this.updateTotals();
     },
@@ -764,6 +840,39 @@ export default {
       this.partData.splice(index, 1);
       // 更新顶部合计
       this.updateTotals();
+    },
+    handlePartValueChange ({ row, column, value }) {
+      if (column.property === 'quantity') {
+        const part = this.partData.find(item => item.partsId === row.partsId);
+        part.quantity = value;
+        const discountAmount = Number(part.price) * (1 - (Number(part?.discountPartRate) || 1)) * Number(value);
+        part.discountAmount = discountAmount;
+        part.partsAmount = Number(part.quantity) * Number(part.price) - discountAmount;
+        this.updateTotals();
+      }
+      if (column.property === 'discountAmount') {
+        const part = this.partData.find(item => item.partsId === row.partsId);
+        part.discountAmount = value;
+        part.partsAmount = Number(part.quantity) * Number(part.price) - value;
+        this.updateTotals();
+      }
+    },
+    handleRepairItemValueChange ({ row, column, value }) {
+      if (column.property === 'workHour') {
+        const item = this.itemData.find(item => item.partsId === row.partsId);
+        item.workHour = Number(value);
+        const originalAmount = item.workHour * item.price;
+        item.discountAmount = originalAmount * (1 - item.discountRate);
+        item.repairAmount = originalAmount - item.discountAmount;
+        this.updateTotals();
+      }
+      if (column.property === 'discountAmount') {
+        const item = this.itemData.find(item => item.partsId === row.partsId);
+        item.discountAmount = Number(value);
+        const originalAmount = item.workHour * item.price;
+        item.repairAmount = originalAmount - item.discountAmount;
+        this.updateTotals();
+      }
     }
   }
 };

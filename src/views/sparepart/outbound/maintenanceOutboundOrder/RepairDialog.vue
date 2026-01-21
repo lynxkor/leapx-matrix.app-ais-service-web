@@ -22,11 +22,11 @@
             @checkbox-all="handleSelectionChange"
           >
             <vxe-column type="checkbox" width="60" align="center" />
-            <vxe-column field="sparePartCode" title="备件编码" width="130" />
-            <vxe-column field="sparePartName" title="备件名称" width="150" show-overflow />
-            <vxe-column field="availableQty" title="可用库存" width="170" />
-            <vxe-column field="outboundQty" title="出库数量" width="170" />
-            <vxe-column title="领料人" width="130">
+            <vxe-column field="sparePartCode" title="备件编码" width="180" />
+            <vxe-column field="sparePartName" title="备件名称" width="180" show-overflow />
+            <vxe-column field="availableQty" title="可用库存" width="180" />
+            <vxe-column field="outboundQty" title="出库数量" width="180" />
+            <vxe-column title="领料人" width="180">
               <template #default="{ row, rowIndex }">
                 <el-select
                   v-model="row.picker"
@@ -53,7 +53,7 @@
       <template v-slot:footer>
         <div class="dialog-footer">
           <el-button size="small" @click="close">取 消</el-button>
-          <el-button size="small" type="primary" :loading="submitLoading" @click="submit">确 定</el-button>
+          <el-button size="small" type="primary" :loading="submitLoading" @click="submit">出 库</el-button>
         </div>
       </template>
     </el-dialog>
@@ -125,7 +125,7 @@ export default {
     },
     async submit () {
       if (!this.selectedRows.length) {
-        this.$message.warning('请选择要修改的行');
+        this.$message.warning('请选择需要出库的明细记录');
         return;
       }
       // 2. 检查所有勾选行是否都选择了领料人
@@ -148,12 +148,12 @@ export default {
       this.submitLoading = true;
       try {
         await OutboundPeople(params);
-        this.$message.success('修改成功');
+        this.$message.success('出库成功');
         this.submitLoading = false;
         this.selectedRows = [];
         this.$emit('success');
       } catch (error) {
-        this.$message.error('修改失败');
+        this.$message.error('出库失败');
         this.submitLoading = false;
       }
     },

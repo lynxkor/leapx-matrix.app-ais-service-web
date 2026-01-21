@@ -242,3 +242,22 @@ export function saveRepairItem (data) {
 export function cancelFinal (data) {
   return api.jsonPost(prefix + 'cancelFinal', data);
 }
+export function deleteDispatchWorkers (data) {
+  return api.jsonPost(prefix + 'deleteWorkers', data);
+}
+
+/**
+ * 终检-项目明细
+ * @param {Object} data
+ */
+export function getFinalInspectionDetail (data) {
+  return api.jsonPost(prefix + 'finalInspectionDetail', data);
+}
+
+/**
+ * 终检-项目明细
+ * @param {Object} data
+ */
+export function finalInspection (data) {
+  return api.jsonPost(prefix + 'finalInspection', data);
+}

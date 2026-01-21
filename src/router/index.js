@@ -1014,7 +1014,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchaseReminder/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件采购提醒设置',
         keepAlive: true
       }
     }, {
@@ -1023,7 +1023,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchaseReminder/detail.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件采购提醒设置',
         noResourceUrl: 'true'
       }
     }, {
@@ -1032,7 +1032,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchaseReminder/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件采购提醒设置详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -1311,7 +1311,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchasePartSaleable/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '订单类型采购备件设置',
         keepAlive: true
       }
     }, {
@@ -1320,7 +1320,43 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchasePartSaleable/edit.vue'),
 
       meta: {
+        name: '订单类型采购备件设置详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/oldpart/outbound',
+      name: 'outbound',
+      component: () => import('@/views/claimreturn/oldpart/outbound/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/oldpart/outbound/edit',
+      name: 'outboundEdit',
+      component: () => import('@/views/claimreturn/oldpart/outbound/edit.vue'),
+
+      meta: {
         name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/oldpart/destroy/oldPartDestroyOrder',
+      name: 'oldPartDestroyOrder',
+      component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/oldpart/destroy/oldpartdestroyorder/edit',
+      name: 'oldPartDestroyOrderEdit',
+      component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit.vue'),
+
+      meta: {
+        name: '旧件销毁单详情',
         noResourceUrl: 'true'
       }
     }]

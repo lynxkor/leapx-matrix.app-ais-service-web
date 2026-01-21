@@ -56,7 +56,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="MaintenanceOutboundStatusEnum"
-            v-model="form.outboundStatus"
+            v-model="form.outboundStatusList"
             placeholder="请选择"
             clearable
             multiple
@@ -260,6 +260,9 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '出库',
+              show: (row) => {
+                return row.outboundStatus !== '1' && row.outboundStatus !== '2';
+              },
               click: (rowIndex, row) => {
                 this.repairPopup(row);
               },
