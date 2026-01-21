@@ -9,11 +9,11 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="订单类型：1-普通订单，2-紧急订单，3-铺货订单，4-定制订单，5-领料订单，6-活动订单">
+      <el-form-item label="订单类型">
         <fetch-select
           :request="fetchOptions"
-          enumCode="xxx"
-          v-model="form.orderType"
+          enumCode="PurchaseOrderTypeEnum"
+          v-model="form.orderTypes"
           placeholder="请选择"
           clearable
           multiple
@@ -21,11 +21,7 @@
         />
       </el-form-item>
       <el-form-item label="备件编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.partCode"
-          clearable
-        />
+        <tag-input v-model="form.partCodeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="备件名称"  v-show="this.visibleCount === 3 || show">
         <el-input
@@ -35,12 +31,15 @@
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="是否可售：0-否，1-是">
-          <el-input
-            placeholder="请输入"
-            v-model="form.saleableIs"
-            clearable
-          />
+        <el-form-item label="是否可售">
+          <fetch-select
+          :request="fetchOptions"
+          enumCode="BooleanEnum"
+          v-model="form.saleableIs"
+          placeholder="请选择"
+          clearable
+          filterable
+        />
         </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
@@ -82,8 +81,8 @@
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <!-- <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -118,7 +117,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/purchasePartSaleable/index';
+import { getList, deleteItem, enableItem, addOrUpdate } from '@/api/sparepart/basic/purchasePartSaleable/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -128,6 +127,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -151,14 +151,15 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '订单类型采购备件设置',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-purchasePartSaleable',
+      moduleKey: 'AISPART-purchasePartSaleable',
       form: {
         ...defaultForm
       },
@@ -178,8 +179,8 @@ export default {
         },
         dataProp: [
           {
-            props: 'orderType',
-            label: '订单类型：1-普通订单，2-紧急订单，3-铺货订单，4-定制订单，5-领料订单，6-活动订单',
+            props: 'orderTypeLabel',
+            label: '订单类型',
             visible: true,
             width: 200,
             fixed: 'left',
@@ -195,9 +196,25 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'partCode', label: '备件编码', visible: true, width: 200 },
+          {
+            props: 'partCode',
+            label: '备件编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/sparePart/detail',
+                  query: {
+                    id: row.sparePartId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'partName', label: '备件名称', visible: true, width: 200 },
-          { props: 'saleableIs', label: '是否可售：0-否，1-是', visible: true, width: 200 },
+          { props: 'saleableIsLabel', label: '是否可售', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -208,6 +225,24 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
+              name: '禁售',
+              click: (rowIndex, row) => {
+                this.toggleSalesStatus(row.id, '0', row);
+              },
+              show: (row) => {
+                return row.saleableIs === '1'; // Show button only if user has permission
+              },
+              type: 'info' // Different color for different states
+            }, {
+              name: '可售',
+              click: (rowIndex, row) => {
+                this.toggleSalesStatus(row.id, '1', row);
+              },
+              show: (row) => {
+                return row.saleableIs === '0'; // Show button only if user has permission
+              },
+              type: 'info' // Different color for different states
+            }, {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -424,6 +459,37 @@ export default {
       //     });
       //   });
       // });
+    },
+    // Toggle sales status for a single item
+    toggleSalesStatus (id, status, row) {
+      const action = status === 1 ? '禁售' : '启售';
+      this.$confirm(`此操作将${action}该备件，是否继续?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // Assuming there's an API endpoint for updating sales status
+        // You may need to adjust the API call according to your backend implementation
+        addOrUpdate({
+          id: id,
+          saleableIs: status
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: `${action}成功!`
+          });
+          // Update the local row data
+          row.saleableIs = status;
+          row.saleableIsLabel = status === 1 ? '是' : '否';
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: `${action}失败!`
+          });
+        });
+      }).catch(() => {
+        // User cancelled
+      });
     }
   }
 };

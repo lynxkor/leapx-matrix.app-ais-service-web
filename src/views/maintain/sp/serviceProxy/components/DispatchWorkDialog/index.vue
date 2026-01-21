@@ -95,7 +95,7 @@
           <vxe-column field="repairItemName" title="维修项目名称" min-width="150" show-overflow />
           <vxe-column title="工位" width="150">
             <template #default="{ row }">
-              <el-select v-model="row.dealerStationId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1">
+              <el-select v-model="row.dealerStationId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1" @change="handleStationChange(row)">
                 <el-option
                   v-for="item in workstationOptions"
                   :key="item.id"
@@ -119,7 +119,7 @@
           </vxe-column>
           <vxe-column title="维修技师" width="150">
             <template #default="{ row }">
-              <el-select v-model="row.repairTechnicianId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1 || !row.dealerWorkTeamId">
+              <el-select v-model="row.repairTechnicianId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1 || !row.dealerWorkTeamId" @change="handleTechnicianChange(row)">
                 <el-option
                   v-for="item in technicianOptions"
                   :key="item.userId"
@@ -155,7 +155,7 @@
 </template>
 
 <script>
-import { getRepairWorkRecord, dispatchWorkers, getDealerStation, getDealerWorkTeam, getDealerTeamUserRelation } from '@/api/maintain/sp/serviceProxy/index';
+import { getRepairWorkRecord, dispatchWorkers, getDealerStation, getDealerWorkTeam, getDealerTeamUserRelation, deleteDispatchWorkers } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   name: 'DispatchWorkDialog',
@@ -188,7 +188,8 @@ export default {
       // 筛选选项
       workstationOptions: [],
       teamOptions: [],
-      technicianOptions: []
+      technicianOptions: [],
+      deleteIds: []
     };
   },
   computed: {
@@ -237,9 +238,22 @@ export default {
         }
       });
     },
+    handleStationChange (row) {
+      // 工位变化时更新工位名称
+      const station = this.workstationOptions.find(item => item.id === row.dealerStationId);
+      this.$set(row, 'dealerStationName', station ? station.name : '');
+    },
     handleTeamChange (row) {
-      // 班组变化时清空该行的技师
+      // 班组变化时更新班组名称并清空该行的技师
+      const team = this.teamOptions.find(item => item.id === row.dealerWorkTeamId);
+      this.$set(row, 'dealerWorkTeamName', team ? team.name : '');
       this.$set(row, 'repairTechnicianId', '');
+      this.$set(row, 'repairTechnicianName', '');
+    },
+    handleTechnicianChange (row) {
+      // 技师变化时更新技师名称
+      const technician = this.technicianOptions.find(item => item.userId === row.repairTechnicianId);
+      this.$set(row, 'repairTechnicianName', technician ? technician.userName : '');
     },
     async initData () {
       try {
@@ -354,19 +368,20 @@ export default {
       }).then(() => {
         this.deleteLoading = true;
         // 删除派工操作
-        this.selectedRows.forEach(row => {
-          row.isDispatch = 0;
-          row.dispatchTime = '';
-          row.dealerStationId = '';
-          row.dealerWorkTeamId = '';
-          row.repairTechnicianId = '';
+        let ids = [];
+        ids = this.selectedRows.map(row => {
+          return row.id;
         });
-        dispatchWorkers(this.selectedRow).then(res => {
+        deleteDispatchWorkers(ids).then(res => {
           this.$message.success('删除派工成功');
           this.deleteLoading = false;
           this.initData();
           this.$refs.dispatchTable.clearCheckboxRow();
           this.$emit('refresh');
+          this.selectedRows = [];
+        }).catch(() => {
+          this.$message.error('删除派工失败');
+          this.deleteLoading = false;
         });
       }).catch(() => {}).finally(() => {
         this.dispatchLoading = false;
