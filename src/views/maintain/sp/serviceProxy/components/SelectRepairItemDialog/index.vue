@@ -30,7 +30,7 @@
           style="width: 120px;"
           @change="handleDiscountModeChange"
         >
-          <el-option :label="item.name" :value="item.code" v-for="item in discountType" :key="item.code"></el-option>
+          <el-option :label="item.name" :value="item.id" v-for="item in discountType" :key="item.id"></el-option>
         </el-select>
       </div>
       <div class="info-item">
@@ -707,9 +707,11 @@ export default {
       this.selectedRepairPart = item;
     },
     handleDiscountModeChange (value) {
+
       // 查找选中的优惠模式
-      const selectedDiscount = this.discountType.find(item => item.code === value);
+      const selectedDiscount = this.discountType.find(item => item.id === value);
       this.selectedDiscount = selectedDiscount;
+
       if (!selectedDiscount) return;
 
       const { discountPartRate, discountWorkhourRate } = selectedDiscount;

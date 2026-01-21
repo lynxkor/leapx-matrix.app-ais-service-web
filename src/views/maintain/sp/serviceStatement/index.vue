@@ -31,13 +31,16 @@
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="车牌号">
-          <el-input
-          placeholder="请输入"
-          v-model="form.carPlate"
-          clearable
-        />
-        </el-form-item>
+       <el-form-item label="车牌号">
+              <el-input
+                placeholder="请输入"
+                v-model="form.carPlate"
+                clearable
+              />
+            </el-form-item>
+         <el-form-item label="门店">
+                 <dealer-select v-model="form.dealerCodes" multiple/>
+               </el-form-item>
       </template>
       <page-search-action
         v-if="canPage"
@@ -57,6 +60,12 @@
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
+     <div class="ais-tabs">
+          <div v-for="(item, index) in tabList" :key="item.statementStatusLabel" :class="{'ais-tabs-item': true, 'active': item.statementStatus == form.statementStatus}" @click="handleTabClick(item.statementStatus)">
+            {{item.statementStatusLabel}}
+            <span v-if="index">({{ item.count }})</span>
+          </div>
+        </div>
     <div
       class="ais-table-c"
     >
@@ -84,13 +93,14 @@
       @close="handleUploadDialogClose"
     />
   </div>
+
 </template>
 
 <script>
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/maintain/sp/serviceStatement/index';
+import { getList, deleteItem, enableItem,getStatistics } from '@/api/maintain/sp/serviceStatement/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -99,7 +109,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
-
+import DealerSelect from '@/components/dealer-select/index.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
@@ -163,12 +173,12 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dataSource', label: '数据来源', visible: true, width: 200 },
-          { props: 'statementType', label: '结算单类型', visible: true, width: 200 },
-          { props: 'statementStatus', label: '结算单状态', visible: true, width: 200 },
+          { props: 'dataSourceLabel', label: '数据来源', visible: true, width: 200 },
+          { props: 'statementTypeLabel', label: '结算单类型', visible: true, width: 200 },
+          { props: 'statementStatusLabel', label: '结算单状态', visible: true, width: 200 },
           { props: 'serviceProxyCode', label: '接车施工单', visible: true, width: 200 },
           { props: 'warrantyTypeCollect', label: '保修类型（汇总）', visible: true, width: 200 },
-          { props: 'accountType', label: '销账标识', visible: true, width: 200 },
+          { props: 'accountTypeLabel', label: '销账标识', visible: true, width: 200 },
           { props: 'vehProfileVin', label: 'VIN码', visible: true, width: 200 },
           { props: 'customerName', label: '车主姓名', visible: true, width: 200 },
           { props: 'carPlate', label: '车牌号', visible: true, width: 200 },
@@ -188,7 +198,7 @@ export default {
           { props: 'nextMaintenanceMileage', label: '下次保养里程', visible: true, width: 200 },
           { props: 'nextMaintenanceTime', label: '下次保养时间', visible: true, width: 200 },
           { props: 'createReStatement', label: '是否已创建反结算申请', visible: true, width: 200 },
-          { props: 'createWarranty', label: '是否已生成保修单', visible: true, width: 200 },
+          { props: 'createWarrantyLabel', label: '是否已生成保修单', visible: true, width: 200 },
           { props: 'statementPersonName', label: '结算人员', visible: true, width: 200 },
           { props: 'statementTime', label: '结算时间', visible: true, width: 200 },
           { props: 'payeeName', label: '收款人', visible: true, width: 200 },
@@ -233,14 +243,32 @@ export default {
           }
         ],
         total: 0
-      }
+      },
+      tableList:[]
     };
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+  this.getTabsList();
   },
   methods: {
+  getTabsList () {
+        getStatistics().then(res => {
+          const target = res || {};
+          this.tabList = [
+            { statementStatusLabel: '全部', statementStatus: '', count: null },
+            target.pendingSettlementCount,
+            target.pendingReceiptCount
+
+          ];
+        });
+      },
+   handleTabClick (v) {
+      this.form.statementStatus = v;
+      this.optionObj.form.page = 1;
+      this.debouncedGetData();
+    },
     handleListSelect (row) {
       this.clickItemId = row.id;
     },

@@ -155,7 +155,7 @@
 </template>
 
 <script>
-import { getRepairWorkRecord, dispatchWorkers, getDealerStation, getDealerWorkTeam, getDealerTeamUserRelation } from '@/api/maintain/sp/serviceProxy/index';
+import { getRepairWorkRecord, dispatchWorkers, getDealerStation, getDealerWorkTeam, getDealerTeamUserRelation,deleteDispatchWorkers } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   name: 'DispatchWorkDialog',
@@ -188,7 +188,8 @@ export default {
       // 筛选选项
       workstationOptions: [],
       teamOptions: [],
-      technicianOptions: []
+      technicianOptions: [],
+      deleteIds:[]
     };
   },
   computed: {
@@ -342,6 +343,7 @@ export default {
       }
     },
     handleDeleteDispatch () {
+
       if (this.selectedRows.length === 0) {
         this.$message.warning('请至少选择一条数据进行删除派工');
         return;
@@ -354,22 +356,24 @@ export default {
       }).then(() => {
         this.deleteLoading = true;
         // 删除派工操作
-        this.selectedRows.forEach(row => {
-          row.isDispatch = 0;
-          row.dispatchTime = '';
-          row.dealerStationId = '';
-          row.dealerWorkTeamId = '';
-          row.repairTechnicianId = '';
+        let ids = [];
+        ids=this.selectedRows.map(row => {
+          return row.id;
         });
-        dispatchWorkers(this.selectedRow).then(res => {
+        deleteDispatchWorkers(ids).then(res => {
           this.$message.success('删除派工成功');
           this.deleteLoading = false;
           this.initData();
           this.$refs.dispatchTable.clearCheckboxRow();
           this.$emit('refresh');
+           this.selectedRows= [];
+        }).catch(() => {
+          this.$message.error('删除派工失败');
+          this.deleteLoading = false;
         });
       }).catch(() => {}).finally(() => {
         this.dispatchLoading = false;
+
       });
     }
   }

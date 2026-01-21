@@ -242,6 +242,9 @@ export function saveRepairItem (data) {
 export function cancelFinal (data) {
   return api.jsonPost(prefix + 'cancelFinal', data);
 }
+export function deleteDispatchWorkers (data) {
+  return api.jsonPost( prefix+'deleteWorkers', data);
+}
 
 /**
  * 终检-项目明细

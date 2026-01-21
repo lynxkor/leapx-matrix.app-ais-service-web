@@ -42,3 +42,6 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+export function getStatistics (data) {
+  return api.jsonPost(prefix + 'statistics', data);
+}
