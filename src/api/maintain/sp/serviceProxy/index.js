@@ -154,6 +154,9 @@ export function dispatchWorkers (data) {
 export function startWork (data) {
   return api.jsonPost(prefix + 'startWork', data);
 }
+export function endWork (data) {
+  return api.jsonPost(prefix + 'endWork', data);
+}
 
 /**
  * 作废
@@ -255,9 +258,19 @@ export function getFinalInspectionDetail (data) {
 }
 
 /**
- * 终检-项目明细
+ * 质检
  * @param {Object} data
  */
-export function finalInspection (data) {
-  return api.jsonPost(prefix + 'finalInspection', data);
+export function qualityInspection (data) {
+  return api.jsonPost(prefix + 'qualityInspection', data);
 }
+
+/**
+ * 返修
+ * @param data
+ */
+export function repaired (data) {
+  return api.jsonPost(prefix + 'repaired', data);
+}
+
+
