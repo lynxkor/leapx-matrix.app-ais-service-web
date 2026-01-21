@@ -76,3 +76,12 @@ export function addDetail (data) {
 export function removeDetail (data) {
   return api.jsonPost(prefix + 'removeDetail', data);
 }
+
+/**
+ * 门店回运出库
+ * @param {Object} data
+ * @returns
+ */
+export function dealerOutbound (data) {
+  return api.jsonPost(prefix + 'dealerOutbound', data);
+}

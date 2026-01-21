@@ -20,10 +20,9 @@
         <fetch-select
           :request="fetchOptions"
           enumCode="old_part_outbound_status"
-          v-model="form.outboundStatusList"
+          v-model="form.outboundStatus"
           placeholder="请选择"
           clearable
-          multiple
           filterable
         />
       </el-form-item>

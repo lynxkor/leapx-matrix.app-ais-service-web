@@ -2,23 +2,25 @@
   <section class="common-section">
     <div class="common-section-header">
       <h2>
-        <span>旧件明细</span>
-        <div v-if="_id" class="btns">
+        旧件明细
+        <div v-if="_id && !disabled" class="btns">
           <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="openAdd"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
-          <el-button v-if="canAddOrUpdate" size="small" @click.stop="handleRemoveRows">删除</el-button>
+          <el-button v-if="canAddOrUpdate" :disabled="!isSelect" size="small" @click.stop="handleRemoveRows">删除</el-button>
         </div>
       </h2>
     </div>
     <div v-if="_id" class="common-section-body">
       <div class="common-section-table">
+        <!-- 旧件明细表格 -->
         <edit-table
           ref="editTable"
           :columns="columns"
           :data="tableData"
-          :defaultNewRow="defaultNewRow"
+          :defaultNewRow="disabled ? null : defaultNewRow"
           :show-toolbar="false"
           :options="options"
-          :auth="{ edit: false, delete: canAddOrUpdate }"
+          :checkbox="true"
+          :auth="{ edit: false, delete: canAddOrUpdate && !disabled }"
           :isFocusNewRow="false"
           :enableSingleRowSave="false"
           :showPagination="true"
@@ -29,22 +31,27 @@
           @remove-row="handleRemoveRow"
           @page-size-change="pageSizeChange"
           @current-page-change="currentPageChange"
+          @checkboxChange="checkboxChange"
+          @mask="mask"
         />
       </div>
     </div>
     <div class="common-section-body not-commit" v-else>
       提交新建后，即可添加
     </div>
+    <!-- 旧件明细 - 添加弹窗 -->
     <old-part-dialog
       :visible.sync="visible"
       :_id="_id"
       :dealerCode="dealerCode"
+      @update="getTableData"
       />
   </section>
 </template>
 <script>
 import {
   getList, // 旧件库存详情分页查询
+  getDetailDecryptField,
 } from '@/api/claimreturn/oldpart/inventory/oem/index';
 import {
   addDetail,
@@ -64,6 +71,10 @@ export default {
     dealerCode: {
       type: String,
     },
+    disabled: {
+      type: Boolean,
+      default: false
+    }
   },
   components: {
     EditTable,
@@ -98,79 +109,86 @@ export default {
       options: {
         partCode: [],
       },
+      selectedRows: [],
       columns: [
         {
           field: 'serviceProxyNo',
           title: '接车施工单',
-          width: '10%',
+          width: '160',
         },
         {
           field: 'warrantyNo',
           title: '保修申请单',
-          width: '10%',
+          width: '160',
         },
         {
           field: 'oldPartUniqueCode',
           title: '旧件唯一码',
-          width: '10%',
+          width: '160',
         },
         {
           field: 'dealerName',
           title: '厅店名称',
-          width: '10%',
+          width: '160',
         },
         {
           field: 'dealerStatusLabel',
           title: '门店库存状态',
-          width: '10%',
+          width: '160',
         },
         {
           field: 'isMainPartLabel',
           title: '是否主因零部件',
-          width: '10%',
+          width: '160',
         },
         {
           field: 'vin',
           title: 'VIN',
-          width: '10%',
+          width: '200',
+          mask: true,
         },
         {
           field: 'oldPartSupplierName',
           title: '零件供应商',
-          width: '10%',
+          width: '160',
         },
         {
           field: 'mainPartSupplierName',
           title: '主因件供应商',
-          width: '10%',
+          width: '160',
         },
         {
           field: 'oldPartCode',
           title: '旧件编码',
-          width: '10%',
+          width: '160',
         },
         {
           field: 'oldPartName',
           title: '旧件名称',
-          width: '10%',
+          width: '160',
         },
         {
           field: 'partCode',
           title: '零件编码',
-          width: '10%',
+          width: '160',
         },
         {
           field: 'partName',
           title: '零件名称',
-          width: '10%',
+          width: '160',
         },
         {
           field: 'checkRemark',
           title: '验收备注',
-          width: '10%',
+          width: '160',
         },
       ]
     };
+  },
+  computed: {
+    isSelect () {
+      return this.selectedRows?.length > 0;
+    }
   },
   watch: {
     _id: {
@@ -210,18 +228,33 @@ export default {
     },
     handleRemoveRows () {
       // 您确定要移除选择的【{N}】条数据吗？
+      this.$confirm('您确定要移除选择的【' + this.selectedRows.length + '】条数据吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const ids = this.selectedRows.map(item => item.id);
+        this.removeRows(ids);
+      }).catch(() => {});
     },
     handleRemoveRow (row) {
       if (!row.id) {
         return;
       }
+      this.removeRows([row.id]);
+    },
+    removeRows (ids) {
       removeDetail({
         id: this._id,
-        detailIdList: [row.id],
+        detailIdList: ids,
       }).then((d) => {
         this.$message.success('删除成功');
         this.getTableData();
       }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '删除失败!'
+        });
       });
     },
     // 行保存
@@ -246,6 +279,28 @@ export default {
       this.current = current;
       this.getTableData();
     },
+    checkboxChange (records) {
+      this.selectedRows = records;
+      this.$emit('checkboxChange', this.selectedRows);
+    },
+    // ---
+    mask (row, column) {
+      const field = column.field;
+      const rawField = field + 'Raw';
+      const maskField = field + 'Mask';
+      if (row[rawField]) {
+        const temp = row[field];
+        row[field] = row[rawField];
+        row[rawField] = temp;
+        row[maskField] = !row[maskField];
+        return;
+      }
+      getDetailDecryptField(row.id, field).then(data => {
+        row[maskField] = true;
+        row[rawField] = row[field];
+        row[field] = data;
+      });
+    }
   },
 };
 

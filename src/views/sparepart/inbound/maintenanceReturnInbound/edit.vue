@@ -86,8 +86,8 @@
                     <el-form-item label="门店编码：" prop="dealerCode">
                       {{ form.dealerCode }}
                     </el-form-item>
-                    <el-form-item label="入库状态：" prop="returnMaterialStatus">
-                      {{ form.returnMaterialStatus }}
+                    <el-form-item label="入库状态：" prop="returnMaterialStatusLabel">
+                      {{ form.returnMaterialStatusLabel }}
                     </el-form-item>
                     <el-form-item label="门店名称：" prop="dealerName">
                       {{ form.dealerName }}
