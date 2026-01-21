@@ -103,11 +103,12 @@
           <vxe-column field="repairItemName" title="维修项目名称" width="180px" />
           <vxe-column field="repairItemTypeName" title="维修类型" width="150px">
             <template #default="{ row }">
+              <template v-if="row.id">{{ row?.repairItemTypeName }}</template>
               <el-select
+                v-else
                 v-model="row.repairItemTypeName"
                 size="small"
                 placeholder="请选择"
-                clearable
                 filterable
                 @change="handleRepairItemTypeChange(row)"
               >
@@ -126,7 +127,6 @@
                 v-model="row.checkoutTypeName"
                 size="small"
                 placeholder="请选择"
-                clearable
                 filterable
                 @change="handleCheckoutTypeChange(row)"
               >
@@ -135,6 +135,7 @@
                   :key="item.checkoutTypeId"
                   :label="item.checkoutTypeName"
                   :value="item.checkoutTypeName"
+                  :disabled="row.repairItemId === '999999' && +item.checkoutTypeId < 30"
                 />
               </el-select>
             </template>
@@ -145,7 +146,6 @@
                 v-model="row.warrantyTypeName"
                 size="small"
                 placeholder="请选择"
-                clearable
                 filterable
                 @change="handleWarrantyTypeChange(row)"
               >
@@ -174,7 +174,9 @@
           <vxe-column field="discountRate" title="折扣率" width="120px" />
           <vxe-column field="discountAmount" title="优惠金额" width="160px">
             <template #default="{ row }">
+              <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount }}</template>
               <el-input-number
+                v-else
                 v-model="row.discountAmount"
                 size="small"
                 :precision="1"
@@ -245,7 +247,6 @@
                 v-model="row.repairItemTypeName"
                 size="small"
                 placeholder="请选择"
-                clearable
                 filterable
                 @change="handlePartRepairItemTypeChange(row)"
               >
@@ -264,7 +265,6 @@
                 v-model="row.checkoutTypeName"
                 size="small"
                 placeholder="请选择"
-                clearable
                 filterable
                 @change="handlePartCheckoutTypeChange(row)"
               >
@@ -273,6 +273,7 @@
                   :key="item.checkoutTypeId"
                   :label="item.checkoutTypeName"
                   :value="item.checkoutTypeName"
+                  :disabled="row.repairItemId === '999999' && checkoutTypeName(item.checkoutTypeId)"
                 />
               </el-select>
             </template>
@@ -283,7 +284,6 @@
                 v-model="row.warrantyTypeName"
                 size="small"
                 placeholder="请选择"
-                clearable
                 filterable
                 @change="handlePartWarrantyTypeChange(row)"
               >
@@ -339,7 +339,6 @@
                 v-model="row.repairItemName"
                 size="small"
                 placeholder="请选择"
-                clearable
                 filterable
                 @change="handlePartRepairItemNameChange(row)"
               >
@@ -488,7 +487,10 @@ export default {
       );
 
       // 查找结算类型的默认值（取第一个）
-      const checkoutTypeObj = this.itemOptions.checkoutTypeName?.[0];
+      let checkoutTypeObj = this.itemOptions.checkoutTypeName?.[0];
+      if (selectedItem.id === '999999') {
+        checkoutTypeObj = this.itemOptions.checkoutTypeName?.filter(item => this.checkoutTypeName(item.checkoutTypeId))?.[0];
+      }
 
       // 查找保修类型的默认值（取第一个）
       const warrantyTypeObj = this.itemOptions.warrantyTypeName?.[0];
@@ -646,13 +648,6 @@ export default {
       });
       getDiscountType().then(res => {
         this.discountType = (res || []);
-        // test
-        // this.discountType.push({
-        //   code: 0.5,
-        //   name: 0.5,
-        //   discountPartRate: 0.5,
-        //   discountWorkhourRate: 0.5,
-        // });
       });
       getEnum('StatementTypeEnum').then(res => {
         this.itemOptions.checkoutTypeName = (res || []).map(item => ({
@@ -821,6 +816,7 @@ export default {
       const originalAmount = row.workHour * row.price;
       row.discountAmount = Number(row.discountAmount) || 0;
       row.repairAmount = originalAmount - row.discountAmount;
+      row.discountRate = (row.discountAmount / originalAmount).toFixed(8);
       this.updateTotals();
     },
 
@@ -859,6 +855,7 @@ export default {
       const originalAmount = row.quantity * row.price;
       row.discountAmount = Number(row.discountAmount) || 0;
       row.partsAmount = originalAmount - row.discountAmount;
+      row.discountRate = (row.partsAmount / originalAmount).toFixed(8);
       this.updateTotals();
     },
     // 维修项目名称变化
@@ -868,6 +865,10 @@ export default {
         row.repairItemId = selectedItem.repairItemId;
       }
     },
+    // 结算类型是否为合同、保修
+    checkoutTypeIncluded (type) {
+      return type === '10' || type === '20';
+    }
   }
 };
 </script>
