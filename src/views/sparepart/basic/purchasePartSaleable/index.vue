@@ -81,8 +81,8 @@
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <!-- <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -117,7 +117,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/purchasePartSaleable/index';
+import { getList, deleteItem, enableItem, addOrUpdate } from '@/api/sparepart/basic/purchasePartSaleable/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -225,6 +225,24 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
+              name: '禁售',
+              click: (rowIndex, row) => {
+                this.toggleSalesStatus(row.id, '0', row);
+              },
+              show: (row) => {
+                return row.saleableIs === '1'; // Show button only if user has permission
+              },
+              type: 'info' // Different color for different states
+            }, {
+              name: '可售',
+              click: (rowIndex, row) => {
+                this.toggleSalesStatus(row.id, '1', row);
+              },
+              show: (row) => {
+                return row.saleableIs === '0'; // Show button only if user has permission
+              },
+              type: 'info' // Different color for different states
+            }, {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -441,6 +459,37 @@ export default {
       //     });
       //   });
       // });
+    },
+    // Toggle sales status for a single item
+    toggleSalesStatus (id, status, row) {
+      const action = status === 1 ? '禁售' : '启售';
+      this.$confirm(`此操作将${action}该备件，是否继续?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // Assuming there's an API endpoint for updating sales status
+        // You may need to adjust the API call according to your backend implementation
+        addOrUpdate({
+          id: id,
+          saleableIs: status
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: `${action}成功!`
+          });
+          // Update the local row data
+          row.saleableIs = status;
+          row.saleableIsLabel = status === 1 ? '是' : '否';
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: `${action}失败!`
+          });
+        });
+      }).catch(() => {
+        // User cancelled
+      });
     }
   }
 };
