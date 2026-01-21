@@ -1,8 +1,8 @@
 <template>
     <el-dialog
       class="m-start-work-dialog"
-      title="维修出库"
-      width="600px"
+      title="维修退料入库"
+      width="800px"
       :visible.sync="dialogVisible"
       @close="close"
       @closed="closed"
@@ -22,10 +22,10 @@
             @checkbox-all="handleSelectionChange"
           >
             <vxe-column type="checkbox" width="60" align="center" />
-            <vxe-column field="sparePartCode" title="备件编码" width="125" />
-            <vxe-column field="sparePartName" title="备件名称" width="125" show-overflow />
-            <vxe-column field="availableQty" title="库位" width="125" />
-            <vxe-column field="outboundQty" title="入库数量" width="125" />
+            <vxe-column field="sparePartCode" title="备件编码" width="180" />
+            <vxe-column field="sparePartName" title="备件名称" width="250" show-overflow />
+            <vxe-column field="availableQty" title="库位" width="150" />
+            <vxe-column field="outboundQty" title="入库数量" width="150" />
           </vxe-table>
         </div>
 
@@ -33,7 +33,7 @@
       <template v-slot:footer>
         <div class="dialog-footer">
           <el-button size="small" @click="close">取 消</el-button>
-          <el-button size="small" type="primary" :loading="submitLoading" @click="submit">确 定</el-button>
+          <el-button size="small" type="primary" :loading="submitLoading" @click="submit">入 库</el-button>
         </div>
       </template>
     </el-dialog>
@@ -41,7 +41,7 @@
 
 <script>
 import { goPage } from '@/api/sparepart/outbound/maintenanceOutboundOrder/index';
-import { addOrUpdate } from '@/api/sparepart/inbound/maintenanceReturnInbound/index';
+import { inboundWarehousing } from '@/api/sparepart/inbound/maintenanceReturnInbound/index';
 
 export default {
   name: 'RepairDialog',
@@ -108,20 +108,22 @@ export default {
       //  构建参数
       const params = {
         maintenanceOutboundOrderId: this.id,
-        outboundPartList: this.selectedRows.map(row => ({
+        inboundPartList: this.selectedRows.map(row => ({
           id: row.id, // 行数据的唯一标识
+          returnWarehousingOperator: row.returnWarehousingOperator,
+          remark: row.remark
         }))
       };
       // 批量更新选中行的实际作业时间
       this.submitLoading = true;
       try {
-        await addOrUpdate(params);
-        this.$message.success('修改成功');
+        await inboundWarehousing(params);
+        this.$message.success('入库成功');
         this.submitLoading = false;
         this.selectedRows = [];
         this.$emit('success');
       } catch (error) {
-        this.$message.error('修改失败');
+        this.$message.error('入库失败');
         this.submitLoading = false;
       }
     },

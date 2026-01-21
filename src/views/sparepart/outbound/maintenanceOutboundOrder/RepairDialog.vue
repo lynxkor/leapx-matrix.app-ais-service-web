@@ -53,7 +53,7 @@
       <template v-slot:footer>
         <div class="dialog-footer">
           <el-button size="small" @click="close">取 消</el-button>
-          <el-button size="small" type="primary" :loading="submitLoading" @click="submit">确 定</el-button>
+          <el-button size="small" type="primary" :loading="submitLoading" @click="submit">出 库</el-button>
         </div>
       </template>
     </el-dialog>
@@ -148,12 +148,12 @@ export default {
       this.submitLoading = true;
       try {
         await OutboundPeople(params);
-        this.$message.success('修改成功');
+        this.$message.success('出库成功');
         this.submitLoading = false;
         this.selectedRows = [];
         this.$emit('success');
       } catch (error) {
-        this.$message.error('修改失败');
+        this.$message.error('出库失败');
         this.submitLoading = false;
       }
     },
