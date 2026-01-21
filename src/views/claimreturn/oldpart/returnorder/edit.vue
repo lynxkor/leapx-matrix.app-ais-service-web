@@ -28,14 +28,14 @@
             <el-button v-if="canAddOrUpdate" @click="onNext" size="small">下发</el-button>
           </template>
           <template v-if="form.returnStatus==='20'">
-            <el-button v-if="canAddOrUpdate" size="small">回运出库</el-button>
+            <el-button v-if="canAddOrUpdate" @click="onOutbound" size="small">回运出库</el-button>
           </template>
           <template v-if="form.returnStatus==='30'">
-            <el-button v-if="canAddOrUpdate" size="small">签收</el-button>
+            <el-button v-if="canAddOrUpdate" @click="onSign" size="small">签收</el-button>
           </template>
           <el-button v-if="canAddOrUpdate" @click="onPrintReturnOrder" size="small">打印回运单</el-button>
-          <el-button v-if="canAddOrUpdate" size="small">打印标签</el-button>
-          <el-button v-if="canAddOrUpdate" size="small">打印外包装标签</el-button>
+          <el-button v-if="canAddOrUpdate" @click="onPrintMark" size="small">打印标签</el-button>
+          <el-button v-if="canAddOrUpdate" @click="onPrintWrapper" size="small">打印外包装标签</el-button>
         </template>
         <el-main>
           <div v-if="isEditing" class="header-desc">
@@ -265,10 +265,12 @@
             </div>
           </section>
           <ReturnOrderTable
+            :disabled="form.returnStatus !== '10'"
             :canAddOrUpdate="canAddOrUpdate"
             :_id="_id"
             :dealerCode="dealerCode"
             @getTableData="getTableData"
+            @checkboxChange="checkboxChange"
           />
         </el-main>
       </edit-base-container>
@@ -281,7 +283,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, deleteItem, publish } from '@/api/claimreturn/oldpart/returnorder';
+import { getDetail, addOrUpdate, deleteItem, publish, dealerOutbound, signByIds } from '@/api/claimreturn/oldpart/returnorder';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum, listOrgStoreInfo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -368,7 +370,6 @@ export default {
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
-      tableData: [],
       options: {
         // 对应表格里选型枚举
         // 如 type: [{label: 'xxx', value: 'xxx'}]
@@ -376,6 +377,7 @@ export default {
       rules: {},
       dealerCode: '',
       existTableData: false,
+      selectedRows: [],
     };
   },
   created () {
@@ -386,7 +388,9 @@ export default {
   methods: {
     getTableData (data) {
       this.existTableData = Boolean(data?.length > 0);
-      this.tableData = data;
+    },
+    checkboxChange (records) {
+      this.selectedRows = records;
     },
     // 门店名称搜索
     async dealerSearch (query) {
@@ -455,9 +459,9 @@ export default {
             trigger: 'blur'
           }
         ],
-        signRemark: [
-          { required: status40, message: '请输入签收备注', trigger: 'change' }
-        ],
+        // signRemark: [
+        //   { required: status40, message: '请输入签收备注', trigger: 'change' }
+        // ],
       };
     },
     detailRequest () {
@@ -559,13 +563,75 @@ export default {
         id: this._id, // 必选，对应数据id
         template: 'ReturnOrder',
         title: '打印回运单',
-        data: {
-          form: this.form,
-          tableData: this.tableData,
-        },
         width: 1122,
       });
-    }
+    },
+    onPrintMark () {
+      if (this.selectedRows.length === 0) {
+        this.$message.warning('请选择旧件库存明细进行打印');
+        return;
+      };
+      const ids = this.selectedRows.map(item => item.id);
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'OldPartMark',
+        title: '打印回运单',
+        width: 1122,
+        data: ids,
+      });
+    },
+    onPrintWrapper () {
+      //
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'PrintOuterLabel',
+        title: '打印外包装标签',
+        width: 1090,
+      });
+    },
+    onOutbound () {
+      if (!this.form.estimatedArrivalDate) {
+        this.$message({
+          type: 'warning',
+          message: '请填写预计到达日期'
+        });
+        return;
+      }
+      // 是否确认回运出库
+      this.$confirm('您确定要回运出库吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        dealerOutbound(this._id).then(() => {
+          this.$message({
+            type: 'success',
+            message: '回运出库成功'
+          });
+          this.$refs.containerRef.loadDetail();
+        }).catch(() => {
+
+        });
+      });
+    },
+    onSign () {
+      // 是否确认签收
+      this.$confirm('您确定要签收吗', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        signByIds([this._id]).then(() => {
+          this.$message({
+            type: 'success',
+            message: '签收成功'
+          });
+          this.$refs.containerRef.loadDetail();
+        }).catch(() => {
+
+        });
+      });
+    },
   }
 };
 </script>

@@ -273,11 +273,16 @@ export default {
     },
     submit () {
       //
+      this.submitLoading = true;
       addDetail({
         id: this._id,
         detailIdList: this.selectedRows.map(item => item.id),
       }).then(res => {
-        console.log(res);
+        this.$emit('update');
+        this.close();
+        this.$message.success('添加成功');
+      }).finally(() => {
+        this.submitLoading = false;
       });
     },
     pageChange (pageNum) {
@@ -299,11 +304,11 @@ export default {
         dealerCode: this.dealerCode,
         dealerStatus: '300', // 门店入库
         returnOrderIdIsNull: true,
+        returnType: '30', // 正常返还
       })
         .then(res => {
           this.tableData = res.records;
           this.total = res.total;
-          console.log(this.tableData);
         }).finally(() => {
           this.loading = false;
         });

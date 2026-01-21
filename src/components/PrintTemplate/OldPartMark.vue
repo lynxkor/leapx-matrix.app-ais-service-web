@@ -101,12 +101,12 @@
           <tbody>
             <tr>
               <td>
-                <div id="dv_qrcode0" data-value="33A10SC204W25120068-1" title="33A10SC204W25120068-1">
+                <div id="dv_qrcode0">
                   <canvas width="100" height="100" style="display: none;"></canvas>
-                  <qrcode-vue :value="'https://www.baidu.com/'" renderAs="svg" :size="100" level="H"></qrcode-vue>
+                  <qrcode-vue :value="item.oldPartUniqueCode" renderAs="svg" :size="100" level="H"></qrcode-vue>
                 </div>
               </td>
-              <td colspan="3">33A10SC204W25120068-1</td>
+              <td colspan="3">{{item.oldPartUniqueCode}}</td>
             </tr>
             <tr>
               <td></td>
@@ -124,23 +124,23 @@
             </tr>
             <tr>
               <td>保修旧件编码：</td>
-              <td colspan="3">8061003-CA01</td>
+              <td colspan="3">{{ item.oldPartCode }}</td>
             </tr>
             <tr>
               <td>保修旧件名称：</td>
-              <td colspan="3">主刮片</td>
+              <td colspan="3">{{item.oldPartName}}</td>
             </tr>
             <tr>
               <td>数量：</td>
-              <td colspan="3">1</td>
+              <td colspan="3">{{ item.oldPartQuantity }}</td>
             </tr>
             <tr>
               <td>供应商代码：</td>
-              <td colspan="3">上海万江汽车零部件有限公司</td>
+              <td colspan="3">{{item.oldPartSupplierCode}}</td>
             </tr>
             <tr>
               <td>供应商名称：</td>
-              <td colspan="3">6GB</td>
+              <td colspan="3">{{item.oldPartSupplierName}}</td>
             </tr>
           </tbody>
         </table>
