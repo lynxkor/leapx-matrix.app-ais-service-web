@@ -33,6 +33,10 @@
           <template v-if="form.returnStatus==='30'">
             <el-button v-if="canAddOrUpdate" @click="onSign" size="small">签收</el-button>
           </template>
+          <template v-if="form.returnStatus==='40'">
+            <el-button v-if="canAddOrUpdate" @click="onCompleteAcceptance" size="small">验收完成</el-button>
+            <el-button v-if="canAddOrUpdate" @click="onSingleAcceptance" size="small">单件验收</el-button>
+          </template>
           <el-button v-if="canAddOrUpdate" @click="onPrintReturnOrder" size="small">打印回运单</el-button>
           <el-button v-if="canAddOrUpdate" @click="onPrintMark" size="small">打印标签</el-button>
           <el-button v-if="canAddOrUpdate" @click="onPrintWrapper" size="small">打印外包装标签</el-button>
@@ -272,6 +276,10 @@
             @getTableData="getTableData"
             @checkboxChange="checkboxChange"
           />
+          <SingleDialog
+            :visible.sync="visible"
+            :_id="_id"
+          />
         </el-main>
       </edit-base-container>
     </template>
@@ -283,7 +291,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, deleteItem, publish, dealerOutbound, signByIds } from '@/api/claimreturn/oldpart/returnorder';
+import { getDetail, addOrUpdate, deleteItem, publish, dealerOutbound, signByIds, checkFinished, reCheck, singleCheck } from '@/api/claimreturn/oldpart/returnorder';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum, listOrgStoreInfo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -294,6 +302,7 @@ import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
 import ReturnOrderTable from './ReturnOrderTable.vue';
+import SingleDialog from './SingleDialog/index.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -343,6 +352,7 @@ export default {
     EditBaseContainer,
     BaseInput,
     ReturnOrderTable,
+    SingleDialog,
   },
   computed: {
     _id () {
@@ -378,6 +388,8 @@ export default {
       dealerCode: '',
       existTableData: false,
       selectedRows: [],
+      // 单件验收
+      visible: false,
     };
   },
   created () {
@@ -631,6 +643,28 @@ export default {
 
         });
       });
+    },
+    onCompleteAcceptance () {
+      // 验收完成
+      this.$confirm('您确定要验收吗', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        checkFinished(this._id).then(() => {
+          this.$message({
+            type: 'success',
+            message: '您已经完成验收'
+          });
+          this.$refs.containerRef.loadDetail();
+        }).catch(() => {
+
+        });
+      });
+    },
+    onSingleAcceptance () {
+      // 单件验收
+      this.visible = true;
     },
   }
 };

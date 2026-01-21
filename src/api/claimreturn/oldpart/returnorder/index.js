@@ -85,3 +85,30 @@ export function removeDetail (data) {
 export function dealerOutbound (data) {
   return api.jsonPost(prefix + 'dealerOutbound', data);
 }
+
+/**
+ * 验收完成
+ * @param {Object} data
+ * @returns
+ */
+export function checkFinished (data) {
+  return api.jsonPost(prefix + 'checkFinished', data);
+}
+
+/**
+ * 单件验收
+ * @param {Object} data
+ * @returns
+ */
+export function singleCheck (data) {
+  return api.jsonPost(prefix + 'singleCheck', data);
+}
+
+/**
+ * 二次验收
+ * @param {Object} data
+ * @returns
+ */
+export function reCheck (data) {
+  return api.jsonPost(prefix + 'reCheck', data);
+}

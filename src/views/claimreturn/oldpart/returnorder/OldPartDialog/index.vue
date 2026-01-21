@@ -186,12 +186,6 @@ export default {
       type: Boolean,
       default: false
     },
-    info: {
-      type: Object,
-      default: () => {
-        return {};
-      }
-    },
     _id: {
       type: String,
     },

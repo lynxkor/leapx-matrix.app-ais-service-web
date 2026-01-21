@@ -8,10 +8,12 @@
         :isEditing.sync="isEditing"
         :form.sync="form"
         direction="horizontal"
-        :showBackBtn="showBackBtn"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
+        <template #extraButtons>
+          <el-button v-if="canAddOrUpdate" @click="onSecondAcceptance" size="small">二次验收</el-button>
+        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
@@ -268,10 +270,6 @@ export default {
       type: [String, Number],
       default: null
     },
-    showBackBtn: {
-      type: Boolean,
-      default: true,
-    },
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
@@ -347,7 +345,10 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    onSecondAcceptance () {
+      // 二次验收
+    },
   }
 };
 </script>
