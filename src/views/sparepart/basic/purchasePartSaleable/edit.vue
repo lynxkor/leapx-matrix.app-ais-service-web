@@ -69,7 +69,7 @@
                     clearable
                     :disabled="true"
                   />
-              </el-form-item> 
+              </el-form-item>
 
                 <el-form-item label="是否可售：" prop="saleableIs">
                   <fetch-select
@@ -169,7 +169,7 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    EditTable,
+    // EditTable,
     FetchSelect
   },
   computed: {

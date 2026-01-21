@@ -28,7 +28,8 @@
                 <el-form-item label="excel导入模板下载地址" prop="excelModelUrl">
                   <el-upload
                     class="upload-demo"
-                    :action="uploadAction"
+                    action="#"
+                    :http-request="customUploadRequest"
                     :before-remove="beforeRemove"
                     :before-upload="beforeUpload"
                     :on-success="handleSuccess"
@@ -99,6 +100,7 @@
 <script>
 import { getDetail, addOrUpdate } from '@/api/excelManagement/commonDataProcessExcelModelMap/index';
 import FetchSelect from '@/libs/components/FetchSelect';
+import { uploadFile } from '@/libs/api/attachment';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -273,9 +275,17 @@ export default {
       this.uploadLoading = true;
       return true;
     },
-
+    async customUploadRequest (options) {
+      const { file } = options;
+      const formData = new FormData();
+      formData.append('file', file);
+      const uploadResult = await uploadFile(formData);
+      console.log('uploadResult:', uploadResult);
+    },
     // 上传成功后的处理
     handleSuccess (res, file) {
+      console.log('res:', res);
+      console.log('file:', file);
       this.uploadLoading = false;
       const excelModelUrl = file.response?.data?.url;
       // 直接赋值
