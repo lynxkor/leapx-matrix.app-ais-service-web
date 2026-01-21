@@ -280,16 +280,14 @@ export default {
       const formData = new FormData();
       formData.append('file', file);
       const uploadResult = await uploadFile(formData);
-      console.log('uploadResult:', uploadResult);
+      this.form.excelModelUrl = uploadResult.data.url;
     },
     // 上传成功后的处理
     handleSuccess (res, file) {
-      console.log('res:', res);
-      console.log('file:', file);
       this.uploadLoading = false;
       const excelModelUrl = file.response?.data?.url;
       // 直接赋值
-      this.form.excelModelUrl = excelModelUrl;
+      // this.form.excelModelUrl = excelModelUrl;
 
       this.$message.success('上传成功');
     },
