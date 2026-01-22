@@ -258,6 +258,14 @@ export function getFinalInspectionDetail (data) {
 }
 
 /**
+ * 终检
+ * @param {Object} data
+ */
+export function finalInspection (data) {
+  return api.jsonPost(prefix + 'finalInspection', data);
+}
+
+/**
  * 质检
  * @param {Object} data
  */

@@ -24,16 +24,16 @@
       <!-- 子 Tab 导航 -->
       <el-tabs v-model="currentSubTab" class="sub-tabs">
         <el-tab-pane
-          v-for="(tab, index) in subTabs"
-          :key="index"
-          :label="tab"
-          :name="index.toString()"
+          v-for="tab in subTabs"
+          :key="tab.key"
+          :label="tab.label"
+          :name="tab.key"
         >
         </el-tab-pane>
       </el-tabs>
 
       <!-- 维修项目 Tab 内容 -->
-      <div v-show="currentSubTab === '0'">
+      <div v-show="currentSubTab === 'repair'">
         <!-- 筛选表单 -->
         <div class="filter-section">
           <el-form size="small" :model="filterForm" label-width="80px">
@@ -154,7 +154,7 @@
       </div>
 
       <!-- 故障模块 Tab 内容 -->
-      <div v-show="currentSubTab === '1'" class="fault-module-content">
+      <div v-show="currentSubTab === 'fault'" class="fault-module-content">
         <!-- 故障存在询问 -->
         <div class="fault-existence-section">
           <div>
@@ -223,7 +223,7 @@
       </div>
 
        <!-- 电池信息 Tab 内容 -->
-      <div v-show="currentSubTab === '2'">
+      <div v-show="currentSubTab === 'battery'">
         <!-- 电池信息 -->
         <el-form :inline="true" :rules="rules" :model="formInline" class="battert-form" size="small" label-width="150px">
           <el-row>
@@ -266,7 +266,7 @@
       </div>
 
       <!-- 追溯信息 Tab 内容 -->
-      <div v-show="currentSubTab === '3'">
+      <div v-show="currentSubTab === 'trace'">
         <vxe-table
           ref="traceTable"
           :data="partsTraceRecordResps"
@@ -300,12 +300,12 @@
           </vxe-column>
           <vxe-column field="beforeChangeCode" title="更换前编码" min-width="200" show-overflow >
             <template #default="{ row }">
-              <el-input v-model="row.beforeChangeCode" size="small"></el-input>
+              <el-input v-model="row.beforeChangeCode" size="small" placeholder="请输入" maxlength="100"></el-input>
             </template>
           </vxe-column>
           <vxe-column field="afterChangeCode" title="更换前编码" min-width="200" show-overflow >
             <template #default="{ row }">
-              <el-input v-model="row.afterChangeCode" size="small"></el-input>
+              <el-input v-model="row.afterChangeCode" size="small" placeholder="请输入" maxlength="100"></el-input>
             </template>
           </vxe-column>
         </vxe-table>
@@ -353,8 +353,13 @@ export default {
       mainTabs: ['质检', '故障模块确认', '电池信息确认', '追溯信息确认', '终检'],
       currentMainTab: 1,
       // 子 Tab
-      subTabs: ['维修项目', '故障模块', '电池信息', '追溯信息'],
-      currentSubTab: '0',
+      subTabs: [
+        { key: 'repair', label: '维修项目' },
+        { key: 'fault', label: '故障模块' },
+        { key: 'battery', label: '电池信息' },
+        { key: 'trace', label: '追溯信息' }
+      ],
+      currentSubTab: 'repair',
       // 筛选表单
       filterForm: {
         qualityCheckAt: '',
@@ -445,6 +450,18 @@ export default {
           // };
           // 设置追溯信息
           this.partsTraceRecordResps = res.partsTraceRecordResps || [];
+          if (!res.batteryFlag) {
+            this.mainTabs = this.mainTabs.filter(item => item.indexOf('电池') === -1);
+            this.subTabs = this.subTabs.filter(item => item.label.indexOf('电池') === -1);
+          }
+          if (!res.faultFlag) {
+            this.mainTabs = this.mainTabs.filter(item => item.indexOf('故障') === -1);
+            this.subTabs = this.subTabs.filter(item => item.label.indexOf('故障') === -1);
+          }
+          if (!res.tranceFlag) {
+            this.mainTabs = this.mainTabs.filter(item => item.indexOf('追溯') === -1);
+            this.subTabs = this.subTabs.filter(item => item.label.indexOf('追溯') === -1);
+          }
         }
       } catch (error) {
         console.error('获取终检详情失败', error);
@@ -465,7 +482,7 @@ export default {
         finalChecker: '',
         finalCheckerName: ''
       };
-      this.currentSubTab = '0';
+      this.currentSubTab = 'repair';
       this.faultForm = {
         faultFlag: 1,
         searchKeyword: ''
