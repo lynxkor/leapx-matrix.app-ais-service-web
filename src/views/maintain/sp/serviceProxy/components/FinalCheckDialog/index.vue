@@ -345,7 +345,6 @@ export default {
     }
   },
   data () {
-
     return {
       dialogVisible: this.visible,
       submitLoading: false,
@@ -418,7 +417,7 @@ export default {
           this.tableData = res.repairWorkRecordResps || [];
           // 设置故障模块数据
           this.faultTableData = res.faultAlertRecordResps || [];
-          this.filterForm.qualityCheckAt= moment().format('YYYY-MM-DD HH:mm:ss');
+          this.filterForm.qualityCheckAt = moment().format('YYYY-MM-DD HH:mm:ss');
           this.tableData.forEach(row => {
             if (row.qualityCheckStatus === 10) { // 假设10表示未质检状态
               row.qualityCheckAt = this.filterForm.qualityCheckAt;
@@ -526,6 +525,7 @@ export default {
           message: '质检完成'
         });
         this.initData();
+        this.$emit('refresh');
       });
     },
     handleRepair (row) {
@@ -535,6 +535,7 @@ export default {
           message: '返修完成'
         });
         this.initData();
+        this.$emit('refresh');
       });
     },
     // 质检人变更 - 同步更新未质检表格数据
