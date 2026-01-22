@@ -50,7 +50,7 @@ export default {
       },
       rules: {
         invaildDesc: [
-          { required: true, message: '完成说明必填', trigger: 'blur' },
+          { required: true, message: '请输入作废原因', trigger: 'blur' },
           { min: 1, max: 500, message: '长度在 1 到 500 个字', trigger: 'blur' }
         ]
       },
