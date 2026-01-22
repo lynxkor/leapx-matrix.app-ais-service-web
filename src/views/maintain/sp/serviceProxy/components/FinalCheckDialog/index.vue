@@ -45,6 +45,7 @@
                     type="datetime"
                     placeholder="选择日期时间"
                     value-format="yyyy-MM-dd HH:mm:ss"
+                    :clearable="false"
                     style="width: 100%;"
                     @change="handleQualityCheckAtChange"
                   />
@@ -325,7 +326,7 @@ import { getFinalInspectionDetail, finalInspection, qualityInspection, repaired 
 import { getUserByNameOrNo } from '@/libs/api/common';
 import { getListData } from '@/api/maintain/basic/batteryUnit/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-
+import moment from 'moment';
 export default {
   name: 'FinalCheckDialog',
   components: {
@@ -344,6 +345,7 @@ export default {
     }
   },
   data () {
+
     return {
       dialogVisible: this.visible,
       submitLoading: false,
@@ -416,6 +418,12 @@ export default {
           this.tableData = res.repairWorkRecordResps || [];
           // 设置故障模块数据
           this.faultTableData = res.faultAlertRecordResps || [];
+          this.filterForm.qualityCheckAt= moment().format('YYYY-MM-DD HH:mm:ss');
+          this.tableData.forEach(row => {
+            if (row.qualityCheckStatus === 10) { // 假设10表示未质检状态
+              row.qualityCheckAt = this.filterForm.qualityCheckAt;
+            }
+          });
           // 设置故障标志
           this.faultForm.faultFlag = res.faultFlag !== undefined ? res.faultFlag : 1;
           // 设置电池信息
