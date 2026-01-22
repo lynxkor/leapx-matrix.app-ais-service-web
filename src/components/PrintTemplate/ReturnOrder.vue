@@ -1,3 +1,4 @@
+<!-- 打印回运单 -->
 <template>
   <div id="printArea" style="width:100%; text-align:center">
     <div class="head-content">
@@ -7,10 +8,10 @@
           alt="leapmotor.com">
       </div>
       <div class="head-company" style="padding: 5px;">
-        <span id="company-name">{{data.dealerName}}</span>
+        <span id="company-name">{{form.dealerName}}</span>
       </div>
       <div class="head-info" style="padding: 5px;">
-        <span id="printtime">{{data.warrantyMonth}}</span>旧件回运单
+        <span id="printtime">{{form.warrantyMonth}}</span>旧件回运单
       </div>
     </div>
     <table class="gridtable">
@@ -37,8 +38,8 @@
           <td>{{ form.logisticsTrackingNo }}</td>
           <td>{{ form.logisticsCompany}}</td>
           <td>{{ transformDate(form.estimatedArrivalDate) }}</td>
-          <td>-----</td>
-          <td>-----</td>
+          <td></td>
+          <td></td>
           <td>{{ form.receiverContact }};{{ form.receiverPhone }}</td>
         </tr>
       </tbody>
@@ -54,25 +55,25 @@
           <th style="width:140px">旧件名称</th>
           <th style="width:60px">供应商代码</th>
           <th style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">供应商名称</th>
-          <th style="width:30px;">数量</th>
+          <th style="width:50px;">数量</th>
           <th style="width:60px;">是否主因件</th>
           <th>门店备注</th>
           <th style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">验收记录</th>
         </tr>
       </thead>
       <tbody id="data-list">
-        <tr>
-          <td>1</td>
-          <td>53L01SC410W25050034-1</td>
-          <td>LFZ93AN99RD103393</td>
-          <td>3.0.01.10.00228</td>
-          <td>中控显示屏</td>
-          <td>63330801-1</td>
-          <td style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">零跑汽车-汽车电子</td>
-          <td>1</td>
-          <td>是</td>
-          <td>--</td>
-          <td>--</td>
+        <tr v-for="(item, index) in tableData" :key="item.id">
+          <td>{{index + 1}}</td>
+          <td>{{item.oldPartUniqueCode}}</td>
+          <td>{{item.vin}}</td>
+          <td>{{item.oldPartCode}}</td>
+          <td>{{item.oldPartName}}</td>
+          <td>{{item.mainPartSupplierCode}}</td>
+          <td style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">{{item.mainPartSupplierName}}</td>
+          <td>{{item.oldPartQuantity}}</td>
+          <td>{{item.isMainPartLabel}}</td>
+          <td>{{ item.remark }}</td>
+          <td>{{item.checkRemark}}</td>
         </tr>
         <tr>
           <td colspan="2">门店确认：</td>
@@ -88,6 +89,10 @@
   </div>
 </template>
 <script>
+import { getDetail } from '@/api/claimreturn/oldpart/returnorder';
+import {
+  getList, // 旧件库存详情分页查询
+} from '@/api/claimreturn/oldpart/inventory/oem/index';
 export default {
   components: {
   },
@@ -96,31 +101,36 @@ export default {
       type: String,
       default: ''
     },
-    data: {
-      type: Object,
-      default: () => ({})
-    }
   },
   data () {
     return {
+      form: {},
+      tableData: [],
     };
   },
-  computed: {
-    form: {
-      get () {
-        return this.data.form;
-      },
-    },
-    tableData: {
-      get () {
-        return this.data.tableData;
-      },
+  watch: {
+    id (val) {
+      if (val) {
+        this.init();
+      }
     }
   },
   mounted () {
-    console.log(this.data);
+    this.init();
   },
   methods: {
+    init () {
+      getDetail(this.id).then((res) => {
+        this.form = res;
+      });
+      getList({
+        returnOrderId: this.id,
+        pageNum: 1,
+        pageSize: 1000
+      }).then((res) => {
+        this.tableData = res.records;
+      });
+    },
     transformDate (time) {
       if (!time) {
         return '';

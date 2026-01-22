@@ -17,6 +17,7 @@
               type="datetime"
               placeholder="选择日期时间"
               value-format="yyyy-MM-dd HH:mm:ss"
+              :clearable="false"
               style="width: 220px;"
               @change="handleTimeChange"
             />
@@ -38,10 +39,10 @@
           @checkbox-change="handleSelectionChange"
           @checkbox-all="handleSelectionChange"
         >
-          <vxe-column type="checkbox" width="60" align="center" />
-          <vxe-column type="seq" title="序号" width="70" align="center" />
-          <vxe-column field="repairItemCode" title="维修项目代码" width="130" />
-          <vxe-column field="repairItemName" title="维修项目名称" min-width="150" show-overflow />
+          <vxe-column type="checkbox" width="60" align="center"/>
+          <vxe-column type="seq" title="序号" width="70" align="center"/>
+          <vxe-column field="repairItemCode" title="维修项目代码" width="130"/>
+          <vxe-column field="repairItemName" title="维修项目名称" min-width="150" show-overflow/>
           <vxe-column :field="timeField" :title="timeColumnLabel" width="200">
             <template #default="{ row }">
               <el-date-picker
@@ -54,17 +55,18 @@
               />
             </template>
           </vxe-column>
-          <vxe-column field="dealerStationName" title="工位" width="130" />
-          <vxe-column field="dealerWorkTeamName" title="班组" width="140" />
-          <vxe-column field="repairTechnicianName" title="维修技师" width="130" />
-          <vxe-column title="作业状态" width="120" align="center">
-            <template #default="{ row }">
-              <el-tag :type="getStatusType(row.finishAt)" size="small">
-                {{ getWorkStatus(row.finishAt) }}
-              </el-tag>
-            </template>
-          </vxe-column>
-          <vxe-column field="startAt" title="计划作业时间" width="160" />
+          <vxe-column field="dealerStationName" title="工位" width="130"/>
+          <vxe-column field="dealerWorkTeamName" title="班组" width="140"/>
+          <vxe-column field="repairTechnicianName" title="维修技师" width="130"/>
+          <vxe-column field="statusLabel" title="作业状态" width="130"/>
+<!--          <vxe-column title="作业状态" width="120" align="center">-->
+<!--            <template #default="{ row }">-->
+<!--              <el-tag :type="getStatusType(row.finishAt)" size="small">-->
+<!--                {{ getWorkStatus(row.finishAt) }}-->
+<!--              </el-tag>-->
+<!--            </template>-->
+<!--          </vxe-column>-->
+          <vxe-column field="startAt" title="计划作业时间" width="160"/>
         </vxe-table>
       </div>
     </div>
@@ -80,8 +82,8 @@
 </template>
 
 <script>
-import { getRepairWorkRecord, startWork } from '@/api/maintain/sp/serviceProxy/index';
-
+import { getRepairWorkRecord, startWork, endWork } from '@/api/maintain/sp/serviceProxy/index';
+import moment from 'moment';
 export default {
   name: 'StartWorkDialog',
   props: {
@@ -142,6 +144,12 @@ export default {
         // 获取维修作业记录数据
         const res = await getRepairWorkRecord({ serviceProxyId: this.vehicleInfo.id });
         this.tableData = res || [];
+        // 设置默认当前时间
+        this.batchForm.actualTime = moment().format('YYYY-MM-DD HH:mm:ss');
+        const field = this.timeField;
+        this.tableData.forEach(row => {
+          this.$set(row, field, this.batchForm.actualTime);
+        });
       } catch (error) {
         console.error('获取作业数据失败', error);
         this.$message.error('获取作业数据失败');
@@ -184,11 +192,18 @@ export default {
         this.submitLoading = true;
         // 提交接口数据
         const field = this.timeField;
-        const params = this.selectedRows.map(row => ({
-          repairItemId: row.repairItemId,
-          [field]: row[field]
-        }));
-        const res = await startWork(params);
+
+        let idList = this.selectedRows.map(row => row.id);
+        const time = this.batchForm.actualTime;
+        let res;
+        if (this.mode === 'start') {
+          const params = { serviceProxyId: this.vehicleInfo.id, ids: idList, timeSpend: time };
+          res = await startWork(params);
+        } else {
+          const params = { serviceProxyId: this.vehicleInfo.id, ids: idList, finishAt: time };
+          res = await endWork(params);
+        }
+
         if (res) {
           this.$message.success(this.mode === 'end' ? '作业结束成功' : '作业开始成功');
           this.$emit('refresh');
@@ -201,13 +216,13 @@ export default {
         this.submitLoading = false;
       }
     },
-    getWorkStatus (finishAt) {
-      // 根据 finishAt 判断作业状态
-      if (finishAt) {
-        return '已完成';
-      }
-      return '作业中';
-    },
+    // getWorkStatus(finishAt) {
+    //   // 根据 finishAt 判断作业状态
+    //   if (finishAt) {
+    //     return '已完成';
+    //   }
+    //   return '作业中';
+    // },
     getStatusType (finishAt) {
       // 根据 finishAt 返回对应的 tag 类型
       if (finishAt) {
