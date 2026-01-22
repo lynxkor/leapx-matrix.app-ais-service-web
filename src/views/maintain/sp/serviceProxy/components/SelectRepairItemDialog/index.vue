@@ -74,6 +74,7 @@
             :fetch-suggestions="searchRepairItem"
             @select="handleSelect"
             size="small"
+            :trigger-on-focus="false"
             style="width: 500px;"
           >
             <template slot="prepend">
@@ -85,7 +86,7 @@
               </div>
             </template>
           </el-autocomplete>
-          <el-button type="primary" size="small" @click="addItem">添加</el-button>
+          <el-button type="primary" size="small">添加</el-button>
         </div>
         <vxe-table
           ref="itemTable"
@@ -100,7 +101,16 @@
         >
           <vxe-column type="seq" width="70" title="序号" />
           <vxe-column field="repairItemCode" title="维修项目代码" width="140px" />
-          <vxe-column field="repairItemName" title="维修项目名称" width="180px" />
+          <vxe-column field="repairItemName" title="维修项目名称" width="180px" >
+           <template #default="{ row }">
+              <template v-if="row.id || row.repairItemId !== '999999'">{{ row?.repairItemName }}</template>
+               <el-input
+                v-else
+                v-model="row.repairItemName"
+                size="small"
+              />
+            </template>
+          </vxe-column>
           <vxe-column field="repairItemTypeName" title="维修类型" width="150px">
             <template #default="{ row }">
               <template v-if="row.id">{{ row?.repairItemTypeName }}</template>
@@ -197,7 +207,7 @@
             </template>
           </vxe-column>
           <template #empty>
-            <div class="m-vxe-table-empty-text">暂无数据</div>
+            <div class="m-vxe-table-empty-text">可搜索添加，或选择维修套餐/权益套餐等</div>
           </template>
         </vxe-table>
       </div>
@@ -214,6 +224,7 @@
             :fetch-suggestions="searchRepairPart"
             @select="handleSelectPart"
             size="small"
+            :trigger-on-focus="false"
             style="width: 500px;"
           >
             <template slot="prepend">
@@ -225,7 +236,7 @@
               </div>
             </template>
           </el-autocomplete>
-          <el-button type="primary" size="small" @click="addPart">添加</el-button>
+          <el-button type="primary" size="small">添加</el-button>
         </div>
         <vxe-table
           ref="partTable"
@@ -273,7 +284,7 @@
                   :key="item.checkoutTypeId"
                   :label="item.checkoutTypeName"
                   :value="item.checkoutTypeName"
-                  :disabled="row.repairItemId === '999999' && checkoutTypeName(item.checkoutTypeId)"
+                  :disabled="row.repairItemId === '999999' && checkoutTypeIncluded(item.checkoutTypeId)"
                 />
               </el-select>
             </template>
@@ -360,7 +371,7 @@
             </template>
           </vxe-column>
           <template #empty>
-            <div class="m-vxe-table-empty-text">暂无数据</div>
+            <div class="m-vxe-table-empty-text">可搜索添加，或选择维修套餐/权益套餐等</div>
           </template>
         </vxe-table>
       </div>
@@ -489,7 +500,7 @@ export default {
       // 查找结算类型的默认值（取第一个）
       let checkoutTypeObj = this.itemOptions.checkoutTypeName?.[0];
       if (selectedItem.id === '999999') {
-        checkoutTypeObj = this.itemOptions.checkoutTypeName?.filter(item => this.checkoutTypeName(item.checkoutTypeId))?.[0];
+        checkoutTypeObj = this.itemOptions.checkoutTypeName?.filter(item => !this.checkoutTypeIncluded(item.checkoutTypeId))?.[0];
       }
 
       // 查找保修类型的默认值（取第一个）
@@ -689,6 +700,7 @@ export default {
     },
     handleSelect (item) {
       this.selectedRepairItem = item;
+      this.addItem();
     },
     searchRepairPart (queryString, cb) {
       if (!queryString) return;
@@ -702,6 +714,7 @@ export default {
     },
     handleSelectPart (item) {
       this.selectedRepairPart = item;
+      this.addPart();
     },
     handleDiscountModeChange (value) {
       // 查找选中的优惠模式
