@@ -53,6 +53,7 @@
                 <el-date-picker
                   v-model="filterForm.plannedTime"
                   type="datetime"
+                  :clearable="false"
                   placeholder="选择日期时间"
                   value-format="yyyy-MM-dd HH:mm:ss"
                 />
@@ -156,7 +157,7 @@
 
 <script>
 import { getRepairWorkRecord, dispatchWorkers, getDealerStation, getDealerWorkTeam, getDealerTeamUserRelation, deleteDispatchWorkers } from '@/api/maintain/sp/serviceProxy/index';
-
+import moment from 'moment';
 export default {
   name: 'DispatchWorkDialog',
   props: {
@@ -259,8 +260,13 @@ export default {
       try {
         this.tableLoading = true;
         const res = await getRepairWorkRecord({ serviceProxyId: this.vehicleInfo.id });
-        console.log(res);
+        this.filterForm.plannedTime = moment().format('YYYY-MM-DD HH:mm:ss');
         this.tableData = res || [];
+        this.tableData.forEach(row => {
+          if (row.qualityCheckStatus === 10) { // 假设10表示未质检状态
+            row.startAt = this.filterForm.qualityCheckAt;
+          }
+        });
       } catch (error) {
         console.error('获取派工数据失败', error);
         this.$message.error('获取派工数据失败');
@@ -341,7 +347,19 @@ export default {
 
       try {
         this.dispatchLoading = true;
-        const params = this.selectedRows;
+        const params = this.selectedRows.map(row => {
+          // 查找对应的名称
+          const workstation = this.workstationOptions.find(item => item.id === row.dealerStationId);
+          const team = this.teamOptions.find(item => item.id === row.dealerWorkTeamId);
+          const technician = this.technicianOptions.find(item => item.userId === row.repairTechnicianId);
+
+          return {
+            ...row,
+            dealerStationName: workstation ? workstation.name : '',           // 工位名称
+            dealerWorkTeamName: team ? team.name : '',                       // 班组名称
+            repairTechnicianName: technician ? technician.userName : ''      // 技师名称
+          };
+        });
 
         dispatchWorkers(params).then(res => {
           this.initData();
