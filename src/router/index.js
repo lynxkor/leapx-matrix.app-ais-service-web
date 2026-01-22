@@ -1395,6 +1395,24 @@ const routes = [
         name: '接车施工单-维修作业记录表管理详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/maintain/basic/maintenancePartData',
+      name: 'maintenancePartData',
+      component: () => import('@/views/maintain/basic/maintenancePartData/index.vue'),
+
+      meta: {
+        name: '保养零件提醒表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/basic/maintenancepartdata/edit',
+      name: 'maintenancePartDataEdit',
+      component: () => import('@/views/maintain/basic/maintenancePartData/edit.vue'),
+
+      meta: {
+        name: '保养零件提醒表管理详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
