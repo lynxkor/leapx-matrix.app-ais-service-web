@@ -36,17 +36,17 @@
       <div v-show="currentSubTab === '0'">
         <!-- 筛选表单 -->
         <div class="filter-section">
-          <el-form size="small" :model="filterForm" label-width="80px" :inline="true">
+          <el-form size="small" :model="filterForm" label-width="80px">
             <el-row>
               <el-col :span="6">
-
                 <el-form-item label="质检时间">
                   <el-date-picker
                     v-model="filterForm.qualityCheckAt"
                     type="datetime"
                     placeholder="选择日期时间"
-                    value-format="yyyy-MM-DD HH:mm:ss"
+                    value-format="yyyy-MM-dd HH:mm:ss"
                     style="width: 100%;"
+                    @change="handleQualityCheckAtChange"
                   />
                 </el-form-item>
               </el-col>
@@ -73,8 +73,9 @@
                     v-model="filterForm.finalCheckTime"
                     type="datetime"
                     placeholder="选择日期时间"
-                    value-format="yyyy-MM-DD HH:mm:ss"
+                    value-format="yyyy-MM-dd HH:mm:ss"
                     style="width: 100%;"
+                    @change="handleFinalCheckTimeChange"
                   />
                 </el-form-item>
               </el-col>
@@ -124,9 +125,10 @@
                 <el-popconfirm
                   title="确定质检吗？"
                   @confirm="handleQualityCheck(row)"
+                  :disabled="row.qualityCheckStatus === 30"
                 >
                   <span
-                    class="action-button btn-back"
+                    :class="['action-button', 'btn-back', { disabled: row.qualityCheckStatus === 30 }]"
                     slot="reference"
                     type="text">
                     质检
@@ -135,9 +137,10 @@
                 <el-popconfirm
                   title="确定返修吗？"
                   @confirm="handleRepair(row)"
+                  :disabled="row.qualityCheckStatus !== 30"
                 >
                   <span
-                    class="action-button btn-back"
+                    :class="['action-button', 'btn-back', { disabled: row.qualityCheckStatus !== 30 }]"
                     slot="reference"
                     type="text">
                     返修
@@ -277,20 +280,29 @@
           <vxe-column field="id" title="追溯编码" min-width="150" show-overflow />
           <vxe-column field="partsCode" title="零件代码" min-width="150" show-overflow />
           <vxe-column field="partsName" title="零件名称" min-width="150" show-overflow />
-          <vxe-column field="targetUnitName" title="去向单位" width="150" align="center">
+          <vxe-column field="targetUnitName" title="去向单位" width="200" align="center">
             <template #default="{ row }">
-              <el-select v-model="row.targetUnitName" placeholder="请选择" size="small">
-                <el-option label="区域一" value="shanghai"></el-option>
-                <el-option label="区域二" value="beijing"></el-option>
-              </el-select>
+              <fetch-select
+                v-model="row.targetUnitName"
+                :remote-method="searchBatteryUnit"
+                value-key="id"
+                label-key="name"
+                filterable
+                remote
+                clearable
+                reserve-keyword
+                size="small"
+                placeholder="请选择"
+                @change="handleBatteryUnitChange"
+              />
             </template>
           </vxe-column>
-          <vxe-column field="beforeChangeCode" title="更换前编码" min-width="250" show-overflow >
+          <vxe-column field="beforeChangeCode" title="更换前编码" min-width="200" show-overflow >
             <template #default="{ row }">
               <el-input v-model="row.beforeChangeCode" size="small"></el-input>
             </template>
           </vxe-column>
-          <vxe-column field="afterChangeCode" title="更换前编码" min-width="250" show-overflow >
+          <vxe-column field="afterChangeCode" title="更换前编码" min-width="200" show-overflow >
             <template #default="{ row }">
               <el-input v-model="row.afterChangeCode" size="small"></el-input>
             </template>
@@ -464,8 +476,23 @@ export default {
       this.partsTraceRecordResps = [];
       this.recordId = '';
     },
-    handleMainTabChange (index) {
-      this.currentMainTab = index;
+    // 质检时间变更 - 同步更新未质检表格数据
+    handleQualityCheckAtChange (val) {
+      this.tableData.forEach(row => {
+        // 只更新未质检的数据
+        if (row.qualityCheckStatus === 10) {
+          row.qualityCheckAt = val;
+        }
+      });
+    },
+    // 终检时间变更 - 同步更新未质检表格数据
+    handleFinalCheckTimeChange (val) {
+      this.tableData.forEach(row => {
+        // 只更新未质检的数据
+        if (row.qualityCheckStatus === 10) {
+          row.finalCheckTime = val;
+        }
+      });
     },
     handleQualityCheck (row) {
       if (row.qualityCheckStatus === 30) {
@@ -490,7 +517,7 @@ export default {
           type: 'success',
           message: '质检完成'
         });
-        this.getData();
+        this.initData();
       });
     },
     handleRepair (row) {
@@ -499,21 +526,35 @@ export default {
           type: 'success',
           message: '返修完成'
         });
-        this.getData();
+        this.initData();
       });
     },
-    // 质检人变更
+    // 质检人变更 - 同步更新未质检表格数据
     handleQualityCheckerChange (val, record) {
       if (record) {
         this.filterForm.qualityCheckerName = record.username;
         this.filterForm.qualityCheckerId = record.userId;
+        // 同步更新表格中未质检的质检人信息
+        this.tableData.forEach(row => {
+          if (row.qualityCheckStatus === 10) {
+            row.qualityCheckerId = record.userId;
+            row.qualityCheckerName = record.username;
+          }
+        });
       }
     },
-    // 终检人变更
+    // 终检人变更 - 同步更新未质检表格数据
     handleFinalCheckerChange (val, record) {
       if (record) {
         this.filterForm.finalCheckerName = record.username;
         this.filterForm.finalChecker = record.userId;
+        // 同步更新表格中未质检的终检人信息
+        this.tableData.forEach(row => {
+          if (row.qualityCheckStatus === 10) {
+            row.finalChecker = record.userId;
+            row.finalCheckerName = record.username;
+          }
+        });
       }
     },
     // 电池去向单位变更
@@ -653,33 +694,33 @@ export default {
           margin-left: 8px;
           margin-right: 8px;
 
-          &.completed {
-            background-color: var(--leap-color-primary);
-          }
+          // &.completed {
+          //   background-color: var(--leap-color-primary);
+          // }
         }
 
-        &.active {
-          .step-number {
-            border: 1px solid var(--leap-color-primary);
-            color: #fff;
-          }
+        // &.active {
+        //   .step-number {
+        //     border: 1px solid var(--leap-color-primary);
+        //     color: #fff;
+        //   }
 
-          .step-label {
-            color: var(--leap-color-primary);
-            font-weight: 500;
-          }
-        }
+        //   .step-label {
+        //     color: var(--leap-color-primary);
+        //     font-weight: 500;
+        //   }
+        // }
 
-        &.completed {
-          .step-number {
-            border: 1px solid var(--leap-color-primary);
-            color: #fff;
-          }
+        // &.completed {
+        //   .step-number {
+        //     border: 1px solid var(--leap-color-primary);
+        //     color: #fff;
+        //   }
 
-          .step-label {
-            color: var(--leap-color-primary);
-          }
-        }
+        //   .step-label {
+        //     color: var(--leap-color-primary);
+        //   }
+        // }
       }
     }
 
@@ -735,6 +776,10 @@ export default {
   .btn-back {
     color: var(--leap-color-link);
     cursor: pointer;
+    &.disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
   }
 
   .btn-delete {
