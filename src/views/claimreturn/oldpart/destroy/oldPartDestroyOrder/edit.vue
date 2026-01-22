@@ -10,13 +10,16 @@
         :form.sync="form"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :showEditBtn="false"
       >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
         </template>
         <template #extraButtons>
-          <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button>
+          <el-button v-if="canDelete" @click="onRemove" size="small">删除</el-button>
+          <el-button @click="checkDestroy" size="small">销毁</el-button>
+          <el-button size="small">销毁审批通过</el-button>
+          <el-button size="small">销毁审批驳回</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -24,186 +27,7 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="销毁审批人ID：" prop="approverId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.approverId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="门店销毁单号，DA-默认编码规则，如：DA25112113341772954：" prop="destroyOrderNo">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.destroyOrderNo"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dealerName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="销毁单状态，如：草稿、待审批、已批准、已销毁：" prop="destroyStatus">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.destroyStatus"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="销毁人：" prop="destroyerName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.destroyerName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="销毁日期：" prop="destroyDate">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.destroyDate"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="销毁说明：" prop="destroyRemark">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.destroyRemark"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="销毁审批人：" prop="approverName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.approverName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="销毁审批说明：" prop="approveRemark">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.approveRemark"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="销毁审批日期：" prop="approveDate">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.approveDate"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.createTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.id"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creator"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creatorName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifier"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifierName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.updateTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.status"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statusDesc"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dataSource"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="门店编码：" prop="dealerCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dealerCode"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="销毁人ID：" prop="destroyerId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.destroyerId"
-                    clearable
-                  />
-                </el-form-item>
-              </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form label-width="150px" :inline="true" class="form-detail">
                 <el-form-item label="旧件销毁单号：" prop="destroyOrderNo">
                   {{ form.destroyOrderNo }}
                 </el-form-item>
@@ -213,6 +37,15 @@
                 <el-form-item label="销毁单状态：" prop="destroyStatusLabel">
                   {{ form.destroyStatusLabel }}
                 </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>销毁审批信息</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form label-width="150px" :inline="true" class="form-detail">
                 <el-form-item label="销毁人：" prop="destroyerName">
                   {{ form.destroyerName }}
                 </el-form-item>
@@ -236,25 +69,36 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>区块标题</h2>
-              <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              <h2>旧件销毁明细</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
                 <edit-table
                   ref="editTable"
-                  :columns="columns"
-                  :data="tableData"
-                  :defaultNewRow="defaultNewRow"
+                  :defaultNewRow="null"
                   :show-toolbar="false"
                   :options="options"
-                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                  :checkbox="true"
+                  :auth="{ edit: false, delete: false }"
+                  :columns="columns"
+                  :data="tableData"
                 />
               </div>
             </div>
           </section>
         </el-main>
       </edit-base-container>
+      <el-dialog title="" :visible.sync="dialogFormVisible">
+        <el-form :model="dialogForm" ref="dialogRuleForm" :rules="dialogRules" label-width="150px" class="form-edit">
+          <el-form-item label="请输入销毁说明:" :label-width="150">
+            <el-input type="textarea" :maxlength="1000" v-model="dialogForm.destroyRemark" autocomplete="off"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="applyDestory">确 定</el-button>
+        </div>
+      </el-dialog>
     </template>
     <template #right>
       <div class="page-common-edit">
@@ -265,8 +109,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/claimreturn/oldpart/destroy/oldPartDestroyOrder/index';
-import FetchSelect from '@/libs/components/FetchSelect';
+import { getDetail, addOrUpdate, deleteItem, checkDestroy, executeDestroy } from '@/api/claimreturn/oldpart/destroy/oldPartDestroyOrder/index';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -317,7 +160,6 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     EditTable,
-    FetchSelect
   },
   computed: {
     _id () {
@@ -350,10 +192,7 @@ export default {
       defaultNewRow: {
         name: '',
       },
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
+      tableData: [],
       options: {
         // 对应表格里选型枚举
         // 如 type: [{label: 'xxx', value: 'xxx'}]
@@ -361,28 +200,130 @@ export default {
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
-          field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
+          field: 'warrantyMonth',
+          title: '保修月份',
+          width: '160'
         },
         {
-          field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
+          field: 'repairOrderNo',
+          title: '接车施工单',
+          width: '160'
         },
         {
-          field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
+          field: 'approval',
+          title: '保修申请单',
+          width: '180'
         },
+        {
+          field: 'approvalTime',
+          title: '审批通过时间(保修申请单)',
+          width: '180'
+        },
+        {
+          field: 'oldPartUniqueCode',
+          title: '旧件唯一码',
+          width: '160'
+        },
+        {
+          field: 'dealerName',
+          title: '门店名称',
+          width: '150'
+        },
+        {
+          field: 'isMainPartLabel',
+          title: '是否主因零部件',
+          width: '140'
+        },
+        {
+          field: 'vin',
+          title: 'VIN',
+          width: '180'
+        },
+        {
+          field: 'oldPartSupplierName',
+          title: '旧件供应商',
+          width: '150'
+        },
+        {
+          field: 'mainPartSupplierName',
+          title: '主因件供应商',
+          width: '150'
+        },
+        {
+          field: 'oldPartCode',
+          title: '旧件编码',
+          width: '140'
+        },
+        {
+          field: 'oldPartName',
+          title: '旧件名称',
+          width: '160'
+        },
+        {
+          field: 'partCode',
+          title: '换上零件编码',
+          width: '140'
+        },
+        {
+          field: 'partName',
+          title: '换上零件名称',
+          width: '160'
+        },
+        {
+          field: 'oemInventoryStatus',
+          title: '主机厂库存状态',
+          width: '150'
+        },
+        {
+          field: 'dealerInboundTime',
+          title: '门店入库时间',
+          width: '150'
+        },
+        {
+          field: 'dealerOutTime',
+          title: '门店出库时间',
+          width: '150'
+        },
+        {
+          field: 'xx',
+          title: '主机厂入库时间',
+          width: '150'
+        },
+        {
+          field: 'oemCheckTime',
+          title: '主机厂验收时间',
+          width: '150'
+        },
+        {
+          field: 'oemOutboundOrderNo',
+          title: '主机厂出库单',
+          width: '150'
+        },
+        {
+          field: 'oemOutTime',
+          title: '主机厂出库时间',
+          width: '150'
+        },
+        {
+          field: 'returnTypeLabel',
+          title: '旧件返还类型',
+          width: '140'
+        },
+        {
+          field: 'remark',
+          title: '备注',
+          width: '120'
+        },
+        {
+          field: 'checkRemark',
+          title: '验收备注',
+          width: '120'
+        },
+        {
+          field: 'createTime',
+          title: '创建时间',
+          width: '150'
+        }
       ],
       rules: {
         approverId: [
@@ -454,6 +395,16 @@ export default {
         destroyerId: [
           { required: true, message: '请输入销毁人ID', trigger: 'change' }
         ],
+      },
+      // 销毁说明
+      dialogForm: {
+        destroyRemark: '',
+      },
+      dialogFormVisible: false,
+      dialogRules: {
+        destroyRemark: [
+          { required: true, message: '请输入销毁说明', trigger: 'blur' }
+        ]
       }
     };
   },
@@ -506,7 +457,46 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    onRemove () {
+      // 删除操作
+      this.$confirm('确定要删除该销毁单吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteItem([this._id]).then(() => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+          this.onBack();
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: '删除失败!'
+          });
+        });
+      });
+    },
+    checkDestroy () {
+      // if (!this._id) {
+      //   this.$message.warning('请上传销毁附件信息后，再申请销毁，谢谢');
+      //   return;
+      // }
+      // 销毁审核操作
+      checkDestroy(this._id).then((res) => {
+        console.log(res);
+        this.applyDestory();
+      }).catch(() => {
+      });
+    },
+    applyDestory () {
+      executeDestroy();
+    },
+    onBack () {
+      this.$router.back();
+    },
   }
 };
 </script>
