@@ -44,7 +44,7 @@
                     disabled
                   />
                 </el-form-item>
-                <el-form-item label="出库类型: " prop="outboundType">
+                <el-form-item label="出库类型：" prop="outboundType">
                   <fetch-select
                     :request="fetchOptions"
                     enumCode="old_part_outbound_type"
@@ -66,7 +66,7 @@
                     filterable
                     :params="{}" />
                 </el-form-item>
-                <el-form-item label="门店名称:" prop="dealerName">
+                <el-form-item label="门店名称：" prop="dealerName">
                   <dealer-select v-model="form.dealerCode"/>
                 </el-form-item>
                 <el-form-item label="收货供应商：" prop="supplierId">
@@ -178,7 +178,7 @@
                   {{ form.ownerUserName }}
                 </el-form-item>
                 <el-form-item label="同步状态：" prop="syncStatus">
-                  {{ form.syncStatus }}
+                  {{ form.syncStatusLabel }}
                 </el-form-item>
                 <el-form-item label="同步信息：" prop="syncMessage">
                   {{ form.syncMessage }}
@@ -188,7 +188,7 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>区块标题</h2>
+              <h2>旧件库存</h2>
               <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
             </div>
             <div class="common-section-body">
@@ -232,7 +232,7 @@ import DealerSelect from '@/components/dealer-select/index.vue';
 const defaultForm = {
   // 多选时字段有变化，自行修复
   outboundOrderNo: '',
-  outboundStatus: '',
+  outboundStatus: '10',
   supplierName: '',
   remark: '',
   logisticsTrackingNo: '',

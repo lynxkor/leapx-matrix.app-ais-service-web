@@ -24,8 +24,7 @@
             filterable
               />
       </el-form-item>
-      <template v-if="show">
-        <el-form-item label="库存单号">
+      <el-form-item label="库存单号">
         <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
         <el-form-item label="库位"  v-show="this.visibleCount === 3 || show">
@@ -42,6 +41,7 @@
               filterable
                 />
         </el-form-item>
+        <template v-if="show">
         <el-form-item label="门店">
           <fetch-select
             :remote-method="getDealerList"
@@ -91,13 +91,6 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="备注">
-          <el-input
-            placeholder="请输入"
-            v-model="form.remarkLike"
-            clearable
-          />
-        </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -122,6 +115,16 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <el-form-item label="备注">
+          <el-input
+            type="textarea"
+            maxlength="500"
+            show-word-limit
+            placeholder="请输入"
+            v-model="form.remarkLike"
+            clearable
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -134,12 +137,12 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button> -->
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"

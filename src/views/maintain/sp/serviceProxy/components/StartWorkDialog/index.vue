@@ -35,7 +35,7 @@
           resizable
           border="inner"
           size="medium"
-          :checkbox-config="{ checkField: 'checked' }"
+          :checkbox-config="checkboxConfig"
           @checkbox-change="handleSelectionChange"
           @checkbox-all="handleSelectionChange"
         >
@@ -112,7 +112,13 @@ export default {
         actualTime: ''
       },
       selectedRows: [],
-      tableData: []
+      tableData: [],
+      checkboxConfig: {
+        checkField: 'checked',
+        checkMethod: ({ row }) => {
+          return !row.disabled;
+        }
+      }
     };
   },
   computed: {
@@ -143,12 +149,26 @@ export default {
         this.tableLoading = true;
         // 获取维修作业记录数据
         const res = await getRepairWorkRecord({ serviceProxyId: this.vehicleInfo.id });
-        this.tableData = res || [];
+        this.tableData = (res || []).map(item => ({
+          ...item,
+          disabled: this.mode === 'end' ? !!item.finishAt : !!item.timeSpend
+        }));
         // 设置默认当前时间
         this.batchForm.actualTime = moment().format('YYYY-MM-DD HH:mm:ss');
         const field = this.timeField;
         this.tableData.forEach(row => {
-          this.$set(row, field, this.batchForm.actualTime);
+          if (!row?.[field]) {
+            this.$set(row, field, this.batchForm.actualTime);
+          }
+        });
+        // 等待表格渲染完成后，默认勾选非禁用的行
+        this.$nextTick(() => {
+          this.tableData.forEach(row => {
+            if (!row.disabled) {
+              this.$refs.workTable.setCheckboxRow(row, true);
+              this.selectedRows.push(row);
+            }
+          });
         });
       } catch (error) {
         console.error('获取作业数据失败', error);
@@ -179,7 +199,9 @@ export default {
       // 更新所有行的时间
       const field = this.timeField;
       this.tableData.forEach(row => {
-        this.$set(row, field, time);
+        if (!row?.[field]) {
+          this.$set(row, field, time);
+        }
       });
     },
     async submit () {
@@ -191,27 +213,19 @@ export default {
       try {
         this.submitLoading = true;
         // 提交接口数据
-        const field = this.timeField;
-
-        let idList = this.selectedRows.map(row => row.id);
+        const idList = this.selectedRows.map(row => row.id);
         const time = this.batchForm.actualTime;
-        let res;
         if (this.mode === 'start') {
-          const params = { serviceProxyId: this.vehicleInfo.id, ids: idList, timeSpend: time };
-          res = await startWork(params);
+          await startWork({ serviceProxyId: this.vehicleInfo.id, ids: idList, timeSpend: time });
         } else {
-          const params = { serviceProxyId: this.vehicleInfo.id, ids: idList, finishAt: time };
-          res = await endWork(params);
+          await endWork({ serviceProxyId: this.vehicleInfo.id, ids: idList, finishAt: time });
         }
 
-        if (res) {
-          this.$message.success(this.mode === 'end' ? '作业结束成功' : '作业开始成功');
-          this.$emit('refresh');
-          this.close();
-        }
+        this.$message.success(this.mode === 'end' ? '作业结束成功' : '作业开始成功');
+        this.$emit('refresh');
+        this.close();
       } catch (error) {
         console.error('操作失败', error);
-        this.$message.error('操作失败');
       } finally {
         this.submitLoading = false;
       }

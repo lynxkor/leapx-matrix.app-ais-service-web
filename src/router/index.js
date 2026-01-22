@@ -1377,6 +1377,42 @@ const routes = [
         name: '订单类型采购次数设置详情',
         noResourceUrl: 'true'
       }
+    },  {
+      path: '/maintain/sp/repairWorkRecord',
+      name: 'spRepairWorkRecord',
+      component: () => import('@/views/maintain/sp/repairWorkRecord/index.vue'),
+
+      meta: {
+        name: '接车施工单-维修作业记录表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/repairWorkRecord/edit',
+      name: 'spRepairWorkRecordEdit',
+      component: () => import('@/views/maintain/sp/repairWorkRecord/edit.vue'),
+
+      meta: {
+        name: '接车施工单-维修作业记录表管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/maintenancePartData',
+      name: 'maintenancePartData',
+      component: () => import('@/views/maintain/basic/maintenancePartData/index.vue'),
+
+      meta: {
+        name: '保养零件提醒表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/basic/maintenancepartdata/edit',
+      name: 'maintenancePartDataEdit',
+      component: () => import('@/views/maintain/basic/maintenancePartData/edit.vue'),
+
+      meta: {
+        name: '保养零件提醒表管理详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];

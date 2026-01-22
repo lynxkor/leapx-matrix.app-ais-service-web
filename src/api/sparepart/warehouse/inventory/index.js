@@ -43,3 +43,35 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 备件库存流水表分页查询
+ * @param {Object} data
+ */
+export function flowPage (data) {
+  return api.jsonPost(prefix + 'flowPage', data);
+}
+
+/**
+ * 备件库存可用、在途、冻结流水表分页查询
+ * @param {Object} data
+ */
+export function operationFlowPage (data) {
+  return api.jsonPost(prefix + 'operationFlowPage', data);
+}
+
+/**
+ * 获取在途订单信息
+ * @param {Object} data
+ */
+export function getInTransitOrders (data) {
+  return api.jsonPost(prefix + 'getInTransitOrders', data);
+}
+
+/**
+ * 获取冻结订单信息
+ * @param {Object} data
+ */
+export function getFrozenOrders (data) {
+  return api.jsonPost(prefix + 'getFrozenOrders', data);
+}
