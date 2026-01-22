@@ -36,9 +36,10 @@
       <div v-show="currentSubTab === '0'">
         <!-- 筛选表单 -->
         <div class="filter-section">
-          <el-form size="small" :model="filterForm" label-width="80px">
+          <el-form size="small" :model="filterForm" label-width="80px" :inline="true">
             <el-row>
               <el-col :span="6">
+
                 <el-form-item label="质检时间">
                   <el-date-picker
                     v-model="filterForm.qualityCheckAt"
@@ -80,7 +81,7 @@
               <el-col :span="6">
                 <el-form-item label="终检人">
                   <fetch-select
-                    v-model="filterForm.finalCheckerId"
+                    v-model="filterForm.finalChecker"
                     :remote-method="searchUser"
                     value-key="userId"
                     label-key="username"
@@ -112,7 +113,7 @@
           >
             <vxe-column type="seq" title="序号" width="70" align="center" />
             <vxe-column field="qualityCheckAt" title="质检时间" width="180" />
-            <vxe-column field="qualityCheckerId" title="质检人" width="120" />
+            <vxe-column field="qualityCheckerName" title="质检人" width="120" />
             <vxe-column field="repairItemCode" title="维修项目代码" width="150" />
             <vxe-column field="repairItemName" title="维修项目名称" min-width="150" show-overflow />
             <vxe-column field="dealerStationName" title="工位" width="120" />
@@ -122,7 +123,7 @@
               <template #default="{ row }">
                 <el-popconfirm
                   title="确定质检吗？"
-                  @confirm="handleQualityCheck(row, rowIndex)"
+                  @confirm="handleQualityCheck(row)"
                 >
                   <span
                     class="action-button btn-back"
@@ -133,7 +134,7 @@
                 </el-popconfirm>
                 <el-popconfirm
                   title="确定返修吗？"
-                  @confirm="handleRepair(row, rowIndex)"
+                  @confirm="handleRepair(row)"
                 >
                   <span
                     class="action-button btn-back"
@@ -308,7 +309,7 @@
 </template>
 
 <script>
-import { getFinalInspectionDetail, finalInspection,qualityInspection,repaired } from '@/api/maintain/sp/serviceProxy/index';
+import { getFinalInspectionDetail, finalInspection, qualityInspection, repaired } from '@/api/maintain/sp/serviceProxy/index';
 import { getUserByNameOrNo } from '@/libs/api/common';
 import { getListData } from '@/api/maintain/basic/batteryUnit/index';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -347,7 +348,7 @@ export default {
         qualityCheckerId: '',
         qualityCheckerName: '',
         finalCheckTime: '',
-        finalCheckerId: '',
+        finalChecker: '',
         finalCheckerName: ''
       },
       formInline: {
@@ -442,7 +443,7 @@ export default {
         qualityCheckerId: '',
         qualityCheckerName: '',
         finalCheckTime: '',
-        finalCheckerId: '',
+        finalChecker: '',
         finalCheckerName: ''
       };
       this.currentSubTab = '0';
@@ -467,25 +468,52 @@ export default {
       this.currentMainTab = index;
     },
     handleQualityCheck (row) {
+      if (row.qualityCheckStatus === 30) {
+        this.$message.warning('已质检完成');
+        return;
+      }
+      if (!this.filterForm.qualityCheckAt) {
+        this.$message.warning('请选择质检时间');
+        return;
+      }
 
-      this.$message.info('质检操作');
+      if (!this.filterForm.qualityCheckerId) {
+        this.$message.warning('请选择质检人');
+        return;
+      }
+      // 将质检时间和质检人设置到row对象中
+      row.qualityCheckAt = this.filterForm.qualityCheckAt;
+      row.qualityCheckerId = this.filterForm.qualityCheckerId;
+      row.qualityCheckerName = this.filterForm.qualityCheckerName;
+      qualityInspection(row).then(res => {
+        this.$message({
+          type: 'success',
+          message: '质检完成'
+        });
+        this.getData();
+      });
     },
     handleRepair (row) {
-
-      this.$message.info('返修操作');
+      repaired(row).then(res => {
+        this.$message({
+          type: 'success',
+          message: '返修完成'
+        });
+        this.getData();
+      });
     },
     // 质检人变更
     handleQualityCheckerChange (val, record) {
-
       if (record) {
         this.filterForm.qualityCheckerName = record.username;
-        this.filterForm.qualityCheckerId = record.id;
+        this.filterForm.qualityCheckerId = record.userId;
       }
     },
     // 终检人变更
     handleFinalCheckerChange (val, record) {
       if (record) {
         this.filterForm.finalCheckerName = record.username;
+        this.filterForm.finalChecker = record.userId;
       }
     },
     // 电池去向单位变更
@@ -550,7 +578,7 @@ export default {
           afterChangeCode: this.formInline.afterChangeCode,
           faultFlag: this.faultForm.faultFlag,
           finalCheckAt: this.filterForm.finalCheckTime,
-          finalCheckerId: this.filterForm.finalCheckerId
+          finalChecker: this.filterForm.finalChecker
         };
 
         const res = await finalInspection(submitData);

@@ -272,5 +272,3 @@ export function qualityInspection (data) {
 export function repaired (data) {
   return api.jsonPost(prefix + 'repaired', data);
 }
-
-
