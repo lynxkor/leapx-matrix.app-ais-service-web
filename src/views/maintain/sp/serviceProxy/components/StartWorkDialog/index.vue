@@ -82,8 +82,8 @@
 </template>
 
 <script>
-import {getRepairWorkRecord, startWork, endWork} from '@/api/maintain/sp/serviceProxy/index';
-import dayjs from 'dayjs';
+import { getRepairWorkRecord, startWork, endWork } from '@/api/maintain/sp/serviceProxy/index';
+import moment from 'moment';
 export default {
   name: 'StartWorkDialog',
   props: {
@@ -103,7 +103,7 @@ export default {
       default: 'start'
     }
   },
-  data() {
+  data () {
     return {
       dialogVisible: this.visible,
       submitLoading: false,
@@ -116,21 +116,21 @@ export default {
     };
   },
   computed: {
-    dialogTitle() {
+    dialogTitle () {
       return this.mode === 'end' ? '作业结束' : '作业开始';
     },
-    timeLabel() {
+    timeLabel () {
       return this.mode === 'end' ? '作业结束时间：' : '实际作业时间：';
     },
-    timeColumnLabel() {
+    timeColumnLabel () {
       return this.mode === 'end' ? '作业结束时间' : '实际作业时间';
     },
-    timeField() {
+    timeField () {
       return this.mode === 'end' ? 'finishAt' : 'timeSpend';
     }
   },
   watch: {
-    visible(val) {
+    visible (val) {
       this.dialogVisible = val;
       if (val) {
         this.initData();
@@ -138,15 +138,15 @@ export default {
     }
   },
   methods: {
-    async initData() {
+    async initData () {
       try {
         this.tableLoading = true;
         // 获取维修作业记录数据
-        const res = await getRepairWorkRecord({serviceProxyId: this.vehicleInfo.id});
+        const res = await getRepairWorkRecord({ serviceProxyId: this.vehicleInfo.id });
         this.tableData = res || [];
         // 设置默认当前时间
-        this.batchForm.actualTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
-        const field = this.timeField
+        this.batchForm.actualTime = moment().format('YYYY-MM-DD HH:mm:ss');
+        const field = this.timeField;
         this.tableData.forEach(row => {
           this.$set(row, field, this.batchForm.actualTime);
         });
@@ -157,10 +157,10 @@ export default {
         this.tableLoading = false;
       }
     },
-    close() {
+    close () {
       this.$emit('update:visible', false);
     },
-    closed() {
+    closed () {
       this.batchForm = {
         actualTime: ''
       };
@@ -168,21 +168,21 @@ export default {
       this.tableData = [];
       this.selectedRows = [];
     },
-    handleSelectionChange({records}) {
+    handleSelectionChange ({ records }) {
       this.selectedRows = records;
     },
-    handleTimeChange(val) {
+    handleTimeChange (val) {
       // 时间选择器的 change 回调,更新表格中所有行的时间
       this.updateAllRowsTime(val);
     },
-    updateAllRowsTime(time) {
+    updateAllRowsTime (time) {
       // 更新所有行的时间
       const field = this.timeField;
       this.tableData.forEach(row => {
         this.$set(row, field, time);
       });
     },
-    async submit() {
+    async submit () {
       if (this.selectedRows.length === 0) {
         this.$message.warning(`请至少选择一条数据进行${this.mode === 'end' ? '作业结束' : '作业开始'}`);
         return;
@@ -197,14 +197,12 @@ export default {
         const time = this.batchForm.actualTime;
         let res;
         if (this.mode === 'start') {
-
-          const params = {serviceProxyId: this.vehicleInfo.id, ids: idList, timeSpend: time}
+          const params = { serviceProxyId: this.vehicleInfo.id, ids: idList, timeSpend: time };
           res = await startWork(params);
         } else {
-          const params = {serviceProxyId: this.vehicleInfo.id, ids: idList, finishAt: time}
+          const params = { serviceProxyId: this.vehicleInfo.id, ids: idList, finishAt: time };
           res = await endWork(params);
         }
-
 
         if (res) {
           this.$message.success(this.mode === 'end' ? '作业结束成功' : '作业开始成功');
@@ -225,7 +223,7 @@ export default {
     //   }
     //   return '作业中';
     // },
-    getStatusType(finishAt) {
+    getStatusType (finishAt) {
       // 根据 finishAt 返回对应的 tag 类型
       if (finishAt) {
         return 'success';
