@@ -75,3 +75,11 @@ export function getInTransitOrders (data) {
 export function getFrozenOrders (data) {
   return api.jsonPost(prefix + 'getFrozenOrders', data);
 }
+
+/**
+ * 门店备件库位表列表查询All
+ * @param {Object} data
+ */
+export function listAll (data) {
+  return api.jsonPost('sp/web/warehouse/location/listAll', data);
+}
