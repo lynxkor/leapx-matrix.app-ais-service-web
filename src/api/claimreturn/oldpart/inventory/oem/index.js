@@ -58,3 +58,11 @@ export function getDetailDecryptField (id, field) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 通过旧件唯一码查询,验收用,带备件适用车型
+ * @param {Object} data
+ */
+export function queryByOldPartUniqueCode4Check (data) {
+  return api.jsonPost(prefix + 'queryByOldPartUniqueCode4Check', data);
+}

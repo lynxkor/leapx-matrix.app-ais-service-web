@@ -269,6 +269,7 @@
             </div>
           </section>
           <ReturnOrderTable
+            ref="returntable"
             :disabled="form.returnStatus !== '10'"
             :canAddOrUpdate="canAddOrUpdate"
             :_id="_id"
@@ -279,6 +280,7 @@
           <SingleDialog
             :visible.sync="visible"
             :_id="_id"
+            @refresh="refreshTable"
           />
         </el-main>
       </edit-base-container>
@@ -291,7 +293,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, deleteItem, publish, dealerOutbound, signByIds, checkFinished, reCheck, singleCheck } from '@/api/claimreturn/oldpart/returnorder';
+import { getDetail, addOrUpdate, deleteItem, publish, dealerOutbound, signByIds, checkFinished } from '@/api/claimreturn/oldpart/returnorder';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum, listOrgStoreInfo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -371,8 +373,10 @@ export default {
   },
   data () {
     const form = this.getDefautlForm();
+    const isFast = location.pathname.includes('/fast/');
+
     return {
-      pageTitle: '旧件快返回运单',
+      pageTitle: isFast ? '旧件快返回运单' : '门店旧件回运单',
       pageType: 'edit',
       // TIPS: 权限前缀 AISCR，根据实际情况修改
       moduleKey: this.$route.meta.moduleKey,
@@ -646,7 +650,7 @@ export default {
     },
     onCompleteAcceptance () {
       // 验收完成
-      this.$confirm('您确定要验收吗', '提示', {
+      this.$confirm('您确定要验收吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -666,6 +670,9 @@ export default {
       // 单件验收
       this.visible = true;
     },
+    refreshTable () {
+      this.$refs.returntable.getTableData();
+    }
   }
 };
 </script>
