@@ -80,7 +80,6 @@
         <vxe-table
           ref="dispatchTable"
           :data="tableData"
-          :loading="tableLoading"
           stripe
           show-overflow
           resizable
@@ -96,7 +95,10 @@
           <vxe-column field="repairItemName" title="维修项目名称" min-width="150" show-overflow />
           <vxe-column title="工位" width="150">
             <template #default="{ row }">
-              <el-select v-model="row.dealerStationId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1" @change="handleStationChange(row)">
+              <template v-if="row.isDispatch === 1">
+                {{ row.dealerStationName }}
+              </template>
+              <el-select v-else v-model="row.dealerStationId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1" @change="handleStationChange(row)">
                 <el-option
                   v-for="item in workstationOptions"
                   :key="item.id"
@@ -108,7 +110,10 @@
           </vxe-column>
           <vxe-column title="班组" width="150">
             <template #default="{ row }">
-              <el-select v-model="row.dealerWorkTeamId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1" @change="handleTeamChange(row)">
+              <template v-if="row.isDispatch === 1">
+                {{ row.dealerWorkTeamName }}
+              </template>
+              <el-select v-else v-model="row.dealerWorkTeamId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1" @change="handleTeamChange(row)">
                 <el-option
                   v-for="item in teamOptions"
                   :key="item.id"
@@ -120,9 +125,12 @@
           </vxe-column>
           <vxe-column title="维修技师" width="150">
             <template #default="{ row }">
-              <el-select v-model="row.repairTechnicianId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1 || !row.dealerWorkTeamId" @change="handleTechnicianChange(row)">
+              <template v-if="row.isDispatch === 1">
+                {{ row.repairTechnicianName }}
+              </template>
+              <el-select v-else v-model="row.repairTechnicianId" size="mini" placeholder="请选择" :disabled="row.isDispatch === 1" @change="handleTechnicianChange(row)">
                 <el-option
-                  v-for="item in technicianOptions"
+                  v-for="item in (row.technicianOptions || technicianOptions)"
                   :key="item.userId"
                   :label="item.userName"
                   :value="item.userId"
@@ -158,8 +166,11 @@
 <script>
 import { getRepairWorkRecord, dispatchWorkers, getDealerStation, getDealerWorkTeam, getDealerTeamUserRelation, deleteDispatchWorkers } from '@/api/maintain/sp/serviceProxy/index';
 import moment from 'moment';
+
 export default {
   name: 'DispatchWorkDialog',
+  components: {
+  },
   props: {
     visible: {
       type: Boolean,
@@ -209,6 +220,8 @@ export default {
     'filterForm.workstation': {
       handler (val) {
         this.updateUndispatchedRows('dealerStationId', val);
+        const workstation = this.workstationOptions.find(item => item.id === val);
+        this.updateUndispatchedRows('dealerStationName', workstation ? workstation.name : '');
       }
     },
     'filterForm.team': {
@@ -216,12 +229,16 @@ export default {
         // 班组变化时清空技师并重新加载
         this.filterForm.technician = '';
         this.updateUndispatchedRows('dealerWorkTeamId', val);
+        const team = this.teamOptions.find(item => item.id === val);
+        this.updateUndispatchedRows('dealerWorkTeamName', team ? team.name : '');
         this.getTechnicianOptions();
       }
     },
     'filterForm.technician': {
       handler (val) {
         this.updateUndispatchedRows('repairTechnicianId', val);
+        const technician = this.technicianOptions.find(item => item.userId === val);
+        this.updateUndispatchedRows('repairTechnicianName', technician ? technician.userName : '');
       }
     },
     'filterForm.plannedTime': {
@@ -244,16 +261,24 @@ export default {
       const station = this.workstationOptions.find(item => item.id === row.dealerStationId);
       this.$set(row, 'dealerStationName', station ? station.name : '');
     },
-    handleTeamChange (row) {
+    async handleTeamChange (row) {
       // 班组变化时更新班组名称并清空该行的技师
       const team = this.teamOptions.find(item => item.id === row.dealerWorkTeamId);
       this.$set(row, 'dealerWorkTeamName', team ? team.name : '');
       this.$set(row, 'repairTechnicianId', '');
       this.$set(row, 'repairTechnicianName', '');
+      try {
+        const res = await getDealerTeamUserRelation({
+          teamId: row.dealerWorkTeamId
+        });
+        this.$set(row, 'technicianOptions', res || []);
+      } catch (e) {
+        console.log(e);
+      }
     },
     handleTechnicianChange (row) {
       // 技师变化时更新技师名称
-      const technician = this.technicianOptions.find(item => item.userId === row.repairTechnicianId);
+      const technician = row.technicianOptions.find(item => item.userId === row.repairTechnicianId);
       this.$set(row, 'repairTechnicianName', technician ? technician.userName : '');
     },
     async initData () {
@@ -263,9 +288,17 @@ export default {
         this.filterForm.plannedTime = moment().format('YYYY-MM-DD HH:mm:ss');
         this.tableData = res || [];
         this.tableData.forEach(row => {
-          if (row.qualityCheckStatus === 10) { // 假设10表示未质检状态
+          if (!row.isDispatch) {
             row.startAt = this.filterForm.qualityCheckAt;
           }
+        });
+        this.$nextTick(() => {
+          this.tableData.forEach(row => {
+            if (!row.isDispatch) {
+              this.$refs.dispatchTable.setCheckboxRow(row, true);
+              this.selectedRows.push(row);
+            }
+          });
         });
       } catch (error) {
         console.error('获取派工数据失败', error);
@@ -294,12 +327,16 @@ export default {
     },
     // 获取技师选项
     async getTechnicianOptions () {
-      if (!this.filterForm.team) return;
       try {
         const res = await getDealerTeamUserRelation({
           teamId: this.filterForm.team
         });
         this.technicianOptions = res || [];
+        this.tableData.forEach(row => {
+          if (row.isDispatch !== 1) {
+            this.$set(row, 'technicianOptions', res || []);
+          }
+        });
       } catch (error) {
         console.error('获取技师数据失败', error);
       }
@@ -347,23 +384,11 @@ export default {
 
       try {
         this.dispatchLoading = true;
-        const params = this.selectedRows.map(row => {
-          // 查找对应的名称
-          const workstation = this.workstationOptions.find(item => item.id === row.dealerStationId);
-          const team = this.teamOptions.find(item => item.id === row.dealerWorkTeamId);
-          const technician = this.technicianOptions.find(item => item.userId === row.repairTechnicianId);
-
-          return {
-            ...row,
-            dealerStationName: workstation ? workstation.name : '',           // 工位名称
-            dealerWorkTeamName: team ? team.name : '',                       // 班组名称
-            repairTechnicianName: technician ? technician.userName : ''      // 技师名称
-          };
-        });
-
-        dispatchWorkers(params).then(res => {
+        dispatchWorkers(this.selectedRows).then(res => {
           this.initData();
+          this.$message.success('派工成功');
           this.$refs.dispatchTable.clearCheckboxRow();
+          this.selectedRows = [];
           this.$emit('refresh');
         });
       } catch (error) {

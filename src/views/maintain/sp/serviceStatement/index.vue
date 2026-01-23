@@ -177,7 +177,25 @@ export default {
           { props: 'dataSourceLabel', label: '数据来源', visible: true, width: 200 },
           { props: 'statementTypeLabel', label: '结算单类型', visible: true, width: 200 },
           { props: 'statementStatusLabel', label: '结算单状态', visible: true, width: 200 },
-          { props: 'serviceProxyCode', label: '接车施工单', visible: true, width: 200 },
+          {
+            props: 'serviceProxyCode',
+            label: '接车施工单',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/sp/serviceProxy/edit',
+                  query: {
+                    id: row.serviceProxyId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+
           { props: 'warrantyTypeCollect', label: '保修类型（汇总）', visible: true, width: 200 },
           { props: 'accountTypeLabel', label: '销账标识', visible: true, width: 200 },
           { props: 'vehProfileVin', label: 'VIN码', visible: true, width: 200 },

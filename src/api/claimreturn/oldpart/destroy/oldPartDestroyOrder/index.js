@@ -42,3 +42,27 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 检查销毁条件（点击销毁按钮时调用）
+ * @param {Object} data
+ */
+export function checkDestroy (data) {
+  return api.jsonPost(prefix + 'checkDestroy', data);
+}
+
+/**
+ * 提交销毁申请
+ * @param {Object} data
+ */
+export function executeDestroy (data) {
+  return api.jsonPost(prefix + 'executeDestroy', data);
+}
+
+/**
+ * 审批旧件销毁单
+ * @param {Object} data
+ */
+export function approve (data) {
+  return api.jsonPost(prefix + 'approve', data);
+}

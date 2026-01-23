@@ -144,8 +144,8 @@ export default {
     // 计算最大可退料数量（出库数量 - 已退料数量）
     getMaxReturnQuantity (row) {
       const actualPickNumber = row.actualPickNumber || 0;
-      const refundedNumber = row.refundedNumber || 0;
-      return Math.max(0, actualPickNumber - refundedNumber);
+      const quantity = row.quantity || 0;
+      return Math.max(0, quantity - actualPickNumber);
     },
 
     // 判断是否可以退料
@@ -162,11 +162,11 @@ export default {
 
       if (actualPickNumber === 0) {
         return '未出库';
-      } else if (refundedNumber >= actualPickNumber) {
+      } else if (refundedNumber > 0 && refundedNumber === actualPickNumber) {
         return '全部退料';
-      } else if (refundedNumber > 0) {
+      } else if (refundedNumber > 0 && refundedNumber < actualPickNumber) {
         return '部分退料';
-      } else if (maxQuantity > 0) {
+      } else if (maxQuantity > 0 && refundedNumber === 0) {
         return '未退料';
       }
       return '不可退料';
@@ -207,8 +207,10 @@ export default {
 
       try {
         this.loading = true;
+        row.refundNumber = row.returnQuantity;
         const res = await refundPart({
           ...row
+
         });
         this.$message.success('退料成功');
         // 刷新列表

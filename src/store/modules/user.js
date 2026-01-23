@@ -4,16 +4,18 @@ const data = {
   state: {
     userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : {},
     token: localStorage.getItem('token') ? localStorage.getItem('token') : '',
-    middlePlatformMap: localStorage.getItem('middlePlatformMap') ? JSON.parse(localStorage.getItem('middlePlatformMap')) : {} // 用户中心相关，右上角第三方免登模块
+    middlePlatformMap: localStorage.getItem('middlePlatformMap') ? JSON.parse(localStorage.getItem('middlePlatformMap')) : {}, // 用户中心相关，右上角第三方免登模块
   },
   mutations: {
     // 登陆时设置信息
     SET_LOGIN_INFO (state, info) {
       const { resources, ...rest } = info;
-      localStorage.setItem('token', info.token);
-      state.token = info.token;
       localStorage.setItem('userInfo', JSON.stringify(rest));
       state.userInfo = rest;
+    },
+    SET_TOKEN (state, token) {
+      localStorage.setItem('token', token);
+      state.token = token;
     },
     // 用户登出
     USER_SIGN_OUT (state) {

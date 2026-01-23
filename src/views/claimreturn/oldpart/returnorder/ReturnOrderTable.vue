@@ -128,7 +128,7 @@ export default {
         },
         {
           field: 'dealerName',
-          title: '厅店名称',
+          title: '门店名称',
           width: '160',
         },
         {
