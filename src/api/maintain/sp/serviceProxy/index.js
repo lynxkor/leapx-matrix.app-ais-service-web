@@ -280,3 +280,11 @@ export function qualityInspection (data) {
 export function repaired (data) {
   return api.jsonPost(prefix + 'repaired', data);
 }
+
+/**
+ * 维修类型列表查询
+ * @param data
+ */
+export function getRepairItemTypeList (data) {
+  return api.jsonPost('maintain/web/basic/repairItemType/list', data);
+}

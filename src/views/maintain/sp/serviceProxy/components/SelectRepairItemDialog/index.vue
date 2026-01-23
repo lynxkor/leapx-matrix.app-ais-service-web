@@ -160,7 +160,7 @@
                 @change="handleWarrantyTypeChange(row)"
               >
                 <el-option
-                  v-for="item in itemOptions.warrantyTypeName"
+                  v-for="item in (checkoutTypeMap[row.checkoutTypeName] || itemOptions.warrantyTypeName)"
                   :key="item.warrantyTypeId"
                   :label="item.warrantyTypeName"
                   :value="item.warrantyTypeName"
@@ -191,6 +191,7 @@
                 size="small"
                 :precision="1"
                 :min="0"
+                :max="+row.price"
                 controls-position="right"
                 @change="handleItemDiscountAmountChange(row)"
               />
@@ -337,6 +338,7 @@
                 size="small"
                 :precision="2"
                 :min="0"
+                :max="+row.price"
                 :step="0.1"
                 controls-position="right"
                 @change="handlePartDiscountAmountChange(row)"
@@ -388,7 +390,7 @@
 
 <script>
 // import EditTable from '@/libs/components/EditTable';
-import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem } from '@/api/maintain/sp/serviceProxy/index';
+import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   name: 'SelectRepairItemDialog',
@@ -439,6 +441,8 @@ export default {
 
       // 维修配件表格配置
       partData: [],
+      // 结算类型和保修类型映射关系
+      checkoutTypeMap: {}
     };
   },
   computed: {
@@ -503,8 +507,9 @@ export default {
         checkoutTypeObj = this.itemOptions.checkoutTypeName?.filter(item => !this.checkoutTypeIncluded(item.checkoutTypeId))?.[0];
       }
 
+      const warrantyTypeNameOption = this.checkoutTypeMap[checkoutTypeObj?.checkoutTypeName] || this.itemOptions.warrantyTypeName;
       // 查找保修类型的默认值（取第一个）
-      const warrantyTypeObj = this.itemOptions.warrantyTypeName?.[0];
+      const warrantyTypeObj = warrantyTypeNameOption?.[0];
 
       const newItem = {
         repairItemCode: selectedItem.code || '',
@@ -676,6 +681,7 @@ export default {
           value: item.code
         }));
       });
+      this.getRepairItemTypeList();
     },
     getRepairItemInfo () {
       getRepairItemInfo(this.vehicleInfo.id).then(res => {
@@ -727,11 +733,13 @@ export default {
 
       // 更新维修项目的折扣率
       this.itemData.forEach(item => {
-        item.discountRate = discountWorkhourRate || 1;
-        // 重新计算优惠金额和项目金额
-        const originalAmount = item.workHour * item.price;
-        item.discountAmount = originalAmount * (1 - item.discountRate);
-        item.repairAmount = originalAmount * item.discountRate;
+        if (!this.checkoutTypeIncluded(item.checkoutTypeId)) {
+          item.discountRate = discountWorkhourRate || 1;
+          // 重新计算优惠金额和项目金额
+          const originalAmount = item.workHour * item.price;
+          item.discountAmount = originalAmount * (1 - item.discountRate);
+          item.repairAmount = originalAmount * item.discountRate;
+        }
       });
 
       // 更新维修配件的折扣率
@@ -881,6 +889,26 @@ export default {
     // 结算类型是否为合同、保修
     checkoutTypeIncluded (type) {
       return type === '10' || type === '20';
+    },
+    getRepairItemTypeList () {
+      getRepairItemTypeList({
+        categorys: [20]
+      }).then(res => {
+        const d = (res || []).reduce((p, c) => {
+          const item = {
+            ...c,
+            warrantyTypeId: c.id,
+            warrantyTypeName: c.name
+          };
+          if (p[c.checkoutTypeName]) {
+            p[c.checkoutTypeName].push(item);
+          } else {
+            p[c.checkoutTypeName] = [item];
+          }
+          return p;
+        }, {});
+        this.checkoutTypeMap = d;
+      });
     }
   }
 };
@@ -888,6 +916,12 @@ export default {
 
 <style lang="scss" scoped>
 .m-add-repair-item-dialog {
+  // 维保3.0
+  // ::v-deep .el-dialog{
+  //   height: 100%!important;
+  //   width: 100%!important;
+  //   margin: 0!important;
+  // }
   ::v-deep .vxe-table--render-default.size--medium .vxe-header--column.is--padding .vxe-cell,
   ::v-deep .vxe-table--render-default .vxe-body--column:not(.col--active).col--ellipsis > .vxe-cell,
   ::v-deep .vxe-table--render-default.size--medium .vxe-body--column.is--padding .vxe-cell {

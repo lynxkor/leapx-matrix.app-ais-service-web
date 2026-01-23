@@ -13,11 +13,11 @@
                     <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
                   </div>
                   <ButtonGroup maxWidth="50%" v-else>
-                    <el-button size="small" @click="handlePrint">打印工单</el-button>
-                    <el-button size="small" @click="handleImport">上传附件</el-button>
+                    <el-button size="small" @click="handlePrint" v-if="![RepairOrderStatusEnum.CANCEL].includes(form.orderStatus)">打印工单</el-button>
+                    <el-button size="small" @click="handleImport" v-if="![RepairOrderStatusEnum.CANCEL].includes(form.orderStatus)">上传附件</el-button>
                     <el-button size="small" @click="handleShowLog">审核日志</el-button>
-                    <el-button size="small" @click="discardDialogVisible = true" v-if="![RepairOrderStatusEnum.DELIVERED].includes(form.orderStatus)">作废</el-button>
-                    <el-button size="small" @click="materialReturnDialogVisible = true" v-if="![RepairOrderStatusEnum.DELIVERED].includes(form.orderStatus)">退料</el-button>
+                    <el-button size="small" @click="discardDialogVisible = true" v-if="![RepairOrderStatusEnum.DELIVERED, RepairOrderStatusEnum.ANTI_SETTLEMENT, RepairOrderStatusEnum.CANCEL].includes(form.orderStatus)">作废</el-button>
+                    <el-button size="small" @click="materialReturnDialogVisible = true" v-if="![RepairOrderStatusEnum.DELIVERED, RepairOrderStatusEnum.ANTI_SETTLEMENT, RepairOrderStatusEnum.CANCEL].includes(form.orderStatus)">退料</el-button>
                     <!-- <el-button size="small" @click="couponsDialogVisible = true" v-if="[RepairOrderStatusEnum.CREATING_ORDER, RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">查询卡券&终身</el-button> -->
                     <el-button size="small" @click="finalCheckDialogVisible = true"  v-if="[RepairOrderStatusEnum.PENDING_FINAL_INSPECTION].includes(form.orderStatus)">终检</el-button>
                     <el-button size="small" @click="startWorkDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">作业开始</el-button>
