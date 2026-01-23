@@ -137,7 +137,7 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button> -->
+      <el-button size="small" @click="handleTransfer">转移库位</el-button>
       <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
@@ -170,6 +170,12 @@
       :id="'1'"
       @close="handleUploadDialogClose"
     />
+    <TransferDialog
+      :visible="transferDialog"
+      :selectionId="selectionList"
+      :warehouseIds="warehouseIds"
+      @close="handleTransferDialogClose"
+    />
   </div>
 </template>
 
@@ -189,6 +195,7 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
+import TransferDialog from './TransferDialog.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -216,7 +223,8 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    TagInput
+    TagInput,
+    TransferDialog
   },
   data () {
     return {
@@ -233,6 +241,8 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      warehouseIds: '', // 转移库位 仓库ID
+      transferDialog: false, // 转移库位弹窗
       clickItemId: '',
       optionObj: {
         id: 'inventoryTable',
@@ -560,28 +570,37 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
+    },
+    // 转移库位
+    handleTransfer () {
+      // 检查是否有选中项
+      if (!this.selectionList || this.selectionList.length === 0) {
+        this.$message.warning('请先选择要操作的数据');
+        return;
+      }
+      // 如果是单条数据，直接通过
+      if (this.selectionList.length === 1) {
+        this.warehouseIds = this.selectionList[0].warehouseId;
+        this.transferDialog = true;
+        return;
+      }
+      // 提取所有选中项的 warehouseId
+      const warehouseIds = this.selectionList.map(item => item.warehouseId);
+
+      // 检查所有 warehouseId 是否相同
+      const firstWarehouseId = warehouseIds[0];
+      const allSame = warehouseIds.every(id => id === firstWarehouseId);
+
+      if (allSame) {
+        // 所有 warehouseId 相同，可以继续操作
+        this.transferDialog = true;
+      } else {
+        this.$message.warning('选中的数据仓库不一致，请选择相同仓库的数据进行操作');
+      }
+    },
+    handleTransferDialogClose () {
+      this.transferDialog = false;
+      this.getData();
     }
   }
 };
