@@ -156,7 +156,7 @@ import MaterialReturnDialog from './components/MaterialReturnDialog';
 import SelectRepairItemDialog from './components/SelectRepairItemDialog';
 import StartWorkDialog from './components/StartWorkDialog';
 import DispatchWorkDialog from './components/DispatchWorkDialog';
-import Upload from '@/libs/components/UploadDialog';
+import Upload from './components/UploadDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复

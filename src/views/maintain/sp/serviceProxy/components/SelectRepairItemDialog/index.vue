@@ -291,7 +291,7 @@
                   :key="item.checkoutTypeId"
                   :label="item.checkoutTypeName"
                   :value="item.checkoutTypeName"
-                  :disabled="row.isOemPart !== 1 && checkoutTypeIncluded(item.checkoutTypeId)"
+                  :disabled="row.isOemPart != 1 && checkoutTypeIncluded(item.checkoutTypeId)"
                 />
               </el-select>
             </template>
@@ -320,7 +320,7 @@
             width="120px"
           >
             <template #default="{ row }">
-              <span>{{ row.isOemPart === 1 ? '是' : '否' }}</span>
+              <span>{{ row.isOemPart == 1 ? '是' : '否' }}</span>
             </template>
           </vxe-column>
           <vxe-column field="quantity" title="数量" width="160px">
