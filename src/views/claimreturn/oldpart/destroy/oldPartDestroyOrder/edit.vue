@@ -16,10 +16,10 @@
           <!-- 支持primary,warning,success,danger等状态 -->
         </template>
         <template #extraButtons>
-          <el-button v-if="canDelete" @click="onRemove" size="small">删除</el-button>
-          <el-button @click="checkDestroy" size="small">销毁</el-button>
-          <el-button size="small">销毁审批通过</el-button>
-          <el-button size="small">销毁审批驳回</el-button>
+          <!-- 门店可操作 -->
+          <el-button v-if="isDealer" @click="dialogFormVisible = true" size="small">销毁</el-button>
+          <!-- 主机厂可操作 -->
+          <el-button v-if="!isDealer && form.destroyStatus === '50'" @click="dialogFormVisible2 = true" size="small">审批</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -81,22 +81,63 @@
                   :checkbox="true"
                   :auth="{ edit: false, delete: false }"
                   :columns="columns"
+                  :showPagination="true"
+                  :current="current"
+                  :pageSize="pageSize"
+                  :total="total"
                   :data="tableData"
-                />
+                  @mask="mask"
+                  @page-size-change="pageSizeChange"
+                  @current-page-change="currentPageChange"
+                >
+                  <template v-slot:default="{ row, column, col }">
+                    <span class="href-link" v-if="col.click" @click="col.click(row)">{{ row[column.field] }}</span>
+                    <span v-else>{{ row[column.field] }}</span>
+                  </template>
+                </edit-table>
+              </div>
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>销毁申请附件</h2>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-table">
+                <!-- 附件上传组件 -->
               </div>
             </div>
           </section>
         </el-main>
       </edit-base-container>
-      <el-dialog title="" :visible.sync="dialogFormVisible">
-        <el-form :model="dialogForm" ref="dialogRuleForm" :rules="dialogRules" label-width="150px" class="form-edit">
-          <el-form-item label="请输入销毁说明:" :label-width="150">
-            <el-input type="textarea" :maxlength="1000" v-model="dialogForm.destroyRemark" autocomplete="off"></el-input>
+      <!-- 旧件销毁申请 -->
+      <el-dialog title="旧件销毁申请" :visible.sync="dialogFormVisible">
+        <el-form :model="form" ref="dialogRuleForm" :rules="rules" label-width="150px" class="form-edit">
+          <el-form-item label="请输入销毁说明:" prop="destroyRemark">
+            <el-input type="textarea" :maxlength="1000" v-model="form.destroyRemark" autocomplete="off"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="applyDestory">确 定</el-button>
+          <el-button :loading="loadingDialog" type="primary" @click="executeDestroy">确 定</el-button>
+        </div>
+      </el-dialog>
+      <!-- 旧件销毁审批 -->
+       <el-dialog title="旧件销毁审批" :visible.sync="dialogFormVisible2">
+        <el-form label-width="150px" class="form-edit">
+          <el-form-item label="审批结果:">
+            <el-radio-group v-model="isPass">
+              <el-radio :label="true">通过</el-radio>
+              <el-radio :label="false">驳回</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="请输入销毁审批说明:">
+            <el-input type="textarea" :maxlength="1000" v-model="form.approveRemark" autocomplete="off"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible2 = false">取 消</el-button>
+          <el-button type="primary" click="approve">确 定</el-button>
         </div>
       </el-dialog>
     </template>
@@ -109,7 +150,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, deleteItem, checkDestroy, executeDestroy } from '@/api/claimreturn/oldpart/destroy/oldPartDestroyOrder/index';
+import { getDetail, addOrUpdate, deleteItem, executeDestroy, approve } from '@/api/claimreturn/oldpart/destroy/oldPartDestroyOrder/index';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -118,6 +159,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { getList, getDetailDecryptField } from '../../../../../api/claimreturn/oldpart/inventory/oem';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -171,6 +213,7 @@ export default {
       handler (val) {
         if (val && this.$refs.containerRef) {
           this.$refs.containerRef.loadDetail();
+          this.getTableData();
         }
       },
       immediate: true
@@ -184,14 +227,19 @@ export default {
       title: '销毁审批人ID：' + form.approverId,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-oldPartDestroyOrder',
+      // 是否是门店用户
+      isDealer: true,
+      // isDealer: this.$store.state.user.userInfo?.accountFlag,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
-      originalForm: { ...form },
       defaultNewRow: {
         name: '',
       },
+      current: 1,
+      pageSize: 10,
+      total: 0,
       tableData: [],
       options: {
         // 对应表格里选型枚举
@@ -205,29 +253,44 @@ export default {
           width: '160'
         },
         {
-          field: 'repairOrderNo',
+          field: 'serviceProxyNo',
           title: '接车施工单',
-          width: '160'
+          width: '160',
+          click (row) {
+            // 点击事件
+          }
         },
         {
-          field: 'approval',
+          field: 'warrantyNo',
           title: '保修申请单',
-          width: '180'
+          width: '180',
+          click () {
+            // 点击事件
+            console.log('点击了接车施工单');
+          }
         },
         {
-          field: 'approvalTime',
+          field: 'warrantyApproveTime',
           title: '审批通过时间(保修申请单)',
           width: '180'
         },
         {
           field: 'oldPartUniqueCode',
           title: '旧件唯一码',
-          width: '160'
+          width: '160',
+          click () {
+            // 点击事件
+            console.log('点击了接车施工单');
+          }
         },
         {
           field: 'dealerName',
           title: '门店名称',
-          width: '150'
+          width: '150',
+          click () {
+            // 点击事件
+            console.log('点击了接车施工单');
+          }
         },
         {
           field: 'isMainPartLabel',
@@ -237,12 +300,17 @@ export default {
         {
           field: 'vin',
           title: 'VIN',
-          width: '180'
+          width: '180',
+          mask: true,
         },
         {
           field: 'oldPartSupplierName',
           title: '旧件供应商',
-          width: '150'
+          width: '150',
+          click () {
+            // 点击事件
+            console.log('点击了接车施工单');
+          }
         },
         {
           field: 'mainPartSupplierName',
@@ -252,7 +320,11 @@ export default {
         {
           field: 'oldPartCode',
           title: '旧件编码',
-          width: '140'
+          width: '140',
+          click () {
+            // 点击事件
+            console.log('点击了接车施工单');
+          }
         },
         {
           field: 'oldPartName',
@@ -262,7 +334,11 @@ export default {
         {
           field: 'partCode',
           title: '换上零件编码',
-          width: '140'
+          width: '140',
+          click () {
+            // 点击事件
+            console.log('点击了接车施工单');
+          }
         },
         {
           field: 'partName',
@@ -270,12 +346,12 @@ export default {
           width: '160'
         },
         {
-          field: 'oemInventoryStatus',
+          field: 'oemStatus',
           title: '主机厂库存状态',
           width: '150'
         },
         {
-          field: 'dealerInboundTime',
+          field: 'dealerInTime',
           title: '门店入库时间',
           width: '150'
         },
@@ -285,7 +361,7 @@ export default {
           width: '150'
         },
         {
-          field: 'xx',
+          field: 'oemInTime',
           title: '主机厂入库时间',
           width: '150'
         },
@@ -397,18 +473,15 @@ export default {
         ],
       },
       // 销毁说明
-      dialogForm: {
-        destroyRemark: '',
-      },
       dialogFormVisible: false,
-      dialogRules: {
-        destroyRemark: [
-          { required: true, message: '请输入销毁说明', trigger: 'blur' }
-        ]
-      }
+      loadingDialog: false,
+      // 审批说明
+      dialogFormVisible2: false,
+      isPass: true,
     };
   },
   mounted () {
+    this.getTableData();
   },
   methods: {
     detailRequest () {
@@ -479,24 +552,75 @@ export default {
         });
       });
     },
-    checkDestroy () {
-      // if (!this._id) {
-      //   this.$message.warning('请上传销毁附件信息后，再申请销毁，谢谢');
-      //   return;
-      // }
-      // 销毁审核操作
-      checkDestroy(this._id).then((res) => {
-        console.log(res);
-        this.applyDestory();
-      }).catch(() => {
+    executeDestroy () {
+      this.$refs.dialogRuleForm.validate((valid) => {
+        if (valid) {
+          this.loadingDialog = true;
+          executeDestroy({
+            id: this._id,
+            destroyRemark: this.form.destroyRemark, // 销毁说明
+          }).then((res) => {
+            this.dialogFormVisible = false;
+            this.$message.success('旧件销毁提交成功，请等待审批');
+            this.$refs.containerRef.loadDetail();
+          }).finally(() => {
+            this.loadingDialog = false;
+          });
+        }
       });
     },
-    applyDestory () {
-      executeDestroy();
+    approve () {
+      approve({
+        id: this._id,
+        approveRemark: this.form.approveRemark, // 审批说明
+        isPass: this.isPass, // 是否通过
+      }).then((res) => {
+        this.dialogFormVisible2 = false;
+        this.$message.success('操作成功');
+        this.$refs.containerRef.loadDetail();
+      }).catch(() => {
+      });
     },
     onBack () {
       this.$router.back();
     },
+    pageSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.current = 1;
+      this.getTableData();
+    },
+    currentPageChange (current) {
+      this.current = current;
+      this.getTableData();
+    },
+    // 明细表格
+    getTableData () {
+      getList({
+        oldPartDestroyOrderId: this._id,
+        pageSize: this.pageSize,
+        pageNum: this.current,
+      }).then((res) => {
+        this.tableData = res.records || [];
+        this.total = res.total;
+      });
+    },
+    mask (row, column) {
+      const field = column.field;
+      const rawField = field + 'Raw';
+      const maskField = field + 'Mask';
+      if (row[rawField]) {
+        const temp = row[field];
+        row[field] = row[rawField];
+        row[rawField] = temp;
+        row[maskField] = !row[maskField];
+        return;
+      }
+      getDetailDecryptField(row.id, field).then(data => {
+        row[maskField] = true;
+        row[rawField] = row[field];
+        row[field] = data;
+      });
+    }
   }
 };
 </script>

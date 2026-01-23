@@ -57,6 +57,7 @@ import {
   encrypt
   // encryptUC
 } from '@/utils';
+import { loginUserGet } from '@/libs/api/common';
 
 export default {
   data () {
@@ -104,21 +105,18 @@ export default {
         return false;
       };
       // 登陆验证
-      login(encrypt(this.form)).then(res => {
-        // let params = {
-        //   username: this.form.account,
-        //   password: encryptUC(this.form.password),
-        //   client_id: 'LXP'
-        // };
-        // console.log(params);
+      login(encrypt(this.form)).then(async (res) => {
         this.iskey = false;
-        this.$store.commit('SET_LOGIN_INFO', res);
+        this.$store.commit('SET_TOKEN', res.token);
         this.$store.commit('SET_PAGE_RESOURCE', res.resources);
         getAreaTree().then(res => {
           console.log('areaTree', res);
           localStorage.getItem('areaTree', JSON.stringify(res));
           this.$store.commit('SET_AREATREE', res);
         }).catch(() => {});
+
+        const data = await loginUserGet();
+        this.$store.commit('SET_LOGIN_INFO', Object.assign({}, res, data));
 
         if (!!this.$route.query.id && !!this.$route.query.url) {
           this.$store.commit('SET_ACTIVE_MENU', this.$route.query.url);
