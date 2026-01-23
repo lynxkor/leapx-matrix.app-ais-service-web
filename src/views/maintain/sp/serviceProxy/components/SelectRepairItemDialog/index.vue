@@ -186,7 +186,7 @@
           <vxe-column field="discountRate" title="折扣率" width="120px" />
           <vxe-column field="discountAmount" title="优惠金额" width="160px">
             <template #default="{ row }">
-              <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount }}</template>
+              <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount.toFixed(2) }}</template>
               <el-input-number
                 v-else
                 v-model="row.discountAmount"
@@ -199,13 +199,17 @@
               />
             </template>
           </vxe-column>
-          <vxe-column field="repairAmount" title="项目金额" width="120px" />
+          <vxe-column field="repairAmount" title="项目金额" width="120px">
+            <template #default="{ row }">
+              <template>{{ row?.repairAmount.toFixed(2) }}</template>
+            </template>
+          </vxe-column>
           <vxe-column field="statusLabel" title="维修项目状态" width="120px" />
           <vxe-column field="packageCode" title="套餐代码" width="120px" />
           <vxe-column title="操作" width="100" align="center" fixed="right">
-            <template #default="{ rowIndex }">
-              <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleRemoveItemRow(rowIndex)">
-                <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
+            <template #default="{ row, rowIndex }">
+              <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleRemoveItemRow(rowIndex)" :disabled="row.workRecordStatus === 40">
+                <span slot="reference" type="text" size="small" :class="['btn-delete', {'disabled': row.workRecordStatus === 40}]">删除</span>
               </el-popconfirm>
             </template>
           </vxe-column>
@@ -321,7 +325,7 @@
           </vxe-column>
           <vxe-column field="quantity" title="数量" width="160px">
             <template #default="{ row }">
-              <template v-if="isOutstock">{{ row.quantity }}</template>
+              <template v-if="row.isOutstock">{{ row.quantity }}</template>
               <el-input-number
                 v-else
                 v-model="row.quantity"
@@ -337,7 +341,7 @@
           <vxe-column field="discountRate" title="折扣率" width="120px" />
           <vxe-column field="discountAmount" title="优惠金额" width="160px">
             <template #default="{ row }">
-              <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount }}</template>
+              <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount.toFixed(2) }}</template>
               <el-input-number
                 v-else
                 v-model="row.discountAmount"
@@ -351,7 +355,11 @@
               />
             </template>
           </vxe-column>
-          <vxe-column field="partsAmount" title="配件金额" width="120px" />
+          <vxe-column field="partsAmount" title="配件金额" width="120px">
+            <template #default="{ row }">
+              <template>{{ row?.partsAmount.toFixed(2) }}</template>
+            </template>
+          </vxe-column>
           <vxe-column field="repairItemName" title="维修项目名称" width="180px">
             <template #default="{ row }">
               <el-select
@@ -372,9 +380,9 @@
           </vxe-column>
           <vxe-column field="packageCode" title="套餐代码" width="120px" />
           <vxe-column title="操作" width="100" align="center" fixed="right">
-            <template #default="{ rowIndex }">
-              <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleRemovePartRow(rowIndex)">
-                <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
+            <template #default="{ row, rowIndex }">
+              <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleRemovePartRow(rowIndex)" :disabled="row.isOutstock">
+                <span slot="reference" type="text" size="small" :class="['btn-delete', {'disabled': row.isOutstock}]">删除</span>
               </el-popconfirm>
             </template>
           </vxe-column>
@@ -788,7 +796,7 @@ export default {
         // 找到所有关联该维修项目的自动导入零件
         const autoImportedPartIndices = [];
         this.partData.forEach((part, idx) => {
-          if (part.isBindltem && part.repairItemId === removedRow.repairItemId) {
+          if (part.repairItemId === removedRow.repairItemId) {
             autoImportedPartIndices.push(idx);
           }
         });
@@ -972,6 +980,10 @@ export default {
     &:hover {
       text-decoration: underline;
       color: var(--leap-color-danger-dark-1);
+    }
+    &.disabled{
+      cursor: not-allowed;
+      opacity: 0.5;
     }
   }
   .info-bar {
