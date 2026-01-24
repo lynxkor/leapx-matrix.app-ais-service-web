@@ -1377,7 +1377,7 @@ const routes = [
         name: '订单类型采购次数设置详情',
         noResourceUrl: 'true'
       }
-    },  {
+    }, {
       path: '/maintain/sp/repairWorkRecord',
       name: 'spRepairWorkRecord',
       component: () => import('@/views/maintain/sp/repairWorkRecord/index.vue'),
@@ -1411,6 +1411,24 @@ const routes = [
 
       meta: {
         name: '保养零件提醒表管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/claim/sparePartClaim',
+      name: 'sparePartClaim',
+      component: () => import('@/views/sparepart/claim/sparePartClaim/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/claim/sparepartclaim/edit',
+      name: 'sparePartClaimEdit',
+      component: () => import('@/views/sparepart/claim/sparePartClaim/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
         noResourceUrl: 'true'
       }
     }]
