@@ -53,7 +53,7 @@
                 />
               </el-form-item>
               <el-form-item label="省市区" prop="provinceCode"
-              v-if="permissions.has('web:basic:supplierInfo:oemColumn')"
+              v-if="oem"
               >
                 <el-cascader
                   placeholder="请选择省市区"
@@ -65,7 +65,7 @@
                 </el-cascader>
               </el-form-item>
               <el-form-item label="地址" prop="address"
-              v-if="permissions.has('web:basic:supplierInfo:oemColumn')">
+              v-if="oem">
                 <el-input
                   placeholder="请输入"
                   v-model="form.address"
@@ -80,7 +80,7 @@
                 />
               </el-form-item>
               <el-form-item label="联系人姓名" prop="contactName"
-              v-if="permissions.has('web:basic:supplierInfo:oemColumn')">
+              v-if="oem">
                 <el-input
                   placeholder="请输入"
                   v-model="form.contactName"
@@ -88,7 +88,7 @@
                 />
               </el-form-item>
               <el-form-item label="联系人电话" prop="contactPhone"
-              v-if="permissions.has('web:basic:supplierInfo:oemColumn')">
+              v-if="oem">
                 <el-input
                   placeholder="请输入"
                   v-model="form.contactPhone"
@@ -96,7 +96,7 @@
                 />
               </el-form-item>
               <el-form-item label="联系人邮箱" prop="contactEmail"
-              v-if="permissions.has('web:basic:supplierInfo:oemColumn')">
+              v-if="oem">
                 <el-input
                   placeholder="请输入"
                   v-model="form.contactEmail"
@@ -104,7 +104,7 @@
                 />
               </el-form-item>
               <el-form-item label="联系人传真" prop="contactFax"
-              v-if="permissions.has('web:basic:supplierInfo:oemColumn')">
+              v-if="oem">
                 <el-input
                   placeholder="请输入"
                   v-model="form.contactFax"
@@ -190,6 +190,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      oem: false,
       areaOptions: JSON.parse(localStorage.areaTree),
       orgProps: {
         checkStrictly: true,
@@ -347,6 +348,7 @@ export default {
   },
   mounted () {
     this.getDetailData();
+    this.oem = this.$store.state.pageSource?.aisPageSource.includes('AISPART-sparePart-oem');
   },
   methods: {
 

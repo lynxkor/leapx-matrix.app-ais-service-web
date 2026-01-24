@@ -61,10 +61,12 @@
             <el-form-item label="国家：" prop="countryName">
               {{ info.countryCodeLabel  }}
             </el-form-item>
-            <el-form-item label="省：" prop="provinceName">
+            <el-form-item label="省：" prop="provinceName"
+            v-if="oem">
               {{ info.provinceName  }}
             </el-form-item>
-            <el-form-item label="市：" prop="cityName">
+            <el-form-item label="市：" prop="cityName"
+            v-if="oem">
               {{ info.cityName  }}
             </el-form-item>
             <!-- <el-form-item label="区、县：" prop="districtName">
@@ -82,19 +84,23 @@
               {{ info.districtCode  }}
             </el-form-item>-->
             <el-form-item label="详细地址：" prop="address"
-            v-if="permissions.has('web:basic:supplierInfo:oemColumn')">
+            v-if="oem">
               {{ info.address  }}
             </el-form-item>
-            <el-form-item label="联系人姓名：" prop="contactName">
+            <el-form-item label="联系人姓名：" prop="contactName"
+            v-if="oem">
               {{ info.contactName  }}
             </el-form-item>
-            <el-form-item label="联系人电话：" prop="contactPhone">
+            <el-form-item label="联系人电话：" prop="contactPhone"
+            v-if="oem">
               {{ info.contactPhone  }}
             </el-form-item>
-            <el-form-item label="联系人邮箱：" prop="contactEmail">
+            <el-form-item label="联系人邮箱：" prop="contactEmail"
+            v-if="oem">
               {{ info.contactEmail  }}
             </el-form-item>
-            <el-form-item label="联系人传真：" prop="contactFax">
+            <el-form-item label="联系人传真：" prop="contactFax"
+            v-if="oem">
               {{ info.contactFax  }}
             </el-form-item>
             <el-form-item label="创建时间：" prop="createTime">
@@ -122,6 +128,7 @@ export default {
   },
   data () {
     return {
+      oem: false,
       areaOptions: JSON.parse(localStorage.areaTree),
       orgProps: {
         checkStrictly: true,
@@ -140,6 +147,7 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['供应商主数据', '详情']);
     this.getData();
+    this.oem = this.$store.state.pageSource?.aisPageSource.includes('AISPART-sparePart-oem');
   },
   methods: {
     handleEdit () {

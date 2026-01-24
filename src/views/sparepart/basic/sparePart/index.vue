@@ -388,7 +388,7 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
-
+      console.log(this.permissions.has('AISPART-sparePart-transportImport'));
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           this.optionObj.dataList = res.records.map(item => {
