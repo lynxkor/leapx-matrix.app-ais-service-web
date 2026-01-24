@@ -197,3 +197,11 @@ export function sparePartListShort (data) {
 export function getParentCompany (data) {
   return api.jsonPost('/network/portal/parentCompany/page', data);
 }
+
+/**
+ * 备件仓库列表查询
+ * @param {*} data
+ */
+export function listWarehouse (data) {
+  return api.jsonPost('/sp/web/warehouse/warehouse/list', data);
+}
