@@ -294,7 +294,7 @@
                 reserve-keyword
                 size="small"
                 placeholder="请选择"
-                @change="handleBatteryUnitChange"
+                @change="handlePartUnitChange($event, row)"
               />
             </template>
           </vxe-column>
@@ -587,7 +587,18 @@ export default {
     handleBatteryUnitChange (val, record) {
       if (record) {
         this.formInline.batteryUnitName = record.name;
-        this.formInline.targetUnitCode = record.unifiedSocialCreditCode || '';
+        this.formInline.targetUnitCode = record.code || '';
+      }
+    },
+    // 零件去向单位变更
+    handlePartUnitChange (val, record) {
+      if (record) {
+        const index = this.partsTraceRecordResps.findIndex(item => item.id === record.id);
+        if (index > -1) {
+          this.partsTraceRecordResps[index].targetUnitCode = record.code || '';
+          this.partsTraceRecordResps[index].batteryUnitId = val; n
+        }
+        console.log('零件去向单位变更', this.partsTraceRecordResps[index]);
       }
     },
     // 搜索用户(质检人/终检人)
@@ -637,15 +648,16 @@ export default {
         const submitData = {
           id: this.recordId,
           repairWorkRecordResps: this.tableData,
-          faultAlertRecordResps: this.faultTableData,
-          partsTraceRecordResps: this.partsTraceRecordResps,
+          faultAlertRecordParams: this.faultTableData,
+          traceRecordParams: this.partsTraceRecordResps,
           batteryUnitId: this.formInline.batteryUnitId,
           targetUnitCode: this.formInline.targetUnitCode,
           beforeChangeCode: this.formInline.beforeChangeCode,
           afterChangeCode: this.formInline.afterChangeCode,
-          faultFlag: this.faultForm.faultFlag,
+          currentFault: this.faultForm.faultFlag === 1 ? 0 : 1,
           finalCheckAt: this.filterForm.finalCheckTime,
-          finalChecker: this.filterForm.finalChecker
+          finalCheckerId: this.filterForm.finalChecker,
+          finalChecker: this.filterForm.finalCheckerName
         };
 
         const res = await finalInspection(submitData);

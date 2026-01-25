@@ -186,7 +186,7 @@
           <vxe-column field="discountRate" title="折扣率" width="120px" />
           <vxe-column field="discountAmount" title="优惠金额" width="160px">
             <template #default="{ row }">
-              <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount.toFixed(2) }}</template>
+              <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount }}</template>
               <el-input-number
                 v-else
                 v-model="row.discountAmount"
@@ -201,7 +201,7 @@
           </vxe-column>
           <vxe-column field="repairAmount" title="项目金额" width="120px">
             <template #default="{ row }">
-              <template>{{ row?.repairAmount.toFixed(2) }}</template>
+              <template>{{ row?.repairAmount }}</template>
             </template>
           </vxe-column>
           <vxe-column field="statusLabel" title="维修项目状态" width="120px" />
@@ -341,7 +341,7 @@
           <vxe-column field="discountRate" title="折扣率" width="120px" />
           <vxe-column field="discountAmount" title="优惠金额" width="160px">
             <template #default="{ row }">
-              <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount.toFixed(2) }}</template>
+              <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount }}</template>
               <el-input-number
                 v-else
                 v-model="row.discountAmount"
@@ -357,7 +357,7 @@
           </vxe-column>
           <vxe-column field="partsAmount" title="配件金额" width="120px">
             <template #default="{ row }">
-              <template>{{ row?.partsAmount.toFixed(2) }}</template>
+              <template>{{ row?.partsAmount }}</template>
             </template>
           </vxe-column>
           <vxe-column field="repairItemName" title="维修项目名称" width="180px">
@@ -621,7 +621,7 @@ export default {
         checkoutTypeName: checkoutTypeObj?.checkoutTypeName || checkoutTypeObj?.label || '',
         warrantyTypeId: warrantyTypeObj?.warrantyTypeId || '',
         warrantyTypeName: warrantyTypeObj?.warrantyTypeName || warrantyTypeObj?.label || '',
-        isOemPart: selectedPart.isOemPart,
+        isOemPart:  parseInt(selectedPart.oemPart),
         quantity: 1,
         price: selectedPart.salePrice || 0,
         discountRate: this.selectedDiscount?.discountPartRate || 0,
@@ -728,6 +728,7 @@ export default {
       filterSparePartItem({ nameOrCodeOrPinyinLike: queryString, serviceProxyId: this.vehicleInfo.id }).then(res => {
         const data = res.map(item => ({
           ...item,
+          isOemPart: item.oemPart,
           value: item.partName
         }));
         cb(data);
@@ -854,7 +855,7 @@ export default {
       const originalAmount = row.workHour * row.price;
       row.discountAmount = Number(row.discountAmount) || 0;
       row.repairAmount = originalAmount - row.discountAmount;
-      row.discountRate = (row.discountAmount / originalAmount).toFixed(8);
+      row.discountRate = (row.discountAmount / originalAmount);
       this.updateTotals();
     },
 
@@ -895,7 +896,7 @@ export default {
       const originalAmount = row.quantity * row.price;
       row.discountAmount = Number(row.discountAmount) || 0;
       row.partsAmount = originalAmount - row.discountAmount;
-      row.discountRate = (row.discountAmount / originalAmount).toFixed(8);
+      row.discountRate = (row.discountAmount / originalAmount);
       this.updateTotals();
     },
     // 维修项目名称变化
