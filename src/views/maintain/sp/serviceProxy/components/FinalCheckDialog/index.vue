@@ -587,7 +587,7 @@ export default {
     handleBatteryUnitChange (val, record) {
       if (record) {
         this.formInline.batteryUnitName = record.name;
-        this.formInline.targetUnitCode = record.code || '';
+        this.formInline.targetUnitCode = record.unifiedSocialCreditCode || '';
       }
     },
     // 零件去向单位变更
@@ -596,7 +596,7 @@ export default {
         const index = this.partsTraceRecordResps.findIndex(item => item.id === record.id);
         if (index > -1) {
           this.partsTraceRecordResps[index].targetUnitCode = record.code || '';
-          this.partsTraceRecordResps[index].batteryUnitId = val; n
+          this.partsTraceRecordResps[index].batteryUnitId = val;
         }
         console.log('零件去向单位变更', this.partsTraceRecordResps[index]);
       }
@@ -643,6 +643,17 @@ export default {
     },
     async submit () {
       this.submitLoading = true;
+      if (!this.filterForm.finalCheckTime) {
+        this.$message.warning('请选择终检时间');
+        this.submitLoading = false;
+        return;
+      }
+
+      if (!this.filterForm.finalChecker) {
+        this.$message.warning('请选择终检人');
+        this.submitLoading = false;
+        return;
+      }
       try {
         // 组装提交数据
         const submitData = {
