@@ -205,3 +205,19 @@ export function getParentCompany (data) {
 export function listWarehouse (data) {
   return api.jsonPost('/sp/web/warehouse/warehouse/list', data);
 }
+
+/**
+ * 备件门店详情查询
+ * @param {*} data
+ */
+export function getPartDealer (data) {
+  return api.jsonPost('/sp/web/base/dealer/getDealer', data);
+}
+
+/**
+ * 备件用户信息查询
+ * @param {*} data
+ */
+export function getPartUser (data) {
+  return api.jsonPost('/sp/web/base/loginUser/getLoginUser', data);
+}

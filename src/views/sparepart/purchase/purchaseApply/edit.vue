@@ -66,7 +66,7 @@
                     filterable
                   />
                 </el-form-item>
-                <el-form-item label="公司名称：" prop="companyName">
+                <el-form-item label="公司名称：" prop="companyCode">
                   {{form.companyName}}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
@@ -74,26 +74,16 @@
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
                   <el-input
+                    type="textarea"
+                    maxlength="500"
+                    show-word-limit
                     placeholder="请输入"
                     v-model="form.remark"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="仓库名称：" prop="warehouseName">
-                  <fetch-select
-                    :remote-method="getWarehouse"
-                    remote
-                    v-model="form.warehouseIdList"
-                    placeholder="请选择"
-                    labelKey="name"
-                    valueKey="id"
-                    subLabelKey="code"
-                    clearable
-                    multiple
-                    collapseTags
-                    filterable
-                    @change="handleWarehouseChange"
-                      />
+                <el-form-item label="仓库名称：">
+                  {{ form.warehouseName }}
                 </el-form-item>
                 <el-form-item label="是否第三方收货：" prop="thirdPartyDeliveryIs">
                   <el-radio-group
@@ -214,7 +204,7 @@
                   {{ form.warehouseName }}
                 </el-form-item>
                 <el-form-item label="是否第三方收货：" prop="thirdPartyDeliveryIs">
-                  {{ form.thirdPartyDeliveryIs }}
+                  {{ form.thirdPartyDeliveryIsLabel }}
                 </el-form-item>
                 <el-form-item label="收货人姓名：" prop="recipientName">
                   {{ form.recipientName }}
@@ -312,7 +302,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getUserByNameOrNo, getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse } from '@/api/common';
+import { getUserByNameOrNo, getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse, getPartDealer, getPartUser } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -462,7 +452,7 @@ export default {
       ],
       rules: {
         code: [
-          { required: true, message: '请输入采购申请单', trigger: 'change' }
+          { required: false, message: '请输入采购申请单', trigger: 'change' }
         ],
         dealerCode: [
           { required: true, message: '请输入门店编码', trigger: 'change' }
@@ -486,25 +476,25 @@ export default {
           { required: true, message: '请选择订单类型', trigger: 'change' }
         ],
         purchaseAmount: [
-          { required: true, message: '请输入采购金额', trigger: 'change' }
+          { required: false, message: '请输入采购金额', trigger: 'change' }
         ],
         orderStatus: [
           { required: true, message: '请选择订单状态', trigger: 'change' }
         ],
         submitTime: [
-          { required: true, message: '请选择提交时间', trigger: 'change' }
+          { required: false, message: '请选择提交时间', trigger: 'change' }
         ],
         submitter: [
-          { required: true, message: '请输入提交人', trigger: 'change' }
+          { required: false, message: '请输入提交人', trigger: 'change' }
         ],
         approver: [
-          { required: true, message: '请输入审批人', trigger: 'change' }
+          { required: false, message: '请输入审批人', trigger: 'change' }
         ],
         approvalTime: [
-          { required: true, message: '请选择审批时间', trigger: 'change' }
+          { required: false, message: '请选择审批时间', trigger: 'change' }
         ],
         remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
+          { required: false, message: '请输入备注', trigger: 'change' }
         ],
         createTime: [
           { required: true, message: '请选择创建时间', trigger: 'change' }
@@ -561,10 +551,10 @@ export default {
           { required: true, message: '请输入数据来源，150:新销服; 老销服:10', trigger: 'change' }
         ],
         backOrderId: [
-          { required: true, message: '请输入缺货单ID', trigger: 'change' }
+          { required: false, message: '请输入缺货单ID', trigger: 'change' }
         ],
         originalPriceCouponId: [
-          { required: true, message: '请输入原价券ID', trigger: 'change' }
+          { required: false, message: '请输入原价券ID', trigger: 'change' }
         ],
         thirdPartyDeliveryIs: [
           { required: true, message: '请输入是否第三方收货', trigger: 'change' }
@@ -576,40 +566,44 @@ export default {
           { required: true, message: '请输入收货人电话', trigger: 'change' }
         ],
         cashAmount: [
-          { required: true, message: '请输入现金金额', trigger: 'change' }
+          { required: false, message: '请输入现金金额', trigger: 'change' }
         ],
         cashAvailableAmount: [
-          { required: true, message: '请输入现金可用资金', trigger: 'change' }
+          { required: false, message: '请输入现金可用资金', trigger: 'change' }
         ],
         rebateAmount: [
-          { required: true, message: '请输入返利金额', trigger: 'change' }
+          { required: false, message: '请输入返利金额', trigger: 'change' }
         ],
         rebateAvailableAmount: [
-          { required: true, message: '请输入返利可用资金', trigger: 'change' }
+          { required: false, message: '请输入返利可用资金', trigger: 'change' }
         ],
         taxRate: [
-          { required: true, message: '请输入税率', trigger: 'change' }
+          { required: false, message: '请输入税率', trigger: 'change' }
         ],
         vin: [
-          { required: true, message: '请输入VIN', trigger: 'change' }
+          { required: false, message: '请输入VIN', trigger: 'change' }
         ],
         specialCode: [
-          { required: true, message: '请输入特殊编码', trigger: 'change' }
+          { required: false, message: '请输入特殊编码', trigger: 'change' }
         ],
         emptyIs: [
-          { required: true, message: '请输入是否空出', trigger: 'change' }
+          { required: false, message: '请输入是否空出', trigger: 'change' }
         ],
         approvalDescription: [
-          { required: true, message: '请输入审批说明', trigger: 'change' }
+          { required: false, message: '请输入审批说明', trigger: 'change' }
         ],
         logisticsPaymentMethod: [
-          { required: true, message: '请输入物流支付方式', trigger: 'change' }
+          { required: false, message: '请输入物流支付方式', trigger: 'change' }
         ],
       }
     };
   },
   mounted () {
     this.oem = this.$store.state.pageSource?.aisPageSource.includes('AISPART-sparePart-oem');
+    console.log('this.oem  ', this.isEditing);
+    if (!this.isEditing) { // 是否编辑 TODO
+      this.getPartUser();
+    }
   },
   methods: {
     detailRequest () {
@@ -621,6 +615,34 @@ export default {
     // 点击带出门店名称
     handleDealerChange (val, ele) {
       this.form.dealerName = ele.orgName;
+      this.getPartDealer(ele.orgCode);
+    },
+
+    async getPartDealer (query) {
+      try {
+        const res = await getPartDealer({ code: query });
+        this.form.companyCode = res.parentCompanyCode;
+        this.form.companyName = res.parentCompanyName;
+        this.form.warehouseId = res.warehouseId;
+        this.form.warehouseCode = res.warehouseCode;
+        this.form.warehouseName = res.warehouseName;
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    async getPartUser (query) {
+      try {
+        const res = await getPartUser();
+        this.form.dealerCode = res.currentDealerCode;
+        this.form.dealerName = res.currentDealerName;
+        if (this.form.dealerCode) {
+          this.getPartDealer(this.form.dealerCode);
+        }
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     },
     handleWarehouseChange (val, ele) {
       this.form.warehouseName = ele.name;
