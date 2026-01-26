@@ -186,12 +186,13 @@
           <vxe-column field="discountRate" title="折扣率" width="120px" />
           <vxe-column field="discountAmount" title="优惠金额" width="160px">
             <template #default="{ row }">
-              <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount.toFixed(2) }}</template>
+              <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount | tofixed2 }}</template>
               <el-input-number
                 v-else
                 v-model="row.discountAmount"
                 size="small"
-                :precision="1"
+                :precision="2"
+                :step="0.1"
                 :min="0"
                 :max="+row.price"
                 controls-position="right"
@@ -201,7 +202,7 @@
           </vxe-column>
           <vxe-column field="repairAmount" title="项目金额" width="120px">
             <template #default="{ row }">
-              <template>{{ row?.repairAmount.toFixed(2) }}</template>
+              <template>{{ row?.repairAmount | tofixed2 }}</template>
             </template>
           </vxe-column>
           <vxe-column field="statusLabel" title="维修项目状态" width="120px" />
@@ -330,7 +331,6 @@
                 v-else
                 v-model="row.quantity"
                 size="small"
-                :precision="1"
                 :min="0"
                 controls-position="right"
                 @change="handlePartQuantityChange(row)"
@@ -341,7 +341,7 @@
           <vxe-column field="discountRate" title="折扣率" width="120px" />
           <vxe-column field="discountAmount" title="优惠金额" width="160px">
             <template #default="{ row }">
-              <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount.toFixed(2) }}</template>
+              <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount | tofixed2 }}</template>
               <el-input-number
                 v-else
                 v-model="row.discountAmount"
@@ -357,7 +357,7 @@
           </vxe-column>
           <vxe-column field="partsAmount" title="配件金额" width="120px">
             <template #default="{ row }">
-              <template>{{ row?.partsAmount.toFixed(2) }}</template>
+              <template>{{ row?.partsAmount | tofixed2 }}</template>
             </template>
           </vxe-column>
           <vxe-column field="repairItemName" title="维修项目名称" width="180px">
@@ -478,6 +478,14 @@ export default {
     },
     dialogVisible (val) {
       this.$emit('update:visible', val);
+    }
+  },
+  filters: {
+    tofixed2 (v) {
+      if (v && parseFloat(v) !== 'NaN') {
+        return v.toFixed(2);
+      }
+      return v;
     }
   },
   methods: {
@@ -621,7 +629,7 @@ export default {
         checkoutTypeName: checkoutTypeObj?.checkoutTypeName || checkoutTypeObj?.label || '',
         warrantyTypeId: warrantyTypeObj?.warrantyTypeId || '',
         warrantyTypeName: warrantyTypeObj?.warrantyTypeName || warrantyTypeObj?.label || '',
-        isOemPart: selectedPart.isOemPart,
+        isOemPart: parseInt(selectedPart.oemPart),
         quantity: 1,
         price: selectedPart.salePrice || 0,
         discountRate: this.selectedDiscount?.discountPartRate || 0,
@@ -714,7 +722,7 @@ export default {
       filterRepairItem({ nameOrCodeOrPinyinLike: queryString, serviceProxyId: this.vehicleInfo.id }).then(res => {
         const data = res.map(item => ({
           ...item,
-          value: item.name
+          value: `${item.name}-${item.code}`
         }));
         cb(data);
       });
@@ -728,14 +736,19 @@ export default {
       filterSparePartItem({ nameOrCodeOrPinyinLike: queryString, serviceProxyId: this.vehicleInfo.id }).then(res => {
         const data = res.map(item => ({
           ...item,
-          value: item.partName
+          isOemPart: item.oemPart,
+          value: `${item.partName}-库存:${item.availableQty || 0}-${item.partCode}`
         }));
         cb(data);
       });
     },
     handleSelectPart (item) {
-      this.selectedRepairPart = item;
-      this.addPart();
+      if (Number(item.salePrice) > 0) {
+        this.selectedRepairPart = item;
+        this.addPart();
+      } else {
+        this.$message.warning('请先维护零件的销售价格');
+      }
     },
     handleDiscountModeChange (value) {
       // 查找选中的优惠模式
@@ -830,8 +843,9 @@ export default {
       const selected = this.itemOptions.checkoutTypeName.find(item => item.checkoutTypeName === row.checkoutTypeName);
       if (selected) {
         row.checkoutTypeId = selected.checkoutTypeId;
-        row.warrantyTypeId = '';
-        row.warrantyTypeName = '';
+        const warrantyTypes = this.checkoutTypeMap[row.checkoutTypeName] || this.itemOptions.warrantyTypeName;
+        row.warrantyTypeId = warrantyTypes?.[0]?.warrantyTypeId;
+        row.warrantyTypeName = warrantyTypes?.[0]?.warrantyTypeName;
       }
     },
     // 保修类型变化
@@ -871,8 +885,9 @@ export default {
       const selected = this.itemOptions.checkoutTypeName.find(item => item.checkoutTypeName === row.checkoutTypeName);
       if (selected) {
         row.checkoutTypeId = selected.checkoutTypeId;
-        row.warrantyTypeId = '';
-        row.warrantyTypeName = '';
+        const warrantyTypes = this.checkoutTypeMap[row.checkoutTypeName] || this.itemOptions.warrantyTypeName;
+        row.warrantyTypeId = warrantyTypes?.[0]?.warrantyTypeId;
+        row.warrantyTypeName = warrantyTypes?.[0]?.warrantyTypeName;
       }
     },
     // 保修类型变化
