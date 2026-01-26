@@ -31,7 +31,7 @@
           <vxe-column field="createTime" title="创建时间" min-width="150" />
 
           <template #empty>
-            <div class="m-vxe-table-empty-text">若要启用此内容，请创建记录</div>
+            <div class="m-vxe-table-empty-text">暂无数据</div>
           </template>
         </vxe-table>
 			</div>

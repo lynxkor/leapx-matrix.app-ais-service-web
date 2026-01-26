@@ -109,7 +109,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
-import DealerSelect from '@/components/dealer-select/index.vue';
+
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
@@ -129,8 +129,8 @@ export default {
     PageSearchAction,
     LPVxeTable,
     EditPage,
-    Upload,
-    DealerSelect
+    Upload
+
   },
   data () {
     return {
@@ -270,7 +270,6 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
-    this.getTabsList();
   },
   methods: {
     getTabsList () {
@@ -346,7 +345,6 @@ export default {
 
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
-          console.log(res);
           this.optionObj.dataList = res.records.map(item => {
             return {
               ...item,
@@ -354,6 +352,7 @@ export default {
             };
           });
           this.optionObj.total = res.total;
+          this.loading = false;
         }).finally(() => {
           this.loading = false;
         });
@@ -471,6 +470,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.m-service-statement-list {
-}
+
 </style>

@@ -126,10 +126,10 @@
                 <el-popconfirm
                   title="确定质检吗？"
                   @confirm="handleQualityCheck(row)"
-                  :disabled="row.qualityCheckStatus === 30"
+                  :disabled="row.qualityCheckStatus === 30 && row.isDispatch"
                 >
                   <span
-                    :class="['action-button', 'btn-back', { disabled: row.qualityCheckStatus === 30 }]"
+                    :class="['action-button', 'btn-back', { disabled: row.qualityCheckStatus === 30 && row.isDispatch }]"
                     slot="reference"
                     type="text">
                     质检
@@ -138,10 +138,10 @@
                 <el-popconfirm
                   title="确定返修吗？"
                   @confirm="handleRepair(row)"
-                  :disabled="row.qualityCheckStatus !== 30"
+                  :disabled="row.qualityCheckStatus !== 30 && row.isDispatch"
                 >
                   <span
-                    :class="['action-button', 'btn-back', { disabled: row.qualityCheckStatus !== 30 }]"
+                    :class="['action-button', 'btn-back', { disabled: row.qualityCheckStatus !== 30 && row.isDispatch }]"
                     slot="reference"
                     type="text">
                     返修
@@ -587,6 +587,7 @@ export default {
     handleBatteryUnitChange (val, record) {
       if (record) {
         this.formInline.batteryUnitName = record.name;
+        this.formInline.batteryUnitId = record.id;
         this.formInline.targetUnitCode = record.unifiedSocialCreditCode || '';
       }
     },

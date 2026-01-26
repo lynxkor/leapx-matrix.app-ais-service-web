@@ -7,7 +7,7 @@
 			<div class="common-section-table table-section">
 				<vxe-table
           ref="faultTable"
-          :data="form.faultAlertRecordRespList"
+          :data="formData"
           stripe
           show-overflow
           :row-config="{ isHover: true }"
@@ -17,27 +17,23 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="vrtName" title="VRT名称" min-width="150"/>
-          <vxe-column field="vfgName" title="VFG名称" min-width="150"/>
-          <vxe-column field="cccName" title="CCC名称" min-width="150"/>
-          <vxe-column field="alertModule" title="是否提醒模块" width="150" align="center">
+          <vxe-column field="fileName" title="附件名称" min-width="150">
             <template #default="{ row }">
-              <span>{{ row.alertModule === 1 ? '是' : '否' }}</span>
+              <el-link :href="row.fileUrl" target="_blank" type="success">{{ row.fileName }}</el-link>
             </template>
           </vxe-column>
-          <vxe-column field="currentSituationText" title="本次进店情况(周期内)" min-width="150"/>
-          <vxe-column field="faultAlert" title="故障提醒内容" min-width="150"/>
+          <vxe-column field="createTime" title="创建时间" min-width="150"/>
           <vxe-column title="操作" width="100" align="center" fixed="right" :resizable="false">
             <template #default="{ row }">
               <el-popconfirm
-                title="确定删除此故障吗？"
-                @confirm="handleDeleteFault(row)"
+                title="确定删除此文件吗？"
+                @confirm="deleteFile(row)"
               >
                 <span
                   class="action-button btn-delete"
                   slot="reference"
                   type="text">
-                  删除故障
+                  删除
                 </span>
               </el-popconfirm>
             </template>
@@ -51,11 +47,13 @@
 	</section>
 </template>
 <script>
+import { deleteFile } from '@/libs/api/attachment';
+
 export default {
   props: {
     formData: {
-      type: Object,
-      default: () => {}
+      type: Array,
+      default: () => []
     },
     _id: {
       type: [String, Number],
@@ -81,6 +79,15 @@ export default {
     };
   },
   methods: {
+    deleteFile (row) {
+      deleteFile([row.id]).then(res => {
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        });
+        this.$emit('refresh');
+      });
+    }
   }
 };
 
@@ -98,6 +105,18 @@ export default {
   }
   .m-vxe-table-empty-text {
     text-align: left;
+  }
+  .btn-delete {
+    color: var(--leap-color-danger);
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+      color: var(--leap-color-danger-dark-1);
+    }
+    &.disabled{
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
   }
   ::v-deep .vxe-table--empty-content {
     color: var(--leap-color-default-light-2);
