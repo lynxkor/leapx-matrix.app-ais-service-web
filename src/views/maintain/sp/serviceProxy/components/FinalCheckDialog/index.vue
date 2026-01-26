@@ -587,6 +587,7 @@ export default {
     handleBatteryUnitChange (val, record) {
       if (record) {
         this.formInline.batteryUnitName = record.name;
+        this.formInline.batteryUnitId = record.id;
         this.formInline.targetUnitCode = record.unifiedSocialCreditCode || '';
       }
     },

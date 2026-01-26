@@ -5,7 +5,7 @@
 
       <div class="table-section">
         <div class="table-section-header">
-          <h3>权益核销记录</h3>
+          <h2>权益核销记录</h2>
         </div>
         <vxe-table
           ref="faultTable"
@@ -32,7 +32,7 @@
           <vxe-column field="carPlate" title="车牌号" min-width="150"/>
           <vxe-column field="applicableMaintenanceType" title="适用维修类型" min-width="150"/>
           <template #empty>
-            <div class="m-vxe-table-empty-text">若要启用此内容，请创建记录</div>
+            <div class="m-vxe-table-empty-text">暂无数据</div>
           </template>
         </vxe-table>
       </div>

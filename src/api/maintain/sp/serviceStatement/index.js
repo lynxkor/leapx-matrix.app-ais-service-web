@@ -45,3 +45,84 @@ export function enableItem (data) {
 export function getStatistics (data) {
   return api.jsonPost(prefix + 'statistics', data);
 }
+
+/**
+ * 批量执行权益核销
+ * @param {Object} data
+ */
+export function execEquityWriteOff (data) {
+  return api.jsonPost(prefix + 'execEquityWriteOff', data);
+}
+/**
+ * 提交结算校验
+ * @param {Object} data
+ */
+export function checkStatementAmount (data) {
+  return api.jsonPost(prefix + 'checkStatementAmount', data);
+}
+/**
+ * 确定结算
+ * @param {Object} data
+ */
+export function submitSettlementAndSign (data) {
+  return api.jsonPost(prefix + 'submitSettlementAndSign', data);
+}
+/**
+ * 驳回
+ * @param {Object} data
+ */
+export function reject (data) {
+  return api.jsonPost(prefix + 'reject', data);
+}
+/**
+ * 添加首款记录
+ * @param {Object} data
+ */
+export function addReceiptRecord (data) {
+  return api.jsonPost(prefix + 'addReceiptRecord', data);
+}
+/**
+ * 删除首款记录
+ * @param {Object} data
+ */
+export function deleteRecord (data) {
+  return api.jsonPost(prefix + 'deleteRecord', data);
+}
+/**
+ * 收款完成
+ * @param {Object} data
+ */
+export function receiptCompletion (data) {
+  return api.jsonPost(prefix + 'receiptCompletion', data);
+}
+/**
+ * 创建反结算申请单
+ * @param {Object} data
+ */
+export function createCounterSettlement (data) {
+  return api.jsonPost(prefix + 'createCounterSettlement', data);
+}
+
+/**
+ * 创建保修申请单
+ * @param {Object} data
+ */
+export function createWarrantyApplication (data) {
+  return api.jsonPost(prefix + 'createWarrantyApplication', data);
+}
+/**
+ * 权益列表
+ * @param {Object} data
+ */
+export function rightsList (data) {
+  return api.jsonPost(prefix + 'rightsList', data);
+}
+/**
+ * 权益核销-冻结
+ * @param {Object} data
+ */
+export function rightsFreeze (data) {
+  return api.jsonPost(prefix + 'rightsFreeze', data);
+}
+
+
