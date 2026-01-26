@@ -94,6 +94,7 @@
           stripe
           show-overflow
           resizable
+          :row-config="{ isHover: true }"
           border="inner"
           size="medium"
           min-height="0"
@@ -483,7 +484,7 @@ export default {
   filters: {
     tofixed2 (v) {
       if (v && parseFloat(v) !== 'NaN') {
-        return v.toFixed(2);
+        return parseFloat(v).toFixed(2);
       }
       return v;
     }

@@ -45,9 +45,9 @@
               </h5>
             </section>
             <BasicInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="basicInfoRef"/>
-            <EntrustInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="entrustInfoRef"/>
+            <EntrustInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="entrustInfoRef" @change="submitForm"/>
             <BatteryInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="batteryInfoRef"/>
-            <InquiryInfo :formData="form"/>
+            <!-- <InquiryInfo :formData="form"/> -->
             <RepairInfo :formData="form"/>
             <SparepartsInfo :formData="form"/>
             <Attachment :formData="fileList" @refresh="handleRefresh"/>
@@ -337,7 +337,7 @@ export default {
     BasicInfo,
     EntrustInfo,
     BatteryInfo,
-    InquiryInfo,
+    // InquiryInfo,
     SparepartsInfo,
     Attachment,
     RepairInfo,
@@ -416,7 +416,7 @@ export default {
       this.isEditing = false;
     },
     handleShowLog () {
-      this.$auditLog.show({ id: 123 });
+      this.$auditLog.show({ id: this._id });
     },
     handleEdit () {
       this.isEditing = true;

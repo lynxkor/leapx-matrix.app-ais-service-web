@@ -605,12 +605,14 @@ export default {
           this.$nextTick(() => {
             this.popoverVisible = true;
           });
-        } else {
+        } else if (this.$refs.basicForm) {
           this.$refs.basicForm.validate((valid) => {
             if (valid) {
               resolve(this.form);
             }
           });
+        } else {
+          resolve(this.form);
         }
       });
     },
