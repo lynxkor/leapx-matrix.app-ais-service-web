@@ -671,12 +671,17 @@ export default {
   },
   methods: {
     showButton (type) {
+       // 驳回按钮：自费、保险、内部结算类型，且状态为待收款
+        // 自费=352BB70C-82AC-E911-B0BB-FC82BA5F9EDF,
+        // 保险=372BB70C-82AC-E911-B0BB-FC82BA5F9EDF,
+        // 内部结算=392BB70C-82AC-E911-B0BB-FC82BA5F9EDF (根据实际枚举值调整)
+      const baseType = ['352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF']; 
+
       switch (type) {
         case 'reject':
-        // 驳回按钮：自费、保险、内部结算类型，且状态为待收款
-          const validTypesForReject = [30, 40, 50]; // 自费=30,保险=40,内部结算=50 (根据实际枚举值调整)
+       
           const validStatusForReject = [20]; // 待收款状态码 (根据实际状态码调整)
-          const isValidTypeForReject = validTypesForReject.includes(this.form.statementType);
+          const isValidTypeForReject = baseType.includes(this.form.statementType);
           const isValidStatusForReject = validStatusForReject.includes(this.form.statementStatus);
           return isValidTypeForReject && isValidStatusForReject;
 
@@ -688,37 +693,36 @@ export default {
 
         case 'success':
         // 收款成功：结算类型为自费/保险/内部结算，状态为待收款
-          const validTypesForPayment = [30, 40, 50];
           const isPendingPayment = this.form.statementStatus === 20; // 待收款状态
-          const isValidTypeForPayment = validTypesForPayment.includes(this.form.statementType);
+          const isValidTypeForPayment = baseType.includes(this.form.statementType);
           return isValidTypeForPayment && isPendingPayment;
 
         case 'reCreate':
         // 反结算：结算类型为自费/保险/内部结算，状态为待结算/待收款
-          const validTypesForRefund = [30, 40, 50];
+        
           const validStatusForRefund = [10, 20]; // 待结算/待收款
-          const isValidTypeForRefund = validTypesForRefund.includes(this.form.statementType);
+          const isValidTypeForRefund = baseType.includes(this.form.statementType);
           const isValidStatusForRefund = validStatusForRefund.includes(this.form.statementStatus);
           return isValidTypeForRefund && isValidStatusForRefund;
 
         case 'addRecord':
         // 收款记录：结算类型为自费/保险/内部结算，状态为待收款
-          const validTypesForRecord = [30, 40, 50];
-          const isValidTypeForRecord = validTypesForRecord.includes(this.form.statementType);
+     
+          const isValidTypeForRecord = baseType.includes(this.form.statementType);
           const isPendingPaymentRecord = this.form.statementStatus === 20; // 待收款状态
           return isValidTypeForRecord && isPendingPaymentRecord;
 
         case 'createWarranty':
         // 创建保单：结算类型为自费/保险，状态为已完成
-          const validTypesForWarranty = [30, 40]; // 自费/保险
+          const validTypesForWarranty = ['352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF']; // 自费/保险
           const isCompletedStatus = this.form.statementStatus === 30; // 已完成状态
           const isValidTypeForWarranty = validTypesForWarranty.includes(this.form.statementType);
           return isValidTypeForWarranty && isCompletedStatus;
 
         case 'rights':
         // 权益列表：结算类型为自费/保险/内部结算，状态为待结算
-          const validTypesForRights = [30, 40, 50];
-          const isValidTypeForRights = validTypesForRights.includes(this.form.statementType);
+         
+          const isValidTypeForRights = baseType.includes(this.form.statementType);
           const isPendingRights = this.form.statementStatus === 10; // 待结算状态
           return isValidTypeForRights && isPendingRights;
 
@@ -755,22 +759,12 @@ export default {
 
     // 跳转到门店详情
     goToDealer (dealerId) {
-      if (dealerId) {
-        this.$router.push({
-          path: '/dealer/detail',
-          query: {
-            id: dealerId
-          }
-        });
-      } else {
-        this.$message.warning('未找到门店ID');
-      }
+      window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`, '_blank');
+    
     },
 
     rightsList () {
-      // 实现权益列表功能
-      console.log('权益列表');
-      // 这里可以添加具体的权益列表跳转逻辑
+     
     },
 
     submitAndSing () {
