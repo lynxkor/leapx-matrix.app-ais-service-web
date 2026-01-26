@@ -444,7 +444,7 @@
 </template>
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getEnum, getCCCList } from '@/api/maintain/sp/serviceProxy/index';
+import { getEnum, getCCCList, updateSpFaultAlertRecord, deleteSpFaultAlertRecord } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   props: {
@@ -538,7 +538,13 @@ export default {
         // 强制触发响应式更新
         this.$set(this.form, 'faultAlertRecordRespList', [...this.form.faultAlertRecordRespList]);
         // 通知父组件数据变化
-        this.$emit('change', this.form);
+        // this.$emit('change', this.form);
+        updateSpFaultAlertRecord({ serviceProxyId: this._id, ...record }).then(res => {
+          this.$message({
+            message: '保存成功',
+            type: 'success'
+          });
+        });
       }
     },
     handleDeleteFault (row) {
@@ -553,6 +559,12 @@ export default {
         this.$set(this.form, 'faultAlertRecordRespList', [...this.form.faultAlertRecordRespList]);
         // 通知父组件数据变化
         this.$emit('change', this.form);
+        deleteSpFaultAlertRecord({ serviceProxyId: this._id, ...row }).then(res => {
+          this.$message({
+            message: '保存成功',
+            type: 'success'
+          });
+        });
       }
     },
     getAlertModule (query) {

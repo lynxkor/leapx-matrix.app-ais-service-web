@@ -296,3 +296,19 @@ export function getRepairItemTypeList (data) {
 export function getCCCList (data) {
   return api.jsonPost(prefix + 'cccList', data);
 }
+
+/**
+ * 新增故障模块
+ * @param data
+ */
+export function updateSpFaultAlertRecord (data) {
+  return api.jsonPost('maintain/web/sp/spFaultAlertRecord/addOrUpdate', data);
+}
+
+/**
+ * 新增故障模块
+ * @param data
+ */
+export function deleteSpFaultAlertRecord (data) {
+  return api.jsonPost('maintain/web/sp/spFaultAlertRecord/delete', data);
+}
