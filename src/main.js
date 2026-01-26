@@ -13,6 +13,7 @@ import '@/libs/assets/iconfont/iconfont.css';
 import '@leapmotor/splitpanes/dist/splitpanes.css';
 import AuditLogPlugin from '@/libs/plugins/auditLog.js';
 import PrintPlugin from '@/libs/plugins/print.js';
+import VideoPlugin from '@/libs/plugins/video.js';
 /* -------------------- 注册vxe-table ----------------- */
 import {
   VxeUi,
@@ -52,6 +53,7 @@ Vue.use(Vuex);
 /* -------------------- 注册插件 ----------------- */
 Vue.use(AuditLogPlugin);
 Vue.use(PrintPlugin);
+Vue.use(VideoPlugin);
 
 /* -------------------- 注册指令 ----------------- */
 
