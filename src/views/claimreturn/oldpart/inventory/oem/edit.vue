@@ -45,8 +45,8 @@
                 <el-form-item label="门店库存状态：" prop="dealerStatusLabel">
                   {{form.dealerStatusLabel}}
                 </el-form-item>
-                <el-form-item label="数量：" prop="x">
-                  {{'-------'}}
+                <el-form-item label="数量：" prop="oldPartQuantity">
+                  {{form.oldPartQuantity}}
                 </el-form-item>
                 <el-form-item label="旧件供应商：" prop="oldPartSupplierName">
                   <el-button class="link" @click="$router.push('/sparepart/basic/supplierInfo/detail?id=' + form.oldPartSupplierId)" type="text">{{form.oldPartSupplierName}}</el-button>
@@ -128,7 +128,12 @@
                   </span>
                 </el-form-item>
                 <el-form-item class="form-item-full" label="附件材料：">
-                  {{'---------'}}
+                  <AisAttachmentForm
+                    :businessId="_id"
+                    attachType="mcs_spmusedprtdestory_apply"
+                    :editable="false"
+                    :showLabel="false"
+                  />
                 </el-form-item>
               </el-form>
             </div>
@@ -169,7 +174,12 @@
                   {{form.destroyRejectReason}}
                 </el-form-item>
                 <el-form-item class="form-item-full" label="附件材料：">
-                  {{'---------'}}
+                  <AisAttachmentForm
+                    :businessId="_id"
+                    attachType="mcs_spmusedprtdestory_apply"
+                    :editable="false"
+                    :showLabel="false"
+                  />
                 </el-form-item>
               </el-form>
             </div>
@@ -194,6 +204,7 @@ import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import commonMixins from '@/libs/mixins/commonMixins';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
+import AisAttachmentForm from '@/libs/components/AisAttachmentForm';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -276,6 +287,7 @@ export default {
     EditBaseContainer,
     EditPageLayout,
     BaseInput,
+    AisAttachmentForm,
   },
   computed: {
     _id () {

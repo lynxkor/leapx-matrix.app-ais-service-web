@@ -105,6 +105,11 @@
             <div class="common-section-body">
               <div class="common-section-table">
                 <!-- 附件上传组件 -->
+                <AisAttachmentForm
+                  :businessId="_id"
+                  attachType="mcs_spmusedprtdestory_apply"
+                  :showLabel="false"
+                />
               </div>
             </div>
           </section>
@@ -160,6 +165,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { getList, getDetailDecryptField } from '../../../../../api/claimreturn/oldpart/inventory/oem';
+import AisAttachmentForm from '@/libs/components/AisAttachmentForm';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -186,6 +192,7 @@ const defaultForm = {
   dataSource: '',
   dealerCode: '',
   destroyerId: '',
+  attachUrls: [],
 };
 
 export default {
@@ -202,6 +209,7 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     EditTable,
+    AisAttachmentForm,
   },
   computed: {
     _id () {
