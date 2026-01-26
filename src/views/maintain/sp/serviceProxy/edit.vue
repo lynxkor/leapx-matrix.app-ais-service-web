@@ -45,18 +45,19 @@
               </h5>
             </section>
             <BasicInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="basicInfoRef"/>
-            <EntrustInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="entrustInfoRef"/>
+            <EntrustInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="entrustInfoRef" @change="submitForm"/>
             <BatteryInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="batteryInfoRef"/>
-            <InquiryInfo :formData="form"/>
+            <!-- <InquiryInfo :formData="form"/> -->
             <RepairInfo :formData="form"/>
             <SparepartsInfo :formData="form"/>
-            <Attachment :formData="form"/>
+            <Attachment :formData="fileList" @refresh="handleRefresh"/>
             <MaintainInfo :formData="form"/>
             <!-- TIPS: 填入项目id即可 -->
             <Upload
               :visible="uploadDialogVisible"
-              :id="'1'"
+              :businessId="_id"
               @close="handleUploadDialogClose"
+              @refresh="handleRefresh"
             />
           </el-main>
           <el-footer height="60px" v-if="!_id">
@@ -157,6 +158,7 @@ import SelectRepairItemDialog from './components/SelectRepairItemDialog';
 import StartWorkDialog from './components/StartWorkDialog';
 import DispatchWorkDialog from './components/DispatchWorkDialog';
 import Upload from './components/UploadDialog';
+import { getFileList, deleteFile } from '@/libs/api/attachment';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -335,7 +337,7 @@ export default {
     BasicInfo,
     EntrustInfo,
     BatteryInfo,
-    InquiryInfo,
+    // InquiryInfo,
     SparepartsInfo,
     Attachment,
     RepairInfo,
@@ -388,12 +390,22 @@ export default {
       uploadDialogVisible: false,
       form: { ...form },
       originalForm: { ...form },
+      fileList: []
     };
   },
   mounted () {
     this.getDetailData();
   },
   methods: {
+    getFileList () {
+      getFileList({
+        businessId: this._id
+      }).then(res => {
+        if (res.code === 200) {
+          this.fileList = res.data || [];
+        }
+      });
+    },
     // 打开侧边栏
     openPane () {
       this.$refs.editLayout.openPane();
@@ -404,7 +416,7 @@ export default {
       this.isEditing = false;
     },
     handleShowLog () {
-      this.$auditLog.show({ id: 123 });
+      this.$auditLog.show({ id: this._id });
     },
     handleEdit () {
       this.isEditing = true;
@@ -423,6 +435,7 @@ export default {
           Object.assign(this.form, res);
           Object.assign(this.originalForm, res);
         });
+        this.getFileList();
       }
     },
     async submitForm (formName, rest = false) {

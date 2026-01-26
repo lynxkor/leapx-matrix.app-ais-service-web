@@ -10,7 +10,7 @@
         </div>
         <vxe-table
           ref="faultTable"
-          :data="form.faultAlertRecordRespList"
+          :data="repairItemRespList"
           stripe
           show-overflow
           :row-config="{ isHover: true }"
@@ -20,31 +20,18 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="vrtName" title="VRT名称" min-width="150"/>
-          <vxe-column field="vfgName" title="VFG名称" min-width="150"/>
-          <vxe-column field="cccName" title="CCC名称" min-width="150"/>
-          <vxe-column field="alertModule" title="是否提醒模块" width="150" align="center">
-            <template #default="{ row }">
-              <span>{{ row.alertModule === 1 ? '是' : '否' }}</span>
-            </template>
-          </vxe-column>
-          <vxe-column field="currentSituationText" title="本次进店情况(周期内)" min-width="150"/>
-          <vxe-column field="faultAlert" title="故障提醒内容" min-width="150"/>
-          <vxe-column title="操作" width="100" align="center" fixed="right" :resizable="false">
-            <template #default="{ row }">
-              <el-popconfirm
-                title="确定删除此故障吗？"
-                @confirm="handleDeleteFault(row)"
-              >
-                <span
-                  class="action-button btn-delete"
-                  slot="reference"
-                  type="text">
-                  删除故障
-                </span>
-              </el-popconfirm>
-            </template>
-          </vxe-column>
+          <vxe-column field="repairItemCode" title="维修项目代码" width="200px" />
+          <vxe-column field="repairItemName" title="维修项目名称" width="200px" />
+          <vxe-column field="repairItemTypeName" title="维修类型" width="200px" />
+          <vxe-column field="checkoutTypeName" title="结算类型" width="200px" />
+          <vxe-column field="warrantyTypeName" title="保修类型" width="200px" />
+          <vxe-column field="workHour" title="工时" width="200px" />
+          <vxe-column field="price" title="单价" width="200px" />
+          <vxe-column field="discountRate" title="折扣率" width="200px" />
+          <vxe-column field="discountAmount" title="优惠金额" width="200px" />
+          <vxe-column field="repairAmount" title="项目金额" width="200px" />
+          <vxe-column field="statusLabel" title="维修项目状态" width="200px" />
+          <vxe-column field="packageCode" title="套餐代码" width="200px" />
           <template #empty>
             <div class="m-vxe-table-empty-text">若要启用此内容，请创建记录</div>
           </template>
@@ -56,7 +43,7 @@
         </div>
         <vxe-table
           ref="faultTable"
-          :data="form.faultAlertRecordRespList"
+          :data="sparePartRespList"
           stripe
           show-overflow
           :row-config="{ isHover: true }"
@@ -66,31 +53,19 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="vrtName" title="VRT名称" min-width="150"/>
-          <vxe-column field="vfgName" title="VFG名称" min-width="150"/>
-          <vxe-column field="cccName" title="CCC名称" min-width="150"/>
-          <vxe-column field="alertModule" title="是否提醒模块" width="150" align="center">
-            <template #default="{ row }">
-              <span>{{ row.alertModule === 1 ? '是' : '否' }}</span>
-            </template>
-          </vxe-column>
-          <vxe-column field="currentSituationText" title="本次进店情况(周期内)" min-width="150"/>
-          <vxe-column field="faultAlert" title="故障提醒内容" min-width="150"/>
-          <vxe-column title="操作" width="100" align="center" fixed="right" :resizable="false">
-            <template #default="{ row }">
-              <el-popconfirm
-                title="确定删除此故障吗？"
-                @confirm="handleDeleteFault(row)"
-              >
-                <span
-                  class="action-button btn-delete"
-                  slot="reference"
-                  type="text">
-                  删除故障
-                </span>
-              </el-popconfirm>
-            </template>
-          </vxe-column>
+          <vxe-column field="partsCode" title="零件代码" width="200px" />
+          <vxe-column field="partsName" title="零件名称" width="200px" />
+          <vxe-column field="repairItemTypeName" title="维修类型" width="200px" />
+          <vxe-column field="checkoutTypeName" title="结算类型" width="200px" />
+          <vxe-column field="warrantyTypeName" title="保修类型" width="200px" />
+          <vxe-column field="isOemPart" title="是否原厂" width="200px" />
+          <vxe-column field="quantity" title="数量" width="200px"/>
+          <vxe-column field="price" title="单价" width="200px" />
+          <vxe-column field="discountRate" title="折扣率" width="200px" />
+          <vxe-column field="discountAmount" title="优惠金额" width="200px"/>
+          <vxe-column field="partsAmount" title="配件金额" width="200px"/>
+          <vxe-column field="repairItemName" title="维修项目名称" width="200px"/>
+          <vxe-column field="packageCode" title="套餐代码" width="200px" />
           <template #empty>
             <div class="m-vxe-table-empty-text">若要启用此内容，请创建记录</div>
           </template>
@@ -102,7 +77,7 @@
         </div>
         <vxe-table
           ref="faultTable"
-          :data="form.faultAlertRecordRespList"
+          :data="partsTraceRecordRespList"
           stripe
           show-overflow
           :row-config="{ isHover: true }"
@@ -112,31 +87,13 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="vrtName" title="VRT名称" min-width="150"/>
-          <vxe-column field="vfgName" title="VFG名称" min-width="150"/>
-          <vxe-column field="cccName" title="CCC名称" min-width="150"/>
-          <vxe-column field="alertModule" title="是否提醒模块" width="150" align="center">
-            <template #default="{ row }">
-              <span>{{ row.alertModule === 1 ? '是' : '否' }}</span>
-            </template>
-          </vxe-column>
-          <vxe-column field="currentSituationText" title="本次进店情况(周期内)" min-width="150"/>
-          <vxe-column field="faultAlert" title="故障提醒内容" min-width="150"/>
-          <vxe-column title="操作" width="100" align="center" fixed="right" :resizable="false">
-            <template #default="{ row }">
-              <el-popconfirm
-                title="确定删除此故障吗？"
-                @confirm="handleDeleteFault(row)"
-              >
-                <span
-                  class="action-button btn-delete"
-                  slot="reference"
-                  type="text">
-                  删除故障
-                </span>
-              </el-popconfirm>
-            </template>
-          </vxe-column>
+          <vxe-column field="id" title="追溯编码" width="350px"/>
+          <vxe-column field="partsName" title="零件名称" width="300px"/>
+          <vxe-column field="targetUnitName" title="电池去向单位" width="350px"/>
+          <vxe-column field="beforeChangeCode" title="更换前编码" width="200px"/>
+          <vxe-column field="afterChangeCode" title="更换后编码" width="200px"/>
+          <vxe-column field="updateTime" title="修改时间" width="200px"/>
+          <vxe-column field="createTime" title="创建时间" width="200px"/>
           <template #empty>
             <div class="m-vxe-table-empty-text">若要启用此内容，请创建记录</div>
           </template>
@@ -148,41 +105,49 @@
         </div>
         <vxe-table
           ref="faultTable"
-          :data="form.faultAlertRecordRespList"
+          :data="workRecordRespList"
           stripe
           show-overflow
           :row-config="{ isHover: true }"
+          :checkbox-config="{ checkField: 'checked' }"
           resizable
           min-height="0"
           max-height="500px"
           border="inner"
           size="medium"
         >
-          <vxe-column field="vrtName" title="VRT名称" min-width="150"/>
-          <vxe-column field="vfgName" title="VFG名称" min-width="150"/>
-          <vxe-column field="cccName" title="CCC名称" min-width="150"/>
-          <vxe-column field="alertModule" title="是否提醒模块" width="150" align="center">
+          <vxe-column field="serviceProxyId" title="施工单号" width="180px" />
+          <vxe-column field="dealerName" title="厅店名称" width="180px" />
+          <vxe-column field="repairItemName" title="维修项目名称" width="200px" />
+          <vxe-column field="repairItemCode" title="维修项目代码" width="180px" />
+          <vxe-column field="statusLabel" title="作业状态" width="120px" />
+          <vxe-column field="isDispatch" title="是否已派工" width="120px" align="center">
             <template #default="{ row }">
-              <span>{{ row.alertModule === 1 ? '是' : '否' }}</span>
+              <span>{{ row.isDispatch === 1 ? '是' : '否' }}</span>
             </template>
           </vxe-column>
-          <vxe-column field="currentSituationText" title="本次进店情况(周期内)" min-width="150"/>
-          <vxe-column field="faultAlert" title="故障提醒内容" min-width="150"/>
-          <vxe-column title="操作" width="100" align="center" fixed="right" :resizable="false">
+          <vxe-column field="dealerStationName" title="工位" width="150px" />
+          <vxe-column field="dealerWorkTeamName" title="班组信息" width="180px" />
+          <vxe-column field="repairTechnicianName" title="维修技师" width="150px" />
+          <vxe-column field="dispatchTime" title="派工时间" width="160px" />
+          <vxe-column field="startAt" title="计划作业时间" width="160px" />
+          <vxe-column field="timeSpend" title="实际作业时间" width="160px" />
+          <vxe-column field="finishAt" title="作业结束时间" width="160px" />
+          <vxe-column field="rework" title="是否内返" width="120px" align="center">
             <template #default="{ row }">
-              <el-popconfirm
-                title="确定删除此故障吗？"
-                @confirm="handleDeleteFault(row)"
-              >
-                <span
-                  class="action-button btn-delete"
-                  slot="reference"
-                  type="text">
-                  删除故障
-                </span>
-              </el-popconfirm>
+              <span>{{ row.rework === 1 ? '是' : '否' }}</span>
             </template>
           </vxe-column>
+          <vxe-column field="reworkTypeLabel" title="返修类型" width="120px" />
+          <vxe-column field="qualityCheckerName" title="质检人" width="150px" />
+          <vxe-column field="qualityCheckAt" title="质检时间" width="160px" />
+          <vxe-column field="qualityCheckStatusLabel" title="质检状态" width="120px" />
+          <vxe-column field="hasRepaired" title="是否已返修" width="120px" align="center">
+            <template #default="{ row }">
+              <span>{{ row.hasRepaired === 1 ? '是' : '否' }}</span>
+            </template>
+          </vxe-column>
+          <vxe-column field="createTime" title="创建时间" width="160px" />
           <template #empty>
             <div class="m-vxe-table-empty-text">若要启用此内容，请创建记录</div>
           </template>
@@ -209,16 +174,23 @@ export default {
   watch: {
     formData: {
       handler (val) {
-        if (val) {
-          this.form = val;
+        if (val && Object.keys(val).length > 0) {
+          this.workRecordRespList = val.workRecordRespList || [];
+          this.partsTraceRecordRespList = val.partsTraceRecordRespList || [];
+          this.repairItemRespList = val.costCountResp?.repairItemRespList || [];
+          this.sparePartRespList = val.costCountResp?.sparePartRespList || [];
         }
       },
-      immediate: true
+      immediate: true,
+      deep: true
     }
   },
   data () {
     return {
-      form: {},
+      workRecordRespList: [],
+      partsTraceRecordRespList: [],
+      repairItemRespList: [],
+      sparePartRespList: []
     };
   },
   methods: {
@@ -228,6 +200,11 @@ export default {
 </script>
 <style scoped lang="scss">
 .table-section{
+  ::v-deep .vxe-table--render-default.size--medium .vxe-header--column.is--padding .vxe-cell,
+  ::v-deep .vxe-table--render-default .vxe-body--column:not(.col--active).col--ellipsis > .vxe-cell,
+  ::v-deep .vxe-table--render-default.size--medium .vxe-body--column.is--padding .vxe-cell {
+    padding: 8px 12px!important;
+  }
   &-header {
     h3{
       font-size: 14px;

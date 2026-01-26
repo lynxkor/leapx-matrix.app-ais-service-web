@@ -245,7 +245,7 @@
           />
         </el-form-item>
         <el-form-item label="本次进店是否存在故障：" prop="currentFault">
-          <el-switch active-value="1" inactive-value="0" v-model="form.currentFault" />
+          <el-switch :active-value="1" :inactive-value="0" v-model="form.currentFault" />
         </el-form-item>
         <el-form-item label="客户故障描述：" prop="customerContent" class="form-item-half">
           <el-input
@@ -303,11 +303,11 @@
         <el-form-item label="生成结算单时间：" prop="createStatementInfoDate">
           {{ form.createStatementInfoDate }}
         </el-form-item>
-        <el-form-item label="是否返修：" prop="haveRework">
-          {{ form.haveRework }}
+        <el-form-item label="是否返修：" prop="haveReworkLabel">
+          {{ form.haveReworkLabel }}
         </el-form-item>
-        <el-form-item label="是否洗车：" prop="isCarWash">
-          {{ form.isCarWash }}
+        <el-form-item label="是否洗车：" prop="isCarWashLabel">
+          {{ form.isCarWashLabel }}
         </el-form-item>
         <el-form-item label="制单完成时间：" prop="confirmedOn">
           {{ form.confirmedOn }}
@@ -361,7 +361,7 @@
           {{ form.testResult }}
         </el-form-item>
         <el-form-item label="本次进店是否存在故障：" prop="currentFault">
-          {{ form.currentFault }}
+          {{ form.currentFaultLabel }}
         </el-form-item>
         <el-form-item label="客户故障描述：" prop="customerContent" class="form-item-half">
           {{ form.customerContent }}
@@ -373,7 +373,7 @@
           {{ form.anomalyDescription }}
         </el-form-item>
       </el-form>
-      <div class="table-section">
+      <div class="table-section" v-if="form.currentFault">
         <div class="table-section-header">
           <h3>添加故障模块</h3>
           <div class="ais-select-group">
@@ -386,10 +386,11 @@
               :remote-method="getAlertModule"
               @change="handleAlertModuleChange"
               collapse-tags
+              value-key="vrtId"
+              label-key="vrtName"
             />
             <el-button
               type="primary"
-              @click="handleAddAlertModule()"
               size="small"
             >
               添加
@@ -418,7 +419,7 @@
           </vxe-column>
           <vxe-column field="currentSituationText" title="本次进店情况(周期内)" min-width="150"/>
           <vxe-column field="faultAlert" title="故障提醒内容" min-width="150"/>
-          <vxe-column title="操作" width="100" align="center" fixed="right" :resizable="false">
+          <vxe-column title="操作" width="150" align="center" fixed="right" :resizable="false">
             <template #default="{ row }">
               <el-popconfirm
                 title="确定删除此故障吗？"
@@ -443,7 +444,7 @@
 </template>
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getEnum } from '@/api/maintain/sp/serviceProxy/index';
+import { getEnum, getCCCList } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   props: {
@@ -472,6 +473,10 @@ export default {
       handler (val) {
         if (val) {
           this.form = val;
+          // 确保 faultAlertRecordRespList 存在
+          if (!this.form.faultAlertRecordRespList) {
+            this.$set(this.form, 'faultAlertRecordRespList', []);
+          }
         }
       },
       immediate: true
@@ -502,24 +507,59 @@ export default {
     },
     getFormData () {
       return new Promise((resolve, reject) => {
-        this.$refs.ruleForm.validate((valid) => {
-          if (valid) {
-            resolve(this.form);
-          }
-        });
+        if (this.$refs.ruleForm) {
+          this.$refs.ruleForm.validate((valid) => {
+            if (valid) {
+              resolve(this.form);
+            }
+          });
+        } else {
+          resolve(this.form);
+        }
       });
     },
     clearValidate () {
       this.$refs.ruleForm.clearValidate();
     },
-    handleAlertModuleChange () {
+    handleAlertModuleChange (val, record) {
+      // 确保 faultAlertRecordRespList 存在
+      if (!this.form.faultAlertRecordRespList) {
+        this.$set(this.form, 'faultAlertRecordRespList', []);
+      }
 
+      // 检查是否已存在相同的记录（根据 vrtId 判断）
+      const isExist = this.form.faultAlertRecordRespList.some(
+        item => item.vrtId === record.vrtId
+      );
+
+      // 如果不存在才添加
+      if (!isExist && record) {
+        this.form.faultAlertRecordRespList.push(record);
+        // 强制触发响应式更新
+        this.$set(this.form, 'faultAlertRecordRespList', [...this.form.faultAlertRecordRespList]);
+        // 通知父组件数据变化
+        this.$emit('change', this.form);
+      }
     },
-    getAlertModule () {
+    handleDeleteFault (row) {
+      // 根据 vrtId 查找并删除记录
+      const index = this.form.faultAlertRecordRespList.findIndex(
+        item => item.vrtId === row.vrtId
+      );
 
+      if (index > -1) {
+        this.form.faultAlertRecordRespList.splice(index, 1);
+        // 强制触发响应式更新
+        this.$set(this.form, 'faultAlertRecordRespList', [...this.form.faultAlertRecordRespList]);
+        // 通知父组件数据变化
+        this.$emit('change', this.form);
+      }
     },
-    handleAddAlertModule () {
-
+    getAlertModule (query) {
+      if (!query) {
+        return [];
+      }
+      return getCCCList(query);
     }
   }
 };
@@ -527,6 +567,11 @@ export default {
 </script>
 <style scoped lang="scss">
 .table-section{
+  ::v-deep .vxe-table--render-default.size--medium .vxe-header--column.is--padding .vxe-cell,
+  ::v-deep .vxe-table--render-default .vxe-body--column:not(.col--active).col--ellipsis > .vxe-cell,
+  ::v-deep .vxe-table--render-default.size--medium .vxe-body--column.is--padding .vxe-cell {
+    padding: 8px 12px!important;
+  }
   &-header {
     h3{
       font-size: 14px;
@@ -543,6 +588,18 @@ export default {
     color: var(--leap-color-default-light-2);
     width: 100%;
     padding: 0 16px;
+  }
+  .btn-delete {
+    color: var(--leap-color-danger);
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+      color: var(--leap-color-danger-dark-1);
+    }
+    &.disabled{
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
   }
 }
 </style>

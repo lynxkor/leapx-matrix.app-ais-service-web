@@ -288,3 +288,11 @@ export function repaired (data) {
 export function getRepairItemTypeList (data) {
   return api.jsonPost('maintain/web/basic/repairItemType/list', data);
 }
+
+/**
+ * 搜索故障模块
+ * @param {Object} data
+ */
+export function getCCCList (data) {
+  return api.jsonPost(prefix + 'cccList', data);
+}

@@ -7,12 +7,15 @@
       <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
         <el-form-item label="电池去向单位：" prop="batteryUnitId">
           <fetch-select
-            :request="fetchOptions"
-            enumCode="StatusEnum"
-            v-model="form.businessType"
-            placeholder="请选择"
-            clearable
+            v-model="form.batteryUnitId"
+            :remote-method="searchBatteryUnit"
+            value-key="id"
+            label-key="name"
             filterable
+            remote
+            clearable
+            reserve-keyword
+            placeholder="请选择电池去向单位"
           />
         </el-form-item>
         <el-form-item label="去向单位统一代码：" prop="targetUnitCode">
@@ -58,6 +61,7 @@
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
+import { getListData } from '@/api/maintain/basic/batteryUnit/index';
 
 export default {
   props: {
@@ -105,16 +109,30 @@ export default {
     },
     getFormData () {
       return new Promise((resolve, reject) => {
-        this.$refs.ruleForm.validate((valid) => {
-          if (valid) {
-            resolve(this.form);
-          }
-        });
+        if (this.$refs.ruleForm) {
+          this.$refs.ruleForm.validate((valid) => {
+            if (valid) {
+              resolve(this.form);
+            }
+          });
+        } else {
+          resolve(this.form);
+        }
       });
     },
     clearValidate () {
       this.$refs.ruleForm.clearValidate();
-    }
+    },
+    // 搜索电池去向单位
+    async searchBatteryUnit (query) {
+      try {
+        const res = await getListData({ name: query });
+        return res || [];
+      } catch (error) {
+        console.error('搜索电池去向单位失败', error);
+        return [];
+      }
+    },
   }
 };
 

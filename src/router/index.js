@@ -1437,7 +1437,7 @@ const routes = [
       component: () => import('@/views/sparepart/purchase/purchaseApply/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件采购申请',
         keepAlive: true
       }
     }, {
@@ -1446,7 +1446,25 @@ const routes = [
       component: () => import('@/views/sparepart/purchase/purchaseApply/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件采购申请详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/purchase/purchaseOrder',
+      name: 'purchaseOrder',
+      component: () => import('@/views/sparepart/purchase/purchaseOrder/index.vue'),
+
+      meta: {
+        name: '备件采购订单',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/purchase/purchaseorder/edit',
+      name: 'purchaseOrderEdit',
+      component: () => import('@/views/sparepart/purchase/purchaseOrder/edit.vue'),
+
+      meta: {
+        name: '备件采购订单详情',
         noResourceUrl: 'true'
       }
     }]

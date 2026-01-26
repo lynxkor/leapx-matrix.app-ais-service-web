@@ -25,7 +25,7 @@
           <vxe-column field="invoiceType" title="发票类型" min-width="150"/>
 
           <template #empty>
-            <div class="m-vxe-table-empty-text">若要启用此内容，请创建记录</div>
+            <div class="m-vxe-table-empty-text">暂无数据</div>
           </template>
         </vxe-table>
 			</div>
