@@ -297,71 +297,29 @@
                 <el-form-item label="备件索赔单号：" prop="code">
                   {{ form.code }}
                 </el-form-item>
-                <el-form-item label="备件采购单号：" prop="purchaseOrderCode">
+                <el-form-item label="采购订单号：" prop="purchaseOrderCode">
                   {{ form.purchaseOrderCode }}
                 </el-form-item>
-                <el-form-item label="门店编码（组织code）：" prop="dealerCode">
+                <el-form-item label="索赔状态：" prop="claimStatus">
+                  {{ form.claimStatusLabel }}
+                </el-form-item>
+                <el-form-item label="索赔类型：" prop="claimType">
+                  {{ form.claimTypeLabel }}
+                </el-form-item>
+                <el-form-item label="责任方：" prop="responsibleParty">
+                  {{ form.responsibleParty }}
+                </el-form-item>
+                <el-form-item label="门店编码：" prop="dealerCode">
                   {{ form.dealerCode }}
                 </el-form-item>
-                <el-form-item label="门店名称（组织名称）：" prop="dealerName">
+                <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
-                </el-form-item>
-                <el-form-item label="提交时间：" prop="submitTime">
-                  {{ form.submitTime }}
                 </el-form-item>
                 <el-form-item label="提交人：" prop="submitter">
                   {{ form.submitter }}
                 </el-form-item>
-                <el-form-item label="索赔类型:10货损,20货差（少）,30状态不符,40质量问题：" prop="claimType">
-                  {{ form.claimType }}
-                </el-form-item>
-                <el-form-item label="索赔状态:10草稿,20待确认,30已驳回,40审批中,50已完结：" prop="claimStatus">
-                  {{ form.claimStatus }}
-                </el-form-item>
-                <el-form-item label="驳回说明：" prop="rejectionDescription">
-                  {{ form.rejectionDescription }}
-                </el-form-item>
-                <el-form-item label="审批说明：" prop="approvalDescription">
-                  {{ form.approvalDescription }}
-                </el-form-item>
-                <el-form-item label="是否完结：" prop="completedIs">
-                  {{ form.completedIs }}
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  {{ form.createTime }}
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  {{ form.updateTime }}
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  {{ form.modifierName }}
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  {{ form.status }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  {{ form.statusDesc }}
-                </el-form-item>
-                <el-form-item label="数据来源，150:零小跑; 10:E10：" prop="dataSource">
-                  {{ form.dataSource }}
-                </el-form-item>
-                <el-form-item label="采购订单号ID：" prop="purchaseOrderId">
-                  {{ form.purchaseOrderId }}
+                <el-form-item label="提交时间：" prop="submitTime">
+                  {{ form.submitTime }}
                 </el-form-item>
                 <el-form-item label="确认人：" prop="confirmer">
                   {{ form.confirmer }}
@@ -372,29 +330,23 @@
                 <el-form-item label="审批时间：" prop="approvalTime">
                   {{ form.approvalTime }}
                 </el-form-item>
+                <el-form-item label="审批说明：" prop="approvalDescription">
+                  {{ form.approvalDescription }}
+                </el-form-item>
                 <el-form-item label="审批节点：" prop="approvalNode">
                   {{ form.approvalNode }}
+                </el-form-item>
+                <el-form-item label="驳回原因：" prop="rejectionDescription">
+                  {{ form.rejectionDescription }}
+                </el-form-item>
+                <el-form-item label="是否完结：" prop="completedIs">
+                  {{ form.completedIsLabel }}
                 </el-form-item>
                 <el-form-item label="理赔方式：" prop="compensationMethod">
                   {{ form.compensationMethod }}
                 </el-form-item>
-                <el-form-item label="责任方：" prop="responsibleParty">
-                  {{ form.responsibleParty }}
-                </el-form-item>
-                <el-form-item label="备件收货人姓名：" prop="receiverName">
-                  {{ form.receiverName }}
-                </el-form-item>
-                <el-form-item label="备件收货人手机：" prop="receiverPhone">
-                  {{ form.receiverPhone }}
-                </el-form-item>
-                <el-form-item label="省ID：" prop="provinceId">
-                  {{ form.provinceId }}
-                </el-form-item>
-                <el-form-item label="市ID：" prop="cityId">
-                  {{ form.cityId }}
-                </el-form-item>
-                <el-form-item label="备件收货地址：" prop="deliveryAddress">
-                  {{ form.deliveryAddress }}
+                <el-form-item label="备注：" prop="remark">
+                  {{ form.remark }}
                 </el-form-item>
               </el-form>
             </div>
@@ -517,7 +469,7 @@ export default {
       pageType: 'edit',
       title: '备件索赔单号：' + form.code,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-sparePartClaim',
+      moduleKey: 'AISPART-sparePartClaim',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,

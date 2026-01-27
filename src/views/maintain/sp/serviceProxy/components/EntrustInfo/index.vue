@@ -386,8 +386,8 @@
               :remote-method="getAlertModule"
               @change="handleAlertModuleChange"
               collapse-tags
-              value-key="vrtId"
-              label-key="vrtName"
+              value-key="id"
+              label-key="name"
             />
             <el-button
               type="primary"
@@ -444,7 +444,7 @@
 </template>
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getEnum, getCCCList } from '@/api/maintain/sp/serviceProxy/index';
+import { getEnum, getCCCList, updateSpFaultAlertRecord, deleteSpFaultAlertRecord } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   props: {
@@ -529,7 +529,7 @@ export default {
 
       // 检查是否已存在相同的记录（根据 vrtId 判断）
       const isExist = this.form.faultAlertRecordRespList.some(
-        item => item.vrtId === record.vrtId
+        item => item.id === record.id
       );
 
       // 如果不存在才添加
@@ -538,7 +538,18 @@ export default {
         // 强制触发响应式更新
         this.$set(this.form, 'faultAlertRecordRespList', [...this.form.faultAlertRecordRespList]);
         // 通知父组件数据变化
-        this.$emit('change', this.form);
+        // this.$emit('change', this.form);
+        updateSpFaultAlertRecord({ serviceProxyId: this._id, ...record }).then(res => {
+          this.$message({
+            message: '保存成功',
+            type: 'success'
+          });
+        });
+      } else {
+        this.$message({
+          message: '请勿重复添加',
+          type: 'warning'
+        });
       }
     },
     handleDeleteFault (row) {
@@ -548,18 +559,32 @@ export default {
       );
 
       if (index > -1) {
-        this.form.faultAlertRecordRespList.splice(index, 1);
-        // 强制触发响应式更新
-        this.$set(this.form, 'faultAlertRecordRespList', [...this.form.faultAlertRecordRespList]);
-        // 通知父组件数据变化
-        this.$emit('change', this.form);
+        deleteSpFaultAlertRecord([row.id]).then(res => {
+          this.form.faultAlertRecordRespList.splice(index, 1);
+          // 强制触发响应式更新
+          this.$set(this.form, 'faultAlertRecordRespList', [...this.form.faultAlertRecordRespList]);
+          this.$message({
+            message: '保存成功',
+            type: 'success'
+          });
+        });
       }
     },
     getAlertModule (query) {
       if (!query) {
         return [];
       }
-      return getCCCList(query);
+      return new Promise((resolve, reject) => {
+        getCCCList(query).then(res => {
+          const arr = (res || []).map(item => {
+            return {
+              ...item,
+              name: `${item.vrtName}-${item.vfgName}-${item.cccName}`
+            };
+          });
+          resolve(arr);
+        });
+      });
     }
   }
 };

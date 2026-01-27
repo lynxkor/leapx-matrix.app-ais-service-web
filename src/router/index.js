@@ -1467,6 +1467,78 @@ const routes = [
         name: '备件采购订单详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/purchase/backOrder',
+      name: 'backOrder',
+      component: () => import('@/views/sparepart/purchase/backOrder/index.vue'),
+
+      meta: {
+        name: '备件缺货订单',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/purchase/backorder/edit',
+      name: 'backOrderEdit',
+      component: () => import('@/views/sparepart/purchase/backOrder/edit.vue'),
+
+      meta: {
+        name: '备件缺货订单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/warehouse/oemOutboundOrder',
+      name: 'oemOutboundOrder',
+      component: () => import('@/views/sparepart/warehouse/oemOutboundOrder/index.vue'),
+
+      meta: {
+        name: 'OEM出库单',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/warehouse/oemoutboundorder/edit',
+      name: 'oemOutboundOrderEdit',
+      component: () => import('@/views/sparepart/warehouse/oemOutboundOrder/edit.vue'),
+
+      meta: {
+        name: 'OEM出库单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/return/returnOrder',
+      name: 'returnOrder',
+      component: () => import('@/views/sparepart/return/returnOrder/index.vue'),
+
+      meta: {
+        name: '备件退货单',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/return/returnorder/edit',
+      name: 'returnOrderEdit',
+      component: () => import('@/views/sparepart/return/returnOrder/edit.vue'),
+
+      meta: {
+        name: '备件退货单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/inbound/inboundOrder',
+      name: 'inboundOrder',
+      component: () => import('@/views/sparepart/inbound/inboundOrder/index.vue'),
+
+      meta: {
+        name: '备件入库单',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/inbound/inboundorder/edit',
+      name: 'inboundOrderEdit',
+      component: () => import('@/views/sparepart/inbound/inboundOrder/edit.vue'),
+
+      meta: {
+        name: '备件入库单详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];

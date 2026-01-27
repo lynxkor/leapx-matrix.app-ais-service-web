@@ -1,12 +1,10 @@
 <template>
-	<section class="common-section">
-
+  <section class="common-section">
+		<div class="common-section-header">
+			<h2>维修项目</h2>
+		</div>
 		<div class="common-section-body">
-
-      <div class="table-section">
-        <div class="table-section-header">
-          <h3>维修作业记录</h3>
-        </div>
+			<div class="common-section-table table-section">
         <vxe-table
           ref="faultTable"
           :data="form.repairItemResps"

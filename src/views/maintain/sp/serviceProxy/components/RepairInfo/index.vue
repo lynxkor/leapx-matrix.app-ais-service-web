@@ -56,16 +56,42 @@
           <vxe-column field="partsCode" title="零件代码" width="200px" />
           <vxe-column field="partsName" title="零件名称" width="200px" />
           <vxe-column field="repairItemTypeName" title="维修类型" width="200px" />
+          <vxe-column field="isOutstock" title="是否出库" width="200px">
+            <template #default="{ row }">
+              <span>{{ row.isOutstock === 1 ? '是' : '否' }}</span>
+            </template>
+          </vxe-column>
+          <vxe-column field="planPickNumber" title="计划领料数" width="200px" />
+          <vxe-column field="actualPickNumber" title="实际领料数" width="200px" />
+          <vxe-column field="refundedNumber" title="已退数" width="200px" />
           <vxe-column field="checkoutTypeName" title="结算类型" width="200px" />
           <vxe-column field="warrantyTypeName" title="保修类型" width="200px" />
-          <vxe-column field="isOemPart" title="是否原厂" width="200px" />
+          <vxe-column field="isAddItems" title="是否增项" width="200px" >
+            <template #default="{ row }">
+              <span>{{ row.isAddItems === 1 ? '是' : '否' }}</span>
+            </template>
+          </vxe-column>
+          <vxe-column field="isOemPart" title="是否原厂" width="200px" >
+            <template #default="{ row }">
+              <span>{{ row.isOemPart === 1 ? '是' : '否' }}</span>
+            </template>
+          </vxe-column>
           <vxe-column field="quantity" title="数量" width="200px"/>
           <vxe-column field="price" title="单价" width="200px" />
-          <vxe-column field="discountRate" title="折扣率" width="200px" />
           <vxe-column field="discountAmount" title="优惠金额" width="200px"/>
+          <vxe-column field="discountRate" title="折扣率" width="200px" />
           <vxe-column field="partsAmount" title="配件金额" width="200px"/>
+          <vxe-column field="isBindItem" title="是否与工时组合" width="200px" >
+            <template #default="{ row }">
+              <span>{{ row.isBindItem === 1 ? '是' : '否' }}</span>
+            </template>
+          </vxe-column>
           <vxe-column field="repairItemName" title="维修项目名称" width="200px"/>
           <vxe-column field="packageCode" title="套餐代码" width="200px" />
+          <vxe-column field="packageName" title="套餐名称" width="200px" />
+          <!-- <vxe-column field="packageCode" title="服务权益代码" width="200px" /> -->
+          <!-- <vxe-column field="packageCode" title="车主服务权益明细" width="200px" /> -->
+          <vxe-column field="createTime" title="创建时间" width="200px" />
           <template #empty>
             <div class="m-vxe-table-empty-text">若要启用此内容，请创建记录</div>
           </template>

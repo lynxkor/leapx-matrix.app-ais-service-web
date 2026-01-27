@@ -23,7 +23,7 @@
                     <el-button size="small" @click="startWorkDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">作业开始</el-button>
                     <el-button size="small" @click="endWorkDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">作业结束</el-button>
                     <el-button size="small" @click="handlePreCheck" v-if="[RepairOrderStatusEnum.RECEPTION_INSPECTION].includes(form.orderStatus)">预检确认</el-button>
-                    <el-button size="small" @click="selectRepairItemDialogVisible = true" v-if="[RepairOrderStatusEnum.CREATING_ORDER, RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION, RepairOrderStatusEnum.PENDING_FINAL_INSPECTION, RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus)">选择维修项目</el-button>
+                    <el-button size="small" @click="selectRepairItemDialogVisible = true" v-if="[RepairOrderStatusEnum.CREATING_ORDER, RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION, RepairOrderStatusEnum.PENDING_FINAL_INSPECTION, RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus) &&form.isCreateStatementInfo === 0">选择维修项目</el-button>
                     <el-button size="small" @click="confirmDocDialogVisible = true" v-if="[RepairOrderStatusEnum.CREATING_ORDER].includes(form.orderStatus) && (form?.costCountResp?.repairItemRespList?.length || form?.costCountResp?.sparePartRespList?.length)">制单确认并签字</el-button>
                     <el-button size="small" @click="dispatchWorkDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">派工</el-button>
                     <el-button size="small" @click="handleSettlement(1)" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus) && !form.isCreateStatementInfo">结算</el-button>
@@ -132,7 +132,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal } from '@/api/maintain/sp/serviceProxy/index';
+import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal, updateSpFaultAlertRecord } from '@/api/maintain/sp/serviceProxy/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import NavTop from './components/NavTop';
 import { getEnum } from '@/api/common';

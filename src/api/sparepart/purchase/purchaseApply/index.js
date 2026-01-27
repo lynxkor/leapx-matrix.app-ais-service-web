@@ -43,3 +43,35 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 备件采购申请明细表新增/编辑
+ * @param {Object} data
+ */
+export function addDetail (data) {
+  return api.jsonPost('sp/web/purchase/purchaseApplyDetail/addOrUpdate', data);
+}
+
+/**
+ * 获取添加备件采购申请明细信息
+ * @param {Object} data
+ */
+export function getPurchaseApplyDetail (data) {
+  return api.jsonPost('sp/web/purchase/purchaseApplyDetail/getPurchaseApplyDetailInventory', data);
+}
+
+/**
+ * 备件采购申请明细表分页查询
+ * @param {Object} data
+ */
+export function getPurchaseApplyPage (data) {
+  return api.jsonPost('sp/web/purchase/purchaseApplyDetail/page', data);
+}
+
+/**
+ * 备件采购申请明细表删除
+ * @param {Object} data
+ */
+export function purchaseApplyDelete (data) {
+  return api.jsonPost('sp/web/purchase/purchaseApplyDetail/delete', data);
+}
