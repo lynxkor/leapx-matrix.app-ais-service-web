@@ -88,6 +88,8 @@
           @checkbox-change="handleSelectionChange"
           @checkbox-all="handleSelectionChange"
           :checkbox-config="{ checkField: 'checked' }"
+          min-height="0"
+          max-height="500px"
         >
           <vxe-column type="checkbox" width="60" align="center" />
           <vxe-column type="seq" title="序号" width="60" align="center" />

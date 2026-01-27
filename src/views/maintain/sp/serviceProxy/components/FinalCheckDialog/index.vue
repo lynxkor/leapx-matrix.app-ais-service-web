@@ -112,6 +112,8 @@
             resizable
             border="inner"
             size="medium"
+            min-height="0"
+            max-height="500px"
           >
             <vxe-column type="seq" title="序号" width="70" align="center" />
             <vxe-column field="qualityCheckAt" title="质检时间" width="180" />
@@ -202,6 +204,8 @@
             resizable
             border="inner"
             size="medium"
+            min-height="0"
+            max-height="500px"
           >
             <vxe-column type="seq" title="序号" width="70" align="center" />
             <vxe-column field="vrtName" title="VRT名称" min-width="150" show-overflow />
@@ -287,6 +291,8 @@
           resizable
           border="inner"
           size="medium"
+          min-height="0"
+          max-height="500px"
         >
           <vxe-column type="seq" title="序号" width="70" align="center" />
           <vxe-column field="id" title="追溯编码" min-width="150" show-overflow />

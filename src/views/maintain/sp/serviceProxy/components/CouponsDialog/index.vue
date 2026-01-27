@@ -26,6 +26,8 @@
               resizable
               border="inner"
               size="medium"
+              min-height="0"
+              max-height="500px"
             >
               <vxe-column type="seq" title="序号" width="70" align="center" />
               <vxe-column field="code" title="权益编码" width="150" />
@@ -64,6 +66,8 @@
               resizable
               border="inner"
               size="medium"
+              min-height="0"
+              max-height="500px"
             >
               <vxe-column type="seq" title="序号" width="70" align="center" />
               <vxe-column field="code" title="权益编码" width="150" />
