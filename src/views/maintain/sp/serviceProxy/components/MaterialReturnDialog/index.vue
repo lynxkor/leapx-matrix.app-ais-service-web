@@ -151,7 +151,7 @@ export default {
     // 判断是否可以退料
     canReturn (row) {
       const maxQuantity = this.getMaxReturnQuantity(row);
-      return maxQuantity > 0 && (row.returnQuantity || 0) > 0;
+      return maxQuantity > 0 && (row.returnQuantity || 0) > 0 && row.isOutstock;
     },
 
     // 获取退料状态文本

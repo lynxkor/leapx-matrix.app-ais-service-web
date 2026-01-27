@@ -66,9 +66,7 @@
         <span v-if="index">({{ item.count }})</span>
       </div>
     </div>
-    <div
-      class="ais-table-c"
-    >
+    <div class="ais-table-c">
       <LPVxeTable
         ref="tableRef"
         v-loading="loading"
@@ -116,6 +114,7 @@ const defaultForm = {
   serviceProxyCode: '',
   vehProfileVin: '',
   createReStatement: '',
+  statementStatus: ''
 };
 
 const pageSize = 20;
@@ -279,7 +278,6 @@ export default {
           { statementStatusLabel: '全部', statementStatus: '', count: null },
           target.pendingSettlementCount,
           target.pendingReceiptCount
-
         ];
       });
     },
@@ -356,6 +354,7 @@ export default {
         }).finally(() => {
           this.loading = false;
         });
+      this.getTabsList();
     },
     // 需要防抖场景时使用
     debouncedGetData: debounce(function () {
@@ -470,5 +469,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+.m-service-statement-list {
+  ::v-deep .m-vxe-table .m-vxe-table-options {
+    top: -96px;
+  }
+  .ais-actions {
+    margin-bottom: 8px;
+  }
+  .ais-table-c {
+    height: calc(100% - 168px);
+  }
+}
 </style>
