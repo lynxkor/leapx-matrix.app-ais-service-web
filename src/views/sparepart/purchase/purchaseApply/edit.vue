@@ -522,8 +522,8 @@ export default {
 </script>
 <style lang="scss" scoped>
 .common-title {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   color: #0A0E0A;
 }
 .ais-select-group {
