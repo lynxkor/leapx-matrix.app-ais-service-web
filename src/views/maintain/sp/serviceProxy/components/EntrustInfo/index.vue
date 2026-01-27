@@ -554,12 +554,10 @@ export default {
       );
 
       if (index > -1) {
-        this.form.faultAlertRecordRespList.splice(index, 1);
-        // 强制触发响应式更新
-        this.$set(this.form, 'faultAlertRecordRespList', [...this.form.faultAlertRecordRespList]);
-        // 通知父组件数据变化
-        this.$emit('change', this.form);
-        deleteSpFaultAlertRecord({ serviceProxyId: this._id, ...row }).then(res => {
+        deleteSpFaultAlertRecord([row.id]).then(res => {
+          this.form.faultAlertRecordRespList.splice(index, 1);
+          // 强制触发响应式更新
+          this.$set(this.form, 'faultAlertRecordRespList', [...this.form.faultAlertRecordRespList]);
           this.$message({
             message: '保存成功',
             type: 'success'

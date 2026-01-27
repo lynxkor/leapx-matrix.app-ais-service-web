@@ -6,8 +6,8 @@
 		<div class="common-section-body">
 			<div class="common-section-table table-section">
 				<vxe-table
-          ref="faultTable"
-          :data="form.faultAlertRecordRespList"
+          ref="maintainTable"
+          :data="formData.historyList"
           stripe
           show-overflow
           :row-config="{ isHover: true }"
@@ -17,33 +17,26 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="vrtName" title="VRT名称" min-width="150"/>
-          <vxe-column field="vfgName" title="VFG名称" min-width="150"/>
-          <vxe-column field="cccName" title="CCC名称" min-width="150"/>
-          <vxe-column field="alertModule" title="是否提醒模块" width="150" align="center">
+          <vxe-column field="serviceProxyCode" title="接车施工单号" min-width="200"/>
+          <vxe-column field="dealerName" title="维修门店名称" min-width="200"/>
+          <vxe-column field="orderTime" title="开单时间" width="160"/>
+          <vxe-column field="repairFinishTime" title="维修完工时间" width="160"/>
+          <vxe-column field="vehProfileVin" title="VIN码" min-width="200"/>
+          <vxe-column field="carPlate" title="车牌号" width="120"/>
+          <vxe-column field="vehModelName" title="车型" min-width="150"/>
+          <vxe-column field="mileage" title="进店里程数（KM）" width="130"/>
+          <vxe-column field="netMileageExtend" title="车联网里程数（增）" width="140"/>
+          <vxe-column field="customerFaultDescription" title="客户故障描述" min-width="150"/>
+          <vxe-column field="managerSuggestion" title="客户经理建议" min-width="150"/>
+          <vxe-column field="customerRequest" title="客户诉求" min-width="150"/>
+          <vxe-column field="servicerecordUpload" title="是否已上传健康档案" width="150" align="center">
             <template #default="{ row }">
-              <span>{{ row.alertModule === 1 ? '是' : '否' }}</span>
+              <span>{{ row.servicerecordUpload === 1 ? '是' : '否' }}</span>
             </template>
           </vxe-column>
-          <vxe-column field="currentSituationText" title="本次进店情况(周期内)" min-width="150"/>
-          <vxe-column field="faultAlert" title="故障提醒内容" min-width="150"/>
-          <vxe-column title="操作" width="100" align="center" fixed="right" :resizable="false">
-            <template #default="{ row }">
-              <el-popconfirm
-                title="确定删除此故障吗？"
-                @confirm="handleDeleteFault(row)"
-              >
-                <span
-                  class="action-button btn-delete"
-                  slot="reference"
-                  type="text">
-                  删除故障
-                </span>
-              </el-popconfirm>
-            </template>
-          </vxe-column>
+          <vxe-column field="createTime" title="创建时间" width="160"/>
           <template #empty>
-            <div class="m-vxe-table-empty-text">若要启用此内容，请创建记录</div>
+            <div class="m-vxe-table-empty-text">暂无数据</div>
           </template>
         </vxe-table>
 			</div>
@@ -70,14 +63,16 @@ export default {
       handler (val) {
         if (val) {
           this.form = val;
+          this.$set(this.form, 'historyList', val.historyList || []);
         }
       },
-      immediate: true
+      immediate: true,
+      deep: true
     }
   },
   data () {
     return {
-      form: {},
+      form: {}
     };
   },
   methods: {
