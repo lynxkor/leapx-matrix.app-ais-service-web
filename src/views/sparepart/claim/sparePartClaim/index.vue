@@ -10,34 +10,34 @@
       class="ais-search-form"
     >
       <el-form-item label="备件索赔单号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.code"
-          clearable
-        />
+        <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="备件采购单号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.purchaseOrderCode"
-          clearable
-        />
+      <el-form-item label="采购订单号">
+        <tag-input v-model="form.purchaseOrderCodeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="门店编码（组织code）"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.dealerCode"
-          clearable
-        />
-      </el-form-item>
+      <el-form-item label="门店">
+          <fetch-select
+            :remote-method="getDealerList"
+            remote
+            v-model="form.dealerCodeList"
+            placeholder="请输入门店编码或名称"
+            labelKey="orgName"
+            valueKey="orgCode"
+            subLabelKey="orgName"
+            clearable
+            multiple
+            collapseTags
+            filterable
+              />
+        </el-form-item>
       <template v-if="show">
-        <el-form-item label="门店名称（组织名称）">
+        <!-- <el-form-item label="门店名称">
           <el-input
             placeholder="请输入"
             v-model="form.dealerName"
             clearable
           />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="提交时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -50,10 +50,10 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="索赔类型:10货损,20货差（少）,30状态不符,40质量问题">
+        <el-form-item label="索赔类型">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
+            enumCode="ClaimTypeEnum"
             v-model="form.claimType"
             placeholder="请选择"
             clearable
@@ -61,10 +61,10 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="索赔状态:10草稿,20待确认,30已驳回,40审批中,50已完结">
+        <el-form-item label="索赔状态">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
+            enumCode="ClaimStatusEnum"
             v-model="form.claimStatus"
             placeholder="请选择"
             clearable
@@ -108,12 +108,12 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>-->
     </div>
     <div
       class="ais-table-c"
@@ -149,7 +149,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/claim/sparePartClaim/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -158,6 +158,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -184,14 +185,15 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '备件索赔',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-sparePartClaim',
+      moduleKey: 'AISPART-sparePartClaim',
       form: {
         ...defaultForm
       },
@@ -228,16 +230,16 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'purchaseOrderCode', label: '备件采购单号', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码（组织code）', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称（组织名称）', visible: true, width: 200 },
+          { props: 'purchaseOrderCode', label: '采购订单号', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'submitTime', label: '提交时间', visible: true, width: 200 },
           { props: 'submitter', label: '提交人', visible: true, width: 200 },
-          { props: 'claimType', label: '索赔类型:10货损,20货差（少）,30状态不符,40质量问题', visible: true, width: 200 },
-          { props: 'claimStatus', label: '索赔状态:10草稿,20待确认,30已驳回,40审批中,50已完结', visible: true, width: 200 },
+          { props: 'claimTypeLabel', label: '索赔类型', visible: true, width: 200 },
+          { props: 'claimStatusLabel', label: '索赔状态', visible: true, width: 200 },
           { props: 'rejectionDescription', label: '驳回说明', visible: true, width: 200 },
           { props: 'approvalDescription', label: '审批说明', visible: true, width: 200 },
-          { props: 'completedIs', label: '是否完结', visible: true, width: 200 },
+          { props: 'completedIsLabel', label: '是否完结', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -464,6 +466,14 @@ export default {
       //     });
       //   });
       // });
+    },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     }
   }
 };
