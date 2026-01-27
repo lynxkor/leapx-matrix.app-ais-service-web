@@ -7,7 +7,7 @@
         </div>
         <div class="common-title">备件详情</div>
         <div class="ais-actions">
-            <div class="common-section-table">
+            <div class="common-section-table" v-if="sparePartId">
                 <el-form label-width="120px" :inline="true" class="form-detail">
                     <el-form-item label="备件编码：" prop="partCode">
                         {{ sparePartDetail.partCode }}
@@ -31,7 +31,7 @@
                         {{ sparePartDetail.reminderContent }}
                     </el-form-item>
                     <el-form-item label="本次采购：" prop="purchaseQty">
-                        <el-input type="number" @blur="updateSparePartDetail" v-model="sparePartDetail.purchaseQty"></el-input>
+                        <el-input type="number" @change="updateSparePartDetail" clearable v-model="sparePartDetail.purchaseQty"></el-input>
                     </el-form-item>
                     <el-form-item label="OEM库存：" prop="oemInventoryIs">
                         {{ sparePartDetail.oemInventoryIs }}
@@ -52,8 +52,8 @@
                         {{ sparePartDetail.suggestionQty }}
                     </el-form-item>
                     <el-form-item style="width: 100%;" label="采购备注：" prop="remark">
-                        <el-input type="textarea" @blur="updateSparePartDetail" maxlength="500" show-word-limit
-                            v-model="sparePartDetail.remark" placeholder="请输入采购备注" />
+                        <el-input type="textarea" @change="updateSparePartDetail" maxlength="500" show-word-limit
+                            v-model="sparePartDetail.remark" clearable placeholder="请输入采购备注" />
                     </el-form-item>
                 </el-form>
                 <div class="common-title">共享库存(外)</div>
@@ -67,10 +67,18 @@
                     :defaultNewRow="defaultNewRow" :show-toolbar="false" @page-size-change="pageSizeChange"
                     :current="current" :pageSize="pageSize" :showPagination="true" :total="total"
                     @current-page-change="currentPageChange" :auth="{ edit: false, delete: false }">
-                    <template #btn-middle="{ row, rowIndex }">
-                        <el-button type="text" @click="openPane(row, rowIndex)" class="action-button btn-delete">
+                    <template #btn-middle="{ row }">
+                        <el-popconfirm
+                            title="确定删除此备件吗？"
+                            @confirm="handleDel(row)"
+                        >
+                            <span
+                            class="action-button btn-delete"
+                            slot="reference"
+                            type="text">
                             删除
-                        </el-button>
+                            </span>
+                        </el-popconfirm>
                     </template>
                 </edit-table>
             </div>
@@ -79,7 +87,7 @@
 </template>
 
 <script>
-import { addDetail, getPurchaseApplyDetail, getPurchaseApplyPage } from '@/api/sparepart/purchase/purchaseApply/index';
+import { addDetail, getPurchaseApplyDetail, getPurchaseApplyPage, purchaseApplyDelete } from '@/api/sparepart/purchase/purchaseApply/index';
 import EditTable from '@/libs/components/EditTable';
 import { sparePartListShort } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -97,6 +105,9 @@ export default {
       sparePartId: '', // 备件信息ID
       sparePartDetail: {}, // 备件详情信息
       detailId: '', // 详情ID
+      pageSize: 10,
+      current: 1,
+      total: 0,
       tableData: [],
       outsideTableData: [],
       defaultNewRow: {
@@ -104,94 +115,94 @@ export default {
       },
       columns: [
         {
-          field: 'name',
+          field: 'dealerCode',
           title: '门店编码',
           width: '12.5%',
         },
         {
-          field: 'age',
+          field: 'dealerName',
           title: '门店名称',
           width: '12.5%',
         },
         {
-          field: 'email',
+          field: 'sharedContactPerson',
           title: '联系人',
           width: '12.5%',
         },
         {
-          field: 'email',
+          field: 'sharedContactInfo',
           title: '联系人方式',
           width: '12.5%',
         },
         {
-          field: 'email',
+          field: 'sharedQty',
           title: '共享库存',
           width: '12.5%',
         },
         {
-          field: 'email',
+          field: 'suggestedSharedPrice',
           title: '价格',
           width: '12.5%',
         },
         {
-          field: 'email',
+          field: 'distance',
           title: '距离(KM)',
           width: '12.5%',
         },
         {
-          field: 'email',
+          field: 'sharedDescription',
           title: '上架说明',
           width: '12.5%',
         },
       ],
       spareColumns: [
         {
-          field: 'email',
+          field: 'partCode',
           title: '备件编码',
           width: '11%',
         },
         {
-          field: 'email',
+          field: 'partName',
           title: '备件名称',
           width: '11%',
         },
         {
-          field: 'email',
+          field: 'originalPrice',
           title: '原价',
           width: '11%',
         },
         {
-          field: 'email',
+          field: 'purchasePrice',
           title: '采购价',
           width: '11%',
         },
         {
-          field: 'email',
+          field: 'purchaseAmount',
           title: '采购金额',
           width: '11%',
         },
         {
-          field: 'email',
+          field: 'cashUnitPrice',
           title: '现金单价',
           width: '11%',
         },
         {
-          field: 'email',
+          field: 'cashAmount',
           title: '现金金额',
           width: '11%',
         },
         {
-          field: 'email',
+          field: 'purchaseQty',
           title: '采购数',
           width: '11%',
         },
         {
-          field: 'email',
+          field: 'remark',
           title: '备注',
           width: '11%',
         },
         {
-          field: 'email',
+          field: 'originalPriceSource',
           title: '原价来源',
           width: '11%',
         },
@@ -201,13 +212,35 @@ export default {
   watch: {
     purchaseApplyId: {
       handler (val) {
-        console.log('purchaseApplyId', val);
+        this.getDetailData();
+        this.getAddDetail();
       },
       immediate: true,
       deep: true
     }
   },
   methods: {
+    async getDetailData () {
+      const params = {
+        sparePartId: this.sparePartId,
+        purchaseApplyId: this.purchaseApplyId,
+        pageSize: this.pageSize,
+        pageNum: this.current
+      };
+      const res = await getPurchaseApplyPage(params);
+      this.tableData = res.records || [];
+      console.log('this.tableData[0]?.sparePartId', this.tableData[0]?.sparePartId);
+      this.total = res.total;
+    },
+    pageSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.current = 1;
+      this.getDetailData();
+    },
+    currentPageChange (current) {
+      this.current = current;
+      this.getDetailData();
+    },
     // 备件远程搜索
     async getSparePart (query) {
       try {
@@ -234,6 +267,9 @@ export default {
     },
     // 获取备件详情
     async getAddDetail (params) {
+      if (!this.sparePartId) {
+        params.sparePartId = this.tableData[0]?.sparePartId;
+      }
       const res = await addDetail(params);
       this.detailId = res || '';
     },
@@ -254,6 +290,11 @@ export default {
       };
       await this.getAddDetail(params);
       this.getSparePartDetail(this.detailId);
+    },
+    // 删除事件
+    async handleDel (val) {
+      await purchaseApplyDelete(val.id);
+      this.getDetailData(this.detailId);
     }
   }
 };
@@ -263,6 +304,7 @@ export default {
 <style lang="scss" scoped>
 .btn-delete{
   color:#B91919;
+  cursor: pointer;
 }
 .common-title {
   font-size: 16px;
