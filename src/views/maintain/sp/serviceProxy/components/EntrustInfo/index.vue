@@ -386,8 +386,8 @@
               :remote-method="getAlertModule"
               @change="handleAlertModuleChange"
               collapse-tags
-              value-key="vrtId"
-              label-key="vrtName"
+              value-key="id"
+              label-key="name"
             />
             <el-button
               type="primary"
@@ -529,7 +529,7 @@ export default {
 
       // 检查是否已存在相同的记录（根据 vrtId 判断）
       const isExist = this.form.faultAlertRecordRespList.some(
-        item => item.vrtId === record.vrtId
+        item => item.id === record.id
       );
 
       // 如果不存在才添加
@@ -544,6 +544,11 @@ export default {
             message: '保存成功',
             type: 'success'
           });
+        });
+      } else {
+        this.$message({
+          message: '请勿重复添加',
+          type: 'warning'
         });
       }
     },
@@ -569,7 +574,17 @@ export default {
       if (!query) {
         return [];
       }
-      return getCCCList(query);
+      return new Promise((resolve, reject) => {
+        getCCCList(query).then(res => {
+          const arr = (res || []).map(item => {
+            return {
+              ...item,
+              name: `${item.vrtName}-${item.vfgName}-${item.cccName}`
+            };
+          });
+          resolve(arr);
+        });
+      });
     }
   }
 };

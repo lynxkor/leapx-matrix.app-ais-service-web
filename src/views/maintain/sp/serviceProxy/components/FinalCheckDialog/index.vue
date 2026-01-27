@@ -160,28 +160,39 @@
           <div>
             <span class="fault-label">本次进店是否存在故障</span>
             <el-radio-group v-model="faultForm.faultFlag" @change="handleFaultExistenceChange">
-              <el-radio :label="1">是</el-radio>
-              <el-radio :label="0">否</el-radio>
+              <el-radio :label="true">是</el-radio>
+              <el-radio :label="false">否</el-radio>
             </el-radio-group>
           </div>
-          <div v-if="faultForm.faultFlag === 1" class="search-section">
-            <el-input
-              v-model="faultForm.searchKeyword"
-              placeholder="请输入VRT/VFG/CCC模糊搜索"
-              clearable
-              size="small"
-              @clear="handleFaultSearch"
-              @keyup.enter.native="handleFaultSearch"
-            >
-              <i slot="append" class="el-icon-search" @click="handleFaultSearch"></i>
-            </el-input>
+          <div v-if="faultForm.faultFlag" class="search-section">
+            <div class="ais-select-group">
+              <fetch-select
+                style="width: 250px;"
+                filterable
+                clearable
+                remote
+                placeholder="请输入VRT/VFG/CCC模糊搜索"
+                :remote-method="getAlertModule"
+                @change="handleAlertModuleChange"
+                collapse-tags
+                value-key="id"
+                label-key="name"
+                size="small"
+              />
+              <el-button
+                type="primary"
+                size="small"
+              >
+                添加
+              </el-button>
+            </div>
           </div>
         </div>
 
         <!-- 搜索区域 -->
 
         <!-- 故障模块表格 -->
-        <div v-if="faultForm.faultFlag === 1" class="table-section">
+        <div v-if="faultForm.faultFlag" class="table-section">
           <vxe-table
             ref="faultTable"
             :data="faultTableData"
@@ -322,7 +333,7 @@
 </template>
 
 <script>
-import { getFinalInspectionDetail, finalInspection, qualityInspection, repaired } from '@/api/maintain/sp/serviceProxy/index';
+import { getFinalInspectionDetail, finalInspection, qualityInspection, repaired, getCCCList } from '@/api/maintain/sp/serviceProxy/index';
 import { getUserByNameOrNo } from '@/libs/api/common';
 import { getListData } from '@/api/maintain/basic/batteryUnit/index';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -624,23 +635,16 @@ export default {
     },
     // 故障模块相关方法
     handleFaultExistenceChange (val) {
-      console.log('故障存在状态变更', val);
       if (val === 0) {
         // 如果选择不存在故障，清空故障列表
         this.faultTableData = [];
       }
     },
-    handleFaultSearch () {
-      console.log('搜索故障', this.faultForm.searchKeyword);
-      this.$message.info('搜索功能开发中');
-    },
     handleDeleteFault (row) {
-      console.log('删除故障', row);
-      const index = this.faultTableData.findIndex(item => item.id === row.id);
-      if (index > -1) {
-        this.faultTableData.splice(index, 1);
-        this.$message.success('删除成功');
-      }
+      const index = this.faultTableData.findIndex(
+        item => item.vrtId === row.vrtId
+      );
+      this.faultTableData.splice(index, 1);
     },
     async submit () {
       this.submitLoading = true;
@@ -684,7 +688,39 @@ export default {
       } finally {
         this.submitLoading = false;
       }
-    }
+    },
+    getAlertModule (query) {
+      if (!query) {
+        return [];
+      }
+      return new Promise((resolve, reject) => {
+        getCCCList(query).then(res => {
+          const arr = (res || []).map(item => {
+            return {
+              ...item,
+              name: `${item.vrtName}-${item.vfgName}-${item.cccName}`
+            };
+          });
+          resolve(arr);
+        });
+      });
+    },
+    handleAlertModuleChange (val, record) {
+      // 检查是否已存在相同的记录（根据 vrtId 判断）
+      const isExist = this.faultTableData.some(
+        item => item.id === record.id
+      );
+
+      // 如果不存在才添加
+      if (!isExist && record) {
+        this.faultTableData.push(record);
+      } else {
+        this.$message({
+          message: '请勿重复添加',
+          type: 'warning'
+        });
+      }
+    },
   }
 };
 </script>
