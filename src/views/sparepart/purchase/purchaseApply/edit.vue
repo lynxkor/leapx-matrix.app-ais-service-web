@@ -1,129 +1,80 @@
 <template>
-  <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
+  <edit-page-layout ref="editLayout" :title="detailTitle" showPaneFooter>
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
-      <edit-base-container
-        ref="containerRef"
-        :id="_id"
-        :title="title"
-        :isEditing.sync="isEditing"
-        :form.sync="form"
-        :submitRequest="submitRequest"
-        :detailRequest="detailRequest"
-      >
+      <edit-base-container ref="containerRef" :id="_id" :title="title" :form.sync="form"
+        :submitRequest="submitRequest" :detailRequest="detailRequest" :showEditBtn="false">
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
           <span class="status primary">状态</span>
         </template>
-        <template #extraButtons>
-          <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button>
-        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>基础信息</h2>
+              <h2>常规信息</h2>
             </div>
             <div class="common-section-body">
+              <div class="common-title" v-show="isEditing || !_id">基本信息</div>
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
+                v-show="isEditing || !_id">
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  <fetch-select
-                    :remote-method="getDealerList"
-                    remote
-                    v-model="form.dealerCode"
-                    placeholder="请输入门店编码或名称"
-                    labelKey="orgCode"
-                    valueKey="orgCode"
-                    subLabelKey="orgName"
-                    clearable
-                    collapseTags
-                    filterable
-                     @change="handleDealerChange"
-                    />
+                  <fetch-select :remote-method="getDealerList" remote v-model="form.dealerCode" placeholder="请输入门店编码或名称"
+                    labelKey="orgCode" valueKey="orgCode" subLabelKey="orgName" clearable collapseTags filterable
+                    @change="handleDealerChange" />
                 </el-form-item>
                 <el-form-item label="采购申请单：" prop="code">
-                  {{form.code}}
+                  {{ form.code }}
                 </el-form-item>
                 <el-form-item label="订单类型：" prop="purchaseOrderType">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="PurchaseOrderTypeEnum"
-                    v-model="form.purchaseOrderType"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
+                  <fetch-select :request="fetchOptions" enumCode="PurchaseOrderTypeEnum"
+                    v-model="form.purchaseOrderType" placeholder="请选择" clearable filterable />
                 </el-form-item>
                 <el-form-item label="订单状态：" prop="orderStatus">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="PurchaseApplyStatusEnum"
-                    v-model="form.orderStatus"
-                    placeholder="请选择"
-                    disabled
-                    clearable
-                    filterable
-                  />
+                  <fetch-select :request="fetchOptions" enumCode="PurchaseApplyStatusEnum" v-model="form.orderStatus"
+                    placeholder="请选择" disabled clearable filterable />
                 </el-form-item>
                 <el-form-item label="公司名称：" prop="companyCode">
-                  {{form.companyName}}
+                  {{ form.companyName }}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  {{form.dealerName}}
+                  {{ form.dealerName }}
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
-                  <el-input
-                    type="textarea"
-                    maxlength="500"
-                    show-word-limit
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
+                  <el-input type="textarea" maxlength="500" show-word-limit placeholder="请输入" v-model="form.remark"
+                    clearable />
                 </el-form-item>
+              </el-form>
+              <div class="common-title" v-show="isEditing || !_id">收件信息</div>
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
+                v-show="isEditing || !_id">
                 <el-form-item label="仓库名称：">
                   {{ form.warehouseName }}
                 </el-form-item>
                 <el-form-item label="是否第三方收货：" prop="thirdPartyDeliveryIs">
-                  <el-radio-group
-                    v-model="form.thirdPartyDeliveryIs">
-                  <el-radio label="1">是</el-radio>
-                  <el-radio label="0">否</el-radio>
-                </el-radio-group>
+                  <el-radio-group v-model="form.thirdPartyDeliveryIs">
+                    <el-radio label="1">是</el-radio>
+                    <el-radio label="0">否</el-radio>
+                  </el-radio-group>
                 </el-form-item>
                 <el-form-item label="收货人姓名：" prop="recipientName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.recipientName"
-                    clearable
-                  />
+                  <el-input placeholder="请输入" v-model="form.recipientName" clearable />
                 </el-form-item>
                 <el-form-item label="收货人电话：" prop="recipientPhone">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.recipientPhone"
-                    clearable
-                  />
+                  <el-input placeholder="请输入" v-model="form.recipientPhone" clearable />
                 </el-form-item>
-                <el-form-item label="省市区" prop="provinceCityCountyCode"
-                  >
-                    <el-cascader
-                      placeholder="请选择省市区"
-                      v-model="form.provinceCityCountyCode"
-                      :props="orgProps"
-                      :options="areaOptions"
-                      filterable
-                      clearable>
-                    </el-cascader>
-                  </el-form-item>
+                <el-form-item label="省市区：" prop="provinceCityCountyCode">
+                  <el-cascader placeholder="请选择省市区" v-model="form.provinceCityCountyCode" :props="orgProps"
+                    :options="areaOptions" filterable clearable>
+                  </el-cascader>
+                </el-form-item>
                 <el-form-item label="收货地址：" prop="address">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.address"
-                    clearable
-                  />
+                  <el-input placeholder="请输入" v-model="form.address" clearable />
                 </el-form-item>
+              </el-form>
+              <div class="common-title" v-show="isEditing || !_id">审批信息</div>
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
+                v-show="isEditing || !_id">
                 <el-form-item label="提交人：" prop="submitter">
                   {{ form.submitter }}
                 </el-form-item>
@@ -139,26 +90,10 @@
                 <el-form-item label="审批说明：" prop="approvalDescription">
                   {{ form.approvalDescription }}
                 </el-form-item>
-                <el-form-item label="缺货单号：" prop="backOrderId">
-                  {{ form.backOrderCode }}
-                </el-form-item>
-                <el-form-item label="原价券：" prop="originalPriceCouponId">
-                  {{ form.originalPriceCouponId }}
-                </el-form-item>
-                <el-form-item label="VIN：" prop="vin">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vin"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="特殊编码：" prop="specialCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.specialCode"
-                    clearable
-                  />
-                </el-form-item>
+              </el-form>
+              <div class="common-title" v-show="isEditing || !_id">资金信息</div>
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
+                v-show="isEditing || !_id">
                 <el-form-item label="采购金额：" prop="purchaseAmount">
                   {{ form.purchaseAmount }}
                 </el-form-item>
@@ -175,6 +110,23 @@
                   {{ form.rebateAvailableAmount }}
                 </el-form-item>
               </el-form>
+              <div class="common-title" v-show="isEditing || !_id">其他信息</div>
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
+                v-show="isEditing || !_id">
+                <el-form-item label="缺货单号：" prop="backOrderId">
+                  {{ form.backOrderCode }}
+                </el-form-item>
+                <el-form-item label="原价券：" prop="originalPriceCouponId">
+                  {{ form.originalPriceCouponId }}
+                </el-form-item>
+                <el-form-item label="VIN：" prop="vin">
+                  <el-input placeholder="请输入" v-model="form.vin" clearable />
+                </el-form-item>
+                <el-form-item label="特殊编码：" prop="specialCode">
+                  <el-input placeholder="请输入" v-model="form.specialCode" clearable />
+                </el-form-item>
+              </el-form>
+              <div class="common-title" v-show="!(isEditing || !_id)">基本信息</div>
               <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="门店编码：" prop="dealerCode">
                   {{ form.dealerCode }}
@@ -200,6 +152,9 @@
                 <el-form-item label="备注：" prop="remark">
                   {{ form.remark }}
                 </el-form-item>
+              </el-form>
+              <div class="common-title" v-show="!(isEditing || !_id)">收件信息</div>
+              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="仓库名称：" prop="warehouseId">
                   {{ form.warehouseName }}
                 </el-form-item>
@@ -221,6 +176,10 @@
                 <el-form-item label="收货地址：" prop="address">
                   {{ form.address }}
                 </el-form-item>
+              </el-form>
+
+              <div class="common-title" v-show="!(isEditing || !_id)">审批信息</div>
+              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="提交人：" prop="submitter">
                   {{ form.submitter }}
                 </el-form-item>
@@ -236,18 +195,10 @@
                 <el-form-item label="审批说明：" prop="approvalDescription">
                   {{ form.approvalDescription }}
                 </el-form-item>
-                <el-form-item label="缺货单号：" prop="backOrderId">
-                  {{ form.backOrderCode }}
-                </el-form-item>
-                <el-form-item label="原价券：" prop="originalPriceCouponId">
-                  {{ form.originalPriceCouponId }}
-                </el-form-item>
-                <el-form-item label="VIN：" prop="vin">
-                  {{ form.vin }}
-                </el-form-item>
-                <el-form-item label="特殊编码：" prop="specialCode">
-                  {{ form.specialCode }}
-                </el-form-item>
+              </el-form>
+
+              <div class="common-title" v-show="!(isEditing || !_id)">资金信息</div>
+              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="采购金额：" prop="purchaseAmount">
                   {{ form.purchaseAmount }}
                 </el-form-item>
@@ -264,24 +215,35 @@
                   {{ form.rebateAvailableAmount }}
                 </el-form-item>
               </el-form>
+
+              <div class="common-title" v-show="!(isEditing || !_id)">其他信息</div>
+              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="缺货单号：" prop="backOrderId">
+                  {{ form.backOrderCode }}
+                </el-form-item>
+                <el-form-item label="原价券：" prop="originalPriceCouponId">
+                  {{ form.originalPriceCouponId }}
+                </el-form-item>
+                <el-form-item label="VIN：" prop="vin">
+                  {{ form.vin }}
+                </el-form-item>
+                <el-form-item label="特殊编码：" prop="specialCode">
+                  {{ form.specialCode }}
+                </el-form-item>
+              </el-form>
             </div>
           </section>
-          <section class="common-section">
+          <section class="common-section" v-show="!(isEditing || !_id)">
             <div class="common-section-header">
-              <h2>区块标题</h2>
-              <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              <h2>备件信息</h2>
             </div>
             <div class="common-section-body">
-              <div class="common-section-table">
-                <edit-table
-                  ref="editTable"
-                  :columns="columns"
-                  :data="tableData"
-                  :defaultNewRow="defaultNewRow"
-                  :show-toolbar="false"
-                  :options="options"
-                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
-                />
+              <div class="ais-select-group">
+                <el-button size="small" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>添加备件</el-button>
+                <el-button class="ais-button" size="small">
+                  补货预测
+                </el-button>
+                <el-button size="small">备件导入</el-button>
               </div>
             </div>
           </section>
@@ -291,22 +253,26 @@
     <template #right>
       <div class="page-common-edit">
         <!-- 右侧栏组件，自行开发 -->
+        <SparePartsDetail
+          :purchase-apply-id="_id"
+        />
       </div>
     </template>
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/purchase/purchaseApply/index';
+import { getDetail, addOrUpdate, addDetail, getPurchaseApplyDetail, getPurchaseApplyPage } from '@/api/sparepart/purchase/purchaseApply/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getUserByNameOrNo, getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse, getPartDealer, getPartUser } from '@/api/common';
+import { getUserByNameOrNo, getTableConfig, sparePartListShort, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse, getPartDealer, getPartUser } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import SparePartsDetail from './SparePartsDetail.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -328,10 +294,6 @@ const defaultForm = {
   createTime: '',
   updateTime: '',
   id: '',
-  creator: '',
-  creatorName: '',
-  modifier: '',
-  modifierName: '',
   status: '',
   statusDesc: '',
   provinceCityCountyCode: '',
@@ -373,8 +335,8 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    EditTable,
-    FetchSelect
+    FetchSelect,
+    SparePartsDetail
   },
   computed: {
     _id () {
@@ -413,148 +375,17 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      defaultNewRow: {
-        name: '',
-      },
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
+      detailTitle: '添加备件',
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
-      columns: [
-        {
-          field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
-        },
-        {
-          field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
-        },
-        {
-          field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
-        },
-      ],
       rules: {
-        code: [
-          { required: false, message: '请输入采购申请单', trigger: 'change' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称', trigger: 'change' }
-        ],
-        companyCode: [
-          { required: true, message: '请输入公司编码', trigger: 'change' }
-        ],
-        companyName: [
-          { required: true, message: '请输入公司名称', trigger: 'change' }
-        ],
-        warehouseName: [
-          { required: true, message: '请输入仓库名称', trigger: 'change' }
-        ],
-        warehouseId: [
-          { required: true, message: '请输入仓库ID', trigger: 'change' }
-        ],
         purchaseOrderType: [
           { required: true, message: '请选择订单类型', trigger: 'change' }
-        ],
-        purchaseAmount: [
-          { required: false, message: '请输入采购金额', trigger: 'change' }
         ],
         orderStatus: [
           { required: true, message: '请选择订单状态', trigger: 'change' }
         ],
-        submitTime: [
-          { required: false, message: '请选择提交时间', trigger: 'change' }
-        ],
-        submitter: [
-          { required: false, message: '请输入提交人', trigger: 'change' }
-        ],
-        approver: [
-          { required: false, message: '请输入审批人', trigger: 'change' }
-        ],
-        approvalTime: [
-          { required: false, message: '请选择审批时间', trigger: 'change' }
-        ],
-        remark: [
-          { required: false, message: '请输入备注', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
         provinceCityCountyCode: [
-          { required: true, message: '请输入省市区code', trigger: 'change' }
-        ],
-        provinceCode: [
-          { required: true, message: '请输入省code', trigger: 'change' }
-        ],
-        provinceName: [
-          { required: true, message: '请输入省', trigger: 'change' }
-        ],
-        cityCode: [
-          { required: true, message: '请输入市code', trigger: 'change' }
-        ],
-        cityName: [
-          { required: true, message: '请输入市', trigger: 'change' }
-        ],
-        districtCode: [
-          { required: true, message: '请输入区&#x2F;县编码', trigger: 'change' }
-        ],
-        districtName: [
-          { required: true, message: '请输入区&#x2F;县名称', trigger: 'change' }
-        ],
-        address: [
-          { required: true, message: '请输入详细地址', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，150:新销服; 老销服:10', trigger: 'change' }
-        ],
-        backOrderId: [
-          { required: false, message: '请输入缺货单ID', trigger: 'change' }
-        ],
-        originalPriceCouponId: [
-          { required: false, message: '请输入原价券ID', trigger: 'change' }
+          { required: true, message: '请输入省市区', trigger: 'change' }
         ],
         thirdPartyDeliveryIs: [
           { required: true, message: '请输入是否第三方收货', trigger: 'change' }
@@ -565,43 +396,13 @@ export default {
         recipientPhone: [
           { required: true, message: '请输入收货人电话', trigger: 'change' }
         ],
-        cashAmount: [
-          { required: false, message: '请输入现金金额', trigger: 'change' }
-        ],
-        cashAvailableAmount: [
-          { required: false, message: '请输入现金可用资金', trigger: 'change' }
-        ],
-        rebateAmount: [
-          { required: false, message: '请输入返利金额', trigger: 'change' }
-        ],
-        rebateAvailableAmount: [
-          { required: false, message: '请输入返利可用资金', trigger: 'change' }
-        ],
-        taxRate: [
-          { required: false, message: '请输入税率', trigger: 'change' }
-        ],
-        vin: [
-          { required: false, message: '请输入VIN', trigger: 'change' }
-        ],
-        specialCode: [
-          { required: false, message: '请输入特殊编码', trigger: 'change' }
-        ],
-        emptyIs: [
-          { required: false, message: '请输入是否空出', trigger: 'change' }
-        ],
-        approvalDescription: [
-          { required: false, message: '请输入审批说明', trigger: 'change' }
-        ],
-        logisticsPaymentMethod: [
-          { required: false, message: '请输入物流支付方式', trigger: 'change' }
-        ],
       }
     };
   },
   mounted () {
     this.oem = this.$store.state.pageSource?.aisPageSource.includes('AISPART-sparePart-oem');
     console.log('this.oem  ', this.isEditing);
-    if (!this.isEditing) { // 是否编辑 TODO
+    if (!this.isEditing) {
       this.getPartUser();
     }
   },
@@ -711,7 +512,25 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    // 添加备件
+    handleAdd () {
+      this.openPane();
     }
   }
 };
 </script>
+<style lang="scss" scoped>
+.common-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0A0E0A;
+}
+.ais-select-group {
+  margin-bottom: 12px;
+}
+.ais-button {
+  margin-left: 12px;
+  border-radius: 4px;
+}
+</style>
