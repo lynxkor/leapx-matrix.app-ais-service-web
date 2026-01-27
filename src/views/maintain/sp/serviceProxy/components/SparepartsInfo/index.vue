@@ -7,7 +7,7 @@
 			<div class="common-section-table table-section">
 				<vxe-table
           ref="faultTable"
-          :data="form.faultAlertRecordRespList"
+          :data="form.outboundOrderList"
           stripe
           show-overflow
           :row-config="{ isHover: true }"
@@ -17,31 +17,15 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="vrtName" title="VRT名称" min-width="150"/>
-          <vxe-column field="vfgName" title="VFG名称" min-width="150"/>
-          <vxe-column field="cccName" title="CCC名称" min-width="150"/>
-          <vxe-column field="alertModule" title="是否提醒模块" width="150" align="center">
-            <template #default="{ row }">
-              <span>{{ row.alertModule === 1 ? '是' : '否' }}</span>
-            </template>
-          </vxe-column>
-          <vxe-column field="currentSituationText" title="本次进店情况(周期内)" min-width="150"/>
-          <vxe-column field="faultAlert" title="故障提醒内容" min-width="150"/>
-          <vxe-column title="操作" width="100" align="center" fixed="right" :resizable="false">
-            <template #default="{ row }">
-              <el-popconfirm
-                title="确定删除此故障吗？"
-                @confirm="handleDeleteFault(row)"
-              >
-                <span
-                  class="action-button btn-delete"
-                  slot="reference"
-                  type="text">
-                  删除故障
-                </span>
-              </el-popconfirm>
-            </template>
-          </vxe-column>
+          <vxe-column field="code" title="出库单号" min-width="200"/>
+          <vxe-column field="dealerName" title="厅店名称" min-width="200"/>
+          <vxe-column field="vehProfileVin" title="VIN码" min-width="200"/>
+          <vxe-column field="carPlate" title="车牌号" min-width="150"/>
+          <vxe-column field="cccName" title="出库类型" min-width="150"/>
+          <vxe-column field="cccName" title="处理状态" min-width="150"/>
+          <vxe-column field="remark" title="备注" min-width="150"/>
+          <vxe-column field="cccName" title="负责人" min-width="150"/>
+          <vxe-column field="cccName" title="创建时间" min-width="150"/>
           <template #empty>
             <div class="m-vxe-table-empty-text">若要启用此内容，请创建记录</div>
           </template>
@@ -70,9 +54,11 @@ export default {
       handler (val) {
         if (val) {
           this.form = val;
+          this.$set(this.form, 'outboundOrderList', val.outboundOrderList || []);
         }
       },
-      immediate: true
+      immediate: true,
+      deep: true
     }
   },
   data () {

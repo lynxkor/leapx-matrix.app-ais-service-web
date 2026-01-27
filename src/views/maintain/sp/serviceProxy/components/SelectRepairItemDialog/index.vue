@@ -729,6 +729,12 @@ export default {
       });
     },
     handleSelect (item) {
+      // 校验是否重复添加
+      const target = this.itemData.filter(el => el.repairItemId !== '999999' && el.workRecordStatus !== 40).find(el => el.repairItemId === item.id);
+      if (target) {
+        this.$message.error('维修项目已存在，请勿重复添加');
+        return;
+      }
       this.selectedRepairItem = item;
       this.addItem();
     },
