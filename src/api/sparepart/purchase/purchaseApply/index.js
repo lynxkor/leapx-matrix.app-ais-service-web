@@ -67,3 +67,11 @@ export function getPurchaseApplyDetail (data) {
 export function getPurchaseApplyPage (data) {
   return api.jsonPost('sp/web/purchase/purchaseApplyDetail/page', data);
 }
+
+/**
+ * 备件采购申请明细表删除
+ * @param {Object} data
+ */
+export function purchaseApplyDelete (data) {
+  return api.jsonPost('sp/web/purchase/purchaseApplyDetail/delete', data);
+}
