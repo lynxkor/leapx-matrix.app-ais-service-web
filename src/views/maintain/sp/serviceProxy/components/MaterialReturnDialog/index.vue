@@ -146,8 +146,7 @@ export default {
     // 计算最大可退料数量（出库数量 - 已退料数量）
     getMaxReturnQuantity (row) {
       const quantity = row.quantity || 0;
-      const refundedNumber = row.refundedNumber || 0;
-      return Math.max(0, quantity - refundedNumber);
+      return Math.max(0, quantity);
     },
 
     // 判断是否可以退料
