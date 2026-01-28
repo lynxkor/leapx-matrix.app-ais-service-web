@@ -124,5 +124,18 @@ export function rightsList (data) {
 export function rightsFreeze (data) {
   return api.jsonPost(prefix + 'rightsFreeze', data);
 }
+/**
+ * 提交结算并确认
+ * @param {Object} data
+ */
+export function submitSettlement (data) {
+  return api.jsonPost(prefix + 'submitSettlementAndSign', data);
+}
 
-
+/**
+ * 提交结算并签字
+ * @param {Object} data
+ */
+export function signSettlement (data) {
+  return api.jsonPost(prefix + 'checkStatementConfirm', data);
+}
