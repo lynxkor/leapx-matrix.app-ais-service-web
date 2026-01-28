@@ -10,14 +10,12 @@
         :form.sync="form"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :originalForm.sync="originalForm"
+        :showEditBtn="false"
       >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
           <span class="status primary">状态</span>
-        </template>
-        <template #extraButtons>
-          <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -93,7 +91,7 @@
                     filterable
                   />
                 </el-form-item>
-                <el-form-item label="订单状态:待签收2,已签收3,已取消5：" prop="orderStatus">
+                <el-form-item label="订单状态：" prop="orderStatus">
                   <fetch-select
                     :request="fetchOptions"
                     enumCode="xxx"
@@ -249,67 +247,69 @@
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
                 </el-form-item>
+                <el-form-item label="订单状态：" prop="orderStatus">
+                  {{ form.orderStatusLabel }}
+                </el-form-item>
                 <el-form-item label="采购订单号：" prop="code">
                   {{ form.code }}
                 </el-form-item>
-                <el-form-item label="订单类型：" prop="purchaseOrderType">
-                  {{ form.purchaseOrderTypeLabel }}
-                </el-form-item>
-                <el-form-item label="订单金额：" prop="purchaseAmount">
-                  {{ form.purchaseAmount }}
-                </el-form-item>
-                <el-form-item label="使用现金：" prop="cashAmount">
-                  {{ form.cashAmount }}
-                </el-form-item>
-                <el-form-item label="使用返利：" prop="rebateAmount">
-                  {{ form.rebateAmount }}
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
-                </el-form-item>
-                <el-form-item label="采购申请单：" prop="purchaseApplyId">
+                <el-form-item label="采购申请单：" prop="purchaseApplyCode">
                   {{ form.purchaseApplyCode }}
-                </el-form-item>
-                <el-form-item label="缺货单号：" prop="backOrderCode">
-                  {{ form.backOrderCode }}
-                </el-form-item>
-                <el-form-item label="发货仓库：" prop="deliveryWarehouse">
-                  {{ form.deliveryWarehouse }}
-                </el-form-item>
-                <el-form-item label="发运单：" prop="shippingOrder">
-                  {{ form.shippingOrder }}
-                </el-form-item>
-                <el-form-item label="承运商：" prop="carrier">
-                  {{ form.carrier }}
-                </el-form-item>
-                <el-form-item label="是否空出：">
-                  {{ form.emptyIsLabel }}
-                </el-form-item>
-                <el-form-item label="订单状态:" prop="orderStatus">
-                  {{ form.orderStatusLabel }}
                 </el-form-item>
                 <el-form-item label="仓库名称：" prop="receiveWarehouseId">
                   {{ form.receiveWarehouseName }}
                 </el-form-item>
+                <el-form-item label="订单类型：" prop="purchaseOrderType">
+                  {{ form.purchaseOrderTypeLabel }}
+                </el-form-item>
+                <el-form-item label="缺货单号：" prop="backOrderCode">
+                  {{ form.backOrderCode }}
+                </el-form-item>
+                <el-form-item label="订单金额：" prop="purchaseAmount">
+                  {{ form.purchaseAmount }}
+                </el-form-item>
                 <el-form-item label="是否第三方收货：">
                   {{ form.thirdPartyDeliveryIsLabel }}
+                </el-form-item>
+                <el-form-item label="订单金额：" prop="cashAmount">
+                  {{ '没有字段' }}
+                </el-form-item>
+                <el-form-item label="发货仓库：" prop="deliveryWarehouse">
+                  {{ form.deliveryWarehouse }}
                 </el-form-item>
                 <el-form-item label="收货人姓名：" prop="recipientName">
                   {{ form.recipientName }}
                 </el-form-item>
+                <el-form-item label="使用现金：" prop="cashAmount">
+                  {{ form.cashAmount }}
+                </el-form-item>
+                <el-form-item label="发运单：" prop="shippingOrder">
+                  {{ form.shippingOrder }}
+                </el-form-item>
                 <el-form-item label="收货人电话：" prop="recipientPhone">
                   {{ form.recipientPhone }}
                 </el-form-item>
+                <el-form-item label="使用返利：" prop="rebateAmount">
+                  {{ form.rebateAmount }}
+                </el-form-item>
+                <el-form-item label="承运商：" prop="carrier">
+                  {{ form.carrier }}
+                </el-form-item>
                 <el-form-item label="收货地址：">
                   {{ form.fullAddress }}
+                </el-form-item>
+                <el-form-item label="是否空出：">
+                  {{ form.emptyIsLabel }}
+                </el-form-item>
+                <el-form-item label="备注：" prop="remark">
+                  {{ form.remark }}
                 </el-form-item>
               </el-form>
             </div>
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>区块标题</h2>
-              <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              <h2>销售明细信息</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
@@ -317,10 +317,34 @@
                   ref="editTable"
                   :columns="columns"
                   :data="tableData"
-                  :defaultNewRow="defaultNewRow"
                   :show-toolbar="false"
-                  :options="options"
-                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                  showPagination
+                  :current="sales.current"
+                  :pageSize="sales.pageSize"
+                  :total="sales.total"
+                  @page-size-change="salesPageSizeChange"
+                  @current-page-change="salesCurrentPageChange"
+                />
+              </div>
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>采购申请明细</h2>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-table">
+                <edit-table
+                  ref="editTable"
+                  :columns="procurementColumns"
+                  :data="procurementTableData"
+                  :show-toolbar="false"
+                  showPagination
+                  :current="procurement.current"
+                  :pageSize="procurement.pageSize"
+                  :total="procurement.total"
+                  @page-size-change="procurementPageSizeChange"
+                  @current-page-change="procurementCurrentPageChange"
                 />
               </div>
             </div>
@@ -337,7 +361,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/purchase/purchaseOrder/index';
+import { getDetail, addOrUpdate, purchaseOrderDetail } from '@/api/sparepart/purchase/purchaseOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -347,6 +371,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { getPurchaseApplyPage } from '@/api/sparepart/purchase/purchaseApply/index';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -424,132 +449,153 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      defaultNewRow: {
-        name: '',
+      sales: {
+        current: 1,
+        pageSize: 10,
+        total: 0,
       },
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
+      tableData: [],
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
-          field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
+          field: 'sparePartCode',
+          title: '备件编码',
+          width: '6.25%',
         },
         {
-          field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
+          field: 'sparePartName',
+          title: '备件名称',
+          width: '6.25%',
         },
         {
-          field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
+          field: 'settlementQty',
+          title: '结算数量',
+          width: '6.25%',
         },
+        {
+          field: 'cancelQty',
+          title: '取消数量',
+          width: '6.25%',
+        },
+        {
+          field: 'outboundQty',
+          title: '已发运数',
+          width: '6.25%',
+        },
+        {
+          field: 'signedQty',
+          title: '已签收数',
+          width: '6.25%',
+        },
+        {
+          field: 'inboundQty',
+          title: '已入库数',
+          width: '6.25%',
+        },
+        {
+          field: 'cancelOperator',
+          title: '取消人',
+          width: '6.25%',
+        },
+        {
+          field: 'cancelTime',
+          title: '取消时间',
+          width: '6.25%',
+        },
+        {
+          field: 'cancelDescription',
+          title: '取消说明',
+          width: '6.25%',
+        },
+        {
+          field: 'originalPrice',
+          title: '原价',
+          width: '6.25%',
+        },
+        {
+          field: 'purchasePrice',
+          title: '采购价',
+          width: '6.25%',
+        },
+        {
+          field: 'purchaseAmount',
+          title: '采购金额',
+          width: '6.25%',
+        },
+        {
+          field: 'cashUnitPrice',
+          title: '现金单价',
+          width: '6.25%',
+        },
+        {
+          field: 'cashAmount',
+          title: '现金金额',
+          width: '6.25%',
+        },
+        {
+          field: 'detailRemark',
+          title: '备注',
+          width: '6.25%',
+        }
       ],
-      rules: {
-        code: [
-          { required: true, message: '请输入订单号', trigger: 'change' }
-        ],
-        purchaseApplyCode: [
-          { required: true, message: '请输入采购申请单code', trigger: 'change' }
-        ],
-        backOrderCode: [
-          { required: true, message: '请输入缺货单号', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        deliveryWarehouse: [
-          { required: true, message: '请输入发货仓库', trigger: 'change' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称', trigger: 'change' }
-        ],
-        receiveWarehouseId: [
-          { required: true, message: '请输入收货备件仓库ID', trigger: 'change' }
-        ],
-        purchaseOrderType: [
-          { required: true, message: '请选择订单类型', trigger: 'change' }
-        ],
-        orderStatus: [
-          { required: true, message: '请选择订单状态:待签收2,已签收3,已取消5', trigger: 'change' }
-        ],
-        purchaseAmount: [
-          { required: true, message: '请输入采购金额', trigger: 'change' }
-        ],
-        cashAmount: [
-          { required: true, message: '请输入现金金额', trigger: 'change' }
-        ],
-        rebateAmount: [
-          { required: true, message: '请输入返利金额', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        purchaseApplyId: [
-          { required: true, message: '请输入采购申请单ID', trigger: 'change' }
-        ],
-        backOrderId: [
-          { required: true, message: '请输入缺货单ID', trigger: 'change' }
-        ],
-        receiveWarehouseName: [
-          { required: true, message: '请输入发货仓库名称', trigger: 'change' }
-        ],
-        shippingOrder: [
-          { required: true, message: '请输入发运单', trigger: 'change' }
-        ],
-        carrier: [
-          { required: true, message: '请输入承运商', trigger: 'change' }
-        ],
-        taxRate: [
-          { required: true, message: '请输入税率', trigger: 'change' }
-        ],
-      }
+      procurement: {
+        current: 1,
+        pageSize: 10,
+        total: 0,
+      },
+      procurementTableData: [],
+      procurementColumns: [
+        {
+          field: 'partCode',
+          title: '备件编码',
+          width: '11%',
+        },
+        {
+          field: 'partName',
+          title: '备件名称',
+          width: '11%',
+        },
+        {
+          field: 'purchaseQty',
+          title: '采购数',
+          width: '11%',
+        },
+        {
+          field: 'originalPrice',
+          title: '原价',
+          width: '11%',
+        },
+        {
+          field: 'purchasePrice',
+          title: '采购价',
+          width: '11%',
+        },
+        {
+          field: 'purchaseAmount',
+          title: '采购金额',
+          width: '11%',
+        },
+        {
+          field: 'cashUnitPrice',
+          title: '现金单价',
+          width: '11%',
+        },
+        {
+          field: 'cashAmount',
+          title: '现金金额',
+          width: '11%',
+        },
+        {
+          field: 'remark',
+          title: '备注',
+          width: '11%',
+        }
+      ],
     };
   },
   mounted () {
+    this.getData();
+    this.getList();
   },
   methods: {
     detailRequest () {
@@ -598,7 +644,47 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    // 获取销售明细信息表格
+    async getData () {
+      const params = {
+        pageNum: this.sales.current,
+        pageSize: this.sales.pageSize,
+        purchaseOrderId: this._id,
+      };
+      const res = await purchaseOrderDetail(params);
+      this.tableData = res.records || [];
+      this.sales.total = res.total || 0;
+    },
+    // 获取采购明细信息表格
+    async getList () {
+      const params = {
+        pageNum: this.procurement.current,
+        pageSize: this.procurement.pageSize,
+        purchaseApplyId: this._id,
+      };
+      const res = await getPurchaseApplyPage(params);
+      this.procurementTableData = res.records || [];
+      this.procurement.total = res.total || 0;
+    },
+    salesPageSizeChange (pageSize) {
+      this.sales.pageSize = pageSize;
+      this.sales.current = 1;
+      this.getData();
+    },
+    salesCurrentPageChange (current) {
+      this.sales.current = current;
+      this.getData();
+    },
+    procurementPageSizeChange (pageSize) {
+      this.procurement.pageSize = pageSize;
+      this.procurement.current = 1;
+      this.getList();
+    },
+    procurementCurrentPageChange (current) {
+      this.procurement.current = current;
+      this.getList();
+    },
   }
 };
 </script>
