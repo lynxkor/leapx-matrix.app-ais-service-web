@@ -10,6 +10,7 @@
         :showBackBtn="showBackBtn"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :originalForm.sync="originalForm"
       >
         <el-main>
           <section class="common-section">

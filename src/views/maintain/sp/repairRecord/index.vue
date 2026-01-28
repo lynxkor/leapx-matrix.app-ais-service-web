@@ -1,28 +1,21 @@
 <template>
   <div class="page-common m-sp-repair-work-record-list">
     <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
-    <el-form
-      :inline="true"
-      :model="form"
-      size="small"
-      label-position="right"
-      label-width="150px"
-      class="ais-search-form"
-    >
-      <template >
-      <el-form-item label="作业编码" prop="code">
-        <el-input v-model="form.code" placeholder="请输入编号" clearable/>
-      </el-form-item>
-       <el-form-item label="施工单号" prop="serviceProxyCode">
-        <el-input v-model="form.serviceProxyCode" placeholder="请输入编号" clearable/>
-      </el-form-item>
-       <el-form-item label="门店">
-                       <dealer-select v-model="form.dealerCodes" multiple/>
-                     </el-form-item>
+    <el-form :inline="true" :model="form" size="small" label-position="right" label-width="150px"
+      class="ais-search-form">
+      <template>
+        <el-form-item label="作业编码" prop="code">
+          <el-input v-model="form.code" placeholder="请输入编号" clearable />
+        </el-form-item>
+        <el-form-item label="施工单号" prop="serviceProxyCode">
+          <el-input v-model="form.serviceProxyCode" placeholder="请输入编号" clearable />
+        </el-form-item>
+        <el-form-item label="门店" v-show="this.visibleCount === 3 || show">
+          <dealer-select v-model="form.dealerCodes" multiple />
+        </el-form-item>
       </template>
       <page-search-action
-
-
+        v-model="show"
         is-expandable
         :loading="loading"
         @submit="onSubmit"
@@ -31,37 +24,25 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i
+          class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button  :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button v-if="canDelete" size="small" @click="handleBatchDelete"
+        :disabled="selectionList.length === 0">批量删除</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)"
+        :disabled="selectionList.length === 0">批量启用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)"
+        :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
-    <div
-      class="ais-table-c"
-    >
-      <LPVxeTable
-        ref="tableRef"
-        v-loading="loading"
-
-        is-page
-        centralized
-        :option-obj="optionObj"
-        :get-config="getConfig"
-        :save-or-update="saveOrUpdate"
-        @paginationChange="paginationChange"
-        @listSelect="handleListSelect"
-      >
-        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+    <div class="ais-table-c">
+      <LPVxeTable ref="tableRef" v-loading="loading" is-page :option-obj="optionObj" :get-config="getConfig"
+        :save-or-update="saveOrUpdate" @paginationChange="paginationChange" @listSelect="handleListSelect">
+        <EditPage slot="centralizedViewSlot" :id="clickItemId" />
       </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
-    <Upload
-      :visible="uploadDialogVisible"
-      :id="'1'"
-      @close="handleUploadDialogClose"
-    />
+    <Upload :visible="uploadDialogVisible" :id="'1'" @close="handleUploadDialogClose" />
   </div>
 </template>
 
@@ -71,13 +52,11 @@ import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { repairedList, deleteItem, enableItem } from '@/api/maintain/sp/spRepairWorkRecord/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
-import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
-import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select/index.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -93,8 +72,6 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    FetchSelect,
-    EditPage,
     Upload,
     DealerSelect
   },
@@ -108,8 +85,8 @@ export default {
         ...defaultForm
       },
       selectionList: [],
-canExport: true,
-      show: true,
+      canExport: true,
+      show: false,
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
@@ -127,7 +104,7 @@ canExport: true,
           {
             props: 'serviceProxyCode',
             label: '施工单号',
-             visible: true,
+            visible: true,
             width: 200,
             fixed: 'left',
             buttons: [{
@@ -312,7 +289,7 @@ canExport: true,
             message: '删除失败!'
           });
         });
-      }).catch(() => {});
+      }).catch(() => { });
     },
     // 批量启用停用
     handleBatchEnable (status) {
@@ -350,6 +327,5 @@ canExport: true,
 </script>
 
 <style lang="scss" scoped>
-.m-sp-repair-work-record-list {
-}
+.m-sp-repair-work-record-list {}
 </style>

@@ -55,14 +55,14 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="门店编码（组织code）：" prop="dealerCode">
+                <el-form-item label="门店编码：" prop="dealerCode">
                   <el-input
                     placeholder="请输入"
                     v-model="form.dealerCode"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="门店名称（组织名称）：" prop="dealerName">
+                <el-form-item label="门店名称：" prop="dealerName">
                   <el-input
                     placeholder="请输入"
                     v-model="form.dealerName"
@@ -292,29 +292,29 @@
                 <el-form-item label="出库单号：" prop="code">
                   {{ form.code }}
                 </el-form-item>
-                <el-form-item label="采购订单code：" prop="purchaseOrderCode">
+                <el-form-item label="采购订单号：" prop="purchaseOrderCode">
                   {{ form.purchaseOrderCode }}
                 </el-form-item>
-                <el-form-item label="采购申请单code：" prop="purchaseApplyCode">
+                <el-form-item label="采购申请单：" prop="purchaseApplyCode">
                   {{ form.purchaseApplyCode }}
                 </el-form-item>
                 <el-form-item label="发货仓库：" prop="deliveryWarehouse">
                   {{ form.deliveryWarehouse }}
                 </el-form-item>
-                <el-form-item label="门店编码（组织code）：" prop="dealerCode">
+                <el-form-item label="门店编码：" prop="dealerCode">
                   {{ form.dealerCode }}
                 </el-form-item>
-                <el-form-item label="门店名称（组织名称）：" prop="dealerName">
+                <el-form-item label="门店名称" prop="dealerName">
                   {{ form.dealerName }}
                 </el-form-item>
                 <el-form-item label="订单类型：" prop="purchaseOrderType">
-                  {{ form.purchaseOrderType }}
+                  {{ form.purchaseOrderTypeLabel }}
                 </el-form-item>
                 <el-form-item label="物流单号：" prop="logisticsOrderNo">
                   {{ form.logisticsOrderNo }}
                 </el-form-item>
                 <el-form-item label="订单同步是否成功：" prop="orderSyncSuccessIs">
-                  {{ form.orderSyncSuccessIs }}
+                  {{ form.orderSyncSuccessIsLabel }}
                 </el-form-item>
                 <el-form-item label="SAP返回信息：" prop="sapReturnInfo">
                   {{ form.sapReturnInfo }}
@@ -346,42 +346,6 @@
                 <el-form-item label="备注：" prop="remark">
                   {{ form.remark }}
                 </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  {{ form.createTime }}
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  {{ form.updateTime }}
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  {{ form.modifierName }}
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  {{ form.status }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  {{ form.statusDesc }}
-                </el-form-item>
-                <el-form-item label="数据来源，150:零小跑; 10:E10：" prop="dataSource">
-                  {{ form.dataSource }}
-                </el-form-item>
-                <el-form-item label="采购申请单ID：" prop="purchaseApplyId">
-                  {{ form.purchaseApplyId }}
-                </el-form-item>
-                <el-form-item label="采购订单ID：" prop="purchaseOrderId">
-                  {{ form.purchaseOrderId }}
-                </el-form-item>
                 <el-form-item label="发货日期：" prop="deliveryDate">
                   {{ form.deliveryDate }}
                 </el-form-item>
@@ -389,10 +353,10 @@
                   {{ form.logisticsProvider }}
                 </el-form-item>
                 <el-form-item label="出库同步是否成功：" prop="outboundSyncSuccessIs">
-                  {{ form.outboundSyncSuccessIs }}
+                  {{ form.outboundSyncSuccessIsLabel }}
                 </el-form-item>
                 <el-form-item label="开票同步是否成功：" prop="invoiceSyncSuccessIs">
-                  {{ form.invoiceSyncSuccessIs }}
+                  {{ form.invoiceSyncSuccessIsLabel }}
                 </el-form-item>
               </el-form>
             </div>
@@ -433,7 +397,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
+import { getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -671,6 +635,23 @@ export default {
   mounted () {
   },
   methods: {
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+
+    async getWarehouse (query) {
+      try {
+        const res = await listWarehouse({ codeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     detailRequest () {
       const id = this._id;
       if (id) {

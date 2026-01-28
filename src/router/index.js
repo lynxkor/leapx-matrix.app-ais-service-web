@@ -1312,15 +1312,6 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/datacenter/vehicle/serviceproxyhis/edit',
-      name: 'serviceProxyHisEdit',
-      component: () => import('@/views/datacenter/vehicle/serviceProxyHis/edit.vue'),
-
-      meta: {
-        name: '接车施工单-维修履历信息管理详情',
-        noResourceUrl: 'true'
-      }
-    }, {
       path: '/sparepart/basic/purchasePartSaleable',
       name: 'purchasePartSaleable',
       component: () => import('@/views/sparepart/basic/purchasePartSaleable/index.vue'),

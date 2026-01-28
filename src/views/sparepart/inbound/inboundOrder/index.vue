@@ -10,38 +10,45 @@
       class="ais-search-form"
     >
       <el-form-item label="入库单号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.code"
-          clearable
-        />
+        <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="业务单号code">
-        <el-input
-          placeholder="请输入"
-          v-model="form.businessOrderCode"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="门店编码"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.dealerCode"
-          clearable
-        />
+      <el-form-item label="业务单号">
+        <tag-input v-model="form.businessOrderCodeList" placeholder="请输入" />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="备件仓库ID">
-          <el-input
-            placeholder="请输入"
-            v-model="form.warehouseId"
+        <el-form-item label="门店">
+          <fetch-select
+            :remote-method="getDealerList"
+            remote
+            v-model="form.dealerCodeList"
+            placeholder="请输入门店编码或名称"
+            labelKey="orgName"
+            valueKey="orgCode"
+            subLabelKey="orgCode"
             clearable
+            multiple
+            collapseTags
+            filterable
+            />
+        </el-form-item>
+        <el-form-item label="备件仓库">
+          <fetch-select
+            :remote-method="getWarehouse"
+            remote
+            v-model="form.warehouseId"
+            placeholder="请选择"
+            labelKey="name"
+            valueKey="id"
+            subLabelKey="code"
+            clearable
+            collapseTags
+            filterable
           />
         </el-form-item>
-        <el-form-item label="入库类型:采购入库,调拨入库">
+        <el-form-item label="入库类型">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
+            enumCode="InboundTypeEnum"
             v-model="form.inboundType"
             placeholder="请选择"
             clearable
@@ -49,10 +56,10 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="入库状态:未入库,已入库">
+        <el-form-item label="入库状态">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
+            enumCode="InboundStatusEnum"
             v-model="form.inboundStatus"
             placeholder="请选择"
             clearable
@@ -96,12 +103,12 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -137,7 +144,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/inbound/inboundOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -146,6 +153,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -171,7 +179,8 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
@@ -215,12 +224,12 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'businessOrderCode', label: '业务单号code', visible: true, width: 200 },
+          { props: 'businessOrderCode', label: '业务单号', visible: true, width: 200 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'warehouseId', label: '备件仓库ID', visible: true, width: 200 },
-          { props: 'inboundType', label: '入库类型:采购入库,调拨入库', visible: true, width: 200 },
-          { props: 'inboundStatus', label: '入库状态:未入库,已入库', visible: true, width: 200 },
+          { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
+          { props: 'inboundTypeLabel', label: '入库类型', visible: true, width: 200 },
+          { props: 'inboundStatusLabel', label: '入库状态', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -287,6 +296,23 @@ export default {
     },
     onSubmit () {
       this.getData();
+    },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+
+    async getWarehouse (query) {
+      try {
+        const res = await listWarehouse({ codeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     },
     onReset () {
       this.form = { ...defaultForm };
@@ -374,7 +400,7 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+        if (data[key] === '' || data[key] === null || data[key].length === 0) {
           delete data[key];
         }
       });
