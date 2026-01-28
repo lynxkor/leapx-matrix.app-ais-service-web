@@ -10,46 +10,42 @@
       class="ais-search-form"
     >
       <el-form-item label="出库单号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.code"
-          clearable
-        />
+        <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="采购订单code">
-        <el-input
-          placeholder="请输入"
-          v-model="form.purchaseOrderCode"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="采购申请单code"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.purchaseApplyCode"
-          clearable
-        />
+      <el-form-item label="采购订单号">
+        <tag-input v-model="form.purchaseOrderCodeList" placeholder="请输入" />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="门店编码（组织code）">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dealerCode"
+        <el-form-item label="采购申请单号"  v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.purchaseApplyCodeList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="门店">
+          <fetch-select
+            :remote-method="getDealerList"
+            remote
+            v-model="form.dealerCodeList"
+            placeholder="请输入门店编码或名称"
+            labelKey="orgName"
+            valueKey="orgCode"
+            subLabelKey="orgCode"
             clearable
-          />
+            multiple
+            collapseTags
+            filterable
+            />
         </el-form-item>
         <el-form-item label="订单类型">
           <fetch-select
             :request="fetchOptions"
             enumCode="xxx"
-            v-model="form.purchaseOrderType"
+            v-model="form.PurchaseOrderTypeEnum"
             placeholder="请选择"
             clearable
             multiple
             filterable
           />
         </el-form-item>
-        <el-form-item label="物流单号">
+        <el-form-item label="发运单">
           <el-input
             placeholder="请输入"
             v-model="form.logisticsOrderNo"
@@ -66,43 +62,29 @@
         <el-form-item label="SAP返回信息">
           <el-input
             placeholder="请输入"
-            v-model="form.sapReturnInfo"
+            v-model="form.sapReturnInfoLike"
             clearable
           />
         </el-form-item>
         <el-form-item label="销售凭证">
-          <el-input
-            placeholder="请输入"
-            v-model="form.salesVoucher"
-            clearable
-          />
+          <tag-input v-model="form.salesVoucherList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="交货凭证">
-          <el-input
-            placeholder="请输入"
-            v-model="form.deliveryVoucher"
-            clearable
-          />
+          <tag-input v-model="form.deliveryVoucherList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="发票号">
-          <el-input
-            placeholder="请输入"
-            v-model="form.invoiceNo"
-            clearable
-          />
+          <tag-input v-model="form.invoiceNoList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="开票日期">
-          <el-input
-            placeholder="请输入"
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
             v-model="form.invoiceDate"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="税务发票号">
-          <el-input
-            placeholder="请输入"
-            v-model="form.taxInvoiceNo"
-            clearable
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
           />
         </el-form-item>
         <el-form-item label="创建时间">
@@ -182,7 +164,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/oemOutboundOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -191,7 +173,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
-
+import TagInput from '@/libs/components/TagInput';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
@@ -223,7 +205,8 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
@@ -267,14 +250,48 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'purchaseOrderCode', label: '采购订单code', visible: true, width: 200 },
-          { props: 'purchaseApplyCode', label: '采购申请单code', visible: true, width: 200 },
+          {
+            props: 'purchaseOrderCode',
+            label: '采购订单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseOrder/edit',
+                  query: {
+                    id: row.purchaseOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'purchaseApplyCode',
+            label: '采购申请单',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseApply/edit',
+                  query: {
+                    id: row.purchaseApplyId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'deliveryWarehouse', label: '发货仓库', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码（组织code）', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称（组织名称）', visible: true, width: 200 },
-          { props: 'purchaseOrderType', label: '订单类型', visible: true, width: 200 },
-          { props: 'logisticsOrderNo', label: '物流单号', visible: true, width: 200 },
-          { props: 'orderSyncSuccessIs', label: '订单同步是否成功', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 200 },
+          { props: 'logisticsOrderNo', label: '发运单', visible: true, width: 200 },
+          { props: 'orderSyncSuccessIsLabel', label: '订单同步是否成功', visible: true, width: 200 },
           { props: 'sapReturnInfo', label: 'SAP返回信息', visible: true, width: 200 },
           { props: 'salesVoucher', label: '销售凭证', visible: true, width: 200 },
           { props: 'deliveryVoucher', label: '交货凭证', visible: true, width: 200 },
@@ -334,6 +351,23 @@ export default {
     this.getData();
   },
   methods: {
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+
+    async getWarehouse (query) {
+      try {
+        const res = await listWarehouse({ codeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
@@ -437,7 +471,7 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+        if (data[key] === '' || data[key] === null || data[key].length === 0) {
           delete data[key];
         }
       });
@@ -447,6 +481,20 @@ export default {
         if (this.form.createTime.length > 1) {
           data.createTimeStart = this.form.createTime[0];
           data.createTimeEnd = this.form.createTime[1];
+        }
+      }
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = this.form.updateTime[1];
+        }
+      }
+      if (this.form.invoiceDate) {
+        delete data.invoiceDate;
+        if (this.form.invoiceDate.length > 1) {
+          data.invoiceDateStart = this.form.invoiceDate[0];
+          data.invoiceDateEnd = this.form.invoiceDate[1];
         }
       }
 

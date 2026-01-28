@@ -167,10 +167,10 @@
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="退货类型:" prop="returnType">
-                  {{ form.returnType }}
+                  {{ form.returnTypeLabel }}
                 </el-form-item>
                 <el-form-item label="退货原因:" prop="returnReason">
-                  {{ form.returnReason }}
+                  {{ form.returnReasonLabel }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
                   {{ form.dealerCode }}

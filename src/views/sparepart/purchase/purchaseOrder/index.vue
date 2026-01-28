@@ -241,7 +241,24 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'purchaseApplyCode', label: '采购申请单', visible: true, width: 200 },
+          {
+            props: 'purchaseApplyCode',
+            label: '采购申请单',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseApply/edit',
+                  query: {
+                    id: row.purchaseApplyId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'backOrderCode', label: '缺货单号', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'deliveryWarehouse', label: '发货仓库', visible: true, width: 200 },
@@ -422,7 +439,7 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+        if (data[key] === '' || data[key] === null || data[key].length === 0) {
           delete data[key];
         }
       });

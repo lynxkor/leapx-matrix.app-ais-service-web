@@ -12,7 +12,7 @@
       <el-form-item label="备件退货单号">
         <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="门店编码">
+      <el-form-item label="门店">
         <fetch-select
             :remote-method="getDealerList"
             remote
@@ -413,7 +413,7 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+        if (data[key] === '' || data[key] === null || data[key].length === 0) {
           delete data[key];
         }
       });
