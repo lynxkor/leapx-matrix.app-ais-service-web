@@ -55,14 +55,14 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="门店编码（组织code）：" prop="dealerCode">
+                <el-form-item label="门店编码：" prop="dealerCode">
                   <el-input
                     placeholder="请输入"
                     v-model="form.dealerCode"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="门店名称（组织名称）：" prop="dealerName">
+                <el-form-item label="门店名称：" prop="dealerName">
                   <el-input
                     placeholder="请输入"
                     v-model="form.dealerName"
