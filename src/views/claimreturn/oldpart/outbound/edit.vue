@@ -67,7 +67,7 @@
                     filterable
                     :params="{}" />
                 </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerName">
+                <el-form-item label="门店名称：" prop="dealerCode">
                   <dealer-select v-model="form.dealerCode"/>
                 </el-form-item>
                 <el-form-item label="收货供应商：" prop="supplierId">
@@ -348,7 +348,7 @@ export default {
         },
       ],
       rules: {
-        dealerName: [
+        dealerCode: [
           { required: true, message: '请选择门店名称', trigger: 'change' }
         ],
         supplierId: [

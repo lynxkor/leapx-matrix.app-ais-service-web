@@ -374,10 +374,9 @@ export default {
   },
   data () {
     const form = this.getDefautlForm();
-    const isFast = location.pathname.includes('/fast/');
 
     return {
-      pageTitle: isFast ? '旧件快返回运单' : '门店旧件回运单',
+      pageTitle: this.$route.meta.name,
       pageType: 'edit',
       // TIPS: 权限前缀 AISCR，根据实际情况修改
       moduleKey: this.$route.meta.moduleKey,

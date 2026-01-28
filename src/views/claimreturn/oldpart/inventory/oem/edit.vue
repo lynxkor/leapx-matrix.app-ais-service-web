@@ -131,8 +131,6 @@
                 <el-form-item class="form-item-full" label="附件材料：">
                   <AisAttachment
                     :businessId="_id"
-                    attachType=""
-                    configCode=""
                     :readonly="true"
                   />
                 </el-form-item>
@@ -176,10 +174,10 @@
                 </el-form-item>
                 <el-form-item class="form-item-full" label="附件材料：">
                   <AisAttachment
-                    :businessId="_id"
-                    attachType=""
-                    configCode=""
+                    :businessId="form.oldPartDestroyOrderId || ''"
                     :readonly="true"
+                    configCode="mcs_spmusedprtdestory_apply"
+                    attachType="其他"
                   />
                 </el-form-item>
               </el-form>
@@ -187,6 +185,11 @@
           </section>
         </el-main>
       </edit-base-container>
+      <SingleDialog
+        :visible.sync="visible"
+        :_id="_id"
+        @refresh="refresh"
+      />
     </template>
     <template #right>
       <div class="page-common-edit">
@@ -206,6 +209,7 @@ import EditPageLayout from '@/libs/components/EditPageLayout';
 import commonMixins from '@/libs/mixins/commonMixins';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
 import AisAttachment from '@/libs/components/AisAttachment';
+import SingleDialog from './SingleDialog/index.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -289,6 +293,7 @@ export default {
     EditPageLayout,
     BaseInput,
     AisAttachment,
+    SingleDialog,
   },
   computed: {
     _id () {
@@ -321,7 +326,8 @@ export default {
         remark: [
           { required: false, message: '请输入备注', trigger: 'change' }
         ],
-      }
+      },
+      visible: false,
     };
   },
   mounted () {
@@ -362,7 +368,11 @@ export default {
     },
     onSecondAcceptance () {
       // 二次验收
+      this.visible = true;
     },
+    refresh () {
+      this.$refs.containerRef.loadDetail();
+    }
   }
 };
 </script>

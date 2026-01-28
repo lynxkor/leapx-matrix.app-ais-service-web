@@ -79,13 +79,9 @@
             :label="'附件上传：'"
             prop="attachFileList"
           >
-            <ais-upload
-              v-model="form.attachFileList"
-              :business-id="$route.query.id"
-              :attach-type="'attachType'"
-              :show-upload="true"
-              :editable="true"
-              :disabled="false"
+            <AisAttachment
+              ref="attachment"
+              :businessId="form.id"
             />
           </el-form-item>
           <el-form-item class="form-item-full" label="验收备注：" prop="checkRemark">
@@ -118,7 +114,7 @@ import BaseInput from '@/libs/components/BaseInput/index.vue';
 import { queryByOldPartUniqueCode4Check } from '@/api/claimreturn/oldpart/inventory/oem';
 import { getList } from '@/api/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/index';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
-import AisUpload from '@/libs/components/AisUpload/index.vue';
+import AisAttachment from '@/libs/components/AisAttachment/index.vue';
 
 const defaultForm = {
   acceptanceResult: '0', // 验收结果 0-验收通过 1-验收不合格
@@ -131,7 +127,7 @@ export default {
   components: {
     BaseInput,
     FetchSelect,
-    AisUpload,
+    AisAttachment,
   },
   props: {
     visible: {
@@ -188,15 +184,18 @@ export default {
     },
     submit () {
       //
-      this.$refs.ruleForm?.validate((valid) => {
+      this.$refs.ruleForm?.validate(async (valid) => {
         if (!valid) {
           return;
         }
         this.submitLoading = true;
+        const attachFileList = this.$refs.attachment.getAttachment();
+
         singleCheck({
           oldPartInventoryDetailId: this.form.id,
           checkRemark: this.form.checkRemark,
           unqualifiedCode: this.form.unqualifiedCode,
+          attachFileList: attachFileList,
         }).then(res => {
           this.close();
           this.$message.success('验收成功');

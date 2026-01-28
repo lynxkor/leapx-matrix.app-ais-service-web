@@ -161,7 +161,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '旧件快返回运单',
+      pageTitle: this.$route.meta.name,
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       form: {
@@ -300,7 +300,6 @@ export default {
     defaultForm.returnType = this.$route.meta.returnType;
   },
   created () {
-    this.pageTitle = this.$route.meta.name;
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },

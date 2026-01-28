@@ -1154,7 +1154,7 @@ const routes = [
       name: 'fastReturnOrderEdit',
       component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
       meta: {
-        name: '快返回运单详情',
+        name: '快返回运单',
         moduleKey: 'AISCR-oldPartReturnOrderFast',
         noResourceUrl: 'true'
       }
@@ -1401,7 +1401,7 @@ const routes = [
         name: '质检记录',
         keepAlive: true
       }
-    },  {
+    }, {
       path: '/maintain/basic/maintenancePartData',
       name: 'maintenancePartData',
       component: () => import('@/views/maintain/basic/maintenancePartData/index.vue'),
@@ -1464,26 +1464,26 @@ const routes = [
         name: '备件采购订单',
         keepAlive: true
       }
-    },{
-            path: '/sparepart/purchase/purchaseorder/edit',
-            name: 'purchaseOrderEdit',
-            component: () => import('@/views/sparepart/purchase/purchaseOrder/edit.vue'),
+    }, {
+      path: '/sparepart/purchase/purchaseorder/edit',
+      name: 'purchaseOrderEdit',
+      component: () => import('@/views/sparepart/purchase/purchaseOrder/edit.vue'),
 
-            meta: {
-              name: '备件采购订单详情',
-              noResourceUrl: 'true'
-            }
-          },
+      meta: {
+        name: '备件采购订单详情',
+        noResourceUrl: 'true'
+      }
+    },
 
-     {
-          path: '/maintain/sp/repairRecord',
-          name: 'repairRecord',
-          component: () => import('@/views/maintain/sp/repairRecord/index.vue'),
+    {
+      path: '/maintain/sp/repairRecord',
+      name: 'repairRecord',
+      component: () => import('@/views/maintain/sp/repairRecord/index.vue'),
 
-          meta: {
-            name: '返修记录',
-            keepAlive: true
-          }
+      meta: {
+        name: '返修记录',
+        keepAlive: true
+      }
 
     }, {
       path: '/sparepart/purchase/backOrder',

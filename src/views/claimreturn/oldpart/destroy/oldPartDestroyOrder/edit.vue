@@ -110,7 +110,6 @@
                   :businessId="_id"
                   configCode="mcs_spmusedprtdestory_apply"
                   attachType="其他"
-                  :readonly="false"
                 />
               </div>
             </div>
