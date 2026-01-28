@@ -12,8 +12,8 @@
         <el-form-item label="出库单号">
           <tag-input v-model="form.codeList" placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="接车施工单ID">
-          <tag-input v-model="form.serviceProxyIdList" placeholder="请输入" />
+        <el-form-item label="接车施工单编号">
+          <tag-input v-model="form.serviceProxyCodeList" placeholder="请输入" />
           </el-form-item>
         <el-form-item label="门店名称" v-show="this.visibleCount === 3 || show">
           <fetch-select
@@ -238,7 +238,7 @@ export default {
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
-          { props: 'serviceProxyId', label: '接车施工单', visible: true, width: 200 },
+          { props: 'serviceProxyCode', label: '接车施工单', visible: true, width: 200 },
           { props: 'vehProfileVin', label: 'vin', visible: true, width: 200 },
           { props: 'carPlate', label: '车牌号', visible: true, width: 200 },
           { props: 'returnMaterialStatusLabel', label: '退料状态', visible: true, width: 200 },
