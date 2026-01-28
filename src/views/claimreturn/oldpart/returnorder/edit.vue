@@ -8,6 +8,7 @@
         :title="`门店回运单号：${form.returnOrderNo}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
+        :originalForm.sync="originalForm"
         direction="horizontal"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
@@ -384,6 +385,7 @@ export default {
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
+      originalForm: { ...form },
       options: {
         // 对应表格里选型枚举
         // 如 type: [{label: 'xxx', value: 'xxx'}]

@@ -8,8 +8,8 @@
         :title="`VRT编码：${form.vrtCode}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
+        :originalForm.sync="originalForm"
         direction="vertical"
-        :showBackBtn="showBackBtn"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
@@ -139,6 +139,7 @@ export default {
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
+      originalForm: { ...form },
       rules: {
         vrtCode: [
           { required: true, message: '请输入VRT编码', trigger: 'blur' }

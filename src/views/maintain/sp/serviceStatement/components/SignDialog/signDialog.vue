@@ -86,17 +86,17 @@ export default {
       default: () => ({})
     }
   },
-  data() {
+  data () {
     return {
       dialogVisible: this.visible,
       form: { ...this.formData }
     };
   },
   watch: {
-    visible(newVal) {
+    visible (newVal) {
       this.dialogVisible = newVal;
     },
-    'form.discountMode'(newVal) {
+    'form.discountMode' (newVal) {
       if (newVal) {
         this.updateRepairItemsWithDiscountMode(newVal);
       }
@@ -104,26 +104,26 @@ export default {
   },
   computed: {
     // 项目金额 = (工时 * 工时单价) 合计
-    projectAmount() {
+    projectAmount () {
       return (this.form.repairItemResps || []).reduce((sum, item) => {
         return sum + (item.workHour || 0) * (item.price || 0);
       }, 0);
     },
 
     // 备件金额 = (数量 * 单价) 合计
-    partsAmount() {
+    partsAmount () {
       return (this.form.partResps || []).reduce((sum, item) => {
         return sum + (item.quantity || 0) * (item.unitPrice || 0);
       }, 0);
     },
 
     // 总金额 = 项目金额 + 备件金额
-    totalAmount() {
+    totalAmount () {
       return this.projectAmount + this.partsAmount;
     },
 
     // 应收总金额 = 项目金额 + 备件金额 - 项目优惠金额 - 备件优惠金额 - 去零金额
-    receivableTotalAmount() {
+    receivableTotalAmount () {
       return this.projectAmount + this.partsAmount -
              (this.form.repairItemDiscount || 0) -
              (this.form.partDiscount || 0) -
@@ -131,15 +131,15 @@ export default {
     }
   },
   methods: {
-    handleClose() {
+    handleClose () {
       this.dialogVisible = false;
       this.$emit('update:visible', false);
     },
-    handleSubmit() {
+    handleSubmit () {
       this.$emit('submit', this.form);
       this.handleClose();
     },
-    updateRepairItemsWithDiscountMode(discountMode) {
+    updateRepairItemsWithDiscountMode (discountMode) {
       if (this.form.repairItemResps) {
         this.form.repairItemResps.forEach(item => {
           if (item.checkoutTypeName !== '保修' && item.checkoutTypeName !== '合同') {
@@ -151,7 +151,7 @@ export default {
         });
       }
     },
-    getDiscountRateFromMode(discountMode) {
+    getDiscountRateFromMode (discountMode) {
       // 实现获取折扣率的逻辑
       return 0.1; // 示例值
     }

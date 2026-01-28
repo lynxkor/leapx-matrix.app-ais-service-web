@@ -50,3 +50,19 @@ export function enableItem (data) {
 export function inboundWarehousing (data) {
   return api.jsonPost('sp/web/maintenance/maintenanceOutboundReturnDetail/inbound', data);
 }
+
+/**
+ * 维修出库领料明细表分页查询
+ * @param {Object} data
+ */
+export function collarPage (data) {
+  return api.jsonPost('sp/web/maintenance/maintenanceOutboundOrderDetail/page', data);
+}
+
+/**
+ * 维修出库退料明细表分页查询
+ * @param {Object} data
+ */
+export function goPage (data) {
+  return api.jsonPost('sp/web/maintenance/maintenanceOutboundReturnDetail/page', data);
+}
