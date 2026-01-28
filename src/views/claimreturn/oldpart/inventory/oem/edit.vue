@@ -128,11 +128,11 @@
                   </span>
                 </el-form-item>
                 <el-form-item class="form-item-full" label="附件材料：">
-                  <AisAttachmentForm
+                  <AisAttachment
                     :businessId="_id"
-                    attachType="mcs_spmusedprtdestory_apply"
-                    :editable="false"
-                    :showLabel="false"
+                    attachType=""
+                    configCode=""
+                    :readonly="true"
                   />
                 </el-form-item>
               </el-form>
@@ -174,11 +174,11 @@
                   {{form.destroyRejectReason}}
                 </el-form-item>
                 <el-form-item class="form-item-full" label="附件材料：">
-                  <AisAttachmentForm
+                  <AisAttachment
                     :businessId="_id"
-                    attachType="mcs_spmusedprtdestory_apply"
-                    :editable="false"
-                    :showLabel="false"
+                    attachType=""
+                    configCode=""
+                    :readonly="true"
                   />
                 </el-form-item>
               </el-form>
@@ -204,7 +204,7 @@ import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import commonMixins from '@/libs/mixins/commonMixins';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
-import AisAttachmentForm from '@/libs/components/AisAttachmentForm';
+import AisAttachment from '@/libs/components/AisAttachment';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -287,7 +287,7 @@ export default {
     EditBaseContainer,
     EditPageLayout,
     BaseInput,
-    AisAttachmentForm,
+    AisAttachment,
   },
   computed: {
     _id () {

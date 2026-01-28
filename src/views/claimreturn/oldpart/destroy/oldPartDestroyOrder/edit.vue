@@ -8,6 +8,7 @@
         :title="`旧件销毁单号：${form.destroyOrderNo}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
+        :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
         :showEditBtn="false"
@@ -17,7 +18,7 @@
         </template>
         <template #extraButtons>
           <!-- 门店可操作 -->
-          <el-button v-if="isDealer" @click="dialogFormVisible = true" size="small">销毁</el-button>
+          <el-button v-if="isDealer && form.destroyStatus === '40'" @click="dialogFormVisible = true" size="small">销毁</el-button>
           <!-- 主机厂可操作 -->
           <el-button v-if="!isDealer && form.destroyStatus === '50'" @click="dialogFormVisible2 = true" size="small">审批</el-button>
         </template>
@@ -91,7 +92,7 @@
                   @current-page-change="currentPageChange"
                 >
                   <template v-slot:default="{ row, column, col }">
-                    <span class="href-link" v-if="col.click" @click="col.click(row)">{{ row[column.field] }}</span>
+                    <span class="href-link" v-if="col.click" @click="() => col.click(row)">{{ row[column.field] }}</span>
                     <span v-else>{{ row[column.field] }}</span>
                   </template>
                 </edit-table>
@@ -105,10 +106,11 @@
             <div class="common-section-body">
               <div class="common-section-table">
                 <!-- 附件上传组件 -->
-                <AisAttachmentForm
+                <AisAttachment
                   :businessId="_id"
-                  attachType="mcs_spmusedprtdestory_apply"
-                  :showLabel="false"
+                  configCode="mcs_spmusedprtdestory_apply"
+                  attachType="其他"
+                  :readonly="false"
                 />
               </div>
             </div>
@@ -141,8 +143,8 @@
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button @click="dialogFormVisible2 = false">取 消</el-button>
-          <el-button type="primary" click="approve">确 定</el-button>
+          <el-button size="small" @click="dialogFormVisible2 = false">取 消</el-button>
+          <el-button size="small" type="primary" @click="approveSubmit">确 定</el-button>
         </div>
       </el-dialog>
     </template>
@@ -165,7 +167,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { getList, getDetailDecryptField } from '../../../../../api/claimreturn/oldpart/inventory/oem';
-import AisAttachmentForm from '@/libs/components/AisAttachmentForm';
+import AisAttachment from '@/libs/components/AisAttachment';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -192,7 +194,7 @@ const defaultForm = {
   dataSource: '',
   dealerCode: '',
   destroyerId: '',
-  attachUrls: [],
+  urls: [],
 };
 
 export default {
@@ -209,7 +211,7 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     EditTable,
-    AisAttachmentForm,
+    AisAttachment,
   },
   computed: {
     _id () {
@@ -236,12 +238,13 @@ export default {
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-oldPartDestroyOrder',
       // 是否是门店用户
-      isDealer: true,
+      isDealer: false,
       // isDealer: this.$store.state.user.userInfo?.accountFlag,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
+      originalForm: { ...form },
       defaultNewRow: {
         name: '',
       },
@@ -272,7 +275,7 @@ export default {
           field: 'warrantyNo',
           title: '保修申请单',
           width: '180',
-          click () {
+          click (row) {
             // 点击事件
             console.log('点击了接车施工单');
           }
@@ -286,18 +289,26 @@ export default {
           field: 'oldPartUniqueCode',
           title: '旧件唯一码',
           width: '160',
-          click () {
-            // 点击事件
-            console.log('点击了接车施工单');
+          click: (row) => {
+            this.$router.push({
+              path: '/claimreturn/oldpart/inventory/oem/edit',
+              query: {
+                id: row.id
+              }
+            });
           }
         },
         {
           field: 'dealerName',
           title: '门店名称',
           width: '150',
-          click () {
-            // 点击事件
-            console.log('点击了接车施工单');
+          click (row) {
+            this.navigateToRoute({
+              path: '/partner/channelManagement/shopDetail',
+              query: {
+                dealerCode: row.dealerCode,
+              },
+            });
           }
         },
         {
@@ -479,6 +490,9 @@ export default {
         destroyerId: [
           { required: true, message: '请输入销毁人ID', trigger: 'change' }
         ],
+        urls: [
+          { required: true, message: '请上传文件', trigger: 'change' }
+        ]
       },
       // 销毁说明
       dialogFormVisible: false,
@@ -577,7 +591,7 @@ export default {
         }
       });
     },
-    approve () {
+    approveSubmit () {
       approve({
         id: this._id,
         approveRemark: this.form.approveRemark, // 审批说明

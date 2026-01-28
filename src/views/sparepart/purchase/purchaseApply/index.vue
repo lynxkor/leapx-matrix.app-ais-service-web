@@ -27,36 +27,36 @@
           filterable
             />
       </el-form-item>
+      <el-form-item label="公司" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :remote-method="getParentCompany"
+          remote
+          v-model="form.companyCodeList"
+          placeholder="请选择"
+          labelKey="companyName"
+          valueKey="companyCode"
+          subLabelKey="companyCode"
+          clearable
+          multiple
+          collapseTags
+          filterable
+        />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="公司">
-          <fetch-select
-              :remote-method="getParentCompany"
-              remote
-              v-model="form.companyCodeList"
-              placeholder="请选择"
-              labelKey="companyName"
-              valueKey="companyCode"
-              subLabelKey="companyCode"
-              clearable
-              multiple
-              collapseTags
-              filterable
-                />
-        </el-form-item>
         <el-form-item label="仓库">
           <fetch-select
-              :remote-method="getWarehouse"
-              remote
-              v-model="form.warehouseIdList"
-              placeholder="请选择"
-              labelKey="name"
-              valueKey="id"
-              subLabelKey="code"
-              clearable
-              multiple
-              collapseTags
-              filterable
-                />
+            :remote-method="getWarehouse"
+            remote
+            v-model="form.warehouseIdList"
+            placeholder="请选择"
+            labelKey="name"
+            valueKey="id"
+            subLabelKey="code"
+            clearable
+            multiple
+            collapseTags
+            filterable
+          />
         </el-form-item>
         <el-form-item label="订单类型">
           <fetch-select
