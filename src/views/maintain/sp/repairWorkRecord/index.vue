@@ -9,11 +9,20 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <template v-if="show">
+      <template >
+      <el-form-item label="作业编码" prop="code">
+        <el-input v-model="form.code" placeholder="请输入编号" clearable/>
+      </el-form-item>
+       <el-form-item label="施工单号" prop="serviceProxyCode">
+        <el-input v-model="form.serviceProxyCode" placeholder="请输入编号" clearable/>
+      </el-form-item>
+       <el-form-item label="门店">
+                       <dealer-select v-model="form.dealerCodes" multiple/>
+                     </el-form-item>
       </template>
       <page-search-action
-        v-if="canList"
-        v-model="show"
+
+
         is-expandable
         :loading="loading"
         @submit="onSubmit"
@@ -24,7 +33,7 @@
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button  :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
@@ -35,15 +44,13 @@
       <LPVxeTable
         ref="tableRef"
         v-loading="loading"
-        is-checkbox
+
         is-page
-        checkboxFixed
         centralized
         :option-obj="optionObj"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
-        @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
       >
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
@@ -66,13 +73,12 @@ import { getList, deleteItem, enableItem } from '@/api/maintain/sp/spRepairWorkR
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
-import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
-
+import DealerSelect from '@/components/dealer-select/index.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
 };
@@ -89,11 +95,12 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    Upload
+    Upload,
+    DealerSelect
   },
   data () {
     return {
-      pageTitle: '接车施工单-维修作业记录表管理',
+      pageTitle: '维修作业记录',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-spRepairWorkRecord',
@@ -101,11 +108,12 @@ export default {
         ...defaultForm
       },
       selectionList: [],
-      yes_no_enum: YES_NO_ENUM,
-      show: false,
+canExport: true,
+      show: true,
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+
       clickItemId: '',
       optionObj: {
         id: 'spRepairWorkRecordTable',
@@ -115,69 +123,44 @@ export default {
           size: pageSize
         },
         dataProp: [
+          { props: 'code', label: '编号', visible: true, width: 200 },
           {
-            props: 'id',
-            label: '主键',
-            visible: false,
+            props: 'serviceProxyCode',
+            label: '施工单号',
+             visible: true,
             width: 200,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/maintain/sp/spRepairWorkRecord/edit',
+                  path: '/maintain/sp/serviceProxy/edit',
                   query: {
-                    id: row.id
+                    id: row.serviceProxyId
                   }
                 });
               },
               type: 'primary'
             }]
           },
-          { props: 'code', label: '编号', visible: true, width: 200 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'repairItemName', label: '维修项目名称', visible: true, width: 200 },
+          { props: 'repairItemCode', label: '维修项目代码', visible: true, width: 200 },
+          { props: 'statusLabel', label: '作业状态', visible: true, width: 200 },
+          { props: 'isDispatchLabel', label: '是否已派工', visible: true, width: 200 },
           { props: 'dealerStationName', label: '工位', visible: true, width: 200 },
           { props: 'dealerWorkTeamName', label: '班组信息', visible: true, width: 200 },
           { props: 'repairTechnicianName', label: '维修技师', visible: true, width: 200 },
           { props: 'dispatchTime', label: '派工时间', visible: true, width: 200 },
+          { props: 'startAt', label: '计划作业时间', visible: true, width: 200 },
+          { props: 'timeSpend', label: '实际作业时间', visible: true, width: 200 },
+          { props: 'finishAt', label: '作业结束时间', visible: true, width: 200 },
+          { props: 'reworkLabel', label: '是否内返', visible: true, width: 200 },
+          { props: 'reworkTypeLabel', label: '返修类型', visible: true, width: 200 },
           { props: 'qualityCheckerName', label: '质检人', visible: true, width: 200 },
-          { props: 'qualityCheckStatus', label: '质检状态', visible: true, width: 200 },
-          {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
-            visible: true,
-            fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/maintain/sp/spRepairWorkRecord/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
-            }]
-          }
+          { props: 'qualityCheckAt', label: '质检时间', visible: true, width: 200 },
+          { props: 'qualityCheckStatusLabel', label: '质检状态', visible: true, width: 200 },
+          { props: 'hasRepairedLabel', label: '是否已返修', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
         ],
         total: 0
       }
@@ -283,10 +266,7 @@ export default {
       }
       this.debouncedGetData();
     },
-    // 多选框选中数据
-    handleSelectionChange (selection) {
-      this.selectionList = selection;
-    },
+
     getFormData () {
       const data = { ...this.form };
 
