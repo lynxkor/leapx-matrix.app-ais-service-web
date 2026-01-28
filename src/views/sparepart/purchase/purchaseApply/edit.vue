@@ -2,8 +2,8 @@
   <edit-page-layout ref="editLayout" :title="detailTitle" showPaneFooter>
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
-      <edit-base-container ref="containerRef" :id="_id" :title="title" :form.sync="form"
-        :submitRequest="submitRequest" :detailRequest="detailRequest" :showEditBtn="false">
+      <edit-base-container ref="containerRef" :id="_id" :title="title" :form.sync="form" :submitRequest="submitRequest"
+      :originalForm.sync="originalForm" :detailRequest="detailRequest" :showEditBtn="false">
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
           <span class="status primary">状态</span>
