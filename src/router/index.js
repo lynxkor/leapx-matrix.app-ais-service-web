@@ -1312,15 +1312,6 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/datacenter/vehicle/serviceproxyhis/edit',
-      name: 'serviceProxyHisEdit',
-      component: () => import('@/views/datacenter/vehicle/serviceProxyHis/edit.vue'),
-
-      meta: {
-        name: '接车施工单-维修履历信息管理详情',
-        noResourceUrl: 'true'
-      }
-    }, {
       path: '/sparepart/basic/purchasePartSaleable',
       name: 'purchasePartSaleable',
       component: () => import('@/views/sparepart/basic/purchasePartSaleable/index.vue'),
@@ -1401,7 +1392,7 @@ const routes = [
         name: '质检记录',
         keepAlive: true
       }
-    },  {
+    }, {
       path: '/maintain/basic/maintenancePartData',
       name: 'maintenancePartData',
       component: () => import('@/views/maintain/basic/maintenancePartData/index.vue'),
@@ -1464,26 +1455,26 @@ const routes = [
         name: '备件采购订单',
         keepAlive: true
       }
-    },{
-            path: '/sparepart/purchase/purchaseorder/edit',
-            name: 'purchaseOrderEdit',
-            component: () => import('@/views/sparepart/purchase/purchaseOrder/edit.vue'),
+    }, {
+      path: '/sparepart/purchase/purchaseorder/edit',
+      name: 'purchaseOrderEdit',
+      component: () => import('@/views/sparepart/purchase/purchaseOrder/edit.vue'),
 
-            meta: {
-              name: '备件采购订单详情',
-              noResourceUrl: 'true'
-            }
-          },
+      meta: {
+        name: '备件采购订单详情',
+        noResourceUrl: 'true'
+      }
+    },
 
-     {
-          path: '/maintain/sp/repairRecord',
-          name: 'repairRecord',
-          component: () => import('@/views/maintain/sp/repairRecord/index.vue'),
+    {
+      path: '/maintain/sp/repairRecord',
+      name: 'repairRecord',
+      component: () => import('@/views/maintain/sp/repairRecord/index.vue'),
 
-          meta: {
-            name: '返修记录',
-            keepAlive: true
-          }
+      meta: {
+        name: '返修记录',
+        keepAlive: true
+      }
 
     }, {
       path: '/sparepart/purchase/backOrder',
