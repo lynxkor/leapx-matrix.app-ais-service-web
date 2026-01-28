@@ -8,7 +8,7 @@
         :title="`活动编码：${form.activityCode}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
-        :showBackBtn="showBackBtn"
+        :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
         :dataTransform="dataTransform"
@@ -352,6 +352,7 @@ export default {
       moduleKey: 'AISCR-techServiceActivity',
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
+      originalForm: { ...form },
       rules: {
         activityCode: [
           { required: true, message: '请输入活动编码', trigger: 'blur' }

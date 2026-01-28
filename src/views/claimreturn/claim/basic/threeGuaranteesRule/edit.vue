@@ -8,7 +8,6 @@
         :title="`三包规则编码：${form.ruleCode}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
-        :showBackBtn="showBackBtn"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
@@ -402,6 +401,7 @@ export default {
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
+      originalForm: { ...form },
     };
   },
   mounted () {

@@ -8,7 +8,7 @@
         :title="`政策名称：${form.policyName}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
-        :showBackBtn="showBackBtn"
+        :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
