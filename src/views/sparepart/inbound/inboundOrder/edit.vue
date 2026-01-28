@@ -221,7 +221,7 @@
                 <el-form-item label="入库单号：" prop="code">
                   {{ form.code }}
                 </el-form-item>
-                <el-form-item label="业务单号code：" prop="businessOrderCode">
+                <el-form-item label="业务单号：" prop="businessOrderCode">
                   {{ form.businessOrderCode }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
@@ -230,14 +230,14 @@
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
                 </el-form-item>
-                <el-form-item label="备件仓库ID：" prop="warehouseId">
-                  {{ form.warehouseId }}
+                <el-form-item label="备件仓库：" prop="warehouseId">
+                  {{ form.warehouseName }}
                 </el-form-item>
-                <el-form-item label="入库类型:采购入库,调拨入库：" prop="inboundType">
-                  {{ form.inboundType }}
+                <el-form-item label="入库类型:" prop="inboundType">
+                  {{ form.inboundTypeLabel }}
                 </el-form-item>
-                <el-form-item label="入库状态:未入库,已入库：" prop="inboundStatus">
-                  {{ form.inboundStatus }}
+                <el-form-item label="入库状态:" prop="inboundStatus">
+                  {{ form.inboundStatusLabel }}
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
                   {{ form.remark }}
@@ -247,30 +247,6 @@
                 </el-form-item>
                 <el-form-item label="修改时间：" prop="updateTime">
                   {{ form.updateTime }}
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  {{ form.modifierName }}
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  {{ form.status }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  {{ form.statusDesc }}
-                </el-form-item>
-                <el-form-item label="业务单号ID：" prop="businessOrderId">
-                  {{ form.businessOrderId }}
                 </el-form-item>
                 <el-form-item label="入库操作人：" prop="inboundOperator">
                   {{ form.inboundOperator }}
