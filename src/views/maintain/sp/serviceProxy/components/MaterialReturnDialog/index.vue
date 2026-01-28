@@ -158,8 +158,8 @@ export default {
     // 获取退料状态文本
     getReturnStatusText (row) {
       const maxQuantity = this.getMaxReturnQuantity(row);
-      const refundedNumber = row.refundedNumber || 0;
-      const actualPickNumber = row.actualPickNumber || 0;
+      const refundedNumber = +row.refundedNumber || 0;
+      const actualPickNumber = +row.actualPickNumber || 0;
 
       if (actualPickNumber === 0) {
         return '未出库';

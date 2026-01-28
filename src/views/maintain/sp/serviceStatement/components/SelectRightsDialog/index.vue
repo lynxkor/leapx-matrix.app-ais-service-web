@@ -30,7 +30,7 @@
           <vxe-column type="checkbox" width="60" align="center" />
           <vxe-column field="rightsCode" title="权益ID" width="250" show-overflow="tooltip" />
           <vxe-column field="rightsName" title="权益名称" width="200" show-overflow="tooltip" />
-          <vxe-column field="cardType" title="卡券类型" width="120" align="center" />
+          <vxe-column field="cardTypeLabel" title="卡券类型" width="120" align="center" />
           <vxe-column field="serviceType" title="适用维修类型" width="120" align="center">
             <template #default="{ row }">
               {{ getServiceTypeText(row.serviceType) }}
@@ -48,12 +48,7 @@
               {{ getValidityPeriodText(row) }}
             </template>
           </vxe-column>
-          <vxe-column field="rightsStatus" title="状态" width="100" align="center">
-            <template #default="{ row }">
-              <el-tag :type="getStatusType(row.rightsStatus)" size="small">
-                {{ getStatusText(row.rightsStatus) }}
-              </el-tag>
-            </template>
+          <vxe-column field="rightsStatusLabel" title="状态" width="100" align="center">
           </vxe-column>
         </vxe-table>
       </div>
@@ -177,8 +172,8 @@ export default {
       try {
         this.submitLoading = true;
         const params = {
-          serviceStatementId: this.serviceProxyId,
-          rightsCodeList: selectedRows.map(row => row.rightsCode)
+          statementId: this.serviceProxyId,
+          writeOffReqList: selectedRows
         };
 
         await rightsFreeze(params);
