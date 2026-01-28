@@ -7,6 +7,7 @@
         :title="`唯一旧件码：${form.oldPartUniqueCode}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
+        :originalForm.sync="originalForm"
         direction="horizontal"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
@@ -307,14 +308,15 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '主机厂旧件库存',
+      pageTitle: this.$route.meta.name,
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISCR-oldPartOemInventoryDetail',
+      moduleKey: this.$route.meta.moduleKey,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
+      originalForm: { ...form },
       rules: {
         remark: [
           { required: false, message: '请输入备注', trigger: 'change' }

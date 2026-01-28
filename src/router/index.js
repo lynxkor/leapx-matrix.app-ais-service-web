@@ -964,15 +964,6 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/oldpart/basic/oldpartoemwarehouse/detail',
-      name: 'pageDetail',
-      component: () => import('@/views/claimreturn/oldpart/basic/oldPartOemWarehouse/detail.vue'),
-
-      meta: {
-        name: '新页面详情',
-        noResourceUrl: 'true'
-      }
-    }, {
       path: '/claimreturn/oldpart/basic/oldpartoemwarehouse/edit',
       name: 'pageEdit',
       component: () => import('@/views/claimreturn/oldpart/basic/oldPartOemWarehouse/edit.vue'),
@@ -981,7 +972,29 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
-    }, {
+    },
+    {
+      path: '/claimreturn/oldpart/inventory/dealer',
+      name: 'page',
+      component: () => import('@/views/claimreturn/oldpart/inventory/oem/index.vue'),
+
+      meta: {
+        name: '门店旧件库存',
+        keepAlive: true,
+        moduleKey: 'AISCR-oldPartDealerInventoryDetail',
+      }
+    },
+    {
+      path: '/claimreturn/oldpart/inventory/dealer/edit',
+      name: 'pageEdit',
+      component: () => import('@/views/claimreturn/oldpart/inventory/oem/edit.vue'),
+      meta: {
+        name: '门店旧件库存',
+        noResourceUrl: 'true',
+        moduleKey: 'AISCR-oldPartDealerInventoryDetail',
+      }
+    },
+    {
       path: '/claimreturn/oldpart/basic/oldPartUnqualifiedConfig',
       name: 'oldPartUnqualifiedConfig',
       component: () => import('@/views/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/index.vue'),
@@ -1040,16 +1053,18 @@ const routes = [
       name: 'oemInventory',
       component: () => import('@/views/claimreturn/oldpart/inventory/oem'),
       meta: {
-        name: '新页面',
-        keepAlive: true
+        name: '主机厂旧件库存',
+        keepAlive: true,
+        moduleKey: 'AISCR-oldPartOemInventoryDetail',
       }
     }, {
       path: '/claimreturn/oldpart/inventory/oem/edit',
       name: 'oemInventoryEdit',
       component: () => import('@/views/claimreturn/oldpart/inventory/oem/edit.vue'),
       meta: {
-        name: '新页面详情',
-        noResourceUrl: 'true'
+        name: '主机厂旧件库存',
+        noResourceUrl: 'true',
+        moduleKey: 'AISCR-oldPartOemInventoryDetail',
       }
     }, {
       path: '/sparepart/warehouse/warehouse',
@@ -1590,7 +1605,7 @@ export function getRouter () {
       // if (true) {
         next();
       } else {
-        window.alert('你没有访问该页面的权限');
+        // window.alert('你没有访问该页面的权限');
         if (store.state.user.token) {
           next({
             path: '/home'
