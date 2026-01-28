@@ -64,10 +64,10 @@
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="接车施工单：" prop="serviceProxyId">
+                  <el-form-item label="接车施工单：" prop="serviceProxyCode">
                     <el-input
                       placeholder="请输入"
-                      v-model="form.serviceProxyId"
+                      v-model="form.serviceProxyCode"
                       clearable
                     />
                   </el-form-item>
@@ -95,8 +95,8 @@
                   <el-form-item label="备件仓库：" prop="warehouseName">
                     {{ form.warehouseName }}
                   </el-form-item>
-                  <el-form-item label="接车施工单：" prop="serviceProxyId">
-                    {{ form.serviceProxyId }}
+                  <el-form-item label="接车施工单：" prop="serviceProxyCode">
+                    {{ form.serviceProxyCode }}
                   </el-form-item>
                   <el-form-item label="备注：" prop="remark">
                     {{ form.remark }}

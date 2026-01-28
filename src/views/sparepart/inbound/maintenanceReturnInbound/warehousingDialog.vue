@@ -24,8 +24,8 @@
             <vxe-column type="checkbox" width="60" align="center" />
             <vxe-column field="sparePartCode" title="备件编码" width="180" />
             <vxe-column field="sparePartName" title="备件名称" width="250" show-overflow />
-            <vxe-column field="availableQty" title="库位" width="150" />
-            <vxe-column field="outboundQty" title="入库数量" width="150" />
+            <vxe-column field="locationName" title="库位" width="150" />
+            <vxe-column field="returnApplicationQty" title="入库数量" width="150" />
           </vxe-table>
         </div>
 
