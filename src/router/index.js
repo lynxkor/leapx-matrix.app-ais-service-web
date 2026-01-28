@@ -1398,19 +1398,10 @@ const routes = [
       component: () => import('@/views/maintain/sp/repairWorkRecord/index.vue'),
 
       meta: {
-        name: '接车施工单-维修作业记录表管理',
+        name: '质检记录',
         keepAlive: true
       }
-    }, {
-      path: '/maintain/sp/repairWorkRecord/edit',
-      name: 'spRepairWorkRecordEdit',
-      component: () => import('@/views/maintain/sp/repairWorkRecord/edit.vue'),
-
-      meta: {
-        name: '接车施工单-维修作业记录表管理详情',
-        noResourceUrl: 'true'
-      }
-    }, {
+    },  {
       path: '/maintain/basic/maintenancePartData',
       name: 'maintenancePartData',
       component: () => import('@/views/maintain/basic/maintenancePartData/index.vue'),
@@ -1473,15 +1464,27 @@ const routes = [
         name: '备件采购订单',
         keepAlive: true
       }
-    }, {
-      path: '/sparepart/purchase/purchaseorder/edit',
-      name: 'purchaseOrderEdit',
-      component: () => import('@/views/sparepart/purchase/purchaseOrder/edit.vue'),
+    },{
+            path: '/sparepart/purchase/purchaseorder/edit',
+            name: 'purchaseOrderEdit',
+            component: () => import('@/views/sparepart/purchase/purchaseOrder/edit.vue'),
 
-      meta: {
-        name: '备件采购订单详情',
-        noResourceUrl: 'true'
-      }
+            meta: {
+              name: '备件采购订单详情',
+              noResourceUrl: 'true'
+            }
+          },
+
+     {
+          path: '/maintain/sp/repairRecord',
+          name: 'repairRecord',
+          component: () => import('@/views/maintain/sp/repairRecord/index.vue'),
+
+          meta: {
+            name: '返修记录',
+            keepAlive: true
+          }
+
     }, {
       path: '/sparepart/purchase/backOrder',
       name: 'backOrder',

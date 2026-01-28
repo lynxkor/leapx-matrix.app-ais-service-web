@@ -42,3 +42,11 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ *返修列表
+ * @param {Object} data
+ */
+export function repairedList (data) {
+  return api.jsonPost(prefix + 'repairedList', data);
+}
