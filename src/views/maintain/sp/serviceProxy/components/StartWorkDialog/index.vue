@@ -38,6 +38,8 @@
           :checkbox-config="checkboxConfig"
           @checkbox-change="handleSelectionChange"
           @checkbox-all="handleSelectionChange"
+          min-height="0"
+          max-height="500px"
         >
           <vxe-column type="checkbox" width="60" align="center"/>
           <vxe-column type="seq" title="序号" width="70" align="center"/>

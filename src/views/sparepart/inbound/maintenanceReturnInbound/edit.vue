@@ -64,10 +64,10 @@
                         clearable
                       />
                     </el-form-item>
-                    <el-form-item label="接车施工单：" prop="serviceProxyId">
+                    <el-form-item label="接车施工单：" prop="serviceProxyCode">
                       <el-input
                         placeholder="请输入"
-                        v-model="form.serviceProxyId"
+                        v-model="form.serviceProxyCode"
                         clearable
                       />
                     </el-form-item>
@@ -369,7 +369,7 @@ export default {
           width: '9%',
         },
         {
-          field: 'returnApplicationReason',
+          field: 'returnApplicationTime',
           title: '退料申请时间',
           width: '9%',
         },

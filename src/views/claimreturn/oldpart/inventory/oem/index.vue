@@ -204,11 +204,12 @@ export default {
     Upload
   },
   data () {
+    console.log(this.$route.meta);
     return {
-      pageTitle: '主机厂旧件库存',
+      pageTitle: this.$route.meta.name,
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISCR-oldPartOemInventoryDetail',
+      moduleKey: this.$route.meta.moduleKey,
       form: {
         ...defaultForm
       },

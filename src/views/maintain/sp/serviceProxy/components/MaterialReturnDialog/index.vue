@@ -23,6 +23,8 @@
           resizable
           border="inner"
           size="medium"
+          min-height="0"
+          max-height="500px"
         >
           <vxe-column type="seq" title="序号" width="70" align="center" />
           <vxe-column field="partsCode" title="零配件代码" width="150" show-overflow="tooltip" />
@@ -144,8 +146,8 @@ export default {
     // 计算最大可退料数量（出库数量 - 已退料数量）
     getMaxReturnQuantity (row) {
       const actualPickNumber = row.actualPickNumber || 0;
-      const quantity = row.quantity || 0;
-      return Math.max(0, quantity - actualPickNumber);
+      const refundedNumber = row.refundedNumber || 0;
+      return Math.max(0, actualPickNumber - refundedNumber);
     },
 
     // 判断是否可以退料

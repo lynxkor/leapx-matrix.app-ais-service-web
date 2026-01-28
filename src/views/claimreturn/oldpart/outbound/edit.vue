@@ -8,6 +8,7 @@
         :title="title"
         :isEditing.sync="isEditing"
         :form.sync="form"
+        :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
@@ -299,7 +300,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '旧件出库单',
+      pageTitle: '主机厂旧件出库',
       pageType: 'edit',
       title: '主机厂出库单号:' + form.outboundOrderNo,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
@@ -347,12 +348,15 @@ export default {
         },
       ],
       rules: {
-        outboundOrderNo: [
-          { required: true, trigger: 'change' }
+        dealerName: [
+          { required: true, message: '请选择门店名称', trigger: 'change' }
         ],
         supplierId: [
           { required: true, message: '请输入收货供应商', trigger: 'change' }
-        ]
+        ],
+        outboundType: [
+          { required: true, message: '请选择出库类型', trigger: 'change' }
+        ],
       }
     };
   },
