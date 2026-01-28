@@ -10,31 +10,31 @@
       class="ais-search-form"
     >
       <el-form-item label="缺货单号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.code"
-          clearable
-        />
+        <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="采购申请单code">
-        <el-input
-          placeholder="请输入"
-          v-model="form.purchaseApplyCode"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="门店编码"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.dealerCode"
-          clearable
-        />
+      <el-form-item label="采购申请单">
+        <tag-input v-model="form.purchaseApplyCodeList" placeholder="请输入" />
       </el-form-item>
       <template v-if="show">
+        <el-form-item label="门店">
+          <fetch-select
+            :remote-method="getDealerList"
+            remote
+            v-model="form.dealerCodeList"
+            placeholder="请输入门店编码或名称"
+            labelKey="orgName"
+            valueKey="orgCode"
+            subLabelKey="orgCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
+            />
+        </el-form-item>
         <el-form-item label="订单类型">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
+            enumCode="PurchaseOrderTypeEnum"
             v-model="form.purchaseOrderType"
             placeholder="请选择"
             clearable
@@ -45,7 +45,7 @@
         <el-form-item label="缺货单状态:待处理,处理中,已处理,已终止">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
+            enumCode="BackOrderStatusEnum"
             v-model="form.backStatus"
             placeholder="请选择"
             clearable
@@ -130,7 +130,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/purchase/backOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -139,6 +139,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -163,7 +164,8 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
@@ -207,13 +209,30 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'purchaseApplyCode', label: '采购申请单code', visible: true, width: 200 },
+          {
+            props: 'purchaseApplyCode',
+            label: '采购申请单',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseApply/edit',
+                  query: {
+                    id: row.purchaseApplyId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'purchaseOrderType', label: '订单类型', visible: true, width: 200 },
+          { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 200 },
           { props: 'pendingVarietyCount', label: '待处理品种数', visible: true, width: 200 },
           { props: 'processedVarietyCount', label: '已处理品种数', visible: true, width: 200 },
-          { props: 'backStatus', label: '缺货单状态:待处理,处理中,已处理,已终止', visible: true, width: 200 },
+          { props: 'backStatusLabel', label: '缺货单状态:待处理,处理中,已处理,已终止', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -367,7 +386,7 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+        if (data[key] === '' || data[key] === null || data[key].length === 0) {
           delete data[key];
         }
       });
@@ -381,6 +400,23 @@ export default {
       }
 
       return data;
+    },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+
+    async getWarehouse (query) {
+      try {
+        const res = await listWarehouse({ codeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     },
     async fetchOptions (code) {
       if (code) {

@@ -34,7 +34,7 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="采购申请单code：" prop="purchaseApplyCode">
+                <el-form-item label="采购申请单：" prop="purchaseApplyCode">
                   <el-input
                     placeholder="请输入"
                     v-model="form.purchaseApplyCode"
@@ -218,17 +218,26 @@
                 <el-form-item label="缺货单号：" prop="code">
                   {{ form.code }}
                 </el-form-item>
-                <el-form-item label="采购申请单code：" prop="purchaseApplyCode">
-                  {{ form.purchaseApplyCode }}
-                </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
                   {{ form.dealerCode }}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
                 </el-form-item>
+                <el-form-item label="缺货单状态:" prop="backStatus">
+                  {{ form.backStatusLabel }}
+                </el-form-item>
                 <el-form-item label="订单类型：" prop="purchaseOrderType">
-                  {{ form.purchaseOrderType }}
+                  {{ form.purchaseOrderTypeLabel }}
+                </el-form-item>
+                <el-form-item label="备注：" prop="remark">
+                  {{ form.remark }}
+                </el-form-item>
+                <el-form-item label="待处理零件总数：" prop="pendingPartTotal">
+                  {{ form.pendingPartTotal }}
+                </el-form-item>
+                <el-form-item label="已处理零件总数：" prop="pendingPartTotal">
+                  {{ form.processedPartTotal }}
                 </el-form-item>
                 <el-form-item label="待处理品种数：" prop="pendingVarietyCount">
                   {{ form.pendingVarietyCount }}
@@ -236,56 +245,20 @@
                 <el-form-item label="已处理品种数：" prop="processedVarietyCount">
                   {{ form.processedVarietyCount }}
                 </el-form-item>
-                <el-form-item label="缺货单状态:待处理,处理中,已处理,已终止：" prop="backStatus">
-                  {{ form.backStatus }}
+                <el-form-item label="是否空出：">
+                  {{ form.emptyIsLabel }}
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
+                <el-form-item label="采购申请单：" prop="purchaseApplyCode">
+                  {{ form.purchaseApplyCode }}
                 </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  {{ form.createTime }}
+                <el-form-item label="收货人姓名：" prop="recipientName">
+                  {{ form.recipientName }}
                 </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  {{ form.updateTime }}
+                <el-form-item label="收货人电话：" prop="recipientPhone">
+                  {{ form.recipientPhone }}
                 </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  {{ form.modifierName }}
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  {{ form.status }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  {{ form.statusDesc }}
-                </el-form-item>
-                <el-form-item label="采购申请单ID：" prop="purchaseApplyId">
-                  {{ form.purchaseApplyId }}
-                </el-form-item>
-                <el-form-item label="已处理零件总数：" prop="processedPartTotal">
-                  {{ form.processedPartTotal }}
-                </el-form-item>
-                <el-form-item label="待处理零件总数：" prop="pendingPartTotal">
-                  {{ form.pendingPartTotal }}
-                </el-form-item>
-                <el-form-item label="采购金额：" prop="purchaseAmount">
-                  {{ form.purchaseAmount }}
-                </el-form-item>
-                <el-form-item label="现金金额：" prop="cashAmount">
-                  {{ form.cashAmount }}
-                </el-form-item>
-                <el-form-item label="返利金额：" prop="rebateAmount">
-                  {{ form.rebateAmount }}
+                <el-form-item label="收货地址：" prop="address">
+                  {{ form.address }}
                 </el-form-item>
               </el-form>
             </div>
@@ -326,7 +299,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
+import { getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -532,6 +505,23 @@ export default {
     // 打开侧边栏
     openPane () {
       this.$refs.editLayout.openPane();
+    },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+
+    async getWarehouse (query) {
+      try {
+        const res = await listWarehouse({ codeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     },
     // 详情表格相关数据
     handleAddRow () {
