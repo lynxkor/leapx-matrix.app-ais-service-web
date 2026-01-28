@@ -10,39 +10,55 @@
       class="ais-search-form"
     >
       <el-form-item label="备件退货单号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.code"
-          clearable
-        />
+        <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="门店编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.dealerCode"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="备件仓库ID"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.warehouseId"
-          clearable
-        />
+        <fetch-select
+            :remote-method="getDealerList"
+            remote
+            v-model="form.dealerCodeList"
+            placeholder="请输入门店编码或名称"
+            labelKey="orgName"
+            valueKey="orgCode"
+            subLabelKey="orgCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
+            />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="退货原因:滞销件回购,门店退网,活动件回购,错发,重复铺货,系统信息错误,其他">
-          <el-input
-            placeholder="请输入"
-            v-model="form.returnReason"
+        <el-form-item label="备件仓库"  v-show="this.visibleCount === 3 || show">
+        <fetch-select
+            :remote-method="getWarehouse"
+            remote
+            v-model="form.warehouseIdList"
+            placeholder="请选择"
+            labelKey="name"
+            valueKey="id"
+            subLabelKey="code"
             clearable
+            multiple
+            collapseTags
+            filterable
           />
-        </el-form-item>
-        <el-form-item label="退货状态:草稿,审核中,已驳回,审核通过,已发运,已退货,已退款,已作废">
+      </el-form-item>
+        <el-form-item label="退货原因">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.returnStatus"
+            enumCode="ReturnReasonEnum"
+            v-model="form.returnReasonList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="退货状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="ReturnStatusEnum"
+            v-model="form.returnStatusList"
             placeholder="请选择"
             clearable
             multiple
@@ -59,13 +75,6 @@
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="备注">
-          <el-input
-            placeholder="请输入"
-            v-model="form.remark"
-            clearable
           />
         </el-form-item>
         <el-form-item label="创建时间">
@@ -145,7 +154,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/return/returnOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -154,6 +163,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -180,7 +190,8 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
@@ -226,9 +237,9 @@ export default {
           },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'warehouseId', label: '备件仓库ID', visible: true, width: 200 },
-          { props: 'returnReason', label: '退货原因:滞销件回购,门店退网,活动件回购,错发,重复铺货,系统信息错误,其他', visible: true, width: 200 },
-          { props: 'returnStatus', label: '退货状态:草稿,审核中,已驳回,审核通过,已发运,已退货,已退款,已作废', visible: true, width: 200 },
+          { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
+          { props: 'returnReasonLabel', label: '退货原因', visible: true, width: 200 },
+          { props: 'returnStatusLabel', label: '退货状态', visible: true, width: 200 },
           { props: 'logisticsOrderNo', label: '物流单号', visible: true, width: 200 },
           { props: 'logisticsProvider', label: '物流商', visible: true, width: 200 },
           { props: 'deliveryTime', label: '发货时间', visible: true, width: 200 },
@@ -282,6 +293,23 @@ export default {
     this.getData();
   },
   methods: {
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+
+    async getWarehouse (query) {
+      try {
+        const res = await listWarehouse({ codeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
@@ -395,6 +423,20 @@ export default {
         if (this.form.createTime.length > 1) {
           data.createTimeStart = this.form.createTime[0];
           data.createTimeEnd = this.form.createTime[1];
+        }
+      }
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = this.form.updateTime[1];
+        }
+      }
+      if (this.form.deliveryTime) {
+        delete data.deliveryTime;
+        if (this.form.deliveryTime.length > 1) {
+          data.deliveryTimeStart = this.form.deliveryTime[0];
+          data.deliveryTimeEnd = this.form.deliveryTime[1];
         }
       }
 
