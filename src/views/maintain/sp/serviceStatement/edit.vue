@@ -257,6 +257,12 @@
         :info="form"
         @refresh="handleRefresh"
       />
+      <AddPayrecordDialog
+        :visible.sync="addPayrecordDialogVisible"
+        :serviceProxyId="_id"
+        :info="form"
+        @refresh="handleRefresh"
+      />
     </template>
     <template #right>
       <div class="page-common-edit">
@@ -283,6 +289,7 @@ import PartsRecodr from '@/views/maintain/sp/serviceStatement/components/PartsRe
 import PayRecord from '@/views/maintain/sp/serviceStatement/components/PayRecord/index.vue';
 import SelectRightsDialog from './components/SelectRightsDialog';
 import SubmitSettlemenDialog from './components/SubmitSettlemenDialog';
+import AddPayrecordDialog from './components/AddPayrecordDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -373,8 +380,8 @@ export default {
     PartsRecodr,
     PayRecord,
     SelectRightsDialog,
-    SubmitSettlemenDialog
-
+    SubmitSettlemenDialog,
+    AddPayrecordDialog
   },
   computed: {
     _id () {
@@ -404,6 +411,7 @@ export default {
       submitLoading: false,
       rightsDialogVisible: false,
       submitSettlemenDialogVisible: false,
+      addPayrecordDialogVisible: false,
       tableData: [],
       form: { ...form },
       originalForm: { ...form },
@@ -529,8 +537,6 @@ export default {
         // 调用驳回接口
         this.handleReject();
       }).catch(() => {
-        // 用户取消操作
-        this.$message.info('已取消驳回操作');
       });
     },
     // 处理驳回逻辑
@@ -548,8 +554,11 @@ export default {
     },
     addInvoceRecord () {
       // 实现添加收款记录功能
-      console.log('添加收款记录');
-      // 这里可以添加具体的添加收款记录逻辑
+      if (this.form.payableAmount <= 0) {
+        this.$message.warning('剩余可添加的收款记录金额为0,暂时无法添加新的收款记录');
+        return;
+      }
+      this.addPayrecordDialogVisible = true;
     },
 
     paySuccess () {
