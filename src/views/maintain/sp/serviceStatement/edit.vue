@@ -6,7 +6,7 @@
         :submitRequest="submitRequest" :detailRequest="detailRequest" :title="`单据编号：${form.code}`">
         <template #extraButtons>
           <el-button size="small" @click="rightsList" v-if="showButton('rights')">权益核销</el-button>
-          <el-button size="small" @click="submitAndSing">提交结算并签字</el-button>
+          <el-button size="small" @click="submitAndSing" v-if="showButton('sign')">提交结算并签字</el-button>
           <el-button size="small" @click="reject" v-if="showButton(reject)">驳回</el-button>
           <el-button size="small" @click="addInvoceRecord" v-if="showButton('addRecord')">添加收款记录</el-button>
           <el-button size="small" @click="paySuccess" v-if="showButton('success')">完成收款</el-button>
