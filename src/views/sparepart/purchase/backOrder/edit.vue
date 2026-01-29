@@ -265,8 +265,7 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>区块标题</h2>
-              <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              <h2>缺货明细信息</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
@@ -274,10 +273,13 @@
                   ref="editTable"
                   :columns="columns"
                   :data="tableData"
-                  :defaultNewRow="defaultNewRow"
                   :show-toolbar="false"
-                  :options="options"
-                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                  showPagination
+                  :current="current"
+                  :pageSize="pageSize"
+                  :total="total"
+                  @page-size-change="pageSizeChange"
+                  @current-page-change="currentPageChange"
                 />
               </div>
             </div>
@@ -319,10 +321,6 @@ const defaultForm = {
   createTime: '',
   updateTime: '',
   id: '',
-  creator: '',
-  creatorName: '',
-  modifier: '',
-  modifierName: '',
   status: '',
   statusDesc: '',
   purchaseApplyId: '',
@@ -377,42 +375,62 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      defaultNewRow: {
-        name: '',
-      },
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
+      current: 1,
+      pageSize: 10,
+      total: 0,
+      tableData: [],
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
           field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
+          title: '备件编码',
+          width: '10%',
         },
         {
           field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
+          title: '备件名称',
+          width: '10%',
         },
         {
           field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
+          title: '出库数量',
+          width: '10%',
         },
+        {
+          field: 'email',
+          title: '采购价',
+          width: '10%',
+        },
+        {
+          field: 'email',
+          title: '采购金额',
+          width: '10%',
+        },
+        {
+          field: 'email',
+          title: '现金单价',
+          width: '10%',
+        },
+        {
+          field: 'email',
+          title: '现金金额',
+          width: '10%',
+        },
+        {
+          field: 'email',
+          title: '返利单价',
+          width: '10%',
+        },
+        {
+          field: 'email',
+          title: '返利金额',
+          width: '10%',
+        },
+        {
+          field: 'email',
+          title: '备注',
+          width: '10%',
+        }
       ],
       rules: {
         code: [
@@ -556,6 +574,15 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    pageSizeChange (val) {
+      this.pageSize = val;
+      this.current = 1;
+      this.fetchTableData();
+    },
+    currentPageChange (val) {
+      this.current = val;
+      this.fetchTableData();
     }
   }
 };
