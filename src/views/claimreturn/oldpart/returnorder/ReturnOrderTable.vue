@@ -216,12 +216,13 @@ export default {
       }).then((res) => {
         this.tableData = res.records;
         this.total = res.total;
+        this.selectedRows = [];
         this.$emit('getTableData', this.tableData);
       });
     },
     openAdd () {
       if (!this.dealerCode) {
-        this.$message.info('');
+        this.$message.info('请选择门店');
         return;
       }
       this.visible = true;
@@ -249,6 +250,7 @@ export default {
         detailIdList: ids,
       }).then((d) => {
         this.$message.success('删除成功');
+        this.selectedRows = [];
         this.getTableData();
       }).catch(() => {
         this.$message({
