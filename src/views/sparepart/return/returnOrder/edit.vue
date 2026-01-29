@@ -2,41 +2,30 @@
   <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
-      <edit-base-container
-        ref="containerRef"
-        :id="_id"
-        :title="title"
-        :isEditing.sync="isEditing"
-        :form.sync="form"
-        :submitRequest="submitRequest"
-        :detailRequest="detailRequest"
-      >
+      <edit-base-container ref="containerRef" :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form"
+        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
           <span class="status primary">状态</span>
         </template>
-        <template #extraButtons>
-          <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button>
-        </template>
         <el-main>
-          <section class="common-section">
+          <section class="common-section" v-show="isEditing || !_id">
             <div class="common-section-header">
-              <h2>基础信息</h2>
+              <h2>常规信息</h2>
             </div>
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="退货单号：" prop="code">
                   {{ form.code }}
                 </el-form-item>
-                <el-form-item label="退货类型:" prop="returnType">
+                <el-form-item label="退货类型：" prop="returnType">
                   <fetch-select :request="fetchOptions" enumCode="ReturnTypeEnum" v-model="form.returnType"
-                  placeholder="请选择" clearable filterable />
+                    placeholder="请选择" clearable filterable />
                 </el-form-item>
-                <el-form-item label="退货原因:" prop="returnReason">
+                <el-form-item label="退货原因：" prop="returnReason">
                   <fetch-select :request="fetchOptions" enumCode="ReturnReasonEnum" v-model="form.returnReason"
-                  placeholder="请选择" clearable filterable />
+                    placeholder="请选择" clearable filterable />
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
                   <fetch-select :remote-method="getDealerList" remote v-model="form.dealerCode" placeholder="请输入门店编码或名称"
@@ -53,12 +42,18 @@
                   {{ form.returnStatusLabel }}
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
+                  <el-input type="textarea" maxlength="500" show-word-limit placeholder="请输入" v-model="form.remark" clearable />
                 </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="isEditing || !_id">
+            <div class="common-section-header">
+              <h2>物流信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="物流单号：" prop="logisticsOrderNo">
                   {{ form.logisticsOrderNo }}
                 </el-form-item>
@@ -72,54 +67,37 @@
                   {{ form.logisticsRemark }}
                 </el-form-item>
                 <el-form-item label="收货主机厂仓库：" prop="receiveWarehouseId">
-                  <fetch-select
-                    :remote-method="getReceiveWarehouse"
-                    remote
-                    v-model="form.receiveWarehouseId"
-                    placeholder="请选择"
-                    labelKey="name"
-                    valueKey="id"
-                    subLabelKey="code"
-                    clearable
-                    collapseTags
-                    filterable
-                  />
+                  <fetch-select :remote-method="getReceiveWarehouse" remote v-model="form.receiveWarehouseId"
+                    placeholder="请选择" labelKey="name" valueKey="id" subLabelKey="code" clearable collapseTags
+                    filterable />
                 </el-form-item>
                 <el-form-item label="收货人：" prop="receiver">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.receiver"
-                    clearable
-                  />
+                  <el-input placeholder="请输入" v-model="form.receiver" clearable />
                 </el-form-item>
                 <el-form-item label="收货人联系电话：" prop="receiverPhone">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.receiverPhone"
-                    clearable
-                  />
+                  <el-input placeholder="请输入" v-model="form.receiverPhone" clearable />
                 </el-form-item>
                 <el-form-item label="收货地址：" prop="receiveAddress">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.receiveAddress"
-                    clearable
-                  />
+                  <el-input placeholder="请输入" v-model="form.receiveAddress" clearable />
                 </el-form-item>
-                <el-form-item label="物流支付方式:" prop="logisticsPaymentMethod">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="PurchaseLogisticsPaymentMethodEnum"
-                    v-model="form.logisticsPaymentMethod"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
+                <el-form-item label="物流支付方式：" prop="logisticsPaymentMethod">
+                  <fetch-select :request="fetchOptions" enumCode="PurchaseLogisticsPaymentMethodEnum"
+                    v-model="form.logisticsPaymentMethod" placeholder="请选择" clearable filterable />
                 </el-form-item>
                 <el-form-item label="退货完成时间：" prop="returnCompleteTime">
                   {{ form.returnCompleteTime }}
                 </el-form-item>
-                <el-form-item label="退货价格比例:" prop="returnPriceRatio">
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="isEditing || !_id">
+            <div class="common-section-header">
+              <h2>退款信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
+                <el-form-item label="退货价格比例：" prop="returnPriceRatio">
                   {{ form.returnPriceRatio }}
                 </el-form-item>
                 <el-form-item label="退款完成时间：" prop="refundCompleteTime">
@@ -137,6 +115,16 @@
                 <el-form-item label="实际退货现金总金额：" prop="actualReturnCashAmount">
                   {{ form.actualReturnCashAmount }}
                 </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="isEditing || !_id">
+            <div class="common-section-header">
+              <h2>审批信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="提交人：" prop="submitter">
                   {{ form.submitter }}
                 </el-form-item>
@@ -162,14 +150,21 @@
                   {{ form.cancelDescription }}
                 </el-form-item>
               </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="备件退货单号：" prop="code">
+            </div>
+          </section>
+          <section class="common-section" v-show="!(isEditing || !_id)">
+            <div class="common-section-header">
+              <h2>常规信息</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form label-width="150px" :inline="true" class="form-detail">
+                <el-form-item label="退货单号：" prop="code">
                   {{ form.code }}
                 </el-form-item>
-                <el-form-item label="退货类型:" prop="returnType">
+                <el-form-item label="退货类型：" prop="returnType">
                   {{ form.returnTypeLabel }}
                 </el-form-item>
-                <el-form-item label="退货原因:" prop="returnReason">
+                <el-form-item label="退货原因：" prop="returnReason">
                   {{ form.returnReasonLabel }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
@@ -181,12 +176,21 @@
                 <el-form-item label="备件仓库：" prop="warehouseId">
                   {{ form.warehouseName }}
                 </el-form-item>
-                <el-form-item label="退货状态:" prop="returnStatus">
+                <el-form-item label="退货状态：" prop="returnStatus">
                   {{ form.returnStatusLabel }}
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
                   {{ form.remark }}
                 </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="!(isEditing || !_id)">
+            <div class="common-section-header">
+              <h2>物流信息</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form label-width="150px" :inline="true" class="form-detail">
                 <el-form-item label="物流单号：" prop="logisticsOrderNo">
                   {{ form.logisticsOrderNo }}
                 </el-form-item>
@@ -217,7 +221,16 @@
                 <el-form-item label="退货完成时间：" prop="returnCompleteTime">
                   {{ form.returnCompleteTime }}
                 </el-form-item>
-                <el-form-item label="退货价格比例:" prop="returnPriceRatio">
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="!(isEditing || !_id)">
+            <div class="common-section-header">
+              <h2>退款信息</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form label-width="150px" :inline="true" class="form-detail">
+                <el-form-item label="退货价格比例：" prop="returnPriceRatio">
                   {{ form.returnPriceRatio }}
                 </el-form-item>
                 <el-form-item label="退款完成时间：" prop="refundCompleteTime">
@@ -235,6 +248,15 @@
                 <el-form-item label="实际退货现金总金额：" prop="actualReturnCashAmount">
                   {{ form.actualReturnCashAmount }}
                 </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="!(isEditing || !_id)">
+            <div class="common-section-header">
+              <h2>审批信息</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form label-width="150px" :inline="true" class="form-detail">
                 <el-form-item label="提交人：" prop="submitter">
                   {{ form.submitter }}
                 </el-form-item>
@@ -264,24 +286,90 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>区块标题</h2>
-              <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              <h2>出库明细信息 <el-button size="mini">导入备件</el-button><el-button size="mini" @click="addPart">添加备件</el-button></h2>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-table">
+                <vxe-table
+                    ref="editTableRight"
+                    :data="tableData"
+                    stripe
+                    show-overflow
+                    resizable
+                    border="inner"
+                    size="medium"
+                >
+                    <vxe-column field="partCode" title="备件编码" />
+                    <vxe-column field="partName" title="备件名称" />
+                    <vxe-column field="returnQty" title="退货数量" />
+                    <vxe-column field="qualifiedQty" title="合格数量" />
+                    <vxe-column field="deliveryOrderNo" title="交货单号" />
+                    <vxe-column field="salesVoucher" title="销售凭证" />
+                    <vxe-column field="inboundOrderId" title="入库单号" />
+                    <vxe-column field="purchaseOrderId" title="采购订单号" />
+                    <vxe-column field="purchaseCashUnitPrice" title="采购现金单价" />
+                    <vxe-column field="purchaseRebateUnitPrice" title="采购返利单价" />
+                    <vxe-column field="returnCashUnitPrice" title="退货现金单价" />
+                    <vxe-column field="estimatedReturnCashAmount" title="预计退货现金金额" />
+                    <vxe-column field="actualReturnCashAmount" title="实际退货现金金额" />
+                    <vxe-column field="returnRebateUnitPrice" title="退货返利单价" />
+                    <vxe-column field="estimatedReturnRebateAmount" title="预计退货返利金额" />
+                    <vxe-column field="actualReturnRebateAmount" title="实际退货返利金额" />
+                    <vxe-column field="remark" title="备注" />
+                    <vxe-column title="操作" >
+                        <template #default="{ row }">
+                            <el-popconfirm
+                                title="确定删除此出库明细吗？"
+                                @confirm="handleDel(row)"
+                            >
+                                <span
+                                class="action-button btn-delete"
+                                slot="reference"
+                                type="text">
+                                删除
+                                </span>
+                            </el-popconfirm>
+                        </template>
+                    </vxe-column>
+                </vxe-table>
+                <div class="table-pagination">
+                    <el-pagination
+                        @size-change="(val) => pageSizeChange(val)"
+                        @current-change="(val) => currentPageChange(val)"
+                        :current-page="current"
+                        :page-sizes="[10, 20, 50, 100]"
+                        :page-size="pageSize"
+                        layout="total, sizes, prev, pager, next, jumper"
+                        :total="total"
+                    >
+                    </el-pagination>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>异常退货明细</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
                 <edit-table
                   ref="editTable"
-                  :columns="columns"
-                  :data="tableData"
-                  :defaultNewRow="defaultNewRow"
+                  :columns="abnormalColumns"
+                  :data="abnormalTableData"
                   :show-toolbar="false"
-                  :options="options"
-                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                  showPagination
+                  :current="abnormal.current"
+                  :pageSize="abnormal.pageSize"
+                  :total="abnormal.total"
+                  @page-size-change="abnormalPageSizeChange"
+                  @current-page-change="abnormalCurrentPageChange"
                 />
               </div>
             </div>
           </section>
         </el-main>
+        <AddSpareParts ref="addSpareParts" :id="_id" :visible="sparePartsVisible" @close="dialogClose" />
       </edit-base-container>
     </template>
     <template #right>
@@ -303,6 +391,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import AddSpareParts from './AddSpareParts.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -319,12 +408,7 @@ const defaultForm = {
   createTime: '',
   updateTime: '',
   id: '',
-  creator: '',
-  creatorName: '',
-  modifier: '',
-  modifierName: '',
   status: '',
-  statusDesc: '',
   dataSource: '',
   purchaseOrderType: '',
   warehousingStatus: '',
@@ -370,7 +454,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     EditTable,
-    FetchSelect
+    FetchSelect,
+    AddSpareParts
   },
   computed: {
     _id () {
@@ -400,42 +485,49 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      defaultNewRow: {
-        name: '',
+      pageSize: 10,
+      current: 1,
+      total: 0,
+      tableData: [],
+      abnormal: {
+        current: 1,
+        pageSize: 10,
+        total: 0,
       },
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
+      abnormalTableData: [],
+      sparePartsVisible: false,
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
-      columns: [
+      abnormalColumns: [
         {
           field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
+          title: '备件编码',
+          width: '16%',
         },
         {
           field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
+          title: '备件名称',
+          width: '16%',
         },
         {
           field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
+          title: '缺货数量',
+          width: '16%',
         },
+        {
+          field: 'email',
+          title: '不合格数量',
+          width: '16%',
+        },
+        {
+          field: 'email',
+          title: 'wms备注',
+          width: '16%',
+        },
+        {
+          field: 'email',
+          title: '备注',
+          width: '16%',
+        }
       ],
       rules: {
         code: [
@@ -448,13 +540,13 @@ export default {
           { required: false, message: '请输入门店名称', trigger: 'change' }
         ],
         warehouseId: [
-          { required: true, message: '请输入备件仓库ID', trigger: 'change' }
+          { required: true, message: '请输入备件仓库', trigger: 'change' }
         ],
         returnReason: [
-          { required: true, message: '请输入退货原因:滞销件回购,门店退网,活动件回购,错发,重复铺货,系统信息错误,其他', trigger: 'change' }
+          { required: true, message: '请输入退货原因', trigger: 'change' }
         ],
         returnStatus: [
-          { required: true, message: '请选择退货状态:草稿,审核中,已驳回,审核通过,已发运,已退货,已退款,已作废', trigger: 'change' }
+          { required: true, message: '请选择退货状态', trigger: 'change' }
         ],
         logisticsOrderNo: [
           { required: false, message: '请输入物流单号', trigger: 'change' }
@@ -472,10 +564,10 @@ export default {
           { required: false, message: '请选择订单类型', trigger: 'change' }
         ],
         warehousingStatus: [
-          { required: false, message: '请选择入库状态:无需入库,待入库,已入库', trigger: 'change' }
+          { required: false, message: '请选择入库状态', trigger: 'change' }
         ],
         returnType: [
-          { required: false, message: '请选择退货类型:被动退货,主动退货', trigger: 'change' }
+          { required: false, message: '请选择退货类型', trigger: 'change' }
         ],
         logisticsRemark: [
           { required: false, message: '请输入物流备注', trigger: 'change' }
@@ -493,13 +585,13 @@ export default {
           { required: false, message: '请输入收货地址', trigger: 'change' }
         ],
         logisticsPaymentMethod: [
-          { required: true, message: '请输入物流支付方式:寄付,到付', trigger: 'change' }
+          { required: true, message: '请输入物流支付方式', trigger: 'change' }
         ],
         returnCompleteTime: [
           { required: false, message: '请选择退货完成时间', trigger: 'change' }
         ],
         returnPriceRatio: [
-          { required: false, message: '请输入退货价格比例:1.00,0.75', trigger: 'change' }
+          { required: false, message: '请输入退货价格比例', trigger: 'change' }
         ],
         refundCompleteTime: [
           { required: false, message: '请选择退款完成时间', trigger: 'change' }
@@ -536,21 +628,6 @@ export default {
         ],
         outboundTime: [
           { required: false, message: '请选择出库操作时间', trigger: 'change' }
-        ],
-        cancelOperator: [
-          { required: false, message: '请输入作废人', trigger: 'change' }
-        ],
-        cancelTime: [
-          { required: false, message: '请选择作废时间', trigger: 'change' }
-        ],
-        cancelDescription: [
-          { required: false, message: '请输入作废说明', trigger: 'change' }
-        ],
-        warehousingOperator: [
-          { required: false, message: '请输入入库操作人', trigger: 'change' }
-        ],
-        warehousingTime: [
-          { required: false, message: '请选择入库操作时间', trigger: 'change' }
         ],
       }
     };
@@ -634,7 +711,44 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    pageSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.current = 1;
+      this.getDetailData();
+    },
+    currentPageChange (current) {
+      this.current = current;
+      this.getDetailData();
+    },
+    abnormalPageSizeChange (pageSize) {
+      this.abnormal.pageSize = pageSize;
+      this.abnormal.current = 1;
+      this.getList();
+    },
+    abnormalCurrentPageChange (current) {
+      this.abnormal.current = current;
+      this.getList();
+    },
+    // 打开添加备弹窗
+    addPart () {
+      this.sparePartsVisible = true;
+    },
+    dialogClose () {
+      this.sparePartsVisible = false;
     }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.btn-delete{
+  color:#B91919;
+  cursor: pointer;
+}
+.table-pagination {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+}
+</style>

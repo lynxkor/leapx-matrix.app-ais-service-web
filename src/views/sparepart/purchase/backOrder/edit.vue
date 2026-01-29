@@ -10,14 +10,11 @@
         :form.sync="form"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :originalForm.sync="originalForm"
       >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
           <span class="status primary">状态</span>
-        </template>
-        <template #extraButtons>
-          <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -79,7 +76,7 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="缺货单状态:待处理,处理中,已处理,已终止：" prop="backStatus">
+                <el-form-item label="缺货单状态：" prop="backStatus">
                   <fetch-select
                     :request="fetchOptions"
                     enumCode="xxx"
@@ -116,41 +113,6 @@
                     end-placeholder="结束日期"
                   />
                 </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.id"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creator"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creatorName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifier"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifierName"
-                    clearable
-                  />
-                </el-form-item>
                 <el-form-item label="状态：" prop="status">
                   <fetch-select
                     :request="fetchOptions"
@@ -171,7 +133,7 @@
                     filterable
                   />
                 </el-form-item>
-                <el-form-item label="采购申请单ID：" prop="purchaseApplyId">
+                <el-form-item label="采购申请单：" prop="purchaseApplyId">
                   <el-input
                     placeholder="请输入"
                     v-model="form.purchaseApplyId"
@@ -224,7 +186,7 @@
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
                 </el-form-item>
-                <el-form-item label="缺货单状态:" prop="backStatus">
+                <el-form-item label="缺货单状态：" prop="backStatus">
                   {{ form.backStatusLabel }}
                 </el-form-item>
                 <el-form-item label="订单类型：" prop="purchaseOrderType">
@@ -265,8 +227,7 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>区块标题</h2>
-              <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              <h2>缺货明细信息</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
@@ -274,10 +235,34 @@
                   ref="editTable"
                   :columns="columns"
                   :data="tableData"
-                  :defaultNewRow="defaultNewRow"
                   :show-toolbar="false"
-                  :options="options"
-                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                  showPagination
+                  :current="current"
+                  :pageSize="pageSize"
+                  :total="total"
+                  @page-size-change="pageSizeChange"
+                  @current-page-change="currentPageChange"
+                />
+              </div>
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>采购申请明细</h2>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-table">
+                <edit-table
+                  ref="editTable"
+                  :columns="procurementColumns"
+                  :data="procurementTableData"
+                  :show-toolbar="false"
+                  showPagination
+                  :current="procurement.current"
+                  :pageSize="procurement.pageSize"
+                  :total="procurement.total"
+                  @page-size-change="procurementPageSizeChange"
+                  @current-page-change="procurementCurrentPageChange"
                 />
               </div>
             </div>
@@ -294,7 +279,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/purchase/backOrder/index';
+import { getDetail, addOrUpdate, getBackOrderDetailList } from '@/api/sparepart/purchase/backOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -304,6 +289,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { getPurchaseApplyPage } from '@/api/sparepart/purchase/purchaseApply/index';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -319,10 +305,6 @@ const defaultForm = {
   createTime: '',
   updateTime: '',
   id: '',
-  creator: '',
-  creatorName: '',
-  modifier: '',
-  modifierName: '',
   status: '',
   statusDesc: '',
   purchaseApplyId: '',
@@ -362,7 +344,16 @@ export default {
         }
       },
       immediate: true
-    }
+    },
+    form: {
+      handler (val) {
+        if (val.purchaseApplyId) {
+          this.purchaseApplyId = val.purchaseApplyId;
+          this.getList();
+        }
+      },
+      immediate: true
+    },
   },
   data () {
     const form = this.getDefautlForm();
@@ -377,49 +368,143 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      defaultNewRow: {
-        name: '',
-      },
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
+      current: 1,
+      pageSize: 10,
+      total: 0,
+      tableData: [],
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
           field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
+          title: '备件编码',
+          width: '7%',
         },
         {
           field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
+          title: '备件名称',
+          width: '7%',
         },
         {
-          field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
+          field: 'backStatusLabel',
+          title: '处理状态',
+          width: '7%',
         },
+        {
+          field: 'pendingPartQty',
+          title: '待处理备件数',
+          width: '7%',
+        },
+        {
+          field: 'resolvedPartQty',
+          title: '已解欠备件数',
+          width: '7%',
+        },
+        {
+          field: 'cancelledPartQty',
+          title: '已取消备件数',
+          width: '7%',
+        },
+        {
+          field: 'cancelOperator',
+          title: '取消人',
+          width: '7%',
+        },
+        {
+          field: 'cancelTime',
+          title: '取消时间',
+          width: '7%',
+        },
+        {
+          field: 'cancelDescription',
+          title: '取消说明',
+          width: '7%',
+        },
+        {
+          field: 'purchasePrice',
+          title: '采购价',
+          width: '7%',
+        },
+        {
+          field: 'purchaseAmount',
+          title: '采购金额',
+          width: '7%',
+        },
+        {
+          field: 'cashUnitPrice',
+          title: '现金单价',
+          width: '7%',
+        },
+        {
+          field: 'cashAmount',
+          title: '现金金额',
+          width: '7%',
+        },
+        {
+          field: 'remark',
+          title: '备注',
+          width: '7%',
+        }
+      ],
+      procurement: {
+        current: 1,
+        pageSize: 10,
+        total: 0,
+      },
+      purchaseApplyId: '', // 采购申请明细ID
+      procurementTableData: [],
+      procurementColumns: [
+        {
+          field: 'partCode',
+          title: '备件编码',
+          width: '11%',
+        },
+        {
+          field: 'partName',
+          title: '备件名称',
+          width: '11%',
+        },
+        {
+          field: 'originalPrice',
+          title: '原价',
+          width: '11%',
+        },
+        {
+          field: 'purchasePrice',
+          title: '采购价',
+          width: '11%',
+        },
+        {
+          field: 'purchaseAmount',
+          title: '采购金额',
+          width: '11%',
+        },
+        {
+          field: 'cashUnitPrice',
+          title: '现金单价',
+          width: '11%',
+        },
+        {
+          field: 'cashAmount',
+          title: '现金金额',
+          width: '11%',
+        },
+        {
+          field: 'purchaseQty',
+          title: '采购数',
+          width: '11%',
+        },
+        {
+          field: 'remark',
+          title: '备注',
+          width: '11%',
+        }
       ],
       rules: {
         code: [
           { required: true, message: '请输入缺货单号', trigger: 'change' }
         ],
         purchaseApplyCode: [
-          { required: true, message: '请输入采购申请单code', trigger: 'change' }
+          { required: true, message: '请输入采购申请单', trigger: 'change' }
         ],
         dealerCode: [
           { required: true, message: '请输入门店编码', trigger: 'change' }
@@ -437,7 +522,7 @@ export default {
           { required: true, message: '请输入已处理品种数', trigger: 'change' }
         ],
         backStatus: [
-          { required: true, message: '请选择缺货单状态:待处理,处理中,已处理,已终止', trigger: 'change' }
+          { required: true, message: '请选择缺货单状态', trigger: 'change' }
         ],
         remark: [
           { required: true, message: '请输入备注', trigger: 'change' }
@@ -466,11 +551,8 @@ export default {
         status: [
           { required: true, message: '请选择状态', trigger: 'change' }
         ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
         purchaseApplyId: [
-          { required: true, message: '请输入采购申请单ID', trigger: 'change' }
+          { required: true, message: '请输入采购申请单', trigger: 'change' }
         ],
         processedPartTotal: [
           { required: true, message: '请输入已处理零件总数', trigger: 'change' }
@@ -491,6 +573,7 @@ export default {
     };
   },
   mounted () {
+    this.getData();
   },
   methods: {
     detailRequest () {
@@ -556,7 +639,47 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    // 获取缺货明细信息
+    async getData () {
+      const params = {
+        pageNum: this.current,
+        pageSize: this.pageSize,
+        backOrderId: this._id
+      };
+      const res = await getBackOrderDetailList(params);
+      this.tableData = res.records || [];
+      this.total = res.total || 0;
+    },
+    // 获取采购明细信息表格
+    async getList () {
+      const params = {
+        pageNum: this.procurement.current,
+        pageSize: this.procurement.pageSize,
+        purchaseApplyId: this.purchaseApplyId,
+      };
+      const res = await getPurchaseApplyPage(params);
+      this.procurementTableData = res.records || [];
+      this.procurement.total = res.total || 0;
+    },
+    pageSizeChange (val) {
+      this.pageSize = val;
+      this.current = 1;
+      this.getData();
+    },
+    currentPageChange (val) {
+      this.current = val;
+      this.getData();
+    },
+    procurementPageSizeChange (pageSize) {
+      this.procurement.pageSize = pageSize;
+      this.procurement.current = 1;
+      this.getList();
+    },
+    procurementCurrentPageChange (current) {
+      this.procurement.current = current;
+      this.getList();
+    },
   }
 };
 </script>

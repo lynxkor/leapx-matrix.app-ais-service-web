@@ -6,19 +6,19 @@
         :submitRequest="submitRequest" :detailRequest="detailRequest" :title="`单据编号：${form.code}`">
         <template #extraButtons>
           <el-button size="small" @click="rightsList" v-if="showButton('rights')">权益核销</el-button>
-          <el-button size="small" @click="submitAndSing">提交结算并签字</el-button>
-          <el-button size="small" @click="reject" v-if="showButton(reject)">驳回</el-button>
-          <el-button size="small" @click="addInvoceRecord" v-if="showButton('addRecord')">添加收款记录</el-button>
+          <el-button size="small" @click="submitAndSing" v-if="showButton('sign')">提交结算并签字</el-button>
+          <el-button size="small" @click="reject" v-if="showButton('reject')">驳回</el-button>
+          <el-button size="small" @click="addInvoceRecord">添加收款记录</el-button>
           <el-button size="small" @click="paySuccess" v-if="showButton('success')">完成收款</el-button>
           <el-button size="small" @click="createRefund" v-if="showButton('reCreate')">创建反结算单</el-button>
           <el-button size="small" @click="createWarrantyApply" v-if="showButton('createWarranty')">创建保修申请单</el-button>
-          <el-button size="small">打印结算单</el-button>
+          <el-button size="small" @click="handlePrint">打印结算单</el-button>
           <el-button size="small" @click="logList">审核日志</el-button>
         </template>
         <div class="common-sub-title">
           <span>结算单号：{{ form.code || '-' }}</span>
           <i>|</i>
-          <span>签字状态：{{ form.singStatusLabel || '-' }}</span>
+          <span>签字状态：{{ form.signStatusLabel || '-' }}</span>
           <i>|</i>
           <span>结算单状态：{{ form.statementStatusLabel || '-' }}</span>
           <i>|</i>
@@ -257,6 +257,12 @@
         :info="form"
         @refresh="handleRefresh"
       />
+      <AddPayrecordDialog
+        :visible.sync="addPayrecordDialogVisible"
+        :serviceProxyId="_id"
+        :info="form"
+        @refresh="handleRefresh"
+      />
     </template>
     <template #right>
       <div class="page-common-edit">
@@ -267,7 +273,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/maintain/sp/serviceStatement/index';
+import { getDetail, addOrUpdate, reject } from '@/api/maintain/sp/serviceStatement/index';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -283,6 +289,7 @@ import PartsRecodr from '@/views/maintain/sp/serviceStatement/components/PartsRe
 import PayRecord from '@/views/maintain/sp/serviceStatement/components/PayRecord/index.vue';
 import SelectRightsDialog from './components/SelectRightsDialog';
 import SubmitSettlemenDialog from './components/SubmitSettlemenDialog';
+import AddPayrecordDialog from './components/AddPayrecordDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -373,8 +380,8 @@ export default {
     PartsRecodr,
     PayRecord,
     SelectRightsDialog,
-    SubmitSettlemenDialog
-
+    SubmitSettlemenDialog,
+    AddPayrecordDialog
   },
   computed: {
     _id () {
@@ -404,6 +411,7 @@ export default {
       submitLoading: false,
       rightsDialogVisible: false,
       submitSettlemenDialogVisible: false,
+      addPayrecordDialogVisible: false,
       tableData: [],
       form: { ...form },
       originalForm: { ...form },
@@ -427,8 +435,8 @@ export default {
       // 保险=372BB70C-82AC-E911-B0BB-FC82BA5F9EDF,
       // 内部结算=392BB70C-82AC-E911-B0BB-FC82BA5F9EDF (根据实际枚举值调整)
       const baseType = ['352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF'];
-      const validStatusForReject = [20]; // 待收款状态码
-      const validStatusForRefund = [10, 20]; // 待结算/待收款
+      const validStatusForReject = [30]; // 待收款状态码
+      const validStatusForRefund = [10, 30]; // 待结算/待收款
       const validTypesForWarranty = ['352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF']; // 自费/保险
       switch (type) {
         case 'reject':
@@ -521,14 +529,36 @@ export default {
 
     reject () {
       // 实现驳回功能
-      console.log('驳回');
-      // 这里可以添加具体的驳回逻辑
+      this.$confirm('您确定要驳回吗？', '确认操作', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 调用驳回接口
+        this.handleReject();
+      }).catch(() => {
+      });
     },
-
+    // 处理驳回逻辑
+    async handleReject () {
+      try {
+        // 假设驳回接口为 rejectStatement
+        await reject(this._id); // 需要引入相应的驳回API
+        this.$message.success('驳回成功');
+        // 刷新页面数据
+        this.handleRefresh();
+      } catch (error) {
+        console.error('驳回失败:', error);
+        this.$message.error('驳回失败');
+      }
+    },
     addInvoceRecord () {
       // 实现添加收款记录功能
-      console.log('添加收款记录');
-      // 这里可以添加具体的添加收款记录逻辑
+      if (this.form.payableAmount <= 0) {
+        this.$message.warning('剩余可添加的收款记录金额为0,暂时无法添加新的收款记录');
+        return;
+      }
+      this.addPayrecordDialogVisible = true;
     },
 
     paySuccess () {
@@ -551,10 +581,17 @@ export default {
 
     logList () {
       // 实现审核日志功能
-      console.log('审核日志');
+      this.$auditLog.show({ id: this._id });
       // 这里可以添加具体的审核日志跳转逻辑
     },
 
+    handlePrint () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'ServiceStatement', // 必选，对应 ./template/文件名.vue
+        title: `结算单：${this.form.code}`// 可选，打印标题
+      });
+    },
     handleRefresh () {
       this.detailRequest();
     },
