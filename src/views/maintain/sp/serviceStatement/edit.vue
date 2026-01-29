@@ -12,7 +12,7 @@
           <el-button size="small" @click="paySuccess" v-if="showButton('success')">完成收款</el-button>
           <el-button size="small" @click="createRefund" v-if="showButton('reCreate')">创建反结算单</el-button>
           <el-button size="small" @click="createWarrantyApply" v-if="showButton('createWarranty')">创建保修申请单</el-button>
-          <el-button size="small">打印结算单</el-button>
+          <el-button size="small" @click="handlePrint">打印结算单</el-button>
           <el-button size="small" @click="logList">审核日志</el-button>
         </template>
         <div class="common-sub-title">
@@ -581,10 +581,17 @@ export default {
 
     logList () {
       // 实现审核日志功能
-      console.log('审核日志');
+      this.$auditLog.show({ id: this._id });
       // 这里可以添加具体的审核日志跳转逻辑
     },
 
+    handlePrint () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'ServiceStatement', // 必选，对应 ./template/文件名.vue
+        title: `结算单：${this.form.code}`// 可选，打印标题
+      });
+    },
     handleRefresh () {
       this.detailRequest();
     },
