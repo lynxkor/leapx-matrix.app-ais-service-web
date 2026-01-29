@@ -319,7 +319,7 @@ export default {
         this.close();
         if (res.lastRecord) {
           this.signDialogVisible = true;
-           this.totalData = data;
+          this.totalData = data;
         }
       });
     },

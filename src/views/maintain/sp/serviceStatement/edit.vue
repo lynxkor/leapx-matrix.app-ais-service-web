@@ -8,7 +8,7 @@
           <el-button size="small" @click="rightsList" v-if="showButton('rights')">权益核销</el-button>
           <el-button size="small" @click="submitAndSing" v-if="showButton('sign')">提交结算并签字</el-button>
           <el-button size="small" @click="reject" v-if="showButton('reject')">驳回</el-button>
-          <el-button size="small" @click="addInvoceRecord" v-if="showButton('addRecord')">添加收款记录</el-button>
+          <el-button size="small" @click="addInvoceRecord">添加收款记录</el-button>
           <el-button size="small" @click="paySuccess" v-if="showButton('success')">完成收款</el-button>
           <el-button size="small" @click="createRefund" v-if="showButton('reCreate')">创建反结算单</el-button>
           <el-button size="small" @click="createWarrantyApply" v-if="showButton('createWarranty')">创建保修申请单</el-button>
@@ -267,7 +267,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate,reject } from '@/api/maintain/sp/serviceStatement/index';
+import { getDetail, addOrUpdate, reject } from '@/api/maintain/sp/serviceStatement/index';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -521,7 +521,7 @@ export default {
 
     reject () {
       // 实现驳回功能
-     this.$confirm('您确定要驳回吗？', '确认操作', {
+      this.$confirm('您确定要驳回吗？', '确认操作', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -533,21 +533,19 @@ export default {
         this.$message.info('已取消驳回操作');
       });
     },
-// 处理驳回逻辑
-async handleReject() {
-  try {
-    // 假设驳回接口为 rejectStatement
-    await reject(this._id); // 需要引入相应的驳回API
-
-    this.$message.success('驳回成功');
-
-    // 刷新页面数据
-    this.handleRefresh();
-  } catch (error) {
-    console.error('驳回失败:', error);
-    this.$message.error('驳回失败');
-  }
-},
+    // 处理驳回逻辑
+    async handleReject () {
+      try {
+        // 假设驳回接口为 rejectStatement
+        await reject(this._id); // 需要引入相应的驳回API
+        this.$message.success('驳回成功');
+        // 刷新页面数据
+        this.handleRefresh();
+      } catch (error) {
+        console.error('驳回失败:', error);
+        this.$message.error('驳回失败');
+      }
+    },
     addInvoceRecord () {
       // 实现添加收款记录功能
       console.log('添加收款记录');

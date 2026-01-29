@@ -38,10 +38,10 @@ export default {
       type: Boolean,
       default: false
     },
-      serviceProxyCode: {
-        type: String,
-        default: ''
-      },
+    serviceProxyCode: {
+      type: String,
+      default: ''
+    },
     serviceProxyId: {
       type: [String, Number],
       default: ''
@@ -96,7 +96,7 @@ export default {
       this.$refs.form.validate(valid => {
         if (valid) {
           this.submitLoading = true;
-          signSettlement({   serviceProxyCode: this.serviceProxyCode, signChannel: this.form.signChannel }).then(res => {
+          signSettlement({ serviceProxyCode: this.serviceProxyCode, signChannel: this.form.signChannel }).then(res => {
             this.$message.success('签字成功');
             this.$emit('update:visible', false);
             this.$emit('refresh');

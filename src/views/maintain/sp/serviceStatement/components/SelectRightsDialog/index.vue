@@ -94,9 +94,8 @@ export default {
   methods: {
     handleSelectionChange ({ records }) {
       this.tableData.forEach(row => {
-
-             // 否则正常处理选择状态
-             row.checked = records.some(item => item.rightsCode === row.rightsCode);
+        // 否则正常处理选择状态
+        row.checked = records.some(item => item.rightsCode === row.rightsCode);
       });
     },
 
@@ -196,7 +195,7 @@ export default {
       this.tableData = [];
     },
     // 设置行的CSS类名
-    tableRowClassName({ row }) {
+    tableRowClassName ({ row }) {
       if (row.isChange === false) {
         return 'disabled-row';
       }
@@ -204,7 +203,7 @@ export default {
     },
 
     // 控制复选框是否可用
-    checkMethod({ row }) {
+    checkMethod ({ row }) {
       return row.isChange === true; // 当isChange为false时，复选框不可选
     },
   }
