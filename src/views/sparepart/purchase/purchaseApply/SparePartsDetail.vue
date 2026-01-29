@@ -284,4 +284,9 @@ export default {
   color: #0A0E0A;
   margin-bottom: 10px;
 }
+.table-pagination {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+}
 </style>
