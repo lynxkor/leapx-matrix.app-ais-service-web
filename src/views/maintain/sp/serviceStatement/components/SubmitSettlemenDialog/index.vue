@@ -174,7 +174,7 @@
                 <vxe-column field="rightsCode" title="权益ID" width="150" />
                 <vxe-column field="useId" title="使用ID" width="150" />
                 <vxe-column field="rightsName" title="权益名称" min-width="180" show-overflow />
-                <vxe-column field="cardType" title="卡券类型" width="120">
+                <vxe-column field="cardTypeLabel" title="卡券类型" width="120">
                   <!-- <template #default="{ row }">
                     <el-tag :type="getRightsTypeColor(row.type)" size="small">
                       {{ row.type }}
@@ -184,7 +184,7 @@
                 <vxe-column field="paymentAmount" title="满减金额" width="120" />
                 <vxe-column field="effectDate" title="领券时间" width="170" />
                 <vxe-column field="expiryDate" title="有效期" width="120" />
-                <vxe-column field="rightsStatus" title="状态" width="120" />
+                <vxe-column field="rightsStatusLabel" title="状态" width="120" />
                 <template #empty>
                   <div class="m-vxe-table-empty-text">暂无数据</div>
                 </template>
@@ -202,6 +202,7 @@
     <SignDialog
       :visible.sync="signDialogVisible"
       :info="totalData"
+       :serviceProxyCode="info.serviceProxyCode"
       @refresh="handleRefresh"
     />
   </div>
@@ -318,6 +319,7 @@ export default {
         this.close();
         if (res.lastRecord) {
           this.signDialogVisible = true;
+           this.totalData = data;
         }
       });
     },
@@ -458,7 +460,7 @@ export default {
     getFinalData () {
       const data = {
         id: this.info.id,
-        serviceProxyCode: this.info.serviceProxyId,
+        serviceProxyCode: this.info.serviceProxyCode,
         noFractionAmount: this.roundAmount,
         discountId: this.discountMode?.id,
         repairItemList: this.projectData,
