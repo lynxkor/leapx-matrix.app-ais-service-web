@@ -57,7 +57,7 @@ export default {
     formData: {
       handler (val) {
         if (val) {
-          this.form = val;
+          this.form = JSON.parse(JSON.stringify(val));
         }
       },
       immediate: true

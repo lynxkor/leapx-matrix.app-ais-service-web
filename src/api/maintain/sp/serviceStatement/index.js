@@ -139,3 +139,11 @@ export function submitSettlement (data) {
 export function signSettlement (data) {
   return api.jsonPost(prefix + 'checkStatementConfirm', data);
 }
+
+/**
+ * 收款记录列表
+ * @param {Object} data
+ */
+export function getStatementPayRecord (data) {
+  return api.jsonPost('maintain/web/sp/serviceStatementInvoiceRecord/page', data);
+}
