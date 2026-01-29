@@ -7,8 +7,8 @@
         <template #extraButtons>
           <el-button size="small" @click="rightsList" v-if="showButton('rights')">权益核销</el-button>
           <el-button size="small" @click="submitAndSing" v-if="showButton('sign')">提交结算并签字</el-button>
-          <el-button size="small" @click="reject" v-if="showButton(reject)">驳回</el-button>
-          <el-button size="small" @click="addInvoceRecord" v-if="showButton('addRecord')">添加收款记录</el-button>
+          <el-button size="small" @click="reject" v-if="showButton('reject')">驳回</el-button>
+          <el-button size="small" @click="addInvoceRecord">添加收款记录</el-button>
           <el-button size="small" @click="paySuccess" v-if="showButton('success')">完成收款</el-button>
           <el-button size="small" @click="createRefund" v-if="showButton('reCreate')">创建反结算单</el-button>
           <el-button size="small" @click="createWarrantyApply" v-if="showButton('createWarranty')">创建保修申请单</el-button>
@@ -18,7 +18,7 @@
         <div class="common-sub-title">
           <span>结算单号：{{ form.code || '-' }}</span>
           <i>|</i>
-          <span>签字状态：{{ form.singStatusLabel || '-' }}</span>
+          <span>签字状态：{{ form.signStatusLabel || '-' }}</span>
           <i>|</i>
           <span>结算单状态：{{ form.statementStatusLabel || '-' }}</span>
           <i>|</i>
@@ -267,7 +267,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/maintain/sp/serviceStatement/index';
+import { getDetail, addOrUpdate, reject } from '@/api/maintain/sp/serviceStatement/index';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -427,8 +427,8 @@ export default {
       // 保险=372BB70C-82AC-E911-B0BB-FC82BA5F9EDF,
       // 内部结算=392BB70C-82AC-E911-B0BB-FC82BA5F9EDF (根据实际枚举值调整)
       const baseType = ['352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF'];
-      const validStatusForReject = [20]; // 待收款状态码
-      const validStatusForRefund = [10, 20]; // 待结算/待收款
+      const validStatusForReject = [30]; // 待收款状态码
+      const validStatusForRefund = [10, 30]; // 待结算/待收款
       const validTypesForWarranty = ['352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF']; // 自费/保险
       switch (type) {
         case 'reject':
@@ -521,10 +521,31 @@ export default {
 
     reject () {
       // 实现驳回功能
-      console.log('驳回');
-      // 这里可以添加具体的驳回逻辑
+      this.$confirm('您确定要驳回吗？', '确认操作', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 调用驳回接口
+        this.handleReject();
+      }).catch(() => {
+        // 用户取消操作
+        this.$message.info('已取消驳回操作');
+      });
     },
-
+    // 处理驳回逻辑
+    async handleReject () {
+      try {
+        // 假设驳回接口为 rejectStatement
+        await reject(this._id); // 需要引入相应的驳回API
+        this.$message.success('驳回成功');
+        // 刷新页面数据
+        this.handleRefresh();
+      } catch (error) {
+        console.error('驳回失败:', error);
+        this.$message.error('驳回失败');
+      }
+    },
     addInvoceRecord () {
       // 实现添加收款记录功能
       console.log('添加收款记录');

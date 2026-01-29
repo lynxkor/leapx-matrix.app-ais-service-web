@@ -23,9 +23,9 @@
           max-height="500"
           border="inner"
           size="medium"
-          :checkbox-config="{checkField: 'checked'}"
-          @checkbox-change="handleSelectionChange"
+          :checkbox-config="{checkField: 'checked', checkMethod: checkMethod}"          @checkbox-change="handleSelectionChange"
           @checkbox-all="handleSelectionChange"
+          :row-class-name="tableRowClassName"
         >
           <vxe-column type="checkbox" width="60" align="center" />
           <vxe-column field="rightsCode" title="权益ID" width="250" show-overflow="tooltip" />
@@ -38,9 +38,7 @@
           </vxe-column>
           <vxe-column field="cardDiscount" title="卡券折扣" width="100" align="right" />
           <vxe-column field="paymentAmount" title="满减金额" width="100" align="right">
-            <template #default="{ row }">
-              {{ row.paymentAmount ? formatAmount(row.paymentAmount) : '-' }}
-            </template>
+
           </vxe-column>
           <vxe-column field="createDate" title="领券时间" width="160" align="center" />
           <vxe-column field="effectDate" title="有效期" width="320" align="center">
@@ -96,6 +94,7 @@ export default {
   methods: {
     handleSelectionChange ({ records }) {
       this.tableData.forEach(row => {
+        // 否则正常处理选择状态
         row.checked = records.some(item => item.rightsCode === row.rightsCode);
       });
     },
@@ -194,7 +193,19 @@ export default {
 
     closed () {
       this.tableData = [];
-    }
+    },
+    // 设置行的CSS类名
+    tableRowClassName ({ row }) {
+      if (row.isChange === false) {
+        return 'disabled-row';
+      }
+      return '';
+    },
+
+    // 控制复选框是否可用
+    checkMethod ({ row }) {
+      return row.isChange === true; // 当isChange为false时，复选框不可选
+    },
   }
 };
 </script>
@@ -231,6 +242,19 @@ export default {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
+  }
+  ::v-deep .vxe-table .disabled-row {
+    background-color: #f5f7fa !important;
+    color: #c0c4cc !important;
+  }
+
+  ::v-deep .vxe-table .disabled-row .vxe-checkbox--icon {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+  }
+
+  ::v-deep .vxe-table .disabled-row .vxe-cell {
+    cursor: not-allowed !important;
   }
 }
 </style>
