@@ -1,7 +1,20 @@
 <template>
   <!-- TIPS: 如果填写项大于15项，使用类名page-common-edit替换page-common-add -->
-  <div class="page-common-add">
-    <el-container>
+  <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
+    <template #left>
+      <!-- TIPS: 如果需要竖排，direction="vertical" -->
+      <edit-base-container
+        ref="containerRef"
+        :id="_id"
+        :title="`仓库名称：${form.warehouseName}`"
+        :isEditing.sync="isEditing"
+        direction="vertical"
+        :form.sync="form"
+        :originalForm.sync="originalForm"
+        :submitRequest="submitRequest"
+        :detailRequest="detailRequest"
+        :dataTransform="dataTransform"
+      >
       <el-main>
         <section class="common-section">
           <div class="common-section-header">
@@ -10,8 +23,8 @@
           <div class="common-section-body">
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-            <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="仓库名称" prop="warehouseName">
+            <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              <el-form-item label="仓库名称：" prop="warehouseName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.warehouseName"
@@ -19,7 +32,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="仓库编码" prop="warehouseCode">
+              <el-form-item label="仓库编码：" prop="warehouseCode">
                 <el-input
                   placeholder="请输入"
                   v-model="form.warehouseCode"
@@ -28,7 +41,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="社会统一信用代码" prop="creditCode">
+              <el-form-item label="社会统一信用代码：" prop="creditCode">
                 <el-input
                   placeholder="请输入"
                   v-model="form.creditCode"
@@ -36,7 +49,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="省市区" prop="provinceCode">
+              <el-form-item label="省市区：" prop="provinceCode">
                 <el-cascader
                   placeholder="请选择省市区"
                   v-model="form.districtCode"
@@ -47,7 +60,7 @@
                   clearable>
                 </el-cascader>
               </el-form-item>
-              <el-form-item label="地址" prop="address">
+              <el-form-item label="地址：" prop="address">
                 <el-input
                   placeholder="请输入"
                   v-model="form.address"
@@ -55,7 +68,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="收货联系人" prop="receiverContact">
+              <el-form-item label="收货联系人：" prop="receiverContact">
                 <el-input
                   placeholder="请输入"
                   v-model="form.receiverContact"
@@ -63,7 +76,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="收货电话" prop="receiverPhone">
+              <el-form-item label="收货电话：" prop="receiverPhone">
                 <el-input
                   placeholder="请输入"
                   v-model="form.receiverPhone"
@@ -71,7 +84,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="备注" prop="remark">
+              <el-form-item label="备注：" prop="remark">
                 <el-input
                   placeholder="请输入"
                   type="textarea"
@@ -80,7 +93,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="状态" prop="status">
+              <el-form-item label="状态：" prop="status">
                 <fetch-select
                   :request="fetchOptions"
                   enumCode="StatusEnum"
@@ -92,16 +105,46 @@
                 />
               </el-form-item>
             </el-form>
+            <el-form :inline="true"  label-width="150px" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form-item label="仓库名称：" prop="warehouseName">
+                {{ form.warehouseName  }}
+              </el-form-item>
+              <el-form-item label="仓库编码：" prop="warehouseCode">
+                {{ form.warehouseCode  }}
+              </el-form-item>
+              <el-form-item label="社会统一信用代码：" prop="creditCode">
+                {{ form.creditCode  }}
+              </el-form-item>
+              <el-form-item label="省份名称：" prop="provinceName">
+                {{ form.provinceName  }}
+              </el-form-item>
+              <el-form-item label="城市名称：" prop="cityName">
+                {{ form.cityName  }}
+              </el-form-item>
+              <el-form-item label="区县名称：" prop="districtName">
+                {{ form.districtName  }}
+              </el-form-item>
+              <el-form-item label="详细地址：" prop="address">
+                {{ form.address  }}
+              </el-form-item>
+              <el-form-item label="备注：" prop="remark">
+                {{ form.remark  }}
+              </el-form-item>
+              <el-form-item label="状态：" prop="status">
+                {{ form.statusLabel  }}
+              </el-form-item>
+            </el-form>
           </div>
         </section>
       </el-main>
-      <el-footer height="60px">
-        <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-        <el-button size="small" @click="handleBack">取消</el-button>
-        <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
-      </el-footer>
-    </el-container>
-  </div>
+      </edit-base-container>
+    </template>
+    <template #right>
+      <div class="page-common-edit">
+        <!-- 右侧栏组件，自行开发 -->
+      </div>
+    </template>
+  </edit-page-layout>
 </template>
 
 <script>
@@ -113,6 +156,8 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { getAreaInfo } from '@/utils';
+import EditPageLayout from '@/libs/components/EditPageLayout';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -153,7 +198,9 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
-    FetchSelect
+    FetchSelect,
+    EditPageLayout,
+    EditBaseContainer,
   },
   computed: {
     _id () {
@@ -163,8 +210,8 @@ export default {
   watch: {
     id: {
       handler (val) {
-        if (val) {
-          this.getDetailData();
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
         }
       },
       immediate: true
@@ -174,11 +221,10 @@ export default {
     const form = this.getDefautlForm();
     return {
       areaOptions: JSON.parse(localStorage.areaTree),
-      pageTitle: '主机厂旧件仓库',
+      pageTitle: '主机厂仓库管理',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-oldPartOemWarehouse',
-      isEditing: false,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -212,51 +258,25 @@ export default {
             trigger: 'blur'
           }
         ],
-      }
+      },
     };
   },
-  mounted () {
-    this.getDetailData();
-  },
   methods: {
+    detailRequest () {
+      const id = this._id;
+      if (id) {
+        return getDetail(id);
+      }
+    },
+    dataTransform (data) {
+      let areaInfo = getAreaInfo(data.districtCode);
+      return Object.assign(data, areaInfo);
+    },
+    submitRequest () {
+      return addOrUpdate({ ...this.form });
+    },
     handleBack () {
       this.$router.back();
-    },
-    getDetailData () {
-      const id = this._id;
-      if (!this.id) {
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['主机厂旧件仓库', `${id ? '详情' : '新建'}`]);
-      }
-      if (id) {
-        getDetail(id).then(res => {
-          this.loading = false;
-          Object.assign(this.form, res);
-          Object.assign(this.originalForm, res);
-        });
-      }
-    },
-    submitForm (formName, rest = false) {
-      let areaInfo = getAreaInfo(this.form.districtCode);
-      Object.assign(this.form, areaInfo);
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          this.submitLoading = true;
-          addOrUpdate({ ...this.form }).then(res => {
-            this.$message({
-              message: '保存成功',
-              type: 'success'
-            });
-            const id = this.$route.query.id;
-            if (rest || !id) {
-              this.resetForm(formName);
-            } else {
-              this.getDetailData();
-            }
-          }).finally(() => {
-            this.submitLoading = false;
-          });
-        }
-      });
     },
     resetForm (formName) {
       this.$refs[formName].resetFields();
@@ -284,7 +304,7 @@ export default {
     },
     handleCascaderChange (value) {
       console.log(value);
-    }
+    },
   }
 };
 </script>
