@@ -10,14 +10,11 @@
         :form.sync="form"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :showEditBtn="false"
       >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
           <span class="status primary">状态</span>
-        </template>
-        <template #extraButtons>
-          <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -233,10 +230,10 @@
                 <el-form-item label="备件仓库：" prop="warehouseId">
                   {{ form.warehouseName }}
                 </el-form-item>
-                <el-form-item label="入库类型:" prop="inboundType">
+                <el-form-item label="入库类型：" prop="inboundType">
                   {{ form.inboundTypeLabel }}
                 </el-form-item>
-                <el-form-item label="入库状态:" prop="inboundStatus">
+                <el-form-item label="入库状态：" prop="inboundStatus">
                   {{ form.inboundStatusLabel }}
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
@@ -271,8 +268,7 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>区块标题</h2>
-              <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              <h2>入库明细信息</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
@@ -280,10 +276,13 @@
                   ref="editTable"
                   :columns="columns"
                   :data="tableData"
-                  :defaultNewRow="defaultNewRow"
                   :show-toolbar="false"
-                  :options="options"
-                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                  showPagination
+                  :current="current"
+                  :pageSize="pageSize"
+                  :total="total"
+                  @page-size-change="pageSizeChange"
+                  @current-page-change="currentPageChange"
                 />
               </div>
             </div>
@@ -300,7 +299,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/inbound/inboundOrder/index';
+import { getDetail, addOrUpdate, inboundOrderDetail } from '@/api/sparepart/inbound/inboundOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -386,38 +385,61 @@ export default {
       defaultNewRow: {
         name: '',
       },
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
+      pageSize: 10,
+      current: 1,
+      total: 0,
+      tableData: [],
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
           field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
+          title: '备件编码',
+          width: '10%',
         },
         {
           field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
+          title: '备件名称',
+          width: '10%',
         },
         {
-          field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
+          field: 'inboundQty',
+          title: '入库数量',
+          width: '10%',
+        },
+        {
+          field: 'price',
+          title: '价格',
+          width: '10%',
+        },
+        {
+          field: 'amount',
+          title: '金额',
+          width: '10%',
+        },
+        {
+          field: 'cashUnitPrice',
+          title: '现金单价',
+          width: '10%',
+        },
+        {
+          field: 'cashAmount',
+          title: '现金金额',
+          width: '10%',
+        },
+        {
+          field: 'rebateUnitPrice',
+          title: '返利单价',
+          width: '10%',
+        },
+        {
+          field: 'rebateAmount',
+          title: '返利金额',
+          width: '10%',
+        },
+        {
+          field: 'remark',
+          title: '备注',
+          width: '10%',
         },
       ],
       rules: {
@@ -425,7 +447,7 @@ export default {
           { required: true, message: '请输入入库单号', trigger: 'change' }
         ],
         businessOrderCode: [
-          { required: true, message: '请输入业务单号code', trigger: 'change' }
+          { required: true, message: '请输入业务单号', trigger: 'change' }
         ],
         dealerCode: [
           { required: true, message: '请输入门店编码', trigger: 'change' }
@@ -434,46 +456,22 @@ export default {
           { required: true, message: '请输入门店名称', trigger: 'change' }
         ],
         warehouseId: [
-          { required: true, message: '请输入备件仓库ID', trigger: 'change' }
+          { required: true, message: '请输入备件仓库', trigger: 'change' }
         ],
         inboundType: [
-          { required: true, message: '请选择入库类型:采购入库,调拨入库', trigger: 'change' }
+          { required: true, message: '请选择入库类型', trigger: 'change' }
         ],
         inboundStatus: [
-          { required: true, message: '请选择入库状态:未入库,已入库', trigger: 'change' }
+          { required: true, message: '请选择入库状态', trigger: 'change' }
         ],
         remark: [
           { required: true, message: '请输入备注', trigger: 'change' }
         ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
         status: [
           { required: true, message: '请选择状态', trigger: 'change' }
         ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
         businessOrderId: [
-          { required: true, message: '请输入业务单号ID', trigger: 'change' }
+          { required: true, message: '请输入业务单号', trigger: 'change' }
         ],
         inboundOperator: [
           { required: true, message: '请输入入库操作人', trigger: 'change' }
@@ -497,6 +495,7 @@ export default {
     };
   },
   mounted () {
+    this.getData();
   },
   methods: {
     detailRequest () {
@@ -545,7 +544,26 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    async getData () {
+      const params = {
+        pageNum: this.current,
+        pageSize: this.pageSize,
+        inboundOrderId: this._id
+      };
+      const res = await inboundOrderDetail(params);
+      this.tableData = res.records || [];
+      this.total = res.total || 0;
+    },
+    pageSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.current = 1;
+      this.getData();
+    },
+    currentPageChange (current) {
+      this.current = current;
+      this.getData();
+    },
   }
 };
 </script>
