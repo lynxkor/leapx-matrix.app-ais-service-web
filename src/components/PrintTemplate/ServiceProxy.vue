@@ -132,7 +132,7 @@
                     <td
                       colspan="7"
                       style="border-bottom-width: 0px; text-align: left"
-                    ></td>
+                    >(如涉及路试或其他特殊情况，请客户经理在此记录，避免纠纷)</td>
                   </tr>
                   <tr>
                     <td style="border-bottom-width: 0px; height: 40px">
@@ -141,7 +141,7 @@
                     <td
                       colspan="7"
                       style="border-bottom-width: 0px; text-align: left"
-                    ></td>
+                    >(如涉及路试或其他特殊情况，请客户经理在此记录，避免纠纷)</td>
                   </tr>
                   <tr>
                     <td style="border-bottom-width: 0px; height: 40px">
@@ -192,7 +192,13 @@
                             <th style="width: 150px">CCC名称</th>
                           </tr>
                         </thead>
-                        <tbody id="fault-list"></tbody>
+                        <tbody>
+                          <tr v-for="(item, index) in info.faultAlertRecordRespList" :key="index">
+                            <td>{{ item.vrtName }}</td>
+                            <td>{{ item.vfgName }}</td>
+                            <td>{{ item.cccName }}</td>
+                          </tr>
+                        </tbody>
                       </table>
                     </td>
                   </tr>
@@ -247,7 +253,20 @@
                     <th style="width: 60px">是否增项</th>
                   </tr>
                 </thead>
-                <tbody id="data-list"></tbody>
+                <tbody>
+                  <tr v-for="(item, index) in info.costCountResp?.repairItemRespList" :key="index">
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ item.repairItemTypeName }}</td>
+                    <td>{{ item.repairItemCode }}</td>
+                    <td>{{ item.repairItemName }}</td>
+                    <td>{{ item.checkoutTypeName }}</td>
+                    <td>{{ item.workHour }}</td>
+                    <td>{{ item.price }}</td>
+                    <td>{{ item.discountAmount }}</td>
+                    <td>{{ item.repairAmount }}</td>
+                    <td>{{ item.isAddItems === 1 ? '是' : '否' }}</td>
+                  </tr>
+                </tbody>
               </table>
             </td>
           </tr>
@@ -288,7 +307,21 @@
                     <th style="width: 60px">是否原厂</th>
                   </tr>
                 </thead>
-                <tbody id="part-list"></tbody>
+                <tbody>
+                  <tr v-for="(item, index) in info.costCountResp?.sparePartRespList" :key="index">
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ item.repairItemTypeName }}</td>
+                    <td>{{ item.partsCode }}</td>
+                    <td>{{ item.partsName }}</td>
+                    <td>{{ item.checkoutTypeName }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.price }}</td>
+                    <td>{{ item.discountAmount }}</td>
+                    <td>{{ item.partsAmount }}</td>
+                    <td>{{ item.isAddItems === 1 ? '是' : '否' }}</td>
+                    <td>{{ item.isOemPart === 1 ? '是' : '否' }}</td>
+                  </tr>
+                </tbody>
               </table>
             </td>
           </tr>
@@ -361,7 +394,7 @@
                     <td>日期</td>
                     <td colspan="2"></td>
                     <td>日期</td>
-                    <td colspan="2">{{ info.signCompletedOn }}</td>
+                    <td colspan="2"></td>
                   </tr>
                 </tbody>
               </table>

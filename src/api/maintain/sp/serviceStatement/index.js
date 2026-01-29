@@ -147,3 +147,11 @@ export function signSettlement (data) {
 export function getStatementPayRecord (data) {
   return api.jsonPost('maintain/web/sp/serviceStatementInvoiceRecord/page', data);
 }
+
+/**
+ * 查询打印信息
+ * @param {Object} data
+ */
+export function getPrintInfo (data) {
+  return api.jsonPost(prefix + 'print', data);
+}
