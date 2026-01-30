@@ -127,6 +127,7 @@ const defaultForm = {
   companyNameList: '',
   createTime: '',
   updateTime: '',
+  accountType: 'FUND',
 };
 
 const pageSize = 20;

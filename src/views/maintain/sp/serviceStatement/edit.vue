@@ -8,7 +8,7 @@
           <el-button size="small" @click="rightsList" v-if="showButton('rights')">权益核销</el-button>
           <el-button size="small" @click="submitAndSing" v-if="showButton('sign')">提交结算并签字</el-button>
           <el-button size="small" @click="reject" v-if="showButton('reject')">驳回</el-button>
-          <el-button size="small" @click="addInvoceRecord">添加收款记录</el-button>
+          <el-button size="small" @click="addInvoiceRecord" v-if="showButton('addRecord')">添加收款记录</el-button>
           <el-button size="small" @click="paySuccess" v-if="showButton('success')">完成收款</el-button>
           <el-button size="small" @click="createRefund" v-if="showButton('reCreate')">创建反结算单</el-button>
           <el-button size="small" @click="createWarrantyApply" v-if="showButton('createWarranty')">创建保修申请单</el-button>
@@ -248,7 +248,7 @@
       </edit-base-container>
       <SelectRightsDialog
         :visible.sync="rightsDialogVisible"
-        :serviceProxyId="_id"
+        :statementId="_id"
         @refresh="handleRefresh"
       />
       <SubmitSettlemenDialog
@@ -273,7 +273,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, reject } from '@/api/maintain/sp/serviceStatement/index';
+import { getDetail, addOrUpdate, reject,receiptCompletion } from '@/api/maintain/sp/serviceStatement/index';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -433,8 +433,8 @@ export default {
       // 驳回按钮：自费、保险、内部结算类型，且状态为待收款
       // 自费=352BB70C-82AC-E911-B0BB-FC82BA5F9EDF,
       // 保险=372BB70C-82AC-E911-B0BB-FC82BA5F9EDF,
-      // 内部结算=392BB70C-82AC-E911-B0BB-FC82BA5F9EDF (根据实际枚举值调整)
-      const baseType = ['352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF'];
+      // 内部结算=3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF(根据实际枚举值调整)
+      const baseType = ['352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF'];
       const validStatusForReject = [30]; // 待收款状态码
       const validStatusForRefund = [10, 30]; // 待结算/待收款
       const validTypesForWarranty = ['352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF']; // 自费/保险
@@ -452,7 +452,7 @@ export default {
 
         case 'success':
           // 收款成功：结算类型为自费/保险/内部结算，状态为待收款
-          var isPendingPayment = this.form.statementStatus === 20; // 待收款状态
+          var isPendingPayment = this.form.statementStatus === 30; // 待收款状态
           var isValidTypeForPayment = baseType.includes(this.form.statementType);
           return isValidTypeForPayment && isPendingPayment;
 
@@ -465,13 +465,13 @@ export default {
         case 'addRecord':
           // 收款记录：结算类型为自费/保险/内部结算，状态为待收款
           var isValidTypeForRecord = baseType.includes(this.form.statementType);
-          var isPendingPaymentRecord = this.form.statementStatus === 20; // 待收款状态
+          var isPendingPaymentRecord = this.form.statementStatus === 30; // 待收款状态
           return isValidTypeForRecord && isPendingPaymentRecord;
 
         case 'createWarranty':
           // 创建保单：结算类型为自费/保险，状态为已完成
           var isCompletedStatus = this.form.statementStatus === 30; // 已完成状态
-          var isValidTypeForWarranty = validTypesForWarranty.includes(this.form.statementType);
+          var isValidTypeForWarranty = this.form.statementType==='392BB70C-82AC-E911-B0BB-FC82BA5F9EDF';
           return isValidTypeForWarranty && isCompletedStatus;
 
         case 'rights':
@@ -552,7 +552,7 @@ export default {
         this.$message.error('驳回失败');
       }
     },
-    addInvoceRecord () {
+    addInvoiceRecord () {
       // 实现添加收款记录功能
       if (this.form.payableAmount <= 0) {
         this.$message.warning('剩余可添加的收款记录金额为0,暂时无法添加新的收款记录');
@@ -562,10 +562,52 @@ export default {
     },
 
     paySuccess () {
-      // 实现完成收款功能
-      console.log('完成收款');
-      // 这里可以添加具体的完成收款逻辑
+       // 1. 验证金额一致性
+       const invoiceRecords = this.form.invoiceRecordResps || [];
+       const totalPayAmount = invoiceRecords.reduce((sum, record) => {
+         return sum + (+record.payAmount || 0);
+       }, 0);
+         const payableAmount = +this.form.payableAmount || 0;
+          if (totalPayAmount === 0 && payableAmount === 0) {
+             // 直接执行收款完成
+             this.confirmPaySuccess();
+           } else if (totalPayAmount !== payableAmount) {
+             // 金额不一致时提示错误
+             this.$message.warning(
+               `结账记录总金额${totalPayAmount.toFixed(2)}不等于结算单应付总金额${payableAmount.toFixed(2)}！`
+             );
+           } else {
+             // 金额一致时弹出确认对话框
+             this.confirmPaySuccess();
+           }
     },
+// 确认收款完成
+confirmPaySuccess() {
+  this.$confirm('您确定要收款完成吗？', '确认操作', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    this.handlePaySuccess();
+  }).catch(() => {
+    this.$message.info('已取消收款完成操作');
+  });
+},
+// 处理收款完成逻辑
+async handlePaySuccess() {
+  try {
+    // 调用收款完成API
+    await receiptCompletion(this._id);
+
+    this.$message.success('收款完成成功');
+
+    // 刷新页面数据
+    this.handleRefresh();
+  } catch (error) {
+    console.error('收款完成失败:', error);
+    this.$message.error('收款失败');
+  }
+},
 
     createRefund () {
       // 实现创建反结算单功能
@@ -575,7 +617,7 @@ export default {
 
     createWarrantyApply () {
       // 实现创建保修申请单功能
-      console.log('创建保修申请单');
+    this.$message.warning('功能开发中...');
       // 这里可以添加具体的创建保修申请单逻辑
     },
 

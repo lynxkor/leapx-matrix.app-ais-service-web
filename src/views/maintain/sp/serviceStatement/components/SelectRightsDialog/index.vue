@@ -18,35 +18,80 @@
           ref="rightsTable"
           :data="tableData"
           stripe
-          :row-config="{isHover: true}"
+          :row-config="{ isHover: true }"
           resizable
           max-height="500"
           border="inner"
           size="medium"
-          :checkbox-config="{checkField: 'checked', checkMethod: checkMethod}"          @checkbox-change="handleSelectionChange"
+          :checkbox-config="{ checkField: 'checked', checkMethod: checkMethod }"
+          @checkbox-change="handleSelectionChange"
           @checkbox-all="handleSelectionChange"
           :row-class-name="tableRowClassName"
         >
           <vxe-column type="checkbox" width="60" align="center" />
-          <vxe-column field="rightsCode" title="权益ID" width="250" show-overflow="tooltip" />
-          <vxe-column field="rightsName" title="权益名称" width="200" show-overflow="tooltip" />
-          <vxe-column field="cardTypeLabel" title="卡券类型" width="120" align="center" />
-          <vxe-column field="serviceType" title="适用维修类型" width="120" align="center">
+          <vxe-column
+            field="rightsCode"
+            title="权益ID"
+            width="250"
+            show-overflow="tooltip"
+          />
+          <vxe-column
+            field="rightsName"
+            title="权益名称"
+            width="200"
+            show-overflow="tooltip"
+          />
+          <vxe-column
+            field="cardTypeLabel"
+            title="卡券类型"
+            width="120"
+            align="center"
+          />
+          <vxe-column
+            field="applicableMaintenanceType"
+            title="适用维修类型"
+            width="120"
+            align="center"
+          >
             <template #default="{ row }">
-              {{ getServiceTypeText(row.serviceType) }}
+              {{ getServiceTypeText(row.relatedRepairTypeList) }}
             </template>
           </vxe-column>
-          <vxe-column field="cardDiscount" title="卡券折扣" width="100" align="right" />
-          <vxe-column field="paymentAmount" title="满减金额" width="100" align="right">
-
+          <vxe-column
+            field="cardDiscount"
+            title="卡券折扣"
+            width="100"
+            align="right"
+          />
+          <vxe-column
+            field="paymentAmount"
+            title="满减金额"
+            width="100"
+            align="right"
+          >
           </vxe-column>
-          <vxe-column field="createDate" title="领券时间" width="160" align="center" />
-          <vxe-column field="effectDate" title="有效期" width="320" align="center">
+          <vxe-column
+            field="createDate"
+            title="领券时间"
+            width="160"
+            align="center"
+          />
+          <vxe-column
+            field="effectDate"
+            title="有效期"
+            width="320"
+            align="center"
+          >
             <template #default="{ row }">
               {{ getValidityPeriodText(row) }}
             </template>
           </vxe-column>
-          <vxe-column field="rightsStatusLabel" title="状态" width="100" align="center">
+          <vxe-column
+            field="rightsStatusLabel"
+            title="状态"
+            width="100"
+            align="center"
+          >
           </vxe-column>
         </vxe-table>
       </div>
@@ -54,167 +99,192 @@
     <template v-slot:footer>
       <div class="dialog-footer">
         <el-button size="small" @click="close">取 消</el-button>
-        <el-button size="small" :loading="submitLoading" type="primary" @click="submit">核销选中权益</el-button>
+        <el-button
+          size="small"
+          :loading="submitLoading"
+          type="primary"
+          @click="submit"
+          >核销选中权益</el-button
+        >
       </div>
     </template>
   </el-dialog>
 </template>
 
 <script>
-import { rightsList, rightsFreeze } from '@/api/maintain/sp/serviceStatement/index';
+import {
+  rightsList,
+  rightsFreeze,
+} from "@/api/maintain/sp/serviceStatement/index";
 
 export default {
-  name: 'SelectRightsDialog',
+  name: "SelectRightsDialog",
   props: {
     visible: {
       type: Boolean,
-      default: false
+      default: false,
     },
-    serviceProxyId: {
+    statementId: {
       type: String,
-      default: ''
-    }
+      default: "",
+    },
   },
-  data () {
+  data() {
     return {
       dialogVisible: this.visible,
       loading: false,
       submitLoading: false,
-      tableData: []
+      tableData: [],
     };
   },
   watch: {
-    visible (val) {
+    visible(val) {
       this.dialogVisible = val;
       if (val) {
         this.initData();
       }
-    }
+    },
   },
   methods: {
-    handleSelectionChange ({ records }) {
-      this.tableData.forEach(row => {
+    handleSelectionChange({ records }) {
+      this.tableData.forEach((row) => {
         // 否则正常处理选择状态
-        row.checked = records.some(item => item.rightsCode === row.rightsCode);
+        row.checked = records.some((item) => item.useId === row.useId);
       });
     },
 
     // 获取权益列表
-    async initData () {
+    async initData() {
       try {
         this.loading = true;
-        const res = await rightsList(this.serviceProxyId);
-        this.tableData = (res || []).map(item => ({ ...item, checked: false }));
+        const res = await rightsList(this.statementId);
+        this.tableData = (res || []).map((item) => ({
+          ...item,
+          checked: false,
+        }));
       } catch (error) {
-        console.error('获取权益列表异常:', error);
-        this.$message.error('获取权益列表失败');
+        console.error("获取权益列表异常:", error);
+        this.$message.error("获取权益列表失败");
       } finally {
         this.loading = false;
       }
     },
 
     // 获取维修类型文本
-    getServiceTypeText (serviceType) {
-      const typeMap = {
-        1: '保养',
-        2: '维修',
-        3: '喷漆',
-        4: '钣金'
-      };
-      return typeMap[serviceType] || '-';
+    getServiceTypeText(serviceType) {
+      if (!serviceType || !Array.isArray(serviceType)) {
+        return "-";
+      }
+      // 循环获取每个维修类型的名称并用逗号拼接
+      const typeNames = serviceType.map((item) => {
+        // 如果是对象，取repairTypeName字段；如果是数字，直接映射
+        if (typeof item === "object" && item.repairTypeName) {
+          return item.repairTypeName;
+        }
+      });
+
+      return typeNames.join(",") || "-";
     },
 
     // 格式化金额
-    formatAmount (amount) {
-      if (!amount) return '-';
+    formatAmount(amount) {
+      if (!amount) return "-";
       return parseFloat(amount).toFixed(2);
     },
 
     // 获取有效期文本
-    getValidityPeriodText (row) {
-      const effectDate = row.effectDate || '';
-      const expiryDate = row.expiryDate || '';
+    getValidityPeriodText(row) {
+      const effectDate = row.effectDate || "";
+      const expiryDate = row.expiryDate || "";
       return `${effectDate} ~ ${expiryDate}`;
     },
 
     // 获取状态文本
-    getStatusText (status) {
+    getStatusText(status) {
       const statusMap = {
-        1: '未使用',
-        2: '已使用',
-        3: '已过期',
-        4: '已冻结'
+        1: "未使用",
+        2: "已使用",
+        3: "已过期",
+        4: "已冻结",
       };
-      return statusMap[status] || '未知';
+      return statusMap[status] || "未知";
     },
 
     // 获取状态标签类型
-    getStatusType (status) {
+    getStatusType(status) {
       const typeMap = {
-        1: 'success',
-        2: 'info',
-        3: 'warning',
-        4: 'danger'
+        1: "success",
+        2: "info",
+        3: "warning",
+        4: "danger",
       };
-      return typeMap[status] || 'info';
+      return typeMap[status] || "info";
     },
 
     // 提交核销
-    async submit () {
-      const selectedRows = this.tableData.filter(row => row.checked);
+    async submit() {
+      const selectedRows = this.tableData.filter((row) => row.checked);
 
       if (selectedRows.length === 0) {
-        this.$message.warning('请选择要核销的权益');
+        this.$message.warning("请选择要核销的权益");
         return;
       }
-
       try {
         this.submitLoading = true;
         const params = {
-          statementId: this.serviceProxyId,
-          writeOffReqList: selectedRows
+          statementId: this.statementId,
+          writeOffReqList: selectedRows,
         };
 
         await rightsFreeze(params);
-        this.$message.success('权益核销成功');
-        this.$emit('refresh');
+        this.$message.success("权益核销成功");
+        this.$emit("refresh");
         this.close();
       } catch (error) {
-        console.error('权益核销异常:', error);
-        this.$message.error('权益核销失败');
+        console.error("权益核销异常:", error);
+        this.$message.error("权益核销失败");
       } finally {
         this.submitLoading = false;
       }
     },
 
-    close () {
-      this.$emit('update:visible', false);
+    close() {
+      this.$emit("update:visible", false);
     },
 
-    closed () {
+    closed() {
       this.tableData = [];
     },
     // 设置行的CSS类名
-    tableRowClassName ({ row }) {
+    tableRowClassName({ row }) {
       if (row.isChange === false) {
-        return 'disabled-row';
+        return "disabled-row";
       }
-      return '';
+      return "";
     },
 
     // 控制复选框是否可用
-    checkMethod ({ row }) {
+    checkMethod({ row }) {
       return row.isChange === true; // 当isChange为false时，复选框不可选
     },
-  }
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 .m-select-rights-dialog {
-  ::v-deep .vxe-table--render-default.size--medium .vxe-header--column.is--padding .vxe-cell,
-  ::v-deep .vxe-table--render-default .vxe-body--column:not(.col--active).col--ellipsis > .vxe-cell,
-  ::v-deep .vxe-table--render-default.size--medium .vxe-body--column.is--padding .vxe-cell {
+  ::v-deep
+    .vxe-table--render-default.size--medium
+    .vxe-header--column.is--padding
+    .vxe-cell,
+  ::v-deep
+    .vxe-table--render-default
+    .vxe-body--column:not(.col--active).col--ellipsis
+    > .vxe-cell,
+  ::v-deep
+    .vxe-table--render-default.size--medium
+    .vxe-body--column.is--padding
+    .vxe-cell {
     padding: 8px 12px !important;
   }
 

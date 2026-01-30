@@ -267,6 +267,12 @@ export default {
                 this.repairPopup(row);
               },
               type: 'info'
+            }, {
+              name: '打印',
+              click: (rowIndex, row) => {
+                this.handlePrint(row);
+              },
+              type: 'info'
             }]
           }
         ],
@@ -481,7 +487,15 @@ export default {
     handlePrintSettingsSuccess () {
       this.printSettingsVisible = false;
       this.getData();
-    }
+    },
+    // 维修出库单打印
+    handlePrint (val) {
+      this.$print.show({
+        id: val.id, // 必选，对应数据id
+        template: 'MaintenanceOutbound', // 必选，对应 ./template/文件名.vue
+        title: `${val.dealerName}维修出库单`// 可选，打印标题
+      });
+    },
   }
 };
 </script>
