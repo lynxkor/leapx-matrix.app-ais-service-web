@@ -216,10 +216,9 @@ export default {
   },
   methods: {
     initData() {
-
-        // this.handleAdd();
-        this.fetchOptions();
-        this.getPayList();
+      // this.handleAdd();
+      this.fetchOptions();
+      this.getPayList();
     },
     getPayList() {
       getStatementPayRecord({
@@ -241,7 +240,6 @@ export default {
     },
     close() {
       this.$emit("update:visible", false);
-
     },
     closed() {
       // this.tableData = [];
@@ -261,7 +259,7 @@ export default {
     // 关闭弹窗
     handleClose() {
       this.close();
-       this.clearFormData();
+      this.clearFormData();
     },
     // 新增收款记录
     handleAdd() {
