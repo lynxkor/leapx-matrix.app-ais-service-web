@@ -33,12 +33,13 @@
           <el-form-item
             v-if="form.acceptanceResult === '1'"
             class="form-item-full"
-            :label="'附件上传：'"
+            :label="'不合格附件：'"
             prop="attachFileList"
           >
             <AisAttachment
               ref="attachment"
-              :businessId="form.id"
+              :businessId="_id"
+              :noEcho="true"
             />
           </el-form-item>
           <el-form-item class="form-item-full" label="验收备注：" prop="checkRemark">
@@ -58,7 +59,7 @@
     <template v-slot:footer>
       <div class="dialog-footer">
         <el-button size="small" @click="close">取 消</el-button>
-        <el-button :disabled="!form.id" size="small" type="primary" :loading="submitLoading" @click="submit">确 定</el-button>
+        <el-button size="small" type="primary" :loading="submitLoading" @click="submit">确 定</el-button>
       </div>
     </template>
   </el-dialog>
@@ -130,9 +131,6 @@ export default {
         this.onReset();
       }
     },
-    'form.attachFileList' () {
-      console.log('附件列表变化：', this.form.attachFileList);
-    }
   },
   methods: {
     close () {
@@ -146,10 +144,10 @@ export default {
           return;
         }
         this.submitLoading = true;
-        const attachFileList = this.$refs.attachment.getAttachment();
+        const attachFileList = this.$refs.attachment?.getAttachment();
 
         reCheck({
-          oldPartInventoryDetailId: this.form.id,
+          oldPartInventoryDetailId: this._id,
           checkRemark: this.form.checkRemark,
           unqualifiedCode: this.form.unqualifiedCode,
           attachFileList: attachFileList,

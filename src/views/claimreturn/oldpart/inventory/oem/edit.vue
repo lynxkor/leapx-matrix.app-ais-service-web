@@ -13,7 +13,8 @@
         :detailRequest="detailRequest"
       >
         <template #extraButtons>
-          <el-button v-if="canAddOrUpdate" @click="onSecondAcceptance" size="small">二次验收</el-button>
+          <!-- 验收不合格的单子才展示 -->
+          <el-button v-if="canAddOrUpdate && form.oemStatus === '800'" @click="onSecondAcceptance" size="small">二次验收</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -77,8 +78,8 @@
                 <el-form-item label="二次索赔明细：" prop="dutySupplierId">
                   {{form.dutySupplierId}}
                 </el-form-item>
-                <el-form-item label="索赔追溯单号：" prop="w">
-                  {{'---------'}}
+                <el-form-item label="索赔追溯单号：" prop="">
+                  下一期开发
                 </el-form-item>
                 <!--  -->
                 <el-form-item v-show="isEditing || !_id" class="form-item-full" label="备注：" prop="remark">
@@ -124,12 +125,24 @@
                   {{form.unqualifiedDesc}}
                 </el-form-item>
                 <el-form-item class="form-item-full" label="关联快返回运单号：" prop="returnOrderHisList">
-                  <span @click="() => {}" v-for="item in form.returnOrderHisList" :key="item.id">
-                    {{ item.returnOrderNo }},
+                  <span
+                    v-for="(item, index) in form.returnOrderHisList" :key="item.returnOrderId"
+                    class="href-link"
+                    @click="() => {
+                      $router.push({
+                        path: '/claimreturn/oldpart/returnorder/edit',
+                        query: {
+                          id: item.returnOrderId,
+                        }
+                      });
+                    }" >
+                    {{ item.returnOrderNo }}
+                    <span v-if="index !== form.returnOrderHisList.length - 1">,</span>
                   </span>
                 </el-form-item>
                 <el-form-item class="form-item-full" label="附件材料：">
                   <AisAttachment
+                    ref="attachment"
                     :businessId="_id"
                     :readonly="true"
                   />
@@ -184,12 +197,12 @@
             </div>
           </section>
         </el-main>
+        <second-dialog
+          :visible.sync="visible"
+          :_id="_id"
+          @refresh="refresh"
+        />
       </edit-base-container>
-      <SingleDialog
-        :visible.sync="visible"
-        :_id="_id"
-        @refresh="refresh"
-      />
     </template>
     <template #right>
       <div class="page-common-edit">
@@ -209,7 +222,7 @@ import EditPageLayout from '@/libs/components/EditPageLayout';
 import commonMixins from '@/libs/mixins/commonMixins';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
 import AisAttachment from '@/libs/components/AisAttachment';
-import SingleDialog from './SingleDialog/index.vue';
+import SecondDialog from './SecondDialog/index.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -293,7 +306,7 @@ export default {
     EditPageLayout,
     BaseInput,
     AisAttachment,
-    SingleDialog,
+    SecondDialog,
   },
   computed: {
     _id () {
@@ -372,6 +385,7 @@ export default {
     },
     refresh () {
       this.$refs.containerRef.loadDetail();
+      this.$refs.attachment.update();
     }
   }
 };

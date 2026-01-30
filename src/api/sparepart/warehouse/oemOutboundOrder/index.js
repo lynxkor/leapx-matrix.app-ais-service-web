@@ -43,3 +43,11 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * OEM出库明细表分页查询
+ * @param {Object} data
+ */
+export function oemOutboundOrderDetail (data) {
+  return api.jsonPost('sp/web/purchase/oemOutboundOrderDetail/page', data);
+}

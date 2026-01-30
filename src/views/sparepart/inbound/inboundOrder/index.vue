@@ -240,14 +240,9 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
-              name: '编辑',
+              name: '打印',
               click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/inbound/inboundOrder/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
+                this.handlePrint(row);
               },
               type: 'info'
             }, {
@@ -420,6 +415,14 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    // 打印备件入库单
+    handlePrint (val) {
+      this.$print.show({
+        id: val.id, // 必选，对应数据id
+        template: 'SparePartsStorage', // 必选，对应 ./template/文件名.vue
+        title: `${val.dealerName}厅店备件入库单`// 可选，打印标题
+      });
     },
     // 批量删除
     handleBatchDelete () {
