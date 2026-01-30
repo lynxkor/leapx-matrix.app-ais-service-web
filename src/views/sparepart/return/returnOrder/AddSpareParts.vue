@@ -4,9 +4,9 @@
         <el-form :inline="true" :model="form" size="small" label-position="right" label-width="150px"
             class="ais-search-form">
             <el-form-item label="备件编码/名称">
-                <!-- <fetch-select prop="sparePartCode" filterable clearable remote reserve-keyword
-                    v-model="form.sparePartIdList" :remote-method="getSparePart" labelKey="code" valueKey="code"
-                    subLabelKey="name" /> -->
+                <fetch-select prop="sparePartCode" filterable clearable remote reserve-keyword
+                    v-model="form.sparePartIdList" :remote-method="listSparePart" labelKey="code" valueKey="code"
+                    subLabelKey="name" />
             </el-form-item>
             <el-form-item label="采购单号">
                 <tag-input v-model="form.purchaseOrderCodeList" placeholder="请输入" />
@@ -15,14 +15,14 @@
                 <tag-input v-model="form.inboundOrderCodeList" placeholder="请输入" />
             </el-form-item>
             <el-form-item label="可用库存数量大于0">
-                <el-switch v-model="form.availableQtyGreater" active-color="#13ce66" inactive-color="#ff4949">
+                <el-switch v-model="form.availableQtyGreater" active-color="#71e2a3" inactive-color="#ff4949">
                 </el-switch>
             </el-form-item>
             <el-form-item label="可退库存数量大于0">
-                <el-switch v-model="form.returnableQtyGreater" active-color="#13ce66" inactive-color="#ff4949">
+                <el-switch v-model="form.returnableQtyGreater" active-color="#71e2a3" inactive-color="#ff4949">
                 </el-switch>
             </el-form-item>
-            <page-search-action v-model="show" :isExpandable="false" is-expandable :loading="loading" @submit="onSubmit"
+            <page-search-action v-model="show" :isExpandable="false" :loading="loading" @submit="onSubmit"
                 @reset="onReset" />
         </el-form>
         <!-- 数据表格 -->
@@ -35,10 +35,18 @@
                 <vxe-column field="partName" title="备件名称" />
                 <vxe-column field="inboundOrderId" title="入库单号" />
                 <vxe-column field="purchaseOrderId" title="采购单号" />
-                <vxe-column field="outboundQty" title="采购日期" />
-                <vxe-column field="outboundQty" title="可用库存" />
-                <vxe-column field="outboundQty" title="可退数量" />
-                <vxe-column field="outboundQty" title="备注" />
+                <vxe-column field="purchaseDate" title="采购日期" />
+                <vxe-column field="availableQty" title="可用库存" />
+                <vxe-column field="returnableQty" title="可退数量" >
+                    <template #default="{ row }">
+                        <el-input v-model="row.returnableQty" type="number" min="0" />
+                    </template>
+                </vxe-column>
+                <vxe-column field="remark" title="备注" >
+                    <template #default="{ row }">
+                        <el-input v-model="row.remark" type="text" />
+                    </template>
+                </vxe-column>
                 <div class="table-pagination">
                     <el-pagination @size-change="(val) => pageSizeChange(val)"
                         @current-change="(val) => currentPageChange(val)" :current-page="current"
@@ -64,12 +72,14 @@ import { addPartPage } from '@/api/sparepart/return/returnOrder/index';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import TagInput from '@/libs/components/TagInput';
 import { getSparePart } from '@/api/sparepart/basic/sparePart/index';
+import FetchSelect from '@/libs/components/FetchSelect';
 
 export default {
   name: 'AddSpareParts',
-  comments: {
+  components: {
     PageSearchAction,
-    TagInput
+    TagInput,
+    FetchSelect
   },
   props: {
     visible: {
