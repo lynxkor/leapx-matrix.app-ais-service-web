@@ -20,7 +20,7 @@
         </template>
         <template #extraButtons>
           <el-button v-if="form.outboundStatus === '10'" size="small" @click="outboundConfirm">确认出库</el-button>
-          <el-button v-if="form.outboundStatus === '20'" size="small" @click="syncConfirm">同步</el-button>
+          <el-button v-if="form.outboundStatus === '20' && form.syncStatus === '30'" size="small" @click="syncConfirm">同步</el-button>
           <el-button size="small" @click="printOutbound">打印出库单</el-button>
         </template>
         <el-main>
@@ -208,7 +208,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, confirmOutbound } from '@/api/claimreturn/oldpart/outbound/index';
+import { getDetail, addOrUpdate, confirmOutbound, sync } from '@/api/claimreturn/oldpart/outbound/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -281,8 +281,8 @@ export default {
   watch: {
     id: {
       handler (val) {
-        if (val && this.$refs.containerRef) {
-          this.$refs.containerRef.loadDetail();
+        if (val) {
+          this.updateDetail();
         }
       },
       immediate: true
@@ -359,6 +359,9 @@ export default {
   mounted () {
   },
   methods: {
+    updateDetail () {
+      this.$refs.containerRef?.loadDetail();
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -429,12 +432,15 @@ export default {
       }).then(() => {
         confirmOutbound(this._id).then(res => {
           this.$message.success('出库成功');
-          this.$refs.containerRef.loadDetail();
+          this.updateDetail();
         });
       });
     },
     syncConfirm () {
-
+      sync(this._id).then(res => {
+        this.updateDetail();
+        this.$message.success('同步成功');
+      });
     },
     printOutbound () {
       this.$print.show({

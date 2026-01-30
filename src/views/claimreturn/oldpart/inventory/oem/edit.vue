@@ -177,9 +177,8 @@
             </div>
             <div class="common-section-body">
               <el-form :inline="true" label-width="150px"  class="form-detail">
-                <!-- TODO 这里需要跳转 -->
                 <el-form-item label="旧件销毁单：" prop="oldPartDestroyOrderNo">
-                  {{form.oldPartDestroyOrderNo}}
+                  <el-button class="link" @click="$router.push(`/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit?id=${form.oldPartDestroyOrderId}`)" type="text">{{form.oldPartDestroyOrderNo}}</el-button>
                 </el-form-item>
                 <!--  -->
                 <el-form-item label="销毁驳回原因：" prop="destroyRejectReason">

@@ -38,14 +38,14 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="门店名称">
+        <el-form-item v-if="!isDealer" label="门店名称">
           <el-input
             placeholder="请输入"
             v-model="form.dealerNameLike"
             clearable
           />
         </el-form-item>
-        <el-form-item label="门店编码">
+        <el-form-item v-if="!isDealer" label="门店编码">
           <el-input
             placeholder="请输入"
             v-model="form.dealerCode"
@@ -66,7 +66,14 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="门店回运单">
+        <el-form-item v-if="isDealer" label="旧件名称">
+          <el-input
+            placeholder="请输入"
+            v-model="form.oldPartName"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="门店回运单号">
           <el-input
             placeholder="请输入"
             v-model="form.returnOrderNo"
@@ -86,7 +93,7 @@
           />
         </el-form-item>
 
-        <el-form-item label="主机厂库存状态">
+        <el-form-item v-if="!isDealer" label="主机厂库存状态">
           <fetch-select
             :request="fetchOptions"
             enumCode="old_part_inventory_oem_status"
@@ -94,6 +101,16 @@
             placeholder="请选择"
             clearable
             multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item v-if="isDealer" label="门店库存状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="old_part_inventory_dealer_status"
+            v-model="form.dealerStatus"
+            placeholder="请选择"
+            clearable
             filterable
           />
         </el-form-item>
@@ -204,8 +221,8 @@ export default {
     Upload
   },
   data () {
-    console.log(this.$route.meta);
     return {
+      isDealer: this.$route.meta.isDealer, // 门店旧件库存页面
       pageTitle: this.$route.meta.name,
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
@@ -429,7 +446,7 @@ export default {
         id: new Date().getTime() + '',
         template: 'OldPartMark',
         title: '保修旧件标签',
-        data: this.selectionList,
+        data: this.selectionList.map(item => item.id),
         width: 1122,
       });
     },

@@ -94,3 +94,12 @@ export function addAssociatedParts (data) {
 export function confirmOutbound (data) {
   return api.jsonPost(prefix + 'confirmOutbound', data);
 }
+
+/**
+ * 同步
+ * @param {Object} data
+ * @returns
+ */
+export function sync (data) {
+  return api.jsonPost(prefix + 'sync', data);
+}
