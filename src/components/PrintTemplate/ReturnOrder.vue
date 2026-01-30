@@ -126,7 +126,7 @@ export default {
       getList({
         returnOrderId: this.id,
         pageNum: 1,
-        pageSize: 1000
+        pageSize: 5000
       }).then((res) => {
         this.tableData = res.records;
       });

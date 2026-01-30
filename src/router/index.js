@@ -1135,7 +1135,7 @@ const routes = [
       name: 'fastReturnOrderEdit',
       component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
       meta: {
-        name: '回运单详情',
+        name: '旧件回运单',
         moduleKey: 'AISCR-oldPartReturnOrder',
         noResourceUrl: 'true'
       }

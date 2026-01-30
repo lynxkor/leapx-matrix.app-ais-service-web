@@ -28,292 +28,22 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="备件索赔单号：" prop="code">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.code"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="备件采购单号：" prop="purchaseOrderCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.purchaseOrderCode"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="门店编码（组织code）：" prop="dealerCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dealerCode"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="门店名称（组织名称）：" prop="dealerName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dealerName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="提交时间：" prop="submitTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.submitTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="提交人：" prop="submitter">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.submitter"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="索赔类型:10货损,20货差（少）,30状态不符,40质量问题：" prop="claimType">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.claimType"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="索赔状态:10草稿,20待确认,30已驳回,40审批中,50已完结：" prop="claimStatus">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.claimStatus"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="驳回说明：" prop="rejectionDescription">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.rejectionDescription"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="审批说明：" prop="approvalDescription">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.approvalDescription"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="是否完结：" prop="completedIs">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.completedIs"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.createTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.updateTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.id"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creator"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creatorName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifier"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifierName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.status"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statusDesc"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="数据来源，150:零小跑; 10:E10：" prop="dataSource">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dataSource"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="采购订单号ID：" prop="purchaseOrderId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.purchaseOrderId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="确认人：" prop="confirmer">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.confirmer"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="确认时间：" prop="confirmTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.confirmTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="审批时间：" prop="approvalTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.approvalTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="审批节点：" prop="approvalNode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.approvalNode"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="理赔方式：" prop="compensationMethod">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.compensationMethod"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="责任方：" prop="responsibleParty">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.responsibleParty"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="备件收货人姓名：" prop="receiverName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.receiverName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="备件收货人手机：" prop="receiverPhone">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.receiverPhone"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="省ID：" prop="provinceId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.provinceId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="市ID：" prop="cityId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.cityId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="备件收货地址：" prop="deliveryAddress">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.deliveryAddress"
-                    clearable
-                  />
-                </el-form-item>
-              </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="备件索赔单号：" prop="code">
                   {{ form.code }}
-                </el-form-item>
-                <el-form-item label="采购订单号：" prop="purchaseOrderCode">
-                  {{ form.purchaseOrderCode }}
-                </el-form-item>
-                <el-form-item label="索赔状态：" prop="claimStatus">
-                  {{ form.claimStatusLabel }}
                 </el-form-item>
                 <el-form-item label="索赔类型：" prop="claimType">
                   {{ form.claimTypeLabel }}
-                </el-form-item>
-                <el-form-item label="责任方：" prop="responsibleParty">
-                  {{ form.responsibleParty }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
                   {{ form.dealerCode }}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
+                </el-form-item>
+                <el-form-item label="备注：" prop="remark">
+                  {{ form.remark }}
+                </el-form-item>
+                <el-form-item label="采购订单号：" prop="purchaseOrderCode">
+                  {{ form.purchaseOrderCode }}
                 </el-form-item>
                 <el-form-item label="提交人：" prop="submitter">
                   {{ form.submitter }}
@@ -327,6 +57,15 @@
                 <el-form-item label="确认时间：" prop="confirmTime">
                   {{ form.confirmTime }}
                 </el-form-item>
+                <el-form-item label="驳回原因：" prop="rejectionDescription">
+                  {{ form.rejectionDescription }}
+                </el-form-item>
+                <el-form-item label="索赔状态：" prop="claimStatus">
+                  {{ form.claimStatusLabel }}
+                </el-form-item>
+                <el-form-item label="责任方：" prop="responsibleParty">
+                  {{ form.responsibleParty }}
+                </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
                   {{ form.approvalTime }}
                 </el-form-item>
@@ -336,17 +75,109 @@
                 <el-form-item label="审批节点：" prop="approvalNode">
                   {{ form.approvalNode }}
                 </el-form-item>
+                <el-form-item label="理赔方式：" prop="compensationMethod">
+                  {{ form.compensationMethod }}
+                </el-form-item>
+                <el-form-item label="备件收货人姓名：" prop="compensationMethod">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.receiverName"
+                    clearable
+                />
+                </el-form-item>
+                <el-form-item label="备件收货人手机：" prop="compensationMethod">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.receiverPhone"
+                    clearable
+                />
+                </el-form-item>
+                <el-form-item label="省市区" prop="provinceCode"
+                  >
+                    <el-cascader
+                      placeholder="请选择省市区"
+                      v-model="form.provinceCityCountyCode"
+                      :props="orgProps"
+                      :options="areaOptions"
+                      filterable
+                      clearable>
+                  </el-cascader>
+                  </el-form-item>
+                <el-form-item label="备件收货地址：" prop="address">
+                  {{ form.address }}
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.address"
+                    clearable
+                />
+                </el-form-item>
+              </el-form>
+              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="备件索赔单号：" prop="code">
+                  {{ form.code }}
+                </el-form-item>
+                <el-form-item label="索赔类型：" prop="claimType">
+                  {{ form.claimTypeLabel }}
+                </el-form-item>
+                <el-form-item label="门店编码：" prop="dealerCode">
+                  {{ form.dealerCode }}
+                </el-form-item>
+                <el-form-item label="门店名称：" prop="dealerName">
+                  {{ form.dealerName }}
+                </el-form-item>
+                <el-form-item label="备注：" prop="remark">
+                  {{ form.remark }}
+                </el-form-item>
+                <el-form-item label="采购订单号：" prop="purchaseOrderCode">
+                  {{ form.purchaseOrderCode }}
+                </el-form-item>
+                <el-form-item label="提交人：" prop="submitter">
+                  {{ form.submitter }}
+                </el-form-item>
+                <el-form-item label="提交时间：" prop="submitTime">
+                  {{ form.submitTime }}
+                </el-form-item>
+                <el-form-item label="确认人：" prop="confirmer">
+                  {{ form.confirmer }}
+                </el-form-item>
+                <el-form-item label="确认时间：" prop="confirmTime">
+                  {{ form.confirmTime }}
+                </el-form-item>
                 <el-form-item label="驳回原因：" prop="rejectionDescription">
                   {{ form.rejectionDescription }}
                 </el-form-item>
-                <el-form-item label="是否完结：" prop="completedIs">
-                  {{ form.completedIsLabel }}
+                <el-form-item label="索赔状态：" prop="claimStatus">
+                  {{ form.claimStatusLabel }}
+                </el-form-item>
+                <el-form-item label="责任方：" prop="responsibleParty">
+                  {{ form.responsibleParty }}
+                </el-form-item>
+                <el-form-item label="审批时间：" prop="approvalTime">
+                  {{ form.approvalTime }}
+                </el-form-item>
+                <el-form-item label="审批说明：" prop="approvalDescription">
+                  {{ form.approvalDescription }}
+                </el-form-item>
+                <el-form-item label="审批节点：" prop="approvalNode">
+                  {{ form.approvalNode }}
                 </el-form-item>
                 <el-form-item label="理赔方式：" prop="compensationMethod">
                   {{ form.compensationMethod }}
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
+                <el-form-item label="备件收货人姓名：" prop="compensationMethod">
+                  {{ form.receiverName }}
+                </el-form-item>
+                <el-form-item label="备件收货人手机：" prop="compensationMethod">
+                  {{ form.receiverPhone }}
+                </el-form-item>
+                <el-form-item label="省：" prop="compensationMethod">
+                  {{ form.provinceName }}
+                </el-form-item>
+                <el-form-item label="市：" prop="compensationMethod">
+                  {{ form.cityName }}
+                </el-form-item>
+                <el-form-item label="备件收货地址：" prop="compensationMethod">
+                  {{ form.address }}
                 </el-form-item>
               </el-form>
             </div>
@@ -478,6 +309,14 @@ export default {
       defaultNewRow: {
         name: '',
       },
+      areaOptions: JSON.parse(localStorage.areaTree),
+      orgProps: {
+        checkStrictly: true,
+        emitPath: false,
+        label: 'name',
+        value: 'code',
+        children: 'child'
+      },
       tableData: [
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
@@ -514,106 +353,106 @@ export default {
       ],
       rules: {
         code: [
-          { required: true, message: '请输入备件索赔单号', trigger: 'change' }
+          { required: false, message: '请输入备件索赔单号', trigger: 'change' }
         ],
         purchaseOrderCode: [
-          { required: true, message: '请输入备件采购单号', trigger: 'change' }
+          { required: false, message: '请输入备件采购单号', trigger: 'change' }
         ],
         dealerCode: [
-          { required: true, message: '请输入门店编码（组织code）', trigger: 'change' }
+          { required: false, message: '请输入门店编码（组织code）', trigger: 'change' }
         ],
         dealerName: [
-          { required: true, message: '请输入门店名称（组织名称）', trigger: 'change' }
+          { required: false, message: '请输入门店名称（组织名称）', trigger: 'change' }
         ],
         submitTime: [
-          { required: true, message: '请选择提交时间', trigger: 'change' }
+          { required: false, message: '请选择提交时间', trigger: 'change' }
         ],
         submitter: [
-          { required: true, message: '请输入提交人', trigger: 'change' }
+          { required: false, message: '请输入提交人', trigger: 'change' }
         ],
         claimType: [
-          { required: true, message: '请选择索赔类型:10货损,20货差（少）,30状态不符,40质量问题', trigger: 'change' }
+          { required: false, message: '请选择索赔类型:10货损,20货差（少）,30状态不符,40质量问题', trigger: 'change' }
         ],
         claimStatus: [
-          { required: true, message: '请选择索赔状态:10草稿,20待确认,30已驳回,40审批中,50已完结', trigger: 'change' }
+          { required: false, message: '请选择索赔状态:10草稿,20待确认,30已驳回,40审批中,50已完结', trigger: 'change' }
         ],
         rejectionDescription: [
-          { required: true, message: '请输入驳回说明', trigger: 'change' }
+          { required: false, message: '请输入驳回说明', trigger: 'change' }
         ],
         approvalDescription: [
-          { required: true, message: '请输入审批说明', trigger: 'change' }
+          { required: false, message: '请输入审批说明', trigger: 'change' }
         ],
         completedIs: [
-          { required: true, message: '请输入是否完结', trigger: 'change' }
+          { required: false, message: '请输入是否完结', trigger: 'change' }
         ],
         remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
+          { required: false, message: '请输入备注', trigger: 'change' }
         ],
         createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
+          { required: false, message: '请选择创建时间', trigger: 'change' }
         ],
         updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
+          { required: false, message: '请选择修改时间', trigger: 'change' }
         ],
         id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
+          { required: false, message: '请输入主键', trigger: 'change' }
         ],
         creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
+          { required: false, message: '请输入创建者', trigger: 'change' }
         ],
         creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
+          { required: false, message: '请输入创建者名称', trigger: 'change' }
         ],
         modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
+          { required: false, message: '请输入修改者', trigger: 'change' }
         ],
         modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
+          { required: false, message: '请输入修改者名称', trigger: 'change' }
         ],
         status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
+          { required: false, message: '请选择状态', trigger: 'change' }
         ],
         statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
+          { required: false, message: '请选择状态变更描述', trigger: 'change' }
         ],
         dataSource: [
-          { required: true, message: '请输入数据来源，150:零小跑; 10:E10', trigger: 'change' }
+          { required: false, message: '请输入数据来源，150:零小跑; 10:E10', trigger: 'change' }
         ],
         purchaseOrderId: [
-          { required: true, message: '请输入采购订单号ID', trigger: 'change' }
+          { required: false, message: '请输入采购订单号ID', trigger: 'change' }
         ],
         confirmer: [
-          { required: true, message: '请输入确认人', trigger: 'change' }
+          { required: false, message: '请输入确认人', trigger: 'change' }
         ],
         confirmTime: [
-          { required: true, message: '请选择确认时间', trigger: 'change' }
+          { required: false, message: '请选择确认时间', trigger: 'change' }
         ],
         approvalTime: [
-          { required: true, message: '请选择审批时间', trigger: 'change' }
+          { required: false, message: '请选择审批时间', trigger: 'change' }
         ],
         approvalNode: [
-          { required: true, message: '请输入审批节点', trigger: 'change' }
+          { required: false, message: '请输入审批节点', trigger: 'change' }
         ],
         compensationMethod: [
-          { required: true, message: '请输入理赔方式', trigger: 'change' }
+          { required: false, message: '请输入理赔方式', trigger: 'change' }
         ],
         responsibleParty: [
-          { required: true, message: '请输入责任方', trigger: 'change' }
+          { required: false, message: '请输入责任方', trigger: 'change' }
         ],
         receiverName: [
-          { required: true, message: '请输入备件收货人姓名', trigger: 'change' }
+          { required: false, message: '请输入备件收货人姓名', trigger: 'change' }
         ],
         receiverPhone: [
-          { required: true, message: '请输入备件收货人手机', trigger: 'change' }
+          { required: false, message: '请输入备件收货人手机', trigger: 'change' }
         ],
         provinceId: [
-          { required: true, message: '请输入省ID', trigger: 'change' }
+          { required: false, message: '请输入省ID', trigger: 'change' }
         ],
         cityId: [
-          { required: true, message: '请输入市ID', trigger: 'change' }
+          { required: false, message: '请输入市ID', trigger: 'change' }
         ],
         deliveryAddress: [
-          { required: true, message: '请输入备件收货地址', trigger: 'change' }
+          { required: false, message: '请输入备件收货地址', trigger: 'change' }
         ],
       }
     };

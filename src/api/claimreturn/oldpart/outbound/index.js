@@ -76,3 +76,21 @@ export function addDetail (data) {
 export function removeDetail (data) {
   return api.jsonPost(prefix + 'removeDetail', data);
 }
+
+/**
+ * 添加连带件
+ * @param {Object} data
+ * @returns
+ */
+export function addAssociatedParts (data) {
+  return api.jsonPost(prefix + 'addAssociatedParts', data);
+}
+
+/**
+ * 确认出库
+ * @param {Object} data
+ * @returns
+ */
+export function confirmOutbound (data) {
+  return api.jsonPost(prefix + 'confirmOutbound', data);
+}
