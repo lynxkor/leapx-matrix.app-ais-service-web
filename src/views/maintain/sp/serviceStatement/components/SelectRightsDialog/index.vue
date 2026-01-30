@@ -31,9 +31,9 @@
           <vxe-column field="rightsCode" title="权益ID" width="250" show-overflow="tooltip" />
           <vxe-column field="rightsName" title="权益名称" width="200" show-overflow="tooltip" />
           <vxe-column field="cardTypeLabel" title="卡券类型" width="120" align="center" />
-          <vxe-column field="serviceType" title="适用维修类型" width="120" align="center">
+          <vxe-column field="applicableMaintenanceType" title="适用维修类型" width="120" align="center">
             <template #default="{ row }">
-              {{ getServiceTypeText(row.serviceType) }}
+              {{ getServiceTypeText(row.relatedRepairTypeList) }}
             </template>
           </vxe-column>
           <vxe-column field="cardDiscount" title="卡券折扣" width="100" align="right" />
@@ -70,7 +70,7 @@ export default {
       type: Boolean,
       default: false
     },
-    serviceProxyId: {
+    statementId: {
       type: String,
       default: ''
     }
@@ -95,7 +95,7 @@ export default {
     handleSelectionChange ({ records }) {
       this.tableData.forEach(row => {
         // 否则正常处理选择状态
-        row.checked = records.some(item => item.rightsCode === row.rightsCode);
+        row.checked = records.some(item => item.useId === row.useId);
       });
     },
 
@@ -103,7 +103,7 @@ export default {
     async initData () {
       try {
         this.loading = true;
-        const res = await rightsList(this.serviceProxyId);
+        const res = await rightsList(this.statementId);
         this.tableData = (res || []).map(item => ({ ...item, checked: false }));
       } catch (error) {
         console.error('获取权益列表异常:', error);
@@ -115,13 +115,18 @@ export default {
 
     // 获取维修类型文本
     getServiceTypeText (serviceType) {
-      const typeMap = {
-        1: '保养',
-        2: '维修',
-        3: '喷漆',
-        4: '钣金'
-      };
-      return typeMap[serviceType] || '-';
+ if (!serviceType || !Array.isArray(serviceType)) {
+    return '-';
+  }
+      // 循环获取每个维修类型的名称并用逗号拼接
+       const typeNames = serviceType.map(item => {
+         // 如果是对象，取repairTypeName字段；如果是数字，直接映射
+         if (typeof item === 'object' && item.repairTypeName) {
+           return item.repairTypeName;
+         }
+       });
+
+       return typeNames.join(',') || '-';
     },
 
     // 格式化金额
@@ -167,11 +172,10 @@ export default {
         this.$message.warning('请选择要核销的权益');
         return;
       }
-
       try {
         this.submitLoading = true;
         const params = {
-          statementId: this.serviceProxyId,
+          statementId: this.statementId,
           writeOffReqList: selectedRows
         };
 

@@ -181,10 +181,10 @@
                     </el-tag>
                   </template> -->
                 </vxe-column>
-                <vxe-column field="paymentAmount" title="满减金额" width="120" />
-                <vxe-column field="effectDate" title="领券时间" width="170" />
-                <vxe-column field="expiryDate" title="有效期" width="120" />
-                <vxe-column field="rightsStatusLabel" title="状态" width="120" />
+                <vxe-column field="deductibleAmount" title="满减金额" width="120" />
+                <vxe-column field="receiveTime" title="领券时间" width="170" />
+                <vxe-column field="expirationTime" title="有效期" width="120" />
+                <vxe-column field="rightsUseStateLabel" title="状态" width="120" />
                 <template #empty>
                   <div class="m-vxe-table-empty-text">暂无数据</div>
                 </template>
@@ -347,7 +347,8 @@ export default {
       const workHour = +row.workHour || 0;
       const discountAmount = +row.discountAmount || 0;
       const totalAmount = price * workHour;
-      row.repairAmount = Math.max(0, totalAmount - discountAmount);
+     row.repairAmount = parseFloat((totalAmount - discountAmount).toFixed(2));
+
       // 重新计算汇总金额
       this.calculateSummaryAmounts();
     },

@@ -20,7 +20,7 @@
           <vxe-column field="rightsName" title="权益名称" min-width="150"/>
           <vxe-column field="rightsCode" title="权益代码" min-width="150"/>
 
-          <vxe-column field="rightsTypelabel" title="权益类型" min-width="150"/>
+          <vxe-column field="rightsTypeLabel" title="权益类型" min-width="150"/>
           <vxe-column field="availableQuantity" title="可用数量" min-width="150"/>
           <vxe-column field="deductionAmount" title="券面满减金额" min-width="150"/>
           <vxe-column field="deductibleAmount" title="实际抵扣金额" min-width="150"/>

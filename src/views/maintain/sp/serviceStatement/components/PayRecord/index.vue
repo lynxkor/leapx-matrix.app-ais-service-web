@@ -22,7 +22,7 @@
           <vxe-column field="rightsCode" title="权益代码" min-width="150"/>
           <vxe-column field="invoiceNumber" title="发票号码" width="150" />
 
-          <vxe-column field="invoiceType" title="发票类型" min-width="150"/>
+          <vxe-column field="invoiceTypeLabel" title="发票类型" min-width="150"/>
 
           <template #empty>
             <div class="m-vxe-table-empty-text">暂无数据</div>
