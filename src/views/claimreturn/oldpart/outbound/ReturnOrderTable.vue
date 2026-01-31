@@ -3,15 +3,15 @@
     <div class="common-section-header">
       <h2>
         旧件库存
-        <div v-if="_id && !disabled" class="btns">
-          <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="openAdd"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
-          <el-button v-if="canAddOrUpdate" :disabled="!isSelect" size="small" @click.stop="handleRemoveRows">删除</el-button>
-          <el-button size="small" @click.stop="handleImport">旧件出库明细导入</el-button>
-          <el-button :loading="attachLoading" size="small" @click="addAttach">添加连带件</el-button>
-        </div>
       </h2>
     </div>
     <div v-if="_id" class="common-section-body">
+      <div v-if="!disabled" class="btns" style="margin-bottom: 15px;">
+        <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="openAdd"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+        <el-button v-if="canAddOrUpdate" :disabled="!isSelect" size="small" @click.stop="handleRemoveRows">删除</el-button>
+        <el-button size="small" @click.stop="handleImport">旧件出库明细导入</el-button>
+        <el-button :loading="attachLoading" size="small" @click="addAttach">添加连带件</el-button>
+      </div>
       <div class="common-section-table">
         <!-- 旧件明细表格 -->
         <edit-table
@@ -231,7 +231,7 @@ export default {
     },
     openAdd () {
       if (!this.dealerCode) {
-        this.$message.info('请选择门店');
+        this.$message.warning('请选择门店');
         return;
       }
       this.visible = true;
@@ -304,6 +304,10 @@ export default {
     },
     // 连带件
     addAttach () {
+      if (!this.dealerCode) {
+        this.$message.warning('请选择门店');
+        return;
+      }
       this.attachLoading = true;
       addAssociatedParts(this._id).then(res => {
         this.$message.success('正在添加连带件，请稍后刷新查看');
@@ -313,6 +317,10 @@ export default {
       });
     },
     handleImport () {
+      if (!this.dealerCode) {
+        this.$message.warning('请选择门店');
+        return;
+      }
       this.uploadDialogVisible = true;
     },
     handleUploadDialogClose () {

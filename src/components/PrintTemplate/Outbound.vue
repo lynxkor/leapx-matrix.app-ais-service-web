@@ -58,7 +58,7 @@
             <td>{{ item.oldPartUniqueCode }}</td>
             <td>{{ item.partCode }}</td>
             <td>{{ item.partName }}</td>
-            <td>{{ parseFloat(item.oldPartQuantity) }}</td>
+            <td>{{ isNaN(parseFloat(item.oldPartQuantity)) ? null : parseFloat(item.oldPartQuantity) }}</td>
             <td></td>
             <td>{{ item.returnType === '40' ? '是': '否'}}</td>
             <td style=" overflow: hidden; white-space: nowrap; text-overflow: ellipsis;max-width: 100px;">{{ item.remark }}</td>
@@ -143,7 +143,11 @@ export default {
       }).then((res) => {
         this.tableData = res.records;
         this.total_oldPartQuantity = this.tableData.reduce((val, cur) => {
-          return val + parseFloat(cur.oldPartQuantity);
+          const n = parseFloat(cur.oldPartQuantity);
+          if (isNaN(n)) {
+            return val;
+          }
+          return val + n;
         }, 0);
       });
     },

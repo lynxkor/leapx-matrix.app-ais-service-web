@@ -381,7 +381,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/return/returnOrder/index';
+import { getDetail, addOrUpdate, returnOrderPage } from '@/api/sparepart/return/returnOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -467,6 +467,8 @@ export default {
       handler (val) {
         if (val && this.$refs.containerRef) {
           this.$refs.containerRef.loadDetail();
+        } else if (!val) {
+          this.getDetailData();
         }
       },
       immediate: true
@@ -711,6 +713,15 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    async getDetailData () {
+      const res = await returnOrderPage({
+        returnOrderId: this._id,
+        pageNum: this.current,
+        pageSize: this.pageSize
+      });
+      this.tableData = res.records || [];
+      this.total = res.total || 0;
     },
     pageSizeChange (pageSize) {
       this.pageSize = pageSize;

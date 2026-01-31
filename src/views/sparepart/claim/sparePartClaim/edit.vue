@@ -78,6 +78,9 @@
                 <el-form-item label="理赔方式：" prop="compensationMethod">
                   {{ form.compensationMethod }}
                 </el-form-item>
+              </el-form>
+            <div class="common-title" v-show="isEditing || !_id">采购单收货方</div>
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="备件收货人姓名：" prop="compensationMethod">
                   <el-input
                     placeholder="请输入"
@@ -112,6 +115,28 @@
                 />
                 </el-form-item>
               </el-form>
+            <div class="common-title" v-show="isEditing || !_id">采购单发货方</div>
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="仓库编码：" prop="compensationMethod">
+                  {{ form.receiverName }}
+                </el-form-item>
+                <el-form-item label="仓库名称：" prop="compensationMethod">
+                  {{ form.receiverPhone }}
+                </el-form-item>
+                <el-form-item label="省：" prop="compensationMethod">
+                  {{ form.provinceName }}
+                </el-form-item>
+                <el-form-item label="市：" prop="compensationMethod">
+                  {{ form.cityName }}
+                </el-form-item>
+                <el-form-item label="区：" prop="compensationMethod">
+                  {{ form.cityName }}
+                </el-form-item>
+                <el-form-item label="地址：" prop="compensationMethod">
+                  {{ form.address }}
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id"></el-form>
               <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="备件索赔单号：" prop="code">
                   {{ form.code }}
@@ -164,6 +189,10 @@
                 <el-form-item label="理赔方式：" prop="compensationMethod">
                   {{ form.compensationMethod }}
                 </el-form-item>
+              </el-form>
+              <div class="common-title" v-show="!(isEditing || !_id)">采购单收货方</div>
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
+                v-show="!(isEditing || !_id) ">
                 <el-form-item label="备件收货人姓名：" prop="compensationMethod">
                   {{ form.receiverName }}
                 </el-form-item>
@@ -180,12 +209,33 @@
                   {{ form.address }}
                 </el-form-item>
               </el-form>
+              <div class="common-title" v-show="!(isEditing || !_id)">采购单发货方</div>
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
+                v-show="!(isEditing || !_id)">
+                <el-form-item label="仓库编码：" prop="compensationMethod">
+                  {{ form.receiverName }}
+                </el-form-item>
+                <el-form-item label="仓库名称：" prop="compensationMethod">
+                  {{ form.receiverPhone }}
+                </el-form-item>
+                <el-form-item label="省：" prop="compensationMethod">
+                  {{ form.provinceName }}
+                </el-form-item>
+                <el-form-item label="市：" prop="compensationMethod">
+                  {{ form.cityName }}
+                </el-form-item>
+                <el-form-item label="区：" prop="compensationMethod">
+                  {{ form.cityName }}
+                </el-form-item>
+                <el-form-item label="地址：" prop="compensationMethod">
+                  {{ form.address }}
+                </el-form-item>
+              </el-form>
             </div>
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>区块标题</h2>
-              <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              <h2>索赔明细</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
@@ -193,10 +243,43 @@
                   ref="editTable"
                   :columns="columns"
                   :data="tableData"
-                  :defaultNewRow="defaultNewRow"
                   :show-toolbar="false"
-                  :options="options"
-                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                  :auth="{edit: false, delete: false}"
+                  :showPagination="true"
+                  :current="current"
+                  :pageSize="pageSize"
+                  :total="total"
+                  @page-size-change="pageSizeChange"
+                  @current-page-change="currentPageChange"
+                />
+              </div>
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>附件信息</h2>
+            </div>
+            <div class="common-section-body">
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>索赔出库缺货明细</h2>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-table">
+                <edit-table
+                  ref="editTable"
+                  :columns="claimColumns"
+                  :data="claimTableData"
+                  :show-toolbar="false"
+                  :auth="{edit: false, delete: false}"
+                  :showPagination="true"
+                  :current="current"
+                  :pageSize="pageSize"
+                  :total="total"
+                  @page-size-change="pageSizeChange"
+                  @current-page-change="currentPageChange"
                 />
               </div>
             </div>
@@ -213,7 +296,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/claim/sparePartClaim/index';
+import { getDetail, addOrUpdate, getDetailList, getOutboundDetailList, getBackDetailList } from '@/api/sparepart/claim/sparePartClaim/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -241,12 +324,7 @@ const defaultForm = {
   createTime: '',
   updateTime: '',
   id: '',
-  creator: '',
-  creatorName: '',
-  modifier: '',
-  modifierName: '',
   status: '',
-  statusDesc: '',
   dataSource: '',
   purchaseOrderId: '',
   confirmer: '',
@@ -275,8 +353,7 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    EditTable,
-    FetchSelect
+    EditTable
   },
   computed: {
     _id () {
@@ -306,9 +383,6 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      defaultNewRow: {
-        name: '',
-      },
       areaOptions: JSON.parse(localStorage.areaTree),
       orgProps: {
         checkStrictly: true,
@@ -321,34 +395,75 @@ export default {
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
-          field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
+          field: 'sparePartCode',
+          title: '备件编码',
+          width: '16.6%',
         },
         {
-          field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
+          field: 'sparePartName',
+          title: '备件名称',
+          width: '16.6%',
         },
         {
           field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
+          title: '已入库数',
+          width: '16.6%',
+        },
+        {
+          field: 'claimQty',
+          title: '索赔数量',
+          width: '16.6%',
+        },
+        {
+          field: 'claimDescription',
+          title: '索赔说明',
+          width: '16.6%',
+        },
+        {
+          field: 'createTime',
+          title: '创建时间',
+          width: '16.6%',
+        },
+      ],
+      claimTableData: [],
+      claimColumns: [
+        {
+          field: 'sparePartCode',
+          title: '备件编码',
+          width: '11%',
+        },
+        {
+          field: 'sparePartName',
+          title: '备件名称',
+          width: '16.6%',
+        },
+        {
+          field: 'outboundQty',
+          title: '出库数量',
+          width: '16.6%',
+        },
+        {
+          field: 'outboundOrderNo',
+          title: '出库单号',
+          width: '16.6%',
+        },
+        {
+          field: 'outboundDate',
+          title: '出库日期',
+          width: '16.6%',
+        },
+        {
+          field: 'createTime',
+          title: '发货仓库',
+          width: '16.6%',
+        },
+        {
+          field: 'createTime',
+          title: '创建时间',
+          width: '16.6%',
         },
       ],
       rules: {
@@ -458,6 +573,8 @@ export default {
     };
   },
   mounted () {
+    this.getDetailList();
+    this.getDetailListOutbound();
   },
   methods: {
     detailRequest () {
@@ -506,7 +623,34 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    // 索赔明细
+    async getDetailList () {
+      const data = {
+        pageNum: 1,
+        pageSize: 10,
+        claimOrderId: this._id,
+      };
+      const res = await getDetailList(data);
+      this.tableData = res.records;
+    },
+    // 索赔出库明细
+    async getDetailListOutbound () {
+      const data = {
+        pageNum: 1,
+        pageSize: 10,
+        claimOrderId: this._id,
+      };
+      const res = await getOutboundDetailList(data);
+      this.claimTableData = res.records;
+    },
   }
 };
 </script>
+<style lang="scss" scoped>
+.common-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0A0E0A;
+}
+</style>

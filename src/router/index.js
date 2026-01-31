@@ -981,6 +981,7 @@ const routes = [
         name: '门店旧件库存',
         keepAlive: true,
         moduleKey: 'AISCR-oldPartDealerInventoryDetail',
+        isDealer: true,
       }
     }, {
       path: '/claimreturn/oldpart/inventory/dealer/edit',
@@ -1379,6 +1380,13 @@ const routes = [
       meta: {
         name: '旧件销毁单详情',
         noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/oldpart/destroy/oldPartDestroyConfig',
+      name: 'oldPartDestroyConfig',
+      component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyConfig/index.vue'),
+      meta: {
+        name: '旧件销毁设置',
       }
     }, {
       path: '/sparepart/basic/purchaseTimesLimit',
