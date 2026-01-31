@@ -296,7 +296,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: '备件索赔',
       pageType: 'edit',
       title: '备件索赔单号：' + form.code,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
