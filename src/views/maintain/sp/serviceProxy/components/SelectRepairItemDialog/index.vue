@@ -235,6 +235,7 @@
             size="small"
             :trigger-on-focus="false"
             style="width: 500px;"
+            clearable
           >
             <template slot="prepend">
               <div>
@@ -352,6 +353,7 @@
                 :max="+row.price"
                 :step="0.1"
                 controls-position="right"
+                clearable
                 @change="handlePartDiscountAmountChange(row)"
               />
             </template>
@@ -368,6 +370,7 @@
                 size="small"
                 placeholder="请选择"
                 filterable
+                :disabled="!!row.isBindltem"
                 @change="handlePartRepairItemNameChange(row)"
               >
                 <el-option
@@ -751,6 +754,12 @@ export default {
     },
     handleSelectPart (item) {
       if (Number(item.salePrice) > 0) {
+        // 校验是否重复添加
+        const target = this.partData.find(el => el.partsId === item.id);
+        if (target) {
+          this.$message.error('该零件已存在，请勿重复添加');
+          return;
+        }
         this.selectedRepairPart = item;
         this.addPart();
       } else {
