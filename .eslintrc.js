@@ -79,7 +79,7 @@ module.exports = {
     'no-void': 2, // 禁用void操作符
     'no-with': 2, // 禁用with
     'space-infix-ops': 2, // 中缀操作符周围要不要有空格
-    'no-warning-comments': [2, { // 不能有警告备注
+    'no-warning-comments': [0, { // 不能有警告备注
       terms: ['todo', 'fixme', 'any other term'],
       location: 'anywhere'
     }],

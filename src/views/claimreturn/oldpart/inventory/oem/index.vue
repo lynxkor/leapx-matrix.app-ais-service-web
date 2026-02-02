@@ -32,25 +32,21 @@
       </el-form-item>
       <template v-if="show">
         <el-form-item label="旧件销毁单编码">
-          <el-input
-            placeholder="请输入"
-            v-model="form.oldPartDestroyOrderNo"
+          <list-select
+            listUrl="/claimreturn/oldpart/web/destroy/oldPartDestroyOrder/list"
+            placeholder="请选择"
+            v-model="form.oldPartDestroyOrderId"
+            query-key="destroyOrderNo"
             clearable
+            collapseTags
+            :show-code="false"
+            filterable
+            label-key="code"
+            value-key="id"
           />
         </el-form-item>
         <el-form-item v-if="!isDealer" label="门店名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dealerNameLike"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item v-if="!isDealer" label="门店编码">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dealerCode"
-            clearable
-          />
+          <dealer-select v-model="form.dealerCodes" multiple />
         </el-form-item>
         <el-form-item label="VIN">
           <el-input
@@ -74,10 +70,17 @@
           />
         </el-form-item>
         <el-form-item label="门店回运单号">
-          <el-input
-            placeholder="请输入"
-            v-model="form.returnOrderNo"
+          <list-select
+            listUrl="/claimreturn/oldpart/web/returnorder/oldPartReturnOrder/list"
+            placeholder="请选择"
+            v-model="form.returnOrderId"
+            query-key="returnOrderNo"
             clearable
+            collapseTags
+            :show-code="false"
+            filterable
+            label-key="code"
+            value-key="id"
           />
         </el-form-item>
 
@@ -175,6 +178,8 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import ListSelect from '@/libs/components/list-select/index.vue';
+import DealerSelect from '@/components/dealer-select/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -214,6 +219,8 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
+    DealerSelect,
+    ListSelect,
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
@@ -331,7 +338,12 @@ export default {
             width: 240,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+                this.navigateToRoute({
+                  path: '/partner/channelManagement/shopDetail',
+                  query: {
+                    dealerCode: row.dealerCode,
+                  },
+                });
               },
               type: 'primary'
             }]

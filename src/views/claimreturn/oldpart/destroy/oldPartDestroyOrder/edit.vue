@@ -129,7 +129,7 @@
         </div>
       </el-dialog>
       <!-- 旧件销毁审批 -->
-       <el-dialog title="旧件销毁审批" :visible.sync="dialogFormVisible2">
+      <el-dialog title="旧件销毁审批" :visible.sync="dialogFormVisible2">
         <el-form label-width="150px" class="form-edit">
           <el-form-item label="审批结果:">
             <el-radio-group v-model="isPass">
@@ -274,21 +274,15 @@ export default {
               }
             });
             // 点击事件
+            this.$router.push(`/maintain/sp/serviceProxy/edit?id=${row.serviceProxyId}`);
           }
         },
         {
           field: 'warrantyNo',
           title: '保修申请单',
           width: '180',
-          click: (row) => {
-            this.navigateToRoute({
-              path: '',
-              query: {
-                id: row.warrantyId
-              }
-            });
-            // 点击事件
-            console.log('点击了保修申请单');
+          click (row) {
+            // TODO 这里需要跳转
           }
         },
         {
@@ -339,13 +333,7 @@ export default {
           width: '150',
           click: (row) => {
             // 点击事件
-            this.navigateToRoute({
-              path: '/sparepart/basic/supplierInfo/detail',
-              query: {
-                id: row.oldPartSupplierId,
-              },
-            });
-            console.log('点击了旧件供应商');
+            this.$router.push('/sparepart/basic/supplierInfo/detail?id=' + row.oldPartSupplierId);
           }
         },
         {
@@ -359,13 +347,7 @@ export default {
           width: '140',
           click: (row) => {
             // 点击事件
-            this.navigateToRoute({
-              path: '/sparepart/basic/sparePart/detail',
-              query: {
-                id: row.oldPartId,
-              },
-            });
-            console.log('点击了旧件编码');
+            this.$router.push('/sparepart/basic/sparePart/detail?id=' + row.oldPartId);
           }
         },
         {

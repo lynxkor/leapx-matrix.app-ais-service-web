@@ -18,8 +18,8 @@
           <span class="status primary">状态</span>
         </template>
         <template #extraButtons>
-          <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button>
+          <!-- <el-button size="small">按钮1</el-button>
+          <el-button size="small">按钮2</el-button> -->
         </template>
         <el-main>
           <section class="common-section">

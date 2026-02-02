@@ -63,7 +63,14 @@
                   {{form.vin}}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  <el-button class="link" @click="goToDealer(form.dealerCode)" type="text">{{form.dealerName}}</el-button>
+                  <el-button class="link"
+                   @click="navigateToRoute({
+                      path: '/partner/channelManagement/shopDetail',
+                      query: {
+                        dealerCode: form.dealerCode,
+                      },
+                    })"
+                   type="text">{{form.dealerName}}</el-button>
                 </el-form-item>
                 <el-form-item label="接车施工单：" prop="serviceProxyNo">
                   <el-button class="link" @click="$router.push(`/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`)" type="text">{{form.serviceProxyNo}}</el-button>
@@ -78,8 +85,8 @@
                 <el-form-item label="二次索赔明细：" prop="dutySupplierId">
                   {{form.dutySupplierId}}
                 </el-form-item>
-                <el-form-item label="索赔追溯单号：" prop="">
-                  下一期开发
+                <el-form-item label="索赔追溯单号：" prop="claimTrackNo">
+                  {{ form.claimTrackNo }}
                 </el-form-item>
                 <!--  -->
                 <el-form-item v-show="isEditing || !_id" class="form-item-full" label="备注：" prop="remark">
@@ -89,6 +96,7 @@
                     v-model="form.remark"
                     clearable
                     :rows="2"
+                    maxLength="1000"
                   />
                 </el-form-item>
                 <el-form-item v-show="!(isEditing || !_id)" class="form-item-full" label="备注：" prop="remark">

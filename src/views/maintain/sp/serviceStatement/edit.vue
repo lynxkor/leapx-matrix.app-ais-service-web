@@ -437,7 +437,6 @@ export default {
       const baseType = ['352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF'];
       const validStatusForReject = [30]; // 待收款状态码
       const validStatusForRefund = [10, 30]; // 待结算/待收款
-      const validTypesForWarranty = ['352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF']; // 自费/保险
       switch (type) {
         case 'reject':
           var isValidTypeForReject = baseType.includes(this.form.statementType);

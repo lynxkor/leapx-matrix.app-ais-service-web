@@ -132,7 +132,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal, updateSpFaultAlertRecord } from '@/api/maintain/sp/serviceProxy/index';
+import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal } from '@/api/maintain/sp/serviceProxy/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import NavTop from './components/NavTop';
 import { getEnum } from '@/api/common';
@@ -145,7 +145,6 @@ import MaintainInfo from './components/MaintainInfo';
 import BasicInfo from './components/BasicInfo';
 import EntrustInfo from './components/EntrustInfo';
 import BatteryInfo from './components/BatteryInfo';
-import InquiryInfo from './components/InquiryInfo';
 import SparepartsInfo from './components/SparepartsInfo';
 import Attachment from './components/Attachment';
 import RepairInfo from './components/RepairInfo';
@@ -158,7 +157,7 @@ import SelectRepairItemDialog from './components/SelectRepairItemDialog';
 import StartWorkDialog from './components/StartWorkDialog';
 import DispatchWorkDialog from './components/DispatchWorkDialog';
 import Upload from './components/UploadDialog';
-import { getFileList, deleteFile } from '@/libs/api/attachment';
+import { getFileList } from '@/libs/api/attachment';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
