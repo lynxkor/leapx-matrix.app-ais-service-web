@@ -155,7 +155,7 @@
                   {{ form.outboundTypeLabel }}
                 </el-form-item>
                 <el-form-item label="仓库代码：" prop="warehouseCode">
-                  <el-button class="link" @click="$router.push('/claimreturn/oldpart/basic/oldPartOemWarehouse/detail?id=' + form.warehouseId)" type="text">{{ form.warehouseCode }}</el-button>
+                  <el-button class="link" @click="$router.push('/claimreturn/oldpart/basic/oldPartOemWarehouse/edit?id=' + form.warehouseId)" type="text">{{ form.warehouseCode }}</el-button>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
