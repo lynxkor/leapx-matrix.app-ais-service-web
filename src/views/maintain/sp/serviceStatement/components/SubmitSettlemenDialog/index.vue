@@ -395,7 +395,7 @@ export default {
           );
           this.originalPartsData = JSON.parse(JSON.stringify(this.partsData));
           // 初始化去零金额
-          this.roundAmount = this.baseInfo.remainAmount || 0;
+          // this.roundAmount = this.baseInfo.remainAmount || 0;
         }
       },
       deep: true,
