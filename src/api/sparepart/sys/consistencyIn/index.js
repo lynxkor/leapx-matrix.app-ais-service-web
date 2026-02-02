@@ -2,7 +2,7 @@ import api from '@/axios';
 import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
-const prefix = SPARE_PREFIX + '/web/sys/consistencyIn/';
+const prefix = SPARE_PREFIX + '/web/other/consistencyTask/';
 
 /**
  * 查询列表
@@ -10,6 +10,14 @@ const prefix = SPARE_PREFIX + '/web/sys/consistencyIn/';
  */
 export function getList (data) {
   return api.jsonPost(prefix + 'page', data);
+};
+
+/**
+ * 查询列表
+ * @param {Object} data
+ */
+export function execute (data) {
+  return api.jsonPost(prefix + 'execute', data);
 };
 
 /**
