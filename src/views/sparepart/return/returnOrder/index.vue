@@ -253,14 +253,15 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
-              name: '编辑',
+              name: '打印退货单',
               click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/return/returnOrder/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
+                this.handlePrint(row);
+              },
+              type: 'info'
+            }, {
+              name: '打印退货标签',
+              click: (rowIndex, row) => {
+                this.handlePrintLabel(row);
               },
               type: 'info'
             }, {
@@ -478,29 +479,23 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
-    }
+    },
+    // 打印退货单
+    handlePrint (val) {
+      this.$print.show({
+        id: val.id, // 必选，对应数据id
+        template: 'SparePartsReturn', // 必选，对应 ./template/文件名.vue
+        title: `${val.dealerName}备件退货单`// 可选，打印标题
+      });
+    },
+    // 打印退货标签
+    handlePrintLabel (val) {
+      this.$print.show({
+        id: val.id, // 必选，对应数据id
+        template: 'SparePartsReturnLabel', // 必选，对应 ./template/文件名.vue
+        title: '备件退货标签'// 可选，打印标题
+      });
+    },
   }
 };
 </script>

@@ -132,7 +132,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/oldpart/basic/oldPartOemWarehouse/detail',
+                  path: '/claimreturn/oldpart/basic/oldPartOemWarehouse/edit',
                   query: {
                     id: row.id
                   }
@@ -161,7 +161,8 @@ export default {
                 this.$router.push({
                   path: '/claimreturn/oldpart/basic/oldPartOemWarehouse/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true,
                   }
                 });
               },

@@ -286,7 +286,7 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>出库明细信息</h2>
+              <h2>出库明细信息 <el-button size="mini">导入备件</el-button><el-button size="mini" @click="addPart">添加备件</el-button></h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
@@ -301,21 +301,21 @@
                 >
                     <vxe-column field="partCode" title="备件编码" />
                     <vxe-column field="partName" title="备件名称" />
-                    <vxe-column field="originalPrice" title="退货数量" />
-                    <vxe-column field="purchasePrice" title="合格数量" />
-                    <vxe-column field="cashUnitPrice" title="交货单号" />
-                    <vxe-column field="cashAmount" title="销售凭证" />
-                    <vxe-column field="purchaseQty" title="入库单号" />
-                    <vxe-column field="remark" title="采购订单号" />
-                    <vxe-column field="originalPriceSource" title="采购现金单价" />
-                    <vxe-column field="originalPriceSource" title="采购返利单价" />
-                    <vxe-column field="originalPriceSource" title="退货现金单价" />
-                    <vxe-column field="originalPriceSource" title="预计退货现金金额" />
-                    <vxe-column field="originalPriceSource" title="实际退货现金金额" />
-                    <vxe-column field="originalPriceSource" title="退货返利单价" />
-                    <vxe-column field="originalPriceSource" title="预计退货返利金额" />
-                    <vxe-column field="originalPriceSource" title="实际退货返利金额" />
-                    <vxe-column field="originalPriceSource" title="备注" />
+                    <vxe-column field="returnQty" title="退货数量" />
+                    <vxe-column field="qualifiedQty" title="合格数量" />
+                    <vxe-column field="deliveryOrderNo" title="交货单号" />
+                    <vxe-column field="salesVoucher" title="销售凭证" />
+                    <vxe-column field="inboundOrderId" title="入库单号" />
+                    <vxe-column field="purchaseOrderId" title="采购订单号" />
+                    <vxe-column field="purchaseCashUnitPrice" title="采购现金单价" />
+                    <vxe-column field="purchaseRebateUnitPrice" title="采购返利单价" />
+                    <vxe-column field="returnCashUnitPrice" title="退货现金单价" />
+                    <vxe-column field="estimatedReturnCashAmount" title="预计退货现金金额" />
+                    <vxe-column field="actualReturnCashAmount" title="实际退货现金金额" />
+                    <vxe-column field="returnRebateUnitPrice" title="退货返利单价" />
+                    <vxe-column field="estimatedReturnRebateAmount" title="预计退货返利金额" />
+                    <vxe-column field="actualReturnRebateAmount" title="实际退货返利金额" />
+                    <vxe-column field="remark" title="备注" />
                     <vxe-column title="操作" >
                         <template #default="{ row }">
                             <el-popconfirm
@@ -369,6 +369,7 @@
             </div>
           </section>
         </el-main>
+        <AddSpareParts ref="addSpareParts" :id="_id" :visible="sparePartsVisible" @close="dialogClose" />
       </edit-base-container>
     </template>
     <template #right>
@@ -380,7 +381,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/return/returnOrder/index';
+import { getDetail, addOrUpdate, returnOrderPage } from '@/api/sparepart/return/returnOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -390,6 +391,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import AddSpareParts from './AddSpareParts.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -452,7 +454,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     EditTable,
-    FetchSelect
+    FetchSelect,
+    AddSpareParts
   },
   computed: {
     _id () {
@@ -464,6 +467,8 @@ export default {
       handler (val) {
         if (val && this.$refs.containerRef) {
           this.$refs.containerRef.loadDetail();
+        } else if (!val) {
+          this.getDetailData();
         }
       },
       immediate: true
@@ -492,6 +497,7 @@ export default {
         total: 0,
       },
       abnormalTableData: [],
+      sparePartsVisible: false,
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       abnormalColumns: [
         {
@@ -708,6 +714,15 @@ export default {
       }
       return [];
     },
+    async getDetailData () {
+      const res = await returnOrderPage({
+        returnOrderId: this._id,
+        pageNum: this.current,
+        pageSize: this.pageSize
+      });
+      this.tableData = res.records || [];
+      this.total = res.total || 0;
+    },
     pageSizeChange (pageSize) {
       this.pageSize = pageSize;
       this.current = 1;
@@ -726,6 +741,13 @@ export default {
       this.abnormal.current = current;
       this.getList();
     },
+    // 打开添加备弹窗
+    addPart () {
+      this.sparePartsVisible = true;
+    },
+    dialogClose () {
+      this.sparePartsVisible = false;
+    }
   }
 };
 </script>

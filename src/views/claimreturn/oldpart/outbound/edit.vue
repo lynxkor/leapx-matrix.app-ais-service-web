@@ -5,20 +5,23 @@
       <edit-base-container
         ref="containerRef"
         :id="_id"
-        :title="title"
+        :title="`主机厂出库单号:${form.outboundOrderNo}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :showEditBtn="form.outboundStatus !== '20'"
       >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
-          <span class="status primary">状态</span>
+          <span v-if="form.outboundStatus === '10'" class="status primary">{{ form.outboundStatusLabel }}</span>
+          <span v-else-if="form.outboundStatus === '20'" class="status success">{{ form.outboundStatusLabel }}</span>
         </template>
         <template #extraButtons>
-          <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button>
+          <el-button v-if="form.outboundStatus === '10'" size="small" @click="outboundConfirm">确认出库</el-button>
+          <el-button v-if="form.outboundStatus === '20' && form.syncStatus === '30'" size="small" @click="syncConfirm">同步</el-button>
+          <el-button size="small" @click="printOutbound">打印出库单</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -175,37 +178,24 @@
                 <el-form-item label="备注：" prop="remark">
                   {{ form.remark }}
                 </el-form-item>
-                <el-form-item label="负责人：" prop="ownerUserName">
-                  {{ form.ownerUserName }}
-                </el-form-item>
                 <el-form-item label="同步状态：" prop="syncStatus">
                   {{ form.syncStatusLabel }}
                 </el-form-item>
-                <el-form-item label="同步信息：" prop="syncMessage">
+                <el-form-item label="同步信息：" class="form-item-full" prop="syncMessage">
                   {{ form.syncMessage }}
                 </el-form-item>
               </el-form>
             </div>
           </section>
-          <section class="common-section">
-            <div class="common-section-header">
-              <h2>旧件库存</h2>
-              <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
-            </div>
-            <div class="common-section-body">
-              <div class="common-section-table">
-                <edit-table
-                  ref="editTable"
-                  :columns="columns"
-                  :data="tableData"
-                  :defaultNewRow="defaultNewRow"
-                  :show-toolbar="false"
-                  :options="options"
-                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
-                />
-              </div>
-            </div>
-          </section>
+          <ReturnOrderTable
+            ref="returntable"
+            :canAddOrUpdate="canAddOrUpdate"
+            :_id="_id"
+            :outboundStatus="form.outboundStatus"
+            :dealerCode="dealerCode"
+            @getTableData="getTableData"
+            @checkboxChange="checkboxChange"
+          />
         </el-main>
       </edit-base-container>
     </template>
@@ -218,9 +208,8 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/claimreturn/oldpart/outbound/index';
+import { getDetail, addOrUpdate, confirmOutbound, sync } from '@/api/claimreturn/oldpart/outbound/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -230,6 +219,8 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import DealerSelect from '@/components/dealer-select/index.vue';
+import ReturnOrderTable from './ReturnOrderTable.vue';
+
 const defaultForm = {
   // 多选时字段有变化，自行修复
   outboundOrderNo: '',
@@ -278,9 +269,9 @@ export default {
     EditPageLayout,
     ListSelect,
     EditBaseContainer,
-    EditTable,
     FetchSelect,
-    DealerSelect
+    DealerSelect,
+    ReturnOrderTable,
   },
   computed: {
     _id () {
@@ -290,8 +281,8 @@ export default {
   watch: {
     id: {
       handler (val) {
-        if (val && this.$refs.containerRef) {
-          this.$refs.containerRef.loadDetail();
+        if (val) {
+          this.updateDetail();
         }
       },
       immediate: true
@@ -302,7 +293,6 @@ export default {
     return {
       pageTitle: '主机厂旧件出库',
       pageType: 'edit',
-      title: '主机厂出库单号:' + form.outboundOrderNo,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-oldPartOemOutboundOrder',
       loading: false,
@@ -357,16 +347,28 @@ export default {
         outboundType: [
           { required: true, message: '请选择出库类型', trigger: 'change' }
         ],
-      }
+      },
+      // ------------ 表格
+      dealerCode: '',
+      existTableData: false,
+      selectedRows: [],
+      // --
+      uploadDialogVisible: true,
     };
   },
   mounted () {
   },
   methods: {
+    updateDetail () {
+      this.$refs.containerRef?.loadDetail();
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id);
+        return getDetail(id).then(data => {
+          this.dealerCode = data.dealerCode;
+          return data;
+        });
       }
     },
     submitRequest () {
@@ -409,6 +411,44 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    // ---------------------------------------------------- 表格 --
+    getTableData (data) {
+      this.existTableData = Boolean(data?.length > 0);
+    },
+    checkboxChange (records) {
+      this.selectedRows = records;
+    },
+    outboundConfirm () {
+      if (!this.existTableData) {
+        this.$message.warning('没有旧件出库单明细无法进行出库');
+        return;
+      }
+      //
+      this.$confirm('您确定要进行出库操作吗？', '确认出库', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        confirmOutbound(this._id).then(res => {
+          this.$message.success('出库成功');
+          this.updateDetail();
+        });
+      });
+    },
+    syncConfirm () {
+      sync(this._id).then(res => {
+        this.updateDetail();
+        this.$message.success('同步成功');
+      });
+    },
+    printOutbound () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'Outbound',
+        title: `旧件出库单(中心库): ${this.form.outboundOrderNo}`,
+        width: 1122,
+      });
     }
   }
 };

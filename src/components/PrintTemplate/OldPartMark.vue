@@ -1,6 +1,6 @@
 <template>
   <div id="printArea" style="width:1060px;">
-    <div v-for="item in data" :key="item.id" class="divMain">
+    <div v-for="item in result" :key="item.id" class="divMain">
       <div class="divLeft">
         <table>
           <tbody>
@@ -25,8 +25,8 @@
               <td>开单日期：</td>
               <td>{{transformDate(item.createTime)}}</td>
               <td>行驶里程：</td>
-              <!-- TODO 待确定 -->
-              <td>3,100.00</td>
+              <td>{{ item.mileage }}</td>
+              <!-- <td>3,100.00</td> -->
             </tr>
             <tr>
               <td>施工单号：</td>
@@ -41,27 +41,14 @@
             <tr>
               <td>故障现象：</td>
               <td colspan="3">
-                <div style="width:100%;">送修人在正常行驶中，ABS故障灯亮</div>
+                <div style="width:100%;">{{ item.faultPhenomenon }}</div>
               </td>
             </tr>
             <tr>
               <td>排查过程：</td>
               <td colspan="3">
                 <div style="width:100%;">
-                  2：经检查胎压灯常亮报警，可复现
-                  3：该故障无技术报告
-                  4：经检查该部位无碰撞。无改装、维修历史无该部位维修记录
-                  5：该轮速传感器线路连接正常
-                  6：经技术确认需更换左后轮速传感器、更换后故障排除
-                  7：该方案符合最小件原则
-                  备注：1：因订货周期超过5天，申请交通补偿（见附件）
-                  2.车辆进店日期（ 2025年3月1日），离店日期是（2025
-                  年3月14日），第六天从（ 2025年3月8日）开始至
-                  （ 2025年3月110日）结束，共计补贴天数（3）天；
-                  3.补偿单价（ 200*3天=600）元，不含税补贴费用合计
-                  （600）元；
-                  4.税率6%，税费=（600*6%=36 ）元；
-                  合计总计费用（600+36=636 ）元；
+                  {{ item.troubleshootingFlow }}
                 </div>
               </td>
             </tr>
@@ -71,27 +58,28 @@
             </tr>
             <tr>
               <td>车型：</td>
-              <td>C11-580尊享版</td>
+              <td>{{ item.vehModelName }}</td>
               <td>车牌号：</td>
-              <td>川ABX3573</td>
+              <td>{{ item.carPlate }}</td>
             </tr>
             <tr>
               <td>车架号：</td>
+              <!-- TODO -->
               <td colspan="3">LFZ63AL54SD245658</td>
             </tr>
             <tr>
               <td>动力电池编码：</td>
-              <td colspan="3">0K1PB4M0AG000BF4N0000175</td>
+              <td colspan="3">{{item.batterySerialNumber}}</td>
             </tr>
             <tr>
               <td>驱动电机编码：</td>
-              <td colspan="3">--</td>
+              <td colspan="3">{{ item.motorSerialNumber }}</td>
             </tr>
             <tr>
               <td>生产日期：</td>
-              <td>--</td>
+              <td>{{ transformDate(item.manufacturingDate) }}</td>
               <td>销售日期：</td>
-              <td>2025/5/6</td>
+              <td>{{ transformDate(item.salesDate) }}</td>
             </tr>
           </tbody>
         </table>
@@ -150,6 +138,7 @@
 </template>
 <script>
 import QrcodeVue from 'qrcode.vue';
+import { print } from '@/api/claimreturn/oldpart/inventory/oem/index.js';
 export default {
   components: {
     QrcodeVue,
@@ -166,23 +155,29 @@ export default {
   },
   data () {
     return {
-      info: {}
+      result: [],
     };
   },
   watch: {
-    id: function (val) {
-      if (val) {
-        this.getData();
-      }
+    data: {
+      handler (ids) {
+        if (ids) {
+          this.getData(ids);
+        }
+      },
+      deep: true,
+      immediate: true,
     }
   },
   mounted () {
   },
   methods: {
-    getData () {
-      // getDetail(this.id).then(res => {
-      //   this.info = res;
-      // });
+    getData (ids) {
+      print({
+        ids,
+      }).then(res => {
+        this.result = res;
+      });
     },
     transformDate (time) {
       if (!time) {

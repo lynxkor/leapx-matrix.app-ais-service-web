@@ -66,3 +66,11 @@ export function enableItem (data) {
 export function queryByOldPartUniqueCode4Check (data) {
   return api.jsonPost(prefix + 'queryByOldPartUniqueCode4Check', data);
 }
+
+/**
+ * 旧件库存详情打印
+ * @param {Object} data
+ */
+export function print (data) {
+  return api.jsonPost(prefix + 'print', data);
+}

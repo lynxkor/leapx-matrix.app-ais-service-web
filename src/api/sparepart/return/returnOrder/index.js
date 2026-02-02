@@ -43,3 +43,19 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 添加备件分页查询
+ * @param {Object} data
+ */
+export function addPartPage (data) {
+  return api.jsonPost('sp/web/purchase/returnOrderDetail/addPartPage', data);
+}
+
+/**
+ * 备件退货明细表分页查询
+ * @param {Object} data
+ */
+export function returnOrderPage (data) {
+  return api.jsonPost('sp/web/purchase/returnOrderDetail/page', data);
+}

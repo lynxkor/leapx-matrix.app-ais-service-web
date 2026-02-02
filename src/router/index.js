@@ -972,8 +972,7 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
-    },
-    {
+    }, {
       path: '/claimreturn/oldpart/inventory/dealer',
       name: 'page',
       component: () => import('@/views/claimreturn/oldpart/inventory/oem/index.vue'),
@@ -982,9 +981,9 @@ const routes = [
         name: '门店旧件库存',
         keepAlive: true,
         moduleKey: 'AISCR-oldPartDealerInventoryDetail',
+        isDealer: true,
       }
-    },
-    {
+    }, {
       path: '/claimreturn/oldpart/inventory/dealer/edit',
       name: 'pageEdit',
       component: () => import('@/views/claimreturn/oldpart/inventory/oem/edit.vue'),
@@ -993,8 +992,7 @@ const routes = [
         noResourceUrl: 'true',
         moduleKey: 'AISCR-oldPartDealerInventoryDetail',
       }
-    },
-    {
+    }, {
       path: '/claimreturn/oldpart/basic/oldPartUnqualifiedConfig',
       name: 'oldPartUnqualifiedConfig',
       component: () => import('@/views/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/index.vue'),
@@ -1135,7 +1133,7 @@ const routes = [
       name: 'fastReturnOrderEdit',
       component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
       meta: {
-        name: '回运单详情',
+        name: '旧件回运单',
         moduleKey: 'AISCR-oldPartReturnOrder',
         noResourceUrl: 'true'
       }
@@ -1182,7 +1180,7 @@ const routes = [
       component: () => import('@/views/sparepart/fund/account/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件现金账户',
         keepAlive: true
       }
     }, {
@@ -1191,7 +1189,25 @@ const routes = [
       component: () => import('@/views/sparepart/fund/account/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件现金账户详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/fund/accountRebate',
+      name: 'accountRebate',
+      component: () => import('@/views/sparepart/fund/account/index.vue'),
+
+      meta: {
+        name: '备件返利账户',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/fund/accountRebate/edit',
+      name: 'accountRebateEdit',
+      component: () => import('@/views/sparepart/fund/account/edit.vue'),
+
+      meta: {
+        name: '备件返利账户详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -1366,6 +1382,13 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/claimreturn/oldpart/destroy/oldPartDestroyConfig',
+      name: 'oldPartDestroyConfig',
+      component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyConfig/index.vue'),
+      meta: {
+        name: '旧件销毁设置',
+      }
+    }, {
       path: '/sparepart/basic/purchaseTimesLimit',
       name: 'purchaseTimesLimit',
       component: () => import('@/views/sparepart/basic/purchaseTimesLimit/index.vue'),
@@ -1464,9 +1487,7 @@ const routes = [
         name: '备件采购订单详情',
         noResourceUrl: 'true'
       }
-    },
-
-    {
+    }, {
       path: '/maintain/sp/repairRecord',
       name: 'repairRecord',
       component: () => import('@/views/maintain/sp/repairRecord/index.vue'),
@@ -1546,6 +1567,132 @@ const routes = [
 
       meta: {
         name: '备件入库单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/warehouse/oemOutboundCallbackSetting',
+      name: 'oemOutboundCallbackSetting',
+      component: () => import('@/views/sparepart/warehouse/oemOutboundCallbackSetting/index.vue'),
+
+      meta: {
+        name: 'OEM出库单回传SAP开关',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/warehouse/oemoutboundcallbacksetting/edit',
+      name: 'oemOutboundCallbackSettingEdit',
+      component: () => import('@/views/sparepart/warehouse/oemOutboundCallbackSetting/edit.vue'),
+
+      meta: {
+        name: 'OEM出库单回传SAP开关详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/warehouse/oemInventory',
+      name: 'oemInventory',
+      component: () => import('@/views/sparepart/warehouse/inventory/index.vue'),
+
+      meta: {
+        name: '主机厂备件库存查询',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/warehouse/oemInventory/edit',
+      name: 'oemInventoryEdit',
+      component: () => import('@/views/sparepart/warehouse/inventory/edit.vue'),
+
+      meta: {
+        name: '主机厂备件库存查询详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/return/returnExceptionalOrder',
+      name: 'returnExceptionalOrder',
+      component: () => import('@/views/sparepart/return/returnOrder/index.vue'),
+
+      meta: {
+        name: '备件退货异常订单',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/return/returnExceptionalOrder/edit',
+      name: 'returnExceptionalOrderEdit',
+      component: () => import('@/views/sparepart/return/returnOrder/edit.vue'),
+
+      meta: {
+        name: '备件退货异常订单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/sys/consistencyIn',
+      name: 'consistencyIn',
+      component: () => import('@/views/sparepart/sys/consistencyIn/index.vue'),
+
+      meta: {
+        name: '外部回传接口信息',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/sys/consistencyin/edit',
+      name: 'consistencyInEdit',
+      component: () => import('@/views/sparepart/sys/consistencyIn/edit.vue'),
+
+      meta: {
+        name: '外部回传接口信息详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/sys/consistencyOut',
+      name: 'consistencyIn',
+      component: () => import('@/views/sparepart/sys/consistencyIn/index.vue'),
+
+      meta: {
+        name: '同步外部接口信息',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/sys/consistencyout/edit',
+      name: 'consistencyInEdit',
+      component: () => import('@/views/sparepart/sys/consistencyIn/edit.vue'),
+
+      meta: {
+        name: '同步外部接口信息详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/fund/accountOperateApply',
+      name: 'accountOperateApply',
+      component: () => import('@/views/sparepart/fund/accountOperateApply/index.vue'),
+
+      meta: {
+        name: '备件返利充值管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/fund/accountoperateapply/edit',
+      name: 'accountOperateApplyEdit',
+      component: () => import('@/views/sparepart/fund/accountOperateApply/edit.vue'),
+
+      meta: {
+        name: '备件返利充值管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/fund/accountOperateDeductionApply',
+      name: 'accountOperateApply',
+      component: () => import('@/views/sparepart/fund/accountOperateApply/index.vue'),
+
+      meta: {
+        name: '备件返利扣款管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/fund/accountoperatedeductionapply/edit',
+      name: 'accountOperateApplyEdit',
+      component: () => import('@/views/sparepart/fund/accountOperateApply/edit.vue'),
+
+      meta: {
+        name: '备件返利扣款管理详情',
         noResourceUrl: 'true'
       }
     }]
