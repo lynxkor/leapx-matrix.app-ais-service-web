@@ -237,8 +237,7 @@ export default {
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-oldPartDestroyOrder',
       // 是否是门店用户
-      isDealer: false,
-      // isDealer: this.$store.state.user.userInfo?.accountFlag,
+      isDealer: this.$store.state.user.userInfo?.accountFlag,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
