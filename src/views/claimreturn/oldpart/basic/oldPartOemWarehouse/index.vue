@@ -19,7 +19,7 @@
       <el-form-item label="仓库编码">
         <el-input
           placeholder="请输入"
-          v-model="form.warehouseCodeLike"
+          v-model="form.warehouseCode"
           clearable
         />
       </el-form-item>
@@ -144,10 +144,11 @@ export default {
           { props: 'warehouseCode', label: '仓库编码', visible: true, width: 120 },
           { props: 'creditCode', label: '社会统一信用代码', visible: true, width: 180 },
           { props: 'provinceName', label: '省', visible: true, width: 180 },
-          { props: 'cityName', label: '市', visible: true, width: 180 },
-          { props: 'districtName', label: '区', visible: true, width: 180 },
+          { props: 'cityName', label: '城市', visible: true, width: 180 },
+          { props: 'districtName', label: '区/县', visible: true, width: 180 },
           { props: 'address', label: '地址', visible: true, width: 220 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
           { props: 'statusDesc', label: '说明', visible: true, width: 200 },
           {
             props: 'operate',
