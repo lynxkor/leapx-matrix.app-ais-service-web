@@ -64,8 +64,7 @@
             </tr>
             <tr>
               <td>车架号：</td>
-              <!-- TODO -->
-              <td colspan="3">LFZ63AL54SD245658</td>
+              <td colspan="3">{{ item.vin }}</td>
             </tr>
             <tr>
               <td>动力电池编码：</td>
