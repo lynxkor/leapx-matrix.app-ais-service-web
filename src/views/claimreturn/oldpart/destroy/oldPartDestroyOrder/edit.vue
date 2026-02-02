@@ -266,7 +266,13 @@ export default {
           field: 'serviceProxyNo',
           title: '接车施工单',
           width: '160',
-          click (row) {
+          click: (row) => {
+            this.navigateToRoute({
+              path: '/maintain/sp/serviceProxy/edit',
+              query: {
+                id: row.serviceProxyId
+              }
+            });
             // 点击事件
           }
         },
@@ -274,9 +280,15 @@ export default {
           field: 'warrantyNo',
           title: '保修申请单',
           width: '180',
-          click (row) {
+          click: (row) => {
+            this.navigateToRoute({
+              path: '',
+              query: {
+                id: row.warrantyId
+              }
+            });
             // 点击事件
-            console.log('点击了接车施工单');
+            console.log('点击了保修申请单');
           }
         },
         {
@@ -292,7 +304,7 @@ export default {
             this.$router.push({
               path: '/claimreturn/oldpart/inventory/oem/edit',
               query: {
-                id: row.id
+                oldPartUniqueCode: row.oldPartUniqueCode
               }
             });
           }
@@ -301,7 +313,7 @@ export default {
           field: 'dealerName',
           title: '门店名称',
           width: '150',
-          click (row) {
+          click: (row) => {
             this.navigateToRoute({
               path: '/partner/channelManagement/shopDetail',
               query: {
@@ -325,9 +337,15 @@ export default {
           field: 'oldPartSupplierName',
           title: '旧件供应商',
           width: '150',
-          click () {
+          click: (row) => {
             // 点击事件
-            console.log('点击了接车施工单');
+            this.navigateToRoute({
+              path: '/sparepart/basic/supplierInfo/detail',
+              query: {
+                id: row.oldPartSupplierId,
+              },
+            });
+            console.log('点击了旧件供应商');
           }
         },
         {
@@ -339,9 +357,15 @@ export default {
           field: 'oldPartCode',
           title: '旧件编码',
           width: '140',
-          click () {
+          click: (row) => {
             // 点击事件
-            console.log('点击了接车施工单');
+            this.navigateToRoute({
+              path: '/sparepart/basic/sparePart/detail',
+              query: {
+                id: row.oldPartId,
+              },
+            });
+            console.log('点击了旧件编码');
           }
         },
         {
@@ -353,9 +377,15 @@ export default {
           field: 'partCode',
           title: '换上零件编码',
           width: '140',
-          click () {
+          click: (row) => {
             // 点击事件
-            console.log('点击了接车施工单');
+            this.navigateToRoute({
+              path: '/sparepart/basic/sparePart/detail',
+              query: {
+                id: row.partId,
+              },
+            });
+            console.log('点击了换上零件编码');
           }
         },
         {
