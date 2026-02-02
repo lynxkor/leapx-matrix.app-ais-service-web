@@ -422,11 +422,14 @@ export default {
       // 计算最终金额数据
       const data = this.getFinalData();
       submitSettlement(data).then((res) => {
-        this.$message.success('提交结算成功');
+
         this.close();
         if (res.lastRecord) {
           this.signDialogVisible = true;
           this.totalData = data;
+
+        }else{
+          this.$message.info(res.alertMsg);
         }
       });
     },

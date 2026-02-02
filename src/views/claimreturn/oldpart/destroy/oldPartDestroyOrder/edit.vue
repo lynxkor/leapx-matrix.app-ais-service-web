@@ -304,7 +304,7 @@ export default {
             this.$router.push({
               path: '/claimreturn/oldpart/inventory/oem/edit',
               query: {
-                oldPartUniqueCode: row.oldPartUniqueCode
+                id: row.id
               }
             });
           }

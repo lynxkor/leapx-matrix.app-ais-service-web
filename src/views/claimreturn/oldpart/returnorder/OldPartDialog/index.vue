@@ -309,6 +309,7 @@ export default {
     },
     // --------------- 表单查询 -------------------------
     onSubmit () {
+      this.optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
