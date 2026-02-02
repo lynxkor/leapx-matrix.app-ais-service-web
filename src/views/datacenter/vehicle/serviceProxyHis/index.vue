@@ -140,7 +140,7 @@ export default {
                 this.$router.push({
                   path: '/maintain/sp/serviceProxy/edit',
                   query: {
-                    id: row.id
+                    id: row.serviceProxyId
                   }
                 });
               },
@@ -157,7 +157,7 @@ export default {
                 this.$router.push({
                   path: '/maintain/sp/serviceProxy/edit',
                   query: {
-                    id: row.id
+                    id: row.serviceProxyId
                   }
                 });
               },
@@ -212,10 +212,15 @@ export default {
     },
     exportExcel () {
       this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
       exportTable({
         businessType: '接车施工单-维修履历信息管理',
         dataFetchPath: 'datacenter/web/vehicle/serviceProxyHis/page',
-        reqParams: this.getFormData(),
+        reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
