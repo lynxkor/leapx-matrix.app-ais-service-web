@@ -23,6 +23,7 @@
             v-model="form.vehProfileVin"
             :remote-method="searchVehicle"
             @change="handleVinChange"
+            :disabled="vinDisabled"
             value-key="vin"
             label-key="vin"
           />
@@ -529,6 +530,7 @@
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
 import { getVehicleProfile, getCarInfo, checkVinTag } from '@/api/maintain/sp/serviceProxy/index';
+import { RepairOrderStatusEnum } from '../../edit.vue';
 
 export default {
   props: {
@@ -547,6 +549,11 @@ export default {
     _id: {
       type: [String, Number],
       default: null
+    }
+  },
+  computed: {
+    vinDisabled () {
+      return !!this.form.orderStatus && this.form.orderStatus !== RepairOrderStatusEnum.RECEPTION_INSPECTION;
     }
   },
   components: {

@@ -273,7 +273,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, reject,receiptCompletion } from '@/api/maintain/sp/serviceStatement/index';
+import { getDetail, addOrUpdate, reject, receiptCompletion } from '@/api/maintain/sp/serviceStatement/index';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -471,7 +471,7 @@ export default {
         case 'createWarranty':
           // 创建保单：结算类型为自费/保险，状态为已完成
           var isCompletedStatus = this.form.statementStatus === 30; // 已完成状态
-          var isValidTypeForWarranty = this.form.statementType==='392BB70C-82AC-E911-B0BB-FC82BA5F9EDF';
+          var isValidTypeForWarranty = this.form.statementType === '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF';
           return isValidTypeForWarranty && isCompletedStatus;
 
         case 'rights':
@@ -575,39 +575,39 @@ export default {
         // 金额不一致时提示错误
         this.$message.warning(
                `结账记录总金额${totalPayAmount.toFixed(2)}不等于结算单应付总金额${payableAmount.toFixed(2)}！`
-             );
-           } else {
-             // 金额一致时弹出确认对话框
-             this.confirmPaySuccess();
-           }
+        );
+      } else {
+        // 金额一致时弹出确认对话框
+        this.confirmPaySuccess();
+      }
     },
-// 确认收款完成
-confirmPaySuccess() {
-  this.$confirm('您确定要收款完成吗？', '确认操作', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    this.handlePaySuccess();
-  }).catch(() => {
-    this.$message.info('已取消收款完成操作');
-  });
-},
-// 处理收款完成逻辑
-async handlePaySuccess() {
-  try {
-    // 调用收款完成API
-    await receiptCompletion(this._id);
+    // 确认收款完成
+    confirmPaySuccess () {
+      this.$confirm('您确定要收款完成吗？', '确认操作', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.handlePaySuccess();
+      }).catch(() => {
+        this.$message.info('已取消收款完成操作');
+      });
+    },
+    // 处理收款完成逻辑
+    async handlePaySuccess () {
+      try {
+        // 调用收款完成API
+        await receiptCompletion(this._id);
 
-    this.$message.success('收款完成成功');
+        this.$message.success('收款完成成功');
 
-    // 刷新页面数据
-    this.handleRefresh();
-  } catch (error) {
-    console.error('收款完成失败:', error);
-    this.$message.error('收款失败');
-  }
-},
+        // 刷新页面数据
+        this.handleRefresh();
+      } catch (error) {
+        console.error('收款完成失败:', error);
+        this.$message.error('收款失败');
+      }
+    },
 
     createRefund () {
       // 实现创建反结算单功能
@@ -617,7 +617,7 @@ async handlePaySuccess() {
 
     createWarrantyApply () {
       // 实现创建保修申请单功能
-    this.$message.warning('功能开发中...');
+      this.$message.warning('功能开发中...');
       // 这里可以添加具体的创建保修申请单逻辑
     },
 
@@ -644,11 +644,11 @@ async handlePaySuccess() {
       }
     },
     submitRequest () {
-     return addOrUpdate({ ...this.form }).then(response => {
-       // 提交成功后重新加载当前路由
-       this.$router.go(0); // 或者使用 this.$router.replace(this.$route)
-       return response;
-     });
+      return addOrUpdate({ ...this.form }).then(response => {
+        // 提交成功后重新加载当前路由
+        this.$router.go(0); // 或者使用 this.$router.replace(this.$route)
+        return response;
+      });
     },
     // 打开侧边栏
     openPane () {

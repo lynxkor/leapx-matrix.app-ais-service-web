@@ -296,7 +296,7 @@ const defaultForm = {
   partOutboundResps: '',
 };
 
-const RepairOrderStatusEnum = {
+export const RepairOrderStatusEnum = {
   /** 接车预检测 */
   RECEPTION_INSPECTION: 100,
   /** 制单中 */
