@@ -314,12 +314,12 @@
 </template>
 
 <script>
-import { getDiscountType } from "@/api/maintain/sp/serviceProxy/index";
-import { submitSettlement } from "@/api/maintain/sp/serviceStatement/index";
-import SignDialog from "../SignDialog";
+import { getDiscountType } from '@/api/maintain/sp/serviceProxy/index';
+import { submitSettlement } from '@/api/maintain/sp/serviceStatement/index';
+import SignDialog from '../SignDialog';
 
 export default {
-  name: "SubmitSettlemenDialog",
+  name: 'SubmitSettlemenDialog',
   props: {
     visible: {
       type: Boolean,
@@ -335,9 +335,9 @@ export default {
   components: {
     SignDialog,
   },
-  data() {
+  data () {
     return {
-      activeTab: "project",
+      activeTab: 'project',
       roundAmount: 0,
       // 优惠模式
       discountType: [],
@@ -359,8 +359,8 @@ export default {
     };
   },
   filters: {
-    tofixed2(v) {
-      if (v && parseFloat(v) !== "NaN") {
+    tofixed2 (v) {
+      if (v && parseFloat(v) !== 'NaN') {
         return parseFloat(v).toFixed(2);
       }
       return v;
@@ -368,7 +368,7 @@ export default {
   },
   watch: {
     visible: {
-      handler(val) {
+      handler (val) {
         if (val) {
           this.initData();
         }
@@ -376,7 +376,7 @@ export default {
       immediate: true,
     },
     info: {
-      handler(val) {
+      handler (val) {
         if (val && Object.keys(val).length > 0) {
           const {
             repairItemResps,
@@ -403,26 +403,26 @@ export default {
     },
   },
   methods: {
-    initData() {
+    initData () {
       getDiscountType().then((res) => {
         this.discountType = res || [];
       });
     },
-    close() {
-      this.$emit("update:visible", false);
+    close () {
+      this.$emit('update:visible', false);
     },
-    closed() {
+    closed () {
       // this.activeTab = 'project';
       // this.projectData = [];
       // this.partsData = [];
       // this.rightsData = [];
     },
     // 确认提交
-    handleConfirm() {
+    handleConfirm () {
       // 计算最终金额数据
       const data = this.getFinalData();
       submitSettlement(data).then((res) => {
-        this.$message.success("提交结算成功");
+        this.$message.success('提交结算成功');
         this.close();
         if (res.lastRecord) {
           this.signDialogVisible = true;
@@ -431,11 +431,11 @@ export default {
       });
     },
     // 关闭弹窗
-    handleClose() {
+    handleClose () {
       this.close();
     },
     // 优惠模式切换
-    handleDiscountModeChange(value) {
+    handleDiscountModeChange (value) {
       // 找到选中的优惠模式
       this.currentDiscountMode =
         this.discountType.find((item) => item.id === value) || null;
@@ -443,13 +443,13 @@ export default {
       this.applyDiscountMode();
     },
     // 去零金额变化
-    handleRoundAmountChange(value) {
+    handleRoundAmountChange (value) {
       this.roundAmount = value || 0;
       // 去零金额变化时重新计算应收总金额
       this.calculateSummaryAmounts();
     },
     // 维修项目优惠金额变化
-    handleItemDiscountAmountChange(row) {
+    handleItemDiscountAmountChange (row) {
       // 计算应收金额 = 单价 * 工时 - 优惠金额
       const price = +row.price || 0;
       const workHour = +row.workHour || 0;
@@ -461,7 +461,7 @@ export default {
       this.calculateSummaryAmounts();
     },
     // 维修备件优惠金额变化
-    handlePartDiscountAmountChange(row) {
+    handlePartDiscountAmountChange (row) {
       // 计算应收金额 = 单价 * 数量 - 优惠金额
       const price = +row.price || 0;
       const quantity = +row.quantity || 0;
@@ -472,19 +472,19 @@ export default {
       this.calculateSummaryAmounts();
     },
     // 计算最大优惠金额
-    calculateMaxDiscount(row, type) {
+    calculateMaxDiscount (row, type) {
       const price = +row.price || 0;
-      if (type === "project") {
+      if (type === 'project') {
         const workHour = +row.workHour || 0;
         return price * workHour;
-      } else if (type === "part") {
+      } else if (type === 'part') {
         const quantity = +row.quantity || 0;
         return price * quantity;
       }
       return price;
     },
     // 应用优惠模式折扣率
-    applyDiscountMode() {
+    applyDiscountMode () {
       if (!this.currentDiscountMode) {
         // 如果未选择优惠模式，恢复原始数据
         this.projectData = JSON.parse(JSON.stringify(this.originalProjectData));
@@ -532,7 +532,7 @@ export default {
       this.calculateSummaryAmounts();
     },
     // 计算汇总金额
-    calculateSummaryAmounts() {
+    calculateSummaryAmounts () {
       // 项目优惠总金额
       const repairItemDiscount = this.projectData.reduce((sum, row) => {
         return sum + (+row.discountAmount || 0);
@@ -573,7 +573,7 @@ export default {
       };
     },
     // 计算最终金额数据（用于提交）
-    getFinalData() {
+    getFinalData () {
       const data = {
         id: this.info.id,
         serviceProxyCode: this.info.serviceProxyCode,
@@ -586,19 +586,19 @@ export default {
       return data;
     },
     // 结算类型是否为合同、保修
-    checkoutTypeIncluded(type) {
+    checkoutTypeIncluded (type) {
       // SELF_PAY("352BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "自费"),
       // INSURANCE("372BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "保险"),
       // WARRANTY("392BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "保修"),
       // CONTRACT("3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "合同"),
       // INTERNAL_SETTLEMENT("3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "内部结算");
       return (
-        type === "392BB70C-82AC-E911-B0BB-FC82BA5F9EDF" ||
-        type === "3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF"
+        type === '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF' ||
+        type === '3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF'
       );
     },
-    handleRefresh() {
-      this.$emit("refresh");
+    handleRefresh () {
+      this.$emit('refresh');
     },
   },
 };

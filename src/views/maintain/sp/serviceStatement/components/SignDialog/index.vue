@@ -47,11 +47,11 @@
 </template>
 
 <script>
-import { getEnum } from "@/api/maintain/sp/serviceProxy/index";
-import { signSettlement } from "@/api/maintain/sp/serviceStatement/index";
+import { getEnum } from '@/api/maintain/sp/serviceProxy/index';
+import { signSettlement } from '@/api/maintain/sp/serviceStatement/index';
 
 export default {
-  name: "ConfirmDocDialog",
+  name: 'ConfirmDocDialog',
   props: {
     visible: {
       type: Boolean,
@@ -59,35 +59,35 @@ export default {
     },
     serviceProxyCode: {
       type: String,
-      default: "",
+      default: '',
     },
     serviceProxyId: {
       type: [String, Number],
-      default: "",
+      default: '',
     },
     info: {
       type: Object,
       default: () => {},
     },
   },
-  data() {
+  data () {
     return {
       dialogVisible: this.visible,
       form: {
-        signChannel: "",
+        signChannel: '',
       },
       rules: {
         signChannel: [
-          { required: true, message: "请选择签字渠道", trigger: "change" },
+          { required: true, message: '请选择签字渠道', trigger: 'change' },
         ],
       },
       submitLoading: false,
-      formLabelWidth: "0",
+      formLabelWidth: '0',
       signChannelOptions: [],
     };
   },
   watch: {
-    visible(val) {
+    visible (val) {
       this.dialogVisible = val;
       if (val) {
         this.getSignChannelEnum();
@@ -95,14 +95,14 @@ export default {
     },
   },
   methods: {
-    close() {
-      this.$emit("update:visible", false);
+    close () {
+      this.$emit('update:visible', false);
     },
-    closed() {
+    closed () {
       this.$refs.form.resetFields();
     },
-    getSignChannelEnum() {
-      getEnum("SignChannelEnum")
+    getSignChannelEnum () {
+      getEnum('SignChannelEnum')
         .then((res) => {
           this.signChannelOptions = res || [];
           if (this.signChannelOptions.length > 0 && !this.form.signChannel) {
@@ -113,7 +113,7 @@ export default {
           this.signChannelOptions = [];
         });
     },
-    submit() {
+    submit () {
       this.$refs.form.validate((valid) => {
         if (valid) {
           this.submitLoading = true;
@@ -122,9 +122,9 @@ export default {
             signChannel: this.form.signChannel,
           })
             .then((res) => {
-              this.$message.success("签字成功");
-              this.$emit("update:visible", false);
-              this.$emit("refresh");
+              this.$message.success('签字成功');
+              this.$emit('update:visible', false);
+              this.$emit('refresh');
             })
             .finally(() => {
               this.submitLoading = false;

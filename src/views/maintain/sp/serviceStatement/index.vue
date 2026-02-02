@@ -116,37 +116,37 @@
 </template>
 
 <script>
-import debounce from "lodash.debounce";
-import { LPVxeTable } from "@leapmotor/design";
-import PageSearchAction from "@/libs/components/AisPageSearchAction";
+import debounce from 'lodash.debounce';
+import { LPVxeTable } from '@leapmotor/design';
+import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import {
   getList,
   deleteItem,
   enableItem,
   getStatistics,
-} from "@/api/maintain/sp/serviceStatement/index";
+} from '@/api/maintain/sp/serviceStatement/index';
 import {
   getTableConfig,
   tableAddOrUpdate,
   exportTable,
   getEnum,
-} from "@/api/common";
-import Upload from "@/libs/components/UploadDialog";
-import { YES_NO_ENUM } from "@/libs/constants";
-import responsiveSearchForm from "@/libs/mixins/responsive";
-import permissions from "@/libs/mixins/permissions";
-import { handleBatchStatusChange, downloadExcel } from "@/libs/utils";
-import commonMixins from "@/libs/mixins/commonMixins";
-import EditPage from "./edit.vue";
-import DealerSelect from "@/components/dealer-select";
+} from '@/api/common';
+import Upload from '@/libs/components/UploadDialog';
+import { YES_NO_ENUM } from '@/libs/constants';
+import responsiveSearchForm from '@/libs/mixins/responsive';
+import permissions from '@/libs/mixins/permissions';
+import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
+import commonMixins from '@/libs/mixins/commonMixins';
+import EditPage from './edit.vue';
+import DealerSelect from '@/components/dealer-select';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  code: "",
-  serviceProxyCode: "",
-  vehProfileVin: "",
-  createReStatement: "",
-  statementStatus: "",
+  code: '',
+  serviceProxyCode: '',
+  vehProfileVin: '',
+  createReStatement: '',
+  statementStatus: '',
 };
 
 const pageSize = 20;
@@ -163,12 +163,12 @@ export default {
     Upload,
     DealerSelect,
   },
-  data() {
+  data () {
     return {
-      pageTitle: "结算单表管理",
-      pageType: "list",
+      pageTitle: '结算单表管理',
+      pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: "AISMC-serviceStatement",
+      moduleKey: 'AISMC-serviceStatement',
       form: {
         ...defaultForm,
       },
@@ -178,9 +178,9 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
-      clickItemId: "",
+      clickItemId: '',
       optionObj: {
-        id: "serviceStatementTable",
+        id: 'serviceStatementTable',
         dataList: [],
         form: {
           page: 1,
@@ -188,230 +188,230 @@ export default {
         },
         dataProp: [
           {
-            props: "code",
-            label: "结算单号",
+            props: 'code',
+            label: '结算单号',
             visible: true,
             width: 200,
-            fixed: "left",
+            fixed: 'left',
             buttons: [
               {
                 click: (rowIndex, row) => {
                   this.$router.push({
-                    path: "/maintain/sp/serviceStatement/edit",
+                    path: '/maintain/sp/serviceStatement/edit',
                     query: {
                       id: row.id,
                     },
                   });
                 },
-                type: "primary",
+                type: 'primary',
               },
             ],
           },
           {
-            props: "dataSourceLabel",
-            label: "数据来源",
+            props: 'dataSourceLabel',
+            label: '数据来源',
             visible: true,
             width: 200,
           },
           {
-            props: "statementTypeLabel",
-            label: "结算单类型",
+            props: 'statementTypeLabel',
+            label: '结算单类型',
             visible: true,
             width: 200,
           },
           {
-            props: "statementStatusLabel",
-            label: "结算单状态",
+            props: 'statementStatusLabel',
+            label: '结算单状态',
             visible: true,
             width: 200,
           },
           {
-            props: "serviceProxyCode",
-            label: "接车施工单",
+            props: 'serviceProxyCode',
+            label: '接车施工单',
             visible: true,
             width: 200,
-            fixed: "left",
+            fixed: 'left',
             buttons: [
               {
                 click: (rowIndex, row) => {
                   this.$router.push({
-                    path: "/maintain/sp/serviceProxy/edit",
+                    path: '/maintain/sp/serviceProxy/edit',
                     query: {
                       id: row.serviceProxyId,
                     },
                   });
                 },
-                type: "primary",
+                type: 'primary',
               },
             ],
           },
 
           {
-            props: "warrantyTypeCollect",
-            label: "保修类型（汇总）",
+            props: 'warrantyTypeCollect',
+            label: '保修类型（汇总）',
             visible: true,
             width: 200,
           },
           {
-            props: "accountTypeLabel",
-            label: "销账标识",
+            props: 'accountTypeLabel',
+            label: '销账标识',
             visible: true,
             width: 200,
           },
-          { props: "vehProfileVin", label: "VIN码", visible: true, width: 200 },
+          { props: 'vehProfileVin', label: 'VIN码', visible: true, width: 200 },
           {
-            props: "customerName",
-            label: "车主姓名",
+            props: 'customerName',
+            label: '车主姓名',
             visible: true,
             width: 200,
           },
-          { props: "carPlate", label: "车牌号", visible: true, width: 200 },
-          { props: "dealerName", label: "门店名称", visible: true, width: 200 },
+          { props: 'carPlate', label: '车牌号', visible: true, width: 200 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           {
-            props: "repairItemAmount",
-            label: "维修项目金额",
-            visible: true,
-            width: 200,
-          },
-          {
-            props: "repairItemDiscount",
-            label: "维修项优惠金额",
+            props: 'repairItemAmount',
+            label: '维修项目金额',
             visible: true,
             width: 200,
           },
           {
-            props: "repairItemPayableAmount",
-            label: "维修项应付金额",
-            visible: true,
-            width: 200,
-          },
-          { props: "partAmount", label: "零件金额", visible: true, width: 200 },
-          {
-            props: "partDiscount",
-            label: "零件优惠金额",
+            props: 'repairItemDiscount',
+            label: '维修项优惠金额',
             visible: true,
             width: 200,
           },
           {
-            props: "partPayableAmount",
-            label: "零件应付金额",
+            props: 'repairItemPayableAmount',
+            label: '维修项应付金额',
+            visible: true,
+            width: 200,
+          },
+          { props: 'partAmount', label: '零件金额', visible: true, width: 200 },
+          {
+            props: 'partDiscount',
+            label: '零件优惠金额',
             visible: true,
             width: 200,
           },
           {
-            props: "rightsAmount",
-            label: "权益金额",
+            props: 'partPayableAmount',
+            label: '零件应付金额',
             visible: true,
             width: 200,
           },
           {
-            props: "discountAmount",
-            label: "优惠总金额",
+            props: 'rightsAmount',
+            label: '权益金额',
             visible: true,
             width: 200,
           },
           {
-            props: "noFractionAmount",
-            label: "去零金额",
-            visible: true,
-            width: 200,
-          },
-          { props: "totalAmount", label: "总金额", visible: true, width: 200 },
-          {
-            props: "payableAmount",
-            label: "实际应付总金额",
+            props: 'discountAmount',
+            label: '优惠总金额',
             visible: true,
             width: 200,
           },
           {
-            props: "remainAmount",
-            label: "剩余应付款金额",
+            props: 'noFractionAmount',
+            label: '去零金额',
+            visible: true,
+            width: 200,
+          },
+          { props: 'totalAmount', label: '总金额', visible: true, width: 200 },
+          {
+            props: 'payableAmount',
+            label: '实际应付总金额',
             visible: true,
             width: 200,
           },
           {
-            props: "nextMaintenanceMileage",
-            label: "下次保养里程",
+            props: 'remainAmount',
+            label: '剩余应付款金额',
             visible: true,
             width: 200,
           },
           {
-            props: "nextMaintenanceTime",
-            label: "下次保养时间",
+            props: 'nextMaintenanceMileage',
+            label: '下次保养里程',
             visible: true,
             width: 200,
           },
           {
-            props: "createReStatement",
-            label: "是否已创建反结算申请",
+            props: 'nextMaintenanceTime',
+            label: '下次保养时间',
             visible: true,
             width: 200,
           },
           {
-            props: "createWarrantyLabel",
-            label: "是否已生成保修单",
+            props: 'createReStatement',
+            label: '是否已创建反结算申请',
             visible: true,
             width: 200,
           },
           {
-            props: "statementPersonName",
-            label: "结算人员",
+            props: 'createWarrantyLabel',
+            label: '是否已生成保修单',
             visible: true,
             width: 200,
           },
           {
-            props: "statementTime",
-            label: "结算时间",
+            props: 'statementPersonName',
+            label: '结算人员',
             visible: true,
             width: 200,
           },
-          { props: "payeeName", label: "收款人", visible: true, width: 200 },
           {
-            props: "receiveTime",
-            label: "收款时间",
+            props: 'statementTime',
+            label: '结算时间',
             visible: true,
             width: 200,
           },
-          { props: "createTime", label: "创建时间", visible: true, width: 200 },
+          { props: 'payeeName', label: '收款人', visible: true, width: 200 },
           {
-            props: "operate",
-            label: "操作",
-            type: "operate",
+            props: 'receiveTime',
+            label: '收款时间',
             visible: true,
-            fixed: "right",
+            width: 200,
+          },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
             buttons: [
               {
-                name: "编辑",
+                name: '编辑',
                 click: (rowIndex, row) => {
                   this.$router.push({
-                    path: "/maintain/sp/serviceStatement/edit",
+                    path: '/maintain/sp/serviceStatement/edit',
                     query: {
                       id: row.id,
                     },
                   });
                 },
-                type: "info",
+                type: 'info',
               },
               {
-                name: "删除",
-                popconfirmTitle: "此操作将永久删除, 是否继续?",
+                name: '删除',
+                popconfirmTitle: '此操作将永久删除, 是否继续?',
                 click: (rowIndex, row) => {
                   deleteItem([row.id])
                     .then(() => {
                       this.$message({
-                        type: "success",
-                        message: "删除成功!",
+                        type: 'success',
+                        message: '删除成功!',
                       });
                       this.getData();
                     })
                     .catch(() => {
                       this.$message({
-                        type: "error",
-                        message: "删除失败!",
+                        type: 'error',
+                        message: '删除失败!',
                       });
                     });
                 },
-                type: "danger",
+                type: 'danger',
               },
             ],
           },
@@ -422,72 +422,72 @@ export default {
       tabList: [],
     };
   },
-  created() {
-    this.$store.commit("SET_ACTIVE_BREADCRUMB", [this.pageTitle]);
+  created () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },
   methods: {
-    getTabsList() {
+    getTabsList () {
       getStatistics().then((res) => {
         const target = res || {};
         this.tabList = [
-          { statementStatusLabel: "全部", statementStatus: "", count: null },
+          { statementStatusLabel: '全部', statementStatus: '', count: null },
           target.pendingSettlementCount,
           target.pendingReceiptCount,
         ];
       });
     },
-    handleTabClick(v) {
+    handleTabClick (v) {
       this.form.statementStatus = v;
       this.optionObj.form.page = 1;
       this.debouncedGetData();
     },
-    handleListSelect(row) {
+    handleListSelect (row) {
       this.clickItemId = row.id;
     },
-    handleImport() {
+    handleImport () {
       this.uploadDialogVisible = true;
     },
-    handleUploadDialogClose() {
+    handleUploadDialogClose () {
       this.uploadDialogVisible = false;
     },
-    handleAdd() {
+    handleAdd () {
       this.$router.push({
-        path: "/maintain/sp/serviceStatement/edit",
+        path: '/maintain/sp/serviceStatement/edit',
       });
     },
-    onSubmit() {
+    onSubmit () {
       this.getData();
     },
-    onReset() {
+    onReset () {
       this.form = { ...defaultForm };
       this.optionObj.form.page = 1;
       this.optionObj.form.pageSize = pageSize;
       this.getData();
     },
-    exportExcel() {
+    exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: "结算单表管理",
-        dataFetchPath: "maintain/web/sp/serviceStatement/page",
+        businessType: '结算单表管理',
+        dataFetchPath: 'maintain/web/sp/serviceStatement/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
-        httpMethod: "POST",
+        httpMethod: 'POST',
       })
         .then(async (res) => {
           if (res && res.excelUrl) {
             try {
-              await downloadExcel(res.excelUrl, "结算单表管理.xlsx");
+              await downloadExcel(res.excelUrl, '结算单表管理.xlsx');
             } catch (error) {
               this.$message({
-                type: "error",
-                message: "文件导出失败",
+                type: 'error',
+                message: '文件导出失败',
               });
             }
           } else {
             this.$message({
-              type: "info",
-              message: "请前往导出列表中查询导出结果",
+              type: 'info',
+              message: '请前往导出列表中查询导出结果',
             });
           }
         })
@@ -495,7 +495,7 @@ export default {
           this.exportLoading = false;
         });
     },
-    getData() {
+    getData () {
       this.loading = true;
       this.selectionList = [];
 
@@ -523,7 +523,7 @@ export default {
     debouncedGetData: debounce(function () {
       this.getData();
     }, 300),
-    getConfig() {
+    getConfig () {
       return new Promise((resolve, reject) => {
         getTableConfig(this.optionObj.id)
           .then((data) => {
@@ -536,11 +536,11 @@ export default {
           });
       });
     },
-    saveOrUpdate(data) {
+    saveOrUpdate (data) {
       return tableAddOrUpdate(data);
     },
-    paginationChange(type, num) {
-      if (type === "page") {
+    paginationChange (type, num) {
+      if (type === 'page') {
         this.optionObj.form.page = num;
       } else {
         this.optionObj.form.size = num;
@@ -548,14 +548,14 @@ export default {
       this.debouncedGetData();
     },
     // 多选框选中数据
-    handleSelectionChange(selection) {
+    handleSelectionChange (selection) {
       this.selectionList = selection;
     },
-    getFormData() {
+    getFormData () {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach((key) => {
-        if (data[key] === "" || data[key] === null) {
+        if (data[key] === '' || data[key] === null) {
           delete data[key];
         }
       });
@@ -570,40 +570,40 @@ export default {
 
       return data;
     },
-    async fetchOptions(code) {
+    async fetchOptions (code) {
       if (code) {
         return getEnum(code);
       }
       return [];
     },
     // 批量删除
-    handleBatchDelete() {
+    handleBatchDelete () {
       const ids = this.selectionList.map((item) => item.id) || [];
-      this.$confirm("此操作将永久删除, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
+      this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
       })
         .then(() => {
           deleteItem(ids)
             .then(() => {
               this.$message({
-                type: "success",
-                message: "删除成功!",
+                type: 'success',
+                message: '删除成功!',
               });
               this.getData();
             })
             .catch(() => {
               this.$message({
-                type: "error",
-                message: "删除失败!",
+                type: 'error',
+                message: '删除失败!',
               });
             });
         })
         .catch(() => {});
     },
     // 批量启用停用
-    handleBatchEnable(status) {
+    handleBatchEnable (status) {
       handleBatchStatusChange.call(this, {
         selectionList: this.selectionList,
         targetStatus: status,
