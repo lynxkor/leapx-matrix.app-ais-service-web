@@ -312,3 +312,11 @@ export function updateSpFaultAlertRecord (data) {
 export function deleteSpFaultAlertRecord (data) {
   return api.jsonPost('maintain/web/sp/spFaultAlertRecord/delete', data);
 }
+
+/**
+ * 查询门店详情
+ * @param data
+ */
+export function getStoreDetailByCode (data) {
+  return api.jsonPost(prefix + 'getStoreDetailByCode', data);
+}
