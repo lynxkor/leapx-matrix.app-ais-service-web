@@ -22,13 +22,13 @@
             </td>
           </tr>
           <tr>
-            <td style="text-align:left"></td>
+            <td style="text-align: left">{{ storeInfo.companyName }}</td>
           </tr>
-          <tr>
-            <td style="text-align:left"></td>
+          <tr v-if="storeInfo.serviceHotline">
+            <td style="text-align: left">TEL：{{ storeInfo.serviceHotline }}</td>
           </tr>
-          <tr>
-            <td style="text-align:left"></td>
+          <tr v-if="storeInfo.storeAddress">
+            <td style="text-align: left">地址：{{ storeInfo.storeAddress }}</td>
           </tr>
         </tbody>
       </table>
@@ -296,6 +296,7 @@
 <script>
 // 对应业务的接口
 import { getPrintInfo } from '@/api/maintain/sp/serviceStatement/index';
+import { getStoreDetailByCode } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   props: {
@@ -310,7 +311,8 @@ export default {
   },
   data () {
     return {
-      info: {}
+      info: {},
+      storeInfo: {}
     };
   },
   watch: {
@@ -328,7 +330,11 @@ export default {
     getData () {
       getPrintInfo(this.id).then(res => {
         this.info = res;
-        console.log(res);
+        if (res.dealerCode) {
+          getStoreDetailByCode(res.dealerCode).then(res => {
+            this.storeInfo = res || {};
+          });
+        }
       });
     },
     // 格式化金额
