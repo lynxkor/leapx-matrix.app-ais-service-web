@@ -93,26 +93,26 @@
 </template>
 
 <script>
-import debounce from "lodash.debounce";
-import { LPVxeTable } from "@leapmotor/design";
-import PageSearchAction from "@/libs/components/AisPageSearchAction";
+import debounce from 'lodash.debounce';
+import { LPVxeTable } from '@leapmotor/design';
+import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import {
   repairedList,
   deleteItem,
   enableItem,
-} from "@/api/maintain/sp/spRepairWorkRecord/index";
+} from '@/api/maintain/sp/spRepairWorkRecord/index';
 import {
   getTableConfig,
   tableAddOrUpdate,
   exportTable,
   getEnum,
-} from "@/api/common";
-import Upload from "@/libs/components/UploadDialog";
-import responsiveSearchForm from "@/libs/mixins/responsive";
-import permissions from "@/libs/mixins/permissions";
-import { handleBatchStatusChange, downloadExcel } from "@/libs/utils";
-import commonMixins from "@/libs/mixins/commonMixins";
-import DealerSelect from "@/components/dealer-select/index.vue";
+} from '@/api/common';
+import Upload from '@/libs/components/UploadDialog';
+import responsiveSearchForm from '@/libs/mixins/responsive';
+import permissions from '@/libs/mixins/permissions';
+import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
+import commonMixins from '@/libs/mixins/commonMixins';
+import DealerSelect from '@/components/dealer-select/index.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
 };
@@ -130,12 +130,12 @@ export default {
     Upload,
     DealerSelect,
   },
-  data() {
+  data () {
     return {
-      pageTitle: "维修作业记录",
-      pageType: "list",
+      pageTitle: '维修作业记录',
+      pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: "AISMC-spRepairWorkRecord",
+      moduleKey: 'AISMC-spRepairWorkRecord',
       form: {
         ...defaultForm,
       },
@@ -146,199 +146,204 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
 
-      clickItemId: "",
+      clickItemId: '',
       optionObj: {
-        id: "spRepairWorkRecordTable",
+        id: 'spRepairWorkRecordTable',
         dataList: [],
         form: {
           page: 1,
           size: pageSize,
         },
         dataProp: [
-          { props: "code", label: "编号", visible: true, width: 200 },
+          { props: 'code', label: '编号', visible: true, width: 200 },
           {
-            props: "serviceProxyCode",
-            label: "施工单号",
+            props: 'serviceProxyCode',
+            label: '施工单号',
             visible: true,
             width: 200,
-            fixed: "left",
+            fixed: 'left',
             buttons: [
               {
                 click: (rowIndex, row) => {
                   this.$router.push({
-                    path: "/maintain/sp/serviceProxy/edit",
+                    path: '/maintain/sp/serviceProxy/edit',
                     query: {
                       id: row.serviceProxyId,
                     },
                   });
                 },
-                type: "primary",
+                type: 'primary',
               },
             ],
           },
-          { props: "dealerName", label: "门店名称", visible: true, width: 200 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           {
-            props: "repairItemName",
-            label: "维修项目名称",
+            props: 'repairItemName',
+            label: '维修项目名称',
             visible: true,
             width: 200,
           },
           {
-            props: "repairItemCode",
-            label: "维修项目代码",
+            props: 'repairItemCode',
+            label: '维修项目代码',
             visible: true,
             width: 200,
           },
           {
-            props: "statusLabel",
-            label: "作业状态",
+            props: 'statusLabel',
+            label: '作业状态',
             visible: true,
             width: 200,
           },
           {
-            props: "isDispatchLabel",
-            label: "是否已派工",
+            props: 'isDispatchLabel',
+            label: '是否已派工',
             visible: true,
             width: 200,
           },
           {
-            props: "dealerStationName",
-            label: "工位",
+            props: 'dealerStationName',
+            label: '工位',
             visible: true,
             width: 200,
           },
           {
-            props: "dealerWorkTeamName",
-            label: "班组信息",
+            props: 'dealerWorkTeamName',
+            label: '班组信息',
             visible: true,
             width: 200,
           },
           {
-            props: "repairTechnicianName",
-            label: "维修技师",
+            props: 'repairTechnicianName',
+            label: '维修技师',
             visible: true,
             width: 200,
           },
           {
-            props: "dispatchTime",
-            label: "派工时间",
+            props: 'dispatchTime',
+            label: '派工时间',
             visible: true,
             width: 200,
           },
           {
-            props: "startAt",
-            label: "计划作业时间",
+            props: 'startAt',
+            label: '计划作业时间',
             visible: true,
             width: 200,
           },
           {
-            props: "timeSpend",
-            label: "实际作业时间",
+            props: 'timeSpend',
+            label: '实际作业时间',
             visible: true,
             width: 200,
           },
           {
-            props: "finishAt",
-            label: "作业结束时间",
+            props: 'finishAt',
+            label: '作业结束时间',
             visible: true,
             width: 200,
           },
           {
-            props: "reworkLabel",
-            label: "是否内返",
+            props: 'reworkLabel',
+            label: '是否内返',
             visible: true,
             width: 200,
           },
           {
-            props: "reworkTypeLabel",
-            label: "返修类型",
+            props: 'reworkTypeLabel',
+            label: '返修类型',
             visible: true,
             width: 200,
           },
           {
-            props: "qualityCheckerName",
-            label: "质检人",
+            props: 'qualityCheckerName',
+            label: '质检人',
             visible: true,
             width: 200,
           },
           {
-            props: "qualityCheckAt",
-            label: "质检时间",
+            props: 'qualityCheckAt',
+            label: '质检时间',
             visible: true,
             width: 200,
           },
           {
-            props: "qualityCheckStatusLabel",
-            label: "质检状态",
+            props: 'qualityCheckStatusLabel',
+            label: '质检状态',
             visible: true,
             width: 200,
           },
           {
-            props: "hasRepairedLabel",
-            label: "是否已返修",
+            props: 'hasRepairedLabel',
+            label: '是否已返修',
             visible: true,
             width: 200,
           },
-          { props: "createTime", label: "创建时间", visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
         ],
         total: 0,
       },
     };
   },
-  created() {
-    this.$store.commit("SET_ACTIVE_BREADCRUMB", [this.pageTitle]);
+  created () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },
   methods: {
-    handleListSelect(row) {
+    handleListSelect (row) {
       this.clickItemId = row.id;
     },
-    handleImport() {
+    handleImport () {
       this.uploadDialogVisible = true;
     },
-    handleUploadDialogClose() {
+    handleUploadDialogClose () {
       this.uploadDialogVisible = false;
     },
-    handleAdd() {
+    handleAdd () {
       this.$router.push({
-        path: "/maintain/sp/spRepairWorkRecord/edit",
+        path: '/maintain/sp/spRepairWorkRecord/edit',
       });
     },
-    onSubmit() {
+    onSubmit () {
       this.getData();
     },
-    onReset() {
+    onReset () {
       this.form = { ...defaultForm };
       this.optionObj.form.page = 1;
       this.optionObj.form.pageSize = pageSize;
       this.getData();
     },
-    exportExcel() {
+    exportExcel () {
       this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
       exportTable({
-        businessType: "接车施工单-维修作业记录表管理",
-        dataFetchPath: "maintain/web/sp/spRepairWorkRecord/page",
-        reqParams: this.getFormData(),
+        businessType: '接车施工单-维修作业记录表管理',
+        dataFetchPath: 'maintain/web/sp/spRepairWorkRecord/page',
+        reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
-        httpMethod: "POST",
+        httpMethod: 'POST',
       })
         .then(async (res) => {
           if (res && res.excelUrl) {
             try {
               await downloadExcel(
                 res.excelUrl,
-                "接车施工单-维修作业记录表管理.xlsx"
+                '接车施工单-维修作业记录表管理.xlsx'
               );
             } catch (error) {
               this.$message({
-                type: "error",
-                message: "文件导出失败",
+                type: 'error',
+                message: '文件导出失败',
               });
             }
           } else {
             this.$message({
-              type: "info",
-              message: "请前往导出列表中查询导出结果",
+              type: 'info',
+              message: '请前往导出列表中查询导出结果',
             });
           }
         })
@@ -346,7 +351,7 @@ export default {
           this.exportLoading = false;
         });
     },
-    getData() {
+    getData () {
       this.loading = true;
       this.selectionList = [];
 
@@ -373,7 +378,7 @@ export default {
     debouncedGetData: debounce(function () {
       this.getData();
     }, 300),
-    getConfig() {
+    getConfig () {
       return new Promise((resolve, reject) => {
         getTableConfig(this.optionObj.id)
           .then((data) => {
@@ -386,11 +391,11 @@ export default {
           });
       });
     },
-    saveOrUpdate(data) {
+    saveOrUpdate (data) {
       return tableAddOrUpdate(data);
     },
-    paginationChange(type, num) {
-      if (type === "page") {
+    paginationChange (type, num) {
+      if (type === 'page') {
         this.optionObj.form.page = num;
       } else {
         this.optionObj.form.size = num;
@@ -398,11 +403,11 @@ export default {
       this.debouncedGetData();
     },
 
-    getFormData() {
+    getFormData () {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach((key) => {
-        if (data[key] === "" || data[key] === null) {
+        if (data[key] === '' || data[key] === null) {
           delete data[key];
         }
       });
@@ -417,40 +422,40 @@ export default {
 
       return data;
     },
-    async fetchOptions(code) {
+    async fetchOptions (code) {
       if (code) {
         return getEnum(code);
       }
       return [];
     },
     // 批量删除
-    handleBatchDelete() {
+    handleBatchDelete () {
       const ids = this.selectionList.map((item) => item.id) || [];
-      this.$confirm("此操作将永久删除, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
+      this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
       })
         .then(() => {
           deleteItem(ids)
             .then(() => {
               this.$message({
-                type: "success",
-                message: "删除成功!",
+                type: 'success',
+                message: '删除成功!',
               });
               this.getData();
             })
             .catch(() => {
               this.$message({
-                type: "error",
-                message: "删除失败!",
+                type: 'error',
+                message: '删除失败!',
               });
             });
         })
         .catch(() => {});
     },
     // 批量启用停用
-    handleBatchEnable(status) {
+    handleBatchEnable (status) {
       handleBatchStatusChange.call(this, {
         selectionList: this.selectionList,
         targetStatus: status,
