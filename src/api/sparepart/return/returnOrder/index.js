@@ -59,3 +59,19 @@ export function addPartPage (data) {
 export function returnOrderPage (data) {
   return api.jsonPost('sp/web/purchase/returnOrderDetail/page', data);
 }
+
+/**
+ * 备件退货明细表新增/编辑
+ * @param {Object} data
+ */
+export function returnOrderUpdate (data) {
+  return api.jsonPost('sp/web/purchase/returnOrderDetail/addOrUpdate', data);
+}
+
+/**
+ * 备件退货明细表删除
+ * @param {Object} data
+ */
+export function returnOrderDel (data) {
+  return api.jsonPost('sp/web/purchase/returnOrderDetail/delete', data);
+}
