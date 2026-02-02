@@ -981,7 +981,7 @@ const routes = [
         name: '门店旧件库存',
         keepAlive: true,
         moduleKey: 'AISCR-oldPartDealerInventoryDetail',
-        isDealer: true,
+        isDealerPage: true,
       }
     }, {
       path: '/claimreturn/oldpart/inventory/dealer/edit',
