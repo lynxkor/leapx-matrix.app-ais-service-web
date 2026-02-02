@@ -74,7 +74,7 @@ export default {
   },
   watch: {
     formData: {
-      handler(val) {
+      handler (val) {
         if (val) {
           this.form = val;
         }
@@ -82,7 +82,7 @@ export default {
       immediate: true,
     },
   },
-  data() {
+  data () {
     return {
       form: {},
     };

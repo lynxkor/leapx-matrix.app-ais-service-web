@@ -115,10 +115,10 @@
 import {
   rightsList,
   rightsFreeze,
-} from "@/api/maintain/sp/serviceStatement/index";
+} from '@/api/maintain/sp/serviceStatement/index';
 
 export default {
-  name: "SelectRightsDialog",
+  name: 'SelectRightsDialog',
   props: {
     visible: {
       type: Boolean,
@@ -126,10 +126,10 @@ export default {
     },
     statementId: {
       type: String,
-      default: "",
+      default: '',
     },
   },
-  data() {
+  data () {
     return {
       dialogVisible: this.visible,
       loading: false,
@@ -138,7 +138,7 @@ export default {
     };
   },
   watch: {
-    visible(val) {
+    visible (val) {
       this.dialogVisible = val;
       if (val) {
         this.initData();
@@ -146,7 +146,7 @@ export default {
     },
   },
   methods: {
-    handleSelectionChange({ records }) {
+    handleSelectionChange ({ records }) {
       this.tableData.forEach((row) => {
         // 否则正常处理选择状态
         row.checked = records.some((item) => item.useId === row.useId);
@@ -154,7 +154,7 @@ export default {
     },
 
     // 获取权益列表
-    async initData() {
+    async initData () {
       try {
         this.loading = true;
         const res = await rightsList(this.statementId);
@@ -163,70 +163,70 @@ export default {
           checked: false,
         }));
       } catch (error) {
-        console.error("获取权益列表异常:", error);
-        this.$message.error("获取权益列表失败");
+        console.error('获取权益列表异常:', error);
+        this.$message.error('获取权益列表失败');
       } finally {
         this.loading = false;
       }
     },
 
     // 获取维修类型文本
-    getServiceTypeText(serviceType) {
+    getServiceTypeText (serviceType) {
       if (!serviceType || !Array.isArray(serviceType)) {
-        return "-";
+        return '-';
       }
       // 循环获取每个维修类型的名称并用逗号拼接
       const typeNames = serviceType.map((item) => {
         // 如果是对象，取repairTypeName字段；如果是数字，直接映射
-        if (typeof item === "object" && item.repairTypeName) {
+        if (typeof item === 'object' && item.repairTypeName) {
           return item.repairTypeName;
         }
       });
 
-      return typeNames.join(",") || "-";
+      return typeNames.join(',') || '-';
     },
 
     // 格式化金额
-    formatAmount(amount) {
-      if (!amount) return "-";
+    formatAmount (amount) {
+      if (!amount) return '-';
       return parseFloat(amount).toFixed(2);
     },
 
     // 获取有效期文本
-    getValidityPeriodText(row) {
-      const effectDate = row.effectDate || "";
-      const expiryDate = row.expiryDate || "";
+    getValidityPeriodText (row) {
+      const effectDate = row.effectDate || '';
+      const expiryDate = row.expiryDate || '';
       return `${effectDate} ~ ${expiryDate}`;
     },
 
     // 获取状态文本
-    getStatusText(status) {
+    getStatusText (status) {
       const statusMap = {
-        1: "未使用",
-        2: "已使用",
-        3: "已过期",
-        4: "已冻结",
+        1: '未使用',
+        2: '已使用',
+        3: '已过期',
+        4: '已冻结',
       };
-      return statusMap[status] || "未知";
+      return statusMap[status] || '未知';
     },
 
     // 获取状态标签类型
-    getStatusType(status) {
+    getStatusType (status) {
       const typeMap = {
-        1: "success",
-        2: "info",
-        3: "warning",
-        4: "danger",
+        1: 'success',
+        2: 'info',
+        3: 'warning',
+        4: 'danger',
       };
-      return typeMap[status] || "info";
+      return typeMap[status] || 'info';
     },
 
     // 提交核销
-    async submit() {
+    async submit () {
       const selectedRows = this.tableData.filter((row) => row.checked);
 
       if (selectedRows.length === 0) {
-        this.$message.warning("请选择要核销的权益");
+        this.$message.warning('请选择要核销的权益');
         return;
       }
       try {
@@ -237,34 +237,34 @@ export default {
         };
 
         await rightsFreeze(params);
-        this.$message.success("权益核销成功");
-        this.$emit("refresh");
+        this.$message.success('权益核销成功');
+        this.$emit('refresh');
         this.close();
       } catch (error) {
-        console.error("权益核销异常:", error);
-        this.$message.error("权益核销失败");
+        console.error('权益核销异常:', error);
+        this.$message.error('权益核销失败');
       } finally {
         this.submitLoading = false;
       }
     },
 
-    close() {
-      this.$emit("update:visible", false);
+    close () {
+      this.$emit('update:visible', false);
     },
 
-    closed() {
+    closed () {
       this.tableData = [];
     },
     // 设置行的CSS类名
-    tableRowClassName({ row }) {
+    tableRowClassName ({ row }) {
       if (row.isChange === false) {
-        return "disabled-row";
+        return 'disabled-row';
       }
-      return "";
+      return '';
     },
 
     // 控制复选框是否可用
-    checkMethod({ row }) {
+    checkMethod ({ row }) {
       return row.isChange === true; // 当isChange为false时，复选框不可选
     },
   },

@@ -266,7 +266,13 @@ export default {
           field: 'serviceProxyNo',
           title: '接车施工单',
           width: '160',
-          click (row) {
+          click: (row) => {
+            this.navigateToRoute({
+              path: '/maintain/sp/serviceProxy/edit',
+              query: {
+                id: row.serviceProxyId
+              }
+            });
             // 点击事件
             this.$router.push(`/maintain/sp/serviceProxy/edit?id=${row.serviceProxyId}`);
           }
@@ -354,7 +360,14 @@ export default {
           title: '换上零件编码',
           width: '140',
           click: (row) => {
-            this.$router.push('/sparepart/basic/sparePart/detail?id=' + row.partId);
+            // 点击事件
+            this.navigateToRoute({
+              path: '/sparepart/basic/sparePart/detail',
+              query: {
+                id: row.partId,
+              },
+            });
+            console.log('点击了换上零件编码');
           }
         },
         {

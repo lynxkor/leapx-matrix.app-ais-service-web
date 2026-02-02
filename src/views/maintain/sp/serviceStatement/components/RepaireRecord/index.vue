@@ -79,7 +79,7 @@ export default {
   },
   watch: {
     formData: {
-      handler(val) {
+      handler (val) {
         if (val) {
           this.form = JSON.parse(JSON.stringify(val));
         }
@@ -87,7 +87,7 @@ export default {
       immediate: true,
     },
   },
-  data() {
+  data () {
     return {
       form: {},
     };

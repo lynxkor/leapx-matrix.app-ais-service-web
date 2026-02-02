@@ -140,16 +140,16 @@
 </template>
 
 <script>
-import FetchSelect from "@/libs/components/FetchSelect/index.vue";
-import { getEnum } from "@/api/maintain/sp/serviceProxy/index";
+import FetchSelect from '@/libs/components/FetchSelect/index.vue';
+import { getEnum } from '@/api/maintain/sp/serviceProxy/index';
 import {
   addReceiptRecord,
   getStatementPayRecord,
   deleteRecord,
-} from "@/api/maintain/sp/serviceStatement/index";
+} from '@/api/maintain/sp/serviceStatement/index';
 
 export default {
-  name: "AddPayrecordDialog",
+  name: 'AddPayrecordDialog',
   props: {
     visible: {
       type: Boolean,
@@ -165,7 +165,7 @@ export default {
   components: {
     FetchSelect,
   },
-  data() {
+  data () {
     return {
       tableData: [],
       baseInfo: {},
@@ -188,7 +188,7 @@ export default {
   },
   computed: {
     // 收款总金额
-    totalPayAmount() {
+    totalPayAmount () {
       return this.tableData.reduce((sum, row) => {
         return sum + (+row.payAmount || 0);
       }, 0);
@@ -196,7 +196,7 @@ export default {
   },
   watch: {
     visible: {
-      handler(val) {
+      handler (val) {
         if (val) {
           this.initData();
         }
@@ -204,7 +204,7 @@ export default {
       immediate: true,
     },
     info: {
-      handler(val) {
+      handler (val) {
         if (val && Object.keys(val).length > 0) {
           const { invoiceRecordResps, ...rest } = val;
           this.baseInfo = rest || {};
@@ -215,14 +215,14 @@ export default {
     },
   },
   methods: {
-    initData() {
+    initData () {
       // this.handleAdd();
       this.fetchOptions();
       this.getPayList();
     },
-    getPayList() {
+    getPayList () {
       getStatementPayRecord({
-        statementId: this.baseInfo.id || "",
+        statementId: this.baseInfo.id || '',
         page: 1,
         pageSize: 500,
       }).then((res) => {
@@ -230,23 +230,23 @@ export default {
         console.log(this.tableData);
       });
     },
-    async fetchOptions(code) {
-      getEnum("PaymentMethodEnum").then((res) => {
+    async fetchOptions (code) {
+      getEnum('PaymentMethodEnum').then((res) => {
         this.payTypeOptions = res || [];
       });
-      getEnum("InvoiceTypeEnum").then((res) => {
+      getEnum('InvoiceTypeEnum').then((res) => {
         this.invoiceTypeOptions = res || [];
       });
     },
-    close() {
-      this.$emit("update:visible", false);
+    close () {
+      this.$emit('update:visible', false);
     },
-    closed() {
+    closed () {
       // this.tableData = [];
       // this.baseInfo = {};
     },
     // 确认提交
-    handleConfirm() {
+    handleConfirm () {
       // 校验数据
       const isValid = this.validateData();
       if (!isValid) {
@@ -257,46 +257,50 @@ export default {
       this.getSubmitData();
     },
     // 关闭弹窗
-    handleClose() {
+    handleClose () {
       this.close();
       this.clearFormData();
     },
     // 新增收款记录
-    handleAdd() {
+    handleAdd () {
       // 计算剩余需付款金额
       const remainingAmount =
         (this.baseInfo.payableAmount || 0) - this.totalPayAmount;
+      if (remainingAmount <= 0) {
+        this.$message.info('收款记录总金额不能超过剩余待收款金额');
+        return;
+      }
       this.tableData.push({
-        code: "",
-        statementId: this.baseInfo.id || "",
-        statementCode: this.baseInfo.code || "",
+        code: '',
+        statementId: this.baseInfo.id || '',
+        statementCode: this.baseInfo.code || '',
         payAmount: remainingAmount > 0 ? remainingAmount : 0,
         payType: null,
-        rightsCode: "",
-        invoiceNumber: "",
+        rightsCode: '',
+        invoiceNumber: '',
         invoiceType: null,
       });
     },
     // 删除收款记录
-    handleDelete(row, index) {
+    handleDelete (row, index) {
       this.tableData.splice(index, 1);
       // deleteRecord(row.id).then(res => {
       //   this.$message.success('删除成功');
       // });
     },
     // 实际付款总额变化
-    handlePayAmountChange() {
+    handlePayAmountChange () {
       // 可以在这里添加金额变化的逻辑处理
     },
     // 校验数据
-    validateData(val) {
+    validateData (val) {
       for (let i = 0; i < this.tableData.length; i++) {
         const row = this.tableData[i];
         if (!row.payType && row.payType !== 0) {
           this.$message.warning(`第${i + 1}行请选择支付方式`);
           return false;
         }
-        //支付类型为 权益抵扣时不校验金额
+        // 支付类型为 权益抵扣时不校验金额
         if (row.payType !== 50 && (!row.payAmount || row.payAmount <= 0)) {
           this.$message.warning(`第${i + 1}行请输入实际付款总额`);
           return false;
@@ -319,21 +323,21 @@ export default {
       return true;
     },
     // 获取提交数据
-    getSubmitData() {
+    getSubmitData () {
       const data = {
-        statementId: this.baseInfo.id || "",
+        statementId: this.baseInfo.id || '',
         invoiceRecordList: this.tableData,
       };
       addReceiptRecord(data).then((res) => {
-        this.$message.success("保存成功");
+        this.$message.success('保存成功');
         this.close();
-        this.$emit("refresh");
+        this.$emit('refresh');
       });
     },
     // 格式化金额
-    formatAmount(amount) {
+    formatAmount (amount) {
       if (amount === null || amount === undefined) {
-        return "0.00";
+        return '0.00';
       }
       return parseFloat(amount).toFixed(2);
     },
