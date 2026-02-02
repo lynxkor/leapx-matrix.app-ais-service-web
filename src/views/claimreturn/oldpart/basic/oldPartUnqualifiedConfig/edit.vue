@@ -13,16 +13,16 @@
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
               <el-form-item label="代码" prop="unqualifiedCode">
                 <el-input
-                  placeholder="请输入"
                   v-model="form.unqualifiedCode"
-                  :disabled="form.id!=='' "
                   clearable
+                  disabled
                 />
               </el-form-item>
               <el-form-item label="描述" prop="unqualifiedDesc">
                 <el-input
                   placeholder="请输入"
                   v-model="form.unqualifiedDesc"
+                  maxlength="50"
                   clearable
                 />
               </el-form-item>
@@ -106,9 +106,6 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       rules: {
-        unqualifiedCode: [
-          { required: true, message: '请输入代码', trigger: 'change' }
-        ],
         unqualifiedDesc: [
           { required: true, message: '请输入描述', trigger: 'change' }
         ],
