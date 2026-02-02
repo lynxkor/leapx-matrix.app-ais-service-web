@@ -46,7 +46,7 @@
                     <td style="width:100px">开单时间</td>
                     <td style="width:150px">{{ formatDateTime(info.createTime) }}</td>
                     <td style="width:100px">单据编号</td>
-                    <td style="width:150px">{{ info.serviceProxyCode }}</td>
+                    <td style="width:150px">{{ info.code }}</td>
                     <td style="width:100px">VIN码</td>
                     <td style="width:100px;">{{ info.vehProfileVin }}</td>
                     <td style="width:100px">结算类型</td>
@@ -54,33 +54,33 @@
                   </tr>
                   <tr>
                     <td>车主</td>
-                    <td>{{ info.customerName }}</td>
+                    <td>{{ info.serviceProxyResp?.bindingUser }}</td>
                     <td>电话</td>
-                    <td></td>
+                    <td>{{ info.serviceProxyResp?.bindingPhone }}</td>
                     <td>车牌号码</td>
-                    <td>{{ info.carPlate }}</td>
+                    <td>{{ info.serviceProxyResp?.carPlate }}</td>
                     <td>型号</td>
-                    <td></td>
+                    <td>{{ info.serviceProxyResp?.vehRegisteredModelName }}</td>
                   </tr>
                   <tr>
                     <td>进店里程(Km)</td>
-                    <td></td>
+                    <td>{{ formatNumber(info.serviceProxyResp?.mileage) }}</td>
                     <td>进店电量%</td>
-                    <td></td>
+                    <td>{{ formatNumber(info.serviceProxyResp?.inPower) }}</td>
                     <td>送修人</td>
-                    <td></td>
+                    <td>{{ info.serviceProxyResp?.shuttleName }}</td>
                     <td>销售日期</td>
-                    <td></td>
+                    <td>{{ formatDate(info.serviceProxyResp?.saleDate) }}</td>
                   </tr>
                   <tr>
                     <td>离店里程(Km)</td>
-                    <td></td>
+                    <td>{{ formatNumber(info.serviceProxyResp?.departureMileage) }}</td>
                     <td>离店电量%</td>
-                    <td></td>
+                    <td>{{ formatNumber(info.serviceProxyResp?.outPower) }}</td>
                     <td>送修人电话</td>
-                    <td></td>
+                    <td>{{ info.serviceProxyResp?.shuttlePhone }}</td>
                     <td>客户经理</td>
-                    <td>{{ info.serviceOwnerId }}</td>
+                    <td>{{ info.serviceProxyResp?.dedicatedServiceManager }}</td>
                   </tr>
                   <tr>
                     <td>客户地址</td>
@@ -88,9 +88,9 @@
                   </tr>
                   <tr>
                     <td style="border-bottom-width:0px">下次保养时间</td>
-                    <td style="border-bottom-width:0px; text-align:left" colspan="3">{{ formatDate(info.nextMaintenanceTime) }}</td>
+                    <td style="border-bottom-width:0px; text-align:left" colspan="3">{{ formatDate(info.serviceProxyResp?.maintenanceTime) }}</td>
                     <td style="border-bottom-width:0px">下次保养里程</td>
-                    <td style="border-bottom-width:0px; text-align:left" colspan="3">{{ info.nextMaintenanceMileage }}</td>
+                    <td style="border-bottom-width:0px; text-align:left" colspan="3">{{ formatNumber(info.serviceProxyResp?.maintenanceMileage) }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -234,19 +234,19 @@
                 <tbody>
                   <tr>
                     <td style="width:120px; height:40px">客户经理确认</td>
-                    <td>{{ info.statementPersonName }}</td>
+                    <td></td>
                     <td style="width:120px;">收款人确认</td>
-                    <td>{{ info.payeeName }}</td>
+                    <td></td>
                     <td style="width:120px;">客户签字</td>
                     <td></td>
                   </tr>
                   <tr>
                     <td style="border-bottom-width:0px">日期</td>
-                    <td style="border-bottom-width:0px">{{ formatDate(info.statementTime) }}</td>
+                    <td style="border-bottom-width:0px"></td>
                     <td style="border-bottom-width:0px">日期</td>
-                    <td style="border-bottom-width:0px">{{ formatDate(info.receiveTime) }}</td>
+                    <td style="border-bottom-width:0px"></td>
                     <td style="border-bottom-width:0px">日期</td>
-                    <td style="border-bottom-width:0px">{{ formatDate(info.signCompletedOn) }}</td>
+                    <td style="border-bottom-width:0px"></td>
                   </tr>
                 </tbody>
               </table>
@@ -295,7 +295,7 @@
 
 <script>
 // 对应业务的接口
-import { getDetail } from '@/api/maintain/sp/serviceStatement/index';
+import { getPrintInfo } from '@/api/maintain/sp/serviceStatement/index';
 
 export default {
   props: {
@@ -326,7 +326,7 @@ export default {
   },
   methods: {
     getData () {
-      getDetail(this.id).then(res => {
+      getPrintInfo(this.id).then(res => {
         this.info = res;
         console.log(res);
       });
@@ -337,6 +337,17 @@ export default {
         return '0.00';
       }
       return Number(value).toFixed(2);
+    },
+    // 格式化数字(保留2位小数)
+    formatNumber (value) {
+      if (value === null || value === undefined || value === '') {
+        return '';
+      }
+      const num = Number(value);
+      if (isNaN(num)) {
+        return value;
+      }
+      return num.toFixed(2);
     },
     // 格式化日期时间
     formatDateTime (value) {
