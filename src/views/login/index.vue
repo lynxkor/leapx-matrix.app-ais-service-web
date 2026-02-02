@@ -114,7 +114,6 @@ export default {
           localStorage.getItem('areaTree', JSON.stringify(res));
           this.$store.commit('SET_AREATREE', res);
         }).catch(() => {});
-
         const data = await loginUserGet();
         this.$store.commit('SET_LOGIN_INFO', Object.assign({}, res, data));
 

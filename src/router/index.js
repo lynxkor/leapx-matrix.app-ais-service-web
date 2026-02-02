@@ -1382,9 +1382,9 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/oldpart/destroy/oldPartDestroyConfig',
+      path: '/claimreturn/oldpart/basic/oldPartDestroyConfig',
       name: 'oldPartDestroyConfig',
-      component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyConfig/index.vue'),
+      component: () => import('@/views/claimreturn/oldpart/basic/oldPartDestroyConfig/index.vue'),
       meta: {
         name: '旧件销毁设置',
       }

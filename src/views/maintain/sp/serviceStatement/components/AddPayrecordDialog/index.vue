@@ -266,6 +266,10 @@ export default {
       // 计算剩余需付款金额
       const remainingAmount =
         (this.baseInfo.payableAmount || 0) - this.totalPayAmount;
+      if (remainingAmount <= 0) {
+        this.$message.info('收款记录总金额不能超过剩余待收款金额');
+        return;
+      }
       this.tableData.push({
         code: '',
         statementId: this.baseInfo.id || '',

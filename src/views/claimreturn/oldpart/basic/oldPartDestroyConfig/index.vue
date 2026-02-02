@@ -28,7 +28,7 @@
 import { YES_NO_ENUM } from '@/libs/constants';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { update, getConfig } from '@/api/claimreturn/oldpart/destroy/oldPartDestroyConfig/index.js';
+import { update, getConfig } from '@/api/claimreturn/oldpart/basic/oldPartDestroyConfig/index.js';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对

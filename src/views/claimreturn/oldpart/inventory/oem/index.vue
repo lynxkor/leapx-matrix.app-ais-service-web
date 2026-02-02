@@ -32,25 +32,21 @@
       </el-form-item>
       <template v-if="show">
         <el-form-item label="旧件销毁单编码">
-          <el-input
-            placeholder="请输入"
-            v-model="form.oldPartDestroyOrderNo"
+          <list-select
+            listUrl="/claimreturn/oldpart/web/destroy/oldPartDestroyOrder/list"
+            placeholder="请选择"
+            v-model="form.oldPartDestroyOrderId"
+            query-key="destroyOrderNo"
             clearable
+            collapseTags
+            :show-code="false"
+            filterable
+            label-key="code"
+            value-key="id"
           />
         </el-form-item>
         <el-form-item v-if="!isDealer" label="门店名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dealerNameLike"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item v-if="!isDealer" label="门店编码">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dealerCode"
-            clearable
-          />
+          <dealer-select v-model="form.dealerCodes" multiple />
         </el-form-item>
         <el-form-item label="VIN">
           <el-input
@@ -74,10 +70,17 @@
           />
         </el-form-item>
         <el-form-item label="门店回运单号">
-          <el-input
-            placeholder="请输入"
-            v-model="form.returnOrderNo"
+          <list-select
+            listUrl="/claimreturn/oldpart/web/returnorder/oldPartReturnOrder/list"
+            placeholder="请选择"
+            v-model="form.returnOrderId"
+            query-key="returnOrderNo"
             clearable
+            collapseTags
+            :show-code="false"
+            filterable
+            label-key="code"
+            value-key="id"
           />
         </el-form-item>
 
@@ -175,6 +178,8 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import ListSelect from '@/libs/components/list-select/index.vue';
+import DealerSelect from '@/components/dealer-select/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -214,6 +219,8 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
+    DealerSelect,
+    ListSelect,
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
@@ -278,12 +285,10 @@ export default {
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
-                // eslint-disable-next-line no-warning-comments
-                // todo 跳转
                 this.$router.push({
-                  path: '/claimreturn/oldpart/inventory/oem/detail',
+                  path: '/maintain/sp/serviceProxy/edit',
                   query: {
-                    id: row.id
+                    id: row.serviceProxyId
                   }
                 });
               },
@@ -300,7 +305,7 @@ export default {
                 // eslint-disable-next-line no-warning-comments
                 // todo 跳转
                 this.$router.push({
-                  path: '/claimreturn/oldpart/inventory/oem/detail',
+                  path: '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit',
                   query: {
                     id: row.id
                   }
@@ -316,19 +321,33 @@ export default {
             width: 240,
             buttons: [{
               click: (rowIndex, row) => {
-                // eslint-disable-next-line no-warning-comments
-                // todo 跳转
                 this.$router.push({
-                  path: '/claimreturn/oldpart/inventory/oem/detail',
+                  path: '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit',
                   query: {
-                    id: row.id
+                    id: row.oldPartDestroyOrderId
                   }
                 });
               },
               type: 'primary'
             }]
           },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 240 },
+          {
+            props: 'dealerName',
+            label: '门店名称',
+            visible: true,
+            width: 240,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.navigateToRoute({
+                  path: '/partner/channelManagement/shopDetail',
+                  query: {
+                    dealerCode: row.dealerCode,
+                  },
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'isMainPartLabel', label: '是否主因零部件', visible: true, width: 150 },
           {
             props: 'vin',
@@ -338,12 +357,92 @@ export default {
             mask: true,
             getValue: (row) => getDetailDecryptField(row.id, 'vin')
           },
-          { props: 'oldPartSupplierName', label: '旧件供应商', visible: true, width: 200 },
-          { props: 'mainPartSupplierName', label: '主因件供应商', visible: true, width: 200 },
-          { props: 'dutySupplierName', label: '责任供应商(二次索赔明细)', visible: true, width: 220 },
-          { props: 'oldPartCode', label: '旧件编码', visible: true, width: 200 },
+          {
+            props: 'oldPartSupplierName',
+            label: '旧件供应商',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/supplierInfo/detail',
+                  query: {
+                    id: row.oldPartSupplierId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'mainPartSupplierName',
+            label: '主因件供应商',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/supplierInfo/detail',
+                  query: {
+                    id: row.mainPartSupplierId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'dutySupplierName',
+            label: '责任供应商(二次索赔明细)',
+            visible: true,
+            width: 220,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/supplierInfo/detail',
+                  query: {
+                    id: row.dutySupplierId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'oldPartCode',
+            label: '旧件编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/sparePart/detail',
+                  query: {
+                    id: row.oldPartId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'oldPartName', label: '旧件名称', visible: true, width: 200 },
-          { props: 'partCode', label: '换上零件编码', visible: true, width: 200 },
+          {
+            props: 'partCode',
+            label: '换上零件编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/sparePart/detail',
+                  query: {
+                    id: row.partId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'partName', label: '换上零件名称', visible: true, width: 200 },
           { props: 'oemStatusLabel', label: '主机厂库存状态', visible: true, width: 200 },
           { props: 'dealerInTime', label: '门店入库时间', visible: true, width: 200 },
@@ -355,12 +454,10 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                // eslint-disable-next-line no-warning-comments
-              // todo 跳转
                 this.$router.push({
-                  path: '/claimreturn/oldpart/inventory/oem/detail',
+                  path: '/claimreturn/oldpart/returnorder/edit',
                   query: {
-                    id: row.id
+                    id: row.returnOrderId
                   }
                 });
               },
@@ -369,7 +466,23 @@ export default {
           },
           { props: 'oemInTime', label: '主机厂入库时间', visible: true, width: 200 },
           { props: 'oemCheckTime', label: '主机厂验收时间', visible: true, width: 200 },
-          { props: 'oemOutboundOrderNo', label: '主机厂出库单', visible: true, width: 200 },
+          {
+            props: 'oemOutboundOrderNo',
+            label: '主机厂出库单',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/oldpart/outbound/edit',
+                  query: {
+                    id: row.oemOutboundOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'oemOutTime', label: '主机厂出库时间', visible: true, width: 200 },
           { props: 'returnTypeLabel', label: '旧件返还类型', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
@@ -451,6 +564,7 @@ export default {
       });
     },
     onSubmit () {
+      this.optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
