@@ -374,12 +374,12 @@ export default {
   },
   data () {
     const form = this.getDefautlForm();
-
+    const moduleKey = 'AISCR-' + this.$route.meta.moduleKey;
     return {
       pageTitle: this.$route.meta.name,
       pageType: 'edit',
       // TIPS: 权限前缀 AISCR，根据实际情况修改
-      moduleKey: this.$route.meta.moduleKey,
+      moduleKey,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,

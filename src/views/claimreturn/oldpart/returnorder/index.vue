@@ -152,6 +152,7 @@ export default {
     Upload
   },
   data () {
+    const moduleKey = 'AISCR-' + this.$route.meta.moduleKey;
     return {
       pageTitle: this.$route.meta.name,
       pageType: 'list',
@@ -159,7 +160,7 @@ export default {
       form: {
         ...defaultForm
       },
-      moduleKey: this.$route.meta.moduleKey,
+      moduleKey,
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
       show: false,
@@ -168,7 +169,7 @@ export default {
       uploadDialogVisible: false,
       clickItemId: '',
       optionObj: {
-        id: 'returnOrderTable',
+        id: this.$route.meta.moduleKey,
         dataList: [],
         form: {
           page: 1,
