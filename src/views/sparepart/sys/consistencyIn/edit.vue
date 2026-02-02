@@ -76,7 +76,7 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="执行状态:未执行,成功,失败,重试失败：" prop="executeStatus">
+                <el-form-item label="执行结果：" prop="executeStatus">
                   <fetch-select
                     :request="fetchOptions"
                     enumCode="xxx"

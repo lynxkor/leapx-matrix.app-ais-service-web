@@ -1643,21 +1643,12 @@ const routes = [
       }
     }, {
       path: '/sparepart/sys/consistencyOut',
-      name: 'consistencyIn',
-      component: () => import('@/views/sparepart/sys/consistencyIn/index.vue'),
+      name: 'consistencyOut',
+      component: () => import('@/views/sparepart/sys/consistencyOut/index.vue'),
 
       meta: {
         name: '同步外部接口信息',
         keepAlive: true
-      }
-    }, {
-      path: '/sparepart/sys/consistencyout/edit',
-      name: 'consistencyInEdit',
-      component: () => import('@/views/sparepart/sys/consistencyIn/edit.vue'),
-
-      meta: {
-        name: '同步外部接口信息详情',
-        noResourceUrl: 'true'
       }
     }, {
       path: '/sparepart/fund/accountOperateApply',
