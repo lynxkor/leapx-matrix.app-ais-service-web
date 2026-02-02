@@ -71,7 +71,9 @@
                     :params="{}" />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerCode">
-                  <dealer-select v-model="form.dealerCode"/>
+                  <dealer-select
+                    v-model="form.dealerCode"
+                    :defaultDealerName="form.dealerName"/>
                 </el-form-item>
                 <el-form-item label="收货供应商：" prop="supplierId">
                   <list-select
@@ -90,6 +92,7 @@
                     placeholder="请输入"
                     v-model="form.logisticsCompany"
                     clearable
+                    maxLength="50"
                   />
                 </el-form-item>
                 <el-form-item label="物流单号：" prop="logisticsTrackingNo">
@@ -97,6 +100,7 @@
                     placeholder="请输入"
                     v-model="form.logisticsTrackingNo"
                     clearable
+                    maxLength="50"
                   />
                 </el-form-item>
                 <el-form-item label="出库时间：" prop="outboundTime">
@@ -117,13 +121,6 @@
                     placeholder="请输入">
                   </el-date-picker>
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
-                </el-form-item>
                 <el-form-item label="同步状态：" prop="syncStatus">
                   <fetch-select
                     :request="fetchOptions"
@@ -143,6 +140,15 @@
                     disabled
                   />
                 </el-form-item>
+                <el-form-item class="form-item-full" label="备注：" prop="remark">
+                  <el-input
+                    type="textarea"
+                    placeholder="请输入"
+                    v-model="form.remark"
+                    clearable
+                    maxLength="1000"
+                  />
+                </el-form-item>
               </el-form>
               <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="主机厂出库单号：" prop="outboundOrderNo">
@@ -158,7 +164,15 @@
                   <el-button class="link" @click="$router.push('/claimreturn/oldpart/basic/oldPartOemWarehouse/detail?id=' + form.warehouseId)" type="text">{{ form.warehouseCode }}</el-button>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
+                  <el-button
+                    class="link"
+                    @click="navigateToRoute({
+                      path: '/partner/channelManagement/shopDetail',
+                      query: {
+                        dealerCode: form.dealerCode,
+                      },
+                    })"
+                    type="text">{{form.dealerName}}</el-button>
                 </el-form-item>
                 <el-form-item label="收货供应商：" prop="supplierName">
                   <el-button class="link" @click="$router.push('/sparepart/basic/supplierInfo/detail?id=' + form.supplierId)" type="text">{{ form.supplierName }}</el-button>

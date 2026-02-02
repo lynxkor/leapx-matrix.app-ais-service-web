@@ -129,7 +129,7 @@
         </div>
       </el-dialog>
       <!-- 旧件销毁审批 -->
-       <el-dialog title="旧件销毁审批" :visible.sync="dialogFormVisible2">
+      <el-dialog title="旧件销毁审批" :visible.sync="dialogFormVisible2">
         <el-form label-width="150px" class="form-edit">
           <el-form-item label="审批结果:">
             <el-radio-group v-model="isPass">
@@ -268,6 +268,7 @@ export default {
           width: '160',
           click (row) {
             // 点击事件
+            this.$router.push(`/maintain/sp/serviceProxy/edit?id=${row.serviceProxyId}`);
           }
         },
         {
@@ -275,8 +276,7 @@ export default {
           title: '保修申请单',
           width: '180',
           click (row) {
-            // 点击事件
-            console.log('点击了接车施工单');
+            // TODO 这里需要跳转
           }
         },
         {
@@ -301,7 +301,7 @@ export default {
           field: 'dealerName',
           title: '门店名称',
           width: '150',
-          click (row) {
+          click: (row) => {
             this.navigateToRoute({
               path: '/partner/channelManagement/shopDetail',
               query: {
@@ -325,9 +325,9 @@ export default {
           field: 'oldPartSupplierName',
           title: '旧件供应商',
           width: '150',
-          click () {
+          click: (row) => {
             // 点击事件
-            console.log('点击了接车施工单');
+            this.$router.push('/sparepart/basic/supplierInfo/detail?id=' + row.oldPartSupplierId);
           }
         },
         {
@@ -339,9 +339,9 @@ export default {
           field: 'oldPartCode',
           title: '旧件编码',
           width: '140',
-          click () {
+          click: (row) => {
             // 点击事件
-            console.log('点击了接车施工单');
+            this.$router.push('/sparepart/basic/sparePart/detail?id=' + row.oldPartId);
           }
         },
         {
@@ -353,9 +353,8 @@ export default {
           field: 'partCode',
           title: '换上零件编码',
           width: '140',
-          click () {
-            // 点击事件
-            console.log('点击了接车施工单');
+          click: (row) => {
+            this.$router.push('/sparepart/basic/sparePart/detail?id=' + row.partId);
           }
         },
         {

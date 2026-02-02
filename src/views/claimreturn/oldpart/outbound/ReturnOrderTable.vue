@@ -11,6 +11,7 @@
         <el-button v-if="canAddOrUpdate" :disabled="!isSelect" size="small" @click.stop="handleRemoveRows">删除</el-button>
         <el-button size="small" @click.stop="handleImport">旧件出库明细导入</el-button>
         <el-button :loading="attachLoading" size="small" @click="addAttach">添加连带件</el-button>
+        <el-input placeholder="扫描条码" class="input-inline" size="small" v-model="oldPartUniqueCode" v-debounce:input="search" clearable/>
       </div>
       <div class="common-section-table">
         <!-- 旧件明细表格 -->
@@ -65,6 +66,7 @@ import {
 import {
   removeDetail,
   addAssociatedParts,
+  addDetail,
 } from '@/api/claimreturn/oldpart/outbound/index';// 出库
 import EditTable from '@/libs/components/EditTable/index.vue';
 import OldPartDialog from './OldPartDialog';
@@ -192,6 +194,8 @@ export default {
       //
       uploadDialogVisible: false,
       attachLoading: false,
+      //
+      oldPartUniqueCode: '',
     };
   },
   computed: {
@@ -326,6 +330,33 @@ export default {
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
     },
+    search (e) {
+      const val = e.target.value;
+      getList({
+        oldPartUniqueCode: val,
+        pageNum: 1,
+        pageSize: 1,
+        dealerCode: this.dealerCode,
+        oemStatus: '700', // 主机厂入库
+        oemOutboundOrderIdIsNull: true,
+      })
+        .then(res => {
+          const data = res.records;
+          if (data?.length) {
+            addDetail({
+              id: this._id,
+              detailIdList: data?.map(item => item.id),
+            }).then(res => {
+              this.$message.success('添加成功');
+              this.getTableData();
+            });
+          } else {
+            this.$message.warning('未查询到数据');
+          }
+        }).finally(() => {
+          this.loading = false;
+        });
+    }
   },
 };
 
@@ -333,5 +364,17 @@ export default {
 <style lang="scss" scoped>
 .btn-delete{
   color: #B91919;
+}
+.input-inline{
+  display: inline;
+  margin-left: 10px;
+  ::v-deep .el-input__inner{
+    width: 200px;
+  }
+  ::v-deep .el-input__suffix{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 </style>
