@@ -32,10 +32,17 @@
       </el-form-item>
       <template v-if="show">
         <el-form-item label="旧件销毁单编码">
-          <el-input
-            placeholder="请输入"
-            v-model="form.oldPartDestroyOrderNo"
+          <list-select
+            listUrl="/claimreturn/oldpart/web/destroy/oldPartDestroyOrder/list"
+            placeholder="请选择"
+            v-model="form.oldPartDestroyOrderId"
+            query-key="destroyOrderNo"
             clearable
+            collapseTags
+            :show-code="false"
+            filterable
+            label-key="code"
+            value-key="id"
           />
         </el-form-item>
         <el-form-item v-if="!isDealer" label="门店名称">
@@ -175,6 +182,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import ListSelect from '@/libs/components/list-select/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -214,6 +222,7 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
+    ListSelect,
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
