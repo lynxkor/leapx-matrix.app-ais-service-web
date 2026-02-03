@@ -67,3 +67,10 @@ export function getOutboundDetailList (data) {
 export function getBackDetailList (data) {
   return api.jsonPost('sp/web/claim/claimBackDetail/page', data);
 }
+
+/**
+ * 备件索赔历史
+ */
+export function historyPage (data) {
+  return api.jsonPost('sp/web/claim/claimOrderDetail/historyPage', data);
+}

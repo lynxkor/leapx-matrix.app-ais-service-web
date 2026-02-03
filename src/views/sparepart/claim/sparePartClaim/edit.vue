@@ -12,12 +12,11 @@
         :detailRequest="detailRequest"
       >
         <template #status>
+          {{ form.code }}
           <!-- 支持primary,warning,success,danger等状态 -->
-          <span class="status primary">状态</span>
+          <!-- <span class="status primary">状态</span> -->
         </template>
         <template #extraButtons>
-          <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -238,20 +237,13 @@
               <h2>索赔明细</h2>
             </div>
             <div class="common-section-body">
-              <div class="common-section-table">
-                <edit-table
-                  ref="editTable"
-                  :columns="columns"
-                  :data="tableData"
-                  :show-toolbar="false"
-                  :auth="{edit: false, delete: false}"
-                  :showPagination="true"
-                  :current="current"
-                  :pageSize="pageSize"
-                  :total="total"
-                  @page-size-change="pageSizeChange"
-                  @current-page-change="currentPageChange"
+                <ComponentTable
+                  :columns="detailColumns"
+                  :pagination="true"
+                  :api-method="getDetailList"
+                  name="索赔明细"
                 />
+              <div class="common-section-table">
               </div>
             </div>
           </section>
@@ -260,6 +252,24 @@
               <h2>附件信息</h2>
             </div>
             <div class="common-section-body">
+              <h2 style="padding-bottom: 10px;">附件申请</h2>
+              <div class="common-section-table">
+                <!-- 附件上传组件 -->
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_partsclaimorder"
+                  attachType="索赔申请附件"
+                />
+              </div>
+              <h2 style="padding-bottom: 10px;">审批附件</h2>
+              <div class="common-section-table">
+                <!-- 附件上传组件 -->
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_partsclaimorder"
+                  attachType="索赔审批附件"
+                />
+              </div>
             </div>
           </section>
           <section class="common-section">
@@ -267,8 +277,18 @@
               <h2>索赔出库缺货明细</h2>
             </div>
             <div class="common-section-body">
+              <el-tabs v-model="activeName">
+                <el-tab-pane label="出库明细" name="getOutboundDetailList" />
+                <el-tab-pane label="库缺货明细" name="getBackDetailList" />
+              </el-tabs>
               <div class="common-section-table">
-                <edit-table
+                <ComponentTable
+                  :columns="outboundColumns"
+                  :pagination="true"
+                  :api-method="getOutboundDetailList"
+                  name="出库明细"
+                />
+                <!-- <edit-table
                   ref="editTable"
                   :columns="claimColumns"
                   :data="claimTableData"
@@ -280,6 +300,21 @@
                   :total="total"
                   @page-size-change="pageSizeChange"
                   @current-page-change="currentPageChange"
+                /> -->
+              </div>
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>索赔历史</h2>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-table">
+                <ComponentTable
+                  :columns="historyColumns"
+                  :pagination="true"
+                  :api-method="historyPage"
+                  name="索赔历史"
                 />
               </div>
             </div>
@@ -296,9 +331,16 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getDetailList, getOutboundDetailList, getBackDetailList } from '@/api/sparepart/claim/sparePartClaim/index';
-import FetchSelect from '@/libs/components/FetchSelect';
-import EditTable from '@/libs/components/EditTable';
+import {
+  getDetail,
+  addOrUpdate,
+  getDetailList, // 索赔明细
+  getOutboundDetailList, // 索赔出库明细
+  getBackDetailList, // 索赔库缺货明细
+  historyPage // 索赔历史
+} from '@/api/sparepart/claim/sparePartClaim/index';
+// import FetchSelect from '@/libs/components/FetchSelect';
+// import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -306,6 +348,8 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import AisAttachment from '@/libs/components/AisAttachment';
+import ComponentTable from './ComponentTable.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -351,9 +395,11 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
+    ComponentTable,
+    AisAttachment,
     EditPageLayout,
     EditBaseContainer,
-    EditTable
+    // EditTable
   },
   computed: {
     _id () {
@@ -391,42 +437,40 @@ export default {
         value: 'code',
         children: 'child'
       },
+      activeName: 'getOutboundDetailList',
       tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
-      columns: [
-        {
-          field: 'sparePartCode',
-          title: '备件编码',
-          width: '16.6%',
-        },
-        {
-          field: 'sparePartName',
-          title: '备件名称',
-          width: '16.6%',
-        },
-        {
-          field: 'email',
-          title: '已入库数',
-          width: '16.6%',
-        },
-        {
-          field: 'claimQty',
-          title: '索赔数量',
-          width: '16.6%',
-        },
-        {
-          field: 'claimDescription',
-          title: '索赔说明',
-          width: '16.6%',
-        },
-        {
-          field: 'createTime',
-          title: '创建时间',
-          width: '16.6%',
-        },
+      detailColumns: [
+        { field: 'sparePartCode', title: '备件编码', width: '15%' },
+        { field: '', title: '备件名称', width: '15%' }, // yapi没找到
+        { field: '', title: '已入库数', width: '15%' }, // yapi没找到
+        { field: 'claimQty', title: '索赔数量', width: '15%' },
+        { field: 'claimDescription', title: '索赔说明', width: '25%' },
+        { field: 'createTime', title: '创建时间', width: '15%' },
+      ],
+      outboundColumns: [
+        { field: '', title: '备件名称', width: '15%' }, // yapi没找到
+        { field: '', title: '出库数量', width: '15%' },
+        { field: 'outboundOrderNo', title: '出库单号', width: '15%' },
+        { field: 'outboundDate', title: '出库日期', width: '25%' }, // yapi没找到
+        { field: '', title: '发货仓库', width: '15%' },
+        { field: 'createTime', title: '创建时间', width: '15%' },
+      ],
+      backColumns: [
+        { field: '', title: '备件编码', width: '15%' }, // yapi没找到
+        { field: '', title: '备件名称', width: '15%' }, // yapi没找到
+        { field: 'backQty', title: '缺货数量', width: '15%' },
+        { field: 'resolvedQty', title: '已解欠数量', width: '15%' },
+        { field: 'createTime', title: '创建时间', width: '15%' },
+      ],
+      historyColumns: [
+        { field: 'sparePartCode', title: '备件编码', width: '15%' },
+        { field: '', title: '备件名称', width: '15%' }, // yapi没找到
+        { field: 'claimOrderId', title: '备件索赔单', width: '15%' },
+        { field: '', title: '索赔类型', width: '15%' }, // yapi没找到
+        { field: 'claimQty', title: '索赔数量', width: '25%' },
+        { field: 'updateTime', title: '提交时间', width: '15%' }, // 确认下是否是修改时间
       ],
       claimTableData: [],
       claimColumns: [
@@ -573,10 +617,18 @@ export default {
     };
   },
   mounted () {
-    this.getDetailList();
-    this.getDetailListOutbound();
+    // this.getDetailList();
+    // this.getDetailListOutbound();
   },
   methods: {
+    // 索赔出库明细
+    getOutboundDetailList,
+    // 索赔库缺货明细
+    getBackDetailList,
+    // 索赔明细
+    getDetailList,
+    // 索赔历史
+    historyPage,
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -625,15 +677,15 @@ export default {
       return [];
     },
     // 索赔明细
-    async getDetailList () {
-      const data = {
-        pageNum: 1,
-        pageSize: 10,
-        claimOrderId: this._id,
-      };
-      const res = await getDetailList(data);
-      this.tableData = res.records;
-    },
+    // async getDetailList () {
+    //   const data = {
+    //     pageNum: 1,
+    //     pageSize: 10,
+    //     claimOrderId: this._id,
+    //   };
+    //   const res = await getDetailList(data);
+    //   this.tableData = res.records;
+    // },
     // 索赔出库明细
     async getDetailListOutbound () {
       const data = {
