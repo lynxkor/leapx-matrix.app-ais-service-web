@@ -69,13 +69,13 @@
               >
                 添加
               </el-button>
-              <!-- <el-button
+              <el-button
                 type="primary"
-                @click="importPart()"
+                @click="handleImport()"
                 size="small"
               >
                 导入零件
-              </el-button> -->
+              </el-button>
             </div>
             <div class="common-section-table">
               <el-table
@@ -114,6 +114,13 @@
         <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
       </el-footer>
     </el-container>
+      <!-- TIPS: 填入项目id即可 -->
+    <Upload
+      :visible="uploadDialogVisible"
+      :businessParams = "_id"
+      id="purchaseReminderPartImport"
+      @close="handleUploadDialogClose"
+    />
   </div>
 </template>
 
@@ -125,6 +132,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import Upload from '@/libs/components/UploadDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -154,7 +162,8 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
-    FetchSelect
+    FetchSelect,
+    Upload
   },
   computed: {
     _id () {
@@ -189,6 +198,7 @@ export default {
       tableData: [],
       sparePartCode: '',
       remindId: null,
+      uploadDialogVisible: false,
       rules: {
         reminderCategory: [
           { required: true, message: '请输入提醒类别', trigger: 'change' }
@@ -342,7 +352,13 @@ export default {
         purchaseReminderId: val
       });
       this.tableData = partRes?.records || [];
-    }
+    },
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
+    },
   }
 };
 </script>

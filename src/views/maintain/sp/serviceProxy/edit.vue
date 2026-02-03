@@ -13,23 +13,25 @@
                     <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
                   </div>
                   <ButtonGroup maxWidth="50%" v-else>
-                    <el-button size="small" @click="handlePrint" v-if="![RepairOrderStatusEnum.CANCEL].includes(form.orderStatus)">打印工单</el-button>
-                    <el-button size="small" @click="handleImport" v-if="![RepairOrderStatusEnum.CANCEL].includes(form.orderStatus)">上传附件</el-button>
+                    <!-- 通用操作按钮 -->
+                    <el-button size="small" @click="handlePrint" v-if="!isCanceled">打印工单</el-button>
+                    <el-button size="small" @click="couponsDialogVisible = true" v-if="!isCanceled">查询卡券&终身</el-button>
+                    <el-button size="small" @click="handleImport" v-if="!isCanceled">上传附件</el-button>
                     <el-button size="small" @click="handleShowLog">审核日志</el-button>
-                    <el-button size="small" @click="discardDialogVisible = true" v-if="![RepairOrderStatusEnum.DELIVERED, RepairOrderStatusEnum.ANTI_SETTLEMENT, RepairOrderStatusEnum.CANCEL].includes(form.orderStatus)">作废</el-button>
-                    <el-button size="small" @click="materialReturnDialogVisible = true" v-if="![RepairOrderStatusEnum.DELIVERED, RepairOrderStatusEnum.ANTI_SETTLEMENT, RepairOrderStatusEnum.CANCEL].includes(form.orderStatus)">退料</el-button>
-                    <!-- <el-button size="small" @click="couponsDialogVisible = true" v-if="[RepairOrderStatusEnum.CREATING_ORDER, RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">查询卡券&终身</el-button> -->
-                    <el-button size="small" @click="finalCheckDialogVisible = true"  v-if="[RepairOrderStatusEnum.PENDING_FINAL_INSPECTION].includes(form.orderStatus)">终检</el-button>
-                    <el-button size="small" @click="startWorkDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">作业开始</el-button>
-                    <el-button size="small" @click="endWorkDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">作业结束</el-button>
-                    <el-button size="small" @click="handlePreCheck" v-if="[RepairOrderStatusEnum.RECEPTION_INSPECTION].includes(form.orderStatus)">预检确认</el-button>
-                    <el-button size="small" @click="selectRepairItemDialogVisible = true" v-if="[RepairOrderStatusEnum.CREATING_ORDER, RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION, RepairOrderStatusEnum.PENDING_FINAL_INSPECTION, RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus) &&form.isCreateStatementInfo === 0">选择维修项目</el-button>
-                    <el-button size="small" @click="confirmDocDialogVisible = true" v-if="[RepairOrderStatusEnum.CREATING_ORDER].includes(form.orderStatus) && (form?.costCountResp?.repairItemRespList?.length || form?.costCountResp?.sparePartRespList?.length)">制单确认并签字</el-button>
-                    <el-button size="small" @click="dispatchWorkDialogVisible = true" v-if="[RepairOrderStatusEnum.PENDING_DISPATCH, RepairOrderStatusEnum.UNDER_CONSTRUCTION].includes(form.orderStatus)">派工</el-button>
-                    <el-button size="small" @click="handleSettlement(1)" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus) && !form.isCreateStatementInfo">结算</el-button>
-                    <el-button size="small" @click="handleSettlement(0)" v-if="[RepairOrderStatusEnum.PENDING_DELIVERY].includes(form.orderStatus) && form.isCreateStatementInfo">取消结算</el-button>
-                    <el-button size="small" @click="handleCancelFinal" v-if="[RepairOrderStatusEnum.ANTI_SETTLEMENT].includes(form.orderStatus)">取消终检</el-button>
-                    <!-- <el-button size="small" @click="handleCancel">预警信息</el-button> -->
+                    <!-- 流程操作按钮 -->
+                    <el-button size="small" @click="discardDialogVisible = true" v-if="!isCompleted">作废</el-button>
+                    <el-button size="small" @click="materialReturnDialogVisible = true" v-if="!isCompleted && hasRepairItems">退料</el-button>
+                    <el-button size="small" @click="handlePreCheck" v-if="orderStatus === RepairOrderStatusEnum.RECEPTION_INSPECTION">预检确认</el-button>
+                    <el-button size="small" @click="confirmDocDialogVisible = true" v-if="orderStatus === RepairOrderStatusEnum.CREATING_ORDER && hasItems">制单确认并签字</el-button>
+                    <el-button size="small" @click="selectRepairItemDialogVisible = true" v-if="canEditOrder && form.isCreateStatementInfo === 0">选择维修项目</el-button>
+                    <el-button size="small" @click="dispatchWorkDialogVisible = true" v-if="isInConstruction && hasUndispatchedItems">派工</el-button>
+                    <el-button size="small" @click="startWorkDialogVisible = true" v-if="isInConstruction && hasDispatchedNotStartedItems">作业开始</el-button>
+                    <el-button size="small" @click="endWorkDialogVisible = true" v-if="isInConstruction && hasWorkingItems">作业结束</el-button>
+                    <el-button size="small" @click="finalCheckDialogVisible = true" v-if="orderStatus === RepairOrderStatusEnum.PENDING_FINAL_INSPECTION">终检</el-button>
+                    <el-button size="small" @click="handleSettlement(1)" v-if="canSettlement && !form.isCreateStatementInfo">结算</el-button>
+                    <el-button size="small" @click="handleSettlement(0)" v-if="canSettlement && form.isCreateStatementInfo">取消结算</el-button>
+                    <el-button size="small" @click="handleCancelFinal" v-if="orderStatus === RepairOrderStatusEnum.ANTI_SETTLEMENT">取消终检</el-button>
+
                     <el-divider direction="vertical"></el-divider>
                     <el-button v-if="canAddOrUpdate" size="small" type="primary" plain @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
                   </ButtonGroup>
@@ -39,7 +41,7 @@
                 <i>|</i>
                 <span>工单状态：{{ form.orderStatusLabel || '-' }}</span>
                 <i>|</i>
-                <span>领料状态：{{ form.pickStatus || '-' }}</span>
+                <span>领料状态：{{ form.pickStatusLabel || '-' }}</span>
                 <i>|</i>
                 <span>开单时间：{{ form.createTime || '-' }}</span>
               </h5>
@@ -353,6 +355,63 @@ export default {
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
+    },
+    // 工单状态计算属性
+    orderStatus () {
+      return this.form.orderStatus;
+    },
+    // 是否已取消
+    isCanceled () {
+      return this.orderStatus === RepairOrderStatusEnum.CANCEL;
+    },
+    // 是否已交车、反结算或取消
+    isCompleted () {
+      return [
+        RepairOrderStatusEnum.DELIVERED,
+        RepairOrderStatusEnum.ANTI_SETTLEMENT,
+        RepairOrderStatusEnum.CANCEL
+      ].includes(this.orderStatus);
+    },
+    // 是否在施工中(待派工或施工中)
+    isInConstruction () {
+      return [
+        RepairOrderStatusEnum.PENDING_DISPATCH,
+        RepairOrderStatusEnum.UNDER_CONSTRUCTION
+      ].includes(this.orderStatus);
+    },
+    // 是否可编辑维修项目
+    canEditOrder () {
+      return ![
+        RepairOrderStatusEnum.ANTI_SETTLEMENT,
+        RepairOrderStatusEnum.CANCEL,
+        RepairOrderStatusEnum.RECEPTION_INSPECTION
+      ].includes(this.orderStatus);
+    },
+    // 是否可结算(待交车)
+    canSettlement () {
+      return this.orderStatus === RepairOrderStatusEnum.PENDING_DELIVERY;
+    },
+    // 是否有维修项目或配件
+    hasItems () {
+      return (this.form?.costCountResp?.repairItemRespList?.length ||
+        this.form?.costCountResp?.sparePartRespList?.length);
+    },
+    // 是否存在未派工的维修项目
+    hasUndispatchedItems () {
+      return this.form?.workRecordRespList?.some(item => item.isDispatch !== 1);
+    },
+    // 是否存在已派工未开始的维修项目
+    hasDispatchedNotStartedItems () {
+      return this.form?.workRecordRespList?.some(item => item.isDispatch === 1 && !item.timeSpend);
+    },
+    // 是否存在作业中的维修项目
+    hasWorkingItems () {
+      console.log('hasWorkingItems', this.form?.workRecordRespList);
+      return this.form?.workRecordRespList?.some(item => item.isDispatch === 1 && item.timeSpend && !item.finishAt);
+    },
+    // 是否存在已经领料但是未全部退料的维修备件记录
+    hasRepairItems () {
+      return this.form?.partsTraceRecordRespList?.some(item => (item.returnQuantity || 0) > 0 && item.isOutstock);
     }
   },
   watch: {
@@ -431,8 +490,8 @@ export default {
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
-          Object.assign(this.form, res);
-          Object.assign(this.originalForm, res);
+          this.form = res;
+          this.originalForm = res;
         });
         this.getFileList();
       }

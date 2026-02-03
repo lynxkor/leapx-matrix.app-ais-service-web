@@ -572,7 +572,7 @@ export default {
             checkoutTypeName: checkoutTypeObj?.checkoutTypeName || checkoutTypeObj?.label || '',
             warrantyTypeId: warrantyTypeObj?.warrantyTypeId || '',
             warrantyTypeName: warrantyTypeObj?.warrantyTypeName || warrantyTypeObj?.label || '',
-            isOemPart: part.isOemPart,
+            isOemPart: part.isOemPart || 0,
             quantity: part.quantity || 1,
             price: part.price || 0,
             discountRate: this.selectedDiscount?.discountPartRate || 0,
@@ -655,10 +655,10 @@ export default {
     },
     submit () {
       // 验证数据
-      if (this.itemData.length === 0 && this.partData.length === 0) {
-        this.$message.warning('请至少添加一个维修项目或维修配件');
-        return;
-      }
+      // if (this.itemData.length === 0 && this.partData.length === 0) {
+      //   this.$message.warning('请至少添加一个维修项目或维修配件');
+      //   return;
+      // }
 
       this.submitLoading = true;
 

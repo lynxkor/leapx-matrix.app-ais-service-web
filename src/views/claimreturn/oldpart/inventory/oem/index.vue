@@ -45,7 +45,7 @@
             value-key="id"
           />
         </el-form-item>
-        <el-form-item v-if="!isDealer" label="门店名称">
+        <el-form-item v-if="!isDealerPage" label="门店名称">
           <dealer-select v-model="form.dealerCodes" multiple />
         </el-form-item>
         <el-form-item label="VIN">
@@ -62,7 +62,7 @@
             clearable
           />
         </el-form-item>
-        <el-form-item v-if="isDealer" label="旧件名称">
+        <el-form-item v-if="isDealerPage" label="旧件名称">
           <el-input
             placeholder="请输入"
             v-model="form.oldPartName"
@@ -96,7 +96,7 @@
           />
         </el-form-item>
 
-        <el-form-item v-if="!isDealer" label="主机厂库存状态">
+        <el-form-item v-if="!isDealerPage" label="主机厂库存状态">
           <fetch-select
             :request="fetchOptions"
             enumCode="old_part_inventory_oem_status"
@@ -107,7 +107,7 @@
             filterable
           />
         </el-form-item>
-        <el-form-item v-if="isDealer" label="门店库存状态">
+        <el-form-item v-if="isDealerPage" label="门店库存状态">
           <fetch-select
             :request="fetchOptions"
             enumCode="old_part_inventory_dealer_status"
@@ -229,7 +229,7 @@ export default {
   },
   data () {
     return {
-      isDealer: this.$route.meta.isDealer, // 门店旧件库存页面
+      isDealerPage: this.$route.meta.isDealerPage, // 门店旧件库存页面
       pageTitle: this.$route.meta.name,
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改

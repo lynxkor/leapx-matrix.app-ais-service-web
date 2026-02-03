@@ -981,7 +981,7 @@ const routes = [
         name: '门店旧件库存',
         keepAlive: true,
         moduleKey: 'AISCR-oldPartDealerInventoryDetail',
-        isDealer: true,
+        isDealerPage: true,
       }
     }, {
       path: '/claimreturn/oldpart/inventory/dealer/edit',
@@ -1125,7 +1125,7 @@ const routes = [
       meta: {
         name: '旧件回运单',
         returnType: '30',
-        moduleKey: 'AISCR-oldPartReturnOrder',
+        moduleKey: 'oldPartReturnOrder',
         keepAlive: true
       }
     }, {
@@ -1134,7 +1134,7 @@ const routes = [
       component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
       meta: {
         name: '旧件回运单',
-        moduleKey: 'AISCR-oldPartReturnOrder',
+        moduleKey: 'oldPartReturnOrder',
         noResourceUrl: 'true'
       }
     }, {
@@ -1144,7 +1144,7 @@ const routes = [
       meta: {
         name: '快返回运单',
         returnType: '40',
-        moduleKey: 'AISCR-oldPartReturnOrderFast',
+        moduleKey: 'oldPartReturnOrderFast',
         keepAlive: true
       }
     }, {
@@ -1153,7 +1153,7 @@ const routes = [
       component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
       meta: {
         name: '快返回运单',
-        moduleKey: 'AISCR-oldPartReturnOrderFast',
+        moduleKey: 'oldPartReturnOrderFast',
         noResourceUrl: 'true'
       }
     }, {
