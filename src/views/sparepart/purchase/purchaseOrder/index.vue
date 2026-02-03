@@ -1,5 +1,5 @@
 <template>
-  <div class="page-common m-purchase-order-list">
+  <div class="page-common m-service-proxy-list">
     <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
     <el-form
       :inline="true"
@@ -15,18 +15,21 @@
       <el-form-item label="采购申请单">
         <tag-input v-model="form.purchaseApplyCodeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="缺货单号"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+        <tag-input v-model="form.purchaseApplyCodeList" placeholder="请输入" />
+      </el-form-item>
+      <el-form-item label="缺货单号"  v-show="this.visibleCount === 3 || show" v-if="activeName === 'homePage'">
         <tag-input v-model="form.backOrderCodeList" placeholder="请输入" />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="备注">
+        <el-form-item label="备注" v-if="activeName === 'homePage'">
           <el-input
             placeholder="请输入"
             v-model="form.remarkLike"
             clearable
           />
         </el-form-item>
-        <el-form-item label="发货仓库">
+        <el-form-item label="发货仓库" v-if="activeName === 'homePage'">
           <el-input
             placeholder="请输入"
             v-model="form.deliveryWarehouseLike"
@@ -48,7 +51,7 @@
             filterable
             />
         </el-form-item>
-        <el-form-item label="订单类型">
+        <el-form-item label="订单类型" v-if="activeName === 'homePage'">
           <fetch-select
             :request="fetchOptions"
             enumCode="PurchaseOrderTypeEnum"
@@ -59,7 +62,7 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="订单状态">
+        <el-form-item label="订单状态" v-if="activeName === 'homePage'">
           <fetch-select
             :request="fetchOptions"
             enumCode="PurchaseOrderStatusEnum"
@@ -115,13 +118,21 @@
       <!--  TIPS:根据产品增删功能按钮  -->
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button> -->
+      <el-button v-if="activeName === 'allSpareParts'" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">提交索赔</el-button>
+      <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchEnable" :disabled="selectionList.length === 0">批量签收</el-button>
+      <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchEnable" :disabled="selectionList.length === 0">签收并入库</el-button>
+    </div>
+    <div class="ais-tabs">
+      <el-tabs v-model="activeName" @tab-click="handleClick">
+        <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
+        <el-tab-pane label="全部备件" name="allSpareParts"></el-tab-pane>
+        <el-tab-pane label="待签收备件" name="proxySign"></el-tab-pane>
+      </el-tabs>
     </div>
     <div
       class="ais-table-c"
+      v-if="activeName === 'homePage'"
     >
       <LPVxeTable
         ref="tableRef"
@@ -140,6 +151,181 @@
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
     </div>
+    <div
+      class="ais-table-c"
+      v-if="activeName === 'allSpareParts'"
+    >
+      <!-- 使用原生表格 先不优化代码 看最后要不要 表格配置 不要再优化 -->
+      <vxe-table
+        ref="tableRefAll"
+        :data="optionObjAll.dataList"
+        v-loading="loading"
+        stripe
+        resizable
+        border="inner"
+        size="medium"
+        height="auto"
+        min-height="200px"
+        max-height="600px"
+        width="1000px"
+        :checkbox-config="{ checkField: 'checked' }"
+        @checkbox-change="handleSelectionChange"
+        @checkbox-all="handleSelectionChange"
+      >
+        <vxe-column type="checkbox" width="60" align="center" />
+        <vxe-column title="采购订单号" field="purchaseOrderCode" width="200">
+          <template #default="{ row }">
+            <div class="action-button btn-link" @click="handleJump('/sparepart/purchase/purchaseOrder/edit', row.id)">{{ row.purchaseOrderCode }}</div>
+          </template>
+        </vxe-column>
+        <vxe-column title="采购申请单" field="purchaseApplyCode" width="200">
+          <template #default="{ row }">
+            <div class="action-button btn-link" @click="handleJump('/sparepart/purchase/purchaseApply/edit', row.purchaseApplyId)">{{ row.purchaseApplyCode }}</div>
+          </template>
+        </vxe-column>
+        <vxe-column title="门店编码" field="dealerCode" width="200"></vxe-column>
+        <vxe-column title="门店名称" field="dealerName" width="200"></vxe-column>
+        <vxe-column title="备件编码" field="dealerName" width="200"></vxe-column>
+        <vxe-column title="备件名称" field="dealerName" width="200"></vxe-column>
+        <vxe-column title="结算数量" field="settlementQty" width="200"></vxe-column>
+        <vxe-column title="取消数量" field="cancelQty" width="200"></vxe-column>
+        <vxe-column title="已发运数" field="outboundQty" width="200"></vxe-column>
+        <vxe-column title="已签收数" field="signedQty" width="200"></vxe-column>
+        <vxe-column title="已入库数" field="inboundQty" width="200"></vxe-column>
+        <vxe-column title="取消人" field="cancelOperator" width="200"></vxe-column>
+        <vxe-column title="取消时间" field="cancelTime" width="200"></vxe-column>
+        <vxe-column title="原价" field="originalPrice" width="200"></vxe-column>
+        <vxe-column title="采购价" field="purchasePrice" width="200"></vxe-column>
+        <vxe-column title="采购金额" field="purchaseAmount" width="200"></vxe-column>
+        <vxe-column title="折后价" field="cashUnitPrice" width="200"></vxe-column>
+        <vxe-column title="折后金额" field="cashAmount" width="200"></vxe-column>
+        <vxe-column title="备注" field="detailRemark" width="200"></vxe-column>
+        <vxe-column title="创建时间" field="createTime" width="200"></vxe-column>
+        <vxe-column title="修改时间" field="updateTime" width="200"></vxe-column>
+        <vxe-column title="操作" width="120" fixed="right">
+          <template #default="{ row }">
+            <div class="action-button btn-edit" @click="handleAdd(row)">提交索赔</div>
+          </template>
+        </vxe-column>
+      </vxe-table>
+      <div class="table-pagination">
+          <el-pagination
+              @size-change="(val) => pageSizeChange(val, 'allSpareParts')"
+              @current-change="(val) => currentPageChange(val, 'allSpareParts')"
+              :current-page="optionObjAll.form.page"
+              :page-sizes="[10, 20, 50, 100]"
+              :page-size="optionObjAll.form.size"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="optionObjAll.total"
+          >
+          </el-pagination>
+      </div>
+      <!-- <LPVxeTable
+        ref="tableRefAll"
+        v-loading="loading"
+        is-checkbox
+        is-page
+        checkboxFixed
+        :option-obj="optionObjAll"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+        @listSelect="handleListSelect"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable> -->
+    </div>
+    <div
+      class="ais-table-c"
+      v-if="activeName === 'proxySign'"
+    >
+      <!-- 使用原生表格 先不优化代码 看最后要不要 表格配置 不要再优化 -->
+      <vxe-table
+        ref="tableRefAll"
+        :data="optionObjSign.dataList"
+        v-loading="loading"
+        stripe
+        resizable
+        border="inner"
+        size="medium"
+        height="auto"
+        min-height="200px"
+        max-height="600px"
+        width="1000px"
+        :checkbox-config="{ checkField: 'checked' }"
+        @checkbox-change="handleSelectionChange"
+        @checkbox-all="handleSelectionChange"
+      >
+        <vxe-column type="checkbox" width="60" align="center" />
+        <vxe-column title="采购订单号" field="purchaseOrderCode" width="200">
+          <template #default="{ row }">
+            <div class="action-button btn-link" @click="handleJump('/sparepart/purchase/purchaseOrder/edit', row.id)">{{ row.purchaseOrderCode }}</div>
+          </template>
+        </vxe-column>
+        <vxe-column title="采购申请单" field="purchaseApplyCode" width="200">
+          <template #default="{ row }">
+            <div class="action-button btn-link" @click="handleJump('/sparepart/purchase/purchaseApply/edit', row.purchaseApplyId)">{{ row.purchaseApplyCode }}</div>
+          </template>
+        </vxe-column>
+        <vxe-column title="运单号" field="dealerCode" width="200"></vxe-column>
+        <vxe-column title="备注" field="detailRemark" width="200"></vxe-column>
+        <vxe-column title="备件编码" field="dealerName" width="200"></vxe-column>
+        <vxe-column title="备件名称" field="dealerName" width="200"></vxe-column>
+        <vxe-column title="结算数量" field="settlementQty" width="200"></vxe-column>
+        <vxe-column title="取消数量" field="cancelQty" width="200"></vxe-column>
+        <vxe-column title="已发运数" field="outboundQty" width="200"></vxe-column>
+        <vxe-column title="已签收数" field="signedQty" width="200"></vxe-column>
+        <vxe-column title="已入库数" field="inboundQty" width="200"></vxe-column>
+        <vxe-column title="仓库名称" field="cancelOperator" width="200"></vxe-column>
+        <vxe-column title="本次签收数" field="cancelTime" width="200"></vxe-column>
+        <vxe-column title="创建时间" field="createTime" width="200"></vxe-column>
+        <vxe-column title="修改时间" field="updateTime" width="200"></vxe-column>
+        <vxe-column title="操作" width="150" fixed="right">
+          <template #default="{ row }">
+            <el-popconfirm
+                title="确定签收此备件吗？"
+                @confirm="handleSignFor(row)"
+              >
+                <span
+                  class="action-button btn-edit"
+                  slot="reference"
+                  type="text">
+                  签收
+                </span>
+              </el-popconfirm>
+            <div class="action-button btn-edit" @click="handleAdd(row)">签收并入库</div>
+          </template>
+        </vxe-column>
+      </vxe-table>
+      <div class="table-pagination">
+          <el-pagination
+              @size-change="(val) => pageSizeChange(val, 'proxySign')"
+              @current-change="(val) => currentPageChange(val, 'proxySign')"
+              :current-page="optionObjSign.form.page"
+              :page-sizes="[10, 20, 50, 100]"
+              :page-size="optionObjSign.form.size"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="optionObjSign.total"
+          >
+          </el-pagination>
+      </div>
+      <!-- <LPVxeTable
+        ref="tableRefSign"
+        v-loading="loading"
+        is-checkbox
+        is-page
+        checkboxFixed
+        :option-obj="optionObjSign"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+        @listSelect="handleListSelect"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable> -->
+    </div>
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
@@ -153,7 +339,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/purchase/purchaseOrder/index';
+import { getList, deleteItem, enableItem, pageAll, pageWaitSign, batchSign } from '@/api/sparepart/purchase/purchaseOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -193,11 +379,11 @@ export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
     PageSearchAction,
-    LPVxeTable,
     FetchSelect,
-    EditPage,
     Upload,
-    TagInput
+    TagInput,
+    LPVxeTable,
+    EditPage
   },
   data () {
     return {
@@ -210,6 +396,7 @@ export default {
       },
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
+      activeName: 'homePage',
       show: false,
       loading: false,
       exportLoading: false,
@@ -311,7 +498,182 @@ export default {
           }
         ],
         total: 0
+      },
+      optionObjAll: {
+        form: {
+          page: 1,
+          size: 20
+        },
+        dataList: [],
+        total: 0
+      },
+      optionObjSign: {
+        form: {
+          page: 1,
+          size: 20
+        },
+        dataList: [],
+        total: 0
       }
+      // 暂注释 使用另外一种表格 看最后要不要 表格配置
+      // optionObjAll: {
+      //   id: 'purchaseOrderTableAll',
+      //   dataList: [],
+      //   form: {
+      //     page: 1,
+      //     size: pageSize
+      //   },
+      //   dataProp: [
+      //     {
+      //       props: 'code',
+      //       label: '采购订单号',
+      //       visible: true,
+      //       width: 200,
+      //       fixed: 'left',
+      //       buttons: [{
+      //         click: (rowIndex, row) => {
+      //           this.$router.push({
+      //             path: '/sparepart/purchase/purchaseOrder/edit',
+      //             query: {
+      //               id: row.id
+      //             }
+      //           });
+      //         },
+      //         type: 'primary'
+      //       }]
+      //     },
+      //     {
+      //       props: 'purchaseApplyCode',
+      //       label: '采购申请单',
+      //       visible: true,
+      //       width: 200,
+      //       fixed: 'left',
+      //       buttons: [{
+      //         click: (rowIndex, row) => {
+      //           this.$router.push({
+      //             path: '/sparepart/purchase/purchaseApply/edit',
+      //             query: {
+      //               id: row.purchaseApplyId
+      //             }
+      //           });
+      //         },
+      //         type: 'primary'
+      //       }]
+      //     },
+      //     { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+      //     { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+      //     { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
+      //     { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+      //     { props: 'settlementQty', label: '结算数量', visible: true, width: 200 },
+      //     { props: 'cancelQty', label: '取消数量', visible: true, width: 200 },
+      //     { props: 'outboundQty', label: '已发运数', visible: true, width: 200 },
+      //     { props: 'signedQty', label: '已签收数', visible: true, width: 200 },
+      //     { props: 'inboundQty', label: '已入库数', visible: true, width: 200 },
+      //     { props: 'cancelOperator', label: '取消人', visible: true, width: 200 },
+      //     { props: 'cancelTime', label: '取消时间', visible: true, width: 200 },
+      //     { props: 'cancelDescription', label: '取消说明', visible: true, width: 200 },
+      //     { props: 'originalPrice', label: '原价', visible: true, width: 200 },
+      //     { props: 'purchasePrice', label: '采购价', visible: true, width: 200 },
+      //     { props: 'purchaseAmount', label: '采购金额', visible: true, width: 200 },
+      //     { props: 'rebateUnitPrice', label: '折后价', visible: true, width: 200 },
+      //     { props: 'rebateAmount', label: '折后金额', visible: true, width: 200 },
+      //     { props: 'detailRemark', label: '备注', visible: true, width: 200 },
+      //     { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+      //     { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+      //     {
+      //       props: 'operate',
+      //       label: '操作',
+      //       type: 'operate',
+      //       visible: true,
+      //       fixed: 'right',
+      //       buttons: [{
+      //         name: '提交索赔',
+      //         click: (rowIndex, row) => {
+      //         },
+      //         type: 'info'
+      //       }]
+      //     }
+      //   ],
+      //   total: 0
+      // },
+      // optionObjSign: {
+      //   id: 'purchaseOrderTableSign',
+      //   dataList: [],
+      //   form: {
+      //     page: 1,
+      //     size: pageSize
+      //   },
+      //   dataProp: [
+      //     {
+      //       props: 'code',
+      //       label: '采购订单号',
+      //       visible: true,
+      //       width: 200,
+      //       fixed: 'left',
+      //       buttons: [{
+      //         click: (rowIndex, row) => {
+      //           this.$router.push({
+      //             path: '/sparepart/purchase/purchaseOrder/edit',
+      //             query: {
+      //               id: row.id
+      //             }
+      //           });
+      //         },
+      //         type: 'primary'
+      //       }]
+      //     },
+      //     {
+      //       props: 'purchaseApplyCode',
+      //       label: '采购申请单',
+      //       visible: true,
+      //       width: 200,
+      //       fixed: 'left',
+      //       buttons: [{
+      //         click: (rowIndex, row) => {
+      //           this.$router.push({
+      //             path: '/sparepart/purchase/purchaseApply/edit',
+      //             query: {
+      //               id: row.purchaseApplyId
+      //             }
+      //           });
+      //         },
+      //         type: 'primary'
+      //       }]
+      //     },
+      //     { props: 'dealerCode', label: '运单号', visible: true, width: 200 },
+      //     { props: 'detailRemark', label: '备注', visible: true, width: 200 },
+      //     { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
+      //     { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+      //     { props: 'settlementQty', label: '结算数量', visible: true, width: 200 },
+      //     { props: 'cancelQty', label: '取消数量', visible: true, width: 200 },
+      //     { props: 'outboundQty', label: '已发运数', visible: true, width: 200 },
+      //     { props: 'signedQty', label: '已签收数', visible: true, width: 200 },
+      //     { props: 'inboundQty', label: '已入库数', visible: true, width: 200 },
+      //     { props: 'cancelOperator', label: '仓库名称', visible: true, width: 200 },
+      //     { props: 'cancelTime', label: '本次签收数', visible: true, width: 200 },
+      //     { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+      //     { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+      //     {
+      //       props: 'operate',
+      //       label: '操作',
+      //       type: 'operate',
+      //       visible: true,
+      //       fixed: 'right',
+      //       buttons: [{
+      //         name: '签收',
+      //         click: (rowIndex, row) => {
+      //         },
+      //         type: 'info'
+      //       }, {
+      //         name: '签收并入库',
+      //         click: (rowIndex, row) => {
+      //         },
+      //         type: 'info'
+      //       }]
+      //     }
+      //   ],
+      //   total: 0
+      // }
     };
   },
   created () {
@@ -374,17 +736,28 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
-
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      let fetchApi = getList;
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        fetchApi = getList;
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        fetchApi = pageAll;
+        optionObj = this.optionObjAll;
+      } else if (this.activeName === 'proxySign') {
+        fetchApi = pageWaitSign;
+        optionObj = this.optionObjSign;
+      }
+      fetchApi({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
-          console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          optionObj.dataList = res.records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          optionObj.total = res.total;
+          console.log('optionObj', optionObj.total);
         }).finally(() => {
           this.loading = false;
         });
@@ -498,34 +871,73 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
-    }
+    },
+    // 点击tabs栏切换
+    handleClick (item) {
+      this.activeName = item.name;
+      this.getData();
+    },
+    // 跳转详情页
+    handleJump (val, ele) {
+      this.$router.push({
+        path: val,
+        query: {
+          id: ele
+        }
+      });
+    },
+    pageSizeChange (pageSize, type) {
+      if (type === 'allSpareParts') {
+        this.optionObjAll.form.size = pageSize;
+        this.optionObjAll.form.page = 1;
+      } else if (type === 'proxySign') {
+        this.optionObjSign.form.size = pageSize;
+        this.optionObjSign.form.page = 1;
+      }
+      this.getData();
+    },
+    currentPageChange (current, type) {
+      if (type === 'allSpareParts') {
+        this.optionObjAll.form.page = current;
+      } else if (type === 'proxySign') {
+        this.optionObjSign.form.page = current;
+      }
+      this.getData();
+    },
+    // 签收
+    // 签收并入库
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.m-purchase-order-list {
+.m-service-proxy-list {
+  ::v-deep .m-vxe-table .m-vxe-table-options {
+    top: -96px;
+  }
+  .ais-actions {
+    margin-bottom: 8px;
+  }
+  .ais-table-c {
+    height: calc(100% - 168px);
+  }
+  .table-pagination {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .action-button{
+    margin: 0 5px;
+    cursor: pointer;
+    &.btn-edit{
+      color:#4C4CD6;
+    }
+    &.btn-link {
+      color: #009100;
+    }
+    &.active{
+      text-decoration: underline;
+    }
+  }
 }
 </style>
