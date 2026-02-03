@@ -111,13 +111,7 @@ export default {
           pageSize: this.pageSize,
           claimOrderId: this.$route.query.id
         };
-        console.log(this.name, queryParams);
-
         const response = await this.apiMethod(queryParams);
-        this.$message.success(this.name + '加载成功');
-        console.log('response:', response);
-        console.log('this.apiMethod:', this.apiMethod);
-
         // 更新内部数据和分页信息
         this.total = response.totals || 0;
         this.internalTableData = response.records || [];
