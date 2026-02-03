@@ -6,7 +6,7 @@
           <el-main>
             <section class="common-title" v-if="_id">
               <div>
-                <h2>账户编号：{{ form.accountNo }}</h2>
+                <h2>账户编号：{{ form.code }}</h2>
                 <!-- TIPS: 子标题格式如下 -->
                 <!-- <h5>活动编码：{{ form.activityCode }}</h5> -->
               </div>
@@ -25,10 +25,10 @@
               <div class="common-section-body">
                 <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
                 <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
-                  <el-form-item label="账户编号：" prop="accountNo">
+                  <el-form-item label="账户编号：" prop="code">
                     <el-input
                       placeholder="请输入"
-                      v-model="form.accountNo"
+                      v-model="form.code"
                       clearable
                     />
                   </el-form-item>
@@ -196,8 +196,8 @@
                   </el-form-item>
                 </el-form>
                 <el-form :inline="true" class="form-detail" v-else>
-                  <el-form-item label="账户编号：" prop="accountNo">
-                    {{ form.accountNo }}
+                  <el-form-item label="账户编号：" prop="code">
+                    {{ form.code }}
                   </el-form-item>
                   <el-form-item label="公司编码：" prop="companyCode">
                     {{ form.companyCode }}
@@ -314,7 +314,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
-  accountNo: '',
+  code: '',
   companyCode: '',
   companyName: '',
   bankName: '',
@@ -399,7 +399,7 @@ export default {
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
-          field: 'transactionNo',
+          field: 'code',
           title: '交易流水号',
           width: '10%',
         },

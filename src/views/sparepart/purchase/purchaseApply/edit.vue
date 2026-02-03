@@ -267,7 +267,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getUserByNameOrNo, getTableConfig, sparePartListShort, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse, getPartDealer, getPartUser } from '@/api/common';
+import { getUserByNameOrNo, getTableConfig, sparePartListShort, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -368,6 +368,10 @@ export default {
     return {
       oem: false,
       areaOptions: JSON.parse(localStorage.areaTree),
+      isPartOrder: null, // 是否有备附件订购能力
+      dealerAccountFlag: null, // 是否门店
+      currentDealerCode: null, // 当前门店code
+      currentDealerName: null, // 当前门店名称
       orgProps: {
         checkStrictly: true,
         emitPath: false,
@@ -414,7 +418,7 @@ export default {
     this.oem = this.$store.state.pageSource?.aisPageSource.includes('AISPART-sparePart-oem');
     console.log('this.oem  ', this.isEditing);
     if (!this.isEditing) {
-      this.getPartUser();
+      this.initDealerUser();
     }
   },
   methods: {
@@ -443,12 +447,15 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
-    async getPartUser (query) {
+    async initDealerUser (query) {
       try {
-        const res = await getPartUser();
+        const res = await getLoginUser();
+        this.dealerAccountFlag = res.dealerAccountFlag;
         this.form.dealerCode = res.currentDealerCode;
         this.form.dealerName = res.currentDealerName;
-        if (this.form.dealerCode) {
+        this.currentDealerCode = res.currentDealerCode;// 当前门店code
+        this.currentDealerName = res.currentDealerName;// 当前门店名称
+        if (this.form.currentDealerCode) {
           this.getPartDealer(this.form.dealerCode);
         }
         return res;
