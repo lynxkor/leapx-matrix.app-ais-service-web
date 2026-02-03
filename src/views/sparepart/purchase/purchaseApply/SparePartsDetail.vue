@@ -16,7 +16,7 @@
                         {{ sparePartDetail.partName }}
                     </el-form-item>
                     <el-form-item label="是否可售：" prop="saleableIs">
-                        {{ sparePartDetail.saleableIs }}
+                        {{ sparePartDetail.saleableIsLabel }}
                     </el-form-item>
                     <el-form-item label="替换后件号：" prop="afterPartCode">
                         {{ sparePartDetail.afterPartCode }}

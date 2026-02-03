@@ -3,6 +3,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/purchase/purchaseApply/';
+const prefixDetail = SPARE_PREFIX + '/web/purchase/purchaseApplyDetail/';
 
 /**
  * 查询列表
@@ -49,7 +50,7 @@ export function enableItem (data) {
  * @param {Object} data
  */
 export function addDetail (data) {
-  return api.jsonPost('sp/web/purchase/purchaseApplyDetail/addOrUpdate', data);
+  return api.jsonPost(prefixDetail + 'addOrUpdate', data);
 }
 
 /**
@@ -57,7 +58,7 @@ export function addDetail (data) {
  * @param {Object} data
  */
 export function getPurchaseApplyDetail (data) {
-  return api.jsonPost('sp/web/purchase/purchaseApplyDetail/getPurchaseApplyDetailInventory', data);
+  return api.jsonPost(prefixDetail + 'getPurchaseApplyDetailInventory', data);
 }
 
 /**
@@ -65,7 +66,7 @@ export function getPurchaseApplyDetail (data) {
  * @param {Object} data
  */
 export function getPurchaseApplyPage (data) {
-  return api.jsonPost('sp/web/purchase/purchaseApplyDetail/page', data);
+  return api.jsonPost(prefixDetail + 'page', data);
 }
 
 /**
@@ -73,7 +74,7 @@ export function getPurchaseApplyPage (data) {
  * @param {Object} data
  */
 export function purchaseApplyDelete (data) {
-  return api.jsonPost('sp/web/purchase/purchaseApplyDetail/delete', data);
+  return api.jsonPost(prefixDetail + 'delete', data);
 }
 
 /**
@@ -81,7 +82,7 @@ export function purchaseApplyDelete (data) {
  * @param {Object} data
  */
 export function purchaseApplyReject (data) {
-  return api.jsonPost('sp/web/purchase/purchaseApply/reject', data);
+  return api.jsonPost(prefix + 'reject', data);
 }
 
 /**
@@ -89,7 +90,7 @@ export function purchaseApplyReject (data) {
  * @param {Object} data
  */
 export function purchaseApplyBatchReject (data) {
-  return api.jsonPost('sp/web/purchase/purchaseApply/batchReject', data);
+  return api.jsonPost(prefix + 'batchReject', data);
 }
 
 /**
@@ -97,7 +98,7 @@ export function purchaseApplyBatchReject (data) {
  * @param {Object} data
  */
 export function purchaseApplySubmit (data) {
-  return api.jsonPost('sp/web/purchase/purchaseApply/submit', data);
+  return api.jsonPost(prefix + 'submit', data);
 }
 
 /**
@@ -105,7 +106,7 @@ export function purchaseApplySubmit (data) {
  * @param {Object} data
  */
 export function purchaseApplyAgree (data) {
-  return api.jsonPost('sp/web/purchase/purchaseApply/agree', data);
+  return api.jsonPost(prefix + 'agree', data);
 }
 
 /**
@@ -113,7 +114,7 @@ export function purchaseApplyAgree (data) {
  * @param {Object} data
  */
 export function batchAgree (data) {
-  return api.jsonPost('sp/web/purchase/purchaseApply/batchAgree', data);
+  return api.jsonPost(prefix + 'batchAgree', data);
 }
 
 /**
@@ -121,7 +122,7 @@ export function batchAgree (data) {
  * @param {Object} data
  */
 export function purchaseApplyCopy (data) {
-  return api.jsonPost('sp/web/purchase/purchaseApply/copy', data);
+  return api.jsonPost(prefix + 'copy', data);
 }
 
 /**
@@ -129,7 +130,7 @@ export function purchaseApplyCopy (data) {
  * @param {Object} data
  */
 export function purchaseApplyListUnPurchaseDetail (data) {
-  return api.jsonPost('sp/web/purchase/purchaseApply/listUnPurchaseDetail', data);
+  return api.jsonPost(prefix + 'listUnPurchaseDetail', data);
 }
 
 /**
@@ -137,7 +138,7 @@ export function purchaseApplyListUnPurchaseDetail (data) {
  * @param {Object} data
  */
 export function purchaseApplyDeleteUnPurchaseDetail (data) {
-  return api.jsonPost('sp/web/purchase/purchaseApply/deleteUnPurchaseDetail', data);
+  return api.jsonPost(prefix + 'deleteUnPurchaseDetail', data);
 }
 
 /**
@@ -145,5 +146,5 @@ export function purchaseApplyDeleteUnPurchaseDetail (data) {
  * @param {Object} data
  */
 export function purchaseApplyGetCoupon (data) {
-  return api.jsonPost('sp/web/purchase/purchaseApply/getCoupon', data);
+  return api.jsonPost(prefix + 'getCoupon', data);
 }
