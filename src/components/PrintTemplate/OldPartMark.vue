@@ -23,7 +23,7 @@
             </tr>
             <tr>
               <td>开单日期：</td>
-              <td>{{transformDate(item.createTime)}}</td>
+              <td>{{transformDate(item.serviceProxyCreateTime)}}</td>
               <td>行驶里程：</td>
               <td>{{ item.mileage }}</td>
               <!-- <td>3,100.00</td> -->
