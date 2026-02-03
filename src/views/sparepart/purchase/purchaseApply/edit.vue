@@ -267,7 +267,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getUserByNameOrNo, getEnum, listOrgStoreInfoByParam, listWarehouse, getPartDealer, getPartUser } from '@/api/common';
+import { getUserByNameOrNo, getEnum, listOrgStoreInfoByParam, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -414,7 +414,7 @@ export default {
     this.oem = this.$store.state.pageSource?.aisPageSource.includes('AISPART-sparePart-oem');
     console.log('this.oem  ', this.isEditing);
     if (!this.isEditing) {
-      this.getPartUser();
+      this.getLoginUser();
     }
   },
   methods: {
@@ -443,9 +443,9 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
-    async getPartUser (query) {
+    async getLoginUser (query) {
       try {
-        const res = await getPartUser();
+        const res = await getLoginUser();
         this.form.dealerCode = res.currentDealerCode;
         this.form.dealerName = res.currentDealerName;
         if (this.form.dealerCode) {

@@ -12,7 +12,7 @@
       <el-form-item label="账户编号">
         <el-input
           placeholder="请输入"
-          v-model="form.accountNo"
+          v-model="form.code"
           clearable
         />
       </el-form-item>
@@ -122,7 +122,7 @@ import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  accountNo: '',
+  code: '',
   companyCodeList: '',
   companyNameList: '',
   createTime: '',
@@ -169,7 +169,7 @@ export default {
         },
         dataProp: [
           {
-            props: 'accountNo',
+            props: 'code',
             label: '账户编号',
             visible: true,
             width: 200,

@@ -146,6 +146,12 @@
       :id="'1'"
       @close="handleUploadDialogClose"
     />
+    <ShipmentDialog
+      :visible="shipmentDialogVisible"
+      :id="shipmentId"
+      @success="handleShipmentDialogSuccess"
+      @close="handleShipmentDialogClose"
+    />
   </div>
 </template>
 
@@ -153,7 +159,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/return/returnOrder/index';
+import { getList, deleteItem, enableItem, returnOrderCancel, returnOrderAgree, returnOrderRevoke, returnOrderReject } from '@/api/sparepart/return/returnOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -164,6 +170,7 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
+import ShipmentDialog from './ShipmentDialog.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -191,7 +198,8 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    TagInput
+    TagInput,
+    ShipmentDialog
   },
   data () {
     return {
@@ -208,6 +216,8 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      shipmentDialogVisible: false, // 发运弹窗
+      shipmentId: '', // 发运弹窗id
       clickItemId: '',
       optionObj: {
         id: 'returnOrderTable',
@@ -253,6 +263,82 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
+              name: '同意',
+              show: (row) => {
+                return row.returnStatus === '20';
+              },
+              popconfirmTitle: '是否同意退货申请?',
+              click: (rowIndex, row) => {
+                returnOrderAgree({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '同意成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '同意失败!'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '撤回',
+              show: (row) => {
+                return row.returnStatus === '40';
+              },
+              popconfirmTitle: '是否撤回退货申请?',
+              click: (rowIndex, row) => {
+                returnOrderRevoke({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '撤回成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '撤回失败!'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '编辑',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/return/returnOrder/edit',
+                  query: {
+                    id: row.id,
+                  }
+                });
+              },
+              type: 'info'
+            },
+            // {
+            //   name: '删除',
+            //   show: (row) => {
+            //     return row.returnStatus === '90';
+            //   },
+            //   popconfirmTitle: '此操作将永久删除, 是否继续?',
+            //   click: (rowIndex, row) => {
+            //     deleteItem([row.id]).then(() => {
+            //       this.$message({
+            //         type: 'success',
+            //         message: '删除成功!'
+            //       });
+            //       this.getData();
+            //     }).catch(() => {
+            //       this.$message({
+            //         type: 'error',
+            //         message: '删除失败!'
+            //       });
+            //     });
+            //   },
+            //   type: 'danger'
+            // },
+            {
               name: '打印退货单',
               click: (rowIndex, row) => {
                 this.handlePrint(row);
@@ -270,7 +356,7 @@ export default {
                 return row.returnStatus === '10' || row.returnStatus === '30';
               },
               click: (rowIndex, row) => {
-                this.handlePrintLabel(row);
+                this.handleSubmit(row);
               },
               type: 'info'
             }, {
@@ -279,16 +365,7 @@ export default {
                 return row.returnStatus === '10' || row.returnStatus === '30';
               },
               click: (rowIndex, row) => {
-                this.handlePrintLabel(row);
-              },
-              type: 'info'
-            }, {
-              name: '同意',
-              show: (row) => {
-                return row.returnStatus === '20';
-              },
-              click: (rowIndex, row) => {
-                this.handlePrintLabel(row);
+                this.handleVoid(row);
               },
               type: 'info'
             }, {
@@ -297,16 +374,7 @@ export default {
                 return row.returnStatus === '20';
               },
               click: (rowIndex, row) => {
-                this.handlePrintLabel(row);
-              },
-              type: 'info'
-            }, {
-              name: '撤回',
-              show: (row) => {
-                return row.returnStatus === '40';
-              },
-              click: (rowIndex, row) => {
-                this.handlePrintLabel(row);
+                this.handleReject(row);
               },
               type: 'info'
             }, {
@@ -315,30 +383,9 @@ export default {
                 return row.returnStatus === '40';
               },
               click: (rowIndex, row) => {
-                this.handlePrintLabel(row);
+                this.handleShipment(row);
               },
               type: 'info'
-            }, {
-              name: '删除',
-              show: (row) => {
-                return row.returnStatus === '90';
-              },
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
             }]
           }
         ],
@@ -553,6 +600,48 @@ export default {
         template: 'SparePartsReturnLabel', // 必选，对应 ./template/文件名.vue
         title: '备件退货标签'// 可选，打印标题
       });
+    },
+    // 发运
+    handleShipment (val) {
+      this.clickItemId = val.id;
+      this.shipmentDialogVisible = true;
+    },
+    handleShipmentDialogClose () {
+      this.shipmentDialogVisible = false;
+    },
+    handleShipmentDialogSuccess () {
+      this.shipmentDialogVisible = false;
+      this.getData();
+    },
+    // 作废
+    async handleVoid (val) {
+      const result = await this.$prompt('请输入作废说明', '作废', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      });
+      const reviewDescription = result.value;
+      if (!reviewDescription) {
+        return this.$message.warning('请输入作废说明');
+      }
+      const params = { id: val.id, reviewDescription };
+      await returnOrderCancel(params);
+      this.getData();
+    },
+    // 驳回
+    async handleReject (val) {
+      const result = await this.$prompt('请输入审批意见', '驳回', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      });
+      const reviewDescription = result.value;
+      if (!reviewDescription) {
+        return this.$message.warning('请输入审批意见');
+      }
+      const params = { id: val.id, reviewDescription };
+      await returnOrderReject(params);
+      this.getData();
     },
   }
 };
