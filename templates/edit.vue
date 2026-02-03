@@ -1,5 +1,5 @@
 <template>
-  {{{#isProForm}}}
+  {{#if isProForm}}
   <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
@@ -29,60 +29,59 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-              {{{#cols}}}
-              {{{#isDate}}}
-                <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+              {{#each cols}}
+              {{#if isDate}}
+                <el-form-item label="{{description}}：" prop="{{key}}">
                   <el-date-picker
                     :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.{{{key}}}"
+                    v-model="form.{{key}}"
                     :picker-options="pickerOptions"
                     value-format="yyyy-MM-dd HH:mm:ss"
                     start-placeholder="开始日期"
                     end-placeholder="结束日期"
                   />
                 </el-form-item>
-              {{{/isDate}}}
-              {{{#isSelect}}}
-                <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+              {{/if}}
+              {{#if isSelect}}
+                <el-form-item label="{{description}}：" prop="{{key}}">
                   <fetch-select
                     :request="fetchOptions"
                     enumCode="xxx"
-                    v-model="form.{{{key}}}"
+                    v-model="form.{{key}}"
                     placeholder="请选择"
                     clearable
                     filterable
                   />
                 </el-form-item>
-              {{{/isSelect}}}
-              {{{#isBoolean}}}
-                <el-form-item label="{{{description}}}：" prop="{{{key}}}">
-                  <el-radio-group v-model="form.{{{key}}}">
+              {{/if}}
+              {{#if isBoolean}}
+                <el-form-item label="{{description}}：" prop="{{key}}">
+                  <el-radio-group v-model="form.{{key}}">
                     <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
                   </el-radio-group>
                 </el-form-item>
-              {{{/isBoolean}}}
-              {{{#isNormal}}}
-                <el-form-item label="{{{description}}}：" prop="{{{key}}}">
+              {{/if}}
+              {{#if isNormal}}
+                <el-form-item label="{{description}}：" prop="{{key}}">
                   <el-input
                     placeholder="请输入"
-                    v-model="form.{{{key}}}"
+                    v-model="form.{{key}}"
                     clearable
                   />
                 </el-form-item>
-              {{{/isNormal}}}
-              {{{/cols}}}
+              {{/if}}
+              {{/each}}
               </el-form>
               <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-              {{{#cols}}}
-                <el-form-item label="{{{description}}}：" prop="{{{key}}}">
-                  {{{#isBoolean}}}
-                  {{ yes_no_enum_map[form.{{{key}}}] }}
-                  {{{/isBoolean}}}
-                  {{{^isBoolean}}}
-                  {{ form.{{{key}}} }}
-                  {{{/isBoolean}}}
+                {{#each cols}}
+                <el-form-item label="{{description}}：" prop="{{key}}">
+                  {{#if isBoolean}}
+                  {{yesNoFormat form.[key]}}
+                  {{else}}
+                  \{{ form.{{key}} }}
+                  {{/if}}
                 </el-form-item>
-              {{{/cols}}}
+                {{/each}}
               </el-form>
             </div>
           </section>
@@ -114,8 +113,7 @@
       </div>
     </template>
   </edit-page-layout>
-  {{{/isProForm}}}
-  {{{^isProForm}}}
+  {{else}}
   <!-- TIPS: 如果填写项大于15项，使用类名page-common-edit替换page-common-add -->
   <div class="page-common-add">
     <el-container>
@@ -128,48 +126,48 @@
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-            {{{#cols}}}
-            {{{#isDate}}}
-              <el-form-item label="{{{description}}}" prop="{{{key}}}">
+            {{#each cols}}
+            {{#if isDate}}
+              <el-form-item label="{{description}}" prop="{{key}}">
                 <el-date-picker
                   :default-time="['00:00:00', '23:59:59']"
-                  v-model="form.{{{key}}}"
+                  v-model="form.{{key}}"
                   :picker-options="pickerOptions"
                   value-format="yyyy-MM-dd HH:mm:ss"
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
                 />
               </el-form-item>
-            {{{/isDate}}}
-            {{{#isSelect}}}
-              <el-form-item label="{{{description}}}" prop="{{{key}}}">
+            {{/if}}
+            {{#if isSelect}}
+              <el-form-item label="{{description}}" prop="{{key}}">
                 <fetch-select
                   :request="fetchOptions"
                   enumCode="xxx"
-                  v-model="form.{{{key}}}"
+                  v-model="form.{{key}}"
                   placeholder="请选择"
                   clearable
                   filterable
                 />
               </el-form-item>
-            {{{/isSelect}}}
-            {{{#isBoolean}}}
-              <el-form-item label="{{{description}}}" prop="{{{key}}}">
-                <el-radio-group v-model="form.{{{key}}}">
+            {{/if}}
+            {{#if isBoolean}}
+              <el-form-item label="{{description}}" prop="{{key}}">
+                <el-radio-group v-model="form.{{key}}">
                   <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
                 </el-radio-group>
               </el-form-item>
-            {{{/isBoolean}}}
-            {{{#isNormal}}}
-              <el-form-item label="{{{description}}}" prop="{{{key}}}">
+            {{/if}}
+            {{#if isNormal}}
+              <el-form-item label="{{description}}" prop="{{key}}">
                 <el-input
                   placeholder="请输入"
-                  v-model="form.{{{key}}}"
+                  v-model="form.{{key}}"
                   clearable
                 />
               </el-form-item>
-            {{{/isNormal}}}
-            {{{/cols}}}
+            {{/if}}
+            {{/each}}
             </el-form>
           </div>
         </section>
@@ -181,17 +179,17 @@
       </el-footer>
     </el-container>
   </div>
-  {{{/isProForm}}}
+  {{/if}}
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/{{{{modulePath}}}}/index';
+import { getDetail, addOrUpdate } from '@/api/{{modulePath}}/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-{{{#isProForm}}}
+{{#if isProForm}}
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-{{{/isProForm}}}
+{{/if}}
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -200,13 +198,13 @@ import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
-  {{{#cols}}}
-  {{{key}}}: '',
-  {{{/cols}}}
+  {{#cols}}
+  {{key}}: '',
+  {{/cols}}
 };
 
 export default {
-  name: '{{{nameCamelCase}}}Edit',
+  name: '{{nameCamelCase}}Edit',
   // 集中视图预留
   props: {
     id: {
@@ -216,11 +214,11 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
-    {{{#isProForm}}}
+    {{#if isProForm}}
     EditPageLayout,
     EditBaseContainer,
     EditTable,
-    {{{/isProForm}}}
+    {{/if}}
     FetchSelect
   },
   computed: {
@@ -228,11 +226,11 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '{{{description}}}：' + this.form.{{{key}}};
+      return '{{description}}：' + this.form[{{key}}]
     }
   },
   watch: {
-    {{{#isProForm}}}
+    {{#if isProForm}}
     id: {
       handler (val) {
         if (val && this.$refs.containerRef) {
@@ -241,8 +239,7 @@ export default {
       },
       immediate: true
     }
-    {{{/isProForm}}}
-    {{{^isProForm}}}
+    {{else}}
     id: {
       handler (val) {
         if (val) {
@@ -251,21 +248,21 @@ export default {
       },
       immediate: true
     }
-    {{{/isProForm}}}
+    {{/if}}
   },
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '{{{title}}}',
+      pageTitle: '{{title}}',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-{{{name}}}',
+      moduleKey: 'AISMC-{{name}}',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      {{{#isProForm}}}
+      {{#if isProForm}}
       defaultNewRow: {
         name: '',
       },
@@ -303,35 +300,35 @@ export default {
           editRender: { name: 'ElInput' }
         },
       ],
-      {{{/isProForm}}}
+      {{/if}}
       rules: {
-      {{{#cols}}}
-      {{{#isDate}}}
-        {{{key}}}: [
-          { required: true, message: '请选择{{{description}}}', trigger: 'change' }
+      {{#each cols}}
+      {{#if isDate}}
+        '{{key}}': [
+          { required: true, message: '请选择{{description}}', trigger: 'change' }
         ],
-      {{{/isDate}}}
-      {{{#isSelect}}}
-        {{{key}}}: [
-          { required: true, message: '请选择{{{description}}}', trigger: 'change' }
+      {{/if}}
+      {{#if isSelect}}
+        '{{key}}': [
+          { required: true, message: '请选择{{description}}', trigger: 'change' }
         ],
-      {{{/isSelect}}}
-      {{{#isNormal}}}
-        {{{key}}}: [
-          { required: true, message: '请输入{{{description}}}', trigger: 'change' }
+      {{/if}}
+      {{#if isNormal}}
+        '{{key}}': [
+          { required: true, message: '请输入{{description}}', trigger: 'change' }
         ],
-      {{{/isNormal}}}
-      {{{/cols}}}
+      {{/if}}
+      {{/each}}
       }
     };
   },
   mounted () {
-    {{{^isProForm}}}
+    {{#unless isProForm}}
     this.getDetailData();
-    {{{/isProForm}}}
+    {{/unless}}
   },
   methods: {
-    {{{#isProForm}}}
+    {{#if isProForm}}
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -360,8 +357,7 @@ export default {
         });
       });
     },
-    {{{/isProForm}}}
-    {{{^isProForm}}}
+    {{else}}
     handleBack () {
       this.$router.back();
     },
@@ -401,7 +397,7 @@ export default {
       this.tableData = [];
       this.form = this.getDefautlForm();
     },
-    {{{/isProForm}}}
+    {{/if}}
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
       // const userInfo = this.$store.state.user.userInfo;

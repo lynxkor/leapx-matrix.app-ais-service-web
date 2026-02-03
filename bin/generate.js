@@ -3,10 +3,49 @@
 const fs = require('fs-extra');
 const path = require('path');
 const { program } = require('commander');
-const mustache = require('mustache');
+// const mustache = require('mustache');
+const Handlebars = require('handlebars'); //
 const { exec } = require('child_process');
 const recast = require('recast');
 const parser = require('@babel/parser');
+
+Handlebars.registerHelper('yesNoFormat', function (value) {
+  return value ? '是' : '否'; // 或其他映射
+});
+// 注册自定义 Handlebars 助手
+Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
+  switch (operator) {
+    case '==':
+      return (v1 == v2) ? options.fn(this) : options.inverse(this);
+    case '===':
+      return (v1 === v2) ? options.fn(this) : options.inverse(this);
+    case '!=':
+      return (v1 != v2) ? options.fn(this) : options.inverse(this);
+    case '!==':
+      return (v1 !== v2) ? options.fn(this) : options.inverse(this);
+    case '<':
+      return (v1 < v2) ? options.fn(this) : options.inverse(this);
+    case '<=':
+      return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+    case '>':
+      return (v1 > v2) ? options.fn(this) : options.inverse(this);
+    case '>=':
+      return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+    case '&&':
+      return (v1 && v2) ? options.fn(this) : options.inverse(this);
+    case '||':
+      return (v1 || v2) ? options.fn(this) : options.inverse(this);
+    default:
+      return options.inverse(this);
+  }
+});
+
+Handlebars.registerHelper('unless', function (condition, options) {
+  if (!condition) {
+    return options.fn(this);
+  }
+  return options.inverse(this);
+});
 
 // 获取模板目录路径
 const templatesDir = path.join(__dirname, '../templates');
@@ -76,10 +115,16 @@ async function createFile ({ templateName, templatePath = '', outPath = '', outN
     const templateFile = path.join(templatesDir, templatePath + templateName);
 
     // 读取模板
-    const template = await fs.readFile(templateFile, 'utf8');
+    // const template = await fs.readFile(templateFile, 'utf8');
 
-    // 渲染模板
-    const content = mustache.render(template, data, {}, ['{{{', '}}}']);
+    // // 渲染模板
+    // const content = mustache.render(template, data, {}, ['{{{', '}}}']);
+
+    const templateContent = await fs.readFile(templateFile, 'utf8');
+    const template = Handlebars.compile(templateContent, {
+      noEscape: true, // 与 mustache 的 {{{ }}} 类似，不转义 HTML
+    });
+    const content = template(data);
 
     // 确定输出路径
     const baseOutputDir = `src/views/${data.modulePath}${templatePath}`;

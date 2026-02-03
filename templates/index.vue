@@ -1,5 +1,5 @@
 <template>
-  <div class="page-common m-{{{nameKebabCase}}}-list">
+  <div class="page-common m-{{nameKebabCase}}-list">
     <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
     <el-form
       :inline="true"
@@ -9,12 +9,12 @@
       label-width="150px"
       class="ais-search-form"
     >
-    {{{#top2SearchList}}}
-    {{{#isDate}}}
-      <el-form-item label="{{{description}}}">
+    {{#each top2SearchList}}
+    {{#if isDate}}
+      <el-form-item label="{{description}}">
         <el-date-picker
          :default-time="['00:00:00', '23:59:59']"
-          v-model="form.{{{key}}}"
+          v-model="form.{{key}}"
           type="daterange"
           :picker-options="pickerOptions"
           range-separator="至"
@@ -23,48 +23,48 @@
           end-placeholder="结束日期"
         />
       </el-form-item>
-    {{{/isDate}}}
-    {{{#isSelect}}}
-      <el-form-item label="{{{description}}}">
+    {{/if}}
+    {{#if isSelect}}
+      <el-form-item label="{{description}}">
         <fetch-select
           :request="fetchOptions"
           enumCode="xxx"
-          v-model="form.{{{key}}}"
+          v-model="form.{{key}}"
           placeholder="请选择"
           clearable
           multiple
           filterable
         />
       </el-form-item>
-    {{{/isSelect}}}
-    {{{#isBoolean}}}
-      <el-form-item label="{{{description}}}">
+    {{/if}}
+    {{#if isBoolean}}
+      <el-form-item label="{{description}}">
         <fetch-select
           :options="yes_no_enum"
-          v-model="form.{{{key}}}"
+          v-model="form.{{key}}"
           placeholder="请选择"
           clearable
           multiple
           filterable
         />
       </el-form-item>
-    {{{/isBoolean}}}
-    {{{#isNormal}}}
-      <el-form-item label="{{{description}}}">
+    {{/if}}
+    {{#if isNormal}}
+      <el-form-item label="{{description}}">
         <el-input
           placeholder="请输入"
-          v-model="form.{{{key}}}"
+          v-model="form.{{key}}"
           clearable
         />
       </el-form-item>
-    {{{/isNormal}}}
-    {{{/top2SearchList}}}
-    {{{#thirdSearchList}}}
-    {{{#isDate}}}
-      <el-form-item label="{{{description}}}"  v-show="this.visibleCount === 3 || show">
+    {{/if}}
+    {{/each}}
+    {{#each thirdSearchList}}
+    {{#if isDate}}
+      <el-form-item label="{{description}}"  v-show="this.visibleCount === 3 || show">
         <el-date-picker
          :default-time="['00:00:00', '23:59:59']"
-          v-model="form.{{{key}}}"
+          v-model="form.{{key}}"
           type="daterange"
           :picker-options="pickerOptions"
           range-separator="至"
@@ -73,49 +73,49 @@
           end-placeholder="结束日期"
         />
       </el-form-item>
-    {{{/isDate}}}
-    {{{#isSelect}}}
-      <el-form-item label="{{{description}}}"  v-show="this.visibleCount === 3 || show">
+    {{/if}}
+    {{#if isSelect}}
+      <el-form-item label="{{description}}"  v-show="this.visibleCount === 3 || show">
         <fetch-select
           :request="fetchOptions"
           enumCode="xxx"
-          v-model="form.{{{key}}}"
+          v-model="form.{{key}}"
           placeholder="请选择"
           clearable
           multiple
           filterable
         />
       </el-form-item>
-    {{{/isSelect}}}
-    {{{#isBoolean}}}
-      <el-form-item label="{{{description}}}"  v-show="this.visibleCount === 3 || show">
+    {{/if}}
+    {{#if isBoolean}}
+      <el-form-item label="{{description}}"  v-show="this.visibleCount === 3 || show">
         <fetch-select
           :options="yes_no_enum"
-          v-model="form.{{{key}}}"
+          v-model="form.{{key}}"
           placeholder="请选择"
           clearable
           multiple
           filterable
         />
       </el-form-item>
-    {{{/isBoolean}}}
-    {{{#isNormal}}}
-      <el-form-item label="{{{description}}}"  v-show="this.visibleCount === 3 || show">
+    {{/if}}
+    {{#if isNormal}}
+      <el-form-item label="{{description}}"  v-show="this.visibleCount === 3 || show">
         <el-input
           placeholder="请输入"
-          v-model="form.{{{key}}}"
+          v-model="form.{{key}}"
           clearable
         />
       </el-form-item>
-    {{{/isNormal}}}
-    {{{/thirdSearchList}}}
+    {{/if}}
+    {{/each}}
       <template v-if="show">
-      {{{#lastSearchList}}}
-      {{{#isDate}}}
-        <el-form-item label="{{{description}}}">
+      {{#each lastSearchList}}
+      {{#if isDate}}
+        <el-form-item label="{{description}}">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
-            v-model="form.{{{key}}}"
+            v-model="form.{{key}}"
             type="daterange"
             :picker-options="pickerOptions"
             range-separator="至"
@@ -124,42 +124,42 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-      {{{/isDate}}}
-      {{{#isSelect}}}
-        <el-form-item label="{{{description}}}">
+      {{/if}}
+      {{#if isSelect}}
+        <el-form-item label="{{description}}">
           <fetch-select
             :request="fetchOptions"
             enumCode="xxx"
-            v-model="form.{{{key}}}"
+            v-model="form.{{key}}"
             placeholder="请选择"
             clearable
             multiple
             filterable
           />
         </el-form-item>
-      {{{/isSelect}}}
-      {{{#isBoolean}}}
-        <el-form-item label="{{{description}}}">
+      {{/if}}
+      {{#if isBoolean}}
+        <el-form-item label="{{description}}">
           <fetch-select
             :options="yes_no_enum"
-            v-model="form.{{{key}}}"
+            v-model="form.{{key}}"
             placeholder="请选择"
             clearable
             multiple
             filterable
           />
         </el-form-item>
-      {{{/isBoolean}}}
-      {{{#isNormal}}}
-        <el-form-item label="{{{description}}}">
+      {{/if}}
+      {{#if isNormal}}
+        <el-form-item label="{{description}}">
           <el-input
             placeholder="请输入"
-            v-model="form.{{{key}}}"
+            v-model="form.{{key}}"
             clearable
           />
         </el-form-item>
-      {{{/isNormal}}}
-      {{{/lastSearchList}}}
+      {{/if}}
+      {{/each}}
       </template>
       <page-search-action
         v-if="canList"
@@ -212,7 +212,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/{{{{modulePath}}}}/index';
+import { getList, deleteItem, enableItem } from '@/api/{{modulePath}}/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -225,9 +225,9 @@ import EditPage from './edit.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  {{{#searchList}}}
-  {{{key}}}: '',
-  {{{/searchList}}}
+  {{#each searchList}}
+  {{key}}: '',
+  {{/each}}
 };
 
 const pageSize = 20;
@@ -246,10 +246,10 @@ export default {
   },
   data () {
     return {
-      pageTitle: '{{{title}}}',
+      pageTitle: '{{title}}',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-{{{name}}}',
+      moduleKey: 'AISMC-{{name}}',
       form: {
         ...defaultForm
       },
@@ -261,30 +261,29 @@ export default {
       uploadDialogVisible: false,
       clickItemId: '',
       optionObj: {
-        id: '{{{name}}}Table',
+        id: '{{name}}Table',
         dataList: [],
         form: {
           page: 1,
           size: pageSize
         },
         dataProp: [
-          {{{#cols}}}
-          {{{#isFirst}}}
+          {{#each cols}}
+          {{#if isFirst}}
           {
-            props: '{{{key}}}',
-            label: '{{{description}}}',
-            visible: {{{visible}}},
+            props: '{{key}}',
+            label: '{{description}}',
+            visible: {{visible}},
             width: 200,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  {{{#isProForm}}}
-                  path: '/{{{{modulePath}}}}/edit',
-                  {{{/isProForm}}}
-                  {{{^isProForm}}}
-                  path: '/{{{{modulePath}}}}/detail',
-                  {{{/isProForm}}}
+                  {{#if isProForm}}
+                  path: '/{{modulePath}}/edit',
+                  {{else}}
+                  path: '/{{modulePath}}/detail',
+                  {{/if}}
                   query: {
                     id: row.id
                   }
@@ -293,13 +292,12 @@ export default {
               type: 'primary'
             }]
           },
-          {{{/isFirst}}}
-          {{{^isFirst}}}
-          {{{#visible}}}
-          { props: '{{{key}}}', label: '{{{description}}}', visible: {{{visible}}}, width: 200 },
-          {{{/visible}}}
-          {{{/isFirst}}}
-          {{{/cols}}}
+          {{else}}
+          {{#if visible}}
+          { props: '{{key}}', label: '{{description}}', visible: {{visible}}, width: 200 },
+          {{/if}}
+          {{/if}}
+          {{/each}}
           {
             props: 'operate',
             label: '操作',
@@ -310,7 +308,7 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/{{{{modulePath}}}}/edit',
+                  path: '/{{modulePath}}/edit',
                   query: {
                     id: row.id
                   }
@@ -358,7 +356,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/{{{{modulePath}}}}/edit'
+        path: '/{{modulePath}}/edit'
       });
     },
     onSubmit () {
@@ -379,15 +377,15 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '{{{title}}}',
-        dataFetchPath: '{{{{apiPath}}}}/page',
+        businessType: '{{title}}',
+        dataFetchPath: '{{apiPath}}/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '{{{title}}}.xlsx');
+            await downloadExcel(res.excelUrl, '{{title}}.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
@@ -535,6 +533,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.m-{{{nameKebabCase}}}-list {
+.m-{{nameKebabCase}}-list {
 }
 </style>
