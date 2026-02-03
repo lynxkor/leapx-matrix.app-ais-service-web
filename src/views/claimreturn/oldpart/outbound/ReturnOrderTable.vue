@@ -11,7 +11,7 @@
         <el-button v-if="canAddOrUpdate" :disabled="!isSelect" size="small" @click.stop="handleRemoveRows">删除</el-button>
         <el-button size="small" @click.stop="handleImport">旧件出库明细导入</el-button>
         <el-button :loading="attachLoading" size="small" @click="addAttach">添加连带件</el-button>
-        <el-input placeholder="扫描条码" class="input-inline" size="small" v-model="oldPartUniqueCode" v-debounce:input="search" clearable/>
+        <el-input placeholder="扫描条码" class="input-inline" size="small" v-model="oldPartUniqueCode" @keyup.enter.native="search" clearable/>
       </div>
       <div class="common-section-table">
         <!-- 旧件明细表格 -->
@@ -338,7 +338,7 @@ export default {
         pageSize: 1,
         dealerCode: this.dealerCode,
         oemStatus: '700', // 主机厂入库
-        oemOutboundOrderIdIsNull: true,
+        // oemOutboundOrderIdIsNull: true,
       })
         .then(res => {
           const data = res.records;
