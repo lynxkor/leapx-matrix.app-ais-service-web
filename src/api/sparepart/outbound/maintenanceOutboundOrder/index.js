@@ -64,7 +64,7 @@ export function goPage (data) {
  * @param {Object} data
  */
 export function OutboundPeople (data) {
-  return api.jsonPost('sp-ywk/web/maintenance/maintenanceOutboundOrderDetail/outbound', data);
+  return api.jsonPost('sp/web/maintenance/maintenanceOutboundOrderDetail/outbound', data);
 }
 
 /**
