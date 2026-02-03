@@ -218,6 +218,6 @@ export function getPartDealer (data) {
  * 备件用户信息查询
  * @param {*} data
  */
-export function getPartUser (data) {
+export function getLoginUser (data) {
   return api.jsonPost('/sp/web/base/loginUser/getLoginUser', data);
 }

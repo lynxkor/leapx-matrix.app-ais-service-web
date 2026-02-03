@@ -42,3 +42,35 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 删除零件
+ * @param {Object} data
+ */
+export function deletePartItem (data) {
+  return api.jsonPost('maintain/web/basic/maintenancePartList/delete', data);
+}
+
+/**
+ * 新增零件
+ * @param {Object} data
+ */
+export function addPartItem (data) {
+  return api.jsonPost('maintain/web/basic/maintenancePartList/addOrUpdate', data);
+}
+
+/**
+ * 新增车型
+ * @param {Object} data
+ */
+export function addPartVehModel (data) {
+  return api.jsonPost('maintain/web/basic/maintenancePartVehModel/addOrUpdate', data);
+}
+
+/**
+ * 删除车型
+ * @param {Object} data
+ */
+export function deletePartVehModel (data) {
+  return api.jsonPost('maintain/web/basic/maintenancePartVehModel/delete', data);
+}
