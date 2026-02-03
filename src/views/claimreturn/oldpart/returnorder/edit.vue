@@ -426,7 +426,7 @@ export default {
       const status10 = returnStatus === '10'; // 草稿
       const status20 = returnStatus === '20'; // 待回运
       const status30 = returnStatus === '30'; // 已回运
-      const status40 = returnStatus === '40'; // 已签收
+      // const status40 = returnStatus === '40'; // 已签收
 
       this.rules = {
         dealerCode: [
