@@ -9,7 +9,7 @@
     "sit": "vue-cli-service build --mode sit",
     "uat": "vue-cli-service build --mode uat",
     "build": "vue-cli-service build",
-    "postinstall": "cp ./patches/dom.js ./node_modules/vxe-pc-ui/lib/ui/src/dom.js"
+    "postinstall": "copy .\\patches\\dom.js .\\node_modules\\vxe-pc-ui\\lib\\ui\\src\\dom.js"
   },
   "husky": {
     "hooks": {

@@ -48,7 +48,7 @@ export function enableItem (data) {
  * @param {Object} data
  */
 export function inboundWarehousing (data) {
-  return api.jsonPost('sp/web/maintenance/maintenanceOutboundReturnDetail/inbound', data);
+  return api.jsonPost('sp-ywk/web/maintenance/maintenanceOutboundReturnDetail/inbound', data);
 }
 
 /**
