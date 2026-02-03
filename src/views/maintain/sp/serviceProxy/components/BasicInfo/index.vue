@@ -35,10 +35,10 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="数据来源：" prop="dataSource">
+        <el-form-item label="数据来源：" prop="dataSourceLabel">
           <el-input
             placeholder="请输入"
-            v-model="form.dataSource"
+            v-model="form.dataSourceLabel"
             clearable
             disabled
           />
@@ -54,7 +54,7 @@
         <el-form-item label="客户类型：" prop="custType">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
+            enumCode="CustomerTypeEnum"
             v-model="form.custType"
             placeholder="请选择"
             clearable
@@ -118,10 +118,10 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="登记人：" prop="customerName">
+        <el-form-item label="登记人：" prop="creatorName">
           <el-input
             placeholder="请输入"
-            v-model="form.customerName"
+            v-model="form.creatorName"
             clearable
             disabled
           />
@@ -234,10 +234,10 @@
             <template slot="append">KM</template>
           </el-input>
         </el-form-item>
-        <el-form-item label="车辆车型（L）：" prop="departureNetMileage">
+        <el-form-item label="车辆车型（L）：" prop="vehYearTypeName">
           <el-input
             placeholder="请输入"
-            v-model="form.departureNetMileage"
+            v-model="form.vehYearTypeName"
             clearable
             disabled
           />
@@ -272,7 +272,7 @@
         <el-form-item label="支付方式：" prop="payType">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
+            enumCode="PaymentMethodEnum"
             v-model="form.payType"
             placeholder="请选择"
             clearable
@@ -400,19 +400,19 @@
           {{ form.code }}
         </el-form-item>
         <el-form-item label="VIN码：" prop="vehProfileVin">
-          {{ form.vehProfileVin }}
+          <el-link type="success" :href="`/partner/channelManagement/shopDetail?id=${form.vehProfileVin}`" target="_blank">{{ form.vehProfileVin }}</el-link>
         </el-form-item>
         <el-form-item label="车牌号：" prop="carPlate">
           {{ form.carPlate }}
         </el-form-item>
-        <el-form-item label="数据来源：" prop="dataSource">
-          {{ form.dataSource }}
+        <el-form-item label="数据来源：" prop="dataSourceLabel">
+          {{ form.dataSourceLabel }}
         </el-form-item>
         <el-form-item label="门店名称：" prop="dealerName">
-          {{ form.dealerName }}
+          <el-link type="success" :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`" target="_blank">{{ form.dealerName }}</el-link>
         </el-form-item>
-        <el-form-item label="客户类型：" prop="custType">
-          {{ form.custType }}
+        <el-form-item label="客户类型：" prop="custTypeLabel">
+          {{ form.custTypeLabel }}
         </el-form-item>
         <el-form-item label="建议保养里程：" prop="maintenanceMileage">
           {{ form.maintenanceMileage }}
@@ -421,7 +421,7 @@
           {{ form.saleDate }}
         </el-form-item>
         <el-form-item label="专属服务门店：" prop="exclusiveServiceDealerName">
-          {{ form.exclusiveServiceDealerName }}
+          <el-link type="success" :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.exclusiveServiceDealerCode}`" target="_blank">{{ form.exclusiveServiceDealerName }}</el-link>
         </el-form-item>
         <el-form-item label="预约单号：" prop="appointmentNo">
           {{ form.appointmentNo }}
@@ -432,8 +432,8 @@
         <el-form-item label="保修开始日期：" prop="startWarrantyDate">
           {{ form.startWarrantyDate }}
         </el-form-item>
-        <el-form-item label="登记人：" prop="orderStatus">
-          {{ form.orderStatus }}
+        <el-form-item label="登记人：" prop="creatorName">
+          <el-link type="success" :href="`/partner/user/list/detail?&userId=${form.creator}`" target="_blank">{{ form.creatorName }}</el-link>
         </el-form-item>
         <el-form-item label="车主姓名：" prop="customerName">
           {{ form.customerName }}
@@ -445,7 +445,7 @@
           {{ form.bindingUserId }}
         </el-form-item>
         <el-form-item label="基本车型：" prop="vehModelName">
-          {{ form.vehModelName }}
+          <el-link type="success" :href="`/sales/datacenter/materials/vehicleModel/detail?id=${form.vehModelId}`" target="_blank">{{ form.vehModelName }}</el-link>
         </el-form-item>
         <el-form-item label="车主手机：" prop="customerPhone">
           {{ form.customerPhone }}
@@ -457,7 +457,7 @@
           {{ form.netMileage }}
         </el-form-item>
         <el-form-item label="公告车型：" prop="vehRegisteredModelId">
-          {{ form.vehRegisteredModelId }}
+          <el-link type="success" :href="`/sales/datacenter/materials/vehicleRegisteredModel/detail?id=${form.vehRegisteredModelId}`" target="_blank">{{ form.vehRegisteredModelName }}</el-link>
         </el-form-item>
         <el-form-item label="送修人：" prop="shuttleName">
           {{ form.shuttleName }}
@@ -468,8 +468,8 @@
         <el-form-item label="离店车联网里程数（总）：" prop="departureNetMileage">
           {{ form.departureNetMileage }}
         </el-form-item>
-        <el-form-item label="车辆车型（L）：" prop="departureNetMileage">
-          {{ form.departureNetMileage }}
+        <el-form-item label="车辆车型（L）：" prop="vehYearTypeName">
+          {{ form.vehYearTypeName }}
         </el-form-item>
         <el-form-item label="送修人手机：" prop="shuttlePhone">
           {{ form.shuttlePhone }}
@@ -480,8 +480,8 @@
         <el-form-item label="进店车联网电量%：" prop="inNetPower">
           {{ form.inNetPower }}
         </el-form-item>
-        <el-form-item label="支付方式：" prop="payType">
-          {{ form.payType }}
+        <el-form-item label="支付方式：" prop="payTypeLabel">
+          {{ form.payTypeLabel }}
         </el-form-item>
         <el-form-item label="绑车人姓名：" prop="bindingUser">
           {{ form.bindingUser }}
@@ -528,8 +528,7 @@
 </template>
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getEnum } from '@/api/common';
-import { getVehicleProfile, getCarInfo, checkVinTag } from '@/api/maintain/sp/serviceProxy/index';
+import { getVehicleProfile, getCarInfo, checkVinTag, getEnum } from '@/api/maintain/sp/serviceProxy/index';
 import { RepairOrderStatusEnum } from '../../edit.vue';
 
 export default {
