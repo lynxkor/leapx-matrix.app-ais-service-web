@@ -67,7 +67,7 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate&&isFastReturn" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <el-button v-if="canAddOrUpdate&&isFastReturn&&!isDealer" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button  v-if="canDelete"  size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button  v-if="canSign"  size="small" @click="handleBatchSign" :disabled="selectionList.length === 0">批量签收</el-button>
@@ -156,6 +156,7 @@ export default {
     return {
       pageTitle: this.$route.meta.name,
       pageType: 'list',
+      isDealer: this.$store.state.user.userInfo?.accountFlag,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       form: {
         ...defaultForm
