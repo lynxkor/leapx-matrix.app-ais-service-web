@@ -9,59 +9,59 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="请求号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.code"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="状态">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="xxx"
-          v-model="form.status"
-          placeholder="请选择"
-          clearable
-          multiple
-          filterable
-        />
-      </el-form-item>
-      <el-form-item label="业务类型"  v-show="this.visibleCount === 3 || show">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="xxx"
-          v-model="form.businessType"
-          placeholder="请选择"
-          clearable
-          multiple
-          filterable
-        />
-      </el-form-item>
-      <template v-if="show">
-        <el-form-item label="传入文本">
+      <el-form-item label="传入文本">
           <el-input
             placeholder="请输入"
-            v-model="form.inputText"
+            v-model="form.inputTextLike"
             clearable
           />
         </el-form-item>
-        <el-form-item label="执行状态:未执行,成功,失败,重试失败">
+      <el-form-item label="执行结果">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.executeStatus"
+            enumCode="ConsistencyStatusEnum"
+            v-model="form.executeStatusList"
             placeholder="请选择"
             clearable
             multiple
             filterable
           />
         </el-form-item>
-        <el-form-item label="外部系统:备件OMS,SAP,数仓,ITP,E10">
-          <el-input
-            placeholder="请输入"
-            v-model="form.sourceSystem"
+      <template v-if="show">
+        <el-form-item label="请求号">
+          <tag-input v-model="form.codeList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="是否启用">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.statusList"
+            placeholder="请选择"
             clearable
+            multiple
+            filterable
+          />
+      </el-form-item>
+        <el-form-item label="业务类型"  v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="ConsistencyBusinessTypeEnum"
+            v-model="form.businessTypeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="外部系统">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="dataSource"
+            v-model="form.sourceSystemList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
           />
         </el-form-item>
         <el-form-item label="创建时间">
@@ -100,10 +100,10 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
+      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
@@ -140,7 +140,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/sys/consistencyIn/index';
+import { getList, execute, enableItem } from '@/api/sparepart/sys/consistencyIn/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -150,13 +150,14 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
   status: '',
   businessType: '',
-  inputText: '',
+  inputTextLike: '',
   executeStatus: '',
   sourceSystem: '',
   createTime: '',
@@ -175,7 +176,8 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
@@ -201,31 +203,14 @@ export default {
           size: pageSize
         },
         dataProp: [
-          {
-            props: 'code',
-            label: '请求号',
-            visible: true,
-            width: 200,
-            fixed: 'left',
-            buttons: [{
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/sys/consistencyIn/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'primary'
-            }]
-          },
-          { props: 'status', label: '状态', visible: true, width: 200 },
-          { props: 'businessType', label: '业务类型', visible: true, width: 200 },
+          { props: 'code', label: '请求号', visible: true, width: 200 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
+          { props: 'businessTypeLabel', label: '业务类型', visible: true, width: 200 },
           { props: 'inputText', label: '传入文本', visible: true, width: 200 },
           { props: 'executionRemark', label: '执行备注', visible: true, width: 200 },
           { props: 'simpleErrorInfo', label: '简易报错信息', visible: true, width: 200 },
-          { props: 'executeStatus', label: '执行状态:未执行,成功,失败,重试失败', visible: true, width: 200 },
-          { props: 'sourceSystem', label: '外部系统:备件OMS,SAP,数仓,ITP,E10', visible: true, width: 200 },
+          { props: 'executeStatusLabel', label: '执行结果', visible: true, width: 200 },
+          { props: 'sourceSystemLabel', label: '外部系统', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -235,30 +220,19 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
-              name: '编辑',
+              name: '执行',
+              popconfirmTitle: '确认执行？',
               click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/sys/consistencyIn/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
+                execute([row.id]).then(() => {
                   this.$message({
                     type: 'success',
-                    message: '删除成功!'
+                    message: '执行成功!'
                   });
                   this.getData();
                 }).catch(() => {
                   this.$message({
                     type: 'error',
-                    message: '删除失败!'
+                    message: '执行失败!'
                   });
                 });
               },
@@ -379,7 +353,7 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+        if (data[key] === '' || data[key] === null || data[key].length === 0) {
           delete data[key];
         }
       });
@@ -391,6 +365,13 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = this.form.updateTime[1];
+        }
+      }
 
       return data;
     },
@@ -400,28 +381,7 @@ export default {
       }
       return [];
     },
-    // 批量删除
-    handleBatchDelete () {
-      const ids = this.selectionList.map(item => item.id) || [];
-      this.$confirm('此操作将永久删除, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        deleteItem(ids).then(() => {
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          });
-          this.getData();
-        }).catch(() => {
-          this.$message({
-            type: 'error',
-            message: '删除失败!'
-          });
-        });
-      }).catch(() => {});
-    },
+
     // 批量启用停用
     handleBatchEnable (status) {
       handleBatchStatusChange.call(this, {

@@ -17,31 +17,21 @@
         />
       </el-form-item>
       <el-form-item label="门店名称">
-        <el-input
-          placeholder="请输入"
-          v-model="form.dealerNameLike"
-          clearable
-        />
+        <dealer-select v-model="form.dealerCodes" multiple />
+
       </el-form-item>
-      <el-form-item label="门店编码"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.dealerCode"
+      <el-form-item label="回运状态" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="old_part_return_order_status"
+          v-model="form.returnStatusList"
+          placeholder="请选择"
           clearable
+          multiple
+          filterable
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="回运状态">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="old_part_return_order_status"
-            v-model="form.returnStatusList"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
         <el-form-item label="旧件返回类型">
          <fetch-select
            :request="fetchOptions"
@@ -125,6 +115,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import DealerSelect from '@/components/dealer-select/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -153,6 +144,7 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
+    DealerSelect,
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
@@ -160,6 +152,7 @@ export default {
     Upload
   },
   data () {
+    const moduleKey = 'AISCR-' + this.$route.meta.moduleKey;
     return {
       pageTitle: this.$route.meta.name,
       pageType: 'list',
@@ -167,7 +160,7 @@ export default {
       form: {
         ...defaultForm
       },
-      moduleKey: this.$route.meta.moduleKey,
+      moduleKey,
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
       show: false,
@@ -176,7 +169,7 @@ export default {
       uploadDialogVisible: false,
       clickItemId: '',
       optionObj: {
-        id: 'returnOrderTable',
+        id: this.$route.meta.moduleKey,
         dataList: [],
         form: {
           page: 1,

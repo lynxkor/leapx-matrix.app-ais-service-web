@@ -1,4 +1,3 @@
-<!-- 打印回运单 -->
 <template>
   <div id="printArea" style="width:100%; text-align:center">
     <div class="head-content">

@@ -981,7 +981,7 @@ const routes = [
         name: '门店旧件库存',
         keepAlive: true,
         moduleKey: 'AISCR-oldPartDealerInventoryDetail',
-        isDealer: true,
+        isDealerPage: true,
       }
     }, {
       path: '/claimreturn/oldpart/inventory/dealer/edit',
@@ -1125,7 +1125,7 @@ const routes = [
       meta: {
         name: '旧件回运单',
         returnType: '30',
-        moduleKey: 'AISCR-oldPartReturnOrder',
+        moduleKey: 'oldPartReturnOrder',
         keepAlive: true
       }
     }, {
@@ -1134,7 +1134,7 @@ const routes = [
       component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
       meta: {
         name: '旧件回运单',
-        moduleKey: 'AISCR-oldPartReturnOrder',
+        moduleKey: 'oldPartReturnOrder',
         noResourceUrl: 'true'
       }
     }, {
@@ -1144,7 +1144,7 @@ const routes = [
       meta: {
         name: '快返回运单',
         returnType: '40',
-        moduleKey: 'AISCR-oldPartReturnOrderFast',
+        moduleKey: 'oldPartReturnOrderFast',
         keepAlive: true
       }
     }, {
@@ -1153,7 +1153,7 @@ const routes = [
       component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
       meta: {
         name: '快返回运单',
-        moduleKey: 'AISCR-oldPartReturnOrderFast',
+        moduleKey: 'oldPartReturnOrderFast',
         noResourceUrl: 'true'
       }
     }, {
@@ -1382,9 +1382,9 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/oldpart/destroy/oldPartDestroyConfig',
+      path: '/claimreturn/oldpart/basic/oldPartDestroyConfig',
       name: 'oldPartDestroyConfig',
-      component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyConfig/index.vue'),
+      component: () => import('@/views/claimreturn/oldpart/basic/oldPartDestroyConfig/index.vue'),
       meta: {
         name: '旧件销毁设置',
       }
@@ -1643,21 +1643,12 @@ const routes = [
       }
     }, {
       path: '/sparepart/sys/consistencyOut',
-      name: 'consistencyIn',
-      component: () => import('@/views/sparepart/sys/consistencyIn/index.vue'),
+      name: 'consistencyOut',
+      component: () => import('@/views/sparepart/sys/consistencyOut/index.vue'),
 
       meta: {
         name: '同步外部接口信息',
         keepAlive: true
-      }
-    }, {
-      path: '/sparepart/sys/consistencyout/edit',
-      name: 'consistencyInEdit',
-      component: () => import('@/views/sparepart/sys/consistencyIn/edit.vue'),
-
-      meta: {
-        name: '同步外部接口信息详情',
-        noResourceUrl: 'true'
       }
     }, {
       path: '/sparepart/fund/accountOperateApply',

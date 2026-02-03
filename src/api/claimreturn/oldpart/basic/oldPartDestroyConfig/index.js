@@ -1,7 +1,7 @@
 import api from '@/axios';
 
 // 旧件销毁单设置
-const prefix = 'claimreturn/oldpart/web/destroy/oldPartDestroyConfig/';
+const prefix = 'claimreturn/oldpart/web/basic/oldPartDestroyConfig/';
 
 /**
  * 旧件销毁单设置

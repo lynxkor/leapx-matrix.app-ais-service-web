@@ -25,22 +25,22 @@
         </template>
         <template #extraButtons>
           <template v-if="form.returnStatus==='10'">
-            <el-button v-if="canDelete" @click="onRemove" size="small">删除</el-button>
-            <el-button v-if="canAddOrUpdate" @click="onNext" size="small">下发</el-button>
+            <el-button v-if="canDelete && !isDealer" @click="onRemove" size="small">删除</el-button>
+            <el-button v-if="!isDealer" @click="onNext" size="small">下发</el-button>
           </template>
           <template v-if="form.returnStatus==='20'">
-            <el-button v-if="canAddOrUpdate" @click="onOutbound" size="small">回运出库</el-button>
+            <el-button v-if="isDealer" @click="onOutbound" size="small">回运出库</el-button>
           </template>
           <template v-if="form.returnStatus==='30'">
-            <el-button v-if="canAddOrUpdate" @click="onSign" size="small">签收</el-button>
+            <el-button v-if="!isDealer" @click="onSign" size="small">签收</el-button>
           </template>
           <template v-if="form.returnStatus==='40'">
-            <el-button v-if="canAddOrUpdate" @click="onCompleteAcceptance" size="small">验收完成</el-button>
-            <el-button v-if="canAddOrUpdate" @click="onSingleAcceptance" size="small">单件验收</el-button>
+            <el-button v-if="!isDealer" @click="onCompleteAcceptance" size="small">验收完成</el-button>
+            <el-button v-if="!isDealer" @click="onSingleAcceptance" size="small">单件验收</el-button>
           </template>
-          <el-button v-if="canAddOrUpdate" @click="onPrintReturnOrder" size="small">打印回运单</el-button>
-          <el-button v-if="canAddOrUpdate" @click="onPrintMark" size="small">打印标签</el-button>
-          <el-button v-if="canAddOrUpdate" @click="onPrintWrapper" size="small">打印外包装标签</el-button>
+          <el-button @click="onPrintReturnOrder" size="small">打印回运单</el-button>
+          <el-button @click="onPrintMark" size="small">打印标签</el-button>
+          <el-button @click="onPrintWrapper" size="small">打印外包装标签</el-button>
         </template>
         <el-main>
           <div v-if="isEditing" class="header-desc">
@@ -374,12 +374,13 @@ export default {
   },
   data () {
     const form = this.getDefautlForm();
-
+    const moduleKey = 'AISCR-' + this.$route.meta.moduleKey;
     return {
       pageTitle: this.$route.meta.name,
       pageType: 'edit',
+      isDealer: this.$store.state.user.userInfo?.accountFlag,
       // TIPS: 权限前缀 AISCR，根据实际情况修改
-      moduleKey: this.$route.meta.moduleKey,
+      moduleKey,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -395,10 +396,19 @@ export default {
       selectedRows: [],
       // 单件验收
       visible: false,
+      //
+      // isPublish: false,
+      // isOutbound: false,
+      // isSign: false,
+      // isCheck: false,
     };
   },
   created () {
     this.updateRules(this.form.returnStatus);
+    // this.isPublish = this.permissions.has(`${this.moduleKey}-publish`);
+    // this.isOutbound = this.permissions.has(`${this.moduleKey}-outbound`);
+    // this.isSign = this.permissions.has(`${this.moduleKey}-sign`);
+    // this.isCheck = this.permissions.has(`${this.moduleKey}-check`);
   },
   mounted () {
   },
