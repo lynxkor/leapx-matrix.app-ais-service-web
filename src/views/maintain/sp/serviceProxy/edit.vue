@@ -15,6 +15,7 @@
                   <ButtonGroup maxWidth="50%" v-else>
                     <!-- 通用操作按钮 -->
                     <el-button size="small" @click="handlePrint" v-if="!isCanceled">打印工单</el-button>
+                    <el-button size="small" @click="couponsDialogVisible = true" v-if="!isCanceled">查询卡券&终身</el-button>
                     <el-button size="small" @click="handleImport" v-if="!isCanceled">上传附件</el-button>
                     <el-button size="small" @click="handleShowLog">审核日志</el-button>
                     <!-- 流程操作按钮 -->
@@ -40,7 +41,7 @@
                 <i>|</i>
                 <span>工单状态：{{ form.orderStatusLabel || '-' }}</span>
                 <i>|</i>
-                <span>领料状态：{{ form.pickStatus || '-' }}</span>
+                <span>领料状态：{{ form.pickStatusLabel || '-' }}</span>
                 <i>|</i>
                 <span>开单时间：{{ form.createTime || '-' }}</span>
               </h5>

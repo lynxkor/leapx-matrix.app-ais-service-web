@@ -1,12 +1,6 @@
 <template>
-  <el-dialog
-    class="m-select-rights-dialog"
-    title="权益核销"
-    width="1200px"
-    :visible.sync="dialogVisible"
-    @close="close"
-    @closed="closed"
-  >
+  <el-dialog class="m-select-rights-dialog" title="权益核销" width="1200px" :visible.sync="dialogVisible" @close="close"
+    @closed="closed">
     <div class="select-rights-content" v-loading="loading">
       <div class="action-section">
         <em>*权益只适用该施工单对应的维修类型</em>
@@ -14,84 +8,29 @@
 
       <!-- 数据表格 -->
       <div class="table-section">
-        <vxe-table
-          ref="rightsTable"
-          :data="tableData"
-          stripe
-          :row-config="{ isHover: true }"
-          resizable
-          max-height="500"
-          border="inner"
-          size="medium"
-          :checkbox-config="{ checkField: 'checked', checkMethod: checkMethod }"
-          @checkbox-change="handleSelectionChange"
-          @checkbox-all="handleSelectionChange"
-          :row-class-name="tableRowClassName"
-        >
+        <vxe-table ref="rightsTable" :data="tableData" stripe :row-config="{ isHover: true }" resizable max-height="500"
+          border="inner" size="medium" :checkbox-config="{ checkField: 'checked', checkMethod: checkMethod }"
+          @checkbox-change="handleSelectionChange" @checkbox-all="handleSelectionChange"
+          :row-class-name="tableRowClassName">
           <vxe-column type="checkbox" width="60" align="center" />
-          <vxe-column
-            field="rightsCode"
-            title="权益ID"
-            width="250"
-            show-overflow="tooltip"
-          />
-          <vxe-column
-            field="rightsName"
-            title="权益名称"
-            width="200"
-            show-overflow="tooltip"
-          />
-          <vxe-column
-            field="cardTypeLabel"
-            title="卡券类型"
-            width="120"
-            align="center"
-          />
-          <vxe-column
-            field="applicableMaintenanceType"
-            title="适用维修类型"
-            width="120"
-            align="center"
-          >
+          <vxe-column field="rightsCode" title="权益ID" width="250" show-overflow="tooltip" />
+          <vxe-column field="rightsName" title="权益名称" width="200" show-overflow="tooltip" />
+          <vxe-column field="cardTypeLabel" title="卡券类型" width="120" align="center" />
+          <vxe-column field="applicableMaintenanceType" title="适用维修类型" width="120" align="center">
             <template #default="{ row }">
               {{ getServiceTypeText(row.relatedRepairTypeList) }}
             </template>
           </vxe-column>
-          <vxe-column
-            field="cardDiscount"
-            title="卡券折扣"
-            width="100"
-            align="right"
-          />
-          <vxe-column
-            field="paymentAmount"
-            title="满减金额"
-            width="100"
-            align="right"
-          >
+          <vxe-column field="cardDiscount" title="卡券折扣" width="100" align="right" />
+          <vxe-column field="paymentAmount" title="满减金额" width="100" align="right">
           </vxe-column>
-          <vxe-column
-            field="createDate"
-            title="领券时间"
-            width="160"
-            align="center"
-          />
-          <vxe-column
-            field="effectDate"
-            title="有效期"
-            width="320"
-            align="center"
-          >
+          <vxe-column field="createDate" title="领券时间" width="160" align="center" />
+          <vxe-column field="effectDate" title="有效期" width="320" align="center">
             <template #default="{ row }">
               {{ getValidityPeriodText(row) }}
             </template>
           </vxe-column>
-          <vxe-column
-            field="rightsStatusLabel"
-            title="状态"
-            width="100"
-            align="center"
-          >
+          <vxe-column field="rightsStatusLabel" title="状态" width="100" align="center">
           </vxe-column>
         </vxe-table>
       </div>
@@ -99,13 +38,7 @@
     <template v-slot:footer>
       <div class="dialog-footer">
         <el-button size="small" @click="close">取 消</el-button>
-        <el-button
-          size="small"
-          :loading="submitLoading"
-          type="primary"
-          @click="submit"
-          >核销选中权益</el-button
-        >
+        <el-button size="small" :loading="submitLoading" type="primary" @click="submit">核销选中权益</el-button>
       </div>
     </template>
   </el-dialog>
@@ -157,7 +90,12 @@ export default {
     async initData () {
       try {
         this.loading = true;
-        const res = await rightsList(this.statementId);
+        const params = {
+          statementId: this.statementId,
+          rightsType: 3
+          // 可以在这里添加其他参数
+        };
+        const res = await rightsList(params);
         this.tableData = (res || []).map((item) => ({
           ...item,
           checked: false,
@@ -273,18 +211,10 @@ export default {
 
 <style lang="scss" scoped>
 .m-select-rights-dialog {
-  ::v-deep
-    .vxe-table--render-default.size--medium
-    .vxe-header--column.is--padding
-    .vxe-cell,
-  ::v-deep
-    .vxe-table--render-default
-    .vxe-body--column:not(.col--active).col--ellipsis
-    > .vxe-cell,
-  ::v-deep
-    .vxe-table--render-default.size--medium
-    .vxe-body--column.is--padding
-    .vxe-cell {
+
+  ::v-deep .vxe-table--render-default.size--medium .vxe-header--column.is--padding .vxe-cell,
+  ::v-deep .vxe-table--render-default .vxe-body--column:not(.col--active).col--ellipsis>.vxe-cell,
+  ::v-deep .vxe-table--render-default.size--medium .vxe-body--column.is--padding .vxe-cell {
     padding: 8px 12px !important;
   }
 
@@ -296,6 +226,7 @@ export default {
       display: flex;
       font-weight: 500;
       align-items: center;
+
       em {
         color: var(--leap-color-danger);
         margin-left: 5px;
@@ -313,6 +244,7 @@ export default {
     justify-content: flex-end;
     gap: 10px;
   }
+
   ::v-deep .vxe-table .disabled-row {
     background-color: #f5f7fa !important;
     color: #c0c4cc !important;
