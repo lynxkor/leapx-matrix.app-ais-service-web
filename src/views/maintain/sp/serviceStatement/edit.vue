@@ -189,8 +189,8 @@
                 <el-form-item label="总金额：" prop="totalAmount">
                   {{ form.totalAmount }}
                 </el-form-item>
-                <el-form-item label="维修项优惠金额：" prop="repairItemDiscount">
-                  {{ form.repairItemDiscount }}
+                <el-form-item label="维修项目金额：" prop="repairItemAmount">
+                  {{ form.repairItemAmount }}
                 </el-form-item>
                 <el-form-item label="结算人员：" prop="statementPersonName">
                   {{ form.statementPersonName }}
@@ -437,7 +437,6 @@ export default {
       const baseType = ['352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF'];
       const validStatusForReject = [30]; // 待收款状态码
       const validStatusForRefund = [10, 30]; // 待结算/待收款
-      const validTypesForWarranty = ['352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF']; // 自费/保险
       switch (type) {
         case 'reject':
           var isValidTypeForReject = baseType.includes(this.form.statementType);
@@ -644,7 +643,11 @@ export default {
       }
     },
     submitRequest () {
-      return addOrUpdate({ ...this.form });
+      return addOrUpdate({ ...this.form }).then(response => {
+        // 提交成功后重新加载当前路由
+        this.$router.go(0); // 或者使用 this.$router.replace(this.$route)
+        return response;
+      });
     },
     // 打开侧边栏
     openPane () {

@@ -75,3 +75,75 @@ export function getPurchaseApplyPage (data) {
 export function purchaseApplyDelete (data) {
   return api.jsonPost('sp/web/purchase/purchaseApplyDetail/delete', data);
 }
+
+/**
+ * 驳回
+ * @param {Object} data
+ */
+export function purchaseApplyReject (data) {
+  return api.jsonPost('sp/web/purchase/purchaseApply/reject', data);
+}
+
+/**
+ * 批量驳回
+ * @param {Object} data
+ */
+export function purchaseApplyBatchReject (data) {
+  return api.jsonPost('sp/web/purchase/purchaseApply/batchReject', data);
+}
+
+/**
+ * 提交
+ * @param {Object} data
+ */
+export function purchaseApplySubmit (data) {
+  return api.jsonPost('sp/web/purchase/purchaseApply/submit', data);
+}
+
+/**
+ * 同意
+ * @param {Object} data
+ */
+export function purchaseApplyAgree (data) {
+  return api.jsonPost('sp/web/purchase/purchaseApply/agree', data);
+}
+
+/**
+ * 批量同意
+ * @param {Object} data
+ */
+export function batchAgree (data) {
+  return api.jsonPost('sp/web/purchase/purchaseApply/batchAgree', data);
+}
+
+/**
+ * 复制
+ * @param {Object} data
+ */
+export function purchaseApplyCopy (data) {
+  return api.jsonPost('sp/web/purchase/purchaseApply/copy', data);
+}
+
+/**
+ * 不可采购清单列表
+ * @param {Object} data
+ */
+export function purchaseApplyListUnPurchaseDetail (data) {
+  return api.jsonPost('sp/web/purchase/purchaseApply/listUnPurchaseDetail', data);
+}
+
+/**
+ * 不可采购清单列表
+ * @param {Object} data
+ */
+export function purchaseApplyDeleteUnPurchaseDetail (data) {
+  return api.jsonPost('sp/web/purchase/purchaseApply/deleteUnPurchaseDetail', data);
+}
+
+/**
+ * 采购原价券列表
+ * @param {Object} data
+ */
+export function purchaseApplyGetCoupon (data) {
+  return api.jsonPost('sp/web/purchase/purchaseApply/getCoupon', data);
+}

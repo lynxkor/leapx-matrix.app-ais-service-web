@@ -123,7 +123,7 @@ export default {
         dataProp: [
           {
             props: 'unqualifiedCode',
-            label: '编码',
+            label: '代码',
             visible: true,
             width: 200,
             fixed: 'left',
@@ -186,6 +186,7 @@ export default {
       });
     },
     onSubmit () {
+      this.optionObj.form.page = 1;
       this.getData();
     },
     onReset () {

@@ -319,6 +319,54 @@
               </div>
             </div>
           </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>物流信息</h2>
+            </div>
+            <div class="common-section-body">
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>物流信息</h2>
+            </div>
+            <div class="common-section-body">
+              <div v-if="loadingLogistics" class="loading">
+                <el-loading-spinner></el-loading-spinner>
+                正在加载物流信息...
+              </div>
+              <div v-else-if="!logisticsData" class="no-data">
+                暂无物流信息
+              </div>
+              <div v-else class="logistics-container">
+                <!-- 运单号和预计送达时间 -->
+                <div class="logistics-header">
+                  <span class="label">运单号：</span>
+                  <span class="value">{{ logisticsData.waybillNo }}</span>
+                  <span class="label">预计送达日期：</span>
+                  <span class="value">{{ logisticsData.estimatedArrivalTime }}</span>
+                </div>
+
+                <!-- 物流节点 -->
+                <el-timeline>
+                  <el-timeline-item
+                    v-for="(item, index) in logisticsData.trackingList"
+                    :key="index"
+                    :timestamp="item.time"
+                    :color="item.status === 'completed' ? '#007fff' : '#999'"
+                    :type="item.status === 'completed' ? 'primary' : 'info'"
+                    :size="item.status === 'completed' ? 'large' : 'normal'"
+                  >
+                    <div class="timeline-content">
+                      <strong>{{ item.description }}</strong>
+                      <p v-if="item.phone">{{ item.phone }}</p>
+                      <p v-if="item.plateNumber">{{ item.plateNumber }}</p>
+                    </div>
+                  </el-timeline-item>
+                </el-timeline>
+              </div>
+            </div>
+          </section>
         </el-main>
       </edit-base-container>
     </template>
@@ -438,6 +486,8 @@ export default {
         children: 'child'
       },
       activeName: 'getOutboundDetailList',
+      logisticsData: null, // 物流信息
+      loadingLogistics: false,
       tableData: [
       ],
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
@@ -696,6 +746,43 @@ export default {
       const res = await getOutboundDetailList(data);
       this.claimTableData = res.records;
     },
+    async getLogisticsInfo () {
+      this.loadingLogistics = true;
+      try {
+        // const res = await getLogisticsInfo(this._id); // 假设接口为 getLogisticsInfo
+        // this.logisticsData = res.data;
+        this.logisticsData = {
+          waybillNo: 'JDV23178368877',
+          estimatedArrivalTime: '2025-09-30 23:59:59',
+          trackingList: [
+            {
+              time: '2025-09-30 17:46:54',
+              description: '您的快件已送达，感谢您使用京东物流，期待再次为您服务。',
+              status: 'completed'
+            },
+            {
+              time: '2025-09-30 17:46:30',
+              description: '司机已到达目的城市-天津 西青区，请您准备签收，司机电话：15957537605，车牌号：浙G98571',
+              status: 'completed'
+            },
+            {
+              time: '2025-09-27 21:19:14',
+              description: '司机正在装车中，请耐心等待',
+              status: 'pending'
+            },
+            {
+              time: '2025-09-27 21:14:13',
+              description: '京东快递已收取快件',
+              status: 'completed'
+            }
+          ]
+        };
+      } catch (error) {
+        console.error('获取物流信息失败:', error);
+      } finally {
+        this.loadingLogistics = false;
+      }
+    }
   }
 };
 </script>
@@ -705,4 +792,37 @@ export default {
   font-weight: 500;
   color: #0A0E0A;
 }
+
+.logistics-container {
+  margin-top: 16px;
+}
+
+.logistics-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.label {
+  font-weight: bold;
+  color: #333;
+}
+
+.value {
+  color: #666;
+}
+
+.timeline-content {
+  strong {
+    display: block;
+    margin-bottom: 4px;
+  }
+  p {
+    font-size: 12px;
+    color: #999;
+  }
+}
+
 </style>

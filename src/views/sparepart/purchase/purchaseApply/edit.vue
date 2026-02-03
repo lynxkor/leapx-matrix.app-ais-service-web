@@ -3,7 +3,7 @@
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container ref="containerRef" :id="_id" :title="title" :form.sync="form" :submitRequest="submitRequest"
-      :originalForm.sync="originalForm" :detailRequest="detailRequest" :showEditBtn="false">
+        :isEditing.sync="isEditing" :originalForm.sync="originalForm" :detailRequest="detailRequest"  :showEditBtn="routeQueryType">
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
           <span class="status primary">状态</span>
@@ -233,7 +233,7 @@
               </el-form>
             </div>
           </section>
-          <section class="common-section" v-show="!(isEditing || !_id)">
+          <section class="common-section">
             <div class="common-section-header">
               <h2>备件信息</h2>
             </div>
@@ -351,6 +351,16 @@ export default {
         }
       },
       immediate: true
+    },
+    // 监听路由变化
+    '$route.query.orderType': {
+      handler (newVal) {
+        if (newVal === '1') {
+          this.routeQueryType = true;
+        }
+      },
+      immediate: true,
+      deep: true
     }
   },
   data () {
@@ -372,6 +382,7 @@ export default {
       moduleKey: 'AISPART-purchaseApply',
       loading: false,
       submitLoading: false,
+      routeQueryType: false, // 路由参数ID 是否可编辑
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },

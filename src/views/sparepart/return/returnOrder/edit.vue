@@ -369,7 +369,7 @@
             </div>
           </section>
         </el-main>
-        <AddSpareParts ref="addSpareParts" :id="_id" :visible="sparePartsVisible" @close="dialogClose" />
+        <AddSpareParts ref="addSpareParts" :id="form.warehouseId" :returnOrderId="_id" :visible="sparePartsVisible" @close="dialogClose" @success="dialogSuccess" />
       </edit-base-container>
     </template>
     <template #right>
@@ -381,7 +381,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, returnOrderPage } from '@/api/sparepart/return/returnOrder/index';
+import { getDetail, addOrUpdate, returnOrderPage, returnOrderDel } from '@/api/sparepart/return/returnOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -498,6 +498,7 @@ export default {
       },
       abnormalTableData: [],
       sparePartsVisible: false,
+      warehouseId: '', // 备件仓库ID
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       abnormalColumns: [
         {
@@ -747,6 +748,15 @@ export default {
     },
     dialogClose () {
       this.sparePartsVisible = false;
+    },
+    // 添加成功 表格接口刷新
+    dialogSuccess () {
+      this.sparePartsVisible = false;
+      this.getDetailData();
+    },
+    async handleDel (row) {
+      await returnOrderDel([row.id]);
+      this.getDetailData();
     }
   }
 };

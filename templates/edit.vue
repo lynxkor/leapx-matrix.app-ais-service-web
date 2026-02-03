@@ -15,11 +15,11 @@
       >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
-          <span class="status primary">状态</span>
+          <!-- <span class="status primary">状态</span> -->
         </template>
         <template #extraButtons>
-          <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button>
+          <!-- <el-button size="small">按钮1</el-button>
+          <el-button size="small">按钮2</el-button> -->
         </template>
         <el-main>
           <section class="common-section">
@@ -226,6 +226,9 @@ export default {
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
+    },
+    title () {
+      return '{{{description}}}：' + this.form.{{{key}}};
     }
   },
   watch: {
@@ -255,9 +258,6 @@ export default {
     return {
       pageTitle: '{{{title}}}',
       pageType: 'edit',
-      {{{#top1List}}}
-      title: '{{{description}}}：' + form.{{{key}}},
-      {{{/top1List}}}
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-{{{name}}}',
       loading: false,

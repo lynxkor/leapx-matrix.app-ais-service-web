@@ -265,7 +265,64 @@ export default {
               },
               type: 'info'
             }, {
+              name: '提交',
+              show: (row) => {
+                return row.returnStatus === '10' || row.returnStatus === '30';
+              },
+              click: (rowIndex, row) => {
+                this.handlePrintLabel(row);
+              },
+              type: 'info'
+            }, {
+              name: '作废',
+              show: (row) => {
+                return row.returnStatus === '10' || row.returnStatus === '30';
+              },
+              click: (rowIndex, row) => {
+                this.handlePrintLabel(row);
+              },
+              type: 'info'
+            }, {
+              name: '同意',
+              show: (row) => {
+                return row.returnStatus === '20';
+              },
+              click: (rowIndex, row) => {
+                this.handlePrintLabel(row);
+              },
+              type: 'info'
+            }, {
+              name: '驳回',
+              show: (row) => {
+                return row.returnStatus === '20';
+              },
+              click: (rowIndex, row) => {
+                this.handlePrintLabel(row);
+              },
+              type: 'info'
+            }, {
+              name: '撤回',
+              show: (row) => {
+                return row.returnStatus === '40';
+              },
+              click: (rowIndex, row) => {
+                this.handlePrintLabel(row);
+              },
+              type: 'info'
+            }, {
+              name: '发运',
+              show: (row) => {
+                return row.returnStatus === '40';
+              },
+              click: (rowIndex, row) => {
+                this.handlePrintLabel(row);
+              },
+              type: 'info'
+            }, {
               name: '删除',
+              show: (row) => {
+                return row.returnStatus === '90';
+              },
               popconfirmTitle: '此操作将永久删除, 是否继续?',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
@@ -326,6 +383,7 @@ export default {
       });
     },
     onSubmit () {
+      this.optionObj.form.page = 1;
       this.getData();
     },
     onReset () {

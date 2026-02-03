@@ -72,7 +72,7 @@
         <el-form-item label="订单状态">
           <fetch-select
             :request="fetchOptions"
-            enumCode="PurchaseApplyStatusEnum"
+            enumCode="PurchaseApplyApprovalStatusEnum"
             v-model="form.orderStatusList"
             placeholder="请选择"
             clearable
@@ -176,9 +176,9 @@
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
+      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
+      <el-button size="small" @click="handleBatchAgree" :disabled="selectionList.length === 0">批量同意</el-button>
+      <el-button size="small" @click="handleBatchReject" :disabled="selectionList.length === 0">批量驳回</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -206,6 +206,30 @@
       :id="'1'"
       @close="handleUploadDialogClose"
     />
+    <!-- 提交弹窗 -->
+    <SubmitDialog
+      ref="submitDialogRef"
+      :visible.sync="submitDialogVisible"
+      :id="purchaseId"
+      :purchaseList="purchaseList"
+      @close="handleSubmitDialogClose"
+    />
+    <!-- 同意弹窗 -->
+     <AgreeDialog
+      ref="agreeDialogRef"
+      :visible.sync="agreeDialogVisible"
+      :id="purchaseId"
+      :purchaseList="purchaseList"
+      @close="handleAgreeDialogClose"
+    />
+    <!-- 审批同意弹窗 -->
+     <ApprovalDialog
+      ref="approvalDialogRef"
+      :visible.sync="approvalDialogVisible"
+      :id="purchaseId"
+      :couponObj="couponObj"
+      @close="handleApprovalDialogClose"
+    />
   </div>
 </template>
 
@@ -213,7 +237,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/purchase/purchaseApply/index';
+import { getList, deleteItem, enableItem, purchaseApplyReject, purchaseApplyBatchReject, purchaseApplyListUnPurchaseDetail, purchaseApplySubmit, purchaseApplyCopy, batchAgree, purchaseApplyGetCoupon } from '@/api/sparepart/purchase/purchaseApply/index';
 import { getUserByNameOrNo, getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -224,6 +248,9 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
+import SubmitDialog from './SubmitDialog.vue';
+import AgreeDialog from './AgreeDialog.vue';
+import ApprovalDialog from './ApprovalDialog.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -260,7 +287,10 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    TagInput
+    TagInput,
+    SubmitDialog,
+    AgreeDialog,
+    ApprovalDialog
   },
   data () {
     return {
@@ -277,6 +307,13 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      submitDialogVisible: false, // 提交按钮弹窗
+      agreeDialogVisible: false, // 同意按钮弹窗.
+      approvalDialogVisible: false, // 审批按钮弹窗.
+      couponObj: {}, // 优惠券对象
+      approvalType: '', // 审批类型
+      purchaseId: '', // 采购单ID
+      purchaseList: [], // 不可采购清单
       clickItemId: '',
       optionObj: {
         id: 'purchaseApplyTable',
@@ -328,11 +365,15 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '编辑',
+              show: (row) => {
+                return row.orderStatus === '0' || row.orderStatus === '3';
+              },
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/purchase/purchaseApply/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    orderType: 1
                   }
                 });
               },
@@ -355,6 +396,39 @@ export default {
                 });
               },
               type: 'danger'
+            }, {
+              name: '提交',
+              show: (row) => {
+                return row.orderStatus === '0' || row.orderStatus === '3';
+              },
+              click: (rowIndex, row) => {
+                this.handleSubmit(row);
+              },
+              type: 'info'
+            }, {
+              name: '同意',
+              show: (row) => {
+                return row.orderStatus === '1';
+              },
+              click: (rowIndex, row) => {
+                this.handleAgree(row);
+              },
+              type: 'info'
+            }, {
+              name: '驳回',
+              show: (row) => {
+                return row.orderStatus === '1';
+              },
+              click: (rowIndex, row) => {
+                this.handleReject(row);
+              },
+              type: 'info'
+            }, {
+              name: '复制',
+              click: (rowIndex, row) => {
+                this.handleCopy(row);
+              },
+              type: 'info'
             }]
           }
         ],
@@ -399,6 +473,7 @@ export default {
       });
     },
     onSubmit () {
+      this.optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
@@ -583,28 +658,114 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
+    },
+    // 提交
+    async handleSubmit (val) {
+      const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
+      if (res.length > 0) {
+        this.purchaseId = val.id;
+        this.purchaseList = res || [];
+        this.submitDialogVisible = true;
+      } else {
+        this.$confirm({
+          message: '确认提交吗？',
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(async () => {
+          await purchaseApplySubmit({ id: val.id });
+          this.$message.success('提交成功!');
+          this.getData();
+        }).catch(() => {});
+      }
+    },
+    handleSubmitDialogClose () {
+      this.submitDialogVisible = false;
+    },
+    // 同意
+    async handleAgree (val) {
+      const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
+      if (res.length > 0) {
+        this.purchaseId = val.id;
+        this.purchaseList = res || [];
+        this.agreeDialogVisible = true;
+      } else if (res.length === 0) {
+        const res = await purchaseApplyGetCoupon({ id: val.id });
+        this.couponObj = res;
+        this.approvalDialogVisible = true;
+      }
+    },
+    // 批量同意
+    handleBatchAgree () {
+      const idList = this.selectionList.map(item => item.id);
+      this.$prompt('请输入审批说明', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      }).then(async (result) => {
+        console.log('result', result);
+        await batchAgree({ idList, approvalDescription: result.value });
+        this.getData();
+      });
+    },
+    handleAgreeDialogClose () {
+      this.agreeDialogVisible = false;
+    },
+    handleApprovalDialogClose () {
+      this.approvalDialogVisible = false;
+    },
+    // 驳回
+    handleReject (val) {
+      this.allHandleReject(false, val);
+    },
+    // 批量驳回
+    handleBatchReject () {
+      this.allHandleReject(true);
+    },
+    // 统一驳回方法
+    async allHandleReject (isBatch = false, rowData = null) {
+      const idList = isBatch
+        ? (this.selectionList.map(item => item.id) || [])
+        : [rowData.id];
+
+      if (isBatch && !idList.length) {
+        this.$message.warning('请先选择要驳回的记录');
+        return;
+      }
+
+      try {
+        const result = await this.$prompt('请输入审批说明', '驳回', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        });
+
+        const approvalDescription = result.value;
+        const params = isBatch
+          ? { idList, approvalDescription }
+          : { id: rowData.id, approvalDescription };
+
+        const response = isBatch
+          ? await purchaseApplyBatchReject(params)
+          : await purchaseApplyReject(params);
+
+        this.$message.success('驳回成功!');
+        this.getData();
+        return response;
+      } catch (error) {
+        if (error !== 'cancel' && error !== 'close') {
+          this.$message.error('驳回失败!');
+        }
+      }
+    },
+    // 复制
+    async handleCopy (row) {
+      const res = await purchaseApplyCopy({ id: row.id });
+      this.$router.push({
+        path: '/sparepart/purchase/purchaseApply/edit',
+        query: {
+          id: res
+        }
+      });
     }
   }
 };

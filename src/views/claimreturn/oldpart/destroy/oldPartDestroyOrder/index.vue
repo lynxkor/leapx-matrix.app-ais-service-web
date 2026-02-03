@@ -167,7 +167,18 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          {
+            props: 'dealerName',
+            label: '门店名称',
+            visible: true,
+            width: 240,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'destroyStatusLabel', label: '销毁单状态', visible: true, width: 200 },
           { props: 'destroyerName', label: '销毁人', visible: true, width: 200 },
           { props: 'destroyDate', label: '销毁日期', visible: true, width: 200 },
@@ -219,6 +230,7 @@ export default {
       });
     },
     onSubmit () {
+      this.optionObj.form.page = 1;
       this.getData();
     },
     onReset () {

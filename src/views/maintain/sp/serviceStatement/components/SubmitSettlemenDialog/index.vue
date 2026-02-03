@@ -395,7 +395,7 @@ export default {
           );
           this.originalPartsData = JSON.parse(JSON.stringify(this.partsData));
           // 初始化去零金额
-          this.roundAmount = this.baseInfo.remainAmount || 0;
+          // this.roundAmount = this.baseInfo.remainAmount || 0;
         }
       },
       deep: true,
@@ -422,11 +422,12 @@ export default {
       // 计算最终金额数据
       const data = this.getFinalData();
       submitSettlement(data).then((res) => {
-        this.$message.success('提交结算成功');
         this.close();
         if (res.lastRecord) {
           this.signDialogVisible = true;
           this.totalData = data;
+        } else {
+          this.$message.info(res.alertMsg);
         }
       });
     },
