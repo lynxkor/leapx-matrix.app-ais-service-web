@@ -135,10 +135,10 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="预授权信息：" prop="preAuthId">
+        <el-form-item label="预授权信息：" prop="preAuthTypeLabel">
           <el-input
             placeholder="请输入"
-            v-model="form.preAuthId"
+            v-model="form.preAuthTypeLabel"
             clearable
             disabled
           />
@@ -316,8 +316,8 @@
         <el-form-item label="实际作业时间：" prop="startAt">
           {{ form.startAt }}
         </el-form-item>
-        <el-form-item label="预授权信息：" prop="preAuthId">
-          {{ form.preAuthId }}
+        <el-form-item label="预授权信息：" prop="preAuthTypeLabel">
+          {{ form.preAuthTypeLabel }}
         </el-form-item>
         <el-form-item label="完成作业时间：" prop="finishAt">
           {{ form.finishAt }}

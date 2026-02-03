@@ -201,10 +201,10 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="公告车型：" prop="vehRegisteredModelId">
+        <el-form-item label="公告车型：" prop="vehRegisteredModelName">
           <el-input
             placeholder="请输入"
-            v-model="form.vehRegisteredModelId"
+            v-model="form.vehRegisteredModelName"
             clearable
             disabled
           />
@@ -234,7 +234,7 @@
             <template slot="append">KM</template>
           </el-input>
         </el-form-item>
-        <el-form-item label="车辆车型（L）：" prop="vehYearTypeName">
+        <el-form-item label="车辆年型（L）：" prop="vehYearTypeName">
           <el-input
             placeholder="请输入"
             v-model="form.vehYearTypeName"
@@ -400,7 +400,7 @@
           {{ form.code }}
         </el-form-item>
         <el-form-item label="VIN码：" prop="vehProfileVin">
-          <el-link type="success" :href="`/partner/channelManagement/shopDetail?id=${form.vehProfileVin}`" target="_blank">{{ form.vehProfileVin }}</el-link>
+          <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
         </el-form-item>
         <el-form-item label="车牌号：" prop="carPlate">
           {{ form.carPlate }}
@@ -456,7 +456,7 @@
         <el-form-item label="车联网里程数（总）：" prop="netMileage">
           {{ form.netMileage }}
         </el-form-item>
-        <el-form-item label="公告车型：" prop="vehRegisteredModelId">
+        <el-form-item label="公告车型：" prop="vehRegisteredModelName">
           <el-link type="success" :href="`/sales/datacenter/materials/vehicleRegisteredModel/detail?id=${form.vehRegisteredModelId}`" target="_blank">{{ form.vehRegisteredModelName }}</el-link>
         </el-form-item>
         <el-form-item label="送修人：" prop="shuttleName">
@@ -468,8 +468,8 @@
         <el-form-item label="离店车联网里程数（总）：" prop="departureNetMileage">
           {{ form.departureNetMileage }}
         </el-form-item>
-        <el-form-item label="车辆车型（L）：" prop="vehYearTypeName">
-          {{ form.vehYearTypeName }}
+        <el-form-item label="车辆年型（L）：" prop="vehYearTypeName">
+          <el-link type="success" :href="`/sales/datacenter/materials/vehicleYearType/detail?id=${form.vehYearTypeId}`" target="_blank">{{ form.vehYearTypeName }}</el-link>
         </el-form-item>
         <el-form-item label="送修人手机：" prop="shuttlePhone">
           {{ form.shuttlePhone }}
@@ -650,8 +650,11 @@ export default {
             batteryModel: record.batteryModel, // 电池型号
             batterySerialNumber: record.batterySerialNumber, // 电池序列号
             vehModelId: record.vehicleModelId, // 基本车型
+            vehModelName: record.vehicleModelName, // 基本车型
             vehRegisteredModelId: record.carSaleSversionId, // 公告车型
-            vehYearTypeId: record.vehicleYearId, // 车辆车型（L）
+            vehRegisteredModelName: record.carSalesVersionName, // 公告车型
+            vehYearTypeId: record.vehicleYearId, // 车辆年型（L）
+            vehYearTypeName: record.vehicleYearName, // 车辆年型（L）
             engineNumber: record.enginenNumber, // 发动机号
             lastMileage: record.vehicleProfileServiceResp.lastMileage, // 上次进店里程
             bindingUserId: record.vehicleProfileOwnerResp.bindingUserId, // 绑车人用户ID
