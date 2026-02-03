@@ -3,6 +3,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/fund/account/';
+const prefixDetail = SPARE_PREFIX + '/web/fund/accountFlow/';
 
 /**
  * 查询列表
@@ -49,7 +50,7 @@ export function enableItem (data) {
  * @param {Object} data
  */
 export function accountFlowPage (data) {
-  return api.jsonPost('sp/web/fund/accountFlow/page', data);
+  return api.jsonPost(prefixDetail + 'page', data);
 }
 
 /**
@@ -57,5 +58,5 @@ export function accountFlowPage (data) {
  * @param {Object} data
  */
 export function frozenPage (data) {
-  return api.jsonPost('sp/web/fund/accountFlow/frozenPage', data);
+  return api.jsonPost(prefixDetail + 'frozenPage', data);
 }

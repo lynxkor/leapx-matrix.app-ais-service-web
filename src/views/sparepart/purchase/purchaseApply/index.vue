@@ -238,7 +238,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, purchaseApplyReject, purchaseApplyBatchReject, purchaseApplyListUnPurchaseDetail, purchaseApplySubmit, purchaseApplyCopy, batchAgree, purchaseApplyGetCoupon } from '@/api/sparepart/purchase/purchaseApply/index';
-import { getUserByNameOrNo, getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse } from '@/api/common';
+import { getUserByNameOrNo, getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -301,6 +301,10 @@ export default {
       form: {
         ...defaultForm
       },
+      isPartOrder: null, // 是否有备附件订购能力
+      dealerAccountFlag: null, // 是否门店
+      currentDealerCode: null, // 当前门店code
+      currentDealerName: null, // 当前门店名称
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
       show: false,
@@ -439,8 +443,24 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    this.initDealerUser();
   },
   methods: {
+    async initDealerUser () {
+      // 查询是否厂端
+      const res = await getLoginUser();
+      this.dealerAccountFlag = res.dealerAccountFlag;
+      this.currentDealerCode = res.currentDealerCode;// 当前门店code
+      this.currentDealerName = res.currentDealerName;// 当前门店名称
+      console.log(this.dealerAccountFlag);
+      if (this.dealerAccountFlag === true) {
+        const res = await getPartDealer({ code: this.currentDealerCode });
+        this.isPartOrder = res.isPartOrder;
+      }
+      if (this.dealerAccountFlag === false) {
+        this.isPartOrder = true;
+      }
+    },
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
@@ -468,6 +488,15 @@ export default {
       }
     },
     handleAdd () {
+      if (this.isPartOrder === null) {
+        this.$message.error('获取用户信息异常，请刷新页面重试');
+        return;
+      }
+      if (this.isPartOrder === false) {
+        // 门店名称：XXXX，不具备备附件订购能力，不允许采购
+        this.$message.error('门店名称：' + this.currentDealerName + '不具备备附件订购能力，不允许采购');
+        return;
+      }
       this.$router.push({
         path: '/sparepart/purchase/purchaseApply/edit'
       });
