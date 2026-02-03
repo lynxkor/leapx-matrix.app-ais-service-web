@@ -14,6 +14,7 @@
         :detailRequest="detailRequest"
       >
         <template #status>
+          <!-- 草稿、待回运、已回运、已签收 -->
           <span class="status" :class="{
             primary: form.returnStatus === '10',
             warning: form.returnStatus === '20',
@@ -43,7 +44,7 @@
           <el-button @click="onPrintWrapper" size="small">打印外包装标签</el-button>
         </template>
         <el-main>
-          <div v-if="isEditing" class="header-desc">
+          <div class="header-desc">
             保修月份：{{ form.warrantyMonth }}&nbsp;&nbsp;|&nbsp;&nbsp;旧件返还类型：{{ form.returnTypeLabel }}
           </div>
           <section class="common-section">
@@ -100,10 +101,10 @@
                 </el-form-item>
                 <el-form-item label="回运地址：" prop="receiverAddress">
                   <base-input
+                    :disabled="form.returnStatus!=='10'"
                     placeholder="请输入"
                     v-model="form.receiverAddress"
                     clearable
-                    :disabled="form.returnStatus!=='10'"
                   />
                 </el-form-item>
                 <el-form-item label="回运日期：" prop="returnDate">
@@ -118,54 +119,43 @@
                 </el-form-item>
                 <el-form-item label="收货联系人：" prop="receiverContact">
                   <base-input
+                    :disabled="form.returnStatus!=='10'"
                     placeholder="请输入"
                     v-model="form.receiverContact"
                     clearable
-                    :disabled="form.returnStatus!=='10'"
                   />
                 </el-form-item>
                 <el-form-item label="收货电话：" prop="receiverPhone">
                   <base-input
+                    :disabled="form.returnStatus!=='10'"
                     placeholder="请输入"
                     v-model="form.receiverPhone"
                     clearable
                     maxlength="11"
-                    :disabled="form.returnStatus!=='10'"
                   />
                 </el-form-item>
-                <el-form-item label="回运件数（纸箱/木架）：" prop="returnUnit">
+                <el-form-item label="回运件数(纸箱/木架)：" prop="returnUnit" >
                   <base-input
+                    :disabled="form.returnStatus==='40'"
                     placeholder="请输入"
                     v-model="form.returnUnit"
                     clearable
-                    :disabled="form.returnStatus==='40'"
                   />
                 </el-form-item>
                 <el-form-item label="物流商：" prop="logisticsCompany">
                   <base-input
+                    :disabled="form.returnStatus==='40'"
                     placeholder="请输入"
                     v-model="form.logisticsCompany"
                     clearable
-                    :disabled="form.returnStatus==='40'"
                   />
                 </el-form-item>
                 <el-form-item label="物流单号：" prop="logisticsTrackingNo">
                   <base-input
+                    :disabled="form.returnStatus==='40'"
                     placeholder="请输入"
                     v-model="form.logisticsTrackingNo"
                     clearable
-                    :disabled="form.returnStatus==='40'"
-                  />
-                </el-form-item>
-                <el-form-item label="是否验收完成：" prop="isChecked">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="BooleanEnum"
-                    v-model="form.isChecked"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                    :disabled="form.returnStatus!=='40'"
                   />
                 </el-form-item>
                 <el-form-item label="签收日期：" prop="signReceiveDate">
@@ -190,22 +180,22 @@
                 </el-form-item>
                 <el-form-item class="form-item-full" label="备注：" prop="remark">
                   <base-input
+                    :disabled="form.returnStatus==='40'"
                     placeholder="请输入"
                     v-model="form.remark"
                     clearable
                     maxlength="1000"
                     type="textarea"
-                    :disabled="form.returnStatus==='40'"
                   />
                 </el-form-item>
                 <el-form-item class="form-item-full" label="签收备注：" prop="signRemark">
                   <base-input
+                    :disabled="form.returnStatus!=='40'"
                     placeholder="请输入"
                     v-model="form.signRemark"
                     clearable
                     maxlength="1000"
                     type="textarea"
-                    :disabled="form.returnStatus!=='40'"
                   />
                 </el-form-item>
               </el-form>
@@ -250,9 +240,6 @@
                 </el-form-item>
                 <el-form-item label="物流单号：">
                   {{ form.logisticsTrackingNo }}
-                </el-form-item>
-                <el-form-item label="是否验收完成：">
-                  {{ form.isChecked == '1' ? '是' : '否' }}
                 </el-form-item>
                 <el-form-item label="签收日期：">
                   {{ form.signReceiveDate }}
@@ -439,7 +426,7 @@ export default {
       const status10 = returnStatus === '10'; // 草稿
       const status20 = returnStatus === '20'; // 待回运
       const status30 = returnStatus === '30'; // 已回运
-      const status40 = returnStatus === '40'; // 已签收
+      // const status40 = returnStatus === '40'; // 已签收
 
       this.rules = {
         dealerCode: [
@@ -481,7 +468,7 @@ export default {
         receiverPhone: [
           { required: status10, message: '请输入收货电话', trigger: 'change' },
           {
-            pattern: /^1[3-9]\d{9}$/,
+            pattern: status10 ? /^1[3-9]\d{9}$/ : '',
             message: '请输入正确的手机号码',
             trigger: 'blur'
           }

@@ -392,6 +392,7 @@ export default {
           this.$refs.dispatchTable.clearCheckboxRow();
           this.selectedRows = [];
           this.$emit('refresh');
+          this.close();
         });
       } catch (error) {
         console.error('派工失败', error);

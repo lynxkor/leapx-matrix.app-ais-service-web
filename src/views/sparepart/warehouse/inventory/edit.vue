@@ -514,6 +514,7 @@ export default {
         this.$set(this.tableData, type, res.records || []);
         this.pagination[type].total = res.total || 0;
       } catch (error) {
+        console.log('Error loading table data:', error);
       }
     },
 
