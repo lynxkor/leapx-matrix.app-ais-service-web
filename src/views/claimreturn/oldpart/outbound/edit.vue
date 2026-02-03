@@ -109,7 +109,8 @@
                     type="datetime"
                     format="yyyy-MM-dd HH:mm"
                     value-format="yyyy-MM-dd HH:mm:ss"
-                    placeholder="请输入">
+                    placeholder="请输入"
+                    clearable>
                   </el-date-picker>
                 </el-form-item>
                 <el-form-item label="预计到达日期：" prop="estimatedArrivalDate">
@@ -118,7 +119,8 @@
                     type="datetime"
                     format="yyyy-MM-dd HH:mm"
                     value-format="yyyy-MM-dd HH:mm:ss"
-                    placeholder="请输入">
+                    placeholder="请输入"
+                    clearable>
                   </el-date-picker>
                 </el-form-item>
                 <el-form-item label="同步状态：" prop="syncStatus">
@@ -360,6 +362,9 @@ export default {
         ],
         outboundType: [
           { required: true, message: '请选择出库类型', trigger: 'change' }
+        ],
+        outboundTime: [
+          { required: true, message: '请选择出库时间', trigger: 'change' }
         ],
       },
       // ------------ 表格

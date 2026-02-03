@@ -272,8 +272,21 @@ export default {
                 id: row.serviceProxyId
               }
             });
-            // 点击事件
+            // BUG: 保修申请单跳转路径未设置
             this.$router.push(`/maintain/sp/serviceProxy/edit?id=${row.serviceProxyId}`);
+          }
+        },
+        {
+          field: 'serviceOrderNo',
+          title: '接车服务单',
+          width: '160',
+          click: (row) => {
+            this.navigateToRoute({
+              path: '/maintain/sp/serviceOrder/edit',
+              query: {
+                id: row.serviceOrderId
+              }
+            });
           }
         },
         {
