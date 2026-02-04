@@ -13,8 +13,8 @@
         :detailRequest="detailRequest"
       >
         <template #extraButtons>
-          <!-- 验收不合格的单子才展示 -->
           <el-button @click="onPrint" size="small">打印标签</el-button>
+          <!-- 验收不合格的单子才展示 -->
           <el-button v-if="canAddOrUpdate && form.oemStatus === '800'" @click="onSecondAcceptance" size="small">二次验收</el-button>
         </template>
         <el-main>
