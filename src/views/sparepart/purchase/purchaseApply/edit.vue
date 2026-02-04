@@ -243,7 +243,7 @@
                 <el-button class="ais-button" size="small">
                   补货预测
                 </el-button>
-                <el-button size="small">备件导入</el-button>
+                <el-button size="small" @click="handleImport" >备件导入</el-button>
               </div>
             </div>
           </section>
@@ -258,6 +258,12 @@
         />
       </div>
     </template>
+    <Upload
+      :visible="uploadDialogVisible"
+      :businessParams="_id"
+      id="sparePartPurchaseApplyDetailImport"
+      @close="handleUploadDialogClose"
+    />
   </edit-page-layout>
 </template>
 
@@ -273,6 +279,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import SparePartsDetail from './SparePartsDetail.vue';
+import Upload from '@/libs/components/UploadDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -336,7 +343,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    SparePartsDetail
+    SparePartsDetail,
+    Upload
   },
   computed: {
     _id () {
@@ -387,6 +395,7 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       detailTitle: '添加备件',
+      uploadDialogVisible: false,
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       rules: {
         purchaseOrderType: [
@@ -527,6 +536,12 @@ export default {
     // 添加备件
     handleAdd () {
       this.openPane();
+    },
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
     }
   }
 };
