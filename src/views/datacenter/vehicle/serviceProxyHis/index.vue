@@ -164,10 +164,32 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          {
+            props: 'dealerName',
+            label: '门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'orderTime', label: '开单时间', visible: true, width: 200 },
           { props: 'repairFinishTime', label: '维修完工时间', visible: true, width: 200 },
-          { props: 'vehProfileVin', label: 'VIN码', visible: true, width: 200 },
+          {
+            props: 'vehProfileVin',
+            label: 'VIN码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'carPlate', label: '车牌号', visible: true, width: 200 },
           { props: 'vehModelName', label: '基本车型', visible: true, width: 200 },
           { props: 'mileage', label: '进店里程数', visible: true, width: 200 },
