@@ -135,6 +135,7 @@
       v-if="activeName === 'homePage'"
     >
       <LPVxeTable
+        :key="1"
         ref="tableRef"
         v-loading="loading"
         is-checkbox
@@ -157,6 +158,7 @@
     >
       <!-- 使用原生表格 先不优化代码 看最后要不要 表格配置 不要再优化 -->
       <vxe-table
+        :key="2"
         ref="tableRefAll"
         :data="optionObjAll.dataList"
         v-loading="loading"
@@ -242,6 +244,7 @@
     >
       <!-- 使用原生表格 先不优化代码 看最后要不要 表格配置 不要再优化 -->
       <vxe-table
+        :key="3"
         ref="tableRefAll"
         :data="optionObjSign.dataList"
         v-loading="loading"

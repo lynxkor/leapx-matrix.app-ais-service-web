@@ -115,6 +115,7 @@
       v-if="activeName === 'homePage'"
     >
       <LPVxeTable
+        :key="1"
         ref="tableRef"
         v-loading="loading"
         is-checkbox
@@ -135,7 +136,7 @@
       class="ais-table-c"
       v-if="activeName === 'outOfStock'"
     >
-    <vxe-table
+    <!-- <vxe-table
         ref="tableRefAll"
         :data="optionObjStock.dataList"
         v-loading="loading"
@@ -180,8 +181,8 @@
         <vxe-column title="备注" field="remark" width="200"></vxe-column>
         <vxe-column title="创建时间" field="createTime" width="200"></vxe-column>
         <vxe-column title="修改时间" field="updateTime" width="200"></vxe-column>
-      </vxe-table>
-      <div class="table-pagination">
+    </vxe-table>
+    <div class="table-pagination">
           <el-pagination
               @size-change="(val) => pageSizeChange(val)"
               @current-change="(val) => currentPageChange(val)"
@@ -192,9 +193,10 @@
               :total="optionObjStock.total"
           >
           </el-pagination>
-      </div>
-      <!-- <LPVxeTable
-        ref="tableRef"
+    </div> -->
+    <LPVxeTable
+        :key="2"
+        ref="tableRefStock"
         v-loading="loading"
         is-checkbox
         is-page
@@ -208,7 +210,7 @@
         @listSelect="handleListSelect"
       >
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
-      </LPVxeTable> -->
+      </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
     <Upload
@@ -517,27 +519,22 @@ export default {
       return tableAddOrUpdate(data);
     },
     paginationChange (type, num) {
-      if (type === 'page') {
-        this.optionObj.form.page = num;
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
       } else {
-        this.optionObj.form.size = num;
+        optionObj = this.optionObjStock;
       }
-      this.debouncedGetData();
-    },
-    pageSizeChange (num) {
-      this.optionObjStock.form.size = num;
-      this.debouncedGetData();
-    },
-    currentPageChange (num) {
-      this.optionObjStock.form.page = num;
+      if (type === 'page') {
+        optionObj.form.page = num;
+      } else {
+        optionObj.form.size = num;
+      }
       this.debouncedGetData();
     },
     // 多选框选中数据
     handleSelectionChange (selection) {
       this.selectionList = selection;
-    },
-    handleSelectionChangeBatch ({ records }) {
-      this.selectionList = records;
     },
     getFormData () {
       const data = { ...this.form };
