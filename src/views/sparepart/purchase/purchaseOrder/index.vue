@@ -119,9 +119,9 @@
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button> -->
-      <el-button v-if="activeName === 'allSpareParts'" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">提交索赔</el-button>
-      <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchEnable" :disabled="selectionList.length === 0">批量签收</el-button>
-      <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchEnable" :disabled="selectionList.length === 0">签收并入库</el-button>
+      <el-button v-if="activeName === 'allSpareParts'" size="small" @click="handleBatchClaim" :disabled="selectionList.length === 0">提交索赔</el-button>
+      <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchSignFor(false)" :disabled="selectionList.length === 0">批量签收</el-button>
+      <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchSignFor(true)" :disabled="selectionList.length === 0">签收并入库</el-button>
     </div>
     <div class="ais-tabs">
       <el-tabs v-model="activeName" @tab-click="handleClick">
@@ -169,8 +169,8 @@
         max-height="600px"
         width="1000px"
         :checkbox-config="{ checkField: 'checked' }"
-        @checkbox-change="handleSelectionChange"
-        @checkbox-all="handleSelectionChange"
+        @checkbox-change="handleSelectionChangeBatch"
+        @checkbox-all="handleSelectionChangeBatch"
       >
         <vxe-column type="checkbox" width="60" align="center" />
         <vxe-column title="采购订单号" field="purchaseOrderCode" width="200">
@@ -185,8 +185,8 @@
         </vxe-column>
         <vxe-column title="门店编码" field="dealerCode" width="200"></vxe-column>
         <vxe-column title="门店名称" field="dealerName" width="200"></vxe-column>
-        <vxe-column title="备件编码" field="dealerName" width="200"></vxe-column>
-        <vxe-column title="备件名称" field="dealerName" width="200"></vxe-column>
+        <vxe-column title="备件编码" field="partCode" width="200"></vxe-column>
+        <vxe-column title="备件名称" field="partName" width="200"></vxe-column>
         <vxe-column title="结算数量" field="settlementQty" width="200"></vxe-column>
         <vxe-column title="取消数量" field="cancelQty" width="200"></vxe-column>
         <vxe-column title="已发运数" field="outboundQty" width="200"></vxe-column>
@@ -204,7 +204,7 @@
         <vxe-column title="修改时间" field="updateTime" width="200"></vxe-column>
         <vxe-column title="操作" width="120" fixed="right">
           <template #default="{ row }">
-            <div class="action-button btn-edit" @click="handleAdd(row)">提交索赔</div>
+            <div class="action-button btn-edit" @click="handleClaim(row)">提交索赔</div>
           </template>
         </vxe-column>
       </vxe-table>
@@ -254,8 +254,8 @@
         max-height="600px"
         width="1000px"
         :checkbox-config="{ checkField: 'checked' }"
-        @checkbox-change="handleSelectionChange"
-        @checkbox-all="handleSelectionChange"
+        @checkbox-change="handleSelectionChangeBatch"
+        @checkbox-all="handleSelectionChangeBatch"
       >
         <vxe-column type="checkbox" width="60" align="center" />
         <vxe-column title="采购订单号" field="purchaseOrderCode" width="200">
@@ -283,18 +283,8 @@
         <vxe-column title="修改时间" field="updateTime" width="200"></vxe-column>
         <vxe-column title="操作" width="150" fixed="right">
           <template #default="{ row }">
-            <el-popconfirm
-                title="确定签收此备件吗？"
-                @confirm="handleSignFor(row)"
-              >
-                <span
-                  class="action-button btn-edit"
-                  slot="reference"
-                  type="text">
-                  签收
-                </span>
-              </el-popconfirm>
-            <div class="action-button btn-edit" @click="handleAdd(row)">签收并入库</div>
+            <div class="action-button btn-edit" @click="handleSignFor(row, false)">签收</div>
+            <div class="action-button btn-edit" @click="handleSignFor(row, true)">签收并入库</div>
           </template>
         </vxe-column>
       </vxe-table>
@@ -332,6 +322,31 @@
       :id="'1'"
       @close="handleUploadDialogClose"
     />
+    <!-- 签收  签收/并入库弹窗 -->
+    <SignForDialog
+      ref="signForDialogRef"
+      :visible="signDialogVisible"
+      :signForForm="signForm"
+      @close="handleSignDialogClose"
+      @submit="handleSignForSubmit"
+    />
+    <!-- 批量签收  签收/入库弹窗 -->
+    <BatchSignForDialogAll
+      ref="batchSignForDialogRef"
+      :visible="batchSignDialogVisible"
+      :batchForm="batchForm"
+      :inbound="inbound"
+      @close="handleBatchSignDialogClose"
+      @submit="handleBatchSignForSubmit"
+    />
+    <!-- 提交索赔 -->
+    <SubmitClaimDialog
+      ref="submitClaimDialogRef"
+      :visible="submitClaimDialogVisible"
+      :claimList="selectionClaim"
+      @close="handleSubmitClaimDialogClose"
+      @submit="handleSubmitClaimSubmit"
+    />
   </div>
 </template>
 
@@ -339,7 +354,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, pageAll, pageWaitSign, batchSign } from '@/api/sparepart/purchase/purchaseOrder/index';
+import { getList, deleteItem, enableItem, pageAll, pageWaitSign } from '@/api/sparepart/purchase/purchaseOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -350,6 +365,9 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
+import SignForDialog from './SignForDialogAll.vue';
+import BatchSignForDialogAll from './BatchSignForDialogAll.vue';
+import SubmitClaimDialog from './SubmitClaimDialog.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -383,7 +401,10 @@ export default {
     Upload,
     TagInput,
     LPVxeTable,
-    EditPage
+    EditPage,
+    SignForDialog,
+    BatchSignForDialogAll,
+    SubmitClaimDialog
   },
   data () {
     return {
@@ -401,6 +422,13 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      signDialogVisible: false, // 签收弹窗
+      signForm: {}, // 签收/入库
+      batchSignDialogVisible: false, // 批量签收/入库弹窗
+      inbound: false, // 批量签收/入库
+      batchForm: [], // 批量签收/入库
+      submitClaimDialogVisible: false, // 提交索赔弹窗
+      selectionClaim: [], // 选中的采购订单
       clickItemId: '',
       optionObj: {
         id: 'purchaseOrderTable',
@@ -459,43 +487,6 @@ export default {
           { props: 'rebateAmount', label: '使用返利', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-          {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
-            visible: true,
-            fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/purchase/purchaseOrder/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
-            }]
-          }
         ],
         total: 0
       },
@@ -809,6 +800,10 @@ export default {
     handleSelectionChange (selection) {
       this.selectionList = selection;
     },
+    // 批量签收 批量签收入库  提交索赔
+    handleSelectionChangeBatch ({ records }) {
+      this.selectionList = records;
+    },
     getFormData () {
       const data = { ...this.form };
 
@@ -904,8 +899,54 @@ export default {
       }
       this.getData();
     },
-    // 签收
-    // 签收并入库
+    // 签收  签收并入库
+    handleSignFor (val, type) {
+      this.signForm = {
+        purchaseOrderId: val.purchaseOrderId,
+        inbound: type
+      };
+      this.signDialogVisible = true;
+    },
+    handleSignDialogClose () {
+      this.signDialogVisible = false;
+    },
+    handleSignForSubmit () {
+      this.signDialogVisible = false;
+      this.getData();
+    },
+    // 批量签收  批量并入库
+    handleBatchSignFor (type) {
+      this.batchForm = this.selectionList.map(item => ({
+        purchaseOrderId: item.purchaseOrderId,
+      }));
+      this.inbound = type;
+      this.batchSignDialogVisible = true;
+    },
+    handleBatchSignDialogClose () {
+      this.batchSignDialogVisible = false;
+    },
+    handleBatchSignForSubmit () {
+      this.batchSignDialogVisible = false;
+      this.selectionList = [];
+      this.getData();
+    },
+    // 提交索赔
+    handleClaim (row) {
+      this.selectionClaim = [row] || [];
+      this.submitClaimDialogVisible = true;
+    },
+    handleBatchClaim () {
+      this.selectionClaim = this.selectionList;
+      this.submitClaimDialogVisible = true;
+    },
+    handleSubmitClaimDialogClose () {
+      this.submitClaimDialogVisible = false;
+    },
+    handleSubmitClaimSubmit () {
+      this.submitClaimDialogVisible = false;
+      this.selectionList = [];
+      this.getData();
+    }
   }
 };
 </script>

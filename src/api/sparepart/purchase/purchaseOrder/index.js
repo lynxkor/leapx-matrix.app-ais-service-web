@@ -75,3 +75,11 @@ export function pageWaitSign (data) {
 export function batchSign (data) {
   return api.jsonPost('sp/web/purchase/purchaseOrder/batchSign', data);
 }
+
+/**
+ * 提交索赔
+ * @param {Object} data
+ */
+export function purchaseOrderClaim (data) {
+  return api.jsonPost('sp/web/purchase/purchaseOrder/claim', data);
+}
