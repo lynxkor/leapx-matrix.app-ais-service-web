@@ -226,7 +226,7 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '{{description}}：' + this.form[{{key}}]
+      return '标题xxx'
     }
   },
   watch: {
@@ -304,17 +304,17 @@ export default {
       rules: {
       {{#each cols}}
       {{#if isDate}}
-        '{{key}}': [
+        {{key}}: [
           { required: true, message: '请选择{{description}}', trigger: 'change' }
         ],
       {{/if}}
       {{#if isSelect}}
-        '{{key}}': [
+        {{key}}: [
           { required: true, message: '请选择{{description}}', trigger: 'change' }
         ],
       {{/if}}
       {{#if isNormal}}
-        '{{key}}': [
+        {{key}}: [
           { required: true, message: '请输入{{description}}', trigger: 'change' }
         ],
       {{/if}}
