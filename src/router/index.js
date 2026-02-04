@@ -23,7 +23,7 @@ const routes = [
     name: '404',
     meta: {
       name: '404',
-      requiresAuth: true,
+      requiresAuth: false,
       noResourceUrl: true
     },
     component: () => import('@/views/404.vue')
@@ -1734,10 +1734,10 @@ export function getRouter () {
       // if (true) {
         next();
       } else {
-        // window.alert('你没有访问该页面的权限');
+        window.alert('你没有访问该页面的权限');
         if (store.state.user.token) {
           next({
-            path: '/home'
+            path: '/404'
           });
         } else {
           toLoginPage(to, next);
