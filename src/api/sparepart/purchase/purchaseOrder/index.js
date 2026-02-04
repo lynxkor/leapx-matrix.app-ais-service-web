@@ -51,3 +51,27 @@ export function enableItem (data) {
 export function purchaseOrderDetail (data) {
   return api.jsonPost('sp/web/purchase/purchaseOrderDetail/page', data);
 }
+
+/**
+ * 备件采购订单-全部备件
+ * @param {Object} data
+ */
+export function pageAll (data) {
+  return api.jsonPost('sp/web/purchase/purchaseOrderDetail/pageAll', data);
+}
+
+/**
+ * 备件采购订单-待签收备件
+ * @param {Object} data
+ */
+export function pageWaitSign (data) {
+  return api.jsonPost('sp/web/purchase/purchaseOrderDetail/pageWaitSign', data);
+}
+
+/**
+ * 批量签收/入库
+ * @param {Object} data
+ */
+export function batchSign (data) {
+  return api.jsonPost('sp/web/purchase/purchaseOrder/batchSign', data);
+}

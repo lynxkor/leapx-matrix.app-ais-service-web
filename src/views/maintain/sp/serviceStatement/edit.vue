@@ -64,9 +64,9 @@
                 <el-form-item label="负责人：" prop="serviceOwnerId">
                   <el-input placeholder="请输入" v-model="form.serviceOwnerId" disabled clearable />
                 </el-form-item>
-                <el-form-item label="支付方式：" prop="payType">
-                  <el-input placeholder="请输入" v-model="form.payType" disabled clearable />
-                  <!-- <fetch-select :request="fetchOptions" enumCode="xxx" v-model="form.payType" placeholder="请选择" disabled
+                <el-form-item label="支付方式：" prop="payTypeLabel">
+                  <el-input placeholder="请输入" v-model="form.payTypeLabel" disabled clearable />
+                  <!-- <fetch-select :request="fetchOptions" enumCode="xxx" v-model="form.payTypeLabel" placeholder="请选择" disabled
                     clearable filterable /> -->
                 </el-form-item>
                 <el-form-item label="保修类型（汇总）：" prop="warrantyTypeCollect">

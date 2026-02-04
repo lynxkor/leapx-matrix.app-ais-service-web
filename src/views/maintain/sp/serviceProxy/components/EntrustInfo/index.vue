@@ -35,15 +35,7 @@
           />
         </el-form-item>
         <el-form-item label="是否已生成结算单：" prop="isCreateStatementInfo">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="StatusEnum"
-            v-model="form.isCreateStatementInfo"
-            placeholder="请选择"
-            clearable
-            filterable
-            disabled
-          />
+          <el-switch :active-value="1" :inactive-value="0" v-model="form.isCreateStatementInfo" disabled/>
         </el-form-item>
         <el-form-item label="预计交车时间：" prop="expectFinishAt">
           <el-date-picker
@@ -58,7 +50,7 @@
         <el-form-item label="是否直播：" prop="isLive">
           <el-input
             placeholder="请输入"
-            v-model="form.isLive"
+            v-model="form.isLiveLabel"
             clearable
             disabled
           />
@@ -85,15 +77,11 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="是否返修：" prop="haveRework">
-          <el-input
-            placeholder="请输入"
-            v-model="form.haveRework"
-            clearable
-          />
+        <el-form-item label="是否返修：" prop="isRetainOldPartsLabel">
+          <el-switch :active-value="1" :inactive-value="0" v-model="form.isRetainOldPartsLabel"/>
         </el-form-item>
         <el-form-item label="是否洗车：" prop="isCarWash">
-          <el-switch active-value="1" inactive-value="0" v-model="form.isCarWash" />
+          <el-switch :active-value="1" :inactive-value="0" v-model="form.isCarWash" />
         </el-form-item>
         <el-form-item label="制单完成时间：" prop="confirmedOn">
           <el-date-picker
@@ -109,12 +97,13 @@
         <el-form-item label="是否需要提报预授权：" prop="isPreAuth">
           <el-input
             placeholder="请输入"
-            v-model="form.isPreAuth"
+            v-model="form.isPreAuthLabel"
             clearable
+            disabled
           />
         </el-form-item>
         <el-form-item label="是否保留旧件：" prop="isRetainOldParts">
-          <el-switch active-value="1" inactive-value="0" v-model="form.isRetainOldParts" />
+          <el-switch :active-value="1" :inactive-value="0" v-model="form.isRetainOldParts" />
         </el-form-item>
         <el-form-item label="计划作业时间：" prop="expectStartAt">
           <el-date-picker
@@ -127,10 +116,10 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="是否已经生成预授权：" prop="isPreAuth">
+        <el-form-item label="是否已经生成预授权：" prop="isCreatePreAuthLabel">
           <el-input
             placeholder="请输入"
-            v-model="form.isPreAuth"
+            v-model="form.isCreatePreAuthLabel"
             clearable
             disabled
           />
@@ -146,10 +135,10 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="预授权信息：" prop="preAuthId">
+        <el-form-item label="预授权信息：" prop="preAuthTypeLabel">
           <el-input
             placeholder="请输入"
-            v-model="form.preAuthId"
+            v-model="form.preAuthTypeLabel"
             clearable
             disabled
           />
@@ -165,10 +154,10 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="客户反馈故障是否全部解决：" prop="faultSolve">
+        <el-form-item label="客户反馈故障是否全部解决：" prop="faultSolveLabel">
           <el-input
             placeholder="请输入"
-            v-model="form.faultSolve"
+            v-model="form.faultSolveLabel"
             clearable
             disabled
           />
@@ -181,10 +170,10 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="本次进店情况（周期内）：" prop="currentSituation">
+        <el-form-item label="本次进店情况（周期内）：" prop="currentSituationLabel">
           <el-input
             placeholder="请输入"
-            v-model="form.currentSituation"
+            v-model="form.currentSituationLabel"
             clearable
             disabled
           />
@@ -282,20 +271,20 @@
         <el-form-item label="维修类型（汇总）：" prop="repairItemTypeDetailCollect">
           {{ form.repairItemTypeDetailCollect }}
         </el-form-item>
-        <el-form-item label="业务类型：" prop="businessType">
-          {{ form.businessType }}
+        <el-form-item label="业务类型：" prop="businessTypeLabel">
+          {{ form.businessTypeLabel }}
         </el-form-item>
-        <el-form-item label="三包预警：" prop="alarmLevel">
-          {{ form.alarmLevel }}
+        <el-form-item label="三包预警：" prop="alarmLevelLabel">
+          {{ form.alarmLevelLabel }}
         </el-form-item>
-        <el-form-item label="是否已生成结算单：" prop="isCreateStatementInfo">
-          {{ form.isCreateStatementInfo }}
+        <el-form-item label="是否已生成结算单：" prop="isCreateStatementInfoLabel">
+          {{ form.isCreateStatementInfoLabel }}
         </el-form-item>
         <el-form-item label="预计交车时间：" prop="expectFinishAt">
           {{ form.expectFinishAt }}
         </el-form-item>
-        <el-form-item label="是否直播：" prop="isLive">
-          {{ form.isLive }}
+        <el-form-item label="是否直播：" prop="isLiveLabel">
+          {{ form.isLiveLabel }}
         </el-form-item>
         <el-form-item label="预检完成时间：" prop="previewingFinishAt">
           {{ form.previewingFinishAt }}
@@ -312,35 +301,35 @@
         <el-form-item label="制单完成时间：" prop="confirmedOn">
           {{ form.confirmedOn }}
         </el-form-item>
-        <el-form-item label="是否需要提报预授权：" prop="isPreAuth">
-          {{ form.isPreAuth }}
+        <el-form-item label="是否需要提报预授权：" prop="isPreAuthLabel">
+          {{ form.isPreAuthLabel }}
         </el-form-item>
-        <el-form-item label="是否保留旧件：" prop="isRetainOldParts">
-          {{ form.isRetainOldParts }}
+        <el-form-item label="是否保留旧件：" prop="isRetainOldPartsLabel">
+          {{ form.isRetainOldPartsLabel }}
         </el-form-item>
         <el-form-item label="计划作业时间：" prop="expectStartAt">
           {{ form.expectStartAt }}
         </el-form-item>
-        <el-form-item label="是否已经生成预授权：" prop="isPreAuth">
-          {{ form.isPreAuth }}
+        <el-form-item label="是否已经生成预授权：" prop="isCreatePreAuthLabel">
+          {{ form.isCreatePreAuthLabel }}
         </el-form-item>
         <el-form-item label="实际作业时间：" prop="startAt">
           {{ form.startAt }}
         </el-form-item>
-        <el-form-item label="预授权信息：" prop="preAuthId">
-          {{ form.preAuthId }}
+        <el-form-item label="预授权信息：" prop="preAuthTypeLabel">
+          {{ form.preAuthTypeLabel }}
         </el-form-item>
         <el-form-item label="完成作业时间：" prop="finishAt">
           {{ form.finishAt }}
         </el-form-item>
-        <el-form-item label="客户反馈故障是否全部解决：" prop="faultSolve">
-          {{ form.faultSolve }}
+        <el-form-item label="客户反馈故障是否全部解决：" prop="faultSolveLabel">
+          {{ form.faultSolveLabel }}
         </el-form-item>
         <el-form-item label="未解决问题原因：" prop="unresolvedReason">
           {{ form.unresolvedReason }}
         </el-form-item>
-        <el-form-item label="本次进店情况（周期内）：" prop="currentSituation">
-          {{ form.currentSituation }}
+        <el-form-item label="本次进店情况（周期内）：" prop="currentSituationLabel">
+          {{ form.currentSituationLabel }}
         </el-form-item>
         <el-form-item label="原因说明：" prop="faultDesc">
           {{ form.faultDesc }}
