@@ -172,13 +172,13 @@
         @checkbox-change="handleSelectionChangeBatch"
         @checkbox-all="handleSelectionChangeBatch"
       >
-        <vxe-column type="checkbox" width="60" align="center" />
-        <vxe-column title="采购订单号" field="purchaseOrderCode" width="200">
+        <vxe-column type="checkbox" fixed="left" width="60" align="center" />
+        <vxe-column title="采购订单号" fixed="left" field="purchaseOrderCode" width="200">
           <template #default="{ row }">
             <div class="action-button btn-link" @click="handleJump('/sparepart/purchase/purchaseOrder/edit', row.id)">{{ row.purchaseOrderCode }}</div>
           </template>
         </vxe-column>
-        <vxe-column title="采购申请单" field="purchaseApplyCode" width="200">
+        <vxe-column title="采购申请单" fixed="left" field="purchaseApplyCode" width="200">
           <template #default="{ row }">
             <div class="action-button btn-link" @click="handleJump('/sparepart/purchase/purchaseApply/edit', row.purchaseApplyId)">{{ row.purchaseApplyCode }}</div>
           </template>
@@ -257,13 +257,13 @@
         @checkbox-change="handleSelectionChangeBatch"
         @checkbox-all="handleSelectionChangeBatch"
       >
-        <vxe-column type="checkbox" width="60" align="center" />
-        <vxe-column title="采购订单号" field="purchaseOrderCode" width="200">
+        <vxe-column type="checkbox" fixed="left" width="60" align="center" />
+        <vxe-column title="采购订单号" fixed="left" field="purchaseOrderCode" width="200">
           <template #default="{ row }">
             <div class="action-button btn-link" @click="handleJump('/sparepart/purchase/purchaseOrder/edit', row.id)">{{ row.purchaseOrderCode }}</div>
           </template>
         </vxe-column>
-        <vxe-column title="采购申请单" field="purchaseApplyCode" width="200">
+        <vxe-column title="采购申请单" fixed="left" field="purchaseApplyCode" width="200">
           <template #default="{ row }">
             <div class="action-button btn-link" @click="handleJump('/sparepart/purchase/purchaseApply/edit', row.purchaseApplyId)">{{ row.purchaseApplyCode }}</div>
           </template>
