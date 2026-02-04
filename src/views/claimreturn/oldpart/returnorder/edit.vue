@@ -466,9 +466,9 @@ export default {
           { required: status20, message: '请选择预计到达日期', trigger: 'change' }
         ],
         receiverPhone: [
-          { required: status10, message: '请输入收货电话', trigger: 'change' },
+          { required: true, message: '请输入收货电话', trigger: 'change' },
           {
-            pattern: status10 ? /^1[3-9]\d{9}$/ : '',
+            pattern: /^1[3-9]\d{9}$/,
             message: '请输入正确的手机号码',
             trigger: 'blur'
           }

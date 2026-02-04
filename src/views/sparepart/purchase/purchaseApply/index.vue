@@ -302,7 +302,7 @@ export default {
         ...defaultForm
       },
       isPartOrder: null, // 是否有备附件订购能力
-      dealerAccountFlag: null, // 是否门店
+      accountFlag: null, // 是否门店
       currentDealerCode: null, // 当前门店code
       currentDealerName: null, // 当前门店名称
       selectionList: [],
@@ -447,17 +447,17 @@ export default {
   },
   methods: {
     async initDealerUser () {
-      // 查询是否厂端
+      // 查询是否店端
       const res = await getLoginUser();
-      this.dealerAccountFlag = res.dealerAccountFlag;
+      this.accountFlag = res.accountFlag;
       this.currentDealerCode = res.currentDealerCode;// 当前门店code
       this.currentDealerName = res.currentDealerName;// 当前门店名称
-      console.log(this.dealerAccountFlag);
-      if (this.dealerAccountFlag === true) {
+
+      if (this.accountFlag === true) {
         const res = await getPartDealer({ code: this.currentDealerCode });
         this.isPartOrder = res.isPartOrder;
       }
-      if (this.dealerAccountFlag === false) {
+      if (this.accountFlag === false) {
         this.isPartOrder = true;
       }
     },

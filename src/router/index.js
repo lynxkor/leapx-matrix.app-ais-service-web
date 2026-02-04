@@ -1686,6 +1686,15 @@ const routes = [
         name: '备件返利扣款管理详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/purchase/backOrderReport',
+      name: 'backOrderReport',
+      component: () => import('@/views/sparepart/purchase/backOrderReport/index.vue'),
+
+      meta: {
+        name: '备件缺货看板',
+        keepAlive: true
+      }
     }]
   }
 ];

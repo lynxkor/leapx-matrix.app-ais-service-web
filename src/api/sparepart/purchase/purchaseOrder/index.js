@@ -3,6 +3,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/purchase/purchaseOrder/';
+const prefixDetail = SPARE_PREFIX + '/web/purchase/purchaseOrderDetail/';
 
 /**
  * 查询列表
@@ -49,7 +50,7 @@ export function enableItem (data) {
  * @param {Object} data
  */
 export function purchaseOrderDetail (data) {
-  return api.jsonPost('sp/web/purchase/purchaseOrderDetail/page', data);
+  return api.jsonPost(prefixDetail + 'page', data);
 }
 
 /**
