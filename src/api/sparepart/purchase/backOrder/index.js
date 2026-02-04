@@ -51,3 +51,11 @@ export function enableItem (data) {
 export function getBackOrderDetailList (data) {
   return api.jsonPost('sp/web/purchase/backOrderDetail/page', data);
 }
+
+/**
+ * 备件缺货明看板
+ * @param {Object} data
+ */
+export function reportPage (data) {
+  return api.jsonPost('sp/web/purchase/backOrderDetail/reportPage', data);
+}

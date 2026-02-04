@@ -11,13 +11,12 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
-        <template #status>
-          <!-- 支持primary,warning,success,danger等状态 -->
+        <!-- <template #status>
           <span class="status primary">状态</span>
         </template>
+         -->
         <template #extraButtons>
-          <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button>
+          <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -26,12 +25,13 @@
             </div>
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="180px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="保养零件代码：" prop="code">
                   <el-input
                     placeholder="请输入"
                     v-model="form.code"
                     clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="保养零件名称：" prop="name">
@@ -44,139 +44,43 @@
                 <el-form-item label="里程类型：" prop="mileageType">
                   <fetch-select
                     :request="fetchOptions"
-                    enumCode="xxx"
+                    enumCode="MileageTypeEnum"
                     v-model="form.mileageType"
                     placeholder="请选择"
                     clearable
                     filterable
                   />
                 </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.status"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="首次保养里程：" prop="firstServiceMileage">
+                <el-form-item label="首次保养里程(KM)：" prop="firstServiceMileage">
                   <el-input
                     placeholder="请输入"
                     v-model="form.firstServiceMileage"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="首次保养时间：" prop="firstServiceMonth">
+                <el-form-item label="首次保养时间(月)：" prop="firstServiceMonth">
                   <el-input
                     placeholder="请输入"
                     v-model="form.firstServiceMonth"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="定期保养里程间隔：" prop="mileageInterval">
+                <el-form-item label="定期保养里程间隔(KM)：" prop="mileageInterval">
                   <el-input
                     placeholder="请输入"
                     v-model="form.mileageInterval"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="定期保养时间间隔：" prop="monthInterval">
+                <el-form-item label="定期保养时间间隔(月)：" prop="monthInterval">
                   <el-input
                     placeholder="请输入"
                     v-model="form.monthInterval"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.id"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creator"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creatorName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.createTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifier"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifierName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.updateTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statusDesc"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="保养零件清单：" prop="partsList">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.partsList"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="保养零件适配车型：" prop="vehModelList">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vehModelList"
-                    clearable
-                  />
-                </el-form-item>
               </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form label-width="180px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="保养零件代码：" prop="code">
                   {{ form.code }}
                 </el-form-item>
@@ -186,77 +90,113 @@
                 <el-form-item label="里程类型：" prop="mileageType">
                   {{ form.mileageType }}
                 </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  {{ form.status }}
-                </el-form-item>
-                <el-form-item label="首次保养里程：" prop="firstServiceMileage">
+                <el-form-item label="首次保养里程(KM)：" prop="firstServiceMileage">
                   {{ form.firstServiceMileage }}
                 </el-form-item>
-                <el-form-item label="首次保养时间：" prop="firstServiceMonth">
+                <el-form-item label="首次保养时间(月)：" prop="firstServiceMonth">
                   {{ form.firstServiceMonth }}
                 </el-form-item>
-                <el-form-item label="定期保养里程间隔：" prop="mileageInterval">
+                <el-form-item label="定期保养里程间隔(KM)：" prop="mileageInterval">
                   {{ form.mileageInterval }}
                 </el-form-item>
-                <el-form-item label="定期保养时间间隔：" prop="monthInterval">
+                <el-form-item label="定期保养时间间隔(月)：" prop="monthInterval">
                   {{ form.monthInterval }}
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  {{ form.createTime }}
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  {{ form.modifierName }}
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  {{ form.updateTime }}
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  {{ form.statusDesc }}
-                </el-form-item>
-                <el-form-item label="保养零件清单：" prop="partsList">
-                  {{ form.partsList }}
-                </el-form-item>
-                <el-form-item label="保养零件适配车型：" prop="vehModelList">
-                  {{ form.vehModelList }}
                 </el-form-item>
               </el-form>
             </div>
           </section>
-          <section class="common-section">
+          <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>区块标题</h2>
-              <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              <h2>保养零件清单</h2>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-header">
+                <div class="ais-select-group">
+                  <fetch-select
+                    ref="partSelectRef"
+                    style="width: 300px;"
+                    :remote-method="querySpareParts"
+                    remote
+                    placeholder="请选择零件"
+                    clearable
+                    filterable
+                    value-key="id"
+                    label-key="partName"
+                    @change="handlePartSelect"
+                  />
+                  <el-button
+                    type="primary"
+                    size="small"
+                  >
+                    添加
+                  </el-button>
+                </div>
+              </div>
+              <div class="common-section-table">
+                <vxe-table
+                  ref="tablePj"
+                  stripe
+                  :data="tableDataPj"
+                  show-overflow
+                  resizable
+                  border="inner"
+                  size="medium"
+                  min-height="0"
+                  max-height="400px"
+                >
+                  <vxe-column field="partsName" title="零件名称" min-width="30%" />
+                  <vxe-column field="partsCode" title="零件代码" min-width="30%" />
+                  <vxe-column field="createTime" title="创建时间" min-width="30%" />
+                  <vxe-column title="操作" width="100" v-if="canDelete">
+                    <template #default="{ rowIndex }">
+                      <el-popconfirm title="确定要删除该零件吗？" @confirm="handleDeletePartRow(rowIndex)">
+                        <span slot="reference" type="text" size="small" :class="['btn-delete']">删除</span>
+                      </el-popconfirm>
+                    </template>
+                  </vxe-column>
+                  <template #empty>
+                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
+                  </template>
+                </vxe-table>
+              </div>
+            </div>
+          </section>
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>适配车型&nbsp;<el-button type="primary" size="small" @click="modelDialogVisible = true">添加</el-button></h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
-                <edit-table
-                  ref="editTable"
-                  :columns="columns"
-                  :data="tableData"
-                  :defaultNewRow="defaultNewRow"
-                  :show-toolbar="false"
-                  :options="options"
-                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
-                />
+                <vxe-table
+                  ref="tableCx"
+                  stripe
+                  :data="tableDataCx"
+                  show-overflow
+                  resizable
+                  border="inner"
+                  size="medium"
+                  min-height="0"
+                  max-height="400px"
+                >
+                  <vxe-column field="vehModelName" title="车型" min-width="30%" />
+                  <vxe-column field="vehYearTypeName" title="年款" min-width="30%" />
+                  <vxe-column field="createTime" title="创建时间" min-width="30%" />
+                   <vxe-column title="操作" width="100" v-if="canDelete">
+                    <template #default="{rowIndex}">
+                      <el-popconfirm title="确定要删除该适配车型吗？" @confirm="handleDeleteModelRow(rowIndex)">
+                        <span slot="reference" type="text" size="small" :class="['btn-delete']">删除</span>
+                      </el-popconfirm>
+                    </template>
+                  </vxe-column>
+                  <template #empty>
+                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
+                  </template>
+                </vxe-table>
               </div>
             </div>
           </section>
         </el-main>
+        <ModelDialog :visible="modelDialogVisible" :info="form" @submit="handleVehicleModelSubmit" @close="handleCloseModel" />
       </edit-base-container>
     </template>
     <template #right>
@@ -268,15 +208,15 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/maintain/basic/maintenancePartData/index';
+import { getDetail, addOrUpdate, deletePartItem, addPartItem, addPartVehModel, deletePartVehModel } from '@/api/maintain/basic/maintenancePartData/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
+import { getEnum, sparePartList } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import ModelDialog from './components/AddVehicleDialog/index.vue';
 import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
@@ -298,8 +238,8 @@ const defaultForm = {
   updateTime: '',
   remark: '',
   statusDesc: '',
-  partsList: '',
-  vehModelList: '',
+  partsList: [],
+  vehModelList: [],
 };
 
 export default {
@@ -315,12 +255,15 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    EditTable,
-    FetchSelect
+    FetchSelect,
+    ModelDialog
   },
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
+    },
+    title () {
+      return '保养零件代码：' + this.form.code;
     }
   },
   watch: {
@@ -338,7 +281,6 @@ export default {
     return {
       pageTitle: '保养零件提醒表管理',
       pageType: 'edit',
-      title: '保养零件代码：' + form.code,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-maintenancePartData',
       loading: false,
@@ -346,55 +288,22 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      defaultNewRow: {
-        name: '',
-      },
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
-      // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
-      columns: [
-        {
-          field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
-        },
-        {
-          field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
-        },
-        {
-          field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
-        },
-      ],
+      // 适配车型
+      tableDataCx: [],
+      emptyText: '若要启用此内容，请创建记录',
+      // 保养零件清单
+      tableDataPj: [],
+      modelData: [], // 车型信息
+      modelDialogVisible: false, // 适配车型弹窗
       rules: {
         code: [
-          { required: true, message: '请输入保养零件代码', trigger: 'change' }
+          { required: false, message: '请输入保养零件代码', trigger: 'change' }
         ],
         name: [
           { required: true, message: '请输入保养零件名称', trigger: 'change' }
         ],
         mileageType: [
           { required: true, message: '请选择里程类型', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
         ],
         firstServiceMileage: [
           { required: true, message: '请输入首次保养里程', trigger: 'change' }
@@ -408,39 +317,6 @@ export default {
         monthInterval: [
           { required: true, message: '请输入定期保养时间间隔', trigger: 'change' }
         ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        partsList: [
-          { required: true, message: '请输入保养零件清单', trigger: 'change' }
-        ],
-        vehModelList: [
-          { required: true, message: '请输入保养零件适配车型', trigger: 'change' }
-        ],
       }
     };
   },
@@ -450,29 +326,83 @@ export default {
     detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id);
+        return getDetail(id).then(res => {
+          // 加载适配车型和零件清单数据
+          this.tableDataCx = res.vehModelList || [];
+          this.tableDataPj = res.partsList || [];
+          return res;
+        });
       }
     },
     submitRequest () {
-      return addOrUpdate({ ...this.form });
+      addOrUpdate({
+        ...this.form,
+        vehModelList: this.tableDataCx,
+        partsList: this.tableDataPj
+      }).then(result => {
+        this.$message.success('保存成功');
+      }).catch(() => {});
     },
-    // 打开侧边栏
-    openPane () {
-      this.$refs.editLayout.openPane();
+    // 添加零件
+    handleAddPart (record) {
+      if (!record) {
+        this.$message.warning('请先选择零件');
+        return;
+      }
+      // 检查是否已存在
+      const exists = this.tableDataPj.some(item => item.partCode === record.partCode);
+      if (exists) {
+        this.$message.warning('该零件已添加');
+        return;
+      }
+      addPartItem({
+        maintenancePartId: this._id,
+        partsCode: record.partCode,
+        partsName: record.partName,
+        partsId: record.id,
+      }).then(res => {
+        this.$message.success('添加成功');
+        this.detailRequest();
+      });
     },
-    // 详情表格相关数据
-    handleAddRow () {
-      // 通过引用直接调用子组件方法
-      this.$refs.editTable.addRow();
+    // 零件选择变更
+    handlePartSelect (val, record) {
+      this.handleAddPart(record);
     },
-    handleSaveTable (data) {
-      // 调用保存方法并处理结果
-      return new Promise((resolve, reject) => {
-        this.$refs.editTable.saveAll().then(data => {
-          resolve(data);
-        }).catch(error => {
-          reject(error);
-        });
+    // 删除单个零件
+    handleDeletePartRow (index) {
+      const item = this.tableDataPj[index];
+      deletePartItem([item.id]).then(res => {
+        this.tableDataPj.splice(index, 1);
+        this.$message.success('删除成功');
+      });
+    },
+    // 处理关闭弹窗事件
+    handleCloseModel () {
+      this.modelDialogVisible = false;
+    },
+    handleVehicleModelSubmit (data) {
+      console.log(data);
+      const submitData = data.addOrUpdateReqList.map(item => {
+        return {
+          maintenancePartId: this._id,
+          vehModelId: item.vehicleModelId,
+          vehModelName: item.vehicleModelName,
+          vehYearTypeId: item.vehicleYearTypeId,
+          vehYearTypeName: item.vehicleYearTypeName,
+        };
+      });
+      addPartVehModel(submitData).then(res => {
+        this.$message.success('保存成功');
+        this.detailRequest();
+      });
+    },
+    // 删除单个车型
+    handleDeleteModelRow (index) {
+      const item = this.tableDataCx[index];
+      deletePartVehModel([item.id]).then(res => {
+        this.tableDataCx.splice(index, 1);
+        this.$message.success('删除成功');
       });
     },
     getDefautlForm () {
@@ -485,15 +415,46 @@ export default {
       };
     },
     // 审核日志
-    // handleJumpAuditLog () {
-    //   this.$auditLog.show({ id: 123 });
-    // },
+    handleJumpAuditLog () {
+      this.$auditLog.show({ id: this._id });
+    },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);
       }
       return [];
+    },
+    // 备件主数据表列表查询
+    querySpareParts (queryString) {
+      return new Promise(resolve => {
+        sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
+          const list = res || [];
+          resolve(list);
+        });
+      });
     }
   }
 };
 </script>
+<style lang="scss" scoped>
+  .m-vxe-table-empty-text {
+    text-align: left;
+  }
+  ::v-deep .vxe-table--empty-content {
+    color: var(--leap-color-default-light-2);
+    width: 100%;
+    padding: 0 16px;
+  }
+  .btn-delete {
+    color: var(--leap-color-danger);
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+      color: var(--leap-color-danger-dark-1);
+    }
+    &.disabled{
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+</style>

@@ -258,7 +258,18 @@ export default {
             visible: true,
             width: 200,
           },
-          { props: 'vehProfileVin', label: 'VIN码', visible: true, width: 200 },
+          {
+            props: 'vehProfileVin',
+            label: 'VIN码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           {
             props: 'customerName',
             label: '车主姓名',
@@ -266,7 +277,18 @@ export default {
             width: 200,
           },
           { props: 'carPlate', label: '车牌号', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          {
+            props: 'dealerName',
+            label: '门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           {
             props: 'repairItemAmount',
             label: '维修项目金额',
