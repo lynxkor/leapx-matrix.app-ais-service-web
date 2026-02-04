@@ -195,7 +195,7 @@ export default {
       var D = _d < 10 ? '0' + _d : _d;
       const h = date.getHours();
       const m = date.getMinutes();
-      return `${Y}/${M}/${D} ${h}/${m}`;
+      return `${Y}/${M}/${D} ${h}:${m}`;
     },
     transformDate (time) {
       if (!time) {
