@@ -435,7 +435,7 @@ export default {
         dataList: [],
         form: {
           page: 1,
-          size: pageSize
+          size: 20
         },
         dataProp: [
           {
@@ -692,8 +692,16 @@ export default {
     },
     onReset () {
       this.form = { ...defaultForm };
-      this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        optionObj = this.optionObjAll;
+      } else if (this.activeName === 'proxySign') {
+        optionObj = this.optionObjSign;
+      }
+      optionObj.form.page = 1;
+      optionObj.form.size = 20;
       this.getData();
     },
     exportExcel () {
