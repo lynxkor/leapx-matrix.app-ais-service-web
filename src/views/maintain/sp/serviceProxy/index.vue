@@ -210,10 +210,21 @@ export default {
           },
           { props: 'dataSourceLabel', label: '数据来源', visible: true, width: 200 },
           { props: 'orderStatusLabel', label: '工单状态', visible: true, width: 200 },
-          { props: 'vehProfileVin', label: 'VIN', visible: true, width: 200 },
+          {
+            props: 'vehProfileVin',
+            label: 'VIN',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'warrantyTypeCollect', label: '保修类型（汇总）', visible: true, width: 200 },
           { props: 'customerName', label: '车主姓名', visible: true, width: 200 },
-          { props: 'custType', label: '客户类型', visible: true, width: 200 },
+          { props: 'custTypeLabel', label: '客户类型', visible: true, width: 200 },
           {
             props: 'vehModelName',
             label: '车型',
