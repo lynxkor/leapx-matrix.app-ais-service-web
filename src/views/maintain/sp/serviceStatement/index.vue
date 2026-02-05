@@ -102,6 +102,7 @@
         @paginationChange="paginationChange"
         @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
+        @sortChange="handleSortChange"
       >
         <EditPage slot="centralizedViewSlot" :id="clickItemId" />
       </LPVxeTable>
@@ -394,7 +395,7 @@ export default {
             visible: true,
             width: 200,
           },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200, sortable: true },
           {
             props: 'operate',
             label: '操作',
@@ -442,6 +443,7 @@ export default {
       },
 
       tabList: [],
+      sortColumns: []
     };
   },
   created () {
@@ -449,6 +451,15 @@ export default {
     this.getData();
   },
   methods: {
+    handleSortChange (value) {
+      this.sortColumns = (value || []).map(item => {
+        return {
+          column: (item.field || '').replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, ''),
+          sort: (item.order || '').toUpperCase()
+        };
+      });
+      this.getData();
+    },
     getTabsList () {
       getStatistics().then((res) => {
         const target = res || {};
@@ -531,6 +542,7 @@ export default {
         ...this.getFormData(),
         pageNum: this.optionObj.form.page,
         pageSize: this.optionObj.form.size,
+        sortColumns: this.sortColumns
       })
         .then((res) => {
           this.optionObj.dataList = res.records.map((item) => {

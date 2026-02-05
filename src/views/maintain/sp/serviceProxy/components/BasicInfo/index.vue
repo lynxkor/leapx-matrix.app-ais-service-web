@@ -630,7 +630,12 @@ export default {
     clearValidate () {
       this.$refs.basicForm.clearValidate();
     },
-    searchVehicle (query) { return getVehicleProfile({ searchVin: query }); },
+    searchVehicle (query) {
+      if (!query) {
+        return Promise.resolve([]);
+      }
+      return getVehicleProfile({ searchVin: query });
+    },
     handleVinChange (val, record) {
       if (record.vin) {
         checkVinTag(record.vin).then(res => {
