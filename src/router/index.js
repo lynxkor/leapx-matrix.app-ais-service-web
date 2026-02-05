@@ -1516,6 +1516,15 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/sparepart/purchase/backorder/outOfStock/edit',
+      name: 'backOrderOutOfStockEdit',
+      component: () => import('@/views/sparepart/purchase/backOrder/outOfStock/edit.vue'),
+
+      meta: {
+        name: '备件缺货明细看板详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/sparepart/warehouse/oemOutboundOrder',
       name: 'oemOutboundOrder',
       component: () => import('@/views/sparepart/warehouse/oemOutboundOrder/index.vue'),
@@ -1685,6 +1694,15 @@ const routes = [
       meta: {
         name: '备件返利扣款管理详情',
         noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/purchase/backOrderReport',
+      name: 'backOrderReport',
+      component: () => import('@/views/sparepart/purchase/backOrderReport/index.vue'),
+
+      meta: {
+        name: '备件缺货看板',
+        keepAlive: true
       }
     }]
   }

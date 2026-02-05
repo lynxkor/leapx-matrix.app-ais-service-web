@@ -38,7 +38,7 @@ export default {
     return {
       dialogVisible: this.visible,
       formData: {},
-      title: '签收'
+      title: '批量签收'
     };
   },
   watch: {
@@ -47,7 +47,7 @@ export default {
     },
     inbound (val) {
       if (val) {
-        this.title = val ? '入库签收' : '签收';
+        this.title = val ? '批量入库签收' : '批量签收';
       }
     }
   },

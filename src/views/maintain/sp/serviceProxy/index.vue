@@ -413,7 +413,16 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
-
+      data.sortColumns = [
+        {
+          "column": "create_time",
+          "sort": "DESC"
+        },
+        {
+          "column": "order_status",
+          "sort": "ASC"
+        }
+      ];
       return data;
     },
     async fetchOptions (code) {

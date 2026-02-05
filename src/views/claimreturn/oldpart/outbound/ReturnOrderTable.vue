@@ -69,8 +69,8 @@ import {
   addDetail,
 } from '@/api/claimreturn/oldpart/outbound/index';// 出库
 import EditTable from '@/libs/components/EditTable/index.vue';
-import OldPartDialog from './OldPartDialog';
 import Upload from '@/libs/components/UploadDialog';
+import OldPartDialog from '../components/OldPartDialog';
 
 export default {
   props: {

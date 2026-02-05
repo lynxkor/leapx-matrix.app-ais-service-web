@@ -4,7 +4,7 @@
       <edit-base-container
         ref="containerRef"
         :id="_id"
-        :title="title"
+        :title="`${title} ${form.code}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
         :showBackBtn="showBackBtn"
@@ -351,7 +351,7 @@ export default {
     return {
       pageTitle: '厅店备件库存',
       pageType: 'edit',
-      title: '库存单号：' + form.code,
+      title: '库存单号：',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-inventory',
       loading: false,

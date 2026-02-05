@@ -115,6 +115,7 @@
       v-if="activeName === 'homePage'"
     >
       <LPVxeTable
+        :key="1"
         ref="tableRef"
         v-loading="loading"
         is-checkbox
@@ -135,7 +136,7 @@
       class="ais-table-c"
       v-if="activeName === 'outOfStock'"
     >
-    <vxe-table
+    <!-- <vxe-table
         ref="tableRefAll"
         :data="optionObjStock.dataList"
         v-loading="loading"
@@ -180,8 +181,8 @@
         <vxe-column title="备注" field="remark" width="200"></vxe-column>
         <vxe-column title="创建时间" field="createTime" width="200"></vxe-column>
         <vxe-column title="修改时间" field="updateTime" width="200"></vxe-column>
-      </vxe-table>
-      <div class="table-pagination">
+    </vxe-table>
+    <div class="table-pagination">
           <el-pagination
               @size-change="(val) => pageSizeChange(val)"
               @current-change="(val) => currentPageChange(val)"
@@ -192,9 +193,10 @@
               :total="optionObjStock.total"
           >
           </el-pagination>
-      </div>
-      <!-- <LPVxeTable
-        ref="tableRef"
+    </div> -->
+    <LPVxeTable
+        :key="2"
+        ref="tableRefStock"
         v-loading="loading"
         is-checkbox
         is-page
@@ -207,13 +209,13 @@
         @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
       >
-        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
-      </LPVxeTable> -->
+        <LackEditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="'1'"
+      id="sparePartBackEstimatedArrivalImport"
       @close="handleUploadDialogClose"
     />
   </div>
@@ -235,6 +237,7 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
+import LackEditPage from './outOfStock/edit.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -260,7 +263,8 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    TagInput
+    TagInput,
+    LackEditPage
   },
   data () {
     return {
@@ -344,7 +348,7 @@ export default {
         },
         dataProp: [
           {
-            props: 'code',
+            props: 'backOrderCode',
             label: '缺货单号',
             visible: true,
             width: 200,
@@ -352,7 +356,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/purchase/backOrder/edit',
+                  path: '/sparepart/purchase/backOrder/outOfStock/edit',
                   query: {
                     id: row.id
                   }
@@ -423,7 +427,13 @@ export default {
       });
     },
     onSubmit () {
-      this.optionObj.form.page = 1;
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
+      } else {
+        optionObj = this.optionObjStock;
+      }
+      optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
@@ -517,27 +527,22 @@ export default {
       return tableAddOrUpdate(data);
     },
     paginationChange (type, num) {
-      if (type === 'page') {
-        this.optionObj.form.page = num;
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
       } else {
-        this.optionObj.form.size = num;
+        optionObj = this.optionObjStock;
       }
-      this.debouncedGetData();
-    },
-    pageSizeChange (num) {
-      this.optionObjStock.form.size = num;
-      this.debouncedGetData();
-    },
-    currentPageChange (num) {
-      this.optionObjStock.form.page = num;
+      if (type === 'page') {
+        optionObj.form.page = num;
+      } else {
+        optionObj.form.size = num;
+      }
       this.debouncedGetData();
     },
     // 多选框选中数据
     handleSelectionChange (selection) {
       this.selectionList = selection;
-    },
-    handleSelectionChangeBatch ({ records }) {
-      this.selectionList = records;
     },
     getFormData () {
       const data = { ...this.form };

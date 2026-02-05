@@ -2,7 +2,7 @@
   <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
-      <edit-base-container ref="containerRef" :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form"
+      <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :isEditing.sync="isEditing" :form.sync="form"
         :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
@@ -286,7 +286,7 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>出库明细信息 <el-button size="mini">导入备件</el-button><el-button size="mini" @click="addPart">添加备件</el-button></h2>
+              <h2>出库明细信息 <el-button size="mini" @click="handleImport">导入备件</el-button><el-button size="mini" @click="addPart">添加备件</el-button></h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
@@ -377,6 +377,12 @@
         <!-- 右侧栏组件，自行开发 -->
       </div>
     </template>
+    <Upload
+      :visible="uploadDialogVisible"
+      :businessParams="_id"
+      id="sparePartPurchaseReturnDetailImport"
+      @close="handleUploadDialogClose"
+    />
   </edit-page-layout>
 </template>
 
@@ -392,6 +398,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import AddSpareParts from './AddSpareParts.vue';
+import Upload from '@/libs/components/UploadDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -455,7 +462,8 @@ export default {
     EditBaseContainer,
     EditTable,
     FetchSelect,
-    AddSpareParts
+    AddSpareParts,
+    Upload
   },
   computed: {
     _id () {
@@ -479,7 +487,7 @@ export default {
     return {
       pageTitle: '备件退货单',
       pageType: 'edit',
-      title: '备件退货单号：' + form.code,
+      title: '备件退货单号：',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
       moduleKey: 'AISPART-returnOrder',
       loading: false,
@@ -499,6 +507,7 @@ export default {
       abnormalTableData: [],
       sparePartsVisible: false,
       warehouseId: '', // 备件仓库ID
+      uploadDialogVisible: false,
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       abnormalColumns: [
         {
@@ -757,6 +766,12 @@ export default {
     async handleDel (row) {
       await returnOrderDel([row.id]);
       this.getDetailData();
+    },
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
     }
   }
 };

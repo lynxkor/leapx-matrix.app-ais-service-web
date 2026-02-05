@@ -46,10 +46,10 @@
               clearable
             />
           </el-form-item>
-          <el-form-item label="旧件名称：" prop="oldPartName">
+          <el-form-item label="旧件名称：" prop="oldPartNameLike">
             <el-input
               placeholder="请输入"
-              v-model="form.oldPartName"
+              v-model="form.oldPartNameLike"
               clearable
             />
           </el-form-item>
@@ -61,6 +61,7 @@
               range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
+              value-format="yyyy-MM-dd HH:mm:ss"
               align="right">
             </el-date-picker>
           </el-form-item>
@@ -72,6 +73,7 @@
               range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
+              value-format="yyyy-MM-dd HH:mm:ss"
               align="right">
             </el-date-picker>
           </el-form-item>
@@ -158,7 +160,7 @@ import {
 } from '@/api/claimreturn/oldpart/inventory/oem/index';
 import { addDetail } from '@/api/claimreturn/oldpart/returnorder/index';
 import RepairTypeSelect from '@/components/RepairTypeSelect';
-import { formatDateTime } from '@/libs/utils';
+import { formatDateTime, getEndOfDayString } from '@/libs/utils';
 
 const defaultForm = {
   warrantyNo: '',
@@ -309,7 +311,7 @@ export default {
     },
     // --------------- 表单查询 -------------------------
     onSubmit () {
-      this.optionObj.form.page = 1;
+      this.form.page = 1;
       this.getData();
     },
     onReset () {
@@ -333,7 +335,7 @@ export default {
           delete data[key];
           if (this.form[key].length > 1) {
             data[`${key}Start`] = formatDateTime(this.form[key][0]);
-            data[`${key}End`] = formatDateTime(this.form[key][1]);
+            data[`${key}End`] = getEndOfDayString(formatDateTime(this.form[key][1]));
           }
         }
       });
