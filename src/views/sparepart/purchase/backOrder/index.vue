@@ -427,7 +427,13 @@ export default {
       });
     },
     onSubmit () {
-      this.optionObj.form.page = 1;
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
+      } else {
+        optionObj = this.optionObjStock;
+      }
+      optionObj.form.page = 1;
       this.getData();
     },
     onReset () {

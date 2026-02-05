@@ -1,5 +1,5 @@
 <template>
-  <div class="page-common m-back-order-report-list">
+  <div class="page-common m-service-proxy-list">
     <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
     <el-form
       :inline="true"
@@ -9,7 +9,28 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="分类名称">
+      <el-form-item label="营销分类名称" v-if="activeName === 'homePage'">
+        <el-input
+          placeholder="请输入"
+          v-model="form.categoryName"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="备件工程师" v-if="activeName === 'spareParts'">
+        <el-input
+          placeholder="请输入"
+          v-model="form.categoryName"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="供应商名称" v-if="activeName === 'spareParts'">
+        <el-input
+          placeholder="请输入"
+          v-model="form.categoryName"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="备件编码" v-if="activeName === 'spareParts'" v-show="this.visibleCount === 3 || show">
         <el-input
           placeholder="请输入"
           v-model="form.categoryName"
@@ -17,6 +38,13 @@
         />
       </el-form-item>
       <template v-if="show">
+        <el-form-item label="备件名称" v-if="activeName === 'spareParts'">
+          <el-input
+            placeholder="请输入"
+            v-model="form.categoryName"
+            clearable
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -36,8 +64,15 @@
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
+    <div class="ais-tabs">
+      <el-tabs v-model="activeName" @tab-click="handleClick">
+        <el-tab-pane label="按营销分组" name="homePage"></el-tab-pane>
+        <el-tab-pane label="按备件分组" name="spareParts"></el-tab-pane>
+      </el-tabs>
+    </div>
     <div
       class="ais-table-c"
+      v-if="activeName === 'homePage'"
     >
       <LPVxeTable
         ref="tableRef"
@@ -45,8 +80,26 @@
         is-checkbox
         is-page
         checkboxFixed
-        centralized
         :option-obj="optionObj"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+        @listSelect="handleListSelect"
+      >
+      </LPVxeTable>
+    </div>
+    <div
+      class="ais-table-c"
+      v-if="activeName === 'spareParts'"
+    >
+      <LPVxeTable
+        ref="tableRefSpareParts"
+        v-loading="loading"
+        is-checkbox
+        is-page
+        checkboxFixed
+        :option-obj="optionObjSpareParts"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
@@ -68,9 +121,8 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { categoryPage, deleteItem, enableItem } from '@/api/sparepart/purchase/backOrderReport/index';
+import { categoryPage, sparePartPage, deleteItem, enableItem } from '@/api/sparepart/purchase/backOrderReport/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
-import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -93,7 +145,6 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    FetchSelect,
     Upload
   },
   data () {
@@ -112,6 +163,7 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      activeName: 'homePage',
       optionObj: {
         id: 'backOrderReportTable',
         dataList: [],
@@ -126,6 +178,27 @@ export default {
           { props: 'backPartGroupTotal', label: '备件种类', visible: true, width: 200 },
           { props: 'backTotalAmount', label: '缺货总金额', visible: true, width: 200 },
           { props: 'now', label: '取值时间', visible: true, width: 200 },
+        ],
+        total: 0
+      },
+      optionObjSpareParts: {
+        id: 'backOrderReportTableSpareParts',
+        dataList: [],
+        form: {
+          page: 1,
+          size: pageSize
+        },
+        dataProp: [
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'pendingPartQtyTotal', label: '缺货总数', visible: true, width: 200 },
+          { props: 'purchasePrice', label: '采购价格', visible: true, width: 200 },
+          { props: 'days', label: '缺货天数', visible: true, width: 200 },
+          { props: 'detailCount', label: '缺货订单行数', visible: true, width: 200 },
+          { props: 'partsEngineer', label: '备件工程师', visible: true, width: 200 },
+          { props: 'supplierName', label: '供应商名称', visible: true, width: 200 },
+          { props: 'categoryName', label: '营销分类名称', visible: true, width: 200 },
+          { props: 'now', label: '取数时间', visible: true, width: 200 },
         ],
         total: 0
       }
@@ -147,13 +220,25 @@ export default {
     },
 
     onSubmit () {
-      this.optionObj.form.page = 1;
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'spareParts') {
+        optionObj = this.optionObjSpareParts;
+      }
+      optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
       this.form = { ...defaultForm };
-      this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'spareParts') {
+        optionObj = this.optionObjSpareParts;
+      }
+      optionObj.form.page = 1;
+      optionObj.form.pageSize = pageSize;
       this.getData();
     },
     exportExcel () {
@@ -192,17 +277,25 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
-
-      categoryPage({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      let fathApi = categoryPage;
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        fathApi = categoryPage;
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'spareParts') {
+        fathApi = sparePartPage;
+        optionObj = this.optionObjSpareParts;
+      }
+      fathApi({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          optionObj.dataList = res.records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          optionObj.total = res.total;
         }).finally(() => {
           this.loading = false;
         });
@@ -212,8 +305,14 @@ export default {
       this.getData();
     }, 300),
     getConfig () {
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'spareParts') {
+        optionObj = this.optionObjSpareParts;
+      }
       return new Promise((resolve, reject) => {
-        getTableConfig(this.optionObj.id).then(data => {
+        getTableConfig(optionObj.id).then(data => {
           resolve({ data });
         }).catch(err => {
           // 容错：此处如果接口挂了，也不应该影响正常使用
@@ -226,10 +325,16 @@ export default {
       return tableAddOrUpdate(data);
     },
     paginationChange (type, num) {
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'spareParts') {
+        optionObj = this.optionObjSpareParts;
+      }
       if (type === 'page') {
-        this.optionObj.form.page = num;
+        optionObj.form.page = num;
       } else {
-        this.optionObj.form.size = num;
+        optionObj.form.size = num;
       }
       this.debouncedGetData();
     },
@@ -292,34 +397,31 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
-    }
+    },
+    // 点击tabs栏切换
+    handleClick (item) {
+      this.activeName = item.name;
+      this.getData();
+    },
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.m-back-order-report-list {
+.m-service-proxy-list {
+  ::v-deep .m-vxe-table .m-vxe-table-options {
+    top: -96px;
+  }
+  .ais-actions {
+    margin-bottom: 8px;
+  }
+  .ais-table-c {
+    height: calc(100% - 168px);
+  }
+  .table-pagination {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+  }
 }
 </style>

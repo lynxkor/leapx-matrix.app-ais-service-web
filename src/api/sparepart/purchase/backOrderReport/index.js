@@ -5,7 +5,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 const prefix = SPARE_PREFIX + '/web/purchase/backOrder/';
 
 /**
- * 查询列表
+ * 查询列表 备件缺货营销看板
  * @param {Object} data
  */
 export function categoryPage (data) {
@@ -13,7 +13,7 @@ export function categoryPage (data) {
 };
 
 /**
- * 查询列表
+ * 查询列表 备件缺货备件看板
  * @param {Object} data
  */
 export function sparePartPage (data) {
