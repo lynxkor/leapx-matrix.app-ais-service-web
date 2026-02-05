@@ -16,14 +16,49 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="整车物料ID">
+      <el-form-item label="车牌号">
         <el-input
           placeholder="请输入"
-          v-model="form.vehicleMaterialId"
+          v-model="form.vehiclePlateNo"
           clearable
         />
       </el-form-item>
-      <el-form-item label="销售日期"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="销售门店">
+        <dealer-select
+          v-model="form.salesDealerCode"
+          placeholder="请选择"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="交付门店" v-show="this.visibleCount === 3 || show">
+        <dealer-select
+          v-model="form.deliveryDealerCode"
+          placeholder="请选择"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="车主手机号" v-show="this.visibleCount === 3 || show">
+        <el-input
+          placeholder="请输入"
+          v-model="form.ownerPhone"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="车主姓名" v-show="this.visibleCount === 3 || show">
+        <el-input
+          placeholder="请输入"
+          v-model="form.ownerName"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="整车物料编码" v-show="this.visibleCount === 3 || show">
+        <el-input
+          placeholder="请输入"
+          v-model="form.vehicleMaterialCode"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="销售日期" v-show="this.visibleCount === 3 || show">
         <el-date-picker
          :default-time="['00:00:00', '23:59:59']"
           v-model="form.salesDate"
@@ -35,29 +70,6 @@
           end-placeholder="结束日期"
         />
       </el-form-item>
-      <template v-if="show">
-        <el-form-item label="车牌号">
-          <el-input
-            placeholder="请输入"
-            v-model="form.vehiclePlateNo"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="交付门店名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.deliveryDealerName"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="商城订单号">
-          <el-input
-            placeholder="请输入"
-            v-model="form.shopcode"
-            clearable
-          />
-        </el-form-item>
-      </template>
       <page-search-action
         v-if="canList"
         v-model="show"
@@ -109,7 +121,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/datacenter/vehicle/vehicleProfile/index';
+import { getDetailDecryptField, getList, deleteItem, enableItem } from '@/api/datacenter/vehicle/vehicleProfile/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -118,15 +130,18 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import DealerSelect from '@/components/dealer-select';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   vin: '',
-  vehicleMaterialId: '',
+  vehicleMaterialCode: '',
   salesDate: '',
   vehiclePlateNo: '',
-  deliveryDealerName: '',
-  shopcode: '',
+  deliveryDealerCode: '',
+  salesDealerCode: '',
+  ownerName: '',
+  ownerPhone: '',
 };
 
 const pageSize = 20;
@@ -140,11 +155,12 @@ export default {
     PageSearchAction,
     LPVxeTable,
     EditPage,
-    Upload
+    Upload,
+    DealerSelect
   },
   data () {
     return {
-      pageTitle: '车辆档案主表管理',
+      pageTitle: '车辆档案管理',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-vehicleProfile',
@@ -158,6 +174,11 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      pickerOptions: {
+        disabledDate (time) {
+          return time.getTime() > Date.now();
+        }
+      },
       optionObj: {
         id: 'vehicleProfileTable',
         dataList: [],
@@ -170,6 +191,8 @@ export default {
             props: 'vin',
             label: 'VIN码',
             visible: true,
+            mask: true,
+            getValue: (row) => getDetailDecryptField(row.id, 'vin'),
             width: 200,
             fixed: 'left',
             buttons: [{
@@ -184,11 +207,57 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'vehicleMaterialId', label: '整车物料ID', visible: true, width: 200 },
-          { props: 'salesDate', label: '销售日期', visible: true, width: 200 },
-          { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 200 },
-          { props: 'deliveryDealerName', label: '交付门店名称', visible: true, width: 200 },
-          { props: 'shopcode', label: '商城订单号', visible: true, width: 200 },
+          { props: 'isLifetimeFreeMaintainLabel', label: '是否终身免保', visible: true, width: 150 },
+          { props: 'vehicleMaterialCode', label: '整车物料编码', visible: true, width: 200 },
+          { props: 'vehicleMaterialDesc', label: '整车物料描述', visible: true, width: 250 },
+          { props: 'salesDate', label: '销售日期', visible: true, width: 160 },
+          { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 150 },
+          { props: 'deliveryDealerName', label: '订单交付门店', visible: true, width: 200 },
+          { props: 'serviceDealerName', label: '专属服务门店', visible: true, width: 200 },
+          { props: 'mallOrderNo', label: '商城订单号', visible: true, width: 180 },
+          {
+            props: 'ownerName',
+            label: '车主姓名',
+            visible: true,
+            width: 150,
+            mask: true,
+            getValue: (row) => getDetailDecryptField(row.id, 'ownerName')
+          },
+          {
+            props: 'ownerPhone',
+            label: '手机号码',
+            visible: true,
+            width: 150,
+            mask: true,
+            getValue: (row) => getDetailDecryptField(row.id, 'ownerPhone')
+          },
+          { props: 'idcardTypeLabel', label: '证件类型', visible: true, width: 120 },
+          {
+            props: 'idcardNo',
+            label: '证件号码',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDetailDecryptField(row.id, 'idcardNo')
+          },
+          {
+            props: 'bindingUser',
+            label: '绑车人姓名',
+            visible: true,
+            width: 150,
+            mask: true,
+            getValue: (row) => getDetailDecryptField(row.id, 'bindingUser')
+          },
+          {
+            props: 'bindingPhone',
+            label: '绑车人手机号',
+            visible: true,
+            width: 150,
+            mask: true,
+            getValue: (row) => getDetailDecryptField(row.id, 'bindingPhone')
+          },
+          { props: 'bindingUserid', label: '绑车人用户ID', visible: true, width: 180 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 180 },
           {
             props: 'operate',
             label: '操作',
@@ -206,24 +275,6 @@ export default {
                 });
               },
               type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
             }]
           }
         ],
@@ -263,15 +314,15 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '车辆档案主表管理',
-        dataFetchPath: 'datacenter/web/vehicle/vehicleProfile/page',
+        businessType: '车辆档案管理',
+        dataFetchPath: 'datacenter/web/vehicle/vehicleProfile/pageFlat',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '车辆档案主表管理.xlsx');
+            await downloadExcel(res.excelUrl, '车辆档案管理.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
@@ -345,11 +396,11 @@ export default {
         }
       });
 
-      if (this.form.createTime) {
-        delete data.createTime;
-        if (this.form.createTime.length > 1) {
-          data.createTimeStart = this.form.createTime[0];
-          data.createTimeEnd = this.form.createTime[1];
+      if (this.form.salesDate) {
+        delete data.salesDate;
+        if (this.form.salesDate.length > 1) {
+          data.salesDateStart = this.form.salesDate[0];
+          data.salesDateEnd = this.form.salesDate[1];
         }
       }
 

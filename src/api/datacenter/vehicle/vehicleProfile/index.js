@@ -8,7 +8,7 @@ const prefix = 'datacenter/web/vehicle/vehicleProfile/';
  * @param {Object} data
  */
 export function getList (data) {
-  return api.jsonPost(prefix + 'page', data);
+  return api.jsonPost(prefix + 'pageFlat', data);
 };
 
 /**
@@ -41,4 +41,21 @@ export function getDetail (data) {
  */
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
+}
+
+/**
+ * 查询加密数据
+ * @param {String} id
+ * @param {String} field
+ */
+export function getDetailDecryptField (id, field) {
+  let param = {
+    id,
+    decryptFields: [field]
+  };
+  return new Promise(resolve => {
+    api.jsonPost(prefix + 'getDecrypt', param).then(res => {
+      resolve(res[field]);
+    });
+  });
 }

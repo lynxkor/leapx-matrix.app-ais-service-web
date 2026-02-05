@@ -1306,7 +1306,7 @@ const routes = [
       component: () => import('@/views/datacenter/vehicle/vehicleProfile/index.vue'),
 
       meta: {
-        name: '车辆档案主表管理',
+        name: '车辆档案管理',
         keepAlive: true
       }
     }, {
@@ -1315,7 +1315,7 @@ const routes = [
       component: () => import('@/views/datacenter/vehicle/vehicleProfile/edit.vue'),
 
       meta: {
-        name: '车辆档案主表管理详情',
+        name: '车辆档案管理详情',
         noResourceUrl: 'true'
       }
     }, {
