@@ -72,10 +72,11 @@ export default {
     };
   },
   watch: {
-    id (val) {
-      if (val) {
+    id: {
+      handler () {
         this.init();
-      }
+      },
+      immediate: true,
     }
   },
   mounted () {

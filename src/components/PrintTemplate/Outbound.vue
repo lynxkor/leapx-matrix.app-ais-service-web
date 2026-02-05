@@ -124,8 +124,11 @@ export default {
     };
   },
   watch: {
-    id (val) {
-      this.init();
+    id: {
+      handler () {
+        this.init();
+      },
+      immediate: true,
     }
   },
   mounted () {

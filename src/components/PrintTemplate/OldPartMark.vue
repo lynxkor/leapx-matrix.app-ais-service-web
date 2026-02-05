@@ -164,6 +164,7 @@ export default {
       handler () {
         this.getData(this.data);
       },
+      immediate: true,
     }
   },
   mounted () {
