@@ -1516,9 +1516,9 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/purchase/backorder/lackEdit',
-      name: 'backOrderlackEdit',
-      component: () => import('@/views/sparepart/purchase/backOrder/lackEdit.vue'),
+      path: '/sparepart/purchase/backorder/outOfStock/edit',
+      name: 'backOrderOutOfStockEdit',
+      component: () => import('@/views/sparepart/purchase/backOrder/outOfStock/edit.vue'),
 
       meta: {
         name: '备件缺货明细看板详情',
