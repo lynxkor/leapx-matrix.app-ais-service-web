@@ -230,12 +230,13 @@ export default {
   },
   data () {
     const form = this.getDefautlForm();
+    const moduleKey = 'AISCR-' + this.$route.meta.moduleKey;
     return {
-      pageTitle: '旧件销毁单',
+      pageTitle: this.$route.meta.name,
       pageType: 'edit',
       title: '销毁审批人ID：' + form.approverId,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISCR-oldPartDestroyOrder',
+      moduleKey,
       // 是否是门店用户
       isDealer: this.$store.state.user.userInfo?.accountFlag,
       loading: false,
