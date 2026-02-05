@@ -26,7 +26,7 @@
                         {{ sparePartDetail.afterPartName }}
                     </el-form-item>
                     <el-form-item label="替换备注：" prop="specialCode">
-                        {{ sparePartDetail.specialCode }}
+                        {{ sparePartDetail.replaceRemark }}
                     </el-form-item>
                     <el-form-item label="采购提醒：" prop="reminderContent">
                         {{ sparePartDetail.reminderContent }}

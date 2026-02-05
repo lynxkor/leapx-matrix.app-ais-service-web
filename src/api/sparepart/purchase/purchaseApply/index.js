@@ -58,7 +58,7 @@ export function addDetail (data) {
  * @param {Object} data
  */
 export function getPurchaseApplyDetail (data) {
-  return api.jsonPost(prefixDetail + 'getPurchaseApplyDetailInventory', data);
+  return api.jsonPost(prefix + 'getPurchaseApplyDetailInventory', data);
 }
 
 /**

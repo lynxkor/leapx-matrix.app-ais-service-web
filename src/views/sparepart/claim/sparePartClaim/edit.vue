@@ -279,14 +279,22 @@
             <div class="common-section-body">
               <el-tabs v-model="activeName">
                 <el-tab-pane label="出库明细" name="getOutboundDetailList" />
-                <el-tab-pane label="库缺货明细" name="getBackDetailList" />
+                <el-tab-pane label="缺货明细" name="getBackDetailList" />
               </el-tabs>
               <div class="common-section-table">
                 <ComponentTable
+                  v-if="activeName === 'getOutboundDetailList'"
                   :columns="outboundColumns"
                   :pagination="true"
                   :api-method="getOutboundDetailList"
                   name="出库明细"
+                />
+                <ComponentTable
+                  v-if="activeName === 'getBackDetailList'"
+                  :columns="backColumns"
+                  :pagination="true"
+                  :api-method="getBackDetailList"
+                  name="缺货明细"
                 />
                 <!-- <edit-table
                   ref="editTable"
@@ -686,7 +694,14 @@ export default {
       }
     },
     submitRequest () {
-      return addOrUpdate({ ...this.form });
+      // 不存在新增所以只有编辑
+      const params = {
+        id: this._id,
+        claimDescription: this.form.claimDescription,
+        claimQty: this.form.claimQty,
+        statusDesc: this.form.statusDesc,
+      };
+      return addOrUpdate({ ...params });
     },
     // 打开侧边栏
     openPane () {
