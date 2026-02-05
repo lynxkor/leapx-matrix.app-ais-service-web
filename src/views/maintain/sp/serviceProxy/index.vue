@@ -274,7 +274,10 @@ export default {
         total: 0
       },
       tabList: [],
-      sortColumns: []
+      sortColumns: [{
+        column: 'create_time',
+        sort: 'DESC'
+      }]
     };
   },
   created () {
@@ -353,7 +356,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size, sortColumns: this.sortColumns })
+      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {
@@ -413,6 +416,12 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
+      data.sortColumns = this.sortColumns.concat([
+        {
+          column: 'order_status',
+          sort: 'ASC'
+        }
+      ]);
       return data;
     },
     async fetchOptions (code) {

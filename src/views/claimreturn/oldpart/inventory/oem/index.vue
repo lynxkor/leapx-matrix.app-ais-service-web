@@ -333,8 +333,9 @@ export default {
             width: 240,
             buttons: [{
               click: (rowIndex, row) => {
+                const path = this.isDealerPage ? '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder/edit' : '/claimreturn/oldpart/destroy/oldpartdestroyorder/edit';
                 this.$router.push({
-                  path: '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit',
+                  path,
                   query: {
                     id: row.oldPartDestroyOrderId
                   }
@@ -466,22 +467,27 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                if (row.returnType === '40') {
-                  // 快返
-                  this.$router.push({
-                    path: '/claimreturn/oldpart/returnorder/fast/edit',
-                    query: {
-                      id: row.returnOrderId
-                    }
-                  });
+                let path;
+                if (this.isDealerPage) {
+                  if (row.returnType === '40') {
+                    path = '/claimreturn/oldpart/dealerReturnorder/fast/edit';
+                  } else {
+                    path = '/claimreturn/oldpart/returnorder/edit';
+                  }
                 } else {
-                  this.$router.push({
-                    path: '/claimreturn/oldpart/returnorder/edit',
-                    query: {
-                      id: row.returnOrderId
-                    }
-                  });
+                  if (row.returnType === '40') { // 快返
+                    path = '/claimreturn/oldpart/returnorder/fast/edit';
+                  } else {
+                    path = '/claimreturn/oldpart/returnorder/edit';
+                  }
                 }
+
+                this.$router.push({
+                  path,
+                  query: {
+                    id: row.returnOrderId
+                  }
+                });
               },
               type: 'primary'
             }]

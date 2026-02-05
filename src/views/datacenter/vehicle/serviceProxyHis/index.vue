@@ -177,7 +177,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'orderTime', label: '开单时间', visible: true, width: 200, sortable: true  },
+          { props: 'orderTime', label: '开单时间', visible: true, width: 200, sortable: true },
           { props: 'repairFinishTime', label: '维修完工时间', visible: true, width: 200 },
           {
             props: 'vehProfileVin',
@@ -203,7 +203,10 @@ export default {
         ],
         total: 0
       },
-      sortColumns: []
+      sortColumns: [{
+        column: 'create_time',
+        sort: 'DESC'
+      }]
     };
   },
   created () {
@@ -281,7 +284,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size, sortColumns: this.sortColumns })
+      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {
@@ -341,7 +344,7 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
-
+      data.sortColumns = this.sortColumns;
       return data;
     },
     async fetchOptions (code) {
