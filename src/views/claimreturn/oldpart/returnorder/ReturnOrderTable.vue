@@ -41,6 +41,7 @@
     </div>
     <!-- 旧件明细 - 添加弹窗 -->
     <old-part-dialog
+      type="returnorder"
       :visible.sync="visible"
       :_id="_id"
       :dealerCode="dealerCode"

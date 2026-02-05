@@ -158,7 +158,8 @@ import PageSearchAction from '@/libs/components/AisPageSearchAction/index.vue';
 import {
   getList, // 旧件库存详情分页查询
 } from '@/api/claimreturn/oldpart/inventory/oem/index';
-import { addDetail } from '@/api/claimreturn/oldpart/returnorder/index';
+import { addDetail as addDetailReturnorder } from '@/api/claimreturn/oldpart/returnorder/index';
+import { addDetail as addDetailOutbound } from '@/api/claimreturn/oldpart/outbound/index';
 import RepairTypeSelect from '@/components/RepairTypeSelect';
 import { formatDateTime, getEndOfDayString } from '@/libs/utils';
 
@@ -194,6 +195,9 @@ export default {
     dealerCode: {
       type: String,
     },
+    type: {
+      type: String// ['outbound', 'returnorder'],
+    }
   },
   data () {
     return {
@@ -270,6 +274,7 @@ export default {
     submit () {
       //
       this.submitLoading = true;
+      const addDetail = this.type === 'outbound' ? addDetailOutbound : addDetailReturnorder;
       addDetail({
         id: this._id,
         detailIdList: this.selectedRows.map(item => item.id),
@@ -293,15 +298,27 @@ export default {
     getData () {
       this.loading = true;
       this.selectedRows = [];
-      getList({
+      let data = {
         ...this.getFormData(),
         pageNum: this.pageNum,
         pageSize: this.pageSize,
         dealerCode: this.dealerCode,
-        dealerStatus: '300', // 门店入库
-        returnOrderIdIsNull: true,
-        returnType: '30', // 正常返还
-      })
+      };
+      if (this.type === 'outbound') {
+        data = {
+          ...data,
+          oemStatus: '700', // 主机厂入库
+          oemOutboundOrderIdIsNull: true,
+        };
+      } else {
+        data = {
+          ...data,
+          dealerStatus: '300', // 门店入库
+          returnOrderIdIsNull: true,
+          returnType: '30', // 正常返还
+        };
+      }
+      getList(data)
         .then(res => {
           this.tableData = res.records;
           this.total = res.total;
