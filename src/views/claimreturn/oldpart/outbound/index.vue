@@ -110,7 +110,7 @@ import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
+import { handleBatchStatusChange, downloadExcel, getEndOfDayString, formatDateTime } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 
@@ -353,7 +353,7 @@ export default {
         delete data.estimatedArrivalDate;
         if (this.form.estimatedArrivalDate.length > 1) {
           data.estimatedArrivalDateStart = this.form.estimatedArrivalDate[0];
-          data.estimatedArrivalDateEnd = this.form.estimatedArrivalDate[1];
+          data.estimatedArrivalDateEnd = getEndOfDayString(formatDateTime(this.form.estimatedArrivalDate[1]));
         }
       }
 

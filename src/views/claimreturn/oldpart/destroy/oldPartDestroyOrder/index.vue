@@ -99,7 +99,7 @@ import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
+import { handleBatchStatusChange, downloadExcel, formatDateTime, getEndOfDayString } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 
@@ -126,11 +126,12 @@ export default {
     Upload
   },
   data () {
+    const moduleKey = 'AISCR-' + this.$route.meta.moduleKey;
     return {
-      pageTitle: '旧件销毁单',
+      pageTitle: this.$route.meta.name,
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISCR-oldPartDestroyOrder',
+      moduleKey,
       form: {
         ...defaultForm
       },
@@ -142,7 +143,7 @@ export default {
       uploadDialogVisible: false,
       clickItemId: '',
       optionObj: {
-        id: 'oldPartDestroyOrderTable',
+        id: moduleKey,
         dataList: [],
         form: {
           page: 1,
@@ -340,7 +341,7 @@ export default {
         delete data.destroyDate;
         if (this.form.destroyDate.length > 1) {
           data.destroyDateStart = this.form.destroyDate[0];
-          data.destroyDateEnd = this.form.destroyDate[1];
+          data.destroyDateEnd = getEndOfDayString(formatDateTime(this.form.destroyDate[1]));
         }
       }
       return data;
