@@ -2,7 +2,7 @@
   <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
-      <edit-base-container ref="containerRef" :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form"
+      <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :isEditing.sync="isEditing" :form.sync="form"
         :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
@@ -487,7 +487,7 @@ export default {
     return {
       pageTitle: '备件退货单',
       pageType: 'edit',
-      title: '备件退货单号：' + form.code,
+      title: '备件退货单号：',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
       moduleKey: 'AISPART-returnOrder',
       loading: false,

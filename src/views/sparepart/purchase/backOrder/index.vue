@@ -209,7 +209,7 @@
         @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
       >
-        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+        <LackEditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
@@ -237,6 +237,7 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
+import LackEditPage from './outOfStock/edit.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -262,7 +263,8 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    TagInput
+    TagInput,
+    LackEditPage
   },
   data () {
     return {
@@ -346,7 +348,7 @@ export default {
         },
         dataProp: [
           {
-            props: 'code',
+            props: 'backOrderCode',
             label: '缺货单号',
             visible: true,
             width: 200,
@@ -354,7 +356,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/purchase/backOrder/edit',
+                  path: '/sparepart/purchase/backOrder/outOfStock/edit',
                   query: {
                     id: row.id
                   }
