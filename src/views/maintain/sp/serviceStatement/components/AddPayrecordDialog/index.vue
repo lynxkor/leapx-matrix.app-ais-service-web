@@ -5,6 +5,7 @@
       title="添加收款记录"
       width="1000px"
       :visible="visible"
+      append-to-body
       @close="close"
       @closed="closed"
     >

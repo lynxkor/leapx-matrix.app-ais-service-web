@@ -2,7 +2,7 @@
   <edit-page-layout ref="editLayout" :title="detailTitle" showPaneFooter>
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
-      <edit-base-container ref="containerRef" :id="_id" :title="title" :form.sync="form" :submitRequest="submitRequest"
+      <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :form.sync="form" :submitRequest="submitRequest"
         :isEditing.sync="isEditing" :originalForm.sync="originalForm" :detailRequest="detailRequest"  :showEditBtn="routeQueryType">
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
@@ -385,7 +385,7 @@ export default {
       },
       pageTitle: '备件采购申请',
       pageType: 'edit',
-      title: '采购申请单：' + form.code,
+      title: '采购申请单：',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-purchaseApply',
       loading: false,

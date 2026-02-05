@@ -1516,6 +1516,15 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/sparepart/purchase/backorder/outOfStock/edit',
+      name: 'backOrderOutOfStockEdit',
+      component: () => import('@/views/sparepart/purchase/backOrder/outOfStock/edit.vue'),
+
+      meta: {
+        name: '备件缺货明细看板详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/sparepart/warehouse/oemOutboundOrder',
       name: 'oemOutboundOrder',
       component: () => import('@/views/sparepart/warehouse/oemOutboundOrder/index.vue'),

@@ -204,6 +204,7 @@
       :visible="uploadDialogVisible"
       :id="'1'"
       @close="handleUploadDialogClose"
+      @getData="getData"
     />
   </div>
 </template>

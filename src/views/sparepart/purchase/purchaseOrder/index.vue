@@ -568,7 +568,15 @@ export default {
       });
     },
     onSubmit () {
-      this.optionObj.form.page = 1;
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        optionObj = this.optionObjAll;
+      } else if (this.activeName === 'proxySign') {
+        optionObj = this.optionObjSign;
+      }
+      optionObj.form.page = 1;
       this.getData();
     },
     onReset () {

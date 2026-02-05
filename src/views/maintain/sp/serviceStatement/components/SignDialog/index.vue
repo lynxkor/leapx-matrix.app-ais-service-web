@@ -6,6 +6,7 @@
     :visible.sync="dialogVisible"
     @close="close"
     @closed="closed"
+    append-to-body
   >
     <el-form
       size="small"
