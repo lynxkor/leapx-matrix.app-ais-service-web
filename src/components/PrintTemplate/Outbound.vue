@@ -112,6 +112,9 @@ export default {
       type: String,
       default: ''
     },
+    data: {
+      type: String,
+    }
   },
   data () {
     return {
@@ -122,9 +125,7 @@ export default {
   },
   watch: {
     id (val) {
-      if (val) {
-        this.init();
-      }
+      this.init();
     }
   },
   mounted () {
@@ -132,11 +133,13 @@ export default {
   },
   methods: {
     init () {
-      getDetail(this.id).then((res) => {
+      this.form = {};
+      this.tableData = [];
+      getDetail(this.data).then((res) => {
         this.form = res;
       });
       getList({
-        oemOutboundOrderId: this.id, // 主机厂出库单ID
+        oemOutboundOrderId: this.data, // 主机厂出库单ID
         pageSize: 5000,
         pageNum: 1,
       }).then((res) => {

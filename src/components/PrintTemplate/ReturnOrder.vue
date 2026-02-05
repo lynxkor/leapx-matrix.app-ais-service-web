@@ -100,6 +100,9 @@ export default {
       type: String,
       default: ''
     },
+    data: {
+      type: String,
+    }
   },
   data () {
     return {
@@ -119,11 +122,11 @@ export default {
   },
   methods: {
     init () {
-      getDetail(this.id).then((res) => {
+      getDetail(this.data).then((res) => {
         this.form = res;
       });
       getList({
-        returnOrderId: this.id,
+        returnOrderId: this.data,
         pageNum: 1,
         pageSize: 5000
       }).then((res) => {

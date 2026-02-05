@@ -61,6 +61,10 @@ export default {
       type: String,
       default: ''
     },
+    data: {
+      type: String,
+      default: ''
+    }
   },
   data () {
     return {
@@ -79,15 +83,14 @@ export default {
   },
   methods: {
     init () {
-      getDetail(this.id).then((res) => {
+      this.form = {};
+      getDetail(this.data).then((res) => {
         this.form = res;
         const str = res.warrantyMonth;
         if (str) {
           this.form.year = str.substring(0, 4);
           this.form.month = str.substring(4, 6);
         }
-
-        console.log(this.form);
       });
     },
     transformDate (time) {

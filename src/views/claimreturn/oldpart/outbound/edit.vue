@@ -461,10 +461,11 @@ export default {
     },
     printOutbound () {
       this.$print.show({
-        id: this._id, // 必选，对应数据id
+        id: new Date().getTime() + '',
         template: 'Outbound',
         title: `旧件出库单(中心库): ${this.form.outboundOrderNo}`,
         width: 1122,
+        data: this._id,
       });
     }
   }
