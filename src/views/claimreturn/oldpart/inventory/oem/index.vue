@@ -200,6 +200,9 @@ const defaultForm = {
   dealerInTime: '',
   dealerOutTime: '',
   returnOrderNo: '',
+  returnStatusList: [],
+  isCheckedList: [],
+  returnDate: '',
   oemInTime: '',
   oemCheckTime: '',
   oemOutboundOrderNo: '',
@@ -454,12 +457,22 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/claimreturn/oldpart/returnorder/edit',
-                  query: {
-                    id: row.returnOrderId
-                  }
-                });
+                if (row.returnType === '40') {
+                  // 快返
+                  this.$router.push({
+                    path: '/claimreturn/oldpart/returnorder/fast/edit',
+                    query: {
+                      id: row.returnOrderId
+                    }
+                  });
+                } else {
+                  this.$router.push({
+                    path: '/claimreturn/oldpart/returnorder/edit',
+                    query: {
+                      id: row.returnOrderId
+                    }
+                  });
+                }
               },
               type: 'primary'
             }]
