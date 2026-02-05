@@ -67,7 +67,7 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate&&isFastReturn" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <el-button v-if="canAddOrUpdate&&isFastReturn&&!isDealer" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button  v-if="canDelete"  size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button  v-if="canSign"  size="small" @click="handleBatchSign" :disabled="selectionList.length === 0">批量签收</el-button>
@@ -156,6 +156,7 @@ export default {
     return {
       pageTitle: this.$route.meta.name,
       pageType: 'list',
+      isDealer: this.$store.state.user.userInfo?.accountFlag,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       form: {
         ...defaultForm
@@ -469,29 +470,36 @@ export default {
     },
     // 批量签收
     handleBatchSign () {
-      this.selectionList.forEach(item => {
-        if (item.returnStatus !== '30') {
-          this.$message({
-            type: 'error',
-            message: '仅已回运状态数据允许签收!'
+      // 筛选出非已回运状态的回运单
+      const notReturnedItems = this.selectionList.filter(item => item.returnStatus !== '30');
+      const allReturned = notReturnedItems.length === 0;
+
+      if (allReturned) {
+        // 都是已回运状态，显示二次确认弹窗
+        const count = this.selectionList.length;
+        this.$confirm(`是否需要对选中的${count}条记录进行【批量签收】操作？`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          const ids = this.selectionList.map(item => item.id) || [];
+          signByIds(ids).then(() => {
+            this.$message({
+              type: 'success',
+              message: '您已完成签收。'
+            });
+            this.getData();
           });
-          throw new Error('仅已回运状态数据允许签收!');
-        }
-      });
-      const ids = this.selectionList.map(item => item.id) || [];
-      this.$confirm('是否签收?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        signByIds(ids).then(() => {
-          this.$message({
-            type: 'success',
-            message: '签收成功!'
-          });
-          this.getData();
+        }).catch(() => {});
+      } else {
+        // 包含非已回运状态，列出不允许签收的单号
+        const notReturnedOrderNos = notReturnedItems.map(item => item.returnOrderNo);
+        this.$message({
+          type: 'error',
+          message: `以下单号不是已回运状态，不允许签收：单号：${notReturnedOrderNos.join('，单号：')}`,
+          duration: 5000
         });
-      }).catch(() => {});
+      }
     },
     // 批量启用停用
     handleBatchEnable (status) {

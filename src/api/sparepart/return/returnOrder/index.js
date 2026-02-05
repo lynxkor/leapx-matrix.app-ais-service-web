@@ -75,3 +75,51 @@ export function returnOrderUpdate (data) {
 export function returnOrderDel (data) {
   return api.jsonPost('sp/web/purchase/returnOrderDetail/delete', data);
 }
+
+/**
+ * 提交
+ * @param {Object} data
+ */
+export function returnOrderCommit (data) {
+  return api.jsonPost('sp/web/purchase/returnOrder/commit', data);
+}
+
+/**
+ * 作废
+ * @param {Object} data
+ */
+export function returnOrderCancel (data) {
+  return api.jsonPost('sp/web/purchase/returnOrder/cancel', data);
+}
+
+/**
+ * 同意
+ * @param {Object} data
+ */
+export function returnOrderAgree (data) {
+  return api.jsonPost('sp/web/purchase/returnOrder/agree', data);
+}
+
+/**
+ * 驳回
+ * @param {Object} data
+ */
+export function returnOrderReject (data) {
+  return api.jsonPost('sp/web/purchase/returnOrder/reject', data);
+}
+
+/**
+ * 撤回
+ * @param {Object} data
+ */
+export function returnOrderRevoke (data) {
+  return api.jsonPost('sp/web/purchase/returnOrder/revoke', data);
+}
+
+/**
+ * 发运
+ * @param {Object} data
+ */
+export function returnOrderShipping (data) {
+  return api.jsonPost('sp/web/purchase/returnOrder/shipping', data);
+}

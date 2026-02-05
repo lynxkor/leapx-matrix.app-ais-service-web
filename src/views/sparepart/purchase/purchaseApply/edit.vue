@@ -2,7 +2,7 @@
   <edit-page-layout ref="editLayout" :title="detailTitle" showPaneFooter>
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
-      <edit-base-container ref="containerRef" :id="_id" :title="title" :form.sync="form" :submitRequest="submitRequest"
+      <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :form.sync="form" :submitRequest="submitRequest"
         :isEditing.sync="isEditing" :originalForm.sync="originalForm" :detailRequest="detailRequest"  :showEditBtn="routeQueryType">
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
@@ -243,7 +243,7 @@
                 <el-button class="ais-button" size="small">
                   补货预测
                 </el-button>
-                <el-button size="small">备件导入</el-button>
+                <el-button size="small" @click="handleImport" >备件导入</el-button>
               </div>
             </div>
           </section>
@@ -258,6 +258,12 @@
         />
       </div>
     </template>
+    <Upload
+      :visible="uploadDialogVisible"
+      :businessParams="_id"
+      id="sparePartPurchaseApplyDetailImport"
+      @close="handleUploadDialogClose"
+    />
   </edit-page-layout>
 </template>
 
@@ -267,12 +273,13 @@ import FetchSelect from '@/libs/components/FetchSelect';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getUserByNameOrNo, getEnum, listOrgStoreInfoByParam, listWarehouse, getPartDealer, getPartUser } from '@/api/common';
+import { getUserByNameOrNo, getEnum, listOrgStoreInfoByParam, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import SparePartsDetail from './SparePartsDetail.vue';
+import Upload from '@/libs/components/UploadDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -336,7 +343,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    SparePartsDetail
+    SparePartsDetail,
+    Upload
   },
   computed: {
     _id () {
@@ -377,7 +385,7 @@ export default {
       },
       pageTitle: '备件采购申请',
       pageType: 'edit',
-      title: '采购申请单：' + form.code,
+      title: '采购申请单：',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-purchaseApply',
       loading: false,
@@ -387,6 +395,7 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       detailTitle: '添加备件',
+      uploadDialogVisible: false,
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       rules: {
         purchaseOrderType: [
@@ -414,7 +423,7 @@ export default {
     this.oem = this.$store.state.pageSource?.aisPageSource.includes('AISPART-sparePart-oem');
     console.log('this.oem  ', this.isEditing);
     if (!this.isEditing) {
-      this.getPartUser();
+      this.getLoginUser();
     }
   },
   methods: {
@@ -443,9 +452,9 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
-    async getPartUser (query) {
+    async getLoginUser (query) {
       try {
-        const res = await getPartUser();
+        const res = await getLoginUser();
         this.form.dealerCode = res.currentDealerCode;
         this.form.dealerName = res.currentDealerName;
         if (this.form.dealerCode) {
@@ -527,6 +536,12 @@ export default {
     // 添加备件
     handleAdd () {
       this.openPane();
+    },
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
     }
   }
 };

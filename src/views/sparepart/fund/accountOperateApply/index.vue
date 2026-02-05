@@ -9,39 +9,44 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="账户编号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.accountCode"
+      <el-form-item label="门店">
+        <fetch-select
+          :remote-method="getDealerList"
+          remote
+          v-model="form.dealerCodeList"
+          placeholder="请输入门店编码或名称"
+          labelKey="orgName"
+          valueKey="orgCode"
+          subLabelKey="orgCode"
           clearable
-        />
-      </el-form-item>
-      <el-form-item label="公司编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.companyCode"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="流水no"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.flowNo"
-          clearable
-        />
-      </el-form-item>
+          multiple
+          collapseTags
+          filterable
+            />
+        </el-form-item>
+        <el-form-item label="账户编号">
+          <tag-input v-model="form.accountCodeList" placeholder="请输入" />
+        </el-form-item>
       <template v-if="show">
-        <el-form-item label="数据来源，150:新销服; 老销服:10">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dataSource"
+          <el-form-item label="公司" v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :remote-method="getParentCompany"
+            remote
+            v-model="form.companyCodeList"
+            placeholder="请选择"
+            labelKey="companyName"
+            valueKey="companyCode"
+            subLabelKey="companyCode"
             clearable
+            multiple
+            collapseTags
+            filterable
           />
         </el-form-item>
-        <el-form-item label="门店编码（组织code）">
+        <el-form-item label="充值流水"  v-show="this.visibleCount === 3 || show">
           <el-input
             placeholder="请输入"
-            v-model="form.dealerCode"
+            v-model="form.flowNo"
             clearable
           />
         </el-form-item>
@@ -187,7 +192,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/fund/accountOperateApply/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -196,6 +201,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -228,7 +234,8 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
@@ -387,6 +394,26 @@ export default {
         this.exportLoading = false;
       });
     },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    async getParentCompany (query) {
+      try {
+        const res = await getParentCompany({ parentCompanyName: query });
+        res.records = res.records?.map(item => ({
+          ...item,
+          displayName: item.companyName + `(${item.companyCode})`
+        }));
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     getData () {
       this.loading = true;
       this.selectionList = [];
@@ -439,7 +466,7 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+        if (data[key] === '' || data[key] === null || data[key].length === 0) {
           delete data[key];
         }
       });
@@ -449,6 +476,13 @@ export default {
         if (this.form.createTime.length > 1) {
           data.createTimeStart = this.form.createTime[0];
           data.createTimeEnd = this.form.createTime[1];
+        }
+      }
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = this.form.updateTime[1];
         }
       }
 

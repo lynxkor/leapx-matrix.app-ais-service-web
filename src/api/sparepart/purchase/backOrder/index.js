@@ -51,3 +51,27 @@ export function enableItem (data) {
 export function getBackOrderDetailList (data) {
   return api.jsonPost('sp/web/purchase/backOrderDetail/page', data);
 }
+
+/**
+ * 备件缺货明看板
+ * @param {Object} data
+ */
+export function reportPage (data) {
+  return api.jsonPost('sp/web/purchase/backOrderDetail/reportPage', data);
+}
+
+/**
+ * 备件缺货明细表详情信息
+ * @param {Object} data
+ */
+export function getBackOrderDetailDetail (data) {
+  return api.jsonPost('sp/web/purchase/backOrderDetail/get', data);
+}
+
+/**
+ * 备件缺货明细表新增/编辑
+ * @param {Object} data
+ */
+export function updateBackOrderDetail (data) {
+  return api.jsonPost('sp/web/purchase/backOrderDetail/addOrUpdate', data);
+}

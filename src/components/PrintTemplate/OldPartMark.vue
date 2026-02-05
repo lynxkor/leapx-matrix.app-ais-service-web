@@ -1,5 +1,5 @@
 <template>
-  <div id="printArea" style="width:1060px;">
+  <div id="printArea" style="width:1060px;" class="print-minh" v-loading="loading">
     <div v-for="item in result" :key="item.id" class="divMain">
       <div class="divLeft">
         <table>
@@ -23,7 +23,7 @@
             </tr>
             <tr>
               <td>开单日期：</td>
-              <td>{{transformDate(item.createTime)}}</td>
+              <td>{{transformDateHM(item.serviceProxyCreateTime)}}</td>
               <td>行驶里程：</td>
               <td>{{ item.mileage }}</td>
               <!-- <td>3,100.00</td> -->
@@ -155,6 +155,7 @@ export default {
   data () {
     return {
       result: [],
+      loading: false,
     };
   },
   watch: {
@@ -172,13 +173,17 @@ export default {
   },
   methods: {
     getData (ids) {
+      this.result = [];
+      this.loading = true;
       print({
         ids,
       }).then(res => {
         this.result = res;
+      }).finally(() => {
+        this.loading = false;
       });
     },
-    transformDate (time) {
+    transformDateHM (time) {
       if (!time) {
         return '';
       }
@@ -190,7 +195,19 @@ export default {
       var D = _d < 10 ? '0' + _d : _d;
       const h = date.getHours();
       const m = date.getMinutes();
-      return `${Y}/${M}/${D} ${h}/${m}`;
+      return `${Y}/${M}/${D} ${h}:${m}`;
+    },
+    transformDate (time) {
+      if (!time) {
+        return '';
+      }
+      const date = new Date(time);
+      var Y = date.getFullYear();
+      const _m = date.getMonth() + 1;
+      var M = (_m < 10 ? '0' + (_m) : _m);
+      const _d = date.getDate();
+      var D = _d < 10 ? '0' + _d : _d;
+      return `${Y}/${M}/${D}`;
     }
   },
 };
@@ -224,9 +241,11 @@ export default {
 .divMain {
   margin-bottom: 10px;
   padding-bottom: 10px;
-  // height: 465px;
   border-bottom: dashed;
   display: flex;
+}
+.print-minh{
+  min-height: 400px;
 }
 
 .divLeft {

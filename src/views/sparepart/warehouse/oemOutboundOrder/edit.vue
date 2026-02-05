@@ -5,7 +5,7 @@
       <edit-base-container
         ref="containerRef"
         :id="_id"
-        :title="title"
+        :title="`${title}${form.code}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
         :submitRequest="submitRequest"
@@ -472,7 +472,7 @@ export default {
     return {
       pageTitle: 'OEM出库单',
       pageType: 'edit',
-      title: '出库单号：' + form.code,
+      title: '出库单号：',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
       moduleKey: 'AISPART-oemOutboundOrder',
       loading: false,

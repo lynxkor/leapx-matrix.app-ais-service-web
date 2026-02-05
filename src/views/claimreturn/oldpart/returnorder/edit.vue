@@ -55,16 +55,15 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
                 <el-form-item label="门店回运单号：" prop="returnOrderNo">
-                  <!-- <base-input
+                  <base-input
                     placeholder="请输入"
                     v-model="form.returnOrderNo"
                     clearable
                     disabled
-                  /> -->
-                  <template>{{ form.returnOrderNo }}</template>
+                  />
                 </el-form-item>
                 <el-form-item label="回运状态：" prop="returnStatus">
-                  <!-- <fetch-select
+                  <fetch-select
                     :request="fetchOptions"
                     enumCode="old_part_return_order_status"
                     v-model="form.returnStatus"
@@ -72,11 +71,10 @@
                     clearable
                     filterable
                     disabled
-                  /> -->
-                  <template>{{ form.dealerName }}</template>
+                  />
                 </el-form-item>
                 <el-form-item label="旧件返回类型：" prop="returnType">
-                  <!-- <fetch-select
+                  <fetch-select
                     :request="fetchOptions"
                     enumCode="old_part_return_type"
                     v-model="form.returnType"
@@ -84,12 +82,11 @@
                     clearable
                     filterable
                     disabled
-                  /> -->
-                  <template>{{ form.returnTypeLabel }}</template>
+                  />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerCode">
                   <fetch-select
-                    v-if="form.returnStatus==='10'"
+                    :disabled="form.returnStatus!=='10'"
                     filterable
                     clearable
                     remote
@@ -101,129 +98,105 @@
                     value-key="orgCode"
                     label-key="orgName"
                   />
-                  <template v-else>{{ form.dealerName }}</template>
                 </el-form-item>
                 <el-form-item label="回运地址：" prop="receiverAddress">
                   <base-input
-                    v-if="form.returnStatus==='10'"
+                    :disabled="form.returnStatus!=='10'"
                     placeholder="请输入"
                     v-model="form.receiverAddress"
                     clearable
                   />
-                  <template v-else>{{ form.receiverAddress }}</template>
                 </el-form-item>
                 <el-form-item label="回运日期：" prop="returnDate">
                   <el-date-picker
-                    v-if="form.returnStatus!=='40'"
+                    :disabled="form.returnStatus==='40'"
                     v-model="form.returnDate"
                     type="datetime"
                     format="yyyy-MM-dd HH:mm"
                     value-format="yyyy-MM-dd HH:mm:ss"
                     placeholder="选择日期时间">
                   </el-date-picker>
-                  <template v-else>{{ form.returnDate }}</template>
                 </el-form-item>
                 <el-form-item label="收货联系人：" prop="receiverContact">
                   <base-input
-                    v-if="form.returnStatus==='10'"
+                    :disabled="form.returnStatus!=='10'"
                     placeholder="请输入"
                     v-model="form.receiverContact"
                     clearable
                   />
-                  <template v-else>{{ form.receiverContact }}</template>
                 </el-form-item>
                 <el-form-item label="收货电话：" prop="receiverPhone">
                   <base-input
-                    v-if="form.returnStatus==='10'"
+                    :disabled="form.returnStatus!=='10'"
                     placeholder="请输入"
                     v-model="form.receiverPhone"
                     clearable
                     maxlength="11"
                   />
-                  <template v-else>{{ form.receiverPhone }}</template>
                 </el-form-item>
                 <el-form-item label="回运件数(纸箱/木架)：" prop="returnUnit" >
                   <base-input
-                    v-if="form.returnStatus!=='40'"
+                    :disabled="form.returnStatus==='40'"
                     placeholder="请输入"
                     v-model="form.returnUnit"
                     clearable
                   />
-                  <template v-else>{{ form.returnUnit }}</template>
                 </el-form-item>
                 <el-form-item label="物流商：" prop="logisticsCompany">
                   <base-input
-                    v-if="form.returnStatus!=='40'"
+                    :disabled="form.returnStatus==='40'"
                     placeholder="请输入"
                     v-model="form.logisticsCompany"
                     clearable
                   />
-                  <template v-else>{{ form.logisticsCompany }}</template>
                 </el-form-item>
                 <el-form-item label="物流单号：" prop="logisticsTrackingNo">
                   <base-input
-                    v-if="form.returnStatus!=='40'"
+                    :disabled="form.returnStatus==='40'"
                     placeholder="请输入"
                     v-model="form.logisticsTrackingNo"
                     clearable
                   />
-                  <template v-else>{{ form.logisticsTrackingNo }}</template>
-                </el-form-item>
-                <el-form-item label="是否验收完成：" prop="isChecked">
-                  <!-- <fetch-select
-                    :request="fetchOptions"
-                    enumCode="BooleanEnum"
-                    v-model="form.isChecked"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                    :disabled="form.returnStatus!=='40'"
-                  /> -->
-                  {{ form.isCheckedLabel }}
                 </el-form-item>
                 <el-form-item label="签收日期：" prop="signReceiveDate">
-                  <!-- <el-date-picker
+                  <el-date-picker
                     v-model="form.signReceiveDate"
                     disabled
                     type="datetime"
                     format="yyyy-MM-dd HH:mm"
                     value-format="yyyy-MM-dd HH:mm:ss"
                     placeholder="选择日期时间">
-                  </el-date-picker> -->
-                  <template>{{ form.signReceiveDate }}</template>
+                  </el-date-picker>
                 </el-form-item>
                 <el-form-item label="预计到达日期：" prop="estimatedArrivalDate">
                   <el-date-picker
-                    v-if="form.returnStatus==='20'"
+                    :disabled="form.returnStatus!=='20'"
                     v-model="form.estimatedArrivalDate"
                     type="datetime"
                     format="yyyy-MM-dd HH:mm"
                     value-format="yyyy-MM-dd HH:mm:ss"
                     placeholder="选择日期时间">
                   </el-date-picker>
-                  <template v-else>{{ form.estimatedArrivalDate }}</template>
                 </el-form-item>
                 <el-form-item class="form-item-full" label="备注：" prop="remark">
                   <base-input
-                    v-if="form.returnStatus!=='40'"
+                    :disabled="form.returnStatus==='40'"
                     placeholder="请输入"
                     v-model="form.remark"
                     clearable
                     maxlength="1000"
                     type="textarea"
                   />
-                  <template v-else>{{ form.remark }}</template>
                 </el-form-item>
                 <el-form-item class="form-item-full" label="签收备注：" prop="signRemark">
                   <base-input
-                    v-if="form.returnStatus==='40'"
+                    :disabled="form.returnStatus!=='40'"
                     placeholder="请输入"
                     v-model="form.signRemark"
                     clearable
                     maxlength="1000"
                     type="textarea"
                   />
-                  <template v-else>{{ form.signRemark }}</template>
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-else>
@@ -267,9 +240,6 @@
                 </el-form-item>
                 <el-form-item label="物流单号：">
                   {{ form.logisticsTrackingNo }}
-                </el-form-item>
-                <el-form-item label="是否验收完成：">
-                  {{ form.isChecked == '1' ? '是' : '否' }}
                 </el-form-item>
                 <el-form-item label="签收日期：">
                   {{ form.signReceiveDate }}
@@ -496,9 +466,9 @@ export default {
           { required: status20, message: '请选择预计到达日期', trigger: 'change' }
         ],
         receiverPhone: [
-          { required: status10, message: '请输入收货电话', trigger: 'change' },
+          { required: true, message: '请输入收货电话', trigger: 'change' },
           {
-            pattern: status10 ? /^1[3-9]\d{9}$/ : '',
+            pattern: /^1[3-9]\d{9}$/,
             message: '请输入正确的手机号码',
             trigger: 'blur'
           }

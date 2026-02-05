@@ -3,6 +3,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/purchase/purchaseOrder/';
+const prefixDetail = SPARE_PREFIX + '/web/purchase/purchaseOrderDetail/';
 
 /**
  * 查询列表
@@ -49,5 +50,37 @@ export function enableItem (data) {
  * @param {Object} data
  */
 export function purchaseOrderDetail (data) {
-  return api.jsonPost('sp/web/purchase/purchaseOrderDetail/page', data);
+  return api.jsonPost(prefixDetail + 'page', data);
+}
+
+/**
+ * 备件采购订单-全部备件
+ * @param {Object} data
+ */
+export function pageAll (data) {
+  return api.jsonPost('sp/web/purchase/purchaseOrderDetail/pageAll', data);
+}
+
+/**
+ * 备件采购订单-待签收备件
+ * @param {Object} data
+ */
+export function pageWaitSign (data) {
+  return api.jsonPost('sp/web/purchase/purchaseOrderDetail/pageWaitSign', data);
+}
+
+/**
+ * 批量签收/入库
+ * @param {Object} data
+ */
+export function batchSign (data) {
+  return api.jsonPost('sp/web/purchase/purchaseOrder/batchSign', data);
+}
+
+/**
+ * 提交索赔
+ * @param {Object} data
+ */
+export function purchaseOrderClaim (data) {
+  return api.jsonPost('sp/web/purchase/purchaseOrder/claim', data);
 }

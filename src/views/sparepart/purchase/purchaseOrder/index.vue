@@ -1,5 +1,5 @@
 <template>
-  <div class="page-common m-purchase-order-list">
+  <div class="page-common m-service-proxy-list">
     <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
     <el-form
       :inline="true"
@@ -15,18 +15,21 @@
       <el-form-item label="采购申请单">
         <tag-input v-model="form.purchaseApplyCodeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="缺货单号"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+        <tag-input v-model="form.purchaseApplyCodeList" placeholder="请输入" />
+      </el-form-item>
+      <el-form-item label="缺货单号"  v-show="this.visibleCount === 3 || show" v-if="activeName === 'homePage'">
         <tag-input v-model="form.backOrderCodeList" placeholder="请输入" />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="备注">
+        <el-form-item label="备注" v-if="activeName === 'homePage'">
           <el-input
             placeholder="请输入"
             v-model="form.remarkLike"
             clearable
           />
         </el-form-item>
-        <el-form-item label="发货仓库">
+        <el-form-item label="发货仓库" v-if="activeName === 'homePage'">
           <el-input
             placeholder="请输入"
             v-model="form.deliveryWarehouseLike"
@@ -48,7 +51,7 @@
             filterable
             />
         </el-form-item>
-        <el-form-item label="订单类型">
+        <el-form-item label="订单类型" v-if="activeName === 'homePage'">
           <fetch-select
             :request="fetchOptions"
             enumCode="PurchaseOrderTypeEnum"
@@ -59,7 +62,7 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="订单状态">
+        <el-form-item label="订单状态" v-if="activeName === 'homePage'">
           <fetch-select
             :request="fetchOptions"
             enumCode="PurchaseOrderStatusEnum"
@@ -115,15 +118,24 @@
       <!--  TIPS:根据产品增删功能按钮  -->
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button> -->
+      <el-button v-if="activeName === 'allSpareParts'" size="small" @click="handleBatchClaim" :disabled="selectionList.length === 0">提交索赔</el-button>
+      <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchSignFor(false)" :disabled="selectionList.length === 0">批量签收</el-button>
+      <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchSignFor(true)" :disabled="selectionList.length === 0">签收并入库</el-button>
+    </div>
+    <div class="ais-tabs">
+      <el-tabs v-model="activeName" @tab-click="handleClick">
+        <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
+        <el-tab-pane label="全部备件" name="allSpareParts"></el-tab-pane>
+        <el-tab-pane label="待签收备件" name="proxySign"></el-tab-pane>
+      </el-tabs>
     </div>
     <div
       class="ais-table-c"
+      v-if="activeName === 'homePage'"
     >
       <LPVxeTable
+        :key="1"
         ref="tableRef"
         v-loading="loading"
         is-checkbox
@@ -140,11 +152,78 @@
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
     </div>
+    <div
+      class="ais-table-c"
+      v-if="activeName === 'allSpareParts'"
+    >
+      <LPVxeTable
+        :key="2"
+        ref="tableRefAll"
+        v-loading="loading"
+        is-checkbox
+        is-page
+        checkboxFixed
+        :option-obj="optionObjAll"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+        @listSelect="handleListSelect"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
+    </div>
+    <div
+      class="ais-table-c"
+      v-if="activeName === 'proxySign'"
+    >
+      <LPVxeTable
+        :key="3"
+        ref="tableRefSign"
+        v-loading="loading"
+        is-checkbox
+        is-page
+        checkboxFixed
+        :option-obj="optionObjSign"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+        @listSelect="handleListSelect"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
+    </div>
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
       :id="'1'"
       @close="handleUploadDialogClose"
+    />
+    <!-- 签收  签收/并入库弹窗 -->
+    <SignForDialog
+      ref="signForDialogRef"
+      :visible="signDialogVisible"
+      :signForForm="signForm"
+      @close="handleSignDialogClose"
+      @submit="handleSignForSubmit"
+    />
+    <!-- 批量签收  签收/入库弹窗 -->
+    <BatchSignForDialogAll
+      ref="batchSignForDialogRef"
+      :visible="batchSignDialogVisible"
+      :batchForm="batchForm"
+      :inbound="inbound"
+      @close="handleBatchSignDialogClose"
+      @submit="handleBatchSignForSubmit"
+    />
+    <!-- 提交索赔 -->
+    <SubmitClaimDialog
+      ref="submitClaimDialogRef"
+      :visible="submitClaimDialogVisible"
+      :claimList="selectionClaim"
+      @close="handleSubmitClaimDialogClose"
+      @submit="handleSubmitClaimSubmit"
     />
   </div>
 </template>
@@ -153,7 +232,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/purchase/purchaseOrder/index';
+import { getList, deleteItem, enableItem, pageAll, pageWaitSign } from '@/api/sparepart/purchase/purchaseOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -164,6 +243,9 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
+import SignForDialog from './SignForDialogAll.vue';
+import BatchSignForDialogAll from './BatchSignForDialogAll.vue';
+import SubmitClaimDialog from './SubmitClaimDialog.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -193,11 +275,14 @@ export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
     PageSearchAction,
-    LPVxeTable,
     FetchSelect,
-    EditPage,
     Upload,
-    TagInput
+    TagInput,
+    LPVxeTable,
+    EditPage,
+    SignForDialog,
+    BatchSignForDialogAll,
+    SubmitClaimDialog
   },
   data () {
     return {
@@ -210,10 +295,18 @@ export default {
       },
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
+      activeName: 'homePage',
       show: false,
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      signDialogVisible: false, // 签收弹窗
+      signForm: {}, // 签收/入库
+      batchSignDialogVisible: false, // 批量签收/入库弹窗
+      inbound: false, // 批量签收/入库
+      batchForm: [], // 批量签收/入库
+      submitClaimDialogVisible: false, // 提交索赔弹窗
+      selectionClaim: [], // 选中的采购订单
       clickItemId: '',
       optionObj: {
         id: 'purchaseOrderTable',
@@ -272,14 +365,41 @@ export default {
           { props: 'rebateAmount', label: '使用返利', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+        ],
+        total: 0
+      },
+      // optionObjAll: {
+      //   form: {
+      //     page: 1,
+      //     size: 20
+      //   },
+      //   dataList: [],
+      //   total: 0
+      // },
+      // optionObjSign: {
+      //   form: {
+      //     page: 1,
+      //     size: 20
+      //   },
+      //   dataList: [],
+      //   total: 0
+      // }
+      // 暂注释 使用另外一种表格 看最后要不要 表格配置
+      optionObjAll: {
+        id: 'purchaseOrderTableAll',
+        dataList: [],
+        form: {
+          page: 1,
+          size: pageSize
+        },
+        dataProp: [
           {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
+            props: 'code',
+            label: '采购订单号',
             visible: true,
-            fixed: 'right',
+            width: 200,
+            fixed: 'left',
             buttons: [{
-              name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/purchase/purchaseOrder/edit',
@@ -288,25 +408,139 @@ export default {
                   }
                 });
               },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'purchaseApplyCode',
+            label: '采购申请单',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
               click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseApply/edit',
+                  query: {
+                    id: row.purchaseApplyId
+                  }
                 });
               },
-              type: 'danger'
+              type: 'primary'
+            }]
+          },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'settlementQty', label: '结算数量', visible: true, width: 200 },
+          { props: 'cancelQty', label: '取消数量', visible: true, width: 200 },
+          { props: 'outboundQty', label: '已发运数', visible: true, width: 200 },
+          { props: 'signedQty', label: '已签收数', visible: true, width: 200 },
+          { props: 'inboundQty', label: '已入库数', visible: true, width: 200 },
+          { props: 'cancelOperator', label: '取消人', visible: true, width: 200 },
+          { props: 'cancelTime', label: '取消时间', visible: true, width: 200 },
+          { props: 'cancelDescription', label: '取消说明', visible: true, width: 200 },
+          { props: 'originalPrice', label: '原价', visible: true, width: 200 },
+          { props: 'purchasePrice', label: '采购价', visible: true, width: 200 },
+          { props: 'purchaseAmount', label: '采购金额', visible: true, width: 200 },
+          { props: 'rebateUnitPrice', label: '折后价', visible: true, width: 200 },
+          { props: 'rebateAmount', label: '折后金额', visible: true, width: 200 },
+          { props: 'detailRemark', label: '备注', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
+            buttons: [{
+              name: '提交索赔',
+              click: (rowIndex, row) => {
+                this.handleClaim(row);
+              },
+              type: 'info'
+            }]
+          }
+        ],
+        total: 0
+      },
+      optionObjSign: {
+        id: 'purchaseOrderTableSign',
+        dataList: [],
+        form: {
+          page: 1,
+          size: pageSize
+        },
+        dataProp: [
+          {
+            props: 'code',
+            label: '采购订单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseOrder/edit',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'purchaseApplyCode',
+            label: '采购申请单',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseApply/edit',
+                  query: {
+                    id: row.purchaseApplyId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'dealerCode', label: '运单号', visible: true, width: 200 },
+          { props: 'detailRemark', label: '备注', visible: true, width: 200 },
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'settlementQty', label: '结算数量', visible: true, width: 200 },
+          { props: 'cancelQty', label: '取消数量', visible: true, width: 200 },
+          { props: 'outboundQty', label: '已发运数', visible: true, width: 200 },
+          { props: 'signedQty', label: '已签收数', visible: true, width: 200 },
+          { props: 'inboundQty', label: '已入库数', visible: true, width: 200 },
+          { props: 'cancelOperator', label: '仓库名称', visible: true, width: 200 },
+          { props: 'cancelTime', label: '本次签收数', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
+            buttons: [{
+              name: '签收',
+              click: (rowIndex, row) => {
+                this.handleSignFor(row, false);
+              },
+              type: 'info'
+            }, {
+              name: '签收并入库',
+              click: (rowIndex, row) => {
+                this.handleSignFor(row, true);
+              },
+              type: 'info'
             }]
           }
         ],
@@ -334,13 +568,29 @@ export default {
       });
     },
     onSubmit () {
-      this.optionObj.form.page = 1;
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        optionObj = this.optionObjAll;
+      } else if (this.activeName === 'proxySign') {
+        optionObj = this.optionObjSign;
+      }
+      optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
       this.form = { ...defaultForm };
-      this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        optionObj = this.optionObjAll;
+      } else if (this.activeName === 'proxySign') {
+        optionObj = this.optionObjSign;
+      }
+      optionObj.form.page = 1;
+      optionObj.form.size = 20;
       this.getData();
     },
     exportExcel () {
@@ -374,17 +624,28 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
-
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      let fetchApi = getList;
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        fetchApi = getList;
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        fetchApi = pageAll;
+        optionObj = this.optionObjAll;
+      } else if (this.activeName === 'proxySign') {
+        fetchApi = pageWaitSign;
+        optionObj = this.optionObjSign;
+      }
+      fetchApi({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
-          console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          optionObj.dataList = res.records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          optionObj.total = res.total;
+          console.log('optionObj', optionObj.total);
         }).finally(() => {
           this.loading = false;
         });
@@ -411,8 +672,16 @@ export default {
       }
     },
     getConfig () {
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        optionObj = this.optionObjAll;
+      } else if (this.activeName === 'proxySign') {
+        optionObj = this.optionObjSign;
+      }
       return new Promise((resolve, reject) => {
-        getTableConfig(this.optionObj.id).then(data => {
+        getTableConfig(optionObj.id).then(data => {
           resolve({ data });
         }).catch(err => {
           // 容错：此处如果接口挂了，也不应该影响正常使用
@@ -425,16 +694,28 @@ export default {
       return tableAddOrUpdate(data);
     },
     paginationChange (type, num) {
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        optionObj = this.optionObjAll;
+      } else if (this.activeName === 'proxySign') {
+        optionObj = this.optionObjSign;
+      }
       if (type === 'page') {
-        this.optionObj.form.page = num;
+        optionObj.form.page = num;
       } else {
-        this.optionObj.form.size = num;
+        optionObj.form.size = num;
       }
       this.debouncedGetData();
     },
     // 多选框选中数据
     handleSelectionChange (selection) {
       this.selectionList = selection;
+    },
+    // 批量签收 批量签收入库  提交索赔
+    handleSelectionChangeBatch ({ records }) {
+      this.selectionList = records;
     },
     getFormData () {
       const data = { ...this.form };
@@ -498,34 +779,92 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
+    },
+    // 点击tabs栏切换
+    handleClick (item) {
+      this.activeName = item.name;
+      this.getData();
+    },
+    // 签收  签收并入库
+    handleSignFor (val, type) {
+      this.signForm = {
+        purchaseOrderId: val.purchaseOrderId,
+        inbound: type
+      };
+      this.signDialogVisible = true;
+    },
+    handleSignDialogClose () {
+      this.signDialogVisible = false;
+    },
+    handleSignForSubmit () {
+      this.signDialogVisible = false;
+      this.getData();
+    },
+    // 批量签收  批量并入库
+    handleBatchSignFor (type) {
+      this.batchForm = this.selectionList.map(item => ({
+        purchaseOrderId: item.purchaseOrderId,
+      }));
+      this.inbound = type;
+      this.batchSignDialogVisible = true;
+    },
+    handleBatchSignDialogClose () {
+      this.batchSignDialogVisible = false;
+    },
+    handleBatchSignForSubmit () {
+      this.batchSignDialogVisible = false;
+      this.selectionList = [];
+      this.getData();
+    },
+    // 提交索赔
+    handleClaim (row) {
+      this.selectionClaim = [row] || [];
+      this.submitClaimDialogVisible = true;
+    },
+    handleBatchClaim () {
+      this.selectionClaim = this.selectionList;
+      this.submitClaimDialogVisible = true;
+    },
+    handleSubmitClaimDialogClose () {
+      this.submitClaimDialogVisible = false;
+    },
+    handleSubmitClaimSubmit () {
+      this.submitClaimDialogVisible = false;
+      this.selectionList = [];
+      this.getData();
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.m-purchase-order-list {
+.m-service-proxy-list {
+  ::v-deep .m-vxe-table .m-vxe-table-options {
+    top: -96px;
+  }
+  .ais-actions {
+    margin-bottom: 8px;
+  }
+  .ais-table-c {
+    height: calc(100% - 168px);
+  }
+  .table-pagination {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .action-button{
+    margin: 0 5px;
+    cursor: pointer;
+    &.btn-edit{
+      color:#4C4CD6;
+    }
+    &.btn-link {
+      color: #009100;
+    }
+    &.active{
+      text-decoration: underline;
+    }
+  }
 }
 </style>

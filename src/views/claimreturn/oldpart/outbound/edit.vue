@@ -361,6 +361,9 @@ export default {
         outboundType: [
           { required: true, message: '请选择出库类型', trigger: 'change' }
         ],
+        outboundTime: [
+          { required: true, message: '请选择出库时间', trigger: 'change' }
+        ]
       },
       // ------------ 表格
       dealerCode: '',
