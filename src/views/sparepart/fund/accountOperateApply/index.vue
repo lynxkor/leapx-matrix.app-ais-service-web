@@ -181,7 +181,8 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="'1'"
+      :businessParams="operateType"
+      id="sparePartAccountRechargeApplyImport"
       @close="handleUploadDialogClose"
     />
   </div>
@@ -253,6 +254,7 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      operateType: '1',
       optionObj: {
         id: 'accountOperateApplyTable',
         dataList: [],

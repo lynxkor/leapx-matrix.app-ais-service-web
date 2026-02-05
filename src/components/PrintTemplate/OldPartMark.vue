@@ -1,3 +1,4 @@
+<!-- 保修旧件标签 -->
 <template>
   <div id="printArea" style="width:1060px;" class="print-minh" v-loading="loading">
     <div v-for="item in result" :key="item.id" class="divMain">
@@ -159,13 +160,10 @@ export default {
     };
   },
   watch: {
-    data: {
-      handler (ids) {
-        if (ids) {
-          this.getData(ids);
-        }
+    id: {
+      handler () {
+        this.getData(this.data);
       },
-      deep: true,
       immediate: true,
     }
   },

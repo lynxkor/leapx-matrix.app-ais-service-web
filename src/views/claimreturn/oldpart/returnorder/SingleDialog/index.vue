@@ -189,7 +189,7 @@ export default {
           return;
         }
         this.submitLoading = true;
-        const attachFileList = this.$refs.attachment.getAttachment();
+        const attachFileList = this.$refs.attachment?.getAttachment();
 
         singleCheck({
           oldPartInventoryDetailId: this.form.id,
@@ -227,6 +227,10 @@ export default {
       queryByOldPartUniqueCode4Check(this.oldPartUniqueCode).then((data) => {
         if (data) {
           this.form = data;
+          this.$nextTick(() => {
+            // 默认选
+            this.$set(this.form, 'acceptanceResult', '0');
+          });
         } else {
           this.$message.error('未查询到您输入的旧件');
           this.form = { ...defaultForm };
