@@ -400,7 +400,10 @@ export default {
         total: 0,
       },
       tabList: [],
-      sortColumns: []
+      sortColumns: [{
+        column: 'create_time',
+        sort: 'DESC'
+      }]
     };
   },
   created () {
@@ -498,8 +501,7 @@ export default {
       getList({
         ...this.getFormData(),
         pageNum: this.optionObj.form.page,
-        pageSize: this.optionObj.form.size,
-        sortColumns: this.sortColumns
+        pageSize: this.optionObj.form.size
       })
         .then((res) => {
           this.optionObj.dataList = res.records.map((item) => {
@@ -564,7 +566,7 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
-
+      data.sortColumns = this.sortColumns;
       return data;
     },
     async fetchOptions (code) {
