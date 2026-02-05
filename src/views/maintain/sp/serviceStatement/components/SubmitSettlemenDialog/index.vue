@@ -7,6 +7,7 @@
       :visible="visible"
       @close="close"
       @closed="closed"
+      append-to-body
     >
       <div class="settlement-content">
         <!-- 订单信息区域 -->
