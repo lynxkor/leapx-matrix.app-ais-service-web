@@ -270,12 +270,21 @@ export default {
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/claimreturn/oldpart/inventory/oem/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
+                if (this.isDealerPage) {
+                  this.$router.push({
+                    path: '/claimreturn/oldpart/inventory/dealer/edit',
+                    query: {
+                      id: row.id
+                    }
+                  });
+                } else {
+                  this.$router.push({
+                    path: '/claimreturn/oldpart/inventory/oem/edit',
+                    query: {
+                      id: row.id
+                    }
+                  });
+                }
               },
               type: 'primary'
             }]
