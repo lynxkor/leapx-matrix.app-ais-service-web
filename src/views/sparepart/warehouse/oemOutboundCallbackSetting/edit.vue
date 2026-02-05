@@ -5,7 +5,7 @@
       <edit-base-container
         ref="containerRef"
         :id="_id"
-        :title="title"
+        :title="`${title}${form.taskName}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
         :originalForm.sync="originalForm"
@@ -309,7 +309,7 @@ export default {
     return {
       pageTitle: 'OEM出库单回传SAP开关',
       pageType: 'edit',
-      title: '任务名称：' + form.taskName,
+      title: '任务名称：',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-oemOutboundCallbackSetting',
       loading: false,

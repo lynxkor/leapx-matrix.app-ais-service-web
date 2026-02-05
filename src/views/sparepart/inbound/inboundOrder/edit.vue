@@ -5,7 +5,7 @@
       <edit-base-container
         ref="containerRef"
         :id="_id"
-        :title="title"
+        :title="`${title}${form.code}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
         :submitRequest="submitRequest"
@@ -374,7 +374,7 @@ export default {
     return {
       pageTitle: '备件入库单',
       pageType: 'edit',
-      title: '入库单号：' + form.code,
+      title: '入库单号：',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
       moduleKey: 'AISPART-inboundOrder',
       loading: false,
