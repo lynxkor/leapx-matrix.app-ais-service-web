@@ -783,7 +783,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '车辆档案主表管理',
+      pageTitle: '车辆档案管理',
       pageType: 'edit',
       title: 'VIN码：' + form.vin,
       // TIPS: 权限前缀 AISMC，根据实际情况修改

@@ -179,6 +179,7 @@
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
       <el-button size="small" @click="handleBatchAgree" :disabled="selectionList.length === 0">批量同意</el-button>
       <el-button size="small" @click="handleBatchReject" :disabled="selectionList.length === 0">批量驳回</el-button>
+      <el-button v-if="canImport" size="small" @click="handleImport">铺货导入</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -203,7 +204,7 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="'1'"
+      id="sparePartPurchaseApplyDistribution"
       @close="handleUploadDialogClose"
     />
     <!-- 提交弹窗 -->
@@ -228,6 +229,7 @@
       :visible.sync="approvalDialogVisible"
       :id="purchaseId"
       :couponObj="couponObj"
+      @failure="handleApprovalFailure"
       @close="handleApprovalDialogClose"
     />
   </div>
@@ -403,7 +405,16 @@ export default {
             }, {
               name: '提交',
               show: (row) => {
-                return row.orderStatus === '0' || row.orderStatus === '3';
+                // 必须满足订单状态条件
+                if (row.orderStatus !== '0' && row.orderStatus !== '3') {
+                  return false;
+                }
+                // 门店账号需要额外检查订单类型
+                if (this.accountFlag) {
+                  return row.purchaseOrderType === '0' || row.purchaseOrderType === '1';
+                }
+                // 主机厂账号直接显示
+                return true;
               },
               click: (rowIndex, row) => {
                 this.handleSubmit(row);
@@ -412,7 +423,16 @@ export default {
             }, {
               name: '同意',
               show: (row) => {
-                return row.orderStatus === '1';
+                // 必须满足订单状态条件
+                if (row.orderStatus !== '0' && row.orderStatus !== '3') {
+                  return false;
+                }
+                // 门店账号需要额外检查订单类型
+                if (this.accountFlag) {
+                  return row.purchaseOrderType === '0' || row.purchaseOrderType === '1';
+                }
+                // 主机厂账号直接显示
+                return true;
               },
               click: (rowIndex, row) => {
                 this.handleAgree(row);
@@ -421,7 +441,16 @@ export default {
             }, {
               name: '驳回',
               show: (row) => {
-                return row.orderStatus === '1';
+                // 必须满足订单状态条件
+                if (row.orderStatus !== '0' && row.orderStatus !== '3') {
+                  return false;
+                }
+                // 门店账号需要额外检查订单类型
+                if (this.accountFlag) {
+                  return row.purchaseOrderType === '0' || row.purchaseOrderType === '1';
+                }
+                // 主机厂账号直接显示
+                return true;
               },
               click: (rowIndex, row) => {
                 this.handleReject(row);
@@ -429,6 +458,14 @@ export default {
               type: 'info'
             }, {
               name: '复制',
+              show: (row) => {
+                // 门店账号需要额外检查订单类型
+                if (this.accountFlag) {
+                  return row.purchaseOrderType === '0' || row.purchaseOrderType === '1';
+                }
+                // 主机厂账号直接显示
+                return true;
+              },
               click: (rowIndex, row) => {
                 this.handleCopy(row);
               },
@@ -447,7 +484,7 @@ export default {
   },
   methods: {
     async initDealerUser () {
-      // 查询是否店端
+      // 查询是否店端 true为门店  false为厂端
       const res = await getLoginUser();
       this.accountFlag = res.accountFlag;
       this.currentDealerCode = res.currentDealerCode;// 当前门店code
@@ -696,8 +733,7 @@ export default {
         this.purchaseList = res || [];
         this.submitDialogVisible = true;
       } else {
-        this.$confirm({
-          message: '确认提交吗？',
+        this.$confirm('确认提交吗？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -721,6 +757,7 @@ export default {
       } else if (res.length === 0) {
         const res = await purchaseApplyGetCoupon({ id: val.id });
         this.couponObj = res;
+        this.purchaseId = val.id;
         this.approvalDialogVisible = true;
       }
     },
@@ -731,7 +768,6 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
       }).then(async (result) => {
-        console.log('result', result);
         await batchAgree({ idList, approvalDescription: result.value });
         this.getData();
       });
@@ -741,6 +777,12 @@ export default {
     },
     handleApprovalDialogClose () {
       this.approvalDialogVisible = false;
+    },
+    // 审批同意失败时
+    handleApprovalFailure (val) {
+      this.approvalDialogVisible = false;
+      this.purchaseId = val;
+      this.agreeDialogVisible = true;
     },
     // 驳回
     handleReject (val) {

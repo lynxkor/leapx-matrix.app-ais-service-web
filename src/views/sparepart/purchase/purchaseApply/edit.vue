@@ -6,7 +6,7 @@
         :isEditing.sync="isEditing" :originalForm.sync="originalForm" :detailRequest="detailRequest"  :showEditBtn="routeQueryType">
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
-          <span class="status primary">状态</span>
+          <span class="status primary">{{form.orderStatusLabel}}</span>
         </template>
         <el-main>
           <section class="common-section">
@@ -240,7 +240,7 @@
             </div>
             <div class="common-section-body">
               <div class="ais-select-group">
-                <el-button size="small" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>添加备件</el-button>
+                <el-button size="small" @click="handleAdd" :disabled="!['0', '3'].includes(form.orderStatus)"><i class="iconfont icon-lxppc-plus"></i>添加备件</el-button>
                 <el-button class="ais-button" size="small">
                   补货预测
                 </el-button>

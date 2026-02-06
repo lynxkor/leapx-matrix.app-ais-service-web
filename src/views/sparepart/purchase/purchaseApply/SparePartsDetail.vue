@@ -204,8 +204,10 @@ export default {
       };
       const res = await getPurchaseApplyPage(params);
       this.tableData = res.records || [];
-      this.getSparePartDetail(res.records[0]?.id);
       this.total = res.total;
+      if (res.records.length > 0) {
+        this.getSparePartDetail(res.records[0]?.id);
+      }
     },
     pageSizeChange (pageSize) {
       this.pageSize = pageSize;
