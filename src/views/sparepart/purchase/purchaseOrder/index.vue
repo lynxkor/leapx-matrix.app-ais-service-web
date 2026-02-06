@@ -119,9 +119,9 @@
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button> -->
-      <el-button v-if="activeName === 'allSpareParts'" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">提交索赔</el-button>
-      <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchEnable" :disabled="selectionList.length === 0">批量签收</el-button>
-      <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchEnable" :disabled="selectionList.length === 0">签收并入库</el-button>
+      <el-button v-if="activeName === 'allSpareParts'" size="small" @click="handleBatchClaim" :disabled="selectionList.length === 0">提交索赔</el-button>
+      <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchSignFor(false)" :disabled="selectionList.length === 0">批量签收</el-button>
+      <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchSignFor(true)" :disabled="selectionList.length === 0">签收并入库</el-button>
     </div>
     <div class="ais-tabs">
       <el-tabs v-model="activeName" @tab-click="handleClick">
@@ -135,6 +135,7 @@
       v-if="activeName === 'homePage'"
     >
       <LPVxeTable
+        :key="1"
         ref="tableRef"
         v-loading="loading"
         is-checkbox
@@ -155,72 +156,8 @@
       class="ais-table-c"
       v-if="activeName === 'allSpareParts'"
     >
-      <!-- 使用原生表格 先不优化代码 看最后要不要 表格配置 不要再优化 -->
-      <vxe-table
-        ref="tableRefAll"
-        :data="optionObjAll.dataList"
-        v-loading="loading"
-        stripe
-        resizable
-        border="inner"
-        size="medium"
-        height="auto"
-        min-height="200px"
-        max-height="600px"
-        width="1000px"
-        :checkbox-config="{ checkField: 'checked' }"
-        @checkbox-change="handleSelectionChange"
-        @checkbox-all="handleSelectionChange"
-      >
-        <vxe-column type="checkbox" width="60" align="center" />
-        <vxe-column title="采购订单号" field="purchaseOrderCode" width="200">
-          <template #default="{ row }">
-            <div class="action-button btn-link" @click="handleJump('/sparepart/purchase/purchaseOrder/edit', row.id)">{{ row.purchaseOrderCode }}</div>
-          </template>
-        </vxe-column>
-        <vxe-column title="采购申请单" field="purchaseApplyCode" width="200">
-          <template #default="{ row }">
-            <div class="action-button btn-link" @click="handleJump('/sparepart/purchase/purchaseApply/edit', row.purchaseApplyId)">{{ row.purchaseApplyCode }}</div>
-          </template>
-        </vxe-column>
-        <vxe-column title="门店编码" field="dealerCode" width="200"></vxe-column>
-        <vxe-column title="门店名称" field="dealerName" width="200"></vxe-column>
-        <vxe-column title="备件编码" field="dealerName" width="200"></vxe-column>
-        <vxe-column title="备件名称" field="dealerName" width="200"></vxe-column>
-        <vxe-column title="结算数量" field="settlementQty" width="200"></vxe-column>
-        <vxe-column title="取消数量" field="cancelQty" width="200"></vxe-column>
-        <vxe-column title="已发运数" field="outboundQty" width="200"></vxe-column>
-        <vxe-column title="已签收数" field="signedQty" width="200"></vxe-column>
-        <vxe-column title="已入库数" field="inboundQty" width="200"></vxe-column>
-        <vxe-column title="取消人" field="cancelOperator" width="200"></vxe-column>
-        <vxe-column title="取消时间" field="cancelTime" width="200"></vxe-column>
-        <vxe-column title="原价" field="originalPrice" width="200"></vxe-column>
-        <vxe-column title="采购价" field="purchasePrice" width="200"></vxe-column>
-        <vxe-column title="采购金额" field="purchaseAmount" width="200"></vxe-column>
-        <vxe-column title="折后价" field="cashUnitPrice" width="200"></vxe-column>
-        <vxe-column title="折后金额" field="cashAmount" width="200"></vxe-column>
-        <vxe-column title="备注" field="detailRemark" width="200"></vxe-column>
-        <vxe-column title="创建时间" field="createTime" width="200"></vxe-column>
-        <vxe-column title="修改时间" field="updateTime" width="200"></vxe-column>
-        <vxe-column title="操作" width="120" fixed="right">
-          <template #default="{ row }">
-            <div class="action-button btn-edit" @click="handleAdd(row)">提交索赔</div>
-          </template>
-        </vxe-column>
-      </vxe-table>
-      <div class="table-pagination">
-          <el-pagination
-              @size-change="(val) => pageSizeChange(val, 'allSpareParts')"
-              @current-change="(val) => currentPageChange(val, 'allSpareParts')"
-              :current-page="optionObjAll.form.page"
-              :page-sizes="[10, 20, 50, 100]"
-              :page-size="optionObjAll.form.size"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="optionObjAll.total"
-          >
-          </el-pagination>
-      </div>
-      <!-- <LPVxeTable
+      <LPVxeTable
+        :key="2"
         ref="tableRefAll"
         v-loading="loading"
         is-checkbox
@@ -234,83 +171,14 @@
         @listSelect="handleListSelect"
       >
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
-      </LPVxeTable> -->
+      </LPVxeTable>
     </div>
     <div
       class="ais-table-c"
       v-if="activeName === 'proxySign'"
     >
-      <!-- 使用原生表格 先不优化代码 看最后要不要 表格配置 不要再优化 -->
-      <vxe-table
-        ref="tableRefAll"
-        :data="optionObjSign.dataList"
-        v-loading="loading"
-        stripe
-        resizable
-        border="inner"
-        size="medium"
-        height="auto"
-        min-height="200px"
-        max-height="600px"
-        width="1000px"
-        :checkbox-config="{ checkField: 'checked' }"
-        @checkbox-change="handleSelectionChange"
-        @checkbox-all="handleSelectionChange"
-      >
-        <vxe-column type="checkbox" width="60" align="center" />
-        <vxe-column title="采购订单号" field="purchaseOrderCode" width="200">
-          <template #default="{ row }">
-            <div class="action-button btn-link" @click="handleJump('/sparepart/purchase/purchaseOrder/edit', row.id)">{{ row.purchaseOrderCode }}</div>
-          </template>
-        </vxe-column>
-        <vxe-column title="采购申请单" field="purchaseApplyCode" width="200">
-          <template #default="{ row }">
-            <div class="action-button btn-link" @click="handleJump('/sparepart/purchase/purchaseApply/edit', row.purchaseApplyId)">{{ row.purchaseApplyCode }}</div>
-          </template>
-        </vxe-column>
-        <vxe-column title="运单号" field="dealerCode" width="200"></vxe-column>
-        <vxe-column title="备注" field="detailRemark" width="200"></vxe-column>
-        <vxe-column title="备件编码" field="dealerName" width="200"></vxe-column>
-        <vxe-column title="备件名称" field="dealerName" width="200"></vxe-column>
-        <vxe-column title="结算数量" field="settlementQty" width="200"></vxe-column>
-        <vxe-column title="取消数量" field="cancelQty" width="200"></vxe-column>
-        <vxe-column title="已发运数" field="outboundQty" width="200"></vxe-column>
-        <vxe-column title="已签收数" field="signedQty" width="200"></vxe-column>
-        <vxe-column title="已入库数" field="inboundQty" width="200"></vxe-column>
-        <vxe-column title="仓库名称" field="cancelOperator" width="200"></vxe-column>
-        <vxe-column title="本次签收数" field="cancelTime" width="200"></vxe-column>
-        <vxe-column title="创建时间" field="createTime" width="200"></vxe-column>
-        <vxe-column title="修改时间" field="updateTime" width="200"></vxe-column>
-        <vxe-column title="操作" width="150" fixed="right">
-          <template #default="{ row }">
-            <el-popconfirm
-                title="确定签收此备件吗？"
-                @confirm="handleSignFor(row)"
-              >
-                <span
-                  class="action-button btn-edit"
-                  slot="reference"
-                  type="text">
-                  签收
-                </span>
-              </el-popconfirm>
-            <div class="action-button btn-edit" @click="handleAdd(row)">签收并入库</div>
-          </template>
-        </vxe-column>
-      </vxe-table>
-      <div class="table-pagination">
-          <el-pagination
-              @size-change="(val) => pageSizeChange(val, 'proxySign')"
-              @current-change="(val) => currentPageChange(val, 'proxySign')"
-              :current-page="optionObjSign.form.page"
-              :page-sizes="[10, 20, 50, 100]"
-              :page-size="optionObjSign.form.size"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="optionObjSign.total"
-          >
-          </el-pagination>
-      </div>
-      <!-- <LPVxeTable
+      <LPVxeTable
+        :key="3"
         ref="tableRefSign"
         v-loading="loading"
         is-checkbox
@@ -324,13 +192,38 @@
         @listSelect="handleListSelect"
       >
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
-      </LPVxeTable> -->
+      </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
       :id="'1'"
       @close="handleUploadDialogClose"
+    />
+    <!-- 签收  签收/并入库弹窗 -->
+    <SignForDialog
+      ref="signForDialogRef"
+      :visible="signDialogVisible"
+      :signForForm="signForm"
+      @close="handleSignDialogClose"
+      @submit="handleSignForSubmit"
+    />
+    <!-- 批量签收  签收/入库弹窗 -->
+    <BatchSignForDialogAll
+      ref="batchSignForDialogRef"
+      :visible="batchSignDialogVisible"
+      :batchForm="batchForm"
+      :inbound="inbound"
+      @close="handleBatchSignDialogClose"
+      @submit="handleBatchSignForSubmit"
+    />
+    <!-- 提交索赔 -->
+    <SubmitClaimDialog
+      ref="submitClaimDialogRef"
+      :visible="submitClaimDialogVisible"
+      :claimList="selectionClaim"
+      @close="handleSubmitClaimDialogClose"
+      @submit="handleSubmitClaimSubmit"
     />
   </div>
 </template>
@@ -339,7 +232,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, pageAll, pageWaitSign, batchSign } from '@/api/sparepart/purchase/purchaseOrder/index';
+import { getList, deleteItem, enableItem, pageAll, pageWaitSign } from '@/api/sparepart/purchase/purchaseOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -350,6 +243,9 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
+import SignForDialog from './SignForDialogAll.vue';
+import BatchSignForDialogAll from './BatchSignForDialogAll.vue';
+import SubmitClaimDialog from './SubmitClaimDialog.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -383,7 +279,10 @@ export default {
     Upload,
     TagInput,
     LPVxeTable,
-    EditPage
+    EditPage,
+    SignForDialog,
+    BatchSignForDialogAll,
+    SubmitClaimDialog
   },
   data () {
     return {
@@ -401,6 +300,13 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      signDialogVisible: false, // 签收弹窗
+      signForm: {}, // 签收/入库
+      batchSignDialogVisible: false, // 批量签收/入库弹窗
+      inbound: false, // 批量签收/入库
+      batchForm: [], // 批量签收/入库
+      submitClaimDialogVisible: false, // 提交索赔弹窗
+      selectionClaim: [], // 选中的采购订单
       clickItemId: '',
       optionObj: {
         id: 'purchaseOrderTable',
@@ -459,14 +365,41 @@ export default {
           { props: 'rebateAmount', label: '使用返利', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+        ],
+        total: 0
+      },
+      // optionObjAll: {
+      //   form: {
+      //     page: 1,
+      //     size: 20
+      //   },
+      //   dataList: [],
+      //   total: 0
+      // },
+      // optionObjSign: {
+      //   form: {
+      //     page: 1,
+      //     size: 20
+      //   },
+      //   dataList: [],
+      //   total: 0
+      // }
+      // 暂注释 使用另外一种表格 看最后要不要 表格配置
+      optionObjAll: {
+        id: 'purchaseOrderTableAll',
+        dataList: [],
+        form: {
+          page: 1,
+          size: pageSize
+        },
+        dataProp: [
           {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
+            props: 'code',
+            label: '采购订单号',
             visible: true,
-            fixed: 'right',
+            width: 200,
+            fixed: 'left',
             buttons: [{
-              name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/purchase/purchaseOrder/edit',
@@ -475,205 +408,144 @@ export default {
                   }
                 });
               },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'purchaseApplyCode',
+            label: '采购申请单',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
               click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseApply/edit',
+                  query: {
+                    id: row.purchaseApplyId
+                  }
                 });
               },
-              type: 'danger'
+              type: 'primary'
+            }]
+          },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'settlementQty', label: '结算数量', visible: true, width: 200 },
+          { props: 'cancelQty', label: '取消数量', visible: true, width: 200 },
+          { props: 'outboundQty', label: '已发运数', visible: true, width: 200 },
+          { props: 'signedQty', label: '已签收数', visible: true, width: 200 },
+          { props: 'inboundQty', label: '已入库数', visible: true, width: 200 },
+          { props: 'cancelOperator', label: '取消人', visible: true, width: 200 },
+          { props: 'cancelTime', label: '取消时间', visible: true, width: 200 },
+          { props: 'cancelDescription', label: '取消说明', visible: true, width: 200 },
+          { props: 'originalPrice', label: '原价', visible: true, width: 200 },
+          { props: 'purchasePrice', label: '采购价', visible: true, width: 200 },
+          { props: 'purchaseAmount', label: '采购金额', visible: true, width: 200 },
+          { props: 'rebateUnitPrice', label: '折后价', visible: true, width: 200 },
+          { props: 'rebateAmount', label: '折后金额', visible: true, width: 200 },
+          { props: 'detailRemark', label: '备注', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
+            buttons: [{
+              name: '提交索赔',
+              click: (rowIndex, row) => {
+                this.handleClaim(row);
+              },
+              type: 'info'
             }]
           }
         ],
         total: 0
       },
-      optionObjAll: {
-        form: {
-          page: 1,
-          size: 20
-        },
-        dataList: [],
-        total: 0
-      },
       optionObjSign: {
+        id: 'purchaseOrderTableSign',
+        dataList: [],
         form: {
           page: 1,
-          size: 20
+          size: pageSize
         },
-        dataList: [],
+        dataProp: [
+          {
+            props: 'code',
+            label: '采购订单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseOrder/edit',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'purchaseApplyCode',
+            label: '采购申请单',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseApply/edit',
+                  query: {
+                    id: row.purchaseApplyId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'dealerCode', label: '运单号', visible: true, width: 200 },
+          { props: 'detailRemark', label: '备注', visible: true, width: 200 },
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'settlementQty', label: '结算数量', visible: true, width: 200 },
+          { props: 'cancelQty', label: '取消数量', visible: true, width: 200 },
+          { props: 'outboundQty', label: '已发运数', visible: true, width: 200 },
+          { props: 'signedQty', label: '已签收数', visible: true, width: 200 },
+          { props: 'inboundQty', label: '已入库数', visible: true, width: 200 },
+          { props: 'cancelOperator', label: '仓库名称', visible: true, width: 200 },
+          { props: 'cancelTime', label: '本次签收数', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
+            buttons: [{
+              name: '签收',
+              click: (rowIndex, row) => {
+                this.handleSignFor(row, false);
+              },
+              type: 'info'
+            }, {
+              name: '签收并入库',
+              click: (rowIndex, row) => {
+                this.handleSignFor(row, true);
+              },
+              type: 'info'
+            }]
+          }
+        ],
         total: 0
       }
-      // 暂注释 使用另外一种表格 看最后要不要 表格配置
-      // optionObjAll: {
-      //   id: 'purchaseOrderTableAll',
-      //   dataList: [],
-      //   form: {
-      //     page: 1,
-      //     size: pageSize
-      //   },
-      //   dataProp: [
-      //     {
-      //       props: 'code',
-      //       label: '采购订单号',
-      //       visible: true,
-      //       width: 200,
-      //       fixed: 'left',
-      //       buttons: [{
-      //         click: (rowIndex, row) => {
-      //           this.$router.push({
-      //             path: '/sparepart/purchase/purchaseOrder/edit',
-      //             query: {
-      //               id: row.id
-      //             }
-      //           });
-      //         },
-      //         type: 'primary'
-      //       }]
-      //     },
-      //     {
-      //       props: 'purchaseApplyCode',
-      //       label: '采购申请单',
-      //       visible: true,
-      //       width: 200,
-      //       fixed: 'left',
-      //       buttons: [{
-      //         click: (rowIndex, row) => {
-      //           this.$router.push({
-      //             path: '/sparepart/purchase/purchaseApply/edit',
-      //             query: {
-      //               id: row.purchaseApplyId
-      //             }
-      //           });
-      //         },
-      //         type: 'primary'
-      //       }]
-      //     },
-      //     { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
-      //     { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-      //     { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
-      //     { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
-      //     { props: 'settlementQty', label: '结算数量', visible: true, width: 200 },
-      //     { props: 'cancelQty', label: '取消数量', visible: true, width: 200 },
-      //     { props: 'outboundQty', label: '已发运数', visible: true, width: 200 },
-      //     { props: 'signedQty', label: '已签收数', visible: true, width: 200 },
-      //     { props: 'inboundQty', label: '已入库数', visible: true, width: 200 },
-      //     { props: 'cancelOperator', label: '取消人', visible: true, width: 200 },
-      //     { props: 'cancelTime', label: '取消时间', visible: true, width: 200 },
-      //     { props: 'cancelDescription', label: '取消说明', visible: true, width: 200 },
-      //     { props: 'originalPrice', label: '原价', visible: true, width: 200 },
-      //     { props: 'purchasePrice', label: '采购价', visible: true, width: 200 },
-      //     { props: 'purchaseAmount', label: '采购金额', visible: true, width: 200 },
-      //     { props: 'rebateUnitPrice', label: '折后价', visible: true, width: 200 },
-      //     { props: 'rebateAmount', label: '折后金额', visible: true, width: 200 },
-      //     { props: 'detailRemark', label: '备注', visible: true, width: 200 },
-      //     { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-      //     { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-      //     {
-      //       props: 'operate',
-      //       label: '操作',
-      //       type: 'operate',
-      //       visible: true,
-      //       fixed: 'right',
-      //       buttons: [{
-      //         name: '提交索赔',
-      //         click: (rowIndex, row) => {
-      //         },
-      //         type: 'info'
-      //       }]
-      //     }
-      //   ],
-      //   total: 0
-      // },
-      // optionObjSign: {
-      //   id: 'purchaseOrderTableSign',
-      //   dataList: [],
-      //   form: {
-      //     page: 1,
-      //     size: pageSize
-      //   },
-      //   dataProp: [
-      //     {
-      //       props: 'code',
-      //       label: '采购订单号',
-      //       visible: true,
-      //       width: 200,
-      //       fixed: 'left',
-      //       buttons: [{
-      //         click: (rowIndex, row) => {
-      //           this.$router.push({
-      //             path: '/sparepart/purchase/purchaseOrder/edit',
-      //             query: {
-      //               id: row.id
-      //             }
-      //           });
-      //         },
-      //         type: 'primary'
-      //       }]
-      //     },
-      //     {
-      //       props: 'purchaseApplyCode',
-      //       label: '采购申请单',
-      //       visible: true,
-      //       width: 200,
-      //       fixed: 'left',
-      //       buttons: [{
-      //         click: (rowIndex, row) => {
-      //           this.$router.push({
-      //             path: '/sparepart/purchase/purchaseApply/edit',
-      //             query: {
-      //               id: row.purchaseApplyId
-      //             }
-      //           });
-      //         },
-      //         type: 'primary'
-      //       }]
-      //     },
-      //     { props: 'dealerCode', label: '运单号', visible: true, width: 200 },
-      //     { props: 'detailRemark', label: '备注', visible: true, width: 200 },
-      //     { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
-      //     { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
-      //     { props: 'settlementQty', label: '结算数量', visible: true, width: 200 },
-      //     { props: 'cancelQty', label: '取消数量', visible: true, width: 200 },
-      //     { props: 'outboundQty', label: '已发运数', visible: true, width: 200 },
-      //     { props: 'signedQty', label: '已签收数', visible: true, width: 200 },
-      //     { props: 'inboundQty', label: '已入库数', visible: true, width: 200 },
-      //     { props: 'cancelOperator', label: '仓库名称', visible: true, width: 200 },
-      //     { props: 'cancelTime', label: '本次签收数', visible: true, width: 200 },
-      //     { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-      //     { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-      //     {
-      //       props: 'operate',
-      //       label: '操作',
-      //       type: 'operate',
-      //       visible: true,
-      //       fixed: 'right',
-      //       buttons: [{
-      //         name: '签收',
-      //         click: (rowIndex, row) => {
-      //         },
-      //         type: 'info'
-      //       }, {
-      //         name: '签收并入库',
-      //         click: (rowIndex, row) => {
-      //         },
-      //         type: 'info'
-      //       }]
-      //     }
-      //   ],
-      //   total: 0
-      // }
     };
   },
   created () {
@@ -696,13 +568,29 @@ export default {
       });
     },
     onSubmit () {
-      this.optionObj.form.page = 1;
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        optionObj = this.optionObjAll;
+      } else if (this.activeName === 'proxySign') {
+        optionObj = this.optionObjSign;
+      }
+      optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
       this.form = { ...defaultForm };
-      this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        optionObj = this.optionObjAll;
+      } else if (this.activeName === 'proxySign') {
+        optionObj = this.optionObjSign;
+      }
+      optionObj.form.page = 1;
+      optionObj.form.size = 20;
       this.getData();
     },
     exportExcel () {
@@ -784,8 +672,16 @@ export default {
       }
     },
     getConfig () {
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        optionObj = this.optionObjAll;
+      } else if (this.activeName === 'proxySign') {
+        optionObj = this.optionObjSign;
+      }
       return new Promise((resolve, reject) => {
-        getTableConfig(this.optionObj.id).then(data => {
+        getTableConfig(optionObj.id).then(data => {
           resolve({ data });
         }).catch(err => {
           // 容错：此处如果接口挂了，也不应该影响正常使用
@@ -798,16 +694,28 @@ export default {
       return tableAddOrUpdate(data);
     },
     paginationChange (type, num) {
+      let optionObj = this.optionObj;
+      if (this.activeName === 'homePage') {
+        optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        optionObj = this.optionObjAll;
+      } else if (this.activeName === 'proxySign') {
+        optionObj = this.optionObjSign;
+      }
       if (type === 'page') {
-        this.optionObj.form.page = num;
+        optionObj.form.page = num;
       } else {
-        this.optionObj.form.size = num;
+        optionObj.form.size = num;
       }
       this.debouncedGetData();
     },
     // 多选框选中数据
     handleSelectionChange (selection) {
       this.selectionList = selection;
+    },
+    // 批量签收 批量签收入库  提交索赔
+    handleSelectionChangeBatch ({ records }) {
+      this.selectionList = records;
     },
     getFormData () {
       const data = { ...this.form };
@@ -877,35 +785,54 @@ export default {
       this.activeName = item.name;
       this.getData();
     },
-    // 跳转详情页
-    handleJump (val, ele) {
-      this.$router.push({
-        path: val,
-        query: {
-          id: ele
-        }
-      });
+    // 签收  签收并入库
+    handleSignFor (val, type) {
+      this.signForm = {
+        purchaseOrderId: val.purchaseOrderId,
+        inbound: type
+      };
+      this.signDialogVisible = true;
     },
-    pageSizeChange (pageSize, type) {
-      if (type === 'allSpareParts') {
-        this.optionObjAll.form.size = pageSize;
-        this.optionObjAll.form.page = 1;
-      } else if (type === 'proxySign') {
-        this.optionObjSign.form.size = pageSize;
-        this.optionObjSign.form.page = 1;
-      }
+    handleSignDialogClose () {
+      this.signDialogVisible = false;
+    },
+    handleSignForSubmit () {
+      this.signDialogVisible = false;
       this.getData();
     },
-    currentPageChange (current, type) {
-      if (type === 'allSpareParts') {
-        this.optionObjAll.form.page = current;
-      } else if (type === 'proxySign') {
-        this.optionObjSign.form.page = current;
-      }
+    // 批量签收  批量并入库
+    handleBatchSignFor (type) {
+      this.batchForm = this.selectionList.map(item => ({
+        purchaseOrderId: item.purchaseOrderId,
+      }));
+      this.inbound = type;
+      this.batchSignDialogVisible = true;
+    },
+    handleBatchSignDialogClose () {
+      this.batchSignDialogVisible = false;
+    },
+    handleBatchSignForSubmit () {
+      this.batchSignDialogVisible = false;
+      this.selectionList = [];
       this.getData();
     },
-    // 签收
-    // 签收并入库
+    // 提交索赔
+    handleClaim (row) {
+      this.selectionClaim = [row] || [];
+      this.submitClaimDialogVisible = true;
+    },
+    handleBatchClaim () {
+      this.selectionClaim = this.selectionList;
+      this.submitClaimDialogVisible = true;
+    },
+    handleSubmitClaimDialogClose () {
+      this.submitClaimDialogVisible = false;
+    },
+    handleSubmitClaimSubmit () {
+      this.submitClaimDialogVisible = false;
+      this.selectionList = [];
+      this.getData();
+    }
   }
 };
 </script>

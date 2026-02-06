@@ -103,3 +103,11 @@ export function confirmOutbound (data) {
 export function sync (data) {
   return api.jsonPost(prefix + 'sync', data);
 }
+
+/**
+ * 主机厂出库单扫描条码添加明细
+ * @param {Object} data
+ */
+export function scanCodeAddDetail (data) {
+  return api.jsonPost(prefix + 'scanCodeAddDetail', data);
+}

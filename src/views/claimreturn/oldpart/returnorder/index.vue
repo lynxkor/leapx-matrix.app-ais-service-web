@@ -26,6 +26,7 @@
           enumCode="old_part_return_order_status"
           v-model="form.returnStatusList"
           placeholder="请选择"
+          :format="returnStatusFormat"
           clearable
           multiple
           filterable
@@ -370,7 +371,6 @@ export default {
 
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
-          console.log(res);
           this.optionObj.dataList = res.records.map(item => {
             return {
               ...item,
@@ -470,29 +470,36 @@ export default {
     },
     // 批量签收
     handleBatchSign () {
-      this.selectionList.forEach(item => {
-        if (item.returnStatus !== '30') {
-          this.$message({
-            type: 'error',
-            message: '仅已回运状态数据允许签收!'
+      // 筛选出非已回运状态的回运单
+      const notReturnedItems = this.selectionList.filter(item => item.returnStatus !== '30');
+      const allReturned = notReturnedItems.length === 0;
+
+      if (allReturned) {
+        // 都是已回运状态，显示二次确认弹窗
+        const count = this.selectionList.length;
+        this.$confirm(`是否需要对选中的${count}条记录进行【批量签收】操作？`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          const ids = this.selectionList.map(item => item.id) || [];
+          signByIds(ids).then(() => {
+            this.$message({
+              type: 'success',
+              message: '您已完成签收。'
+            });
+            this.getData();
           });
-          throw new Error('仅已回运状态数据允许签收!');
-        }
-      });
-      const ids = this.selectionList.map(item => item.id) || [];
-      this.$confirm('是否签收?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        signByIds(ids).then(() => {
-          this.$message({
-            type: 'success',
-            message: '签收成功!'
-          });
-          this.getData();
+        }).catch(() => {});
+      } else {
+        // 包含非已回运状态，列出不允许签收的单号
+        const notReturnedOrderNos = notReturnedItems.map(item => item.returnOrderNo);
+        this.$message({
+          type: 'error',
+          message: `以下单号不是已回运状态，不允许签收：单号：${notReturnedOrderNos.join('，单号：')}`,
+          duration: 5000
         });
-      }).catch(() => {});
+      }
     },
     // 批量启用停用
     handleBatchEnable (status) {
@@ -530,6 +537,20 @@ export default {
         if (item.code === '30' || item.code === '40') {
           return true;
         }
+      });
+    },
+    returnStatusFormat (data) {
+      return data.filter(item => {
+        if (this.isDealer) {
+          // 经销商，看不到草稿
+          return item.code !== '10';
+        } else {
+          // 厂商，如果是非快返，看不到草稿
+          if (!this.isFastReturn) {
+            return item.code !== '10';
+          }
+        }
+        return true;
       });
     }
   }

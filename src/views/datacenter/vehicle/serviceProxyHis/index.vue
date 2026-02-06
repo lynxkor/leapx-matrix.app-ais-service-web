@@ -49,6 +49,7 @@
         @paginationChange="paginationChange"
         @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
+        @sortChange="handleSortChange"
       >
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
@@ -176,7 +177,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'orderTime', label: '开单时间', visible: true, width: 200 },
+          { props: 'orderTime', label: '开单时间', visible: true, width: 200, sortable: true },
           { props: 'repairFinishTime', label: '维修完工时间', visible: true, width: 200 },
           {
             props: 'vehProfileVin',
@@ -198,10 +199,14 @@ export default {
           { props: 'managerSuggestion', label: '客户经理建议', visible: true, width: 200 },
           { props: 'customerRequest', label: '客户诉求', visible: true, width: 200 },
           { props: 'vehProfileId', label: '整车档案id', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200, sortable: true },
         ],
         total: 0
-      }
+      },
+      sortColumns: [{
+        column: 'create_time',
+        sort: 'DESC'
+      }]
     };
   },
   created () {
@@ -209,6 +214,15 @@ export default {
     this.getData();
   },
   methods: {
+    handleSortChange (value) {
+      this.sortColumns = (value || []).map(item => {
+        return {
+          column: (item.field || '').replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, ''),
+          sort: (item.order || '').toUpperCase()
+        };
+      });
+      this.getData();
+    },
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
@@ -330,7 +344,7 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
-
+      data.sortColumns = this.sortColumns;
       return data;
     },
     async fetchOptions (code) {

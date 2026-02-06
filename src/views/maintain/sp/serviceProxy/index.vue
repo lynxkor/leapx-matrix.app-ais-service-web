@@ -103,6 +103,7 @@
         @paginationChange="paginationChange"
         @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
+        @sortChange="handleSortChange"
       >
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
@@ -251,8 +252,8 @@ export default {
             }]
           },
           { props: 'appointmentNo', label: '预约单号', visible: true, width: 200 },
-          { props: 'mileage', label: '进店里程数', visible: true, width: 200 },
-          { props: 'lastMileage', label: '上次进店里程数', visible: true, width: 200 },
+          { props: 'mileage', label: '进店里程数(KM)', visible: true, width: 200 },
+          { props: 'lastMileage', label: '上次进店里程数(KM)', visible: true, width: 200 },
           { props: 'startWarrantyDate', label: '保修开始日期', visible: true, width: 200 },
           {
             props: 'exclusiveServiceDealerName',
@@ -268,11 +269,15 @@ export default {
           },
           { props: 'expectFinishAt', label: '预计交车时间', visible: true, width: 200 },
           { props: 'creatorName', label: '登记人', visible: true, width: 200 },
-          { props: 'createTime', label: '开单时间', visible: true, width: 200 },
+          { props: 'createTime', label: '开单时间', visible: true, width: 200, sortable: true },
         ],
         total: 0
       },
-      tabList: []
+      tabList: [],
+      sortColumns: [{
+        column: 'create_time',
+        sort: 'DESC'
+      }]
     };
   },
   created () {
@@ -283,6 +288,15 @@ export default {
   methods: {
     handleListSelect (row) {
       this.clickItemId = row.id;
+    },
+    handleSortChange (value) {
+      this.sortColumns = (value || []).map(item => {
+        return {
+          column: (item.field || '').replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, ''),
+          sort: (item.order || '').toUpperCase()
+        };
+      });
+      this.getData();
     },
     handleImport () {
       this.uploadDialogVisible = true;
@@ -402,7 +416,12 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
-
+      data.sortColumns = this.sortColumns.concat([
+        {
+          column: 'order_status',
+          sort: 'ASC'
+        }
+      ]);
       return data;
     },
     async fetchOptions (code) {

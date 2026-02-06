@@ -41,6 +41,7 @@
     </div>
     <!-- 旧件明细 - 添加弹窗 -->
     <old-part-dialog
+      type="returnorder"
       :visible.sync="visible"
       :_id="_id"
       :dealerCode="dealerCode"
@@ -58,7 +59,7 @@ import {
   removeDetail,
 } from '@/api/claimreturn/oldpart/returnorder/index';
 import EditTable from '@/libs/components/EditTable/index.vue';
-import OldPartDialog from './OldPartDialog';
+import OldPartDialog from '../components/OldPartDialog';
 
 export default {
   props: {

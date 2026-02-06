@@ -27,3 +27,4 @@ debug.log
 # yapi数据临时文件
 /bin/generate.json
 *.iml
+mcp-yapi-server/

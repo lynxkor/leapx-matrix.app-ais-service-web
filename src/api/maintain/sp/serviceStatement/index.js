@@ -133,11 +133,19 @@ export function submitSettlement (data) {
 }
 
 /**
- * 提交结算并签字
+ * 提交结算并签字 - 废弃
  * @param {Object} data
  */
 export function signSettlement (data) {
   return api.jsonPost(prefix + 'checkStatementConfirm', data);
+}
+
+/**
+ * 校验签字状态
+ * @param {Object} data
+ */
+export function queryIsLastConfirm (data) {
+  return api.jsonPost(prefix + 'queryIsLastConfirm', data);
 }
 
 /**

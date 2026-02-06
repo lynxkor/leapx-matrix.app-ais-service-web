@@ -23,7 +23,7 @@ const routes = [
     name: '404',
     meta: {
       name: '404',
-      requiresAuth: true,
+      requiresAuth: false,
       noResourceUrl: true
     },
     component: () => import('@/views/404.vue')
@@ -973,26 +973,6 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/oldpart/inventory/dealer',
-      name: 'page',
-      component: () => import('@/views/claimreturn/oldpart/inventory/oem/index.vue'),
-
-      meta: {
-        name: '门店旧件库存',
-        keepAlive: true,
-        moduleKey: 'AISCR-oldPartDealerInventoryDetail',
-        isDealerPage: true,
-      }
-    }, {
-      path: '/claimreturn/oldpart/inventory/dealer/edit',
-      name: 'pageEdit',
-      component: () => import('@/views/claimreturn/oldpart/inventory/oem/edit.vue'),
-      meta: {
-        name: '门店旧件库存',
-        noResourceUrl: 'true',
-        moduleKey: 'AISCR-oldPartDealerInventoryDetail',
-      }
-    }, {
       path: '/claimreturn/oldpart/basic/oldPartUnqualifiedConfig',
       name: 'oldPartUnqualifiedConfig',
       component: () => import('@/views/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/index.vue'),
@@ -1046,14 +1026,38 @@ const routes = [
         name: '备件采购提醒设置详情',
         noResourceUrl: 'true'
       }
+    },
+    {
+      path: '/claimreturn/oldpart/inventory/dealer',
+      name: 'page',
+      component: () => import('@/views/claimreturn/oldpart/inventory/oem/index.vue'),
+
+      meta: {
+        name: '门店旧件库存',
+        keepAlive: true,
+        moduleKey: 'AISCR-oldPartDealerInventoryDetail',
+        isDealerPage: true,
+      }
     }, {
+      path: '/claimreturn/oldpart/inventory/dealer/edit',
+      name: 'pageEdit',
+      component: () => import('@/views/claimreturn/oldpart/inventory/oem/edit.vue'),
+      meta: {
+        name: '门店旧件库存',
+        noResourceUrl: 'true',
+        moduleKey: 'AISCR-oldPartDealerInventoryDetail',
+        isDealerPage: true,
+      }
+    },
+    {
       path: '/claimreturn/oldpart/inventory/oem',
       name: 'oemInventory',
-      component: () => import('@/views/claimreturn/oldpart/inventory/oem'),
+      component: () => import('@/views/claimreturn/oldpart/inventory/oem/index.vue'),
       meta: {
         name: '主机厂旧件库存',
         keepAlive: true,
         moduleKey: 'AISCR-oldPartOemInventoryDetail',
+        isDealerPage: false,
       }
     }, {
       path: '/claimreturn/oldpart/inventory/oem/edit',
@@ -1063,6 +1067,7 @@ const routes = [
         name: '主机厂旧件库存',
         noResourceUrl: 'true',
         moduleKey: 'AISCR-oldPartOemInventoryDetail',
+        isDealerPage: false,
       }
     }, {
       path: '/sparepart/warehouse/warehouse',
@@ -1120,20 +1125,21 @@ const routes = [
       }
     }, {
       path: '/claimreturn/oldpart/returnorder',
-      name: 'fastReturnOrder',
+      name: 'oldpart-returnorder',
       component: () => import('@/views/claimreturn/oldpart/returnorder/index.vue'),
       meta: {
-        name: '旧件回运单',
+        name: '门店旧件回运单',
         returnType: '30',
         moduleKey: 'oldPartReturnOrder',
         keepAlive: true
       }
     }, {
       path: '/claimreturn/oldpart/returnorder/edit',
-      name: 'fastReturnOrderEdit',
+      name: 'oldpart-returnorderEdit',
       component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
       meta: {
-        name: '旧件回运单',
+        name: '门店旧件回运单',
+        returnType: '30',
         moduleKey: 'oldPartReturnOrder',
         noResourceUrl: 'true'
       }
@@ -1142,7 +1148,7 @@ const routes = [
       name: 'fastReturnOrder',
       component: () => import('@/views/claimreturn/oldpart/returnorder/index.vue'),
       meta: {
-        name: '快返回运单',
+        name: '旧件快返回运单',
         returnType: '40',
         moduleKey: 'oldPartReturnOrderFast',
         keepAlive: true
@@ -1152,11 +1158,34 @@ const routes = [
       name: 'fastReturnOrderEdit',
       component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
       meta: {
-        name: '快返回运单',
+        name: '旧件快返回运单',
+        returnType: '40',
         moduleKey: 'oldPartReturnOrderFast',
         noResourceUrl: 'true'
       }
+    },
+    {
+      path: '/claimreturn/oldpart/dealerReturnorder/fast',
+      name: 'dealerReturnorder',
+      component: () => import('@/views/claimreturn/oldpart/returnorder/index.vue'),
+      meta: {
+        name: '门店旧件快返回运单',
+        returnType: '40',
+        moduleKey: 'OldPartDealerReturnOrderFast',
+        keepAlive: true
+      }
     }, {
+      path: '/claimreturn/oldpart/dealerReturnorder/fast/edit',
+      name: 'dealerReturnorderEdit',
+      component: () => import('@/views/claimreturn/oldpart/returnorder/edit.vue'),
+      meta: {
+        name: '门店旧件快返回运单',
+        returnType: '40',
+        moduleKey: 'OldPartDealerReturnOrderFast',
+        noResourceUrl: 'true'
+      }
+    },
+    {
       path: '/maintain/sp/serviceProxy',
       name: 'serviceProxy',
       component: () => import('@/views/maintain/sp/serviceProxy/index.vue'),
@@ -1306,7 +1335,7 @@ const routes = [
       component: () => import('@/views/datacenter/vehicle/vehicleProfile/index.vue'),
 
       meta: {
-        name: '车辆档案主表管理',
+        name: '车辆档案管理',
         keepAlive: true
       }
     }, {
@@ -1315,7 +1344,7 @@ const routes = [
       component: () => import('@/views/datacenter/vehicle/vehicleProfile/edit.vue'),
 
       meta: {
-        name: '车辆档案主表管理详情',
+        name: '车辆档案管理详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -1363,25 +1392,54 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
-    }, {
+    },
+    // 主机厂
+    {
       path: '/claimreturn/oldpart/destroy/oldPartDestroyOrder',
       name: 'oldPartDestroyOrder',
       component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '旧件销毁单',
+        moduleKey: 'oldPartDestroyOrder',
         keepAlive: true
       }
-    }, {
+    },
+    {
       path: '/claimreturn/oldpart/destroy/oldpartdestroyorder/edit',
       name: 'oldPartDestroyOrderEdit',
       component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit.vue'),
 
       meta: {
-        name: '旧件销毁单详情',
+        name: '旧件销毁单',
+        moduleKey: 'oldPartDestroyOrder',
         noResourceUrl: 'true'
       }
-    }, {
+    },
+    // 门店销毁
+    {
+      path: '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder',
+      name: 'oldPartDestroyOrder',
+      component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/index.vue'),
+
+      meta: {
+        name: '门店旧件销毁单',
+        moduleKey: 'dealerOldPartDestroyOrder',
+        keepAlive: true
+      }
+    },
+    {
+      path: '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder/edit',
+      name: 'oldPartDestroyOrderEdit',
+      component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit.vue'),
+
+      meta: {
+        name: '门店旧件销毁单',
+        moduleKey: 'dealerOldPartDestroyOrder',
+        noResourceUrl: 'true'
+      }
+    },
+    {
       path: '/claimreturn/oldpart/basic/oldPartDestroyConfig',
       name: 'oldPartDestroyConfig',
       component: () => import('@/views/claimreturn/oldpart/basic/oldPartDestroyConfig/index.vue'),
@@ -1513,6 +1571,15 @@ const routes = [
 
       meta: {
         name: '备件缺货订单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/purchase/backorder/outOfStock/edit',
+      name: 'backOrderOutOfStockEdit',
+      component: () => import('@/views/sparepart/purchase/backOrder/outOfStock/edit.vue'),
+
+      meta: {
+        name: '备件缺货明细看板详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -1686,6 +1753,15 @@ const routes = [
         name: '备件返利扣款管理详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/purchase/backOrderReport',
+      name: 'backOrderReport',
+      component: () => import('@/views/sparepart/purchase/backOrderReport/index.vue'),
+
+      meta: {
+        name: '备件缺货看板',
+        keepAlive: true
+      }
     }]
   }
 ];
@@ -1734,10 +1810,10 @@ export function getRouter () {
       // if (true) {
         next();
       } else {
-        // window.alert('你没有访问该页面的权限');
+        window.alert('你没有访问该页面的权限');
         if (store.state.user.token) {
           next({
-            path: '/home'
+            path: '/404'
           });
         } else {
           toLoginPage(to, next);

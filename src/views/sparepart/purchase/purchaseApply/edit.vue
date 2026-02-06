@@ -2,11 +2,11 @@
   <edit-page-layout ref="editLayout" :title="detailTitle" showPaneFooter>
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
-      <edit-base-container ref="containerRef" :id="_id" :title="title" :form.sync="form" :submitRequest="submitRequest"
+      <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :form.sync="form" :submitRequest="submitRequest"
         :isEditing.sync="isEditing" :originalForm.sync="originalForm" :detailRequest="detailRequest"  :showEditBtn="routeQueryType">
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
-          <span class="status primary">状态</span>
+          <span class="status primary">{{form.orderStatusLabel}}</span>
         </template>
         <el-main>
           <section class="common-section">
@@ -20,15 +20,16 @@
                 v-show="isEditing || !_id">
                 <el-form-item label="门店编码：" prop="dealerCode">
                   <fetch-select :remote-method="getDealerList" remote v-model="form.dealerCode" placeholder="请输入门店编码或名称"
-                    labelKey="orgCode" valueKey="orgCode" subLabelKey="orgName" clearable collapseTags filterable
+                    labelKey="orgCode" valueKey="orgCode" subLabelKey="orgName" clearable filterable :disabled="isEditing"
                     @change="handleDealerChange" />
                 </el-form-item>
                 <el-form-item label="采购申请单：" prop="code">
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="订单类型：" prop="purchaseOrderType">
-                  <fetch-select :request="fetchOptions" enumCode="PurchaseOrderTypeEnum"
-                    v-model="form.purchaseOrderType" placeholder="请选择" clearable filterable />
+                  <el-select v-model="form.purchaseOrderType" placeholder="请选择" clearable filterable @change="handleOrderTypeChange">
+                    <el-option v-for="item in purchaseOrderTypeOptions" :key="item.code" :label="item.message" :value="item.code"></el-option>
+                  </el-select>
                 </el-form-item>
                 <el-form-item label="订单状态：" prop="orderStatus">
                   <fetch-select :request="fetchOptions" enumCode="PurchaseApplyStatusEnum" v-model="form.orderStatus"
@@ -120,10 +121,10 @@
                   {{ form.originalPriceCouponId }}
                 </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
-                  <el-input placeholder="请输入" v-model="form.vin" clearable />
+                  <el-input placeholder="请输入" v-model="form.vin" clearable :disabled="orderTypeDisabled" />
                 </el-form-item>
                 <el-form-item label="特殊编码：" prop="specialCode">
-                  <el-input placeholder="请输入" v-model="form.specialCode" clearable />
+                  <el-input placeholder="请输入" v-model="form.specialCode" clearable :disabled="orderTypeDisabled" />
                 </el-form-item>
               </el-form>
               <div class="common-title" v-show="!(isEditing || !_id)">基本信息</div>
@@ -239,11 +240,11 @@
             </div>
             <div class="common-section-body">
               <div class="ais-select-group">
-                <el-button size="small" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>添加备件</el-button>
+                <el-button size="small" @click="handleAdd" :disabled="!['0', '3'].includes(form.orderStatus)"><i class="iconfont icon-lxppc-plus"></i>添加备件</el-button>
                 <el-button class="ais-button" size="small">
                   补货预测
                 </el-button>
-                <el-button size="small">备件导入</el-button>
+                <el-button size="small" @click="handleImport" >备件导入</el-button>
               </div>
             </div>
           </section>
@@ -258,6 +259,12 @@
         />
       </div>
     </template>
+    <Upload
+      :visible="uploadDialogVisible"
+      :businessParams="_id"
+      id="sparePartPurchaseApplyDetailImport"
+      @close="handleUploadDialogClose"
+    />
   </edit-page-layout>
 </template>
 
@@ -273,6 +280,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import SparePartsDetail from './SparePartsDetail.vue';
+import Upload from '@/libs/components/UploadDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -336,7 +344,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    SparePartsDetail
+    SparePartsDetail,
+    Upload
   },
   computed: {
     _id () {
@@ -361,6 +370,26 @@ export default {
       },
       immediate: true,
       deep: true
+    },
+    // 监听 订单类型为 铺货订单或定制订单时 做的一系列操作逻辑
+    'form.purchaseOrderType': {
+      handler (newVal) {
+        if (newVal === '2') {
+          this.rules.vin[0].required = false;
+          this.rules.specialCode[0].required = false;
+          this.orderTypeDisabled = false;
+        } else if (newVal === '3') {
+          this.rules.vin[0].required = true;
+          this.rules.specialCode[0].required = true;
+          this.orderTypeDisabled = false;
+        } else {
+          this.orderTypeDisabled = true;
+          this.$refs.ruleForm?.clearValidate('vin');
+          this.$refs.ruleForm?.clearValidate('specialCode');
+        }
+      },
+      immediate: true,
+      deep: true
     }
   },
   data () {
@@ -377,7 +406,7 @@ export default {
       },
       pageTitle: '备件采购申请',
       pageType: 'edit',
-      title: '采购申请单：' + form.code,
+      title: '采购申请单：',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-purchaseApply',
       loading: false,
@@ -387,6 +416,10 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       detailTitle: '添加备件',
+      uploadDialogVisible: false,
+      purchaseOrderTypeOptions: [], // 采购申请单 订单类型
+      accountPermissions: false,
+      orderTypeDisabled: true,
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       rules: {
         purchaseOrderType: [
@@ -407,15 +440,19 @@ export default {
         recipientPhone: [
           { required: true, message: '请输入收货人电话', trigger: 'change' }
         ],
+        vin: [
+          { required: false, message: '请输入VIN号', trigger: 'change' }
+        ],
+        specialCode: [
+          { required: false, message: '请输入特殊编码', trigger: 'change' }
+        ],
       }
     };
   },
   mounted () {
     this.oem = this.$store.state.pageSource?.aisPageSource.includes('AISPART-sparePart-oem');
-    console.log('this.oem  ', this.isEditing);
-    if (!this.isEditing) {
-      this.getLoginUser();
-    }
+    this.getLoginUser();
+    this.getOrderType();
   },
   methods: {
     detailRequest () {
@@ -443,15 +480,15 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
-    async getLoginUser (query) {
+    async getLoginUser () {
       try {
         const res = await getLoginUser();
         this.form.dealerCode = res.currentDealerCode;
         this.form.dealerName = res.currentDealerName;
+        this.accountPermissions = res.accountFlag;
         if (this.form.dealerCode) {
           this.getPartDealer(this.form.dealerCode);
         }
-        return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
       }
@@ -524,9 +561,32 @@ export default {
       }
       return [];
     },
+    // 查询是什么账户 来定制订单类型的选择权限
+    async getOrderType () {
+      let list = [];
+      list = await this.fetchOptions('PurchaseOrderTypeEnum');
+      if (this.accountPermissions) {
+        // 保留 code 为0 或 1的数据
+        list = list.filter(item => ['0', '1'].includes(item.code));
+      }
+      this.purchaseOrderTypeOptions = list;
+    },
+    // 判断 是什么订单类型 联动下面的 vin 和 编辑特殊编码
+    handleOrderTypeChange (val) {
+      if (val === '2' || val === '3') {
+        this.form.vin = '';
+        this.form.specialCode = '';
+      }
+    },
     // 添加备件
     handleAdd () {
       this.openPane();
+    },
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
     }
   }
 };

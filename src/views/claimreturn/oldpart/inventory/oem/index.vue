@@ -200,6 +200,9 @@ const defaultForm = {
   dealerInTime: '',
   dealerOutTime: '',
   returnOrderNo: '',
+  returnStatusList: [],
+  isCheckedList: [],
+  returnDate: '',
   oemInTime: '',
   oemCheckTime: '',
   oemOutboundOrderNo: '',
@@ -267,12 +270,21 @@ export default {
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/claimreturn/oldpart/inventory/oem/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
+                if (this.isDealerPage) {
+                  this.$router.push({
+                    path: '/claimreturn/oldpart/inventory/dealer/edit',
+                    query: {
+                      id: row.id
+                    }
+                  });
+                } else {
+                  this.$router.push({
+                    path: '/claimreturn/oldpart/inventory/oem/edit',
+                    query: {
+                      id: row.id
+                    }
+                  });
+                }
               },
               type: 'primary'
             }]
@@ -321,8 +333,9 @@ export default {
             width: 240,
             buttons: [{
               click: (rowIndex, row) => {
+                const path = this.isDealerPage ? '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder/edit' : '/claimreturn/oldpart/destroy/oldpartdestroyorder/edit';
                 this.$router.push({
-                  path: '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit',
+                  path,
                   query: {
                     id: row.oldPartDestroyOrderId
                   }
@@ -454,8 +467,23 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
+                let path;
+                if (this.isDealerPage) {
+                  if (row.returnType === '40') {
+                    path = '/claimreturn/oldpart/dealerReturnorder/fast/edit';
+                  } else {
+                    path = '/claimreturn/oldpart/returnorder/edit';
+                  }
+                } else {
+                  if (row.returnType === '40') { // 快返
+                    path = '/claimreturn/oldpart/returnorder/fast/edit';
+                  } else {
+                    path = '/claimreturn/oldpart/returnorder/edit';
+                  }
+                }
+
                 this.$router.push({
-                  path: '/claimreturn/oldpart/returnorder/edit',
+                  path,
                   query: {
                     id: row.returnOrderId
                   }

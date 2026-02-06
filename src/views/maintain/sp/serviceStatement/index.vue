@@ -102,6 +102,7 @@
         @paginationChange="paginationChange"
         @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
+        @sortChange="handleSortChange"
       >
         <EditPage slot="centralizedViewSlot" :id="clickItemId" />
       </LPVxeTable>
@@ -394,54 +395,15 @@ export default {
             visible: true,
             width: 200,
           },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
-            visible: true,
-            fixed: 'right',
-            buttons: [
-              {
-                name: '编辑',
-                click: (rowIndex, row) => {
-                  this.$router.push({
-                    path: '/maintain/sp/serviceStatement/edit',
-                    query: {
-                      id: row.id,
-                    },
-                  });
-                },
-                type: 'info',
-              },
-              {
-                name: '删除',
-                popconfirmTitle: '此操作将永久删除, 是否继续?',
-                click: (rowIndex, row) => {
-                  deleteItem([row.id])
-                    .then(() => {
-                      this.$message({
-                        type: 'success',
-                        message: '删除成功!',
-                      });
-                      this.getData();
-                    })
-                    .catch(() => {
-                      this.$message({
-                        type: 'error',
-                        message: '删除失败!',
-                      });
-                    });
-                },
-                type: 'danger',
-              },
-            ],
-          },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200, sortable: true },
         ],
         total: 0,
       },
-
       tabList: [],
+      sortColumns: [{
+        column: 'create_time',
+        sort: 'DESC'
+      }]
     };
   },
   created () {
@@ -449,6 +411,15 @@ export default {
     this.getData();
   },
   methods: {
+    handleSortChange (value) {
+      this.sortColumns = (value || []).map(item => {
+        return {
+          column: (item.field || '').replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, ''),
+          sort: (item.order || '').toUpperCase()
+        };
+      });
+      this.getData();
+    },
     getTabsList () {
       getStatistics().then((res) => {
         const target = res || {};
@@ -530,7 +501,7 @@ export default {
       getList({
         ...this.getFormData(),
         pageNum: this.optionObj.form.page,
-        pageSize: this.optionObj.form.size,
+        pageSize: this.optionObj.form.size
       })
         .then((res) => {
           this.optionObj.dataList = res.records.map((item) => {
@@ -595,7 +566,7 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
-
+      data.sortColumns = this.sortColumns;
       return data;
     },
     async fetchOptions (code) {

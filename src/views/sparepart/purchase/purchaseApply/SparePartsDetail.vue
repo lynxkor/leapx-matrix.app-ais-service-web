@@ -16,7 +16,7 @@
                         {{ sparePartDetail.partName }}
                     </el-form-item>
                     <el-form-item label="是否可售：" prop="saleableIs">
-                        {{ sparePartDetail.saleableIs }}
+                        {{ sparePartDetail.saleableIsLabel }}
                     </el-form-item>
                     <el-form-item label="替换后件号：" prop="afterPartCode">
                         {{ sparePartDetail.afterPartCode }}
@@ -26,7 +26,7 @@
                         {{ sparePartDetail.afterPartName }}
                     </el-form-item>
                     <el-form-item label="替换备注：" prop="specialCode">
-                        {{ sparePartDetail.specialCode }}
+                        {{ sparePartDetail.replaceRemark }}
                     </el-form-item>
                     <el-form-item label="采购提醒：" prop="reminderContent">
                         {{ sparePartDetail.reminderContent }}
@@ -204,8 +204,10 @@ export default {
       };
       const res = await getPurchaseApplyPage(params);
       this.tableData = res.records || [];
-      this.getSparePartDetail(res.records[0]?.id);
       this.total = res.total;
+      if (res.records.length > 0) {
+        this.getSparePartDetail(res.records[0]?.id);
+      }
     },
     pageSizeChange (pageSize) {
       this.pageSize = pageSize;

@@ -4,9 +4,10 @@
       class="m-submit-settlement-dialog"
       title="提交结算"
       width="1200px"
-      :visible="visible"
+      :visible="settlemenDialogVisible"
       @close="close"
       @closed="closed"
+      append-to-body
     >
       <div class="settlement-content">
         <!-- 订单信息区域 -->
@@ -299,7 +300,7 @@
 
       <div slot="footer" class="dialog-footer">
         <el-button size="small" @click="handleClose">取消</el-button>
-        <el-button size="small" type="primary" @click="handleConfirm"
+        <el-button size="small" type="primary" @click="checkAndSign"
           >确认</el-button
         >
       </div>
@@ -309,13 +310,14 @@
       :info="totalData"
       :serviceProxyCode="info.serviceProxyCode"
       @refresh="handleRefresh"
+      @submit="handleConfirm"
     />
   </div>
 </template>
 
 <script>
 import { getDiscountType } from '@/api/maintain/sp/serviceProxy/index';
-import { submitSettlement } from '@/api/maintain/sp/serviceStatement/index';
+import { submitSettlement, queryIsLastConfirm } from '@/api/maintain/sp/serviceStatement/index';
 import SignDialog from '../SignDialog';
 
 export default {
@@ -355,6 +357,7 @@ export default {
       originalProjectData: [],
       originalPartsData: [],
       signDialogVisible: false,
+      settlemenDialogVisible: false,
       totalData: {},
     };
   },
@@ -367,7 +370,7 @@ export default {
     },
   },
   watch: {
-    visible: {
+    settlemenDialogVisible: {
       handler (val) {
         if (val) {
           this.initData();
@@ -403,6 +406,13 @@ export default {
     },
   },
   methods: {
+    open () {
+      if (this.checkoutTypeIncluded(this.info.statementType)) {
+        this.checkAndSign();
+      } else {
+        this.settlemenDialogVisible = true;
+      }
+    },
     initData () {
       getDiscountType().then((res) => {
         this.discountType = res || [];
@@ -410,6 +420,7 @@ export default {
     },
     close () {
       this.$emit('update:visible', false);
+      this.settlemenDialogVisible = false;
     },
     closed () {
       // this.activeTab = 'project';
@@ -417,18 +428,38 @@ export default {
       // this.partsData = [];
       // this.rightsData = [];
     },
-    // 确认提交
-    handleConfirm () {
-      // 计算最终金额数据
-      const data = this.getFinalData();
-      submitSettlement(data).then((res) => {
-        this.close();
+    checkAndSign () {
+      queryIsLastConfirm(this.info.id).then((res) => {
         if (res.lastRecord) {
           this.signDialogVisible = true;
-          this.totalData = data;
         } else {
-          this.$message.info(res.alertMsg);
+          const message = `<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>${res.msg || '提交签字并确认'}</div>`;
+          this.$confirm(message, '', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            dangerouslyUseHTMLString: true,
+            customClass: 'ais-leave-tips',
+            showClose: false
+          }).then(() => {
+            this.handleConfirm();
+          }).catch(() => {
+          });
         }
+      });
+    },
+    // 确认提交
+    handleConfirm (signChannel) {
+      // 计算最终金额数据
+      const data = this.getFinalData();
+      submitSettlement({
+        ...data,
+        signChannel,
+      }).then((res) => {
+        this.close();
+        this.signDialogVisible = false;
+        this.totalData = data;
+        this.$message.success('提交成功');
+        this.$emit('refresh');
       });
     },
     // 关闭弹窗

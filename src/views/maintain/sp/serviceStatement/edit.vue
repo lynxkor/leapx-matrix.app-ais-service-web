@@ -2,8 +2,9 @@
   <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
-      <edit-base-container ref="containerRef" :id="_id" :isEditing.sync="isEditing" :form.sync="form" :originalForm.sync="originalForm"
-        :submitRequest="submitRequest" :detailRequest="detailRequest" :title="`单据编号：${form.code}`">
+      <edit-base-container ref="containerRef" :id="_id" :isEditing.sync="isEditing" :form.sync="form"
+        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest"
+        :title="`单据编号：${form.code}`">
         <template #extraButtons>
           <el-button size="small" @click="rightsList" v-if="showButton('rights')">权益核销</el-button>
           <el-button size="small" @click="submitAndSing" v-if="showButton('sign')">提交结算并签字</el-button>
@@ -151,7 +152,8 @@
                   {{ form.isPushVisitResultLabel }}
                 </el-form-item>
                 <el-form-item label="接车施工单：" prop="serviceProxyCode">
-                  <el-link type="success" @click.prevent="goToServiceProxy(form.serviceProxyId)">{{form.serviceProxyCode}}</el-link>
+                  <el-link type="success"
+                    @click.prevent="goToServiceProxy(form.serviceProxyId)">{{ form.serviceProxyCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="销账标识：" prop="accountTypeLabel">
                   {{ form.accountTypeLabel }}
@@ -163,7 +165,8 @@
                   <el-link type="success" @click.prevent="goToDealer(form.dealerId)">{{ form.dealerName }}</el-link>
                 </el-form-item>
                 <el-form-item label="VIN码：" prop="vehProfileVin">
-                  <el-link type="success" @click.prevent="goToVehicleProfile(form.vehProfileId)">{{ form.vehProfileVin}}</el-link>
+                  <el-link type="success" @click.prevent="goToVehicleProfile(form.vehProfileId)">{{
+                    form.vehProfileVin}}</el-link>
                 </el-form-item>
                 <el-form-item label="数据来源：" prop="dataSourceLabel">
                   {{ form.dataSourceLabel }}
@@ -246,23 +249,11 @@
           </section>
         </el-main>
       </edit-base-container>
-      <SelectRightsDialog
-        :visible.sync="rightsDialogVisible"
-        :statementId="_id"
-        @refresh="handleRefresh"
-      />
-      <SubmitSettlemenDialog
-        :visible.sync="submitSettlemenDialogVisible"
-        :serviceProxyId="_id"
-        :info="form"
-        @refresh="handleRefresh"
-      />
-      <AddPayrecordDialog
-        :visible.sync="addPayrecordDialogVisible"
-        :serviceProxyId="_id"
-        :info="form"
-        @refresh="handleRefresh"
-      />
+      <SelectRightsDialog :visible.sync="rightsDialogVisible" :statementId="_id" @refresh="handleRefresh" />
+      <SubmitSettlemenDialog ref="settlemenDialogRef" :visible.sync="submitSettlemenDialogVisible" :serviceProxyId="_id"
+        :info="form" @refresh="handleRefresh" />
+      <AddPayrecordDialog :visible.sync="addPayrecordDialogVisible" :serviceProxyId="_id" :info="form"
+        @refresh="handleRefresh" />
     </template>
     <template #right>
       <div class="page-common-edit">
@@ -445,9 +436,10 @@ export default {
 
         case 'sign':
           // 结算并签字：签字状态为未签字，且结算状态为待结算
-          var needSign = !this.form.signStatus || this.form.signStatus === 0; // 未签字状态
+
           var pendingSettlement = this.form.statementStatus === 10; // 待结算状态
-          return needSign && pendingSettlement;
+          var isCheck = this.form.isCheck; // 是否已确认过
+          return pendingSettlement && !isCheck;
 
         case 'success':
           // 收款成功：结算类型为自费/保险/内部结算，状态为待收款
@@ -521,9 +513,7 @@ export default {
 
     submitAndSing () {
       // 实现提交结算并签字功能
-      console.log('提交结算并签字');
-      this.submitSettlemenDialogVisible = true;
-      // 这里可以添加具体的提交结算并签字逻辑
+      this.$refs.settlemenDialogRef.open();
     },
 
     reject () {
@@ -573,7 +563,7 @@ export default {
       } else if (totalPayAmount !== payableAmount) {
         // 金额不一致时提示错误
         this.$message.warning(
-               `结账记录总金额${totalPayAmount.toFixed(2)}不等于结算单应付总金额${payableAmount.toFixed(2)}！`
+          `结账记录总金额${totalPayAmount.toFixed(2)}不等于结算单应付总金额${payableAmount.toFixed(2)}！`
         );
       } else {
         // 金额一致时弹出确认对话框

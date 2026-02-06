@@ -466,9 +466,9 @@ export default {
           { required: status20, message: '请选择预计到达日期', trigger: 'change' }
         ],
         receiverPhone: [
-          { required: status10, message: '请输入收货电话', trigger: 'change' },
+          { required: true, message: '请输入收货电话', trigger: 'change' },
           {
-            pattern: status10 ? /^1[3-9]\d{9}$/ : '',
+            pattern: /^1[3-9]\d{9}$/,
             message: '请输入正确的手机号码',
             trigger: 'blur'
           }
@@ -574,10 +574,11 @@ export default {
     },
     onPrintReturnOrder () {
       this.$print.show({
-        id: this._id, // 必选，对应数据id
+        id: new Date().getTime() + '',
         template: 'ReturnOrder',
         title: '打印回运单',
         width: 1122,
+        data: this._id,
       });
     },
     onPrintMark () {
@@ -587,9 +588,9 @@ export default {
       };
       const ids = this.selectedRows.map(item => item.id);
       this.$print.show({
-        id: this._id, // 必选，对应数据id
+        id: +new Date() + '',
         template: 'OldPartMark',
-        title: '打印回运单',
+        title: '保修旧件标签',
         width: 1122,
         data: ids,
       });
@@ -597,10 +598,11 @@ export default {
     onPrintWrapper () {
       //
       this.$print.show({
-        id: this._id, // 必选，对应数据id
+        id: new Date().getTime() + '',
         template: 'PrintOuterLabel',
         title: '打印外包装标签',
         width: 1090,
+        data: this._id,
       });
     },
     onOutbound () {

@@ -630,7 +630,12 @@ export default {
     clearValidate () {
       this.$refs.basicForm.clearValidate();
     },
-    searchVehicle (query) { return getVehicleProfile({ searchVin: query }); },
+    searchVehicle (query) {
+      if (!query) {
+        return Promise.resolve([]);
+      }
+      return getVehicleProfile({ searchVin: query });
+    },
     handleVinChange (val, record) {
       if (record.vin) {
         checkVinTag(record.vin).then(res => {
@@ -669,17 +674,17 @@ export default {
     getNetworkCarInfo () {
       getCarInfo(this.form.vehProfileVin).then(res => {
         Object.assign(this.form, {
-          // netMileage: res.mileage, // 车联网总里程
-          // inPower: res.electricity, // 进店电量
-          netMileageElectricity: res.electricalMileage,
+          netMileage: res.mileage, // 车联网总里程
+          inPower: res.electricity, // 进店电量
+          netMileageElectricity: res.electricalMileage || '',
           // departureNetMileageElectricity: ,
           netMileageExtend: res.oilMileage,
           // departureNetMileageExtend: '',
           inNetPower: res.electricity,
           mileage: res.mileage
         });
-        if (!this.form.netMileage) this.form.netMileage = res.mileage;
-        if (!this.form.inPower) this.form.inPower = res.electricity;
+        // if (!this.form.netMileage) this.form.netMileage = res.mileage;
+        // if (!this.form.inPower) this.form.inPower = res.electricity;
       });
     }
   }

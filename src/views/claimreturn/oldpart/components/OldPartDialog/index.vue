@@ -46,10 +46,10 @@
               clearable
             />
           </el-form-item>
-          <el-form-item label="旧件名称：" prop="oldPartName">
+          <el-form-item label="旧件名称：" prop="oldPartNameLike">
             <el-input
               placeholder="请输入"
-              v-model="form.oldPartName"
+              v-model="form.oldPartNameLike"
               clearable
             />
           </el-form-item>
@@ -61,6 +61,7 @@
               range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
+              value-format="yyyy-MM-dd HH:mm:ss"
               align="right">
             </el-date-picker>
           </el-form-item>
@@ -72,6 +73,7 @@
               range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
+              value-format="yyyy-MM-dd HH:mm:ss"
               align="right">
             </el-date-picker>
           </el-form-item>
@@ -156,9 +158,10 @@ import PageSearchAction from '@/libs/components/AisPageSearchAction/index.vue';
 import {
   getList, // 旧件库存详情分页查询
 } from '@/api/claimreturn/oldpart/inventory/oem/index';
-import { addDetail } from '@/api/claimreturn/oldpart/returnorder/index';
+import { addDetail as addDetailReturnorder } from '@/api/claimreturn/oldpart/returnorder/index';
+import { addDetail as addDetailOutbound } from '@/api/claimreturn/oldpart/outbound/index';
 import RepairTypeSelect from '@/components/RepairTypeSelect';
-import { formatDateTime } from '@/libs/utils';
+import { formatDateTime, getEndOfDayString } from '@/libs/utils';
 
 const defaultForm = {
   warrantyNo: '',
@@ -192,6 +195,9 @@ export default {
     dealerCode: {
       type: String,
     },
+    type: {
+      type: String// ['outbound', 'returnorder'],
+    }
   },
   data () {
     return {
@@ -268,6 +274,7 @@ export default {
     submit () {
       //
       this.submitLoading = true;
+      const addDetail = this.type === 'outbound' ? addDetailOutbound : addDetailReturnorder;
       addDetail({
         id: this._id,
         detailIdList: this.selectedRows.map(item => item.id),
@@ -291,15 +298,27 @@ export default {
     getData () {
       this.loading = true;
       this.selectedRows = [];
-      getList({
+      let data = {
         ...this.getFormData(),
         pageNum: this.pageNum,
         pageSize: this.pageSize,
         dealerCode: this.dealerCode,
-        dealerStatus: '300', // 门店入库
-        returnOrderIdIsNull: true,
-        returnType: '30', // 正常返还
-      })
+      };
+      if (this.type === 'outbound') {
+        data = {
+          ...data,
+          oemStatus: '700', // 主机厂入库
+          oemOutboundOrderIdIsNull: true,
+        };
+      } else {
+        data = {
+          ...data,
+          dealerStatus: '300', // 门店入库
+          returnOrderIdIsNull: true,
+          returnType: '30', // 正常返还
+        };
+      }
+      getList(data)
         .then(res => {
           this.tableData = res.records;
           this.total = res.total;
@@ -309,7 +328,7 @@ export default {
     },
     // --------------- 表单查询 -------------------------
     onSubmit () {
-      this.optionObj.form.page = 1;
+      this.form.page = 1;
       this.getData();
     },
     onReset () {
@@ -333,7 +352,7 @@ export default {
           delete data[key];
           if (this.form[key].length > 1) {
             data[`${key}Start`] = formatDateTime(this.form[key][0]);
-            data[`${key}End`] = formatDateTime(this.form[key][1]);
+            data[`${key}End`] = getEndOfDayString(formatDateTime(this.form[key][1]));
           }
         }
       });

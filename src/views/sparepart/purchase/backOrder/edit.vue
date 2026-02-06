@@ -5,7 +5,7 @@
       <edit-base-container
         ref="containerRef"
         :id="_id"
-        :title="title"
+        :title="`${title}${form.code}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
         :submitRequest="submitRequest"
@@ -360,7 +360,7 @@ export default {
     return {
       pageTitle: '备件缺货订单',
       pageType: 'edit',
-      title: '缺货单号：' + form.code,
+      title: '缺货单号：',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
       moduleKey: 'AISPART-backOrder',
       loading: false,

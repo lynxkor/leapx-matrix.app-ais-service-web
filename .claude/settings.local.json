@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__web-search-prime__webSearchPrime",
+      "WebSearch",
+      "mcp__web-reader__webReader",
+      "mcp__deepwiki__ask_question",
+      "mcp__zread__read_file",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(curl:*)"
+    ]
+  }
+}

@@ -89,6 +89,9 @@
                   <el-button type="primary" @click="addLocation" size="small">
                     添加
                   </el-button>
+                  <el-button type="primary" @click="handleImport" size="small">
+                    导入
+                  </el-button>
                 </div>
                 <div class="common-section-table">
                   <part-table
@@ -117,6 +120,13 @@
         </replace-table>
       </div>
     </template>
+    <!-- TIPS: 填入项目id即可 -->
+    <Upload
+      :visible="uploadDialogVisible"
+      :businessParams="_id"
+      id="sparePartWarehouseLocationImport"
+      @close="handleUploadDialogClose"
+    />
   </edit-page-layout>
 </template>
 
@@ -132,6 +142,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import PartTable from './PartTable.vue';
 import ReplaceTable from './ReplaceTable.vue';
+import Upload from '@/libs/components/UploadDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -165,7 +176,8 @@ export default {
     // FetchSelect,
     EditBaseContainer,
     PartTable,
-    ReplaceTable
+    ReplaceTable,
+    Upload
   },
   computed: {
     _id () {
@@ -221,6 +233,7 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
+      uploadDialogVisible: false,
       defaultNewRow: {
         name: '',
       },
@@ -426,6 +439,12 @@ export default {
       } catch (error) {
         console.error('保存失败:', error);
       }
+    },
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
     }
   }
 };

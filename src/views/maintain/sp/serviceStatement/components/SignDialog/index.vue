@@ -6,6 +6,7 @@
     :visible.sync="dialogVisible"
     @close="close"
     @closed="closed"
+    append-to-body
   >
     <el-form
       size="small"
@@ -117,18 +118,19 @@ export default {
       this.$refs.form.validate((valid) => {
         if (valid) {
           this.submitLoading = true;
-          signSettlement({
-            serviceProxyCode: this.serviceProxyCode,
-            signChannel: this.form.signChannel,
-          })
-            .then((res) => {
-              this.$message.success('签字成功');
-              this.$emit('update:visible', false);
-              this.$emit('refresh');
-            })
-            .finally(() => {
-              this.submitLoading = false;
-            });
+          this.$emit('submit', this.form.signChannel);
+          // signSettlement({
+          //   serviceProxyCode: this.serviceProxyCode,
+          //   signChannel: this.form.signChannel,
+          // })
+          //   .then((res) => {
+          //     this.$message.success('签字成功');
+          //     this.$emit('update:visible', false);
+          //     this.$emit('refresh');
+          //   })
+          //   .finally(() => {
+          //     this.submitLoading = false;
+          //   });
         }
       });
     },
