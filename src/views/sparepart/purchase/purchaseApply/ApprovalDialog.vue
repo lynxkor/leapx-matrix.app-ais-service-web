@@ -67,7 +67,7 @@ export default {
       title: '审批同意--非原价订单',
       formData: {},
       form: {
-        id: '',
+        originalPriceCouponId: '',
         approvalDescription: '',
       },
       value: false
@@ -80,7 +80,6 @@ export default {
     couponObj (val) {
       if (val) {
         this.formData = this.couponObj;
-        console.log(this.formData);
         if (val.originalPriceIs) {
           this.title = '审批同意--原价订单';
         } else {
@@ -93,17 +92,25 @@ export default {
     // 使用
     handleSwitchChange () {
       if (this.value) {
-        this.form.id = this.formData.couponId;
+        this.form.originalPriceCouponId = this.formData.couponId;
       }
     },
     async submit () {
       this.submitLoading = true;
+      const params = {
+        id: this.id,
+        ...this.form,
+      };
       try {
-        await purchaseApplyAgree(this.form);
-        this.$message({
-          message: '审批同意成功',
-          type: 'success',
-        });
+        const res = await purchaseApplyAgree(params);
+        if (res.length > 0) {
+          this.$emit('failure', this.id);
+        } else {
+          this.$message({
+            message: '审批同意成功',
+            type: 'success',
+          });
+        }
         this.submitLoading = false;
         this.close();
       } catch (error) {
@@ -111,6 +118,10 @@ export default {
       }
     },
     close () {
+      this.form = {
+        id: '',
+        approvalDescription: '',
+      };
       this.$emit('close');
     },
   }

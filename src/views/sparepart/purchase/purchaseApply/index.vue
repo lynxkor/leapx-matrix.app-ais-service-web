@@ -228,6 +228,7 @@
       :visible.sync="approvalDialogVisible"
       :id="purchaseId"
       :couponObj="couponObj"
+      @failure="handleApprovalFailure"
       @close="handleApprovalDialogClose"
     />
   </div>
@@ -721,6 +722,7 @@ export default {
       } else if (res.length === 0) {
         const res = await purchaseApplyGetCoupon({ id: val.id });
         this.couponObj = res;
+        this.purchaseId = val.id;
         this.approvalDialogVisible = true;
       }
     },
@@ -731,7 +733,6 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
       }).then(async (result) => {
-        console.log('result', result);
         await batchAgree({ idList, approvalDescription: result.value });
         this.getData();
       });
@@ -741,6 +742,12 @@ export default {
     },
     handleApprovalDialogClose () {
       this.approvalDialogVisible = false;
+    },
+    // 审批同意失败时
+    handleApprovalFailure (val) {
+      this.approvalDialogVisible = false;
+      this.purchaseId = val;
+      this.agreeDialogVisible = true;
     },
     // 驳回
     handleReject (val) {
