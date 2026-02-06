@@ -293,6 +293,7 @@ import EditPageLayout from '@/libs/components/EditPageLayout';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
 import ReturnOrderTable from './ReturnOrderTable.vue';
 import SingleDialog from './SingleDialog/index.vue';
+import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -365,7 +366,7 @@ export default {
     return {
       pageTitle: this.$route.meta.name,
       pageType: 'edit',
-      isDealer: this.$store.state.user.userInfo?.accountFlag,
+      isDealer: null,
       // TIPS: 权限前缀 AISCR，根据实际情况修改
       moduleKey,
       loading: false,
@@ -398,6 +399,9 @@ export default {
     // this.isCheck = this.permissions.has(`${this.moduleKey}-check`);
   },
   mounted () {
+    loginUserGet().then(data => {
+      this.isDealer = data.accountFlag;
+    });
   },
   methods: {
     getTableData (data) {
