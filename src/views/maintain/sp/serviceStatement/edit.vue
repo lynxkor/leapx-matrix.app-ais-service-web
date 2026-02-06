@@ -252,6 +252,7 @@
         @refresh="handleRefresh"
       />
       <SubmitSettlemenDialog
+        ref="settlemenDialogRef"
         :visible.sync="submitSettlemenDialogVisible"
         :serviceProxyId="_id"
         :info="form"
@@ -447,7 +448,8 @@ export default {
           // 结算并签字：签字状态为未签字，且结算状态为待结算
           var needSign = !this.form.signStatus || this.form.signStatus === 0; // 未签字状态
           var pendingSettlement = this.form.statementStatus === 10; // 待结算状态
-          return needSign && pendingSettlement;
+          var isCheck = this.form.isCheck !== 1; // 是否已确认过
+          return needSign && pendingSettlement && isCheck;
 
         case 'success':
           // 收款成功：结算类型为自费/保险/内部结算，状态为待收款
@@ -521,9 +523,7 @@ export default {
 
     submitAndSing () {
       // 实现提交结算并签字功能
-      console.log('提交结算并签字');
-      this.submitSettlemenDialogVisible = true;
-      // 这里可以添加具体的提交结算并签字逻辑
+      this.$refs.settlemenDialogRef.open();
     },
 
     reject () {
