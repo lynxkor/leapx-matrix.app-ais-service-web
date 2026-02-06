@@ -179,6 +179,7 @@
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
       <el-button size="small" @click="handleBatchAgree" :disabled="selectionList.length === 0">批量同意</el-button>
       <el-button size="small" @click="handleBatchReject" :disabled="selectionList.length === 0">批量驳回</el-button>
+      <el-button v-if="canImport" size="small" @click="handleImport">铺货导入</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -203,7 +204,7 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="'1'"
+      id="sparePartPurchaseApplyDistribution"
       @close="handleUploadDialogClose"
     />
     <!-- 提交弹窗 -->
