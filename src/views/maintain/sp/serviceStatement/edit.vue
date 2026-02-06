@@ -375,14 +375,14 @@ export default {
     AddPayrecordDialog
   },
   computed: {
-    _id() {
+    _id () {
       return this.id || this.$route.query.id || this.form.id;
     }
 
   },
   watch: {
     id: {
-      handler(val) {
+      handler (val) {
         if (val && this.$refs.containerRef) {
           this.$refs.containerRef.loadDetail();
         }
@@ -390,7 +390,7 @@ export default {
       immediate: true
     }
   },
-  data() {
+  data () {
     const form = this.getDefautlForm();
     return {
       pageTitle: '结算单表管理',
@@ -417,10 +417,10 @@ export default {
 
     };
   },
-  mounted() {
+  mounted () {
   },
   methods: {
-    showButton(type) {
+    showButton (type) {
       // 驳回按钮：自费、保险、内部结算类型，且状态为待收款
       // 自费=352BB70C-82AC-E911-B0BB-FC82BA5F9EDF,
       // 保险=372BB70C-82AC-E911-B0BB-FC82BA5F9EDF,
@@ -475,7 +475,7 @@ export default {
           return false;
       }
     },
-    goToServiceProxy(serviceProxyId) {
+    goToServiceProxy (serviceProxyId) {
       if (serviceProxyId) {
         this.$router.push({
           path: '/maintain/sp/serviceProxy/edit',
@@ -489,7 +489,7 @@ export default {
     },
 
     // 跳转到车辆档案详情
-    goToVehicleProfile(vehProfileId) {
+    goToVehicleProfile (vehProfileId) {
       if (vehProfileId) {
         this.$router.push({
           path: '/vehicle/profile/detail',
@@ -503,20 +503,20 @@ export default {
     },
 
     // 跳转到门店详情
-    goToDealer(dealerId) {
+    goToDealer (dealerId) {
       window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${this.form.dealerCode}`, '_blank');
     },
 
-    rightsList() {
+    rightsList () {
       this.rightsDialogVisible = true;
     },
 
-    submitAndSing() {
+    submitAndSing () {
       // 实现提交结算并签字功能
       this.$refs.settlemenDialogRef.open();
     },
 
-    reject() {
+    reject () {
       // 实现驳回功能
       this.$confirm('您确定要驳回吗？', '确认操作', {
         confirmButtonText: '确定',
@@ -529,7 +529,7 @@ export default {
       });
     },
     // 处理驳回逻辑
-    async handleReject() {
+    async handleReject () {
       try {
         // 假设驳回接口为 rejectStatement
         await reject(this._id); // 需要引入相应的驳回API
@@ -541,7 +541,7 @@ export default {
         this.$message.error('驳回失败');
       }
     },
-    addInvoiceRecord() {
+    addInvoiceRecord () {
       // 实现添加收款记录功能
       if (this.form.payableAmount <= 0) {
         this.$message.warning('剩余可添加的收款记录金额为0,暂时无法添加新的收款记录');
@@ -550,7 +550,7 @@ export default {
       this.addPayrecordDialogVisible = true;
     },
 
-    paySuccess() {
+    paySuccess () {
       // 1. 验证金额一致性
       const invoiceRecords = this.form.invoiceRecordResps || [];
       const totalPayAmount = invoiceRecords.reduce((sum, record) => {
@@ -571,7 +571,7 @@ export default {
       }
     },
     // 确认收款完成
-    confirmPaySuccess() {
+    confirmPaySuccess () {
       this.$confirm('您确定要收款完成吗？', '确认操作', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -583,7 +583,7 @@ export default {
       });
     },
     // 处理收款完成逻辑
-    async handlePaySuccess() {
+    async handlePaySuccess () {
       try {
         // 调用收款完成API
         await receiptCompletion(this._id);
@@ -598,41 +598,41 @@ export default {
       }
     },
 
-    createRefund() {
+    createRefund () {
       // 实现创建反结算单功能
       console.log('创建反结算单');
       // 这里可以添加具体的创建反结算单逻辑
     },
 
-    createWarrantyApply() {
+    createWarrantyApply () {
       // 实现创建保修申请单功能
       this.$message.warning('功能开发中...');
       // 这里可以添加具体的创建保修申请单逻辑
     },
 
-    logList() {
+    logList () {
       // 实现审核日志功能
       this.$auditLog.show({ id: this._id });
       // 这里可以添加具体的审核日志跳转逻辑
     },
 
-    handlePrint() {
+    handlePrint () {
       this.$print.show({
         id: this._id, // 必选，对应数据id
         template: 'ServiceStatement', // 必选，对应 ./template/文件名.vue
         title: `结算单：${this.form.code}`// 可选，打印标题
       });
     },
-    handleRefresh() {
+    handleRefresh () {
       this.detailRequest();
     },
-    detailRequest() {
+    detailRequest () {
       const id = this._id;
       if (id) {
         return getDetail(id);
       }
     },
-    submitRequest() {
+    submitRequest () {
       return addOrUpdate({ ...this.form }).then(response => {
         // 提交成功后重新加载当前路由
         this.$router.go(0); // 或者使用 this.$router.replace(this.$route)
@@ -640,15 +640,15 @@ export default {
       });
     },
     // 打开侧边栏
-    openPane() {
+    openPane () {
       this.$refs.editLayout.openPane();
     },
     // 详情表格相关数据
-    handleAddRow() {
+    handleAddRow () {
       // 通过引用直接调用子组件方法
       this.$refs.editTable.addRow();
     },
-    handleSaveTable(data) {
+    handleSaveTable (data) {
       // 调用保存方法并处理结果
       return new Promise((resolve, reject) => {
         this.$refs.editTable.saveAll().then(data => {
@@ -658,7 +658,7 @@ export default {
         });
       });
     },
-    getDefautlForm() {
+    getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
       // const userInfo = this.$store.state.user.userInfo;
       return {
@@ -671,7 +671,7 @@ export default {
     // handleJumpAuditLog () {
     //   this.$auditLog.show({ id: 123 });
     // },
-    async fetchOptions(code) {
+    async fetchOptions (code) {
       if (code) {
         return getEnum(code);
       }
