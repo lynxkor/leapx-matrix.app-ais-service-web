@@ -26,6 +26,7 @@
           enumCode="old_part_return_order_status"
           v-model="form.returnStatusList"
           placeholder="请选择"
+          :format="returnStatusFormat"
           clearable
           multiple
           filterable
@@ -536,6 +537,20 @@ export default {
         if (item.code === '30' || item.code === '40') {
           return true;
         }
+      });
+    },
+    returnStatusFormat (data) {
+      return data.filter(item => {
+        if (this.isDealer) {
+          // 经销商，看不到草稿
+          return item.code !== '10';
+        } else {
+          // 厂商，如果是非快返，看不到草稿
+          if (!this.isFastReturn) {
+            return item.code !== '10';
+          }
+        }
+        return true;
       });
     }
   }
