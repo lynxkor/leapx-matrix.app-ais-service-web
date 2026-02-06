@@ -11,7 +11,7 @@
         <el-button v-if="canAddOrUpdate" :disabled="!isSelect" size="small" @click.stop="handleRemoveRows">删除</el-button>
         <el-button size="small" @click.stop="handleImport">旧件出库明细导入</el-button>
         <el-button :loading="attachLoading" size="small" @click="addAttach">添加连带件</el-button>
-        <el-input placeholder="扫描条码" class="input-inline" size="small" v-model="oldPartUniqueCode" @keyup.enter.native="search" clearable/>
+        <el-input placeholder="扫描条码" class="input-inline" size="small" v-model="oldPartUniqueCode" @keyup.enter.native="scanAdd" clearable/>
       </div>
       <div class="common-section-table">
         <!-- 旧件明细表格 -->
@@ -68,6 +68,7 @@ import {
   removeDetail,
   addAssociatedParts,
   addDetail,
+  scanCodeAddDetail,
 } from '@/api/claimreturn/oldpart/outbound/index';// 出库
 import EditTable from '@/libs/components/EditTable/index.vue';
 import Upload from '@/libs/components/UploadDialog';
@@ -331,32 +332,14 @@ export default {
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
     },
-    search (e) {
-      const val = e.target.value;
-      getList({
-        oldPartUniqueCode: val,
-        pageNum: 1,
-        pageSize: 1,
-        dealerCode: this.dealerCode,
-        oemStatus: '700', // 主机厂入库
-        // oemOutboundOrderIdIsNull: true,
-      })
-        .then(res => {
-          const data = res.records;
-          if (data?.length) {
-            addDetail({
-              id: this._id,
-              detailIdList: data?.map(item => item.id),
-            }).then(res => {
-              this.$message.success('添加成功');
-              this.getTableData();
-            });
-          } else {
-            this.$message.warning('未查询到数据');
-          }
-        }).finally(() => {
-          this.loading = false;
-        });
+    scanAdd (e) {
+      scanCodeAddDetail({
+        id: this._id,
+        oldPartUniqueCode: this.oldPartUniqueCode,
+      }).then(res => {
+        this.$message.success('添加成功');
+        this.getTableData();
+      });
     }
   },
 };

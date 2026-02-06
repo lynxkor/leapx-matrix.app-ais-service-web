@@ -28,11 +28,11 @@ export function deleteItem (data) {
 }
 
 /**
- * 查询
+ * 查询详情(平铺)
  * @param {Object} data
  */
 export function getDetail (data) {
-  return api.jsonPost(prefix + 'get', data);
+  return api.jsonPost(prefix + 'getFlat', data);
 }
 
 /**

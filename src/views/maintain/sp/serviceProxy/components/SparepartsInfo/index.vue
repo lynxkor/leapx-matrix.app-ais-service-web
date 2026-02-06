@@ -1,7 +1,7 @@
 <template>
 	<section class="common-section">
 		<div class="common-section-header">
-			<h2>厅店备件出库单</h2>
+			<h2>门店备件出库单</h2>
 		</div>
 		<div class="common-section-body">
 			<div class="common-section-table table-section">
@@ -18,7 +18,7 @@
           size="medium"
         >
           <vxe-column field="code" title="出库单号" min-width="200"/>
-          <vxe-column field="dealerName" title="厅店名称" min-width="200"/>
+          <vxe-column field="dealerName" title="门店名称" min-width="200"/>
           <vxe-column field="vehProfileVin" title="VIN码" min-width="200"/>
           <vxe-column field="carPlate" title="车牌号" min-width="150"/>
           <vxe-column field="cccName" title="出库类型" min-width="150"/>

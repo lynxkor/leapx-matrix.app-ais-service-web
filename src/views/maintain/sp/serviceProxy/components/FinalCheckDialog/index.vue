@@ -682,12 +682,10 @@ export default {
           finalChecker: this.filterForm.finalCheckerName
         };
 
-        const res = await finalInspection(submitData);
-        if (res) {
-          this.$message.success('终检成功');
-          this.$emit('refresh');
-          this.close();
-        }
+        await finalInspection(submitData);
+        this.$message.success('终检成功');
+        this.$emit('refresh');
+        this.close();
       } catch (error) {
         console.error('终检提交失败', error);
         this.$message.error('终检失败');
