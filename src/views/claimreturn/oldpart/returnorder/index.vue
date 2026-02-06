@@ -303,6 +303,9 @@ export default {
       return this.$route.meta.returnType === '40';
     },
     editPath () {
+      if (this.isDealer) {
+        return this.isFastReturn ? '/claimreturn/oldpart/dealerReturnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
+      }
       return this.isFastReturn ? '/claimreturn/oldpart/returnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
     },
     canPublish () {
