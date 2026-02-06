@@ -11,39 +11,21 @@
       <el-form-item label="业务标识：">
         <el-input
           placeholder="请输入"
-          v-model="form.businessType"
+          v-model="form.businessTypeLike"
           clearable
         />
       </el-form-item>
-      <el-form-item label="任务类型：">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="taskTypeEnum"
-          v-model="form.taskType"
-          placeholder="请选择"
-          clearable
-          multiple
+      <el-form-item label="创建时间">
+        <el-date-picker
+          v-model="form.createTime"
+          type="daterange"
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
         />
       </el-form-item>
-      <template v-if="show">
-        <el-form-item label="任务状态：">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="taskStatusEnum"
-            v-model="form.taskStatus"
-            placeholder="请选择"
-            clearable
-            multiple
-          />
-        </el-form-item>
-        <el-form-item label="创建者ID：">
-          <el-input
-            placeholder="请输入"
-            v-model="form.creator"
-            clearable
-          />
-        </el-form-item>
-      </template>
       <page-search-action
         v-model="show"
         is-expandable
@@ -92,7 +74,6 @@ import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/excelManagement/commonDataProcessExcelTask/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
-import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -116,7 +97,6 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    FetchSelect,
     Upload
   },
   data () {
