@@ -17,9 +17,21 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="code" title="出库单号" min-width="200"/>
-          <vxe-column field="dealerName" title="门店名称" min-width="200"/>
-          <vxe-column field="vehProfileVin" title="VIN码" min-width="200"/>
+          <vxe-column field="code" title="出库单号" min-width="200">
+            <template v-slot="{ row }">
+              <el-link type="success" :href="`/service/sparepart/outbound/maintenanceOutboundOrder/edit?id=${row.id}`" target="_blank">{{ row.code }}</el-link>
+            </template>
+          </vxe-column>
+          <vxe-column field="dealerName" title="门店名称" min-width="200">
+            <template v-slot="{ row }">
+              <el-link type="success" :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`" target="_blank">{{ row.dealerName }}</el-link>
+            </template>
+          </vxe-column>
+          <vxe-column field="vehProfileVin" title="VIN码" min-width="200">
+            <template v-slot="{ row }">
+              <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`" target="_blank">{{ row.vehProfileVin }}</el-link>
+            </template>
+          </vxe-column>
           <vxe-column field="carPlate" title="车牌号" min-width="150"/>
           <vxe-column field="cccName" title="出库类型" min-width="150"/>
           <vxe-column field="cccName" title="处理状态" min-width="150"/>
