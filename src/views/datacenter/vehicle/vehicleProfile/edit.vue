@@ -18,22 +18,22 @@
             </div>
             <div class="common-section-body">
               <el-form :inline="true" :model="form" label-width="150px" class="form-detail" v-show="!isEditing">
-                <LPEncrypted
-                  :value.sync="form.vin"
-                  :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
-                >
-                  <el-form-item label="VIN码：">
+                <el-form-item label="VIN码：">
+                  <LPEncrypted
+                    :value.sync="form.vin"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
+                  >
                     {{ form.vin }}
-                  </el-form-item>
-                </LPEncrypted>
-                <LPEncrypted
-                  :value.sync="form.vehiclePlateNo"
-                  :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
-                >
-                <el-form-item label="车牌号：">
-                  {{ form.vehiclePlateNo }}
+                  </LPEncrypted>
                 </el-form-item>
-                </LPEncrypted>
+                <el-form-item label="车牌号：">
+                  <LPEncrypted
+                    :value.sync="form.vehiclePlateNo"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
+                  >
+                    {{ form.vehiclePlateNo }}
+                  </LPEncrypted>
+                </el-form-item>
                 <el-form-item label="整车物料编码：">
                   {{ form.vehicleMaterialCode }}
                 </el-form-item>
@@ -147,30 +147,30 @@
             </div>
             <div class="common-section-body">
               <el-form :inline="true" label-width="150px" class="form-detail" v-show="!isEditing">
-                <LPEncrypted
-                  :value.sync="form.ownerName"
-                  :decryptMethod="() => getDetailDecryptField(form.id, 'ownerName')"
-                >
-                  <el-form-item label="车主姓名：">
+                <el-form-item label="车主姓名：">
+                  <LPEncrypted
+                    :value.sync="form.ownerName"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'ownerName')"
+                  >
                     {{ form.ownerName }}
-                  </el-form-item>
-                </LPEncrypted>
-                <LPEncrypted
-                  :value.sync="form.idcardNo"
-                  :decryptMethod="() => getDetailDecryptField(form.id, 'idcardNo')"
-                >
-                  <el-form-item label="证件号码：">
+                  </LPEncrypted>
+                </el-form-item>
+                <el-form-item label="证件号码：">
+                  <LPEncrypted
+                    :value.sync="form.idcardNo"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'idcardNo')"
+                  >
                     {{ form.idcardNo }}
-                  </el-form-item>
-                </LPEncrypted>
-                <LPEncrypted
-                  :value.sync="form.mobilephone"
-                  :decryptMethod="() => getDetailDecryptField(form.id, 'mobilephone')"
-                >
-                  <el-form-item label="车主手机号码：">
+                  </LPEncrypted>
+                </el-form-item>
+                <el-form-item label="车主手机号码：">
+                  <LPEncrypted
+                    :value.sync="form.mobilephone"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'mobilephone')"
+                  >
                     {{ form.mobilephone }}
-                  </el-form-item>
-                </LPEncrypted>
+                  </LPEncrypted>
+                </el-form-item>
                 <el-form-item label="生日：">
                   {{ form.birthdate }}
                 </el-form-item>
@@ -195,22 +195,22 @@
                 <el-form-item label="实名状态：">
                   {{ form.realnameStatusLabel }}
                 </el-form-item>
-                <LPEncrypted
-                  :value.sync="form.bindingUser"
-                  :decryptMethod="() => getDetailDecryptField(form.id, 'bindingUser')"
-                >
-                  <el-form-item label="绑车人姓名：">
+                <el-form-item label="绑车人姓名：">
+                  <LPEncrypted
+                    :value.sync="form.bindingUser"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'bindingUser')"
+                  >
                     {{ form.bindingUser }}
-                  </el-form-item>
-                </LPEncrypted>
-                <LPEncrypted
-                  :value.sync="form.bindingPhone"
-                  :decryptMethod="() => getDetailDecryptField(form.id, 'bindingPhone')"
-                >
-                  <el-form-item label="绑车人手机号码：">
+                  </LPEncrypted>
+                </el-form-item>
+                <el-form-item label="绑车人手机号码：">
+                  <LPEncrypted
+                    :value.sync="form.bindingPhone"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'bindingPhone')"
+                  >
                     {{ form.bindingPhone }}
-                  </el-form-item>
-                </LPEncrypted>
+                  </LPEncrypted>
+                </el-form-item>
                 <el-form-item label="绑车时间：">
                   {{ form.bindingOn }}
                 </el-form-item>
@@ -279,22 +279,22 @@
                 <el-form-item label="下次保养里程：">
                   {{ form.nextMaintainMileages }}
                 </el-form-item>
-                <LPEncrypted
-                  :value.sync="form.shuttleName"
-                  :decryptMethod="() => getDetailDecryptField(form.id, 'shuttleName')"
-                >
                 <el-form-item label="送修人：">
-                  {{ form.shuttleName }}
+                  <LPEncrypted
+                    :value.sync="form.shuttleName"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'shuttleName')"
+                  >
+                    {{ form.shuttleName }}
+                  </LPEncrypted>
                 </el-form-item>
-                </LPEncrypted>
-                <LPEncrypted
-                  :value.sync="form.shuttlePhone"
-                  :decryptMethod="() => getDetailDecryptField(form.id, 'shuttlePhone')"
-                >
                 <el-form-item label="送修人手机：">
-                  {{ form.shuttlePhone }}
+                  <LPEncrypted
+                    :value.sync="form.shuttlePhone"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'shuttlePhone')"
+                  >
+                    {{ form.shuttlePhone }}
+                  </LPEncrypted>
                 </el-form-item>
-                </LPEncrypted>
                 <el-form-item label="整车保修结束日期(预测)：">
                   {{ form.warrantyEnddateForecast }}
                 </el-form-item>
