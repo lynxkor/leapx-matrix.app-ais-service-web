@@ -404,7 +404,16 @@ export default {
             }, {
               name: '提交',
               show: (row) => {
-                return row.orderStatus === '0' || row.orderStatus === '3';
+                // 必须满足订单状态条件
+                if (row.orderStatus !== '0' && row.orderStatus !== '3') {
+                  return false;
+                }
+                // 门店账号需要额外检查订单类型
+                if (this.accountFlag) {
+                  return row.purchaseOrderType === '0' || row.purchaseOrderType === '1';
+                }
+                // 主机厂账号直接显示
+                return true;
               },
               click: (rowIndex, row) => {
                 this.handleSubmit(row);
@@ -413,7 +422,16 @@ export default {
             }, {
               name: '同意',
               show: (row) => {
-                return row.orderStatus === '1';
+                // 必须满足订单状态条件
+                if (row.orderStatus !== '0' && row.orderStatus !== '3') {
+                  return false;
+                }
+                // 门店账号需要额外检查订单类型
+                if (this.accountFlag) {
+                  return row.purchaseOrderType === '0' || row.purchaseOrderType === '1';
+                }
+                // 主机厂账号直接显示
+                return true;
               },
               click: (rowIndex, row) => {
                 this.handleAgree(row);
@@ -422,7 +440,16 @@ export default {
             }, {
               name: '驳回',
               show: (row) => {
-                return row.orderStatus === '1';
+                // 必须满足订单状态条件
+                if (row.orderStatus !== '0' && row.orderStatus !== '3') {
+                  return false;
+                }
+                // 门店账号需要额外检查订单类型
+                if (this.accountFlag) {
+                  return row.purchaseOrderType === '0' || row.purchaseOrderType === '1';
+                }
+                // 主机厂账号直接显示
+                return true;
               },
               click: (rowIndex, row) => {
                 this.handleReject(row);
@@ -430,6 +457,14 @@ export default {
               type: 'info'
             }, {
               name: '复制',
+              show: (row) => {
+                // 门店账号需要额外检查订单类型
+                if (this.accountFlag) {
+                  return row.purchaseOrderType === '0' || row.purchaseOrderType === '1';
+                }
+                // 主机厂账号直接显示
+                return true;
+              },
               click: (rowIndex, row) => {
                 this.handleCopy(row);
               },
@@ -448,7 +483,7 @@ export default {
   },
   methods: {
     async initDealerUser () {
-      // 查询是否店端
+      // 查询是否店端 true为门店  false为厂端
       const res = await getLoginUser();
       this.accountFlag = res.accountFlag;
       this.currentDealerCode = res.currentDealerCode;// 当前门店code
@@ -697,8 +732,7 @@ export default {
         this.purchaseList = res || [];
         this.submitDialogVisible = true;
       } else {
-        this.$confirm({
-          message: '确认提交吗？',
+        this.$confirm('确认提交吗？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
