@@ -425,6 +425,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import LPEncrypted from '@/libs/components/LPEncrypted/index.vue';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum } from '@/api/common';
+import { getAreaInfo } from '@/utils';
 
 const defaultForm = {
   // 基础信息
@@ -628,20 +629,21 @@ export default {
     },
     submitRequest () {
       // 明细页不需要提交功能
+      if (this.form.districtCode) {
+        let areaInfo = getAreaInfo(this.form.districtCode);
+        this.form.provinceName = areaInfo.provinceName;
+        this.form.provinceCode = areaInfo.provinceCode;
+        this.form.cityName = areaInfo.cityName;
+        this.form.cityCode = areaInfo.cityCode;
+        this.form.districtName = areaInfo.districtName;
+        this.form.districtCode = areaInfo.districtCode;
+      }
       return Promise.resolve();
     },
     getDefautlForm () {
       return {
         ...defaultForm
       };
-    },
-    getVehicleStatusText (status) {
-      const statusMap = {
-        1: '正常',
-        2: '维修中',
-        3: '报废'
-      };
-      return statusMap[status] || '';
     },
     getDetailDecryptField (id, field) {
       return getDetailDecryptField(id, field);
