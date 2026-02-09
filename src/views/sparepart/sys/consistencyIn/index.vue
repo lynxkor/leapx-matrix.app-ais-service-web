@@ -204,7 +204,7 @@ export default {
         },
         dataProp: [
           { props: 'code', label: '请求号', visible: true, width: 200 },
-          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 120 },
           { props: 'businessTypeLabel', label: '业务类型', visible: true, width: 200 },
           { props: 'inputText', label: '传入文本', visible: true, width: 200 },
           { props: 'executionRemark', label: '执行备注', visible: true, width: 200 },

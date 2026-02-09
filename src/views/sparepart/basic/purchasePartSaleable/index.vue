@@ -182,7 +182,7 @@ export default {
             props: 'orderTypeLabel',
             label: '订单类型',
             visible: true,
-            width: 200,
+            width: 120,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -214,7 +214,7 @@ export default {
             }]
           },
           { props: 'partName', label: '备件名称', visible: true, width: 200 },
-          { props: 'saleableIsLabel', label: '是否可售', visible: true, width: 200 },
+          { props: 'saleableIsLabel', label: '是否可售', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },

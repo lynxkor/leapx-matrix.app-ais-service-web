@@ -203,10 +203,10 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'status', label: '状态', visible: true, width: 200 },
-          { props: 'disabledOperator', label: '关闭人', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 78 },
+          { props: 'disabledOperator', label: '关闭人', visible: true, width: 120 },
           { props: 'disabledTime', label: '关闭时间', visible: true, width: 200 },
-          { props: 'enabledOperator', label: '开启人', visible: true, width: 200 },
+          { props: 'enabledOperator', label: '开启人', visible: true, width: 120 },
           { props: 'enabledTime', label: '开启时间', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           {
