@@ -357,9 +357,9 @@ export default {
           { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
           { props: 'backOrderCode', label: '缺货单号', visible: true, width: 200 },
-          { props: 'submitter', label: '提交人', visible: true, width: 100 },
+          { props: 'submitterName', label: '提交人', visible: true, width: 100 },
           { props: 'submitTime', label: '提交时间', visible: true, width: 200 },
-          { props: 'approver', label: '审批人', visible: true, width: 100 },
+          { props: 'approverName', label: '审批人', visible: true, width: 100 },
           { props: 'approvalTime', label: '审批时间', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
@@ -412,7 +412,7 @@ export default {
                 }
                 // 门店账号需要额外检查订单类型
                 if (this.accountFlag) {
-                  return row.purchaseOrderType === '0' || row.purchaseOrderType === '1';
+                  return (row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && row.backOrderId === null;
                 }
                 // 主机厂账号直接显示
                 return true;
@@ -425,12 +425,12 @@ export default {
               name: '同意',
               show: (row) => {
                 // 必须满足订单状态条件
-                if (row.orderStatus !== '0' && row.orderStatus !== '3') {
+                if (row.orderStatus !== '1') {
                   return false;
                 }
                 // 门店账号需要额外检查订单类型
                 if (this.accountFlag) {
-                  return row.purchaseOrderType === '0' || row.purchaseOrderType === '1';
+                  return (row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && row.backOrderId === null;
                 }
                 // 主机厂账号直接显示
                 return true;
@@ -443,12 +443,12 @@ export default {
               name: '驳回',
               show: (row) => {
                 // 必须满足订单状态条件
-                if (row.orderStatus !== '0' && row.orderStatus !== '3') {
+                if (row.orderStatus !== '1') {
                   return false;
                 }
                 // 门店账号需要额外检查订单类型
                 if (this.accountFlag) {
-                  return row.purchaseOrderType === '0' || row.purchaseOrderType === '1';
+                  return (row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && row.backOrderId === null;
                 }
                 // 主机厂账号直接显示
                 return true;

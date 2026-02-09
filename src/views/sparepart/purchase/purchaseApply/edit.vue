@@ -1,5 +1,5 @@
 <template>
-  <edit-page-layout ref="editLayout" :title="detailTitle" showPaneFooter>
+  <edit-page-layout ref="editLayout" :title="detailTitle">
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :form.sync="form" :submitRequest="submitRequest"
