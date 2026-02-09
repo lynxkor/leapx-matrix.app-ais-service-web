@@ -269,7 +269,7 @@ export default {
           },
           { props: 'expectFinishAt', label: '预计交车时间', visible: true, width: 200 },
           { props: 'creatorName', label: '登记人', visible: true, width: 200 },
-          { props: 'createTime', label: '开单时间', visible: true, width: 200, sortable: true },
+          { props: 'createTime', label: '开单时间', visible: true, width: 200, sortable: true, fixed: 'right' },
         ],
         total: 0
       },

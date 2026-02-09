@@ -199,7 +199,7 @@ export default {
           { props: 'managerSuggestion', label: '客户经理建议', visible: true, width: 200 },
           { props: 'customerRequest', label: '客户诉求', visible: true, width: 200 },
           { props: 'vehProfileId', label: '整车档案id', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200, sortable: true },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200, sortable: true, fixed: 'right' },
         ],
         total: 0
       },
