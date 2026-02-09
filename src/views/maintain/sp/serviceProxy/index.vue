@@ -416,12 +416,12 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
-      data.sortColumns = this.sortColumns.concat([
+      data.sortColumns = ([
         {
           column: 'order_status',
           sort: 'ASC'
         }
-      ]);
+      ]).concat(this.sortColumns);
       return data;
     },
     async fetchOptions (code) {
