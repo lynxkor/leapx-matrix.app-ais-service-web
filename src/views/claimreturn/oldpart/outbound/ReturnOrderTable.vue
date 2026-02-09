@@ -253,13 +253,13 @@ export default {
         this.removeRows(ids);
       }).catch(() => {});
     },
-    handleRemoveRow (row) {
+    handleRemoveRow (row, index, defer) {
       if (!row.id) {
         return;
       }
-      this.removeRows([row.id]);
+      this.removeRows([row.id], defer);
     },
-    removeRows (ids) {
+    removeRows (ids, defer) {
       removeDetail({
         id: this._id,
         detailIdList: ids,
@@ -268,10 +268,7 @@ export default {
         this.selectedRows = [];
         this.getTableData();
       }).catch(() => {
-        this.$message({
-          type: 'error',
-          message: '删除失败!'
-        });
+        defer?.reject();
       });
     },
     // 行保存
