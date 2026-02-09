@@ -114,8 +114,7 @@ export default {
           localStorage.getItem('areaTree', JSON.stringify(res));
           this.$store.commit('SET_AREATREE', res);
         }).catch(() => {});
-        const data = await loginUserGet();
-        this.$store.commit('SET_LOGIN_INFO', Object.assign({}, res, data));
+        this.$store.commit('SET_LOGIN_INFO', Object.assign({}, res));
 
         if (!!this.$route.query.id && !!this.$route.query.url) {
           this.$store.commit('SET_ACTIVE_MENU', this.$route.query.url);
