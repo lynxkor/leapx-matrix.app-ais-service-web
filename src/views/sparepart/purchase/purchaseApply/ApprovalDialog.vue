@@ -104,24 +104,25 @@ export default {
       try {
         const res = await purchaseApplyAgree(params);
         if (res.length > 0) {
+          this.close();
           this.$emit('failure', this.id);
         } else {
+          this.$emit('success');
           this.$message({
             message: '审批同意成功',
             type: 'success',
           });
         }
+        this.form = {
+          id: '',
+          approvalDescription: '',
+        };
         this.submitLoading = false;
-        this.close();
       } catch (error) {
         this.submitLoading = false;
       }
     },
     close () {
-      this.form = {
-        id: '',
-        approvalDescription: '',
-      };
       this.$emit('close');
     },
   }

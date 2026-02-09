@@ -230,6 +230,7 @@
       :id="purchaseId"
       :couponObj="couponObj"
       @failure="handleApprovalFailure"
+      @success="handleApprovalSuccess"
       @close="handleApprovalDialogClose"
     />
   </div>
@@ -774,6 +775,11 @@ export default {
     },
     handleAgreeDialogClose () {
       this.agreeDialogVisible = false;
+    },
+    // 统一成功调按钮 接口
+    handleApprovalSuccess () {
+      this.approvalDialogVisible = false;
+      this.getData();
     },
     handleApprovalDialogClose () {
       this.approvalDialogVisible = false;
