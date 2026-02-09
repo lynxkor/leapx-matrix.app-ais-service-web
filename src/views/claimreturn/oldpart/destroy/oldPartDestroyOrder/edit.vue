@@ -167,6 +167,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { getList, getDetailDecryptField } from '../../../../../api/claimreturn/oldpart/inventory/oem';
 import AisAttachment from '@/libs/components/AisAttachment';
+import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -238,7 +239,7 @@ export default {
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey,
       // 是否是门店用户
-      isDealer: this.$store.state.user.userInfo?.accountFlag,
+      isDealer: null,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -275,19 +276,6 @@ export default {
             });
             // BUG: 保修申请单跳转路径未设置
             this.$router.push(`/maintain/sp/serviceProxy/edit?id=${row.serviceProxyId}`);
-          }
-        },
-        {
-          field: 'serviceOrderNo',
-          title: '接车服务单',
-          width: '160',
-          click: (row) => {
-            this.navigateToRoute({
-              path: '/maintain/sp/serviceOrder/edit',
-              query: {
-                id: row.serviceOrderId
-              }
-            });
           }
         },
         {
@@ -389,7 +377,7 @@ export default {
           width: '160'
         },
         {
-          field: 'oemStatus',
+          field: 'oemStatusLabel',
           title: '主机厂库存状态',
           width: '150'
         },
@@ -528,6 +516,9 @@ export default {
   },
   mounted () {
     this.getTableData();
+    loginUserGet().then(data => {
+      this.isDealer = data.accountFlag;
+    });
   },
   methods: {
     detailRequest () {

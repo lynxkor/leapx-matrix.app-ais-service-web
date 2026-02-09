@@ -9,24 +9,24 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="营销分类名称" v-if="activeName === 'homePage'">
+      <el-form-item label="营销分类" v-if="activeName === 'homePage'">
         <el-input
           placeholder="请输入"
-          v-model="form.categoryName"
+          v-model="form.categoryIdList"
           clearable
         />
       </el-form-item>
       <el-form-item label="备件工程师" v-if="activeName === 'spareParts'">
         <el-input
           placeholder="请输入"
-          v-model="form.categoryName"
+          v-model="form.partsEngineerLike"
           clearable
         />
       </el-form-item>
       <el-form-item label="供应商名称" v-if="activeName === 'spareParts'">
         <el-input
           placeholder="请输入"
-          v-model="form.categoryName"
+          v-model="form.supplierNameLike"
           clearable
         />
       </el-form-item>

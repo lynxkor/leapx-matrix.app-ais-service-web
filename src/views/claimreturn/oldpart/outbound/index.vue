@@ -202,6 +202,12 @@ export default {
                   }
                 });
               },
+              show: (row) => {
+                if (row.outboundStatus === '20') {
+                  return false;
+                }
+                return true;
+              },
               type: 'info'
             }, {
               name: '删除',

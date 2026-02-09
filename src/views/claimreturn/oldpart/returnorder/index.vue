@@ -117,6 +117,7 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select/index.vue';
+import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -157,7 +158,7 @@ export default {
     return {
       pageTitle: this.$route.meta.name,
       pageType: 'list',
-      isDealer: this.$store.state.user.userInfo?.accountFlag,
+      isDealer: null,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       form: {
         ...defaultForm
@@ -297,12 +298,18 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    loginUserGet().then(data => {
+      this.isDealer = data.accountFlag;
+    });
   },
   computed: {
     isFastReturn () {
       return this.$route.meta.returnType === '40';
     },
     editPath () {
+      if (this.isDealer) {
+        return this.isFastReturn ? '/claimreturn/oldpart/dealerReturnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
+      }
       return this.isFastReturn ? '/claimreturn/oldpart/returnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
     },
     canPublish () {

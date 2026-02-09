@@ -17,7 +17,8 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail" v-show="!isEditing">
+              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+
                 <el-form-item label="VIN码：">
                   <LPEncrypted
                     :value.sync="form.vin"
@@ -26,6 +27,7 @@
                     {{ form.vin }}
                   </LPEncrypted>
                 </el-form-item>
+
                 <el-form-item label="车牌号：">
                   <LPEncrypted
                     :value.sync="form.vehiclePlateNo"
@@ -34,6 +36,7 @@
                     {{ form.vehiclePlateNo }}
                   </LPEncrypted>
                 </el-form-item>
+
                 <el-form-item label="整车物料编码：">
                   {{ form.vehicleMaterialCode }}
                 </el-form-item>
@@ -146,7 +149,7 @@
               <h2>车主信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" label-width="150px" class="form-detail" v-show="!isEditing">
+              <el-form :inline="true" label-width="150px" class="form-detail">
                 <el-form-item label="车主姓名：">
                   <LPEncrypted
                     :value.sync="form.ownerName"
@@ -163,6 +166,7 @@
                     {{ form.idcardNo }}
                   </LPEncrypted>
                 </el-form-item>
+
                 <el-form-item label="车主手机号码：">
                   <LPEncrypted
                     :value.sync="form.mobilephone"
@@ -171,9 +175,28 @@
                     {{ form.mobilephone }}
                   </LPEncrypted>
                 </el-form-item>
-                <el-form-item label="生日：">
+                <el-form-item v-show="isEditing || !_id" label="称呼：" prop="gender">
+                  <fetch-select
+                    :request="fetchOptions"
+                    enumCode="vehicle_profile_gender"
+                    v-model="form.gender"
+                    placeholder="请选择"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item v-show="!(isEditing || !_id)" label="称呼：" prop="gender">
+                  {{ form.genderLabel }}
+                </el-form-item>
+
+                <el-form-item v-show="isEditing || !_id" label="生日：" prop="birthdate">
+                  <el-date-picker v-model="form.birthdate" type="date" placeholder="请选择">
+
+                  </el-date-picker>
+                </el-form-item>
+                <el-form-item v-show="!(isEditing || !_id)" label="生日：" prop="birthdate">
                   {{ form.birthdate }}
                 </el-form-item>
+
                 <el-form-item label="省：">
                   {{ form.provinceName }}
                 </el-form-item>
@@ -195,6 +218,7 @@
                 <el-form-item label="实名状态：">
                   {{ form.realnameStatusLabel }}
                 </el-form-item>
+
                 <el-form-item label="绑车人姓名：">
                   <LPEncrypted
                     :value.sync="form.bindingUser"
@@ -203,6 +227,7 @@
                     {{ form.bindingUser }}
                   </LPEncrypted>
                 </el-form-item>
+
                 <el-form-item label="绑车人手机号码：">
                   <LPEncrypted
                     :value.sync="form.bindingPhone"
@@ -211,6 +236,7 @@
                     {{ form.bindingPhone }}
                   </LPEncrypted>
                 </el-form-item>
+
                 <el-form-item label="绑车时间：">
                   {{ form.bindingOn }}
                 </el-form-item>
@@ -230,7 +256,7 @@
               <h2>服务信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" label-width="150px" class="form-detail" v-show="!isEditing">
+              <el-form :inline="true" label-width="180px" class="form-detail">
                 <el-form-item label="是否终身免保：">
                   {{ form.isLifetimeFreeMaintainLabel }}
                 </el-form-item>
@@ -273,13 +299,33 @@
                 <el-form-item label="最近保养里程：">
                   {{ form.lastMaintainMileages }}
                 </el-form-item>
-                <el-form-item label="下次保养时间：">
+                <el-form-item v-show="isEditing || !_id" label="下次保养时间：" prop="remark">
+                  <el-date-picker
+                    v-model="form.nextMaintainDate"
+                    type="date"
+                    style="max-width: 200px"
+                    value-format="yyyy-MM-dd"
+                    placeholder="选择日期"
+                  />
+                </el-form-item>
+                <el-form-item v-show="!(isEditing || !_id)" label="下次保养时间：" prop="remark">
                   {{ form.nextMaintainDate }}
                 </el-form-item>
-                <el-form-item label="下次保养里程：">
+
+                <el-form-item v-show="isEditing || !_id" label="下次保养里程：" prop="remark">
+                  <el-input-number
+                    v-model="form.nextMaintainMileages"
+                    placeholder="请输入"
+                    :controls="false"
+                    :precision="0"
+                  />
+                </el-form-item>
+                <el-form-item v-show="!(isEditing || !_id)" label="下次保养里程：" prop="remark">
                   {{ form.nextMaintainMileages }}
                 </el-form-item>
+
                 <el-form-item label="送修人：">
+
                   <LPEncrypted
                     :value.sync="form.shuttleName"
                     :decryptMethod="() => getDetailDecryptField(form.id, 'shuttleName')"
@@ -287,6 +333,7 @@
                     {{ form.shuttleName }}
                   </LPEncrypted>
                 </el-form-item>
+
                 <el-form-item label="送修人手机：">
                   <LPEncrypted
                     :value.sync="form.shuttlePhone"
@@ -295,6 +342,7 @@
                     {{ form.shuttlePhone }}
                   </LPEncrypted>
                 </el-form-item>
+
                 <el-form-item label="整车保修结束日期(预测)：">
                   {{ form.warrantyEnddateForecast }}
                 </el-form-item>
@@ -326,6 +374,8 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import LPEncrypted from '@/libs/components/LPEncrypted/index.vue';
+import FetchSelect from '@/libs/components/FetchSelect/index.vue';
+import { getEnum } from '@/api/common';
 
 const defaultForm = {
   // 基础信息
@@ -475,6 +525,7 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
+    FetchSelect,
     LPEncrypted,
     EditPageLayout,
     EditBaseContainer
@@ -537,6 +588,12 @@ export default {
     },
     getDetailDecryptField (id, field) {
       return getDetailDecryptField(id, field);
+    },
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
     },
   }
 };

@@ -66,6 +66,7 @@ import { getEnum, getUserByNameOrNo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import { getVehicleProfile } from '@/api/maintain/sp/serviceProxy/index';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -273,28 +274,20 @@ export default {
       }
       return [];
     },
-    querySearchAsync (queryString, cb) {
-      // getUserByNameOrNo({ name: queryString }).then(res => {
-      //   const list = res?.map(item => {
-      //     return {
-      //       value: item.userId,
-      //       label: item.username,
-      //       ...item
-      //     };
-      //   }) || [];
-      //   this.options.vin = list;
-      // });
-      // mock: 待提供接口
-      this.options.vin = [
-        {
-          value: 'LFZ73FX56RD000107',
-          label: 'LFZ73FX56RD000107'
-        },
-        {
-          value: 'LFZ73FL54SD058163',
-          label: 'LFZ73FL54SD058163'
-        }
-      ];
+    querySearchAsync (query, cb) {
+      if (!query) {
+        return;
+      }
+      getVehicleProfile({ searchVin: query }).then(res => {
+        const list = res?.map(item => {
+          return {
+            value: item.id,
+            label: item.vin,
+            ...item
+          };
+        }) || [];
+        this.options.vin = list;
+      });
     }
   }
 };
