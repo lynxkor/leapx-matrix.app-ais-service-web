@@ -221,3 +221,11 @@ export function getPartDealer (data) {
 export function getLoginUser (data) {
   return api.jsonPost('/sp/web/base/loginUser/getLoginUser', data);
 }
+
+/**
+ * 维保枚举保养分类
+ * @param {*} data
+ */
+export function getMaintenanceItemEnum (data) {
+  return api.jsonPost('/maintain/web/common/enum/MaintenanceItemEnum', data);
+}

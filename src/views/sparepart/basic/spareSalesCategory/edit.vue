@@ -147,6 +147,7 @@
       </el-main>
       <el-footer height="60px">
         <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
+        <el-button size="small" @click="submitForm('ruleForm', true)" style="color: #009100;">保存并再新增</el-button>
         <el-button size="small" @click="handleBack">取消</el-button>
         <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
       </el-footer>
@@ -249,22 +250,22 @@ export default {
         {
           field: 'dealerName',
           title: '门店名称',
-          width: '23%',
+          width: '20%',
         },
         {
           field: 'dealerCode',
           title: '门店编码',
-          width: '23%',
+          width: '20%',
         },
         {
           field: 'createTime',
           title: '添加时间',
-          width: '23%',
+          width: '20%',
         },
         {
           field: 'creatorName',
           title: '操作人',
-          width: '23%',
+          width: '20%',
         }
       ],
       pickerOptions: {

@@ -190,7 +190,7 @@ export default {
             props: 'warehouseName',
             label: '仓库名称',
             visible: true,
-            width: 200,
+            width: 180,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -204,12 +204,12 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'warehouseCode', label: '仓库编码', visible: true, width: 200 },
-          { props: 'provinceName', label: '省', visible: true, width: 200 },
-          { props: 'cityName', label: '市', visible: true, width: 200 },
-          { props: 'districtName', label: '区', visible: true, width: 200 },
+          { props: 'warehouseCode', label: '仓库编码', visible: true, width: 180 },
+          { props: 'provinceName', label: '省', visible: true, width: 120 },
+          { props: 'cityName', label: '市', visible: true, width: 120 },
+          { props: 'districtName', label: '区', visible: true, width: 120 },
           { props: 'address', label: '详细地址', visible: true, width: 200 },
-          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'statusDesc', label: '停用原因', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },

@@ -279,19 +279,6 @@ export default {
           }
         },
         {
-          field: 'serviceOrderNo',
-          title: '接车服务单',
-          width: '160',
-          click: (row) => {
-            this.navigateToRoute({
-              path: '/maintain/sp/serviceOrder/edit',
-              query: {
-                id: row.serviceOrderId
-              }
-            });
-          }
-        },
-        {
           field: 'warrantyNo',
           title: '保修申请单',
           width: '180',
@@ -390,7 +377,7 @@ export default {
           width: '160'
         },
         {
-          field: 'oemStatus',
+          field: 'oemStatusLabel',
           title: '主机厂库存状态',
           width: '150'
         },

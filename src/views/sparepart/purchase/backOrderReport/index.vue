@@ -172,11 +172,11 @@ export default {
           size: pageSize
         },
         dataProp: [
-          { props: 'categoryName', label: '分类名称', visible: true, width: 200 },
-          { props: 'orderCount', label: '订单行数', visible: true, width: 200 },
-          { props: 'backPartQtyTotal', label: '缺货总数', visible: true, width: 200 },
-          { props: 'backPartGroupTotal', label: '备件种类', visible: true, width: 200 },
-          { props: 'backTotalAmount', label: '缺货总金额', visible: true, width: 200 },
+          { props: 'categoryName', label: '分类名称', visible: true, width: 180 },
+          { props: 'orderCount', label: '订单行数', visible: true, width: 120 },
+          { props: 'backPartQtyTotal', label: '缺货总数', visible: true, align: 'right', width: 120 },
+          { props: 'backPartGroupTotal', label: '备件种类', visible: true, width: 120 },
+          { props: 'backTotalAmount', label: '缺货总金额', visible: true, align: 'right', width: 120 },
           { props: 'now', label: '取值时间', visible: true, width: 200 },
         ],
         total: 0
@@ -189,15 +189,15 @@ export default {
           size: pageSize
         },
         dataProp: [
-          { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180 },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
-          { props: 'pendingPartQtyTotal', label: '缺货总数', visible: true, width: 200 },
-          { props: 'purchasePrice', label: '采购价格', visible: true, width: 200 },
-          { props: 'days', label: '缺货天数', visible: true, width: 200 },
-          { props: 'detailCount', label: '缺货订单行数', visible: true, width: 200 },
-          { props: 'partsEngineer', label: '备件工程师', visible: true, width: 200 },
-          { props: 'supplierName', label: '供应商名称', visible: true, width: 200 },
-          { props: 'categoryName', label: '营销分类名称', visible: true, width: 200 },
+          { props: 'pendingPartQtyTotal', label: '缺货总数', visible: true, align: 'right', width: 120 },
+          { props: 'purchasePrice', label: '采购价格', visible: true, align: 'right', width: 120 },
+          { props: 'days', label: '缺货天数', visible: true, align: 'right', width: 120 },
+          { props: 'detailCount', label: '缺货订单行数', visible: true, width: 120 },
+          { props: 'partsEngineer', label: '备件工程师', visible: true, width: 120 },
+          { props: 'supplierName', label: '供应商名称', visible: true, width: 180 },
+          { props: 'categoryName', label: '营销分类名称', visible: true, width: 180 },
           { props: 'now', label: '取数时间', visible: true, width: 200 },
         ],
         total: 0
