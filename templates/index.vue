@@ -270,21 +270,21 @@ export default {
           size: pageSize
         },
         dataProp: [
-          {{#each cols}}
+          {{#each tableList}}
           {{#if isFirst}}
           {
             props: '{{key}}',
             label: '{{description}}',
-            visible: {{visible}},
+            visible: true,
             width: 200,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
                   {{#if isProForm}}
-                  path: '/{{modulePath}}/edit',
+                  path: '/{{@root.modulePath}}/edit',
                   {{else}}
-                  path: '/{{modulePath}}/detail',
+                  path: '/{{@root.modulePath}}/detail',
                   {{/if}}
                   query: {
                     id: row.id
@@ -295,9 +295,7 @@ export default {
             }]
           },
           {{else}}
-          {{#if visible}}
-          { props: '{{key}}', label: '{{description}}', visible: {{visible}}, width: 200 },
-          {{/if}}
+          { props: '{{key}}', label: '{{description}}', visible: true, width: 200 },
           {{/if}}
           {{/each}}
           {

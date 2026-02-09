@@ -29,7 +29,7 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-              {{#each cols}}
+              {{#each detailList}}
               {{#if isDate}}
                 <el-form-item label="{{description}}：" prop="{{key}}">
                   <el-date-picker
@@ -73,7 +73,7 @@
               {{/each}}
               </el-form>
               <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                {{#each cols}}
+                {{#each detailList}}
                 <el-form-item label="{{description}}：" prop="{{key}}">
                   {{#if isBoolean}}
                   {{yesNoFormat form.[key]}}
@@ -126,7 +126,7 @@
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-            {{#each cols}}
+            {{#each detailList}}
             {{#if isDate}}
               <el-form-item label="{{description}}" prop="{{key}}">
                 <el-date-picker
@@ -198,9 +198,9 @@ import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
-  {{#cols}}
+  {{#each detailList}}
   {{key}}: '',
-  {{/cols}}
+  {{/each}}
 };
 
 export default {
@@ -302,7 +302,7 @@ export default {
       ],
       {{/if}}
       rules: {
-      {{#each cols}}
+      {{#each detailList}}
       {{#if isDate}}
         {{key}}: [
           { required: true, message: '请选择{{description}}', trigger: 'change' }

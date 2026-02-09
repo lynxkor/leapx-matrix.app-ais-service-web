@@ -70,28 +70,50 @@ const moduleName = nameParts.pop(); // 最后一部分作为模块名
 const moduleDir = nameParts.join('/'); // 剩余部分作为目录路径
 
 // 准备模板数据
-const colsData = generateJson.list.filter(item => {
-  return (item.format === 'date-time' || item.type === 'array' || item.description);
-}).map((el, index) => {
-  const key = el.key.toLowerCase();
-  const isDate = el.format === 'date-time' || !!key.match(/time/);
-  const isBoolean = el.type === 'boolean';
-  const isSelect = !isBoolean && !!key.match(/type|status|state/);
-  return {
-    ...el,
-    isFirst: index === 0,
-    isDate,
-    isBoolean,
-    isSelect,
-    description: el.description?.replace(/\(.*?\)/g, ''),
-    isNormal: !isDate && !isSelect && !isBoolean,
-  };
-});
-console.log(colsData, 'colsData');
+// const colsData = generateJson.list.filter(item => {
+//   return (item.format === 'date-time' || item.type === 'array' || item.description);
+// }).map((el, index) => {
+//   const key = el.key.toLowerCase();
+//   const isDate = el.format === 'date-time' || !!key.match(/time/);
+//   const isBoolean = el.type === 'boolean';
+//   const isSelect = !isBoolean && !!key.match(/type|status|state/);
+//   return {
+//     ...el,
+//     isFirst: index === 0,
+//     isDate,
+//     isBoolean,
+//     isSelect,
+//     description: el.description?.replace(/\(.*?\)/g, ''),
+//     isNormal: !isDate && !isSelect && !isBoolean,
+//   };
+// });
+function handleList (list) {
+  return list.filter(item => {
+    return (item.format === 'date-time' || item.type === 'array' || item.description);
+  }).map((el, index) => {
+    const key = el.key.toLowerCase();
+    const isDate = el.format === 'date-time' || !!key.match(/time/);
+    const isBoolean = el.type === 'boolean';
+    const isSelect = !isBoolean && !!key.match(/type|status|state/);
+    return {
+      ...el,
+      isFirst: index === 0,
+      isDate,
+      isBoolean,
+      isSelect,
+      description: el.description?.replace(/\(.*?\)/g, ''),
+      isNormal: !isDate && !isSelect && !isBoolean,
+    };
+  });
+}
+const searchList = handleList(generateJson.listPage.searchList);
+const tableList = handleList(generateJson.listPage.tableList);
+const detailList = handleList(generateJson.listPage.detailList);
+
 const nameSplit = name.split('/').filter(el => el);
 nameSplit.splice(1, 0, 'web');
 const apiPath = nameSplit.join('/');
-const isProForm = colsData.some(el => el.type === 'array');
+// const isProForm = colsData.some(el => el.type === 'array');
 const data = {
   title: generateJson.title,
   name: moduleName,
@@ -101,12 +123,12 @@ const data = {
   apiPath: apiPath,
   isProForm: true,
   modulePath: name.split('/').filter(el => el).join('/'),
-  cols: colsData,
-  searchList: colsData.filter(el => el.searchable),
-  top1List: colsData.slice(0, 1),
-  top2SearchList: colsData.filter(el => el.searchable).slice(0, 2),
-  thirdSearchList: colsData.filter(el => el.searchable).slice(2, 3),
-  lastSearchList: colsData.filter(el => el.searchable).slice(3),
+  searchList,
+  top2SearchList: searchList.slice(0, 2),
+  thirdSearchList: searchList.slice(2, 3),
+  lastSearchList: searchList.slice(3),
+  tableList,
+  detailList,
 };
 
 // 创建vue文件
