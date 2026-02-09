@@ -56,6 +56,7 @@
               v-if="oem"
               >
                 <el-cascader
+                  style="width: 100%"
                   placeholder="请选择省市区"
                   v-model="form.provinceCityCountyCode"
                   :props="orgProps"
