@@ -247,6 +247,9 @@ export default {
         warehouseCode: [
           { required: true, message: '请输入仓库编码', trigger: 'change' }
         ],
+        receiverContact: [
+          { required: true, message: '请输入收货联系人', trigger: 'change' }
+        ],
         districtCode: [
           { required: true, message: '请选择省市区', trigger: 'change' }
         ],
@@ -273,6 +276,15 @@ export default {
       return Object.assign(data, areaInfo);
     },
     submitRequest () {
+      if (this.form.districtCode) {
+        let areaInfo = getAreaInfo(this.form.districtCode);
+        this.form.provinceName = areaInfo.provinceName;
+        this.form.provinceCode = areaInfo.provinceCode;
+        this.form.cityName = areaInfo.cityName;
+        this.form.cityCode = areaInfo.cityCode;
+        this.form.districtName = areaInfo.districtName;
+        this.form.districtCode = areaInfo.districtCode;
+      }
       return addOrUpdate({ ...this.form });
     },
     handleBack () {
