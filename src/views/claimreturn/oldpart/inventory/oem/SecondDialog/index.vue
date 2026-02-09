@@ -40,6 +40,7 @@
               ref="attachment"
               :businessId="_id"
               :noEcho="true"
+              @upload-loading-change="loadingChange"
             />
           </el-form-item>
           <el-form-item class="form-item-full" label="验收备注：" prop="checkRemark">
@@ -59,7 +60,7 @@
     <template v-slot:footer>
       <div class="dialog-footer">
         <el-button size="small" @click="close">取 消</el-button>
-        <el-button size="small" type="primary" :loading="submitLoading" @click="submit">确 定</el-button>
+        <el-button :disabled="uploadLoading" size="small" type="primary" :loading="submitLoading" @click="submit">确 定</el-button>
       </div>
     </template>
   </el-dialog>
@@ -122,6 +123,7 @@ export default {
       tipText: '请先搜索待验收旧件',
       //
       files: [],
+      uploadLoading: false, // 上传文件
     };
   },
   watch: {
@@ -211,6 +213,9 @@ export default {
         this.form.unqualifiedDesc = record.unqualifiedDesc;
       }
     },
+    loadingChange (loading) {
+      this.uploadLoading = loading;
+    }
   }
 };
 </script>
