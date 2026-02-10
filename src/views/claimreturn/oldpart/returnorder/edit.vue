@@ -27,7 +27,7 @@
         <template #extraButtons>
           <template v-if="form.returnStatus==='10'">
             <el-button v-if="canDelete && !isDealer" @click="onRemove" size="small">删除</el-button>
-            <el-button v-if="!isDealer" @click="onNext" size="small">下发</el-button>
+            <el-button v-if="!isDealer" @click="onNext" type="primary" plain size="small">下发</el-button>
           </template>
           <template v-if="form.returnStatus==='20'">
             <el-button v-if="isDealer" @click="onOutbound" size="small">回运出库</el-button>

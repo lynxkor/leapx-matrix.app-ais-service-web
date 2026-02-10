@@ -102,6 +102,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel, formatDateTime, getEndOfDayString } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -135,6 +136,7 @@ export default {
       form: {
         ...defaultForm
       },
+      isDealer: null,
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
       show: false,
@@ -158,8 +160,12 @@ export default {
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
+                let path = '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit';
+                if (this.isDealer) {
+                  path = '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder/edit';
+                }
                 this.$router.push({
-                  path: '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit',
+                  path,
                   query: {
                     id: row.id
                   }
@@ -201,8 +207,12 @@ export default {
             buttons: [{
               name: '编辑',
               click: (rowIndex, row) => {
+                let path = '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit';
+                if (this.isDealer) {
+                  path = '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder/edit';
+                }
                 this.$router.push({
-                  path: '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit',
+                  path,
                   query: {
                     id: row.id
                   }
@@ -219,6 +229,10 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+
+    loginUserGet().then(data => {
+      this.isDealer = data.accountFlag;
+    });
   },
   methods: {
     handleListSelect (row) {
