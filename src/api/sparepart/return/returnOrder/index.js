@@ -3,7 +3,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/purchase/returnOrder/';
-
+const prefix_Detail = SPARE_PREFIX + '/web/purchase/returnOrderDetail/';
 /**
  * 查询列表
  * @param {Object} data
@@ -49,7 +49,7 @@ export function enableItem (data) {
  * @param {Object} data
  */
 export function addPartPage (data) {
-  return api.jsonPost('sp/web/purchase/returnOrderDetail/addPartPage', data);
+  return api.jsonPost(prefix_Detail + 'addPartPage', data);
 }
 
 /**
@@ -57,7 +57,7 @@ export function addPartPage (data) {
  * @param {Object} data
  */
 export function returnOrderPage (data) {
-  return api.jsonPost('sp/web/purchase/returnOrderDetail/page', data);
+  return api.jsonPost(prefix_Detail + 'page', data);
 }
 
 /**
@@ -65,7 +65,7 @@ export function returnOrderPage (data) {
  * @param {Object} data
  */
 export function returnOrderUpdate (data) {
-  return api.jsonPost('sp/web/purchase/returnOrderDetail/addOrUpdate', data);
+  return api.jsonPost(prefix_Detail + 'addOrUpdate', data);
 }
 
 /**
@@ -73,7 +73,7 @@ export function returnOrderUpdate (data) {
  * @param {Object} data
  */
 export function returnOrderDel (data) {
-  return api.jsonPost('sp/web/purchase/returnOrderDetail/delete', data);
+  return api.jsonPost(prefix_Detail + 'delete', data);
 }
 
 /**
@@ -81,7 +81,7 @@ export function returnOrderDel (data) {
  * @param {Object} data
  */
 export function returnOrderCommit (data) {
-  return api.jsonPost('sp/web/purchase/returnOrder/commit', data);
+  return api.jsonPost(prefix + 'commit', data);
 }
 
 /**
@@ -89,7 +89,7 @@ export function returnOrderCommit (data) {
  * @param {Object} data
  */
 export function returnOrderCancel (data) {
-  return api.jsonPost('sp/web/purchase/returnOrder/cancel', data);
+  return api.jsonPost(prefix + 'cancel', data);
 }
 
 /**
@@ -97,7 +97,7 @@ export function returnOrderCancel (data) {
  * @param {Object} data
  */
 export function returnOrderAgree (data) {
-  return api.jsonPost('sp/web/purchase/returnOrder/agree', data);
+  return api.jsonPost(prefix + 'agree', data);
 }
 
 /**
@@ -105,7 +105,7 @@ export function returnOrderAgree (data) {
  * @param {Object} data
  */
 export function returnOrderReject (data) {
-  return api.jsonPost('sp/web/purchase/returnOrder/reject', data);
+  return api.jsonPost(prefix + 'reject', data);
 }
 
 /**
@@ -113,7 +113,7 @@ export function returnOrderReject (data) {
  * @param {Object} data
  */
 export function returnOrderRevoke (data) {
-  return api.jsonPost('sp/web/purchase/returnOrder/revoke', data);
+  return api.jsonPost(prefix + 'revoke', data);
 }
 
 /**
@@ -121,5 +121,5 @@ export function returnOrderRevoke (data) {
  * @param {Object} data
  */
 export function returnOrderShipping (data) {
-  return api.jsonPost('sp/web/purchase/returnOrder/shipping', data);
+  return api.jsonPost(prefix + 'shipping', data);
 }
