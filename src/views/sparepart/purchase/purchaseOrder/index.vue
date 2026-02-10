@@ -212,8 +212,8 @@
     <BatchSignForDialogAll
       ref="batchSignForDialogRef"
       :visible="batchSignDialogVisible"
-      :batchForm="batchForm"
       :inbound="inbound"
+      :signForList="selectionSignFor"
       @close="handleBatchSignDialogClose"
       @submit="handleBatchSignForSubmit"
     />
@@ -305,6 +305,7 @@ export default {
       batchSignDialogVisible: false, // 批量签收/入库弹窗
       inbound: false, // 批量签收/入库
       batchForm: [], // 批量签收/入库
+      selectionSignFor: [], // 选中的采购订单 批量签收 入库
       submitClaimDialogVisible: false, // 提交索赔弹窗
       selectionClaim: [], // 选中的采购订单
       clickItemId: '',
@@ -802,9 +803,7 @@ export default {
     },
     // 批量签收  批量并入库
     handleBatchSignFor (type) {
-      this.batchForm = this.selectionList.map(item => ({
-        purchaseOrderId: item.purchaseOrderId,
-      }));
+      this.selectionSignFor = this.selectionList;
       this.inbound = type;
       this.batchSignDialogVisible = true;
     },
