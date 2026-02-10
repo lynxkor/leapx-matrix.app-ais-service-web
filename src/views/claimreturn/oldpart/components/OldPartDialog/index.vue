@@ -11,14 +11,14 @@
       <!-- 顶部时间选择区域 -->
       <div class="time-section">
         <el-form ref="ruleForm" label-width="150px" size="small" :model="form" :inline="true">
-          <el-form-item label="保修申请单：" prop="warrantyNo">
+          <el-form-item label="保修申请单" prop="warrantyNo">
             <el-input
               placeholder="请输入"
               v-model="form.warrantyNo"
               clearable
             />
           </el-form-item>
-          <el-form-item label="旧件唯一码：" prop="oldPartUniqueCode">
+          <el-form-item label="旧件唯一码" prop="oldPartUniqueCode">
             <el-input
               placeholder="请输入"
               v-model="form.oldPartUniqueCode"
@@ -26,34 +26,34 @@
             />
           </el-form-item>
           <template v-if="visibleForm">
-          <el-form-item label="VIN：" prop="vin">
+          <el-form-item label="VIN" prop="vin">
             <el-input
               placeholder="请输入"
               v-model="form.vin"
               clearable
             />
           </el-form-item>
-          <el-form-item label="保修类型：" prop="repairItemTypeId">
+          <el-form-item label="保修类型" prop="repairItemTypeId">
             <repair-type-select
               v-model="form"
               :form-data="form"
             />
           </el-form-item>
-          <el-form-item label="旧件编码：" prop="oldPartCode">
+          <el-form-item label="旧件编码" prop="oldPartCode">
             <el-input
               placeholder="请输入"
               v-model="form.oldPartCode"
               clearable
             />
           </el-form-item>
-          <el-form-item label="旧件名称：" prop="oldPartNameLike">
+          <el-form-item label="旧件名称" prop="oldPartNameLike">
             <el-input
               placeholder="请输入"
               v-model="form.oldPartNameLike"
               clearable
             />
           </el-form-item>
-          <el-form-item class="form-item-half" label="保修审核通过日期：" prop="warrantyApproveTime">
+          <el-form-item class="form-item-half" label="保修审核通过日期" prop="warrantyApproveTime">
             <el-date-picker
               v-model="form.warrantyApproveTime"
               type="daterange"
@@ -65,7 +65,7 @@
               align="right">
             </el-date-picker>
           </el-form-item>
-          <el-form-item class="form-item-half" label="旧件入库时间：" prop="dealerInTime">
+          <el-form-item class="form-item-half" label="旧件入库时间" prop="dealerInTime">
             <el-date-picker
               v-model="form.dealerInTime"
               type="daterange"
@@ -109,7 +109,7 @@
           <vxe-column field="oldPartUniqueCode" title="旧件唯一码" width="200" />
           <vxe-column field="dealerName" title="门店名称" width="200" />
           <vxe-column field="dealerStatusLabel" title="门店库存状态" width="120" />
-          <vxe-column field="isMainPartLabel" title="是否主因零部件" width="100" />
+          <vxe-column field="isMainPartLabel" title="是否主因零部件" width="160" />
           <vxe-column field="vin" title="VIN" width="140" />
           <vxe-column field="oldPartSupplierName" title="零件供应商" width="200" />
           <vxe-column field="mainPartSupplierName" title="主因件供应商" width="150" />
@@ -118,7 +118,7 @@
           <vxe-column field="partCode" title="换上零件编码" width="200" />
           <vxe-column field="partName" title="换上零件名称" width="220" />
           <vxe-column field="oldPartCode" title="入库旧件编码" width="200" />
-          <vxe-column field="oemStatus" title="主机厂库存状态" width="120" />
+          <vxe-column field="oemStatus" title="主机厂库存状态" width="140" />
           <vxe-column field="dealerOutTime" title="门店出库时间" width="180" />
           <vxe-column field="returnOrderNo" title="门店回运单号" width="120" />
           <vxe-column field="oemCheckTime" title="主机厂验收时间" width="180" />
@@ -145,8 +145,8 @@
     <!-- 底部按钮 -->
     <template v-slot:footer>
       <div class="dialog-footer">
-        <el-button size="small" @click="close">取 消</el-button>
-        <el-button size="small" type="primary" :loading="submitLoading" @click="submit">确 定</el-button>
+        <el-button size="small" @click="close">取消</el-button>
+        <el-button size="small" type="primary" :loading="submitLoading" @click="submit">确定</el-button>
       </div>
     </template>
   </el-dialog>
@@ -365,16 +365,23 @@ export default {
 
 <style lang="scss" scoped>
 .m-start-work-dialog {
+
+  ::v-deep .el-dialog{
+    height: 560px;
+  }
   ::v-deep .el-dialog__body {
-    max-height: 90vh !important;
-    height: 80vh;
+    height: 448px;
     padding: 20px;
+    max-height: 448px;
     .start-work-content {
       height: 100%;
     }
   }
   .el-form-item {
     width: 33.3% !important;
+    ::v-deep .el-form-item__label{
+      color: #3B3E3B;
+    }
   }
   ::v-deep .vxe-table--render-default.size--medium .vxe-header--column.is--padding .vxe-cell,
   ::v-deep .vxe-table--render-default .vxe-body--column:not(.col--active).col--ellipsis > .vxe-cell,
@@ -405,7 +412,7 @@ export default {
   .dialog-footer {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 2px;
   }
 }
 </style>

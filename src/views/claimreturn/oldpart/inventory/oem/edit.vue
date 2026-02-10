@@ -23,7 +23,76 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
+              <el-form label-width="150px" :inline="true" :model="form" :rules="rules" ref="ruleForm"  class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="旧件唯一码：" prop="oldPartUniqueCode">
+                  <el-input placeholder="请输入" v-model="form.oldPartUniqueCode" disabled />
+                </el-form-item>
+                <el-form-item label="旧件编码：" prop="oldPartCode">
+                  <el-input placeholder="请输入" v-model="form.oldPartCode" disabled />
+                </el-form-item>
+                <el-form-item label="旧件名称：" prop="oldPartName">
+                  <el-input placeholder="请输入" v-model="form.oldPartName" disabled />
+                </el-form-item>
+                <el-form-item label="旧件返还类型：" prop="returnTypeLabel">
+                  <el-input placeholder="请输入" v-model="form.returnTypeLabel" disabled />
+                </el-form-item>
+                <el-form-item label="换上零件编码：" prop="partCode">
+                  <el-input placeholder="请输入" v-model="form.partCode" disabled />
+                </el-form-item>
+                <el-form-item label="换上零件名称：" prop="partName">
+                  <el-input placeholder="请输入" v-model="form.partName" disabled />
+                </el-form-item>
+                <el-form-item label="主机厂库存状态：" prop="oemStatusLabel">
+                  <el-input placeholder="请输入" v-model="form.oemStatusLabel" disabled />
+                </el-form-item>
+                <el-form-item label="门店库存状态：" prop="dealerStatusLabel">
+                  <el-input placeholder="请输入" v-model="form.dealerStatusLabel" disabled />
+                </el-form-item>
+                <el-form-item label="数量：" prop="oldPartQuantity">
+                  <el-input placeholder="请输入" v-model="form.oldPartQuantity" disabled />
+                </el-form-item>
+                <el-form-item label="旧件供应商：" prop="oldPartSupplierName">
+                  <el-input placeholder="请输入" v-model="form.oldPartSupplierName" disabled />
+                </el-form-item>
+                <el-form-item label="是否主因零部件：" prop="isMainPartLabel">
+                  <el-input placeholder="请输入" v-model="form.isMainPartLabel" disabled />
+                </el-form-item>
+                <el-form-item label="主因件供应商：" prop="mainPartSupplierName">
+                  <el-input placeholder="请输入" v-model="form.mainPartSupplierName" disabled />
+                </el-form-item>
+                <el-form-item label="VIN：" prop="vin">
+                  <el-input placeholder="请输入" v-model="form.vin" disabled />
+                </el-form-item>
+                <el-form-item label="门店名称：" prop="dealerName">
+                  <el-input placeholder="请输入" v-model="form.dealerName" disabled />
+                </el-form-item>
+                <el-form-item label="接车施工单：" prop="serviceProxyNo">
+                  <el-input placeholder="请输入" v-model="form.serviceProxyNo" disabled />
+                </el-form-item>
+                <el-form-item label="保修申请单：" prop="warrantyNo">
+                  <el-input placeholder="请输入" v-model="form.warrantyNo" disabled />
+                </el-form-item>
+                <el-form-item label="保修零件明细：" prop="warrantyPartId">
+                  <el-input placeholder="请输入" v-model="form.warrantyPartId" disabled />
+                </el-form-item>
+                <el-form-item label="二次索赔明细：" prop="dutySupplierId">
+                  <el-input placeholder="请输入" v-model="form.dutySupplierId" disabled />
+                </el-form-item>
+                <el-form-item label="索赔追溯单号：" prop="claimTrackNo">
+                  <el-input placeholder="请输入" v-model="form.claimTrackNo" disabled />
+                </el-form-item>
+                <el-form-item class="form-item-full" label="备注：" prop="remark">
+                  <base-input
+                    type="textarea"
+                    placeholder="请输入"
+                    v-model="form.remark"
+                    clearable
+                    :rows="2"
+                    maxLength="1000"
+                  />
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true"  class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="旧件唯一码：" prop="oldPartUniqueCode">
                   {{ form.oldPartUniqueCode }}
                 </el-form-item>
@@ -89,19 +158,8 @@
                 <el-form-item label="索赔追溯单号：" prop="claimTrackNo">
                   {{ form.claimTrackNo }}
                 </el-form-item>
-                <!--  -->
-                <el-form-item v-show="isEditing || !_id" class="form-item-full" label="备注：" prop="remark">
-                  <base-input
-                    type="textarea"
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                    :rows="2"
-                    maxLength="1000"
-                  />
-                </el-form-item>
-                <el-form-item v-show="!(isEditing || !_id)" class="form-item-full" label="备注：" prop="remark">
-                   {{form.remark}}
+                <el-form-item class="form-item-full" label="备注：" prop="claimTrackNo">
+                  {{ form.remark }}
                 </el-form-item>
               </el-form>
             </div>
@@ -111,7 +169,7 @@
               <h2>回运信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" label-width="150px"  class="form-detail">
+              <el-form :inline="true"  class="form-detail">
                 <el-form-item label="门店入库时间：" prop="dealerInTime">
                   {{form.dealerInTime}}
                 </el-form-item>
@@ -128,7 +186,9 @@
                   {{form.oemInTime}}
                 </el-form-item>
                 <el-form-item class="form-item-full" label="验收备注：" prop="checkRemark">
-                  {{form.checkRemark}}
+                  <div style="line-height: 24px;">
+                    {{form.checkRemark}}
+                  </div>
                 </el-form-item>
                 <el-form-item class="form-item-full" label="不合格描述：" prop="unqualifiedDesc">
                   {{form.unqualifiedDesc}}
@@ -164,7 +224,7 @@
               <h2>出库信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" label-width="150px"  class="form-detail">
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="主机厂出库单：" prop="oemOutboundOrderNo">
                   {{ form.oemOutboundOrderNo }}
                 </el-form-item>
@@ -185,7 +245,7 @@
               <h2>销毁信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" label-width="150px"  class="form-detail">
+              <el-form :inline="true" label-width=""  class="form-detail">
                 <el-form-item label="旧件销毁单：" prop="oldPartDestroyOrderNo">
                   <el-button class="link" @click="$router.push(`/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit?id=${form.oldPartDestroyOrderId}`)" type="text">{{form.oldPartDestroyOrderNo}}</el-button>
                 </el-form-item>

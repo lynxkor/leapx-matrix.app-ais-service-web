@@ -100,7 +100,11 @@ export default {
   methods: {
     // 复制当前行数据
     handleCopy (row) {
-    // 创建新行数据，基于当前行的值
+      if (this.tableData.length > 50) {
+        this.$message.warning('单次最多支持50笔索赔明细');
+        return;
+      }
+      // 创建新行数据，基于当前行的值
       const newRow = {
         ...row,
         form: {
@@ -152,14 +156,30 @@ export default {
         this.$message.warning('索赔类型不能为空，请修改后再提交！');
         return;
       }
-      // 校验索赔数量不得为 0 或负数
+      // 校验索赔数量不得为 0 或负数，且不能大于已入库数
       const invalidQty = this.tableData.some(row => {
-        const qty = Number(row.form.claimQty);
-        return isNaN(qty) || qty <= 0;
+        const claimQty = Number(row.form.claimQty);
+        const inboundQty = Number(row.inboundQty);
+
+        // 检查是否为有效数字、是否大于 0、是否不超过已入库数
+        if (isNaN(claimQty) || claimQty <= 0 || claimQty > inboundQty) {
+          this.$message.warning('索赔数量必须大于 0 且不能超过已入库数，请修改后再提交！');
+          return true;
+        }
+        return false;
       });
 
       if (invalidQty) {
-        this.$message.warning('索赔数量必须大于 0，请修改后再提交！');
+        return;
+      }
+
+      // 效验索赔说明不能为空
+      const invalidClaimDesc = this.tableData.some(row => {
+        return !row.form.claimDesc;
+      });
+
+      if (invalidClaimDesc) {
+        this.$message.warning('索赔说明不能为空，请修改后再提交！');
         return;
       }
 

@@ -27,7 +27,7 @@
         <template #extraButtons>
           <template v-if="form.returnStatus==='10'">
             <el-button v-if="canDelete && !isDealer" @click="onRemove" size="small">删除</el-button>
-            <el-button v-if="!isDealer" @click="onNext" size="small">下发</el-button>
+            <el-button v-if="!isDealer" @click="onNext" type="primary" plain size="small">下发</el-button>
           </template>
           <template v-if="form.returnStatus==='20'">
             <el-button v-if="isDealer" @click="onOutbound" size="small">回运出库</el-button>
@@ -52,8 +52,7 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
+              <el-form label-width="150px" :inline="true" :model="form" :rules="rules" ref="ruleForm" class="form-edit" v-if="isEditing || !_id">
                 <el-form-item label="门店回运单号：" prop="returnOrderNo">
                   <base-input
                     placeholder="请输入"

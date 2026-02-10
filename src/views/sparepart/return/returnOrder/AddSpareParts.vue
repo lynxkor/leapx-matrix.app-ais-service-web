@@ -37,9 +37,11 @@
                 <vxe-column field="purchaseOrderId" title="采购单号" />
                 <vxe-column field="purchaseDate" title="采购日期" />
                 <vxe-column field="availableQty" title="可用库存" />
-                <vxe-column field="returnableQty" title="可退数量" >
+                <vxe-column field="inboundQty" title="入库数量" />
+                <vxe-column field="returnableQty" title="可退数量" />
+                <vxe-column field="returnQty" title="退货数量" >
                     <template #default="{ row }">
-                        <el-input v-model="row.returnQty" type="number" min="0" />
+                        <el-input v-model="row.returnQty" type="number" min="0" :max="Math.min(Number(row.availableQty) || 0, Number(row.returnableQty) || 0)" />
                     </template>
                 </vxe-column>
                 <vxe-column field="remark" title="备注" >
@@ -131,6 +133,9 @@ export default {
   },
   methods: {
     onSubmit () {
+      if (this.form.sparePartIdList === '') {
+        this.form.sparePartIdList = [];
+      }
       this.initData();
     },
     onReset () {
@@ -153,7 +158,17 @@ export default {
         warehouseId: this.id,
       };
       addPartPage(params).then(res => {
-        this.tableData = res.records || [];
+        this.tableData = (res.records || []).map(row => {
+          // 设置默认退货数量为可用库存与可退数量的最小值
+          const availableQty = Number(row.availableQty) || 0;
+          const returnableQty = Number(row.returnableQty) || 0;
+          const defaultReturnQty = Math.min(availableQty, returnableQty);
+
+          return {
+            ...row,
+            returnQty: defaultReturnQty, // 设置默认值
+          };
+        });
         this.total = res.total;
       });
     },
@@ -172,20 +187,34 @@ export default {
         return;
       }
 
-      // 验证选中行中的必填字段
+      // 验证选中行中的必填字段和退货数量
       const invalidRows = this.selectedRows.filter(row => {
-        // 检查可退数量是否有效
-        if (!row.returnQty || Number(row.returnQty) <= 0) {
+        // 检查退货数量是否有效
+        const returnQty = Number(row.returnQty);
+        if (!returnQty || returnQty <= 0) {
+          this.$message.warning(`第 ${row.partCode} 行：退货数量必须大于 0`);
           return true;
         }
-        // 可以根据需要添加其他验证逻辑
+
+        // 获取可用库存和可退数量的最小值
+        const availableQty = Number(row.availableQty) || 0;
+        const returnableQty = Number(row.returnableQty) || 0;
+        const minQty = Math.min(availableQty, returnableQty);
+
+        // 校验退货数量是否超过最小值
+        if (returnQty > minQty) {
+          this.$message.warning(
+        `第 ${row.partCode} 行：退货数量不能超过可用库存与可退数量的最小值 (${minQty})`
+          );
+          return true;
+        }
 
         return false;
       });
 
       if (invalidRows.length > 0) {
-        this.$message.warning('请填写有效的可退数量');
-        return;
+        this.$message.warning('请填写正确的退货数量');
+        return; // 存在无效数据，停止提交
       }
 
       // 构建参数

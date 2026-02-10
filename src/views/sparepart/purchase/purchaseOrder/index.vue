@@ -212,8 +212,8 @@
     <BatchSignForDialogAll
       ref="batchSignForDialogRef"
       :visible="batchSignDialogVisible"
-      :batchForm="batchForm"
       :inbound="inbound"
+      :signForList="selectionSignFor"
       @close="handleBatchSignDialogClose"
       @submit="handleBatchSignForSubmit"
     />
@@ -305,6 +305,7 @@ export default {
       batchSignDialogVisible: false, // 批量签收/入库弹窗
       inbound: false, // 批量签收/入库
       batchForm: [], // 批量签收/入库
+      selectionSignFor: [], // 选中的采购订单 批量签收 入库
       submitClaimDialogVisible: false, // 提交索赔弹窗
       selectionClaim: [], // 选中的采购订单
       clickItemId: '',
@@ -457,6 +458,9 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '提交索赔',
+              show: (row) => {
+                return row.inboundQty !== '0';
+              },
               click: (rowIndex, row) => {
                 this.handleClaim(row);
               },
@@ -802,9 +806,7 @@ export default {
     },
     // 批量签收  批量并入库
     handleBatchSignFor (type) {
-      this.batchForm = this.selectionList.map(item => ({
-        purchaseOrderId: item.purchaseOrderId,
-      }));
+      this.selectionSignFor = this.selectionList;
       this.inbound = type;
       this.batchSignDialogVisible = true;
     },
@@ -822,7 +824,19 @@ export default {
       this.submitClaimDialogVisible = true;
     },
     handleBatchClaim () {
-      this.selectionClaim = this.selectionList;
+      if (this.selectionList.length > 50) {
+        this.$message.warning('最多支持50行记录进行提交索赔');
+        return;
+      }
+      // 过滤出已入库数大于0的备件
+      const validItems = this.selectionList.filter(item => item.inboundQty > 0);
+
+      // 如果没有符合条件的备件，提示用户
+      if (validItems.length === 0) {
+        this.$message.warning('请选择已入库的备件进行索赔');
+        return;
+      }
+      this.selectionClaim = validItems;
       this.submitClaimDialogVisible = true;
     },
     handleSubmitClaimDialogClose () {
