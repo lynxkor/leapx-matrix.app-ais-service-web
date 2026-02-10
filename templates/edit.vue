@@ -72,7 +72,7 @@
               {{{/isNormal}}}
               {{{/cols}}}
               </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
               {{{#cols}}}
                 <el-form-item label="{{{description}}}：" prop="{{{key}}}">
                   {{{#isBoolean}}}
