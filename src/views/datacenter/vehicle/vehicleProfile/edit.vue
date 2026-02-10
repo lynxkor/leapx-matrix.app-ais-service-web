@@ -208,7 +208,7 @@
                 </el-form-item>
 
                 <el-form-item v-show="isEditing || !_id" label="生日：" prop="birthdate">
-                  <el-date-picker v-model="form.birthdate" type="date" placeholder="请选择">
+                  <el-date-picker v-model="form.birthdate" type="date" value-format="yyyy-MM-dd"  placeholder="请选择">
 
                   </el-date-picker>
                 </el-form-item>
@@ -396,7 +396,7 @@
                   {{ form.vehicleStatusLabel }}
                 </el-form-item>
                 <el-form-item v-show="isEditing || !_id" label="车辆销售变更时间：" prop="vehicleStaffupDatetime">
-                  <el-date-picker v-model="form.vehicleStaffupDatetime" type="date" placeholder="请选择">
+                  <el-date-picker v-model="form.vehicleStaffupDatetime" type="date" value-format="yyyy-MM-dd" placeholder="请选择">
                   </el-date-picker>
                 </el-form-item>
                 <el-form-item v-show="!(isEditing || !_id)" label="车辆销售变更时间：" prop="vehicleStaffupDatetime">
@@ -417,7 +417,7 @@
 </template>
 
 <script>
-import { getDetail, getDetailDecryptField } from '@/api/datacenter/vehicle/vehicleProfile/index';
+import { getDetail, getDetailDecryptField, updateFlat } from '@/api/datacenter/vehicle/vehicleProfile/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -584,6 +584,9 @@ export default {
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
+    },
+    _vin () {
+      return this.vin || this.$route.query.vin || this.form.vin;
     }
   },
   watch: {
@@ -623,9 +626,11 @@ export default {
   methods: {
     detailRequest () {
       const id = this._id;
-      if (id) {
+      const vin = this._vin;
+      console.log(id, vin);
+      if (id || vin) {
         // 使用平铺接口
-        return getDetail({ id });
+        return getDetail({ id, vin });
       }
     },
     submitRequest () {
@@ -639,7 +644,7 @@ export default {
         this.form.districtName = areaInfo.districtName;
         this.form.districtCode = areaInfo.districtCode;
       }
-      return Promise.resolve();
+      return updateFlat({ ...this.form });
     },
     getDefautlForm () {
       return {

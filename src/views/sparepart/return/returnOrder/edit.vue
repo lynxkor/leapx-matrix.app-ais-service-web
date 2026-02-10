@@ -25,11 +25,11 @@
                 </el-form-item>
                 <el-form-item label="退货原因：" prop="returnReason">
                   <fetch-select :request="fetchOptions" enumCode="ReturnReasonEnum" v-model="form.returnReason"
-                    placeholder="请选择" clearable filterable />
+                    placeholder="请选择" clearable filterable :disabled="!isEditable" />
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
                   <fetch-select :remote-method="getDealerList" remote v-model="form.dealerCode" placeholder="请输入门店编码或名称"
-                    labelKey="orgCode" valueKey="orgCode" subLabelKey="orgName" clearable collapseTags filterable
+                    labelKey="orgName" valueKey="orgCode" subLabelKey="orgCode" clearable collapseTags filterable :disabled="accountFlag"
                     @change="handleDealerChange" />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
@@ -286,7 +286,7 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>出库明细信息 <el-button size="mini" @click="handleImport">导入备件</el-button><el-button size="mini" @click="addPart">添加备件</el-button></h2>
+              <h2>出库明细信息 <el-button size="mini" @click="handleImport">导入备件</el-button><el-button size="mini" v-if="isEditable" @click="addPart">添加备件</el-button></h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
@@ -299,24 +299,24 @@
                     border="inner"
                     size="medium"
                 >
-                    <vxe-column field="partCode" title="备件编码" />
-                    <vxe-column field="partName" title="备件名称" />
-                    <vxe-column field="returnQty" title="退货数量" />
-                    <vxe-column field="qualifiedQty" title="合格数量" />
-                    <vxe-column field="deliveryOrderNo" title="交货单号" />
-                    <vxe-column field="salesVoucher" title="销售凭证" />
-                    <vxe-column field="inboundOrderId" title="入库单号" />
-                    <vxe-column field="purchaseOrderId" title="采购订单号" />
-                    <vxe-column field="purchaseCashUnitPrice" title="采购现金单价" />
-                    <vxe-column field="purchaseRebateUnitPrice" title="采购返利单价" />
-                    <vxe-column field="returnCashUnitPrice" title="退货现金单价" />
-                    <vxe-column field="estimatedReturnCashAmount" title="预计退货现金金额" />
-                    <vxe-column field="actualReturnCashAmount" title="实际退货现金金额" />
-                    <vxe-column field="returnRebateUnitPrice" title="退货返利单价" />
-                    <vxe-column field="estimatedReturnRebateAmount" title="预计退货返利金额" />
-                    <vxe-column field="actualReturnRebateAmount" title="实际退货返利金额" />
-                    <vxe-column field="remark" title="备注" />
-                    <vxe-column title="操作" >
+                    <vxe-column field="partCode" title="备件编码" width="120" />
+                    <vxe-column field="partName" title="备件名称" width="120" />
+                    <vxe-column field="returnQty" title="退货数量" width="120" />
+                    <vxe-column field="qualifiedQty" title="合格数量" width="120" />
+                    <vxe-column field="deliveryOrderNo" title="交货单号" width="120" />
+                    <vxe-column field="salesVoucher" title="销售凭证" width="120" />
+                    <vxe-column field="inboundOrderId" title="入库单号" width="120" />
+                    <vxe-column field="purchaseOrderId" title="采购订单号" width="130" />
+                    <vxe-column field="purchaseCashUnitPrice" title="采购现金单价" width="140" />
+                    <vxe-column field="purchaseRebateUnitPrice" title="采购返利单价" width="140" />
+                    <vxe-column field="returnCashUnitPrice" title="退货现金单价" width="140" />
+                    <vxe-column field="estimatedReturnCashAmount" title="预计退货现金金额" width="160" />
+                    <vxe-column field="actualReturnCashAmount" title="实际退货现金金额" width="160" />
+                    <vxe-column field="returnRebateUnitPrice" title="退货返利单价" width="140" />
+                    <vxe-column field="estimatedReturnRebateAmount" title="预计退货返利金额" width="160" />
+                    <vxe-column field="actualReturnRebateAmount" title="实际退货返利金额" width="160" />
+                    <vxe-column field="remark" title="备注" width="120" />
+                    <vxe-column title="操作" width="100" >
                         <template #default="{ row }">
                             <el-popconfirm
                                 title="确定删除此出库明细吗？"
@@ -392,7 +392,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
+import { getEnum, listOrgStoreInfoByParam, listWarehouse, getLoginUser } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -469,6 +469,10 @@ export default {
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
+    },
+    isEditable () {
+      // 只有在状态为 10 或 30 时才允许编辑
+      return this.form.returnStatus === '10' || this.form.returnStatus === '30';
     }
   },
   watch: {
@@ -496,6 +500,7 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
+      accountFlag: null, // 账号类型 true为门店  false为厂端
       pageSize: 10,
       current: 1,
       total: 0,
@@ -646,6 +651,7 @@ export default {
     };
   },
   mounted () {
+    this.initDealerUser();
   },
   methods: {
     async getDealerList (query) {
@@ -685,10 +691,32 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
+    async initDealerUser () {
+      // 查询是否店端 true为门店  false为厂端
+      const res = await getLoginUser();
+      this.accountFlag = res.accountFlag;
+      this.form.dealerCode = res.currentDealerCode;// 当前门店code
+      this.form.dealerName = res.currentDealerName;// 当前门店名称
+    },
     // 点击带出门店名称
     handleDealerChange (val, ele) {
-      this.form.dealerName = ele.orgName;
-      this.getWarehouseByDealer(ele.orgCode);
+      // 判断当前是否有门店编码
+      if (!this.form.dealerCode) {
+        // 第一次选择，直接赋值
+        this.form.dealerName = ele.orgName;
+        this.getWarehouseByDealer(ele.orgCode);
+      } else {
+        this.$confirm('切换门店,将清空所有退货信息,是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.form.dealerName = ele.orgName;
+          this.getWarehouseByDealer(ele.orgCode);
+        }).catch(() => {
+        // 取消操作
+        });
+      }
     },
     detailRequest () {
       const id = this._id;
