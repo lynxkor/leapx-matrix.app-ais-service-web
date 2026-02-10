@@ -95,7 +95,7 @@
                     />
                   </el-form-item>
                 </el-form> -->
-                <el-form label-width="150px" :inline="true" class="form-detail">
+                <el-form :inline="true" class="form-detail">
                   <el-form-item label="缺货订单：" prop="backOrderCode">
                     {{ form.backOrderCode }}
                   </el-form-item>
@@ -134,7 +134,7 @@
                 <h2>预计到货信息</h2>
               </div>
               <div class="common-section-body">
-                <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                   <el-form-item label="预计厂端发货时间：" prop="estimatedFactoryDeliveryTime">
                     {{ form.estimatedFactoryDeliveryTime }}
                   </el-form-item>
@@ -148,7 +148,7 @@
                     {{ form.factoryBackDescription }}
                   </el-form-item>
                 </el-form>
-                <el-form label-width="150px" :inline="true" class="form-detail" v-show="isEditing || !_id">
+                <el-form :inline="true" class="form-detail" v-show="isEditing || !_id">
                   <el-form-item label="预计厂端发货时间：" prop="estimatedFactoryDeliveryTime">
                     <el-date-picker
                       v-model="form.estimatedFactoryDeliveryTime"

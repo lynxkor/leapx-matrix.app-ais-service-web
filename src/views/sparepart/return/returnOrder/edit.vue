@@ -157,7 +157,7 @@
               <h2>常规信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form label-width="150px" :inline="true" class="form-detail">
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="退货单号：" prop="code">
                   {{ form.code }}
                 </el-form-item>
@@ -190,7 +190,7 @@
               <h2>物流信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form label-width="150px" :inline="true" class="form-detail">
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="物流单号：" prop="logisticsOrderNo">
                   {{ form.logisticsOrderNo }}
                 </el-form-item>
@@ -229,7 +229,7 @@
               <h2>退款信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form label-width="150px" :inline="true" class="form-detail">
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="退货价格比例：" prop="returnPriceRatio">
                   {{ form.returnPriceRatio }}
                 </el-form-item>
@@ -256,7 +256,7 @@
               <h2>审批信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form label-width="150px" :inline="true" class="form-detail">
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="提交人：" prop="submitter">
                   {{ form.submitter }}
                 </el-form-item>
