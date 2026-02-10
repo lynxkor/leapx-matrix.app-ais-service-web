@@ -353,10 +353,10 @@
             disabled
           />
         </el-form-item>
-          <el-form-item label="签字渠道：" prop="signChannel">
+          <el-form-item label="签字渠道：" prop="signChannelLabel">
           <el-input
             placeholder="请输入"
-            v-model="form.signChannel"
+            v-model="form.signChannelLabel"
             clearable
             disabled
           />
@@ -510,8 +510,8 @@
         <el-form-item label="离店车联网里程数（增）：" prop="departureNetMileageExtend">
           {{ form.departureNetMileageExtend }}
         </el-form-item>
-        <el-form-item label="签字渠道：" prop="signChannel">
-          {{ form.signChannel }}
+        <el-form-item label="签字渠道：" prop="signChannelLabel">
+          {{ form.signChannelLabel }}
         </el-form-item>
         <el-form-item label="签字生成时间：" prop="signGeneratedOn">
           {{ form.signGeneratedOn }}

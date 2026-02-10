@@ -88,20 +88,50 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>区块标题</h2>
-              <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              <h2>子表标题</h2>
             </div>
             <div class="common-section-body">
+              <div class="common-section-header">
+                <div class="ais-select-group">
+                  <fetch-select
+                    style="width: 300px;"
+                    :remote-method="queryListData"
+                    remote
+                    placeholder="请选择"
+                    clearable
+                    value-key="id"
+                    label-key="name"
+                    @change="handleAddTableData"
+                  />
+                  <el-button type="primary" size="small">添加</el-button>
+                </div>
+              </div>
               <div class="common-section-table">
-                <edit-table
-                  ref="editTable"
-                  :columns="columns"
+                <vxe-table
+                  ref="tableRef"
+                  stripe
                   :data="tableData"
-                  :defaultNewRow="defaultNewRow"
-                  :show-toolbar="false"
-                  :options="options"
-                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
-                />
+                  show-overflow
+                  resizable
+                  border="inner"
+                  size="medium"
+                  min-height="0"
+                  max-height="400px"
+                >
+                  <vxe-column field="name" title="名称" min-width="30%" />
+                  <vxe-column field="age" title="年龄" min-width="30%" />
+                  <vxe-column field="email" title="邮箱" min-width="30%" />
+                  <vxe-column title="操作" width="100" v-if="canDelete">
+                    <template #default="{ rowIndex }">
+                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
+                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
+                      </el-popconfirm>
+                    </template>
+                  </vxe-column>
+                  <template #empty>
+                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
+                  </template>
+                </vxe-table>
               </div>
             </div>
           </section>
@@ -188,7 +218,6 @@
 import { getDetail, addOrUpdate } from '@/api/{{{{modulePath}}}}/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 {{{#isProForm}}}
-import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 {{{/isProForm}}}
@@ -219,7 +248,6 @@ export default {
     {{{#isProForm}}}
     EditPageLayout,
     EditBaseContainer,
-    EditTable,
     {{{/isProForm}}}
     FetchSelect
   },
@@ -228,7 +256,9 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
+      {{{#top1List}}}
       return '{{{description}}}：' + this.form.{{{key}}};
+      {{{/top1List}}}
     }
   },
   watch: {
@@ -266,42 +296,10 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       {{{#isProForm}}}
-      defaultNewRow: {
-        name: '',
-      },
+      emptyText: '若要启用此内容，请创建记录',
       tableData: [
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
-      // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
-      columns: [
-        {
-          field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
-        },
-        {
-          field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
-        },
-        {
-          field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
-        },
       ],
       {{{/isProForm}}}
       rules: {
@@ -345,20 +343,52 @@ export default {
     openPane () {
       this.$refs.editLayout.openPane();
     },
-    // 详情表格相关数据
-    handleAddRow () {
-      // 通过引用直接调用子组件方法
-      this.$refs.editTable.addRow();
+    // 删除子表数据
+    handleDeleteRow (index) {
+      const item = this.tableData[index];
+      this.tableData.splice(index, 1);
+      // 根据需求调用接口
+      // deletePartVehModel([item.id]).then(res => {
+      //   this.$message.success('删除成功');
+      //   this.tableData.splice(index, 1);
+      // });
     },
-    handleSaveTable (data) {
-      // 调用保存方法并处理结果
-      return new Promise((resolve, reject) => {
-        this.$refs.editTable.saveAll().then(data => {
-          resolve(data);
-        }).catch(error => {
-          reject(error);
-        });
+    // 查询新增项的列表
+    queryListData (queryString) {
+      return new Promise(resolve => {
+        // 根据需求调用接口
+        // sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
+        //   const list = res || [];
+        //   resolve(list);
+        // });
+        resolve([
+          { id: 1, name: 'test', age: 25, email: 'test@example.com' }
+        ]);
       });
+    },
+    // 新增子表数据
+    handleAddTableData (val, record) {
+      if (!record) {
+        this.$message.warning('请先选择数据');
+        return;
+      }
+      // 检查是否已存在
+      const exists = this.tableData.some(item => item.id === record.id);
+      if (exists) {
+        this.$message.warning('请勿重复添加');
+        return;
+      }
+      // 根据需求调用接口
+      this.tableData.push(record);
+      // addPartItem({
+      //   maintenancePartId: this._id,
+      //   partsCode: record.partCode,
+      //   partsName: record.partName,
+      //   partsId: record.id,
+      // }).then(res => {
+      //   this.$message.success('添加成功');
+      //   this.detailRequest();
+      // });
     },
     {{{/isProForm}}}
     {{{^isProForm}}}
