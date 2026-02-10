@@ -45,7 +45,7 @@
             value-key="id"
           />
         </el-form-item>
-        <el-form-item v-if="!isDealerPage" label="门店名称">
+        <el-form-item v-if="!isDealer" label="门店名称">
           <dealer-select v-model="form.dealerCodes" multiple />
         </el-form-item>
         <el-form-item label="VIN">
@@ -62,7 +62,7 @@
             clearable
           />
         </el-form-item>
-        <el-form-item v-if="isDealerPage" label="旧件名称">
+        <el-form-item v-if="isDealer" label="旧件名称">
           <el-input
             placeholder="请输入"
             v-model="form.oldPartName"
@@ -96,7 +96,7 @@
           />
         </el-form-item>
 
-        <el-form-item v-if="!isDealerPage" label="主机厂库存状态">
+        <el-form-item v-if="!isDealer" label="主机厂库存状态">
           <fetch-select
             :request="fetchOptions"
             enumCode="old_part_inventory_oem_status"
@@ -107,7 +107,7 @@
             filterable
           />
         </el-form-item>
-        <el-form-item v-if="isDealerPage" label="门店库存状态">
+        <el-form-item v-if="isDealer" label="门店库存状态">
           <fetch-select
             :request="fetchOptions"
             enumCode="old_part_inventory_dealer_status"
@@ -180,6 +180,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import DealerSelect from '@/components/dealer-select/index.vue';
+import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -232,7 +233,7 @@ export default {
   },
   data () {
     return {
-      isDealerPage: this.$route.meta.isDealerPage, // 门店旧件库存页面
+      isDealer: null,
       pageTitle: this.$route.meta.name,
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
@@ -270,7 +271,7 @@ export default {
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
-                if (this.isDealerPage) {
+                if (this.isDealer) {
                   this.$router.push({
                     path: '/claimreturn/oldpart/inventory/dealer/edit',
                     query: {
@@ -333,7 +334,7 @@ export default {
             width: 240,
             buttons: [{
               click: (rowIndex, row) => {
-                const path = this.isDealerPage ? '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder/edit' : '/claimreturn/oldpart/destroy/oldpartdestroyorder/edit';
+                const path = this.isDealer ? '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder/edit' : '/claimreturn/oldpart/destroy/oldpartdestroyorder/edit';
                 this.$router.push({
                   path,
                   query: {
@@ -468,7 +469,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 let path;
-                if (this.isDealerPage) {
+                if (this.isDealer) {
                   if (row.returnType === '40') {
                     path = '/claimreturn/oldpart/dealerReturnorder/fast/edit';
                   } else {
@@ -526,8 +527,12 @@ export default {
             buttons: [{
               name: '查看详情',
               click: (rowIndex, row) => {
+                let path = '/claimreturn/oldpart/inventory/oem/edit';
+                if (this.isDealer) {
+                  path = '/claimreturn/oldpart/inventory/dealer/edit';
+                }
                 this.$router.push({
-                  path: '/claimreturn/oldpart/inventory/oem/edit',
+                  path,
                   query: {
                     id: row.id
                   }
@@ -562,6 +567,9 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    loginUserGet().then(data => {
+      this.isDealer = data.accountFlag;
+    });
   },
   methods: {
     handleListSelect (row) {
