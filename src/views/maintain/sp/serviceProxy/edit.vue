@@ -515,7 +515,7 @@ export default {
             if (this.form.id) {
               this.getDetailData();
             } else {
-              this.$router.push({
+              this.$router.replace({
                 path: '/maintain/sp/serviceProxy/edit',
                 query: {
                   id
