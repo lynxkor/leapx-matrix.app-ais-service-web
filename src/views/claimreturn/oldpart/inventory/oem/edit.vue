@@ -194,20 +194,15 @@
                   {{form.unqualifiedDesc}}
                 </el-form-item>
                 <el-form-item class="form-item-full" label="关联快返回运单号：" prop="returnOrderHisList">
-                  <span
-                    v-for="(item, index) in form.returnOrderHisList" :key="item.returnOrderId"
-                    class="href-link"
-                    @click="() => {
-                      $router.push({
-                        path: '/claimreturn/oldpart/returnorder/edit',
-                        query: {
-                          id: item.returnOrderId,
-                        }
-                      });
-                    }" >
-                    {{ item.returnOrderNo }}
+                  <el-button
+                    v-for="(item, index) in form.returnOrderHisList"
+                    :key="item.returnOrderId"
+                    class="link"
+                    @click="$router.push('/claimreturn/oldpart/returnorder/edit?id=' + item.returnOrderId)"
+                    type="text">
+                    {{ form.returnOrderNo }}
                     <span v-if="index !== form.returnOrderHisList.length - 1">,</span>
-                  </span>
+                  </el-button>
                 </el-form-item>
                 <el-form-item class="form-item-full" label="附件材料：">
                   <AisAttachment
