@@ -28,7 +28,7 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form label-width="150px" :inline="true" class="form-detail">
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="旧件销毁单号：" prop="destroyOrderNo">
                   {{ form.destroyOrderNo }}
                 </el-form-item>
@@ -46,7 +46,7 @@
               <h2>销毁审批信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form label-width="150px" :inline="true" class="form-detail">
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="销毁人：" prop="destroyerName">
                   {{ form.destroyerName }}
                 </el-form-item>
@@ -118,7 +118,7 @@
       </edit-base-container>
       <!-- 旧件销毁申请 -->
       <el-dialog title="旧件销毁申请" :visible.sync="dialogFormVisible">
-        <el-form :model="form" ref="dialogRuleForm" :rules="rules" label-width="150px" class="form-edit">
+        <el-form :model="form" ref="dialogRuleForm" :rules="rules" class="form-edit">
           <el-form-item label="请输入销毁说明:" prop="destroyRemark">
             <el-input type="textarea" :maxlength="1000" v-model="form.destroyRemark" autocomplete="off"></el-input>
           </el-form-item>
@@ -130,7 +130,7 @@
       </el-dialog>
       <!-- 旧件销毁审批 -->
       <el-dialog title="旧件销毁审批" :visible.sync="dialogFormVisible2">
-        <el-form label-width="150px" class="form-edit">
+        <el-form  class="form-edit">
           <el-form-item label="审批结果:">
             <el-radio-group v-model="isPass">
               <el-radio :label="true">通过</el-radio>

@@ -77,13 +77,13 @@
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
                 v-show="isEditing || !_id">
                 <el-form-item label="提交人：" prop="submitter">
-                  {{ form.submitter }}
+                  {{ form.submitterName }}
                 </el-form-item>
                 <el-form-item label="提交时间：" prop="submitTime">
                   {{ form.submitTime }}
                 </el-form-item>
                 <el-form-item label="审批人：" prop="approver">
-                  {{ form.approver }}
+                  {{ form.approverName }}
                 </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
                   {{ form.approvalTime }}
@@ -182,13 +182,13 @@
               <div class="common-title" v-show="!(isEditing || !_id)">审批信息</div>
               <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="提交人：" prop="submitter">
-                  {{ form.submitter }}
+                  {{ form.submitterName }}
                 </el-form-item>
                 <el-form-item label="提交时间：" prop="submitTime">
                   {{ form.submitTime }}
                 </el-form-item>
                 <el-form-item label="审批人：" prop="approver">
-                  {{ form.approver }}
+                  {{ form.approverName }}
                 </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
                   {{ form.approvalTime }}
