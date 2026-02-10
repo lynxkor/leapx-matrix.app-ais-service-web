@@ -157,6 +157,11 @@ export default {
         pageSize: this.pageSize,
         warehouseId: this.id,
       };
+      Object.keys(params).forEach(key => {
+        if (params[key] === '' || params[key] === null || params[key].length === 0) {
+          delete params[key];
+        }
+      });
       addPartPage(params).then(res => {
         this.tableData = (res.records || []).map(row => {
           // 设置默认退货数量为可用库存与可退数量的最小值
@@ -221,7 +226,11 @@ export default {
       const parts = this.selectedRows.map(row => ({
         sparePartId: row.sparePartId, // 备件ID，根据实际数据结构调整
         returnQty: Number(row.returnQty), // 可退数量，转为数字类型
-        remark: row.remark || '' // 备注，为空则设为''
+        remark: row.remark || '', // 备注，为空则设为''
+        inboundOrderId: row.inboundOrderId,
+        inboundOrderCode: row.inboundOrderCode,
+        purchaseOrderId: row.purchaseOrderId,
+        purchaseOrderCode: row.purchaseOrderCode
       }));
 
       const params = {
