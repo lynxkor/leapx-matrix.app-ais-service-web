@@ -458,6 +458,9 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '提交索赔',
+              show: (row) => {
+                return row.inboundQty !== '0';
+              },
               click: (rowIndex, row) => {
                 this.handleClaim(row);
               },
@@ -821,7 +824,19 @@ export default {
       this.submitClaimDialogVisible = true;
     },
     handleBatchClaim () {
-      this.selectionClaim = this.selectionList;
+      if (this.selectionList.length > 50) {
+        this.$message.warning('最多支持50行记录进行提交索赔');
+        return;
+      }
+      // 过滤出已入库数大于0的备件
+      const validItems = this.selectionList.filter(item => item.inboundQty > 0);
+
+      // 如果没有符合条件的备件，提示用户
+      if (validItems.length === 0) {
+        this.$message.warning('请选择已入库的备件进行索赔');
+        return;
+      }
+      this.selectionClaim = validItems;
       this.submitClaimDialogVisible = true;
     },
     handleSubmitClaimDialogClose () {
