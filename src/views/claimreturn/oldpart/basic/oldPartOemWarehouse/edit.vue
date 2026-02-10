@@ -64,7 +64,7 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.address"
-                  maxlength="200"
+                  maxlength="100"
                   clearable
                 />
               </el-form-item>
@@ -89,7 +89,7 @@
                   placeholder="请输入"
                   type="textarea"
                   v-model="form.remark"
-                  maxlength="500"
+                  maxlength="1000"
                   clearable
                 />
               </el-form-item>

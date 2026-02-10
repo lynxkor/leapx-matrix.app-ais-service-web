@@ -139,13 +139,7 @@
                 <el-form-item label="基本车系名称：">
                   {{ form.vehicleSeriesName }}
                 </el-form-item>
-                <el-form-item v-show="isEditing || !_id" label="车辆销售变更时间：" prop="vehicleStaffupDatetime">
-                  <el-date-picker v-model="form.vehicleStaffupDatetime" type="date" placeholder="请选择">
-                  </el-date-picker>
-                </el-form-item>
-                <el-form-item v-show="!(isEditing || !_id)" label="车辆销售变更时间：" prop="vehicleStaffupDatetime">
-                  {{ form.vehicleStaffupDatetime }}
-                </el-form-item>
+
                 <el-form-item label="是否通知进入激活模式：" prop="isNoticeActivateLabel">
                   {{ form.isNoticeActivateLabel }}
                 </el-form-item>
@@ -400,6 +394,13 @@
                 </el-form-item>
                 <el-form-item label="车辆状态：">
                   {{ form.vehicleStatusLabel }}
+                </el-form-item>
+                <el-form-item v-show="isEditing || !_id" label="车辆销售变更时间：" prop="vehicleStaffupDatetime">
+                  <el-date-picker v-model="form.vehicleStaffupDatetime" type="date" placeholder="请选择">
+                  </el-date-picker>
+                </el-form-item>
+                <el-form-item v-show="!(isEditing || !_id)" label="车辆销售变更时间：" prop="vehicleStaffupDatetime">
+                  {{ form.vehicleStaffupDatetime }}
                 </el-form-item>
               </el-form>
             </div>
