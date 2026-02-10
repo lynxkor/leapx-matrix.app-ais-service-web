@@ -133,6 +133,9 @@ export default {
   },
   methods: {
     onSubmit () {
+      if (this.form.sparePartIdList === '') {
+        this.form.sparePartIdList = [];
+      }
       this.initData();
     },
     onReset () {

@@ -299,24 +299,24 @@
                     border="inner"
                     size="medium"
                 >
-                    <vxe-column field="partCode" title="备件编码" />
-                    <vxe-column field="partName" title="备件名称" />
-                    <vxe-column field="returnQty" title="退货数量" />
-                    <vxe-column field="qualifiedQty" title="合格数量" />
-                    <vxe-column field="deliveryOrderNo" title="交货单号" />
-                    <vxe-column field="salesVoucher" title="销售凭证" />
-                    <vxe-column field="inboundOrderId" title="入库单号" />
-                    <vxe-column field="purchaseOrderId" title="采购订单号" />
-                    <vxe-column field="purchaseCashUnitPrice" title="采购现金单价" />
-                    <vxe-column field="purchaseRebateUnitPrice" title="采购返利单价" />
-                    <vxe-column field="returnCashUnitPrice" title="退货现金单价" />
-                    <vxe-column field="estimatedReturnCashAmount" title="预计退货现金金额" />
-                    <vxe-column field="actualReturnCashAmount" title="实际退货现金金额" />
-                    <vxe-column field="returnRebateUnitPrice" title="退货返利单价" />
-                    <vxe-column field="estimatedReturnRebateAmount" title="预计退货返利金额" />
-                    <vxe-column field="actualReturnRebateAmount" title="实际退货返利金额" />
-                    <vxe-column field="remark" title="备注" />
-                    <vxe-column title="操作" >
+                    <vxe-column field="partCode" title="备件编码" width="120" />
+                    <vxe-column field="partName" title="备件名称" width="120" />
+                    <vxe-column field="returnQty" title="退货数量" width="120" />
+                    <vxe-column field="qualifiedQty" title="合格数量" width="120" />
+                    <vxe-column field="deliveryOrderNo" title="交货单号" width="120" />
+                    <vxe-column field="salesVoucher" title="销售凭证" width="120" />
+                    <vxe-column field="inboundOrderId" title="入库单号" width="120" />
+                    <vxe-column field="purchaseOrderId" title="采购订单号" width="130" />
+                    <vxe-column field="purchaseCashUnitPrice" title="采购现金单价" width="140" />
+                    <vxe-column field="purchaseRebateUnitPrice" title="采购返利单价" width="140" />
+                    <vxe-column field="returnCashUnitPrice" title="退货现金单价" width="140" />
+                    <vxe-column field="estimatedReturnCashAmount" title="预计退货现金金额" width="160" />
+                    <vxe-column field="actualReturnCashAmount" title="实际退货现金金额" width="160" />
+                    <vxe-column field="returnRebateUnitPrice" title="退货返利单价" width="140" />
+                    <vxe-column field="estimatedReturnRebateAmount" title="预计退货返利金额" width="160" />
+                    <vxe-column field="actualReturnRebateAmount" title="实际退货返利金额" width="160" />
+                    <vxe-column field="remark" title="备注" width="120" />
+                    <vxe-column title="操作" width="100" >
                         <template #default="{ row }">
                             <el-popconfirm
                                 title="确定删除此出库明细吗？"
