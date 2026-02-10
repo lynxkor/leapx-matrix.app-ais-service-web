@@ -8,6 +8,7 @@
     "local": "set NODE_OPTIONS=--openssl-legacy-provider --max-old-space-size=8192 && vue-cli-service serve --mode local",
     "sit": "vue-cli-service build --mode sit",
     "uat": "vue-cli-service build --mode uat",
+    "pre": "vue-cli-service build --mode pre",
     "build": "vue-cli-service build",
     "postinstall": "cp ./patches/dom.js ./node_modules/vxe-pc-ui/lib/ui/src/dom.js"
   },
