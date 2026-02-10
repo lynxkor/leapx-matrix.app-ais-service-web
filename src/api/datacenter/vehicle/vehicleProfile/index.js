@@ -59,3 +59,10 @@ export function getDetailDecryptField (id, field) {
     });
   });
 }
+/**
+ * 平铺更新
+ * @param {Object} data
+ */
+export function updateFlat (data) {
+  return api.jsonPost(prefix + 'updateFlat', data);
+}
