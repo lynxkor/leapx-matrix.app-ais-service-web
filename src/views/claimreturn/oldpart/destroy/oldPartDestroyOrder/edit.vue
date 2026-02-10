@@ -18,7 +18,7 @@
         </template>
         <template #extraButtons>
           <!-- 门店可操作 -->
-          <el-button v-if="isDealer && form.destroyStatus === '40'" @click="dialogFormVisible = true" size="small">销毁</el-button>
+          <el-button v-if="isDealer && form.destroyStatus === '40'" @click="onDestory" size="small">销毁</el-button>
           <!-- 主机厂可操作 -->
           <el-button v-if="!isDealer && form.destroyStatus === '50'" @click="dialogFormVisible2 = true" size="small">审批</el-button>
         </template>
@@ -92,7 +92,7 @@
                   @current-page-change="currentPageChange"
                 >
                   <template v-slot:default="{ row, column, col }">
-                    <span class="href-link" v-if="col.click" @click="() => col.click(row)">{{ row[column.field] }}</span>
+                    <el-button v-if="col.click" class="link" @click="() => col.click(row)" type="text">{{ row[column.field] }}</el-button>
                     <span v-else>{{ row[column.field] }}</span>
                   </template>
                 </edit-table>
@@ -110,6 +110,7 @@
                   :businessId="_id"
                   configCode="mcs_spmusedprtdestory_apply"
                   attachType="其他"
+                  ref="attachment"
                 />
               </div>
             </div>
@@ -124,8 +125,8 @@
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button :loading="loadingDialog" type="primary" @click="executeDestroy">确 定</el-button>
+          <el-button size="small" @click="dialogFormVisible = false">取 消</el-button>
+          <el-button size="small" :loading="loadingDialog" type="primary" @click="executeDestroy">确 定</el-button>
         </div>
       </el-dialog>
       <!-- 旧件销毁审批 -->
@@ -657,6 +658,14 @@ export default {
         row[rawField] = row[field];
         row[field] = data;
       });
+    },
+    onDestory () {
+      const allFiles = this.$refs.attachment.getFileList();
+      if (!allFiles?.length) {
+        this.$message.error('请上传销毁附件信息后，再申请销毁，谢谢');
+        return;
+      }
+      this.dialogFormVisible = true;
     }
   }
 };
