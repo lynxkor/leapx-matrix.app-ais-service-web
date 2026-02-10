@@ -128,7 +128,7 @@
                 </el-form-item>
               </el-form>
               <div class="common-title" v-show="!(isEditing || !_id)">基本信息</div>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="门店编码：" prop="dealerCode">
                   {{ form.dealerCode }}
                 </el-form-item>
@@ -155,7 +155,7 @@
                 </el-form-item>
               </el-form>
               <div class="common-title" v-show="!(isEditing || !_id)">收件信息</div>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="仓库名称：" prop="warehouseId">
                   {{ form.warehouseName }}
                 </el-form-item>
@@ -180,7 +180,7 @@
               </el-form>
 
               <div class="common-title" v-show="!(isEditing || !_id)">审批信息</div>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="提交人：" prop="submitter">
                   {{ form.submitterName }}
                 </el-form-item>
@@ -199,7 +199,7 @@
               </el-form>
 
               <div class="common-title" v-show="!(isEditing || !_id)">资金信息</div>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="采购金额：" prop="purchaseAmount">
                   {{ form.purchaseAmount }}
                 </el-form-item>
@@ -218,7 +218,7 @@
               </el-form>
 
               <div class="common-title" v-show="!(isEditing || !_id)">其他信息</div>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="缺货单号：" prop="backOrderId">
                   {{ form.backOrderCode }}
                 </el-form-item>

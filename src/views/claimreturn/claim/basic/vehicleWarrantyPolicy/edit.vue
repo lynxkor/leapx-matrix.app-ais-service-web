@@ -113,7 +113,7 @@
                     />
                   </el-form-item>
                 </el-form>
-                <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                   <el-form-item label="政策名称：" prop="policyName">
                     {{ form.policyName }}
                   </el-form-item>
