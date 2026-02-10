@@ -8,6 +8,7 @@
     "local": "set NODE_OPTIONS=--openssl-legacy-provider --max-old-space-size=8192 && vue-cli-service serve --mode local",
     "sit": "vue-cli-service build --mode sit",
     "uat": "vue-cli-service build --mode uat",
+    "pre": "vue-cli-service build --mode pre",
     "build": "vue-cli-service build",
     "postinstall": "cp ./patches/dom.js ./node_modules/vxe-pc-ui/lib/ui/src/dom.js",
     "template": "node ./bin/generate.js -- /claimreturn/claim/basic/threeGuaranteesRule"
@@ -50,7 +51,7 @@
     "vxe-table": "^3.15.17"
   },
   "devDependencies": {
-    "@leapmotor/design": "^0.1.7-alpha.32",
+    "@leapmotor/design": "^0.1.7-alpha.33",
     "@types/lodash": "^4.17.21",
     "@vue/cli-plugin-babel": "^4.2.0",
     "@vue/cli-plugin-eslint": "^4.2.0",

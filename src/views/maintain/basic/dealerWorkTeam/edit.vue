@@ -42,9 +42,9 @@
                   readonly
                 />
               </el-form-item>
-              <el-form-item label="负责人" prop="ownerName">
+              <el-form-item label="负责人" prop="ownerUserName">
                 <InputLink
-                  v-model="form.ownerName"
+                  v-model="form.ownerUserName"
                   :link="`/partner/user/list/detail?&userId=${form.ownerId}`"
                   placeholder="请输入"
                   readonly

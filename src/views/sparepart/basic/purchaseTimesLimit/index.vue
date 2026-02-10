@@ -218,7 +218,7 @@ export default {
             props: 'purchaseOrderTypeLabel',
             label: '订单类型',
             visible: true,
-            width: 200,
+            width: 120,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -232,14 +232,14 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'limitTypeLabel', label: '类型', visible: true, width: 200 },
-          { props: 'purchaseTimes', label: '采购次数', visible: true, width: 200 },
-          { props: 'periodLabel', label: '周期', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'limitTypeLabel', label: '类型', visible: true, width: 78 },
+          { props: 'purchaseTimes', label: '采购次数', visible: true, align: 'right', width: 120 },
+          { props: 'periodLabel', label: '周期', visible: true, width: 78 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'perOrderMaxItems', label: '单次最多采购品项数', visible: true, width: 200 },
+          { props: 'perOrderMaxItems', label: '单次最多采购品项数', visible: true, align: 'right', width: 180 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'status', label: '状态', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 78 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {

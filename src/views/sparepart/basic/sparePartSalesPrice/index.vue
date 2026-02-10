@@ -184,7 +184,7 @@ export default {
             }]
           },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
-          { props: 'dealerSalesPrice', label: '销售价格', visible: true, width: 200 },
+          { props: 'dealerSalesPrice', label: '销售价格', visible: true, align: 'right', width: 120 },
           { props: 'effectiveStartDate', label: '生效开始日期', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },

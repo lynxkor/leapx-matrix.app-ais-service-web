@@ -6,13 +6,13 @@
         :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest"
         :title="`单据编号：${form.code}`">
         <template #extraButtons>
-          <el-button size="small" @click="rightsList" v-if="showButton('rights')">权益核销</el-button>
-          <el-button size="small" @click="submitAndSing" v-if="showButton('sign')">提交结算并签字</el-button>
-          <el-button size="small" @click="reject" v-if="showButton('reject')">驳回</el-button>
-          <el-button size="small" @click="addInvoiceRecord" v-if="showButton('addRecord')">添加收款记录</el-button>
-          <el-button size="small" @click="paySuccess" v-if="showButton('success')">完成收款</el-button>
-          <el-button size="small" @click="createRefund" v-if="showButton('reCreate')">创建反结算单</el-button>
-          <el-button size="small" @click="createWarrantyApply" v-if="showButton('createWarranty')">创建保修申请单</el-button>
+          <el-button size="small" @click="rightsList" v-if="buttonPermissions.rights">权益核销</el-button>
+          <el-button size="small" @click="submitAndSing" v-if="buttonPermissions.sign">提交结算并签字</el-button>
+          <el-button size="small" @click="reject" v-if="buttonPermissions.reject">驳回</el-button>
+          <el-button size="small" @click="addInvoiceRecord" v-if="buttonPermissions.addRecord">添加收款记录</el-button>
+          <el-button size="small" @click="paySuccess" v-if="buttonPermissions.success">完成收款</el-button>
+          <el-button size="small" @click="createRefund" v-if="buttonPermissions.reCreate">创建反结算单</el-button>
+          <el-button size="small" @click="createWarrantyApply" v-if="buttonPermissions.createWarranty">创建保修申请单</el-button>
           <el-button size="small" @click="handlePrint">打印结算单</el-button>
           <el-button size="small" @click="logList">审核日志</el-button>
         </template>
@@ -141,7 +141,7 @@
                   <el-input placeholder="请输入" v-model="form.partPayableAmount" disabled clearable />
                 </el-form-item>
               </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="结算单号：" prop="code">
                   {{ form.code }}
                 </el-form-item>
@@ -377,8 +377,42 @@ export default {
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
-    }
+    },
 
+    // 按钮权限控制 - 使用计算属性确保响应式更新
+    buttonPermissions () {
+      // 驳回按钮：自费、保险、内部结算类型，且状态为待收款
+      // SELF_PAY("352BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "自费"),
+      // INSURANCE("372BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "保险"),
+      // WARRANTY("392BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "保修"),
+      // CONTRACT("3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "合同"),
+      // INTERNAL_SETTLEMENT("3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "内部结算");
+      const baseType = ['352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF'];
+      const baseType2 = ['392BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF'];
+      const { statementType, statementStatus, isCheck } = this.form;
+      return {
+        // 权益核销：结算类型为自费/保险/内部结算，状态为待结算
+        rights: baseType.includes(statementType) && statementStatus === 10,
+
+        // 提交结算并签字：签字状态为未签字，且结算状态为待结算
+        sign: statementStatus === 10 && !isCheck,
+
+        // 驳回：结算类型为自费/保险/内部结算，且状态为待收款
+        reject: baseType.includes(statementType) && statementStatus === 30,
+
+        // 完成收款：结算类型为自费/保险/内部结算，状态为待收款
+        success: baseType.includes(statementType) && statementStatus === 30,
+
+        // 创建反结算单：结算类型为自费/保险/内部结算，状态为待结算/待收款
+        reCreate: baseType.includes(statementType) && [10, 30].includes(statementStatus),
+
+        // 添加收款记录：结算类型为自费/保险/内部结算，状态为待收款
+        addRecord: baseType.includes(statementType) && statementStatus === 30,
+
+        // 创建保修申请单：结算类型为自费/保险，状态为已完成
+        createWarranty: baseType2.includes(statementType) && statementStatus === 30
+      };
+    }
   },
   watch: {
     id: {
@@ -420,61 +454,6 @@ export default {
   mounted () {
   },
   methods: {
-    showButton (type) {
-      // 驳回按钮：自费、保险、内部结算类型，且状态为待收款
-      // 自费=352BB70C-82AC-E911-B0BB-FC82BA5F9EDF,
-      // 保险=372BB70C-82AC-E911-B0BB-FC82BA5F9EDF,
-      // 内部结算=3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF(根据实际枚举值调整)
-      const baseType = ['352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF'];
-      const validStatusForReject = [30]; // 待收款状态码
-      const validStatusForRefund = [10, 30]; // 待结算/待收款
-      switch (type) {
-        case 'reject':
-          var isValidTypeForReject = baseType.includes(this.form.statementType);
-          var isValidStatusForReject = validStatusForReject.includes(this.form.statementStatus);
-          return isValidTypeForReject && isValidStatusForReject;
-
-        case 'sign':
-          // 结算并签字：签字状态为未签字，且结算状态为待结算
-
-          var pendingSettlement = this.form.statementStatus === 10; // 待结算状态
-          var isCheck = this.form.isCheck; // 是否已确认过
-          return pendingSettlement && !isCheck;
-
-        case 'success':
-          // 收款成功：结算类型为自费/保险/内部结算，状态为待收款
-          var isPendingPayment = this.form.statementStatus === 30; // 待收款状态
-          var isValidTypeForPayment = baseType.includes(this.form.statementType);
-          return isValidTypeForPayment && isPendingPayment;
-
-        case 'reCreate':
-          // 反结算：结算类型为自费/保险/内部结算，状态为待结算/待收款
-          var isValidTypeForRefund = baseType.includes(this.form.statementType);
-          var isValidStatusForRefund = validStatusForRefund.includes(this.form.statementStatus);
-          return isValidTypeForRefund && isValidStatusForRefund;
-
-        case 'addRecord':
-          // 收款记录：结算类型为自费/保险/内部结算，状态为待收款
-          var isValidTypeForRecord = baseType.includes(this.form.statementType);
-          var isPendingPaymentRecord = this.form.statementStatus === 30; // 待收款状态
-          return isValidTypeForRecord && isPendingPaymentRecord;
-
-        case 'createWarranty':
-          // 创建保单：结算类型为自费/保险，状态为已完成
-          var isCompletedStatus = this.form.statementStatus === 30; // 已完成状态
-          var isValidTypeForWarranty = this.form.statementType === '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF';
-          return isValidTypeForWarranty && isCompletedStatus;
-
-        case 'rights':
-          // 权益列表：结算类型为自费/保险/内部结算，状态为待结算
-          var isValidTypeForRights = baseType.includes(this.form.statementType);
-          var isPendingRights = this.form.statementStatus === 10; // 待结算状态
-          return isValidTypeForRights && isPendingRights;
-
-        default:
-          return false;
-      }
-    },
     goToServiceProxy (serviceProxyId) {
       if (serviceProxyId) {
         this.$router.push({
@@ -624,7 +603,7 @@ export default {
       });
     },
     handleRefresh () {
-      this.detailRequest();
+      this.$refs.containerRef.handleRefresh();
     },
     detailRequest () {
       const id = this._id;

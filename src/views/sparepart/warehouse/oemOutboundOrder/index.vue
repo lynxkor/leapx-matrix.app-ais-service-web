@@ -272,7 +272,7 @@ export default {
             props: 'purchaseApplyCode',
             label: '采购申请单',
             visible: true,
-            width: 200,
+            width: 180,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -286,21 +286,21 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'deliveryWarehouse', label: '发货仓库', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 200 },
+          { props: 'deliveryWarehouse', label: '发货仓库', visible: true, width: 180 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 180 },
+          { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
           { props: 'logisticsOrderNo', label: '发运单', visible: true, width: 200 },
-          { props: 'orderSyncSuccessIsLabel', label: '订单同步是否成功', visible: true, width: 200 },
+          { props: 'orderSyncSuccessIsLabel', label: '订单同步是否成功', visible: true, width: 160 },
           { props: 'sapReturnInfo', label: 'SAP返回信息', visible: true, width: 200 },
-          { props: 'salesVoucher', label: '销售凭证', visible: true, width: 200 },
-          { props: 'deliveryVoucher', label: '交货凭证', visible: true, width: 200 },
+          { props: 'salesVoucher', label: '销售凭证', visible: true, width: 160 },
+          { props: 'deliveryVoucher', label: '交货凭证', visible: true, width: 160 },
           { props: 'invoiceNo', label: '发票号', visible: true, width: 200 },
           { props: 'invoiceDate', label: '开票日期', visible: true, width: 200 },
           { props: 'taxInvoiceNo', label: '税务发票号', visible: true, width: 200 },
-          { props: 'purchaseAmount', label: '采购金额', visible: true, width: 200 },
-          { props: 'cashAmount', label: '现金金额', visible: true, width: 200 },
-          { props: 'rebateAmount', label: '返利金额', visible: true, width: 200 },
+          { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
+          { props: 'cashAmount', label: '现金金额', visible: true, align: 'right', width: 120 },
+          { props: 'rebateAmount', label: '返利金额', visible: true, align: 'right', width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -394,10 +394,15 @@ export default {
     },
     exportExcel () {
       this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      };
       exportTable({
         businessType: 'OEM出库单',
         dataFetchPath: 'sparepart/web/warehouse/oemOutboundOrder/page',
-        reqParams: this.getFormData(),
+        reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {

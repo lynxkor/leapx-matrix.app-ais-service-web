@@ -242,13 +242,13 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
           { props: 'serviceProxyCode', label: '接车施工单', visible: true, width: 200 },
           { props: 'vehProfileVin', label: 'vin', visible: true, width: 200 },
-          { props: 'carPlate', label: '车牌号', visible: true, width: 200 },
-          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 200 },
+          { props: 'carPlate', label: '车牌号', visible: true, width: 140 },
+          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },

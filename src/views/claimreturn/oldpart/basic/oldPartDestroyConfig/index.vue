@@ -2,7 +2,7 @@
   <div class="page-common-edit">
     <section class="common-section px-5">
       <div class="common-section-header">
-        <h2>基础信息</h2>
+        <!-- <h2>基础信息</h2> -->
       </div>
       <div class="common-section-body">
         <div style="font-size: 14px; margin-bottom: 8px;">同时满足以下条件的门店，自动生成旧件销毁单</div>

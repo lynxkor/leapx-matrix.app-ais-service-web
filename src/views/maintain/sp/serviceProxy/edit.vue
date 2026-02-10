@@ -411,7 +411,8 @@ export default {
     },
     // 是否存在已经领料但是未全部退料的维修备件记录
     hasRepairItems () {
-      return this.form?.partsTraceRecordRespList?.some(item => (item.returnQuantity || 0) > 0 && item.isOutstock);
+      const item = this.form?.costCountResp?.sparePartRespList?.some(item => (+item.quantity || 0) > 0 && item.isOutstock);
+      return item;
     }
   },
   watch: {
@@ -514,7 +515,7 @@ export default {
             if (this.form.id) {
               this.getDetailData();
             } else {
-              this.$router.push({
+              this.$router.replace({
                 path: '/maintain/sp/serviceProxy/edit',
                 query: {
                   id

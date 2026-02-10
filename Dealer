@@ -1,0 +1,463 @@
+[33mcommit 77732b7e3094abb7bfd596d454a57c03fb9db954[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelop[m[33m, [m[1;31morigin/develop[m[33m)[m
+Merge: 5a3a431 d289d6a
+Author: wangtao <wangtao_88@leapmotor.com>
+Date:   Fri Feb 6 17:19:42 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit 5a3a4318a1c0ba865f27aef60657c1da5c025a92[m
+Author: wangtao <wangtao_88@leapmotor.com>
+Date:   Fri Feb 6 17:19:29 2026 +0800
+
+    fix: 施工单-作业开始和退料逻辑
+
+[33mcommit d289d6af603d29fddabaed840556e180aeaf761c[m
+Merge: afbb9ff b0b551a
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Fri Feb 6 17:06:13 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit afbb9ffd17f4debc8f000d594bbe6254964bdc29[m
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Fri Feb 6 17:06:03 2026 +0800
+
+    feat: 门店旧件快返回运单 跳转不对
+
+[33mcommit b0b551a46581dc3a8ccf15b8eb0a425eb86562bd[m
+Author: wangtao <wangtao_88@leapmotor.com>
+Date:   Fri Feb 6 16:54:41 2026 +0800
+
+    fix: 结算单按钮更新逻辑
+
+[33mcommit 413813e0bc8a9bf76715cc147194870cdd95addd[m
+Merge: 835d82a 576da97
+Author: zhuweimin <P2500755@leapmotor.com>
+Date:   Fri Feb 6 16:34:31 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit 835d82a3c0349e3df65dc17bce70afc9aa7f6ea2[m
+Author: zhuweimin <P2500755@leapmotor.com>
+Date:   Fri Feb 6 16:34:25 2026 +0800
+
+    格式化
+
+[33mcommit 576da9782a57a802b3386aacbb4adcf9677b342e[m
+Merge: d434fb3 0915386
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Fri Feb 6 16:19:52 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit d434fb30c91778bc532e8e2c6144951fd7580e98[m
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Fri Feb 6 16:19:39 2026 +0800
+
+    fix: Excel模板管理导出任务查询条件调整为业务标识和创建时间
+
+[33mcommit 09153865e88e5120706ad9de70d330a8348d86fb[m
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Fri Feb 6 16:01:27 2026 +0800
+
+    feat: 上传组件
+
+[33mcommit 1f29374a8951a320e7bffa363ce86d9fc002a637[m
+Author: wangtao <wangtao_88@leapmotor.com>
+Date:   Fri Feb 6 15:53:54 2026 +0800
+
+    fix: 加解密组件写法调整
+
+[33mcommit 1516a7e150b72a412b726043f4f93500340e3716[m
+Author: zhuweimin <P2500755@leapmotor.com>
+Date:   Fri Feb 6 15:37:57 2026 +0800
+
+    提交结算签字按钮显示逻辑修改
+
+[33mcommit c17584155d9db848b36db723a4af96c7376d929e[m
+Merge: 668f174 dc64c7f
+Author: wangtao <wangtao_88@leapmotor.com>
+Date:   Fri Feb 6 15:20:50 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit 668f174007513cb2d7a6825c126f5b971c8b94e5[m
+Author: wangtao <wangtao_88@leapmotor.com>
+Date:   Fri Feb 6 15:19:17 2026 +0800
+
+    fix: 结算单-签字
+
+[33mcommit dc64c7f5005ae9850668bba7a1dea308b04e503b[m
+Author: 方海鹏 <fang_haipeng@leapmotor.com>
+Date:   Fri Feb 6 14:30:19 2026 +0800
+
+    feat(vehicle): 更新车辆档案详情页面展示
+    
+    - 移除编辑模式，改为只读详情展示
+    - 添加数据脱敏组件LPEncrypted用于敏感信息保护
+    - 将原有表单布局重构为三个信息板块：基础信息、车主信息、服务信息
+    - 更新页面标题显示为车辆档案明细
+    - 移除表格编辑组件和相关配置
+    - 简化API调用，仅保留详情获取和脱敏字段获取功能
+    - 调整字段显示顺序并按业务模块分组展示
+
+[33mcommit 8c09913f8c39243ced688eea2966d5536ac7288e[m
+Merge: 19e7479 82d9ba3
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Fri Feb 6 11:40:15 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit 19e7479ee5fc8f1996cd25f0d8bf5c9367221dd7[m
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Fri Feb 6 11:40:01 2026 +0800
+
+    feat: 扫描条码
+
+[33mcommit 82d9ba3204f2fd4346bf7f307d03ad2393e2e69b[m
+Author: 严卫康 <P2500741@leapmotor.com>
+Date:   Fri Feb 6 11:27:01 2026 +0800
+
+    fix:备件采购申请铺货导入
+
+[33mcommit bc383848f42567e39b80a8f50ea03e0a60f25f5c[m
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Fri Feb 6 11:22:52 2026 +0800
+
+    fix: 备件采购申请单列表页按钮增加账号权限判断
+
+[33mcommit d28fb7d16ad2a5939a8fbf1b79674bb7842685df[m
+Merge: ec87015 96a9418
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Fri Feb 6 10:58:46 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit ec870155f003dba13ab903296a1b32a6ae3fd369[m
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Fri Feb 6 10:58:27 2026 +0800
+
+    fix: 备件采购申请按钮逻辑调整,编辑页添加备件按钮逻辑调整,状态字段反显
+
+[33mcommit 96a941821f1917867e7f469357dab6a4da266ee0[m
+Author: 方海鹏 <fang_haipeng@leapmotor.com>
+Date:   Fri Feb 6 10:25:44 2026 +0800
+
+    feat(claimreturn): 添加回运单状态筛选格式化功能
+    
+    - 为回运单页面的状态选择器添加格式化函数
+    - 实现经销商角色状态筛选逻辑，隐藏草稿状态
+    - 实现厂商角色非快返状态下状态筛选逻辑，隐藏草稿状态
+    - 优化状态筛选的数据过滤机制
+
+[33mcommit 798ea2dc87a35d41fd3c457325f246d34ca78120[m
+Merge: 49c7345 b0da87f
+Author: 方海鹏 <fang_haipeng@leapmotor.com>
+Date:   Thu Feb 5 20:25:23 2026 +0800
+
+    Merge remote-tracking branch 'origin/develop' into develop
+
+[33mcommit 49c734584cb8d852148382f1a96c4eb48eac3536[m
+Author: 方海鹏 <fang_haipeng@leapmotor.com>
+Date:   Thu Feb 5 20:24:56 2026 +0800
+
+    车辆档案列表
+
+[33mcommit b0da87f15dca69a4acd0af63038bf95a7b6f5dee[m
+Author: wangtao <wangtao_88@leapmotor.com>
+Date:   Thu Feb 5 19:51:03 2026 +0800
+
+    fix: 模块增加排序
+
+[33mcommit 89686dd082e1ab370c0583f40785258a9b324331[m
+Merge: 130f7e5 c5e3c7b
+Author: wangtao <wangtao_88@leapmotor.com>
+Date:   Thu Feb 5 19:47:25 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit 130f7e5355a69c2b2abf1e14eecb04f4547d2341[m
+Author: wangtao <wangtao_88@leapmotor.com>
+Date:   Thu Feb 5 19:47:11 2026 +0800
+
+    fix: 优化排序写法
+
+[33mcommit c5e3c7bde057f57c36fa1c7579ca7acda456b921[m
+Merge: 433fcd1 15dc6f5
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Thu Feb 5 19:21:40 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit 433fcd14d9d3d31cd714a1c2c2776c04da69334c[m
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Thu Feb 5 19:21:27 2026 +0800
+
+    feat: bug修复
+
+[33mcommit 15dc6f58a538affdacd9a518d84d38f4e870c6b0[m
+Author: wangtao <wangtao_88@leapmotor.com>
+Date:   Thu Feb 5 19:17:48 2026 +0800
+
+    fix: update libs
+
+[33mcommit 1665445e2e761f9b30fdafcf02b7703cffafcd90[m
+Merge: 78e8d5d 265d2a3
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Thu Feb 5 17:42:33 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit 78e8d5d98b908a70354ba36dc9f70f3b09adb800[m
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Thu Feb 5 17:42:01 2026 +0800
+
+    fix: 备件采购申请单编辑页完善根据账户类型,订单类型,订单状态来实施个个操作逻辑
+
+[33mcommit 265d2a3157d2ba997d7178d65c3862ca27aaff2b[m
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Thu Feb 5 17:41:15 2026 +0800
+
+    feat: 门店旧件库存bug修复
+
+[33mcommit 3a9a8341dde3b3fe1e3182a866bd5878c57b996f[m
+Merge: 1244ecc 3620ba7
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Thu Feb 5 17:04:00 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit 1244eccf0b1c44f20f283e25f1b50cd11054497a[m
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Thu Feb 5 17:03:49 2026 +0800
+
+    fix: 打印问题，旧件弹窗问题
+
+[33mcommit 3620ba7cdd3c40223a0e083a3f1fd56443cd5684[m
+Author: 严卫康 <P2500741@leapmotor.com>
+Date:   Thu Feb 5 16:53:37 2026 +0800
+
+    fix:备件返利充值申请导入
+
+[33mcommit 058a2cfbdbd6d75f8766ac6b2c55578969f797a5[m
+Merge: ac49554 cb79a45
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Thu Feb 5 16:40:16 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit ac49554e9bcadc12b136c2a43f4eaf5aed398330[m
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Thu Feb 5 16:39:49 2026 +0800
+
+    feat: 旧件添加弹窗合并
+
+[33mcommit cb79a45297dd961c880e8170f2e901ce314bd22a[m
+Merge: 92994f8 5b0cd4c
+Author: wgl <wang_gaolei@leapmotor.com>
+Date:   Thu Feb 5 16:39:20 2026 +0800
+
+    Merge remote-tracking branch 'origin/develop' into develop
+
+[33mcommit 92994f8dad37c92b0232980bcc651ef66209f3e4[m
+Author: wgl <wang_gaolei@leapmotor.com>
+Date:   Thu Feb 5 16:39:06 2026 +0800
+
+    采购
+
+[33mcommit 5b0cd4c88f29be86c339b12ce939e25273f126c6[m
+Author: wangtao <wangtao_88@leapmotor.com>
+Date:   Thu Feb 5 15:39:02 2026 +0800
+
+    fix: 删除多余代码
+
+[33mcommit c18f98c0fc08f54d24bc42cdc5ba3f821a3a15c8[m
+Author: wangtao <wangtao_88@leapmotor.com>
+Date:   Thu Feb 5 15:34:40 2026 +0800
+
+    fix: 维保流程自验问题修复
+
+[33mcommit 603037f11efd1abedc30f08a37300511303b84f6[m
+Merge: 4177cac f6bdd39
+Author: wangtao <wangtao_88@leapmotor.com>
+Date:   Thu Feb 5 14:55:07 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit 4177cace1b32e069350015d9c751baf0436a1f44[m
+Author: wangtao <wangtao_88@leapmotor.com>
+Date:   Thu Feb 5 14:54:53 2026 +0800
+
+    fix: 增加列表排序
+
+[33mcommit f6bdd394624502bc1c32cd4fb9fde1189372188f[m
+Author: sihongyu <si_hongyu@leapmotor.com>
+Date:   Thu Feb 5 14:49:11 2026 +0800
+
+    feat: 增加导入刷新功能
+
+[33mcommit 94988852db198e24bd119082a2d30bf362bb9b58[m
+Merge: 03eb7cc 9c20913
+Author: sihongyu <si_hongyu@leapmotor.com>
+Date:   Thu Feb 5 14:48:26 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit 9c20913bfde5c46e646f9af3f39756640646eea0[m
+Author: 严卫康 <P2500741@leapmotor.com>
+Date:   Thu Feb 5 13:55:28 2026 +0800
+
+    fix:备件缺货单 预计到货信息导入
+
+[33mcommit 9a46772c8258bfb452335e048849b53e099a960f[m
+Merge: e938813 749b151
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Thu Feb 5 13:47:47 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit e938813df4ce950c4b6099e1c9993e224b02c9ba[m
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Thu Feb 5 13:47:33 2026 +0800
+
+    fix: 备件缺货看板页面新增tabs栏按营销分组,按备件分组,配置相对应接口
+
+[33mcommit 749b151d61803a2e428b1c57f9211c49b53ca3ce[m
+Merge: ce57dd4 6918df2
+Author: 方海鹏 <fang_haipeng@leapmotor.com>
+Date:   Thu Feb 5 13:36:48 2026 +0800
+
+    Merge remote-tracking branch 'origin/develop' into develop
+
+[33mcommit ce57dd41a21b8874bc09819a65b06de603bd7734[m
+Author: 方海鹏 <fang_haipeng@leapmotor.com>
+Date:   Thu Feb 5 13:36:31 2026 +0800
+
+    旧件库存，门店区分
+
+[33mcommit 6918df27231027587adb5380fa232287b14c79b4[m
+Author: qiu_meichang <qiu_meichang@leapmotor.com>
+Date:   Thu Feb 5 13:31:53 2026 +0800
+
+    feat(sp): 添加服务代理列表排序功能
+
+[33mcommit 757e33e386165887db990e605017a93a3faa4b45[m
+Author: 方海鹏 <fang_haipeng@leapmotor.com>
+Date:   Thu Feb 5 13:26:53 2026 +0800
+
+    跳到快返，非快返，区分
+
+[33mcommit 917716dd927e55d7afa95bd7f882575188a82828[m
+Merge: 5123293 f114ee2
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Thu Feb 5 11:45:15 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit 5123293d2e17166879f643f4f5fdcc8010984e49[m
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Thu Feb 5 11:45:04 2026 +0800
+
+    feat: 旧件名称模糊搜索
+
+[33mcommit f114ee20eaff8e6cb218dd9e06fc7214c5a4cb6b[m
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Thu Feb 5 11:03:28 2026 +0800
+
+    fix: 修复备件2.0所有详情页和编辑页标题不渲染问题
+
+[33mcommit bc2b4f2f449b33870da0d2ae94ede2a5475433b2[m
+Merge: 6d6b9f6 f5cafd8
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Thu Feb 5 10:41:10 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit 6d6b9f6a50a1ebeeb6fb7eddfa87fcc7b750119f[m
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Thu Feb 5 10:40:58 2026 +0800
+
+    fix: 备件缺货订单页面缺货明细看板编辑和详情页修改字段传参保存,路由路劲修改
+
+[33mcommit f5cafd80bcd9a347cc9a63da5c5a79de01bf6bfe[m
+Merge: c892e51 ecfb4f2
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Thu Feb 5 10:15:52 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit c892e51c7cbdecda21b0501273bb42721542646b[m
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Thu Feb 5 10:15:43 2026 +0800
+
+    feat: 分页错误
+
+[33mcommit ecfb4f28f443b026f129efc9d49d5f111cb10c36[m
+Author: 严卫康 <P2500741@leapmotor.com>
+Date:   Thu Feb 5 09:46:10 2026 +0800
+
+    fix:备件退货明细导入
+
+[33mcommit bc76cc566f07506a3ed58a1224d7213df36d934e[m
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Thu Feb 5 09:41:19 2026 +0800
+
+    fix: 备件缺货订单页面新增备件缺货明细详情页路由及页面
+
+[33mcommit d8ad86446234e829aaafe073c1089a30d2ed0de8[m
+Merge: 44c0483 26e5d01
+Author: wgl <wang_gaolei@leapmotor.com>
+Date:   Thu Feb 5 09:29:22 2026 +0800
+
+    Merge remote-tracking branch 'origin/develop' into develop
+
+[33mcommit 44c048371bd2d05330473713c6e69bcb0ae23483[m
+Author: wgl <wang_gaolei@leapmotor.com>
+Date:   Thu Feb 5 09:28:55 2026 +0800
+
+    缺货报表
+
+[33mcommit 26e5d011add093fe8f43f9884c1fe396fe916c98[m
+Merge: 8331f9d 8304f75
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Wed Feb 4 19:32:23 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop
+
+[33mcommit 8331f9dac1a34e01b71bb660d9872b14da0514e3[m
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Wed Feb 4 19:31:56 2026 +0800
+
+    fix: 备件采购订单列表页修改表格展示,优化写法
+
+[33mcommit e6fed9f2ed31aab406d9b2f7fbd4b299e3ccef13[m
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Wed Feb 4 19:30:17 2026 +0800
+
+    fix: 备件采购订单修复批量签收 批量签收并入库title展示
+
+[33mcommit 8304f75610f5f9ef5754534e587e138c146c1538[m
+Author: 王金庆 <wang_jinqing@leapmotor.com>
+Date:   Wed Feb 4 17:56:19 2026 +0800
+
+    feat: 收获电话
+
+[33mcommit 9795363879ee43fa220264e021524474e0d9bbba[m
+Merge: 1c069a1 8e88234
+Author: wgl <wang_gaolei@leapmotor.com>
+Date:   Wed Feb 4 17:28:16 2026 +0800
+
+    Merge remote-tracking branch 'origin/develop' into develop
+
+[33mcommit 1c069a129e25112a64798e32a6987b846844139f[m
+Author: wgl <wang_gaolei@leapmotor.com>
+Date:   Wed Feb 4 17:27:55 2026 +0800
+
+    缺货报表
+
+[33mcommit 8e882349e7ffd41b3fc115eb5b4be0c83a775f04[m
+Merge: ebe0c20 5e7861d
+Author: wangjianfei <P2500465@leapmotor.com>
+Date:   Wed Feb 4 17:24:31 2026 +0800
+
+    Merge branch 'develop' of http://git-external.leapmotor.com/business-front/webx/lxp-front-matrix/app-ais-aftersale-front into develop

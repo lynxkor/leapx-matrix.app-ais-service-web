@@ -1026,8 +1026,7 @@ const routes = [
         name: '备件采购提醒设置详情',
         noResourceUrl: 'true'
       }
-    },
-    {
+    }, {
       path: '/claimreturn/oldpart/inventory/dealer',
       name: 'page',
       component: () => import('@/views/claimreturn/oldpart/inventory/oem/index.vue'),
@@ -1048,8 +1047,7 @@ const routes = [
         moduleKey: 'AISCR-oldPartDealerInventoryDetail',
         isDealerPage: true,
       }
-    },
-    {
+    }, {
       path: '/claimreturn/oldpart/inventory/oem',
       name: 'oemInventory',
       component: () => import('@/views/claimreturn/oldpart/inventory/oem/index.vue'),
@@ -1163,8 +1161,7 @@ const routes = [
         moduleKey: 'oldPartReturnOrderFast',
         noResourceUrl: 'true'
       }
-    },
-    {
+    }, {
       path: '/claimreturn/oldpart/dealerReturnorder/fast',
       name: 'dealerReturnorder',
       component: () => import('@/views/claimreturn/oldpart/returnorder/index.vue'),
@@ -1184,8 +1181,7 @@ const routes = [
         moduleKey: 'OldPartDealerReturnOrderFast',
         noResourceUrl: 'true'
       }
-    },
-    {
+    }, {
       path: '/maintain/sp/serviceProxy',
       name: 'serviceProxy',
       component: () => import('@/views/maintain/sp/serviceProxy/index.vue'),
@@ -1392,8 +1388,7 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
-    },
-    // 主机厂
+    }, // 主机厂
     {
       path: '/claimreturn/oldpart/destroy/oldPartDestroyOrder',
       name: 'oldPartDestroyOrder',
@@ -1404,8 +1399,7 @@ const routes = [
         moduleKey: 'oldPartDestroyOrder',
         keepAlive: true
       }
-    },
-    {
+    }, {
       path: '/claimreturn/oldpart/destroy/oldpartdestroyorder/edit',
       name: 'oldPartDestroyOrderEdit',
       component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit.vue'),
@@ -1415,8 +1409,7 @@ const routes = [
         moduleKey: 'oldPartDestroyOrder',
         noResourceUrl: 'true'
       }
-    },
-    // 门店销毁
+    }, // 门店销毁
     {
       path: '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder',
       name: 'oldPartDestroyOrder',
@@ -1427,8 +1420,7 @@ const routes = [
         moduleKey: 'dealerOldPartDestroyOrder',
         keepAlive: true
       }
-    },
-    {
+    }, {
       path: '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder/edit',
       name: 'oldPartDestroyOrderEdit',
       component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit.vue'),
@@ -1438,8 +1430,7 @@ const routes = [
         moduleKey: 'dealerOldPartDestroyOrder',
         noResourceUrl: 'true'
       }
-    },
-    {
+    }, {
       path: '/claimreturn/oldpart/basic/oldPartDestroyConfig',
       name: 'oldPartDestroyConfig',
       component: () => import('@/views/claimreturn/oldpart/basic/oldPartDestroyConfig/index.vue'),

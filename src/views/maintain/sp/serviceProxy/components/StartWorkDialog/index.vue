@@ -201,9 +201,7 @@ export default {
       // 更新所有行的时间
       const field = this.timeField;
       this.tableData.forEach(row => {
-        if (!row?.[field]) {
-          this.$set(row, field, time);
-        }
+        this.$set(row, field, time);
       });
     },
     async submit () {

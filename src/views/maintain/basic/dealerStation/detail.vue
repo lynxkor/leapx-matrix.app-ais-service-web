@@ -24,8 +24,8 @@
             <el-form-item label="门店名称：" prop="dealerName">
               {{ info.dealerName }}
             </el-form-item>
-            <el-form-item label="负责人：" prop="ownerName">
-              {{ info.ownerName }}
+            <el-form-item label="负责人：" prop="ownerUserName">
+              {{ info.ownerUserName }}
             </el-form-item>
             <el-form-item label="说明：" prop="remark" class="form-item-full">
               {{ info.remark }}

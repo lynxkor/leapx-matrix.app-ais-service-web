@@ -29,7 +29,7 @@
           <el-form-item label="旧件名称：" prop="oldPartName">
             {{ form.oldPartName }}
           </el-form-item>
-          <el-form-item label="适用车型：" prop="vehicleModelNames">
+          <el-form-item class="form-item-full" label="适用车型：" prop="vehicleModelNames">
             {{ form.vehicleModelNames }}
           </el-form-item>
           <el-form-item label="旧件唯一码：" prop="oldPartUniqueCode">
@@ -51,9 +51,9 @@
             {{ form.remark }}
           </el-form-item>
          </el-form>
-         <h4>验收</h4>
-         <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="" class="form-edit">
-          <el-form-item label="验收结果：" prop="acceptanceResult">
+         <h4 style="color: #0A0E0A;">验收</h4>
+         <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
+          <el-form-item class="form-item-full" label="验收结果：" prop="acceptanceResult">
             <el-radio-group v-model="form.acceptanceResult">
               <el-radio :label="'0'">验收通过</el-radio>
               <el-radio :label="'1'">验收不合格</el-radio>
@@ -82,6 +82,7 @@
             <AisAttachment
               ref="attachment"
               :businessId="form.id"
+              @upload-loading-change="loadingChange"
             />
           </el-form-item>
           <el-form-item class="form-item-full" label="验收备注：" prop="checkRemark">
@@ -101,7 +102,7 @@
     <template v-slot:footer>
       <div class="dialog-footer">
         <el-button size="small" @click="close">取 消</el-button>
-        <el-button :disabled="!form.id" size="small" type="primary" :loading="submitLoading" @click="submit">确 定</el-button>
+        <el-button :disabled="!form.id || uploadLoading" size="small" type="primary" :loading="submitLoading" @click="submit">确 定</el-button>
       </div>
     </template>
   </el-dialog>
@@ -164,6 +165,7 @@ export default {
       tipText: '请先搜索待验收旧件',
       //
       files: [],
+      uploadLoading: false,
     };
   },
   watch: {
@@ -260,19 +262,28 @@ export default {
         this.form.unqualifiedDesc = record.unqualifiedDesc;
       }
     },
+    loadingChange (loading) {
+      this.uploadLoading = loading;
+    }
   }
 };
 </script>
 
 <style lang="scss" scoped>
 .m-start-work-dialog {
+
+  ::v-deep .el-dialog{
+    height: 560px;
+  }
   ::v-deep .el-dialog__body {
-    max-height: 90vh !important;
-    height: 80vh;
+    height: calc(100% - 112px);
     padding: 20px;
     .start-work-content {
       height: 100%;
     }
+  }
+  h4{
+    margin-top: 12px;
   }
   .el-form-item {
     width: 33.3% !important;
