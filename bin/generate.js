@@ -5,41 +5,21 @@ const path = require('path');
 const { program } = require('commander');
 // const mustache = require('mustache');
 const Handlebars = require('handlebars'); //
+const helpers = require('handlebars-helpers');
 const { exec } = require('child_process');
 const recast = require('recast');
 const parser = require('@babel/parser');
 
+// 注册所有 helpers
+helpers({ handlebars: Handlebars });
+
 Handlebars.registerHelper('yesNoFormat', function (value) {
   return value ? '是' : '否'; // 或其他映射
 });
-// 注册自定义 Handlebars 助手
-Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
-  switch (operator) {
-    case '==':
-      return (v1 == v2) ? options.fn(this) : options.inverse(this);
-    case '===':
-      return (v1 === v2) ? options.fn(this) : options.inverse(this);
-    case '!=':
-      return (v1 != v2) ? options.fn(this) : options.inverse(this);
-    case '!==':
-      return (v1 !== v2) ? options.fn(this) : options.inverse(this);
-    case '<':
-      return (v1 < v2) ? options.fn(this) : options.inverse(this);
-    case '<=':
-      return (v1 <= v2) ? options.fn(this) : options.inverse(this);
-    case '>':
-      return (v1 > v2) ? options.fn(this) : options.inverse(this);
-    case '>=':
-      return (v1 >= v2) ? options.fn(this) : options.inverse(this);
-    case '&&':
-      return (v1 && v2) ? options.fn(this) : options.inverse(this);
-    case '||':
-      return (v1 || v2) ? options.fn(this) : options.inverse(this);
-    default:
-      return options.inverse(this);
-  }
+// 注册返回布尔值的 helper
+Handlebars.registerHelper('has', function (array, value) {
+  return Array.isArray(array) && array.includes(value);
 });
-
 Handlebars.registerHelper('unless', function (condition, options) {
   if (!condition) {
     return options.fn(this);
@@ -69,24 +49,6 @@ const nameParts = name.split('/');
 const moduleName = nameParts.pop(); // 最后一部分作为模块名
 const moduleDir = nameParts.join('/'); // 剩余部分作为目录路径
 
-// 准备模板数据
-// const colsData = generateJson.list.filter(item => {
-//   return (item.format === 'date-time' || item.type === 'array' || item.description);
-// }).map((el, index) => {
-//   const key = el.key.toLowerCase();
-//   const isDate = el.format === 'date-time' || !!key.match(/time/);
-//   const isBoolean = el.type === 'boolean';
-//   const isSelect = !isBoolean && !!key.match(/type|status|state/);
-//   return {
-//     ...el,
-//     isFirst: index === 0,
-//     isDate,
-//     isBoolean,
-//     isSelect,
-//     description: el.description?.replace(/\(.*?\)/g, ''),
-//     isNormal: !isDate && !isSelect && !isBoolean,
-//   };
-// });
 function handleList (list) {
   return list.filter(item => {
     return (item.format === 'date-time' || item.type === 'array' || item.description);
@@ -110,10 +72,15 @@ const searchList = handleList(generateJson.listPage.searchList);
 const tableList = handleList(generateJson.listPage.tableList);
 const detailList = handleList(generateJson.listPage.detailList);
 
+let detailTable = [];
+if (generateJson.detailPage) {
+  detailTable = handleList(generateJson.detailPage.tableList);
+}
+
 const nameSplit = name.split('/').filter(el => el);
 nameSplit.splice(1, 0, 'web');
 const apiPath = nameSplit.join('/');
-// const isProForm = colsData.some(el => el.type === 'array');
+
 const data = {
   title: generateJson.title,
   name: moduleName,
@@ -129,6 +96,9 @@ const data = {
   lastSearchList: searchList.slice(3),
   tableList,
   detailList,
+  //
+  detailTable,
+  checkedList: generateJson.detailPage.checkedList || [],
 };
 
 // 创建vue文件
@@ -342,7 +312,6 @@ async function insertRoute () {
 
   // 生成新代码
   const newContent = recast.print(ast).code;
-  console.log(newContent);
 
   await fs.writeFile(routerFilePath, newContent);
   console.log('✓ 路由已插入到 src/router/index.js');
@@ -371,6 +340,12 @@ async function main () {
     // { templateName: 'editDialog.vue', templatePath: '/components/' },
     { templateName: 'api.js', outPath: `src/api/${data.modulePath}`, outName: 'index.js' }
   ];
+  if (detailTable.length) {
+    list.push({
+      templatePath: '/components/',
+      templateName: 'TableWithBtn.vue',
+    });
+  }
 
   for (const item of list) {
     await createFile(item);
