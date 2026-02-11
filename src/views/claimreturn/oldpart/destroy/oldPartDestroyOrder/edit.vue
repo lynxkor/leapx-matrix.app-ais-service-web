@@ -18,7 +18,7 @@
         </template>
         <template #extraButtons>
           <!-- 门店可操作 -->
-          <el-button v-if="isDealer && form.destroyStatus === '40'" @click="onDestory" size="small">销毁</el-button>
+          <el-button v-if="isDealer && (form.destroyStatus === '40' || form.destroyStatus === '70')" @click="onDestory" size="small">销毁</el-button>
           <!-- 主机厂可操作 -->
           <el-button v-if="!isDealer && form.destroyStatus === '50'" @click="dialogFormVisible2 = true" size="small">审批</el-button>
         </template>
