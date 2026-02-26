@@ -247,18 +247,43 @@
               </div>
               <div class="common-section-body">
                 <div class="common-section-table">
-                  <edit-table
-                    ref="editTable"
-                    :columns="columns"
+                  <vxe-table
+                    ref="table"
                     :data="tableData"
-                    :show-toolbar="false"
-                    :isFocusNewRow="false"
-                    :showPagination="true"
-                    :current="pagination.current"
-                    :pageSize="pagination.pageSize"
-                    :total="pagination.total"
-                    @page-size-change="pageSizeChange"
-                    @current-page-change="currentPageChange"
+                    stripe
+                    resizable
+                    show-overflow
+                    border="inner"
+                    size="medium"
+                  >
+                    <vxe-column field="code" title="交易流水号" width="200" />
+                    <vxe-column field="transactionAmount" title="交易金额" width="100" />
+                    <vxe-column field="transactionTypeLabel" title="交易类型" width="100" />
+                    <vxe-column field="accountBalance" title="账户余额" width="100" />
+                    <vxe-column field="remark" title="备注" width="200" />
+                    <vxe-column field="sapFlowNo" title="SAP流水号" width="200" />
+                    <vxe-column field="dealerCode" title="门店编码" width="150" />
+                    <vxe-column field="dealerName" title="门店名称" width="200" />
+                    <vxe-column field="businessTypeLabel" title="业务类型" width="150" />
+                    <vxe-column field="businessNo" title="业务单号" width="200" >
+                      <template #default="{ row }">
+                        <div class="href-link" @click="handleJump('跳转路劲', row.businessNo)">{{ row.businessNo }}</div>
+                      </template>
+                    </vxe-column>
+                    <vxe-column field="taxInvoiceNo" title="税务发票号" width="200" />
+                    <vxe-column field="invoiceDate" title="开票日期" width="150" />
+                    <vxe-column field="postingTime" title="入账时间" width="180" />
+                  </vxe-table>
+                  <el-pagination
+                    style="float: right; padding-top: 16px;"
+                    :current-page.sync="pagination.current"
+                    :page-size="pagination.pageSize"
+                    :page-sizes="[10, 20, 50, 100]"
+                    background
+                    layout="total, prev, pager, next, sizes, jumper"
+                    :total="pagination.pageSize"
+                    @size-change="pageSizeChange"
+                    @current-change="currentPageChange"
                   />
                 </div>
               </div>
@@ -269,18 +294,39 @@
               </div>
               <div class="common-section-body">
                 <div class="common-section-table">
-                  <edit-table
-                    ref="editTable"
-                    :columns="djColumns"
+                  <vxe-table
+                    ref="table"
                     :data="djTableData"
-                    :show-toolbar="false"
-                    :isFocusNewRow="false"
-                    :showPagination="true"
-                    :current="djPagination.current"
-                    :pageSize="djPagination.pageSize"
+                    stripe
+                    resizable
+                    show-overflow
+                    border="inner"
+                    size="medium"
+                  >
+                    <vxe-column field="businessTypeLabel" title="业务类型" width="100" />
+                    <vxe-column field="businessNo" title="业务单号" width="200">
+                      <template #default="{ row }">
+                        <div class="href-link" @click="handleJump('跳转路劲', row.businessNo)">{{ row.businessNo }}</div>
+                      </template>
+                    </vxe-column>
+                    <vxe-column field="dealerCode" title="门店编码" width="150" />
+                    <vxe-column field="dealerName" title="门店名称" width="200" />
+                    <vxe-column field="companyCode" title="零件/商品编码" width="200" />
+                    <vxe-column field="companyName" title="零件/商品名称" width="160" />
+                    <vxe-column field="frozenQty" title="冻结数量" width="100" />
+                    <vxe-column field="cashUnitPrice" title="现金单价" width="100" />
+                    <vxe-column field="frozenAmount" title="冻结金额" width="100" />
+                  </vxe-table>
+                  <el-pagination
+                    style="float: right; padding-top: 16px;"
+                    :current-page.sync="djPagination.current"
+                    :page-size="djPagination.pageSize"
+                    :page-sizes="[10, 20, 50, 100]"
+                    background
+                    layout="total, prev, pager, next, sizes, jumper"
                     :total="djPagination.total"
-                    @page-size-change="djPageSizeChange"
-                    @current-page-change="djCurrentPageChange"
+                    @size-change="djPageSizeChange"
+                    @current-change="djCurrentPageChange"
                   />
                 </div>
               </div>
@@ -302,9 +348,8 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, accountFlowPage, frozenPage } from '@/api/sparepart/fund/account/index';
+import { getDetail, addOrUpdate, accountFlowPage } from '@/api/sparepart/fund/account/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -350,7 +395,6 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     EditPageLayout,
-    EditTable,
     FetchSelect
   },
   computed: {
@@ -392,78 +436,7 @@ export default {
         total: 0,
       },
       djTableData: [],
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
-      columns: [
-        {
-          field: 'code',
-          title: '交易流水号',
-          width: '10%',
-        },
-        {
-          field: 'transactionAmount',
-          title: '交易金额',
-          width: '10%',
-        },
-        {
-          field: 'transactionTypeLabel',
-          title: '交易类型',
-          width: '10%',
-        },
-        {
-          field: 'accountBalance',
-          title: '账户余额',
-          width: '10%',
-        },
-        {
-          field: 'remark',
-          title: '备注',
-          width: '10%',
-        },
-        {
-          field: 'sapFlowNo',
-          title: 'SAP流水号',
-          width: '10%',
-        },
-        {
-          field: 'dealerCode',
-          title: '门店编码',
-          width: '10%',
-        },
-        {
-          field: 'dealerName',
-          title: '门店名称',
-          width: '10%',
-        },
-        {
-          field: 'businessTypeLabel',
-          title: '业务类型',
-          width: '10%',
-        },
-        {
-          field: 'businessNo',
-          title: '业务单号',
-          width: '10%',
-        },
-        {
-          field: 'taxInvoiceNo',
-          title: '税务发票号',
-          width: '10%',
-        },
-        {
-          field: 'invoiceDate',
-          title: '开票日期',
-          width: '10%',
-        },
-        {
-          field: 'postingTime',
-          title: '入账时间',
-          width: '10%',
-        },
-      ],
+      tableData: [],
       djColumns: [
         {
           field: 'businessTypeLabel',
@@ -660,7 +633,25 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    // 业务单号跳转
+    handleJump (row, val) {
+      this.$router.push({
+        path: row,
+        // 两种写法 都可 如果是注释这种 那方法传参只需要一个row传整行数据
+        // path: row.businessType === '1' ? '/sparepart/fund/account/transaction/detail' : '/sparepart/fund/account/frozen/detail',
+        query: {
+          id: val
+        }
+      });
     }
   }
 };
 </script>
+<style lang="scss" scoped>
+  ::v-deep .vxe-table--render-default.size--medium .vxe-header--column.is--padding .vxe-cell,
+  ::v-deep .vxe-table--render-default .vxe-body--column:not(.col--active).col--ellipsis > .vxe-cell,
+  ::v-deep .vxe-table--render-default.size--medium .vxe-body--column.is--padding .vxe-cell {
+    padding: 8px 12px !important;
+  }
+</style>
