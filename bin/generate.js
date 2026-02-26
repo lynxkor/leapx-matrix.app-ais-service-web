@@ -50,21 +50,34 @@ const moduleName = nameParts.pop(); // 最后一部分作为模块名
 const moduleDir = nameParts.join('/'); // 剩余部分作为目录路径
 
 function handleList (list) {
+  if (!list) {
+    return [];
+  }
   return list.filter(item => {
     return (item.format === 'date-time' || item.type === 'array' || item.description);
   }).map((el, index) => {
-    const key = el.key.toLowerCase();
-    const isDate = el.format === 'date-time' || !!key.match(/time/);
+    // const key = el.key.toLowerCase();
+    const isDateRange = el.format === 'dateRange';
+    const isDate = el.format === 'date';
+    const isSearch = el.format === 'search';
+    const isMenu = el.format === 'menu';
+    const isInput = el.format === 'input';
+    const isTextarea = el.format === 'textarea';
     const isBoolean = el.type === 'boolean';
-    const isSelect = !isBoolean && !!key.match(/type|status|state/);
+    // const isSelect = !isBoolean && !!key.match(/type|status|state/);
     return {
       ...el,
       isFirst: index === 0,
+      isDateRange,
       isDate,
+      isSearch,
+      isMenu,
+      isInput,
+      isTextarea,
       isBoolean,
-      isSelect,
+      // isSelect,
       description: el.description?.replace(/\(.*?\)/g, ''),
-      isNormal: !isDate && !isSelect && !isBoolean,
+      // isNormal: !isDate && !isSelect && !isBoolean,
     };
   });
 }

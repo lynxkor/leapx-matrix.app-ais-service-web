@@ -13,55 +13,16 @@
     {{#if isDate}}
       <el-form-item label="{{description}}">
         <el-date-picker
-         :default-time="['00:00:00', '23:59:59']"
           v-model="form.{{key}}"
-          type="daterange"
-          :picker-options="pickerOptions"
-          range-separator="至"
+          type="datetime"
+          format="yyyy-MM-dd HH:mm:ss"
           value-format="yyyy-MM-dd HH:mm:ss"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        />
+          placeholder="选择日期时间">
+        </el-date-picker>
       </el-form-item>
     {{/if}}
-    {{#if isSelect}}
+    {{#if isDateRange}}
       <el-form-item label="{{description}}">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="xxx"
-          v-model="form.{{key}}"
-          placeholder="请选择"
-          clearable
-          multiple
-          filterable
-        />
-      </el-form-item>
-    {{/if}}
-    {{#if isBoolean}}
-      <el-form-item label="{{description}}">
-        <fetch-select
-          :options="yes_no_enum"
-          v-model="form.{{key}}"
-          placeholder="请选择"
-          clearable
-          multiple
-          filterable
-        />
-      </el-form-item>
-    {{/if}}
-    {{#if isNormal}}
-      <el-form-item label="{{description}}">
-        <el-input
-          placeholder="请输入"
-          v-model="form.{{key}}"
-          clearable
-        />
-      </el-form-item>
-    {{/if}}
-    {{/each}}
-    {{#each thirdSearchList}}
-    {{#if isDate}}
-      <el-form-item label="{{description}}"  v-show="this.visibleCount === 3 || show">
         <el-date-picker
          :default-time="['00:00:00', '23:59:59']"
           v-model="form.{{key}}"
@@ -74,11 +35,11 @@
         />
       </el-form-item>
     {{/if}}
-    {{#if isSelect}}
-      <el-form-item label="{{description}}"  v-show="this.visibleCount === 3 || show">
+    {{#if isMenu}}
+      <el-form-item label="{{description}}">
         <fetch-select
           :request="fetchOptions"
-          enumCode="xxx"
+          enumCode="{{menu}}"
           v-model="form.{{key}}"
           placeholder="请选择"
           clearable
@@ -87,8 +48,24 @@
         />
       </el-form-item>
     {{/if}}
+    {{#if isSearch}}
+      <el-form-item label="{{description}}">
+        <list-select
+          listUrl="{{search}}"
+          placeholder="请选择"
+          v-model="form.{{key}}"
+          query-key="xxx"
+          clearable
+          collapseTags
+          :show-code="false"
+          filterable
+          label-key="code"
+          value-key="id"
+        />
+      </el-form-item>
+    {{/if}}
     {{#if isBoolean}}
-      <el-form-item label="{{description}}"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="{{description}}">
         <fetch-select
           :options="yes_no_enum"
           v-model="form.{{key}}"
@@ -99,12 +76,113 @@
         />
       </el-form-item>
     {{/if}}
-    {{#if isNormal}}
-      <el-form-item label="{{description}}"  v-show="this.visibleCount === 3 || show">
+    {{#if isInput}}
+      <el-form-item label="{{description}}">
         <el-input
           placeholder="请输入"
           v-model="form.{{key}}"
           clearable
+        />
+      </el-form-item>
+    {{/if}}
+    {{#if isTextarea}}
+      <el-form-item label="{{description}}">
+        <el-input
+          type="textarea"
+          placeholder="请输入"
+          v-model="form.{{key}}"
+          clearable
+          :rows="2"
+          maxLength="500"
+        />
+      </el-form-item>
+    {{/if}}
+    {{/each}}
+    {{#each thirdSearchList}}
+    {{#if isDate}}
+      <el-form-item label="{{description}}">
+        <el-date-picker
+          v-model="form.{{key}}"
+          type="datetime"
+          format="yyyy-MM-dd HH:mm:ss"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          placeholder="选择日期时间">
+        </el-date-picker>
+      </el-form-item>
+    {{/if}}
+    {{#if isDateRange}}
+      <el-form-item label="{{description}}">
+        <el-date-picker
+         :default-time="['00:00:00', '23:59:59']"
+          v-model="form.{{key}}"
+          type="daterange"
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
+    {{/if}}
+    {{#if isMenu}}
+      <el-form-item label="{{description}}">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="{{menu}}"
+          v-model="form.{{key}}"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
+        />
+      </el-form-item>
+    {{/if}}
+    {{#if isSearch}}
+      <el-form-item label="{{description}}">
+        <list-select
+          listUrl="{{search}}"
+          placeholder="请选择"
+          v-model="form.{{key}}"
+          query-key="xxx"
+          clearable
+          collapseTags
+          :show-code="false"
+          filterable
+          label-key="code"
+          value-key="id"
+        />
+      </el-form-item>
+    {{/if}}
+    {{#if isBoolean}}
+      <el-form-item label="{{description}}">
+        <fetch-select
+          :options="yes_no_enum"
+          v-model="form.{{key}}"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
+        />
+      </el-form-item>
+    {{/if}}
+    {{#if isInput}}
+      <el-form-item label="{{description}}">
+        <el-input
+          placeholder="请输入"
+          v-model="form.{{key}}"
+          clearable
+        />
+      </el-form-item>
+    {{/if}}
+    {{#if isTextarea}}
+      <el-form-item label="{{description}}">
+        <el-input
+          type="textarea"
+          placeholder="请输入"
+          v-model="form.{{key}}"
+          clearable
+          :rows="2"
+          maxLength="500"
         />
       </el-form-item>
     {{/if}}
@@ -114,7 +192,18 @@
       {{#if isDate}}
         <el-form-item label="{{description}}">
           <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
+            v-model="form.{{key}}"
+            type="datetime"
+            format="yyyy-MM-dd HH:mm:ss"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            placeholder="选择日期时间">
+          </el-date-picker>
+        </el-form-item>
+      {{/if}}
+      {{#if isDateRange}}
+        <el-form-item label="{{description}}">
+          <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
             v-model="form.{{key}}"
             type="daterange"
             :picker-options="pickerOptions"
@@ -125,16 +214,32 @@
           />
         </el-form-item>
       {{/if}}
-      {{#if isSelect}}
+      {{#if isMenu}}
         <el-form-item label="{{description}}">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
+            enumCode="{{menu}}"
             v-model="form.{{key}}"
             placeholder="请选择"
             clearable
             multiple
             filterable
+          />
+        </el-form-item>
+      {{/if}}
+      {{#if isSearch}}
+        <el-form-item label="{{description}}">
+          <list-select
+            listUrl="{{search}}"
+            placeholder="请选择"
+            v-model="form.{{key}}"
+            query-key="xxx"
+            clearable
+            collapseTags
+            :show-code="false"
+            filterable
+            label-key="code"
+            value-key="id"
           />
         </el-form-item>
       {{/if}}
@@ -150,12 +255,24 @@
           />
         </el-form-item>
       {{/if}}
-      {{#if isNormal}}
+      {{#if isInput}}
         <el-form-item label="{{description}}">
           <el-input
             placeholder="请输入"
             v-model="form.{{key}}"
             clearable
+          />
+        </el-form-item>
+      {{/if}}
+      {{#if isTextarea}}
+        <el-form-item label="{{description}}">
+          <el-input
+            type="textarea"
+            placeholder="请输入"
+            v-model="form.{{key}}"
+            clearable
+            :rows="2"
+            maxLength="500"
           />
         </el-form-item>
       {{/if}}
@@ -224,6 +341,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import ListSelect from '@/libs/components/list-select/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -244,14 +362,15 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    Upload
+    Upload,
+    ListSelect,
   },
   data () {
     return {
       pageTitle: '{{title}}',
       pageType: 'list',
-      // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-{{name}}',
+      // TIPS: 权限前缀 AISCR，根据实际情况修改
+      moduleKey: 'AISCR-{{name}}',
       form: {
         ...defaultForm
       },
@@ -475,13 +594,19 @@ export default {
         }
       });
 
-      if (this.form.createTime) {
-        delete data.createTime;
-        if (this.form.createTime.length > 1) {
-          data.createTimeStart = this.form.createTime[0];
-          data.createTimeEnd = this.form.createTime[1];
+      // 动态处理所有日期范围字段
+      {{#each searchList}}
+      {{#if isDateRange}}
+      if (this.form.{{key}}) {
+        delete data.{{key}};
+        if (this.form.{{key}}.length > 1) {
+          data.{{key}}Start = this.form.{{key}}[0];
+          data.{{key}}End = this.form.{{key}}[1];
         }
       }
+      {{/if}}
+      {{/each}}
+
       // 排序字段
       data.sortColumns = this.sortColumns;
       return data;

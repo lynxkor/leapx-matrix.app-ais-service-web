@@ -51,7 +51,6 @@ import {
   removeDetail,
 } from '@/api/claimreturn/oldpart/returnorder/index';
 import EditTable from '@/libs/components/EditTable/index.vue';
-import OldPartDialog from '../components/OldPartDialog';
 
 export default {
   props: {
@@ -69,7 +68,6 @@ export default {
   },
   components: {
     EditTable,
-    // OldPartDialog,
   },
   data () {
     return {
