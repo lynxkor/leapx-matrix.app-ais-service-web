@@ -69,11 +69,11 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button> -->
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button> -->
+      <!-- <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
+      <!-- <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -119,7 +119,7 @@ import { handleBatchStatusChange, downloadExcel, getEndOfDayString } from '@/lib
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
-
+// console.log('类型' + this.$route.query.type);
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
@@ -127,7 +127,6 @@ const defaultForm = {
   companyNameList: '',
   createTime: '',
   updateTime: '',
-  accountType: 'FUND',
 };
 
 const pageSize = 20;
@@ -146,10 +145,10 @@ export default {
   },
   data () {
     return {
-      pageTitle: '备件现金账户',
+      pageTitle: this.$route.query.name,
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISPART-account',
+      moduleKey: this.$route.query.type === 'FUND' ? 'AISPART-account' : 'AISPART-accountRebate',
       form: {
         ...defaultForm
       },
@@ -284,7 +283,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '备件现金账户',
+        businessType: this.$route.query.name,
         dataFetchPath: 'sparepart/web/fund/account/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -292,7 +291,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '备件现金账户.xlsx');
+            await downloadExcel(res.excelUrl, this.$route.query.name + '.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
@@ -313,7 +312,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getList({ ...this.getFormData(), accountType: this.$route.query.type, pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {

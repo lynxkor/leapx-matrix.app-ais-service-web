@@ -28,6 +28,60 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="充值流水：" prop="flowNo">
+                  {{ form.flowNo }}
+                </el-form-item>
+                <el-form-item label="门店编码：" prop="dealerCode">
+                  <fetch-select :remote-method="getDealerList" remote v-model="form.dealerCode" placeholder="请输入门店编码或名称"
+                    labelKey="orgCode" valueKey="orgCode" subLabelKey="orgName" clearable filterable :disabled="isEditing"
+                    @change="handleDealerChange" />
+                </el-form-item>
+                <el-form-item label="门店名称：" prop="dealerName">
+                  {{ form.dealerName }}
+                </el-form-item>
+                <el-form-item label="公司编码：" prop="companyCode">
+                  {{ form.companyCode }}
+                </el-form-item>
+                <el-form-item label="公司名称：" prop="companyName">
+                  {{ form.companyName }}
+                </el-form-item>
+                <el-form-item :label="$route.query.type === 'RECHARGE' ? '充值账户：' : '返利账户：'" prop="accountCode">
+                  {{ form.accountCode }}
+                </el-form-item>
+                <el-form-item label="交易金额：" prop="transactionAmount">
+                  {{ form.transactionAmount }}
+                </el-form-item>
+                <el-form-item label="费用类别：" prop="expenseCategory">
+                  {{ form.expenseCategory }}
+                </el-form-item>
+                <el-form-item label="预算归口：" prop="budgetCenter">
+                  {{ form.budgetCenter }}
+                </el-form-item>
+                <el-form-item label="流程审批号：" prop="approvalProcessNo">
+                  {{ form.approvalProcessNo }}
+                </el-form-item>
+                <el-form-item label="审批状态：" prop="approvalStatus">
+                  {{ form.approvalStatusLabel }}
+                </el-form-item>
+                <el-form-item label="提交人：" prop="submitter">
+                  {{ form.submitterName }}
+                </el-form-item>
+                <el-form-item label="提交时间：" prop="submitTime">
+                  {{ form.submitTime }}
+                </el-form-item>
+                <el-form-item :label="$route.query.type === 'RECHARGE' ? '充值说明：' : '返利说明：'" prop="rechargeDescription">
+                  {{ form.rechargeDescription }}
+                </el-form-item>
+                <el-form-item label="审批人：" prop="approver">
+                  {{ form.approverName }}
+                </el-form-item>
+                <el-form-item label="审批时间：" prop="approvalTime">
+                  {{ form.approvalTime }}
+                </el-form-item>
+                <el-form-item label="审批说明：" prop="approvalDescription">
+                  {{ form.approvalDescription }}
+                </el-form-item>
+
                 <el-form-item label="账户编号：" prop="accountCode">
                   <el-input
                     placeholder="请输入"
@@ -56,28 +110,21 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dataSource"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="门店编码（组织code）：" prop="dealerCode">
+                <el-form-item label="门店编码：" prop="dealerCode">
                   <el-input
                     placeholder="请输入"
                     v-model="form.dealerCode"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="门店名称（组织名称）：" prop="dealerName">
+                <el-form-item label="门店名称：" prop="dealerName">
                   <el-input
                     placeholder="请输入"
                     v-model="form.dealerName"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="审批状态:草稿,待审批,审批通过,已驳回：" prop="approvalStatus">
+                <el-form-item label="审批状态：" prop="approvalStatus">
                   <fetch-select
                     :request="fetchOptions"
                     enumCode="xxx"
@@ -132,7 +179,7 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="充值、扣款说明：" prop="rechargeDescription">
+                <el-form-item :label="$route.query.type === 'RECHARGE' ? '充值说明' : '扣款说明'" prop="rechargeDescription">
                   <el-input
                     placeholder="请输入"
                     v-model="form.rechargeDescription"
@@ -221,16 +268,6 @@
                     filterable
                   />
                 </el-form-item>
-                <el-form-item label="操作类型:充值,扣款：" prop="operateType">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.operateType"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
                 <el-form-item label="备件账户ID：" prop="accountId">
                   <el-input
                     placeholder="请输入"
@@ -274,8 +311,14 @@
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="账户编号：" prop="accountCode">
-                  {{ form.accountCode }}
+                <el-form-item label="充值流水：" prop="flowNo">
+                  {{ form.flowNo }}
+                </el-form-item>
+                <el-form-item label="门店编码：" prop="dealerCode">
+                  {{ form.dealerCode }}
+                </el-form-item>
+                <el-form-item label="门店名称：" prop="dealerName">
+                  {{ form.dealerName }}
                 </el-form-item>
                 <el-form-item label="公司编码：" prop="companyCode">
                   {{ form.companyCode }}
@@ -283,20 +326,11 @@
                 <el-form-item label="公司名称：" prop="companyName">
                   {{ form.companyName }}
                 </el-form-item>
-                <el-form-item label="流水no：" prop="flowNo">
-                  {{ form.flowNo }}
+                <el-form-item :label="$route.query.type === 'RECHARGE' ? '充值账户：' : '返利账户：'" prop="accountCode">
+                  {{ form.accountCode }}
                 </el-form-item>
-                <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
-                  {{ form.dataSource }}
-                </el-form-item>
-                <el-form-item label="门店编码（组织code）：" prop="dealerCode">
-                  {{ form.dealerCode }}
-                </el-form-item>
-                <el-form-item label="门店名称（组织名称）：" prop="dealerName">
-                  {{ form.dealerName }}
-                </el-form-item>
-                <el-form-item label="审批状态:草稿,待审批,审批通过,已驳回：" prop="approvalStatus">
-                  {{ form.approvalStatus }}
+                <el-form-item label="交易金额：" prop="transactionAmount">
+                  {{ form.transactionAmount }}
                 </el-form-item>
                 <el-form-item label="费用类别：" prop="expenseCategory">
                   {{ form.expenseCategory }}
@@ -307,65 +341,26 @@
                 <el-form-item label="流程审批号：" prop="approvalProcessNo">
                   {{ form.approvalProcessNo }}
                 </el-form-item>
+                <el-form-item label="审批状态：" prop="approvalStatus">
+                  {{ form.approvalStatusLabel }}
+                </el-form-item>
                 <el-form-item label="提交人：" prop="submitter">
-                  {{ form.submitter }}
+                  {{ form.submitterName }}
                 </el-form-item>
                 <el-form-item label="提交时间：" prop="submitTime">
                   {{ form.submitTime }}
                 </el-form-item>
-                <el-form-item label="交易金额：" prop="transactionAmount">
-                  {{ form.transactionAmount }}
-                </el-form-item>
-                <el-form-item label="充值、扣款说明：" prop="rechargeDescription">
+                <el-form-item :label="$route.query.type === 'RECHARGE' ? '充值说明：' : '返利说明：'" prop="rechargeDescription">
                   {{ form.rechargeDescription }}
                 </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  {{ form.createTime }}
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  {{ form.updateTime }}
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  {{ form.modifierName }}
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  {{ form.status }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  {{ form.statusDesc }}
-                </el-form-item>
-                <el-form-item label="操作类型:充值,扣款：" prop="operateType">
-                  {{ form.operateType }}
-                </el-form-item>
-                <el-form-item label="备件账户ID：" prop="accountId">
-                  {{ form.accountId }}
-                </el-form-item>
                 <el-form-item label="审批人：" prop="approver">
-                  {{ form.approver }}
+                  {{ form.approverName }}
                 </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
                   {{ form.approvalTime }}
                 </el-form-item>
                 <el-form-item label="审批说明：" prop="approvalDescription">
                   {{ form.approvalDescription }}
-                </el-form-item>
-                <el-form-item label="归档时间：" prop="archiveTime">
-                  {{ form.archiveTime }}
                 </el-form-item>
               </el-form>
             </div>
@@ -406,7 +401,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
+import { getEnum, listOrgStoreInfoByParam, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -481,7 +476,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '备件返利充值管理',
+      pageTitle: this.$route.query.type === 'RECHARGE' ? '备件返利充值管理' : '备件返利扣款管理',
       pageType: 'edit',
       title: '账户编号：' + form.accountCode,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
@@ -656,6 +651,26 @@ export default {
         });
       });
     },
+    // 点击带出门店名称
+    handleDealerChange (val, ele) {
+      this.form.dealerName = ele.orgName;
+      this.getPartDealer(ele.orgCode);
+    },
+    async getPartDealer (query) {
+      try {
+        const res = await getPartDealer({ code: query });
+        this.form.companyCode = res.parentCompanyCode;
+        this.form.companyName = res.parentCompanyName;
+        if (this.$route.query.type === 'RECHARGE') {
+          this.form.accountCode = res.cashAccountCode;
+        } else {
+          this.form.accountCode = res.rebateAccountCode;
+        }
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
       // const userInfo = this.$store.state.user.userInfo;
@@ -669,6 +684,14 @@ export default {
     // handleJumpAuditLog () {
     //   this.$auditLog.show({ id: 123 });
     // },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);

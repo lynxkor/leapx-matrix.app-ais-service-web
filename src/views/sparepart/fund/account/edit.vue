@@ -267,7 +267,7 @@
                     <vxe-column field="businessTypeLabel" title="业务类型" width="150" />
                     <vxe-column field="businessNo" title="业务单号" width="200" >
                       <template #default="{ row }">
-                        <div class="href-link" @click="handleJump('跳转路劲', row.businessNo)">{{ row.businessNo }}</div>
+                        <div class="href-link" @click="handleJump(row)">{{ row.businessNo }}</div>
                       </template>
                     </vxe-column>
                     <vxe-column field="taxInvoiceNo" title="税务发票号" width="200" />
@@ -306,7 +306,7 @@
                     <vxe-column field="businessTypeLabel" title="业务类型" width="100" />
                     <vxe-column field="businessNo" title="业务单号" width="200">
                       <template #default="{ row }">
-                        <div class="href-link" @click="handleJump('跳转路劲', row.businessNo)">{{ row.businessNo }}</div>
+                        <div class="href-link" @click="handleJump(row)">{{ row.businessNo }}</div>
                       </template>
                     </vxe-column>
                     <vxe-column field="dealerCode" title="门店编码" width="150" />
@@ -317,17 +317,6 @@
                     <vxe-column field="cashUnitPrice" title="现金单价" width="100" />
                     <vxe-column field="frozenAmount" title="冻结金额" width="100" />
                   </vxe-table>
-                  <el-pagination
-                    style="float: right; padding-top: 16px;"
-                    :current-page.sync="djPagination.current"
-                    :page-size="djPagination.pageSize"
-                    :page-sizes="[10, 20, 50, 100]"
-                    background
-                    layout="total, prev, pager, next, sizes, jumper"
-                    :total="djPagination.total"
-                    @size-change="djPageSizeChange"
-                    @current-change="djCurrentPageChange"
-                  />
                 </div>
               </div>
             </section>
@@ -348,7 +337,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, accountFlowPage } from '@/api/sparepart/fund/account/index';
+import { getDetail, addOrUpdate, accountFlowPage, frozenPage } from '@/api/sparepart/fund/account/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import { getEnum } from '@/api/common';
@@ -537,7 +526,7 @@ export default {
         pageSize: this.djPagination.pageSize,
         accountId: this.$route.query.id
       };
-      const res = await accountFlowPage(params);
+      const res = await frozenPage(params);
       this.djTableData = res.records || [];
       this.djPagination.total = res.total;
     },
@@ -635,13 +624,26 @@ export default {
       return [];
     },
     // 业务单号跳转
-    handleJump (row, val) {
+    handleJump (row) {
+      let path = '';
+      if (row.businessType === '备件采购（不含缺货）') {
+        path = '/sparepart/purchase/purchaseApply/edit';
+      } else if (row.businessType === '备件采购（缺货）') {
+        path = '/sparepart/purchase/purchaseBackOrder/edit';
+      } else if (row.businessType === 'SPARE_PART_RETURN') {
+        path = '/sparepart/return/purchaseReturnOrder/edit';
+      } else if (row.businessType === 'SPARE_PART_PURCHASE') {
+        path = '/sparepart/warehouse/oemOutboundOrder/edit';
+      } else if (row.businessType === 'SAP_WRITE_OFF') {
+        path = '/sparepart/fund/accountOperateApply/edit';
+      } else if (row.businessType === 'SAP_RECHARGE') {
+        path = '/sparepart/fund/accountOperateApply/edit?type=1';
+      }
       this.$router.push({
-        path: row,
-        // 两种写法 都可 如果是注释这种 那方法传参只需要一个row传整行数据
-        // path: row.businessType === '1' ? '/sparepart/fund/account/transaction/detail' : '/sparepart/fund/account/frozen/detail',
+        path: path,
+
         query: {
-          id: val
+          id: row.businessNo
         }
       });
     }

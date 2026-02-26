@@ -43,36 +43,22 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="充值流水"  v-show="this.visibleCount === 3 || show">
+        <el-form-item :label="this.$route.query.type === 'RECHARGE' ? '充值流水' : '扣款流水'"  v-show="this.visibleCount === 3 || show">
           <el-input
             placeholder="请输入"
             v-model="form.flowNo"
             clearable
           />
         </el-form-item>
-        <el-form-item label="审批状态:草稿,待审批,审批通过,已驳回">
+        <el-form-item label="审批状态">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
+            enumCode="AccountOperateApplyApprovalStateEnum"
             v-model="form.approvalStatus"
             placeholder="请选择"
             clearable
             multiple
             filterable
-          />
-        </el-form-item>
-        <el-form-item label="费用类别">
-          <el-input
-            placeholder="请输入"
-            v-model="form.expenseCategory"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="预算归口">
-          <el-input
-            placeholder="请输入"
-            v-model="form.budgetCenter"
-            clearable
           />
         </el-form-item>
         <el-form-item label="流程审批号">
@@ -83,11 +69,17 @@
           />
         </el-form-item>
         <el-form-item label="提交人">
-          <el-input
-            placeholder="请输入"
+          <fetch-select
+            :remote-method="getUser"
+            remote
             v-model="form.submitter"
+            placeholder="请输入名称"
+            labelKey="username"
+            valueKey="userId"
             clearable
-          />
+            collapseTags
+            filterable
+            />
         </el-form-item>
         <el-form-item label="提交时间">
           <el-date-picker
@@ -101,17 +93,10 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="交易金额">
+        <el-form-item :label="this.$route.query.type === 'RECHARGE' ? '充值说明' : '扣款说明'" >
           <el-input
             placeholder="请输入"
-            v-model="form.transactionAmount"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="充值、扣款说明">
-          <el-input
-            placeholder="请输入"
-            v-model="form.rechargeDescription"
+            v-model="form.rechargeDescriptionLike"
             clearable
           />
         </el-form-item>
@@ -193,7 +178,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/fund/accountOperateApply/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse } from '@/api/common';
+import { getUserByNameOrNo, getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -240,10 +225,10 @@ export default {
   },
   data () {
     return {
-      pageTitle: '备件返利充值管理',
+      pageTitle: this.$route.query.name,
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISPART-accountOperateApply',
+      moduleKey: this.$route.query.type === 'RECHARGE' ? 'AISPART-accountOperateApply' : 'AISPART-accountOperateDeductionApply',
       form: {
         ...defaultForm
       },
@@ -272,7 +257,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/fund/accountOperateApply/edit',
+                  path: '/sparepart/fund/accountOperateApply/edit?type=' + row.operateType,
                   query: {
                     id: row.id
                   }
@@ -281,20 +266,19 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'companyCode', label: '公司编码', visible: true, width: 180 },
-          { props: 'companyName', label: '公司名称', visible: true, width: 200 },
-          { props: 'flowNo', label: '流水no', visible: true, width: 200 },
-          { props: 'dataSource', label: '数据来源', visible: true, width: 200 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'approvalStatus', label: '审批状态', visible: true, width: 120 },
+          { props: 'companyCode', label: '公司编码', visible: true, width: 180 },
+          { props: 'companyName', label: '公司名称', visible: true, width: 200 },
+          { props: 'code', label: this.$route.query.type === 'RECHARGE' ? '充值流水' : '扣款流水', visible: true, width: 200 },
+          { props: 'approvalStatusLabel', label: '审批状态', visible: true, width: 120 },
           { props: 'expenseCategory', label: '费用类别', visible: true, width: 120 },
           { props: 'budgetCenter', label: '预算归口', visible: true, width: 200 },
-          { props: 'approvalProcessNo', label: '流程审批号', visible: true, width: 200 },
+          { props: 'approvalProcessNo', label: '审批流程编号', visible: true, width: 200 },
           { props: 'submitter', label: '提交人', visible: true, width: 120 },
           { props: 'submitTime', label: '提交时间', visible: true, width: 200 },
           { props: 'transactionAmount', label: '交易金额', visible: true, align: 'right', width: 120 },
-          { props: 'rechargeDescription', label: '充值、扣款说明', visible: true, width: 200 },
+          { props: 'rechargeDescription', label: this.$route.query.type === 'RECHARGE' ? '充值说明' : '扣款说明', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -371,7 +355,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '备件返利充值管理',
+        businessType: this.$route.query.name,
         dataFetchPath: 'sparepart/web/fund/accountOperateApply/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -379,7 +363,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '备件返利充值管理.xlsx');
+            await downloadExcel(res.excelUrl, this.$route.query.name + '.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
@@ -404,6 +388,14 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
+    async getUser (query) {
+      try {
+        const res = await getUserByNameOrNo({ name: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     async getParentCompany (query) {
       try {
         const res = await getParentCompany({ parentCompanyName: query });
@@ -420,9 +412,8 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getList({ ...this.getFormData(), operateType: this.$route.query.type, pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
-          console.log(res);
           this.optionObj.dataList = res.records.map(item => {
             return {
               ...item,
@@ -472,7 +463,13 @@ export default {
           delete data[key];
         }
       });
-
+      if (this.form.submitTime) {
+        delete data.submitTime;
+        if (this.form.submitTime.length > 1) {
+          data.submitTimeStart = this.form.submitTime[0];
+          data.submitTimeEnd = this.form.submitTime[1];
+        }
+      }
       if (this.form.createTime) {
         delete data.createTime;
         if (this.form.createTime.length > 1) {
