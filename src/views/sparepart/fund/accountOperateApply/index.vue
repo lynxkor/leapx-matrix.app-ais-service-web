@@ -257,7 +257,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/fund/accountOperateApply/edit?type=' + row.operateType,
+                  path: '/sparepart/fund/accountOperateApply/edit?' + row.operateType,
                   query: {
                     id: row.id
                   }
@@ -291,7 +291,7 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/fund/accountOperateApply/edit',
+                  path: '/sparepart/fund/accountOperateApply/edit?type=' + row.operateType,
                   query: {
                     id: row.id
                   }
@@ -339,7 +339,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/sparepart/fund/accountOperateApply/edit'
+        path: '/sparepart/fund/accountOperateApply/edit?type=' + this.$route.query.type
       });
     },
     onSubmit () {
@@ -355,9 +355,8 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: this.$route.query.name,
         dataFetchPath: 'sparepart/web/fund/accountOperateApply/page',
-        reqParams: this.getFormData(),
+        reqParams: { ...this.getFormData(), businessType: this.$route.query.type },
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
