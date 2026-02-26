@@ -9,71 +9,6 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="任务名称">
-        <el-input
-          placeholder="请输入"
-          v-model="form.taskName"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="状态">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="xxx"
-          v-model="form.status"
-          placeholder="请选择"
-          clearable
-          multiple
-          filterable
-        />
-      </el-form-item>
-      <el-form-item label="关闭人"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.disabledOperator"
-          clearable
-        />
-      </el-form-item>
-      <template v-if="show">
-        <el-form-item label="关闭时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.disabledTime"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="开启人">
-          <el-input
-            placeholder="请输入"
-            v-model="form.enabledOperator"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="开启时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.enabledTime"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="备注">
-          <el-input
-            placeholder="请输入"
-            v-model="form.remark"
-            clearable
-          />
-        </el-form-item>
-      </template>
       <page-search-action
         v-if="canList"
         v-model="show"
@@ -85,12 +20,12 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -203,7 +138,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'statusLabel', label: '状态', visible: true, width: 78 },
+          { props: 'statusLabel', label: '是否开启', visible: true, width: 78 },
           { props: 'disabledOperator', label: '关闭人', visible: true, width: 120 },
           { props: 'disabledTime', label: '关闭时间', visible: true, width: 200 },
           { props: 'enabledOperator', label: '开启人', visible: true, width: 120 },
@@ -216,30 +151,38 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
-              name: '编辑',
+              name: '关闭',
+              popconfirmTitle: '确认关闭?',
               click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/warehouse/oemOutboundCallbackSetting/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
+                this.disable([row.id]).then(() => {
                   this.$message({
                     type: 'success',
-                    message: '删除成功!'
+                    message: '关闭成功!'
                   });
                   this.getData();
                 }).catch(() => {
                   this.$message({
                     type: 'error',
-                    message: '删除失败!'
+                    message: '关闭失败!'
+                  });
+                });
+              },
+              type: 'danger'
+            },
+            {
+              name: '开启',
+              popconfirmTitle: '确认开启?',
+              click: (rowIndex, row) => {
+                this.enable([row.id]).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '开启成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '开启失败!'
                   });
                 });
               },
@@ -251,9 +194,34 @@ export default {
       }
     };
   },
-  created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
-    this.getData();
+
+  disable (id) {
+    enableItem({ id: id, status: 0 }).then(() => {
+      this.$message({
+        type: 'success',
+        message: '关闭成功!'
+      });
+      this.getData();
+    }).catch(() => {
+      this.$message({
+        type: 'error',
+        message: '关闭失败!'
+      });
+    });
+  },
+  enable (id) {
+    enableItem({ id: id, status: 1 }).then(() => {
+      this.$message({
+        type: 'success',
+        message: '启用成功!'
+      });
+      this.getData();
+    }).catch(() => {
+      this.$message({
+        type: 'error',
+        message: '启用失败!'
+      });
+    });
   },
   methods: {
     handleListSelect (row) {
