@@ -65,7 +65,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="ClaimStatusEnum"
-            v-model="form.claimStatus"
+            v-model="form.claimStatusList"
             placeholder="请选择"
             clearable
             multiple
@@ -168,7 +168,7 @@ const defaultForm = {
   dealerName: '',
   submitTime: '',
   claimType: '',
-  claimStatus: '',
+  claimStatusList: '',
   createTime: '',
   updateTime: '',
 };

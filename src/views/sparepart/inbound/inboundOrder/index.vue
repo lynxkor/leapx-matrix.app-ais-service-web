@@ -60,7 +60,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="InboundStatusEnum"
-            v-model="form.inboundStatus"
+            v-model="form.inboundStatusList"
             placeholder="请选择"
             clearable
             multiple
@@ -162,7 +162,7 @@ const defaultForm = {
   dealerCode: '',
   warehouseId: '',
   inboundType: '',
-  inboundStatus: '',
+  inboundStatusList:[],
   createTime: '',
   updateTime: '',
 };
