@@ -51,3 +51,11 @@ export function enableItem (data) {
 export function oemOutboundOrderDetail (data) {
   return api.jsonPost('sp/web/purchase/oemOutboundOrderDetail/page', data);
 }
+
+/**
+ * 同步/批量同步
+ * @param {Object} data
+ */
+export function getAsync (data) {
+  return api.jsonPost(prefix + 'async', data);
+}
