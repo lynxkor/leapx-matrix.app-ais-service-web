@@ -14,9 +14,9 @@
       <el-form-item label="{{description}}">
         <el-date-picker
           v-model="form.{{key}}"
-          type="datetime"
-          format="yyyy-MM-dd HH:mm:ss"
-          value-format="yyyy-MM-dd HH:mm:ss"
+          type="date"
+          format="yyyy-MM-dd"
+          value-format="yyyy-MM-dd"
           placeholder="选择日期时间">
         </el-date-picker>
       </el-form-item>
@@ -35,11 +35,11 @@
         />
       </el-form-item>
     {{/if}}
-    {{#if isMenu}}
+    {{#if isEnum}}
       <el-form-item label="{{description}}">
         <fetch-select
           :request="fetchOptions"
-          enumCode="{{menu}}"
+          enumCode="{{enum}}"
           v-model="form.{{key}}"
           placeholder="请选择"
           clearable
@@ -51,10 +51,10 @@
     {{#if isSearch}}
       <el-form-item label="{{description}}">
         <list-select
-          listUrl="{{search}}"
+          listUrl="{{searchUrl}}"
           placeholder="请选择"
           v-model="form.{{key}}"
-          query-key="xxx"
+          query-key="{{queryKey}}"
           clearable
           collapseTags
           :show-code="false"
@@ -103,9 +103,9 @@
       <el-form-item label="{{description}}">
         <el-date-picker
           v-model="form.{{key}}"
-          type="datetime"
-          format="yyyy-MM-dd HH:mm:ss"
-          value-format="yyyy-MM-dd HH:mm:ss"
+          type="date"
+          format="yyyy-MM-dd"
+          value-format="yyyy-MM-dd"
           placeholder="选择日期时间">
         </el-date-picker>
       </el-form-item>
@@ -124,11 +124,11 @@
         />
       </el-form-item>
     {{/if}}
-    {{#if isMenu}}
+    {{#if isEnum}}
       <el-form-item label="{{description}}">
         <fetch-select
           :request="fetchOptions"
-          enumCode="{{menu}}"
+          enumCode="{{enum}}"
           v-model="form.{{key}}"
           placeholder="请选择"
           clearable
@@ -140,10 +140,10 @@
     {{#if isSearch}}
       <el-form-item label="{{description}}">
         <list-select
-          listUrl="{{search}}"
+          listUrl="{{searchUrl}}"
           placeholder="请选择"
           v-model="form.{{key}}"
-          query-key="xxx"
+          query-key="{{queryKey}}"
           clearable
           collapseTags
           :show-code="false"
@@ -193,9 +193,9 @@
         <el-form-item label="{{description}}">
           <el-date-picker
             v-model="form.{{key}}"
-            type="datetime"
-            format="yyyy-MM-dd HH:mm:ss"
-            value-format="yyyy-MM-dd HH:mm:ss"
+            type="date"
+            format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd"
             placeholder="选择日期时间">
           </el-date-picker>
         </el-form-item>
@@ -214,11 +214,11 @@
           />
         </el-form-item>
       {{/if}}
-      {{#if isMenu}}
+      {{#if isEnum}}
         <el-form-item label="{{description}}">
           <fetch-select
             :request="fetchOptions"
-            enumCode="{{menu}}"
+            enumCode="{{enum}}"
             v-model="form.{{key}}"
             placeholder="请选择"
             clearable
@@ -230,10 +230,10 @@
       {{#if isSearch}}
         <el-form-item label="{{description}}">
           <list-select
-            listUrl="{{search}}"
+            listUrl="{{searchUrl}}"
             placeholder="请选择"
             v-model="form.{{key}}"
-            query-key="xxx"
+            query-key="{{queryKey}}"
             clearable
             collapseTags
             :show-code="false"
@@ -429,7 +429,8 @@ export default {
                 this.$router.push({
                   path: '/{{modulePath}}/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true,
                   }
                 });
               },

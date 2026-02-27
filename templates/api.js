@@ -42,3 +42,15 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+{{#if detailApiPath}}
+export function getDetailList (data) {
+  return api.jsonPost('{{detailApiPath}}/page', data);
+}
+export function removeDetail (data) {
+  return api.jsonPost('{{detailApiPath}}/removeDetail', data);
+}
+export function addDetail (data) {
+  return api.jsonPost('{{detailApiPath}}/addDetail', data);
+}
+{{/if}}

@@ -2,7 +2,7 @@
   <section class="common-section">
     <div class="common-section-header">
       <h2>
-        旧件明细
+        xxx明细
         <div v-if="_id && !disabled" class="btns">
           <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="openAdd"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
           <el-button v-if="canAddOrUpdate" :disabled="!isSelect" size="small" @click.stop="handleRemoveRows">删除</el-button>
@@ -32,25 +32,29 @@
           @page-size-change="pageSizeChange"
           @current-page-change="currentPageChange"
           @checkboxChange="checkboxChange"
-          @mask="mask"
         />
       </div>
     </div>
     <div class="common-section-body not-commit" v-else>
       提交新建后，即可添加
     </div>
+    <add-data-dialog
+      type="outbound"
+      :visible.sync="visible"
+      :_id="_id"
+      @update="getTableData"
+      />
   </section>
 </template>
 <script>
+
 import {
-  getList, // 旧件库存详情分页查询
-  getDetailDecryptField,
-} from '@/api/claimreturn/oldpart/inventory/oem/index';
-import {
-  addDetail,
+  getDetailList,
   removeDetail,
-} from '@/api/claimreturn/oldpart/returnorder/index';
+  addDetail,
+} from '@/api/{{modulePath}}/index';
 import EditTable from '@/libs/components/EditTable/index.vue';
+import AddDataDialog from './AddDataDialog';
 
 export default {
   props: {
@@ -68,6 +72,7 @@ export default {
   },
   components: {
     EditTable,
+    AddDataDialog,
   },
   data () {
     return {
@@ -121,9 +126,9 @@ export default {
       if (!this._id) {
         return;
       }
-      getList({
+      getDetailList({
         // 根据需求进行替换
-        // returnOrderId: this._id,
+        // xxxId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {

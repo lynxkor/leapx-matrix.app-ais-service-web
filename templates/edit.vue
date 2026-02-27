@@ -34,7 +34,7 @@
         {{/contains}}
         <el-main>
           {{#contains checkedList 'isDetailDesc'}}
-          <div class="header-desc">
+          <div v-if="isEditing" class="header-desc">
             顶部说明文字：&nbsp;&nbsp;|&nbsp;&nbsp;顶部说明文字：
           </div>
           {{/contains}}
@@ -49,25 +49,53 @@
               {{#if isDate}}
                 <el-form-item label="{{description}}：" prop="{{key}}">
                   <el-date-picker
+                    v-model="form.{{key}}"
+                    type="datetime"
+                    format="yyyy-MM-dd HH:mm:ss"
+                    value-format="yyyy-MM-dd HH:mm:ss"
+                    placeholder="选择日期时间">
+                  </el-date-picker>
+                </el-form-item>
+              {{/if}}
+              {{#if isDateRange}}
+                <el-form-item class="form-item-half" label="{{description}}：" prop="{{key}}">
+                  <el-date-picker
                     :default-time="['00:00:00', '23:59:59']"
                     v-model="form.{{key}}"
+                    type="daterange"
                     :picker-options="pickerOptions"
+                    range-separator="至"
                     value-format="yyyy-MM-dd HH:mm:ss"
                     start-placeholder="开始日期"
                     end-placeholder="结束日期"
                   />
                 </el-form-item>
               {{/if}}
-              {{#if isSelect}}
+              {{#if isEnum}}
                 <el-form-item label="{{description}}：" prop="{{key}}">
                   <fetch-select
                     :request="fetchOptions"
-                    enumCode="xxx"
+                    enumCode="{{enum}}"
                     v-model="form.{{key}}"
                     placeholder="请选择"
                     clearable
+                    multiple
                     filterable
                   />
+                </el-form-item>
+              {{/if}}
+              {{#if isSearch}}
+                <el-form-item label="{{description}}：" prop="{{key}}">
+                  <list-select
+                    listUrl="{{searchUrl}}"
+                    placeholder="请选择"
+                    v-model="form.{{key}}"
+                    query-key="{{queryKey}}"
+                    auto-load-options
+                    no-param-load
+                    clearable
+                    filterable
+                    :params="{}" />
                 </el-form-item>
               {{/if}}
               {{#if isBoolean}}
@@ -77,12 +105,24 @@
                   </el-radio-group>
                 </el-form-item>
               {{/if}}
-              {{#if isNormal}}
-                <el-form-item label="{{description}}：" prop="{{key}}">
+              {{#if isInput}}
+                <el-form-item label="{{description}}" prop="{{key}}">
                   <el-input
                     placeholder="请输入"
                     v-model="form.{{key}}"
                     clearable
+                  />
+                </el-form-item>
+              {{/if}}
+              {{#if isTextarea}}
+                <el-form-item label="{{description}}：" prop="{{key}}">
+                  <el-input
+                    type="textarea"
+                    placeholder="请输入"
+                    v-model="form.{{key}}"
+                    clearable
+                    :rows="2"
+                    maxLength="500"
                   />
                 </el-form-item>
               {{/if}}
@@ -101,14 +141,14 @@
               </el-form>
             </div>
           </section>
-          {{#if (gt detailTable.length 0)}}
-          <table-with-btn
-            ref="tableWithBtn"
+          {{#if isModalAddTable}}
+          <modal-add-table
+            ref="modalAddTable"
             :disabled="false"
             :canAddOrUpdate="canAddOrUpdate"
             :_id="_id"
             @data-change="() => {}"
-            @checkboxChange="() => {}"
+            @checkboxChange="checkboxChange"
           />
           {{/if}}
           <!-- {{#if (gt detailTable.length 0)}}
@@ -176,20 +216,22 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/{{modulePath}}/index';
+import {
+  getDetail,
+  addOrUpdate,
+} from '@/api/{{modulePath}}/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 {{#contains checkedList 'isSide'}}
 import EditPageLayout from '@/libs/components/EditPageLayout';
 {{/contains}}
-import EditTable from '@/libs/components/EditTable';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-{{#if (gt detailTable.length 0)}}
-import TableWithBtn from './components/TableWithBtn';
+{{#if isModalAddTable}}
+import ModalAddTable from './components/ModalAddTable';
 {{/if}}
 // 按钮 + 明细表
 // 搜索 + 明细表
@@ -214,11 +256,10 @@ export default {
     {{#contains checkedList 'isSide'}}
     EditPageLayout,
     {{/contains}}
-    {{#if (gt detailTable.length 0)}}
-    TableWithBtn,
+    {{#if isModalAddTable}}
+    ModalAddTable,
     {{/if}}
     EditBaseContainer,
-    EditTable,
     FetchSelect
   },
   computed: {
@@ -263,7 +304,6 @@ export default {
         // 对应表格里选型枚举
         // 如 type: [{label: 'xxx', value: 'xxx'}]
       },
-      // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
           field: 'name',
@@ -291,24 +331,19 @@ export default {
       ],
       rules: {
       {{#each detailList}}
-      {{#if isDate}}
+      {{#if (or isDate isDateRange isEnum isSearch isBoolean)}}
         {{key}}: [
           { required: true, message: '请选择{{description}}', trigger: 'change' }
         ],
       {{/if}}
-      {{#if isSelect}}
+      {{#if (or isInput isTextarea)}}
         {{key}}: [
-          { required: true, message: '请选择{{description}}', trigger: 'change' }
-        ],
-      {{/if}}
-      {{#if isNormal}}
-        {{key}}: [
-          { required: true, message: '请输入{{description}}', trigger: 'change' }
+          { required: true, message: '请输入{{description}}', trigger: 'blur' }
         ],
       {{/if}}
       {{/each}}
       },
-      {{#if (gt detailTable.length 0)}}
+      {{#if isModalAddTable}}
       selectedRows: [],
       {{/if}}
     };
@@ -391,7 +426,7 @@ export default {
       }
       return [];
     },
-    {{#if (gt detailTable.length 0)}}
+    {{#if isModalAddTable}}
     checkboxChange (records) {
       this.selectedRows = records;
     },

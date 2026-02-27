@@ -16,6 +16,11 @@ helpers({ handlebars: Handlebars });
 Handlebars.registerHelper('yesNoFormat', function (value) {
   return value ? '是' : '否'; // 或其他映射
 });
+Handlebars.registerHelper('or', function (...args) {
+  const options = args.pop();
+  // 检查是否有任何一个条件为真
+  return args.some(arg => arg);
+});
 // 注册返回布尔值的 helper
 Handlebars.registerHelper('has', function (array, value) {
   return Array.isArray(array) && array.includes(value);
@@ -30,24 +35,24 @@ Handlebars.registerHelper('unless', function (condition, options) {
 // 获取模板目录路径
 const templatesDir = path.join(__dirname, '../templates');
 
-// 设置命令行参数
-program
-  .version('1.0.0')
-  .description('Vue2代码生成工具')
-  .argument('<name>', '模块名称')
-  .parse(process.argv);
+// // 设置命令行参数
+// program
+//   .version('1.0.0')
+//   .description('Vue2代码生成工具')
+//   .argument('<name>', '模块名称')
+//   .parse(process.argv);
 
-// 获取参数
-const [name] = program.args;
+// // 获取参数
+// const [name] = program.args;
+
 // 读取generate.json数据
 const generateJson = require('./generate.json');
 // 读取完成之后删除该文件
 // fs.removeSync(path.join(__dirname, './generate.json'));
 
 // 解析 name，支持目录结构
-const nameParts = name.split('/');
+const nameParts = generateJson.path.split('/');
 const moduleName = nameParts.pop(); // 最后一部分作为模块名
-const moduleDir = nameParts.join('/'); // 剩余部分作为目录路径
 
 function handleList (list) {
   if (!list) {
@@ -60,7 +65,7 @@ function handleList (list) {
     const isDateRange = el.format === 'dateRange';
     const isDate = el.format === 'date';
     const isSearch = el.format === 'search';
-    const isMenu = el.format === 'menu';
+    const isEnum = el.format === 'enum';
     const isInput = el.format === 'input';
     const isTextarea = el.format === 'textarea';
     const isBoolean = el.type === 'boolean';
@@ -71,7 +76,7 @@ function handleList (list) {
       isDateRange,
       isDate,
       isSearch,
-      isMenu,
+      isEnum,
       isInput,
       isTextarea,
       isBoolean,
@@ -90,9 +95,8 @@ if (generateJson.detailPage) {
   detailTable = handleList(generateJson.detailPage.tableList);
 }
 
-const nameSplit = name.split('/').filter(el => el);
-nameSplit.splice(1, 0, 'web');
-const apiPath = nameSplit.join('/');
+const apiPath = generateJson.pathPrefix + generateJson.path;
+const modulePath = apiPath.split('/').filter((val) => val !== 'web').join('/');
 
 const data = {
   title: generateJson.title,
@@ -102,7 +106,7 @@ const data = {
   nameCamelCase: moduleName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()),
   apiPath: apiPath,
   isProForm: true,
-  modulePath: name.split('/').filter(el => el).join('/'),
+  modulePath: modulePath,
   searchList,
   top2SearchList: searchList.slice(0, 2),
   thirdSearchList: searchList.slice(2, 3),
@@ -111,6 +115,8 @@ const data = {
   detailList,
   //
   detailTable,
+  isModalAddTable: detailTable.length > 0 && generateJson.detailPage.tableType === 'ModalAddTable',
+  detailApiPath: generateJson.pathPrefix + generateJson.detailPage.detailApiPath,
   checkedList: generateJson.detailPage.checkedList || [],
 };
 
@@ -356,7 +362,10 @@ async function main () {
   if (detailTable.length) {
     list.push({
       templatePath: '/components/',
-      templateName: 'TableWithBtn.vue',
+      templateName: 'ModalAddTable.vue',
+    }, {
+      templatePath: '/components/',
+      templateName: 'AddDataDialog.vue',
     });
   }
 
