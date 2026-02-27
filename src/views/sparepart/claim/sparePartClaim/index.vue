@@ -15,7 +15,7 @@
       <el-form-item label="采购订单号">
         <tag-input v-model="form.purchaseOrderCodeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="门店">
+      <el-form-item label="门店" v-show="this.visibleCount === 3 || show">
           <fetch-select
             :remote-method="getDealerList"
             remote
@@ -148,7 +148,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/claim/sparePartClaim/index';
+import { getList, deleteItem, enableItem, getCommit, getAgree, getReject } from '@/api/sparepart/claim/sparePartClaim/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -278,6 +278,57 @@ export default {
                 });
               },
               type: 'danger'
+            }, {
+              name: '提交',
+              show: (row) => {
+                return row.claimStatus === '10' || row.claimStatus === '30';
+              },
+              popconfirmTitle: '是否提交?',
+              click: (rowIndex, row) => {
+                getCommit({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '提交成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '提交失败!'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '同意',
+              show: (row) => {
+                return row.claimStatus === '20';
+              },
+              popconfirmTitle: '是否同意?',
+              click: (rowIndex, row) => {
+                getAgree({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '同意成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '同意失败!'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '驳回',
+              show: (row) => {
+                return row.claimStatus === '20';
+              },
+              click: (rowIndex, row) => {
+                this.handleReject(row.id);
+              },
+              type: 'info'
             }]
           }
         ],
@@ -475,6 +526,23 @@ export default {
       } catch (error) {
         console.error('Error fetching series list:', error);
       }
+    },
+    // 驳回
+    handleReject (val) {
+      this.$prompt('请输入驳回原因！', '驳回', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      }).then(({ value }) => {
+        // 调用驳回接口
+        getReject({ id: val, description: value }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '驳回成功!'
+          });
+          this.getData();
+        }).catch(() => {
+        });
+      }).catch(() => { });
     }
   }
 };
