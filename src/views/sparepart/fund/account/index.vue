@@ -31,19 +31,19 @@
             filterable
               />
       </el-form-item>
+      <el-form-item label="创建时间" v-show="this.visibleCount === 3 || show">
+        <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="创建时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
         <el-form-item label="修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -145,10 +145,10 @@ export default {
   },
   data () {
     return {
-      pageTitle: this.$route.query.name,
+      pageTitle: this.accountName,
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: this.$route.query.type === 'FUND' ? 'AISPART-account' : 'AISPART-accountRebate',
+      moduleKey: this.accountType === 'FUND' ? 'AISPART-account' : 'AISPART-accountRebate',
       form: {
         ...defaultForm
       },

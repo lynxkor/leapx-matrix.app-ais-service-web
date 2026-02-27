@@ -11,14 +11,11 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :showEditBtn="routeType"
       >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
           <span class="status primary">状态</span>
-        </template>
-        <template #extraButtons>
-          <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -168,7 +165,6 @@
 <script>
 import { getDetail, addOrUpdate } from '@/api/sparepart/fund/accountOperateApply/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, listOrgStoreInfoByParam, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
@@ -225,7 +221,6 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    EditTable,
     FetchSelect
   },
   computed: {
@@ -241,7 +236,15 @@ export default {
         }
       },
       immediate: true
-    }
+    },
+    '$route.query.type': {
+      handler (val) {
+        if (val) {
+          this.routeType = true;
+        }
+      },
+      immediate: true
+    },
   },
   data () {
     const form = this.getDefautlForm();
@@ -251,6 +254,7 @@ export default {
       title: '账户编号：' + form.accountCode,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-accountOperateApply',
+      routeType: false,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
