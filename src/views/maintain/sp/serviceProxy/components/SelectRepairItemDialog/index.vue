@@ -75,7 +75,7 @@
             @select="handleSelect"
             size="small"
             :trigger-on-focus="false"
-            style="width: 500px;"
+            style="width: 650px;"
           >
             <template slot="prepend">
               <div>
@@ -234,15 +234,21 @@
             @select="handleSelectPart"
             size="small"
             :trigger-on-focus="false"
-            style="width: 500px;"
+            style="width: 650px;"
             clearable
           >
-            <template slot="prepend">
+            <template #prepend>
               <div>
                 维修类型：
                 <el-select v-model="partRepairType" placeholder="请选择" style="width: 110px;">
                   <el-option v-for="item in itemOptions.repairItemTypeName" :label="item.label" :value="item.value" :key="item.value"></el-option>
                 </el-select>
+              </div>
+            </template>
+            <template #default="{item}">
+              <div v-if="item.value === 'empty'" style="pointer-events: none;">您当前搜索的项目，不适用{{vehicleInfo.vehModelName}}车型，请联系服务工程</div>
+              <div v-else>
+                {{ item.value }}
               </div>
             </template>
           </el-autocomplete>
@@ -748,11 +754,18 @@ export default {
           ...item,
           isOemPart: item.oemPart,
           value: `${item.partName}-库存:${item.availableQty || 0}-${item.partCode}`
-        }));
+        })) || [];
+        if (data.length === 0) {
+          data.push({ value: 'empty' });
+        }
         cb(data);
       });
     },
     handleSelectPart (item) {
+      if (item.value === 'empty') {
+        this.partSearchKey = '';
+        return;
+      }
       if (Number(item.salePrice) > 0) {
         // 校验是否重复添加
         const target = this.partData.find(el => el.partsId === item.id);
