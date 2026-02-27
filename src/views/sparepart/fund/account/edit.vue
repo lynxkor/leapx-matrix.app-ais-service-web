@@ -340,7 +340,7 @@
 import { getDetail, addOrUpdate, accountFlowPage, frozenPage } from '@/api/sparepart/fund/account/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
-import { getEnum } from '@/api/common';
+import { getEnum, getSparePartOrderIdByCode } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -624,26 +624,34 @@ export default {
       return [];
     },
     // 业务单号跳转
-    handleJump (row) {
+    async handleJump (row) {
       let path = '';
+      let type = '';
       if (row.businessType === '备件采购（不含缺货）') {
         path = '/sparepart/purchase/purchaseApply/edit';
+        type = '1';
       } else if (row.businessType === '备件采购（缺货）') {
         path = '/sparepart/purchase/purchaseBackOrder/edit';
+        type = '3';
       } else if (row.businessType === 'SPARE_PART_RETURN') {
         path = '/sparepart/return/purchaseReturnOrder/edit';
+        type = '6';
       } else if (row.businessType === 'SPARE_PART_PURCHASE') {
         path = '/sparepart/warehouse/oemOutboundOrder/edit';
-      } else if (row.businessType === 'SAP_WRITE_OFF') {
-        path = '/sparepart/fund/accountOperateApply/edit';
-      } else if (row.businessType === 'SAP_RECHARGE') {
-        path = '/sparepart/fund/accountOperateApply/edit?type=1';
+        type = '5';
+      } else {
+        return;
       }
+      // else if (row.businessType === 'SAP_WRITE_OFF') {
+      //   path = '/sparepart/fund/accountOperateApply/edit?type=RECHARGE';
+      // } else if (row.businessType === 'SAP_RECHARGE') {
+      //   path = '/sparepart/fund/accountOperateApply/edit?type=RECHARGE';
+      // }
+      const res = await getSparePartOrderIdByCode({ code: row.businessNo, type: type });
       this.$router.push({
         path: path,
-
         query: {
-          id: row.businessNo
+          id: res
         }
       });
     }
