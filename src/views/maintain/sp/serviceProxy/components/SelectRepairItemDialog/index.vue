@@ -75,7 +75,7 @@
             @select="handleSelect"
             size="small"
             :trigger-on-focus="false"
-            style="width: 500px;"
+            style="width: 650px;"
           >
             <template slot="prepend">
               <div>
@@ -95,6 +95,7 @@
           show-overflow
           resizable
           :row-config="{ isHover: true }"
+          :row-class-name="getItemRowClassName"
           border="inner"
           size="medium"
           min-height="0"
@@ -234,15 +235,21 @@
             @select="handleSelectPart"
             size="small"
             :trigger-on-focus="false"
-            style="width: 500px;"
+            style="width: 650px;"
             clearable
           >
-            <template slot="prepend">
+            <template #prepend>
               <div>
                 维修类型：
                 <el-select v-model="partRepairType" placeholder="请选择" style="width: 110px;">
                   <el-option v-for="item in itemOptions.repairItemTypeName" :label="item.label" :value="item.value" :key="item.value"></el-option>
                 </el-select>
+              </div>
+            </template>
+            <template #default="{item}">
+              <div v-if="item.value === 'empty'" style="pointer-events: none;">您当前搜索的项目，不适用{{vehicleInfo.vehModelName}}车型，请联系服务工程</div>
+              <div v-else>
+                {{ item.value }}
               </div>
             </template>
           </el-autocomplete>
@@ -748,11 +755,18 @@ export default {
           ...item,
           isOemPart: item.oemPart,
           value: `${item.partName}-库存:${item.availableQty || 0}-${item.partCode}`
-        }));
+        })) || [];
+        if (data.length === 0) {
+          data.push({ value: 'empty' });
+        }
         cb(data);
       });
     },
     handleSelectPart (item) {
+      if (item.value === 'empty') {
+        this.partSearchKey = '';
+        return;
+      }
       if (Number(item.salePrice) > 0) {
         // 校验是否重复添加
         const target = this.partData.find(el => el.partsId === item.id);
@@ -945,6 +959,13 @@ export default {
       // INTERNAL_SETTLEMENT("3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "内部结算");
       return type === '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF' || type === '3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF';
     },
+    // 获取维修项目表格行样式类名
+    getItemRowClassName ({ row }) {
+      if (row.status === 0) {
+        return 'row-status-danger';
+      }
+      return '';
+    },
     // 2、【结算类型】为：合同、保修  且 {维修项目} 【是否保修专用为：是】或【是否生产类专用为：是】，支持编辑工时，否则不可编辑工时；
     // 3、【结算类型】为：内部结算、保险、自费  且 非万能工时，不可编辑工时；
     // 4、万能工时 且 项目未完工，支持编辑工时；已完工，不可编辑；
@@ -1119,6 +1140,14 @@ export default {
     }
     ::v-deep .el-select .el-input .el-select__caret {
       color: var(--leap-color-default);
+    }
+  }
+
+  // 维修项目表格行高亮样式
+  ::v-deep .vxe-table .row-status-danger {
+    background-color: rgba(245, 108, 108, 0.1) !important;
+    .vxe-body--column {
+      background-color: rgba(245, 108, 108, 0.2) !important;
     }
   }
 }

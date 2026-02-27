@@ -469,6 +469,29 @@ export default {
         }
       },
       immediate: true
+    },
+    'form.currentFault': {
+      handler (val) {
+        if (val) {
+          this.rules.anomalyDescription = [
+            { required: false, message: '请输入异常描述', trigger: 'change' }
+          ];
+        } else {
+          this.rules.anomalyDescription = [
+            { required: true, message: '请输入异常描述', trigger: 'change' }
+          ];
+        }
+      }
+    },
+    'formData.orderStatus': {
+      handler (val) {
+        console.log(val);
+        if (val === 110) {
+          this.$set(this.rules, 'expectFinishAt', [
+            { required: true, message: '请输入预计交车时间', trigger: 'change' }
+          ]);
+        }
+      }
     }
   },
   data () {

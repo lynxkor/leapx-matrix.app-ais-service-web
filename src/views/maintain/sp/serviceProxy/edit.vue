@@ -22,7 +22,7 @@
                     <el-button size="small" @click="discardDialogVisible = true" v-if="!isCompleted">作废</el-button>
                     <el-button size="small" @click="materialReturnDialogVisible = true" v-if="!isCompleted && hasRepairItems">退料</el-button>
                     <el-button size="small" @click="handlePreCheck" v-if="orderStatus === RepairOrderStatusEnum.RECEPTION_INSPECTION">预检确认</el-button>
-                    <el-button size="small" @click="confirmDocDialogVisible = true" v-if="orderStatus === RepairOrderStatusEnum.CREATING_ORDER && hasItems">制单确认并签字</el-button>
+                    <el-button size="small" @click="handleCreatingOrder" v-if="orderStatus === RepairOrderStatusEnum.CREATING_ORDER && hasItems">制单确认并签字</el-button>
                     <el-button size="small" @click="selectRepairItemDialogVisible = true" v-if="canEditOrder && form.isCreateStatementInfo === 0">选择维修项目</el-button>
                     <el-button size="small" @click="dispatchWorkDialogVisible = true" v-if="isInConstruction && hasUndispatchedItems">派工</el-button>
                     <el-button size="small" @click="startWorkDialogVisible = true" v-if="isInConstruction && hasDispatchedNotStartedItems">作业开始</el-button>
@@ -601,6 +601,18 @@ export default {
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
+    },
+    async handleCreatingOrder () {
+      try {
+        const entrustInfo = await this.$refs.entrustInfoRef.getFormData();
+        if (entrustInfo.expectFinishAt) {
+          this.confirmDocDialogVisible = true;
+        } else {
+          this.$message.warning('请先填写预计交车时间');
+        }
+      } catch (error) {
+        console.log(error);
+      }
     },
     // 结算与取消结算
     handleSettlement (v) {
