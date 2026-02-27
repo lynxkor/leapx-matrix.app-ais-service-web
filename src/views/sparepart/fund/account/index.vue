@@ -235,10 +235,29 @@ export default {
           // }
         ],
         total: 0
-      }
+      },
+      accountType: '',
+      accountName: ''
     };
   },
   created () {
+    // 1. 先尝试从 URL query 获取（防止用户手动刷新或分享链接）
+    const queryType = this.$route.query.type;
+    const queryName = this.$route.query.name;
+
+    if (queryType) {
+      this.accountType = queryType;
+      this.accountName = queryName;
+    } else {
+      // 2. 如果 URL 没有参数，再从 meta 中获取默认值
+      // 注意：这里通过 $route.matched 获取当前激活路由的配置
+      const currentRoute = this.$route.matched[this.$route.matched.length - 1];
+
+      if (currentRoute && currentRoute.meta && currentRoute.meta.query) {
+        this.accountType = currentRoute.meta.query.type;
+        this.accountName = currentRoute.meta.query.name;
+      }
+    }
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },
@@ -312,7 +331,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), accountType: this.$route.query.type, pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getList({ ...this.getFormData(), accountType: this.accountType, pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {
