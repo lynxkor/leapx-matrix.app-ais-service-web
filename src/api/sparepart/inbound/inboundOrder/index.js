@@ -51,3 +51,11 @@ export function enableItem (data) {
 export function inboundOrderDetail (data) {
   return api.jsonPost('sp/web/purchase/inboundOrderDetail/page', data);
 }
+
+/**
+ * 入库
+ * @param {Object} data
+ */
+export function warehousing (data) {
+  return api.jsonPost(prefix + 'inbound', data);
+}

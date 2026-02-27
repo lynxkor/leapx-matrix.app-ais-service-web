@@ -143,7 +143,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/inbound/inboundOrder/index';
+import { getList, deleteItem, enableItem, warehousing } from '@/api/sparepart/inbound/inboundOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -162,7 +162,7 @@ const defaultForm = {
   dealerCode: '',
   warehouseId: '',
   inboundType: '',
-  inboundStatusList:[],
+  inboundStatusList: [],
   createTime: '',
   updateTime: '',
 };
@@ -263,6 +263,27 @@ export default {
                 });
               },
               type: 'danger'
+            }, {
+              name: '入库',
+              show: (row) => {
+                return row.inboundStatus === '0';
+              },
+              popconfirmTitle: '此操作将入库, 是否继续?',
+              click: (rowIndex, row) => {
+                warehousing({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '入库成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '入库失败!'
+                  });
+                });
+              },
+              type: 'info'
             }]
           }
         ],

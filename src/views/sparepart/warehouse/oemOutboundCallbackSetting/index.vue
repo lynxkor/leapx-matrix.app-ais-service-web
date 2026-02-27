@@ -9,14 +9,6 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <page-search-action
-        v-if="canList"
-        v-model="show"
-        is-expandable
-        :loading="loading"
-        @submit="onSubmit"
-        @reset="onReset"
-      />
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
@@ -59,10 +51,8 @@
 <script>
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
-import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/oemOutboundCallbackSetting/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
-import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -90,9 +80,7 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
-    PageSearchAction,
     LPVxeTable,
-    FetchSelect,
     EditPage,
     Upload
   },
@@ -152,39 +140,23 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '关闭',
+              show: (row) => {
+                return row.status === 1;
+              },
               popconfirmTitle: '确认关闭?',
               click: (rowIndex, row) => {
-                this.disable([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '关闭成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '关闭失败!'
-                  });
-                });
+                this.disable([row.id]);
               },
               type: 'danger'
             },
             {
               name: '开启',
+              show: (row) => {
+                return row.status === 0;
+              },
               popconfirmTitle: '确认开启?',
               click: (rowIndex, row) => {
-                this.enable([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '开启成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '开启失败!'
-                  });
-                });
+                this.enable([row.id]);
               },
               type: 'danger'
             }]
@@ -194,35 +166,11 @@ export default {
       }
     };
   },
+  created () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    this.getData();
+  },
 
-  disable (id) {
-    enableItem({ id: id, status: 0 }).then(() => {
-      this.$message({
-        type: 'success',
-        message: '关闭成功!'
-      });
-      this.getData();
-    }).catch(() => {
-      this.$message({
-        type: 'error',
-        message: '关闭失败!'
-      });
-    });
-  },
-  enable (id) {
-    enableItem({ id: id, status: 1 }).then(() => {
-      this.$message({
-        type: 'success',
-        message: '启用成功!'
-      });
-      this.getData();
-    }).catch(() => {
-      this.$message({
-        type: 'error',
-        message: '启用失败!'
-      });
-    });
-  },
   methods: {
     handleListSelect (row) {
       this.clickItemId = row.id;
@@ -401,7 +349,37 @@ export default {
       //     });
       //   });
       // });
-    }
+    },
+    // 关闭
+    disable (id) {
+      enableItem({ id: id, status: 0 }).then(() => {
+        this.$message({
+          type: 'success',
+          message: '关闭成功!'
+        });
+        this.getData();
+      }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '关闭失败!'
+        });
+      });
+    },
+    // 开启
+    enable (id) {
+      enableItem({ id: id, status: 1 }).then(() => {
+        this.$message({
+          type: 'success',
+          message: '启用成功!'
+        });
+        this.getData();
+      }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '启用失败!'
+        });
+      });
+    },
   }
 };
 </script>
