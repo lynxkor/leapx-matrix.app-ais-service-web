@@ -606,105 +606,48 @@ export default {
         });
       }).catch(() => {});
     },
-    // 通过
+    // 1. 公共方法：处理带 Confirm 的操作 (通过)
+    _handleConfirm (apiFn, params, successMsg) {
+      this.$confirm('确定通过吗？', '提示', { type: 'warning' })
+        .then(() => apiFn(params))
+        .then(() => {
+          this.$message({ type: 'success', message: successMsg });
+          this.getData();
+        })
+        .catch(err => err !== 'cancel' && this.$message({ type: 'error', message: '操作失败' }));
+    },
+
+    // 2. 公共方法：处理带 Prompt 的操作 (驳回)
+    _handlePrompt (apiFn, params) {
+      this.$prompt('请输入审批说明！', '提交', { inputValue: '' })
+        .then(({ value }) => {
+          return apiFn({ ...params, description: value });
+        })
+        .then(() => {
+          this.$message({ type: 'success', message: '提交成功!' });
+          this.getData();
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+
+    // --- 单个操作 ---
     handleAgree (val) {
-      this.$confirm('确定通过吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        getAgree({
-          id: val,
-        }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '提交成功!'
-          });
-          this.getData();
-        });
-      });
+      this._handleConfirm(getAgree, { id: val }, '通过成功!');
     },
-    // 批量通过
-    handleBatchAgree () {
-      const idList = this.selectionList.map(item => item.id) || [];
-      this.$confirm('确定通过吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        getAgreeBatch({
-          idList
-        }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '提交成功!'
-          });
-          this.getData();
-        });
-      });
-    },
-    // 驳回
     handleReject (val) {
-      this.$prompt('请输入审批说明！', '提交', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputValue: ''
-      }).then((reason) => {
-        if (!reason.value) {
-          this.$message({
-            type: 'error',
-            message: '请输入审批说明！'
-          });
-          return;
-        }
-        getReject({
-          id: val,
-          description: reason.value
-        }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '提交成功!'
-          });
-          this.getData();
-        }).catch(() => {
-          this.$message({
-            type: 'error',
-            message: '提交失败!'
-          });
-        });
-      }).catch(() => {});
+      this._handlePrompt(getReject, { id: val });
     },
-    // 批量驳回
+
+    // --- 批量操作 ---
+    handleBatchAgree () {
+      const idList = this.selectionList.map(i => i.id);
+      this._handleConfirm(getAgreeBatch, { idList }, `成功通过 ${idList.length} 项`);
+    },
     handleBatchReject () {
-      const idList = this.selectionList.map(item => item.id) || [];
-      this.$prompt('请输入审批说明！', '提交', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputValue: ''
-      }).then((reason) => {
-        if (!reason.value) {
-          this.$message({
-            type: 'error',
-            message: '请输入审批说明！'
-          });
-          return;
-        }
-        getRejectBatch({
-          idList,
-          description: reason.value
-        }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '提交成功!'
-          });
-          this.getData();
-        }).catch(() => {
-          this.$message({
-            type: 'error',
-            message: '提交失败!'
-          });
-        });
-      }).catch(() => {});
+      const idList = this.selectionList.map(i => i.id);
+      this._handlePrompt(getRejectBatch, { idList });
     }
   }
 };
