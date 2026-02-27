@@ -235,5 +235,5 @@ export function getMaintenanceItemEnum (data) {
  * @param {*} data
  */
 export function getSparePartOrderIdByCode (data) {
-  return api.jsonPost('/sp-local/web/base/common/getIdByCode', data);
+  return api.jsonPost('/sp/web/base/common/getIdByCode', data);
 }
