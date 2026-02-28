@@ -65,11 +65,17 @@ export default {
     id: {
       handler (newVal) {
         this.inventoryId = newVal;
+      },
+      immediate: true, // 立即执行一次
+      deep: true, // 深度监听
+    },
+    orderType: {
+      handler () {
         this.getDetailPageApi();
       },
       immediate: true, // 立即执行一次
       deep: true, // 深度监听
-    }
+    },
   },
   mounted () {
   },
