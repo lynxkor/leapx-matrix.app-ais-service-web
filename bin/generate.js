@@ -90,10 +90,11 @@ const searchList = handleList(generateJson.listPage.searchList);
 const tableList = handleList(generateJson.listPage.tableList);
 const detailList = handleList(generateJson.listPage.detailList);
 
-let detailTable = [];
-if (generateJson.detailPage) {
-  detailTable = handleList(generateJson.detailPage.tableList);
-}
+const detailTable = handleList(generateJson.detailPage.tableList);
+
+// 弹窗
+const dialogSearchList = handleList(generateJson.detailPage.dialogSearchList);
+const dialogTableList = handleList(generateJson.detailPage.dialogTableList);
 
 const apiPath = generateJson.pathPrefix + generateJson.path;
 const modulePath = apiPath.split('/').filter((val) => val !== 'web').join('/');
@@ -117,7 +118,13 @@ const data = {
   detailTable,
   isModalAddTable: detailTable.length > 0 && generateJson.detailPage.tableType === 'ModalAddTable',
   detailApiPath: generateJson.pathPrefix + generateJson.detailPage.detailApiPath,
+  detailAddPath: generateJson.pathPrefix + generateJson.detailPage.addPath,
+  detailRemovePath: generateJson.pathPrefix + generateJson.detailPage.removePath,
   checkedList: generateJson.detailPage.checkedList || [],
+  //
+  dialogSearchList,
+  dialogTableList,
+  dialogApiPath: generateJson.pathPrefix + generateJson.detailPage.dialogApiPath,
 };
 
 // 创建vue文件

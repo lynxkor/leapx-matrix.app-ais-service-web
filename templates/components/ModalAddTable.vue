@@ -27,7 +27,6 @@
           :current="current"
           :pageSize="pageSize"
           :total="total"
-          @save-row-edit="saveRowEdit"
           @remove-row="handleRemoveRow"
           @page-size-change="pageSizeChange"
           @current-page-change="currentPageChange"
@@ -51,7 +50,6 @@
 import {
   getDetailList,
   removeDetail,
-  addDetail,
 } from '@/api/{{modulePath}}/index';
 import EditTable from '@/libs/components/EditTable/index.vue';
 import AddDataDialog from './AddDataDialog';
@@ -127,8 +125,9 @@ export default {
         return;
       }
       getDetailList({
-        // 根据需求进行替换
+        // TODO 根据需求进行替换
         // xxxId: this._id,
+        //
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {
@@ -172,19 +171,6 @@ export default {
           message: '删除失败!'
         });
       });
-    },
-    // 行保存
-    saveRowEdit (row, defer) {
-    //   const parmas = {
-    //     id: this._id,
-    //     detailIdList: [],
-    //   };
-    //   addDetail(parmas).then(id => {
-    //     defer.resolve(id);
-    //     this.$message.success('更新成功');
-    //   }).catch(e => {
-    //     defer.reject();
-    //   });
     },
     pageSizeChange (pageSize) {
       this.pageSize = pageSize;

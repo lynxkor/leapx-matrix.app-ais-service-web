@@ -47,10 +47,19 @@ export function enableItem (data) {
 export function getDetailList (data) {
   return api.jsonPost('{{detailApiPath}}/page', data);
 }
-export function removeDetail (data) {
-  return api.jsonPost('{{detailApiPath}}/removeDetail', data);
-}
+{{/if}}
+{{#if detailAddPath}}
 export function addDetail (data) {
-  return api.jsonPost('{{detailApiPath}}/addDetail', data);
+  return api.jsonPost('{{detailAddPath}}', data);
+}
+{{/if}}
+{{#if detailRemovePath}}
+export function removeDetail (data) {
+  return api.jsonPost('{{detailRemovePath}}', data);
+}
+{{/if}}
+{{#if dialogApiPath}}
+export function getDialogList (data) {
+  return api.jsonPost('{{dialogApiPath}}/page', data);
 }
 {{/if}}

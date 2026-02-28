@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     class="m-start-work-dialog"
-    title="添加旧件"
+    title="标题"
     width="1200px"
     :visible.sync="dialogVisible"
     @close="close"
@@ -11,72 +11,185 @@
       <!-- 顶部时间选择区域 -->
       <div class="time-section">
         <el-form ref="ruleForm" label-width="150px" size="small" :model="form" :inline="true">
-          <el-form-item label="保修申请单" prop="warrantyNo">
+        {{#each (first dialogSearchList 2)}}
+        {{#if isDate}}
+          <el-form-item label="{{description}}">
+            <el-date-picker
+              v-model="form.{{key}}"
+              type="date"
+              format="yyyy-MM-dd"
+              value-format="yyyy-MM-dd"
+              placeholder="选择日期时间">
+            </el-date-picker>
+          </el-form-item>
+        {{/if}}
+        {{#if isDateRange}}
+          <el-form-item label="{{description}}">
+            <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+              v-model="form.{{key}}"
+              type="daterange"
+              :picker-options="pickerOptions"
+              range-separator="至"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            />
+          </el-form-item>
+        {{/if}}
+        {{#if isEnum}}
+          <el-form-item label="{{description}}">
+            <fetch-select
+              :request="fetchOptions"
+              enumCode="{{enum}}"
+              v-model="form.{{key}}"
+              placeholder="请选择"
+              clearable
+              multiple
+              filterable
+            />
+          </el-form-item>
+        {{/if}}
+        {{#if isSearch}}
+          <el-form-item label="{{description}}">
+            <list-select
+              listUrl="{{searchUrl}}"
+              placeholder="请选择"
+              v-model="form.{{key}}"
+              query-key="{{queryKey}}"
+              clearable
+              collapseTags
+              :show-code="false"
+              filterable
+              label-key="code"
+              value-key="id"
+            />
+          </el-form-item>
+        {{/if}}
+        {{#if isBoolean}}
+          <el-form-item label="{{description}}">
+            <fetch-select
+              :options="yes_no_enum"
+              v-model="form.{{key}}"
+              placeholder="请选择"
+              clearable
+              multiple
+              filterable
+            />
+          </el-form-item>
+        {{/if}}
+        {{#if isInput}}
+          <el-form-item label="{{description}}">
             <el-input
               placeholder="请输入"
-              v-model="form.warrantyNo"
+              v-model="form.{{key}}"
               clearable
             />
           </el-form-item>
-          <el-form-item label="旧件唯一码" prop="oldPartUniqueCode">
+        {{/if}}
+        {{#if isTextarea}}
+          <el-form-item label="{{description}}">
             <el-input
+              type="textarea"
               placeholder="请输入"
-              v-model="form.oldPartUniqueCode"
+              v-model="form.{{key}}"
               clearable
+              :rows="2"
+              maxLength="500"
             />
           </el-form-item>
+        {{/if}}
+        {{/each}}
           <template v-if="visibleForm">
-          <el-form-item label="VIN" prop="vin">
-            <el-input
-              placeholder="请输入"
-              v-model="form.vin"
-              clearable
-            />
-          </el-form-item>
-          <el-form-item label="保修类型" prop="repairItemTypeId">
-            <repair-type-select
-              v-model="form"
-              :form-data="form"
-            />
-          </el-form-item>
-          <el-form-item label="旧件编码" prop="oldPartCode">
-            <el-input
-              placeholder="请输入"
-              v-model="form.oldPartCode"
-              clearable
-            />
-          </el-form-item>
-          <el-form-item label="旧件名称" prop="oldPartNameLike">
-            <el-input
-              placeholder="请输入"
-              v-model="form.oldPartNameLike"
-              clearable
-            />
-          </el-form-item>
-          <el-form-item class="form-item-half" label="保修审核通过日期" prop="warrantyApproveTime">
-            <el-date-picker
-              v-model="form.warrantyApproveTime"
-              type="daterange"
-              :picker-options="pickerOptions"
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              value-format="yyyy-MM-dd HH:mm:ss"
-              align="right">
-            </el-date-picker>
-          </el-form-item>
-          <el-form-item class="form-item-half" label="旧件入库时间" prop="dealerInTime">
-            <el-date-picker
-              v-model="form.dealerInTime"
-              type="daterange"
-              :picker-options="pickerOptions"
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              value-format="yyyy-MM-dd HH:mm:ss"
-              align="right">
-            </el-date-picker>
-          </el-form-item>
+          {{#each (slice dialogSearchList 2)}}
+          {{#if isDate}}
+            <el-form-item label="{{description}}">
+              <el-date-picker
+                v-model="form.{{key}}"
+                type="date"
+                format="yyyy-MM-dd"
+                value-format="yyyy-MM-dd"
+                placeholder="选择日期时间">
+              </el-date-picker>
+            </el-form-item>
+          {{/if}}
+          {{#if isDateRange}}
+            <el-form-item label="{{description}}">
+              <el-date-picker
+              :default-time="['00:00:00', '23:59:59']"
+                v-model="form.{{key}}"
+                type="daterange"
+                :picker-options="pickerOptions"
+                range-separator="至"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+              />
+            </el-form-item>
+          {{/if}}
+          {{#if isEnum}}
+            <el-form-item label="{{description}}">
+              <fetch-select
+                :request="fetchOptions"
+                enumCode="{{enum}}"
+                v-model="form.{{key}}"
+                placeholder="请选择"
+                clearable
+                multiple
+                filterable
+              />
+            </el-form-item>
+          {{/if}}
+          {{#if isSearch}}
+            <el-form-item label="{{description}}">
+              <list-select
+                listUrl="{{searchUrl}}"
+                placeholder="请选择"
+                v-model="form.{{key}}"
+                query-key="{{queryKey}}"
+                clearable
+                collapseTags
+                :show-code="false"
+                filterable
+                label-key="code"
+                value-key="id"
+              />
+            </el-form-item>
+          {{/if}}
+          {{#if isBoolean}}
+            <el-form-item label="{{description}}">
+              <fetch-select
+                :options="yes_no_enum"
+                v-model="form.{{key}}"
+                placeholder="请选择"
+                clearable
+                multiple
+                filterable
+              />
+            </el-form-item>
+          {{/if}}
+          {{#if isInput}}
+            <el-form-item label="{{description}}">
+              <el-input
+                placeholder="请输入"
+                v-model="form.{{key}}"
+                clearable
+              />
+            </el-form-item>
+          {{/if}}
+          {{#if isTextarea}}
+            <el-form-item label="{{description}}">
+              <el-input
+                type="textarea"
+                placeholder="请输入"
+                v-model="form.{{key}}"
+                clearable
+                :rows="2"
+                maxLength="500"
+              />
+            </el-form-item>
+          {{/if}}
+          {{/each}}
           </template>
           <page-search-action
             v-model="visibleForm"
@@ -104,29 +217,9 @@
           @checkbox-all="handleSelectionChange"
         >
           <vxe-column type="checkbox" width="60" align="center" />
-          <vxe-column field="serviceProxyNo" title="接车施工单" width="200" />
-          <vxe-column field="warrantyNo" title="保修申请单" width="200" />
-          <vxe-column field="oldPartUniqueCode" title="旧件唯一码" width="200" />
-          <vxe-column field="dealerName" title="门店名称" width="200" />
-          <vxe-column field="dealerStatusLabel" title="门店库存状态" width="120" />
-          <vxe-column field="isMainPartLabel" title="是否主因零部件" width="160" />
-          <vxe-column field="vin" title="VIN" width="140" />
-          <vxe-column field="oldPartSupplierName" title="零件供应商" width="200" />
-          <vxe-column field="mainPartSupplierName" title="主因件供应商" width="150" />
-          <vxe-column field="oldPartCode" title="旧件编码" width="120" />
-          <vxe-column field="oldPartName" title="旧件名称" width="150" />
-          <vxe-column field="partCode" title="换上零件编码" width="200" />
-          <vxe-column field="partName" title="换上零件名称" width="220" />
-          <vxe-column field="oldPartCode" title="入库旧件编码" width="200" />
-          <vxe-column field="oemStatus" title="主机厂库存状态" width="140" />
-          <vxe-column field="dealerOutTime" title="门店出库时间" width="180" />
-          <vxe-column field="returnOrderNo" title="门店回运单号" width="120" />
-          <vxe-column field="oemCheckTime" title="主机厂验收时间" width="180" />
-          <vxe-column field="oemOutboundOrderNo" title="主机厂出库单" width="140" />
-          <vxe-column field="oemOutTime" title="主机厂出库时间" width="180" />
-          <vxe-column field="returnTypeLabel" title="旧件返回类型" width="120" />
-          <vxe-column field="remark" title="备注" width="120" />
-          <vxe-column field="checkRemark" title="验收备注" width="120" />
+          {{#each dialogTableList}}
+          <vxe-column field="{{key}}" title="{{description}}" width="160" />
+          {{/each}}
         </vxe-table>
         <el-pagination
           style="float: right; padding-top: 16px;"
@@ -156,27 +249,16 @@
 
 import PageSearchAction from '@/libs/components/AisPageSearchAction/index.vue';
 import {
-  getList, // 旧件库存详情分页查询
-} from '@/api/claimreturn/oldpart/inventory/oem/index';
-import { addDetail as addDetailReturnorder } from '@/api/claimreturn/oldpart/returnorder/index';
-import { addDetail as addDetailOutbound } from '@/api/claimreturn/oldpart/outbound/index';
+  getDialogList,
+  addDetail,
+} from '@/api/{{modulePath}}/index';
+
 import RepairTypeSelect from '@/components/RepairTypeSelect';
-import { formatDateTime, getEndOfDayString } from '@/libs/utils';
 
 const defaultForm = {
-  warrantyNo: '',
-  oldPartUniqueCode: '',
-  repairItemTypeId: '',
-  repairItemTypeName: '',
-  vin: '',
-  oldPartCode: '',
-  oldPartName: '',
-  warrantyApproveTime: null,
-  warrantyApproveTimeStart: '',
-  warrantyApproveTimeEnd: '',
-  dealerInTime: null,
-  dealerInTimeStart: '',
-  dealerInTimeEnd: '',
+  {{#each dialogTableList}}
+  {{key}}: '',
+  {{/each}}
 };
 export default {
   name: 'OldPartDialog',
@@ -192,12 +274,6 @@ export default {
     _id: {
       type: String,
     },
-    dealerCode: {
-      type: String,
-    },
-    type: {
-      type: String// ['outbound', 'returnorder'],
-    }
   },
   data () {
     return {
@@ -274,7 +350,6 @@ export default {
     submit () {
       //
       this.submitLoading = true;
-      const addDetail = this.type === 'outbound' ? addDetailOutbound : addDetailReturnorder;
       addDetail({
         id: this._id,
         detailIdList: this.selectedRows.map(item => item.id),
@@ -302,23 +377,11 @@ export default {
         ...this.getFormData(),
         pageNum: this.pageNum,
         pageSize: this.pageSize,
-        dealerCode: this.dealerCode,
+        // dealerCode: this.dealerCode,
+        oemStatus: '700', // 主机厂入库
+        oemOutboundOrderIdIsNull: true,
       };
-      if (this.type === 'outbound') {
-        data = {
-          ...data,
-          oemStatus: '700', // 主机厂入库
-          oemOutboundOrderIdIsNull: true,
-        };
-      } else {
-        data = {
-          ...data,
-          dealerStatus: '300', // 门店入库
-          returnOrderIdIsNull: true,
-          returnType: '30', // 正常返还
-        };
-      }
-      getList(data)
+      getDialogList(data)
         .then(res => {
           this.tableData = res.records;
           this.total = res.total;
@@ -346,16 +409,19 @@ export default {
         }
       });
 
-      const rangeTimeKeys = ['warrantyApproveTime', 'dealerInTime'];
-      rangeTimeKeys.forEach(key => {
-        if (this.form[key]) {
-          delete data[key];
-          if (this.form[key].length > 1) {
-            data[`${key}Start`] = formatDateTime(this.form[key][0]);
-            data[`${key}End`] = getEndOfDayString(formatDateTime(this.form[key][1]));
-          }
+      // 动态处理所有日期范围字段
+      {{#each dialogSearchList}}
+      {{#if isDateRange}}
+      if (this.form.{{key}}) {
+        delete data.{{key}};
+        if (this.form.{{key}}.length > 1) {
+          data.{{key}}Start = this.form.{{key}}[0];
+          data.{{key}}End = this.form.{{key}}[1];
         }
-      });
+      }
+      {{/if}}
+      {{/each}}
+
       return data;
     },
     // -------------- 表单查询 --------------------------
