@@ -567,7 +567,9 @@ export default {
         discountAmount: 0,
         repairAmount: (selectedItem.workhour || 0) * (selectedItem.workhourPrice || 0),
         statusLabel: '',
-        packageCode: selectedItem.packageCode || ''
+        packageCode: selectedItem.packageCode || '',
+        isWarranty: selectedItem.isWarranty || 0,
+        isProdType: selectedItem.isProdType || 0
       };
 
       this.itemData.push(newItem);
