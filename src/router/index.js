@@ -1778,6 +1778,24 @@ const routes = [
         name: '备件缺货看板',
         keepAlive: true
       }
+    }, {
+      path: '/maintain/basic/repairPackages',
+      name: 'repairPackages',
+      component: () => import('@/views/maintain/basic/repairPackages/index.vue'),
+
+      meta: {
+        name: '维修套餐管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/basic/repairpackages/edit',
+      name: 'repairPackagesEdit',
+      component: () => import('@/views/maintain/basic/repairPackages/edit.vue'),
+
+      meta: {
+        name: '维修套餐详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
