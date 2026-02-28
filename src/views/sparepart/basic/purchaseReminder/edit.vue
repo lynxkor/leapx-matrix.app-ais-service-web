@@ -28,8 +28,11 @@
                   filterable
                 />
               </el-form-item>
-              <el-form-item label="提醒内容" prop="reminderContent">
+              <el-form-item label="提醒内容" prop="reminderContent" style="width: 80%; ">
                 <el-input
+                  type="textarea"
+                  maxlength="500"
+                  show-word-limit
                   placeholder="请输入"
                   v-model="form.reminderContent"
                   clearable

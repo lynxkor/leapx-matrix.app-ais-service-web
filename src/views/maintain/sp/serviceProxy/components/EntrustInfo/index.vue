@@ -39,7 +39,6 @@
         </el-form-item>
         <el-form-item label="预计交车时间：" prop="expectFinishAt">
           <el-date-picker
-            :default-time="['00:00:00', '23:59:59']"
             placeholder="请选择日期"
             v-model="form.expectFinishAt"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -57,7 +56,6 @@
         </el-form-item>
         <el-form-item label="预检完成时间：" prop="previewingFinishAt">
           <el-date-picker
-            :default-time="['00:00:00', '23:59:59']"
             placeholder="请选择日期"
             v-model="form.previewingFinishAt"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -68,7 +66,6 @@
         </el-form-item>
         <el-form-item label="生成结算单时间：" prop="createStatementInfoDate">
           <el-date-picker
-            :default-time="['00:00:00', '23:59:59']"
             placeholder="请选择日期"
             v-model="form.createStatementInfoDate"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -85,7 +82,6 @@
         </el-form-item>
         <el-form-item label="制单完成时间：" prop="confirmedOn">
           <el-date-picker
-            :default-time="['00:00:00', '23:59:59']"
             placeholder="请选择日期"
             v-model="form.confirmedOn"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -107,7 +103,6 @@
         </el-form-item>
         <el-form-item label="计划作业时间：" prop="expectStartAt">
           <el-date-picker
-            :default-time="['00:00:00', '23:59:59']"
             placeholder="请选择日期"
             v-model="form.expectStartAt"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -126,7 +121,6 @@
         </el-form-item>
         <el-form-item label="实际作业时间：" prop="startAt">
           <el-date-picker
-            :default-time="['00:00:00', '23:59:59']"
             placeholder="请选择日期"
             v-model="form.startAt"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -145,7 +139,6 @@
         </el-form-item>
         <el-form-item label="完成作业时间：" prop="finishAt">
           <el-date-picker
-            :default-time="['00:00:00', '23:59:59']"
             placeholder="请选择日期"
             v-model="form.finishAt"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -469,6 +462,28 @@ export default {
         }
       },
       immediate: true
+    },
+    'form.currentFault': {
+      handler (val) {
+        if (val) {
+          this.rules.anomalyDescription = [
+            { required: false, message: '请输入异常描述', trigger: 'change' }
+          ];
+        } else {
+          this.rules.anomalyDescription = [
+            { required: true, message: '请输入异常描述', trigger: 'change' }
+          ];
+        }
+      }
+    },
+    'formData.orderStatus': {
+      handler (val) {
+        if (val === 110) {
+          this.$set(this.rules, 'expectFinishAt', [
+            { required: true, message: '请输入预计交车时间', trigger: 'change' }
+          ]);
+        }
+      }
     }
   },
   data () {

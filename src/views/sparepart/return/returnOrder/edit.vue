@@ -286,7 +286,7 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>出库明细信息 <el-button size="mini" @click="handleImport">导入备件</el-button><el-button size="mini" v-if="isEditable" @click="addPart">添加备件</el-button></h2>
+              <h2>出库明细信息 <el-button size="mini" v-if="isEditable" @click="handleImport">导入备件</el-button><el-button size="mini" v-if="isEditable" @click="addPart">添加备件</el-button></h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">

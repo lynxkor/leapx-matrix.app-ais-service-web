@@ -74,3 +74,27 @@ export function getBackDetailList (data) {
 export function historyPage (data) {
   return api.jsonPost('sp/web/claim/claimOrderDetail/historyPage', data);
 }
+
+/**
+ * 提交
+ * @param {Object} data
+ */
+export function getCommit (data) {
+  return api.jsonPost(prefix + 'commit', data);
+}
+
+/**
+ * 同意
+ * @param {Object} data
+ */
+export function getAgree (data) {
+  return api.jsonPost(prefix + 'agree', data);
+}
+
+/**
+ * 驳回
+ * @param {Object} data
+ */
+export function getReject (data) {
+  return api.jsonPost(prefix + 'reject', data);
+}

@@ -1206,7 +1206,11 @@ const routes = [
 
       meta: {
         name: '备件现金账户',
-        keepAlive: true
+        keepAlive: true,
+        query: {
+          type: 'FUND',
+          name: '备件现金账户'
+        }
       }
     }, {
       path: '/sparepart/fund/account/edit',
@@ -1224,7 +1228,11 @@ const routes = [
 
       meta: {
         name: '备件返利账户',
-        keepAlive: true
+        keepAlive: true,
+        query: {
+          type: 'REBATE',
+          name: '备件返利账户'
+        }
       }
     }, {
       path: '/sparepart/fund/accountRebate/edit',
@@ -1715,7 +1723,11 @@ const routes = [
 
       meta: {
         name: '备件返利充值管理',
-        keepAlive: true
+        keepAlive: true,
+        query: {
+          type: 'RECHARGE',
+          name: '备件返利充值管理'
+        }
       }
     }, {
       path: '/sparepart/fund/accountoperateapply/edit',
@@ -1733,7 +1745,11 @@ const routes = [
 
       meta: {
         name: '备件返利扣款管理',
-        keepAlive: true
+        keepAlive: true,
+        query: {
+          type: 'DEDUCTION',
+          name: '备件返利扣款管理'
+        }
       }
     }, {
       path: '/sparepart/fund/accountoperatedeductionapply/edit',
@@ -1752,6 +1768,24 @@ const routes = [
       meta: {
         name: '备件缺货看板',
         keepAlive: true
+      }
+    }, {
+      path: '/maintain/basic/repairPackages',
+      name: 'repairPackages',
+      component: () => import('@/views/maintain/basic/repairPackages/index.vue'),
+
+      meta: {
+        name: '维修套餐管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/basic/repairpackages/edit',
+      name: 'repairPackagesEdit',
+      component: () => import('@/views/maintain/basic/repairPackages/edit.vue'),
+
+      meta: {
+        name: '维修套餐详情',
+        noResourceUrl: 'true'
       }
     }]
   }

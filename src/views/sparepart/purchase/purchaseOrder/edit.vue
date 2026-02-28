@@ -434,6 +434,15 @@ export default {
         }
       },
       immediate: true
+    },
+    'form.purchaseApplyId': {
+      handler (val) {
+        if (val) {
+          this.purchaseApplyIdData = val;
+          this.getList();
+        }
+      },
+      immediate: true
     }
   },
   data () {
@@ -543,6 +552,7 @@ export default {
         pageSize: 10,
         total: 0,
       },
+      purchaseApplyIdData: '',
       procurementTableData: [],
       procurementColumns: [
         {
@@ -595,7 +605,6 @@ export default {
   },
   mounted () {
     this.getData();
-    this.getList();
   },
   methods: {
     detailRequest () {
@@ -661,7 +670,7 @@ export default {
       const params = {
         pageNum: this.procurement.current,
         pageSize: this.procurement.pageSize,
-        purchaseApplyId: this._id,
+        purchaseApplyId: this.purchaseApplyIdData, // 采购申请单ID
       };
       const res = await getPurchaseApplyPage(params);
       this.procurementTableData = res.records || [];

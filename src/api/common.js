@@ -229,3 +229,11 @@ export function getLoginUser (data) {
 export function getMaintenanceItemEnum (data) {
   return api.jsonPost('/maintain/web/common/enum/MaintenanceItemEnum', data);
 }
+
+/**
+ * 备件通过code查id 跳转用
+ * @param {*} data
+ */
+export function getSparePartOrderIdByCode (data) {
+  return api.jsonPost('/sp/web/base/common/getIdByCode', data);
+}

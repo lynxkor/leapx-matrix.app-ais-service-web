@@ -31,7 +31,7 @@
               {{ info.workhourPrice  }}
             </el-form-item>
             <el-form-item label="保养项目分类：" prop="maintenanceItemType">
-              {{ info.maintenanceItemType  }}
+              {{ info.maintenanceItemTypeLabel  }}
             </el-form-item>
             <el-form-item label="保养时间（月）：" prop="maintenanceTime">
               {{ info.maintenanceTime  }}
