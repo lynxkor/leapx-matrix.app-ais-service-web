@@ -83,3 +83,11 @@ export function getFrozenOrders (data) {
 export function listAll (data) {
   return api.jsonPost('sp/web/warehouse/location/listAll', data);
 }
+
+/**
+ * 门店备件库位表列表查询All
+ * @param {Object} data
+ */
+export function getBizType (data) {
+  return api.jsonPost(prefix + 'getBizType', data);
+}

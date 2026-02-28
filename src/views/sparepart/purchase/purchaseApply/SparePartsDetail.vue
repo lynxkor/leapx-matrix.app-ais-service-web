@@ -62,61 +62,12 @@
                     <edit-table ref="editTable" :columns="columns" :data="outsideTableData" :show-toolbar="false" />
                 </div>
             </div>
-            <div class="common-title">备件列表</div>
-            <div class="common-section-table">
-                <vxe-table
-                    ref="editTableRight"
-                    :data="tableData"
-                    stripe
-                    show-overflow
-                    resizable
-                    border="inner"
-                    size="medium"
-                >
-                    <vxe-column field="partCode" title="备件编码" />
-                    <vxe-column field="partName" title="备件名称" />
-                    <vxe-column field="originalPrice" title="原价" />
-                    <vxe-column field="purchasePrice" title="采购价" />
-                    <vxe-column field="cashUnitPrice" title="现金单价" />
-                    <vxe-column field="cashAmount" title="现金金额" />
-                    <vxe-column field="purchaseQty" title="采购数" />
-                    <vxe-column field="remark" title="备注" />
-                    <vxe-column field="originalPriceSource" title="原价来源" />
-                    <vxe-column title="操作" >
-                        <template #default="{ row }">
-                            <el-popconfirm
-                                title="确定删除此备件吗？"
-                                @confirm="handleDel(row)"
-                            >
-                                <span
-                                class="action-button btn-delete"
-                                slot="reference"
-                                type="text">
-                                删除
-                                </span>
-                            </el-popconfirm>
-                        </template>
-                    </vxe-column>
-                </vxe-table>
-                <div class="table-pagination">
-                    <el-pagination
-                        @size-change="(val) => pageSizeChange(val)"
-                        @current-change="(val) => currentPageChange(val)"
-                        :current-page="current"
-                        :page-sizes="[10, 20, 50, 100]"
-                        :page-size="pageSize"
-                        layout="total, sizes, prev, pager, next, jumper"
-                        :total="total"
-                    >
-                    </el-pagination>
-                </div>
-            </div>
         </div>
     </div>
 </template>
 
 <script>
-import { addDetail, getPurchaseApplyDetail, getPurchaseApplyPage, purchaseApplyDelete } from '@/api/sparepart/purchase/purchaseApply/index';
+import { addDetail, getPurchaseApplyDetail, purchaseApplyDelete } from '@/api/sparepart/purchase/purchaseApply/index';
 import EditTable from '@/libs/components/EditTable';
 import { sparePartListShort } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -134,10 +85,6 @@ export default {
       sparePartId: '', // 备件信息ID
       sparePartDetail: {}, // 备件详情信息
       detailId: '', // 详情ID
-      pageSize: 10,
-      current: 1,
-      total: 0,
-      tableData: [],
       outsideTableData: [],
       defaultNewRow: {
         name: '',
@@ -196,28 +143,6 @@ export default {
     }
   },
   methods: {
-    async getDetailData () {
-      const params = {
-        purchaseApplyId: this.purchaseApplyId,
-        pageSize: this.pageSize,
-        pageNum: this.current
-      };
-      const res = await getPurchaseApplyPage(params);
-      this.tableData = res.records || [];
-      this.total = res.total;
-      if (res.records.length > 0) {
-        this.getSparePartDetail(res.records[0]?.id);
-      }
-    },
-    pageSizeChange (pageSize) {
-      this.pageSize = pageSize;
-      this.current = 1;
-      this.getDetailData();
-    },
-    currentPageChange (current) {
-      this.current = current;
-      this.getDetailData();
-    },
     // 备件远程搜索
     async getSparePart (query) {
       try {
