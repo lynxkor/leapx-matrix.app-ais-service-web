@@ -629,16 +629,16 @@ export default {
       let type = '';
       if (row.businessType === '备件采购（不含缺货）') {
         path = '/sparepart/purchase/purchaseApply/edit';
-        type = '1';
+        type = 'purchaseApply';
       } else if (row.businessType === '备件采购（缺货）') {
-        path = '/sparepart/purchase/purchaseBackOrder/edit';
-        type = '3';
+        path = '/sparepart/purchase/backOrder/edit';
+        type = 'backOrder';
       } else if (row.businessType === 'SPARE_PART_RETURN') {
-        path = '/sparepart/return/purchaseReturnOrder/edit';
-        type = '6';
+        path = '/sparepart/return/returnOrder/edit';
+        type = 'returnOrder';
       } else if (row.businessType === 'SPARE_PART_PURCHASE') {
         path = '/sparepart/warehouse/oemOutboundOrder/edit';
-        type = '5';
+        type = 'oemOutboundOrder';
       } else {
         return;
       }
