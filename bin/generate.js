@@ -32,6 +32,11 @@ Handlebars.registerHelper('unless', function (condition, options) {
   return options.inverse(this);
 });
 
+Handlebars.registerHelper('fromIndex', function (array, startIndex) {
+  if (!Array.isArray(array)) return [];
+  return array.slice(startIndex); // 直接返回数组，不处理 options.fn
+});
+
 // 获取模板目录路径
 const templatesDir = path.join(__dirname, '../templates');
 
@@ -120,7 +125,7 @@ const data = {
   detailApiPath: generateJson.pathPrefix + generateJson.detailPage.detailApiPath,
   detailAddPath: generateJson.pathPrefix + generateJson.detailPage.addPath,
   detailRemovePath: generateJson.pathPrefix + generateJson.detailPage.removePath,
-  checkedList: generateJson.detailPage.checkedList || [],
+  checkedList: generateJson.checkedList || [],
   //
   dialogSearchList,
   dialogTableList,

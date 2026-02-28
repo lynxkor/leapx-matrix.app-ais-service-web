@@ -400,11 +400,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  {{#if isProForm}}
                   path: '/{{@root.modulePath}}/edit',
-                  {{else}}
-                  path: '/{{@root.modulePath}}/detail',
-                  {{/if}}
                   query: {
                     id: row.id
                   }

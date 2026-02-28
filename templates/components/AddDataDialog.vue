@@ -101,7 +101,7 @@
         {{/if}}
         {{/each}}
           <template v-if="visibleForm">
-          {{#each (slice dialogSearchList 2)}}
+          {{#each (fromIndex dialogSearchList 2)}}
           {{#if isDate}}
             <el-form-item label="{{description}}">
               <el-date-picker
@@ -253,8 +253,6 @@ import {
   addDetail,
 } from '@/api/{{modulePath}}/index';
 
-import RepairTypeSelect from '@/components/RepairTypeSelect';
-
 const defaultForm = {
   {{#each dialogTableList}}
   {{key}}: '',
@@ -264,7 +262,6 @@ export default {
   name: 'OldPartDialog',
   components: {
     PageSearchAction,
-    RepairTypeSelect,
   },
   props: {
     visible: {
