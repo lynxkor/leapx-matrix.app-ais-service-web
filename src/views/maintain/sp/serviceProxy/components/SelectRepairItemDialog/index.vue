@@ -76,13 +76,20 @@
             size="small"
             :trigger-on-focus="false"
             style="width: 650px;"
+            clearable
           >
-            <template slot="prepend">
+            <template #prepend>
               <div>
                 维修类型：
                 <el-select v-model="repairType" placeholder="请选择" style="width: 110px;">
                   <el-option v-for="item in itemOptions.repairItemTypeName" :label="item.label" :value="item.value" :key="item.value"></el-option>
                 </el-select>
+              </div>
+            </template>
+            <template #default="{item}">
+              <div v-if="item.value === 'empty'" style="pointer-events: none;">您当前搜索的项目，不适用{{vehicleInfo.vehModelName}}车型，请联系服务工程</div>
+              <div v-else>
+                {{ item.value }}
               </div>
             </template>
           </el-autocomplete>
@@ -247,7 +254,7 @@
               </div>
             </template>
             <template #default="{item}">
-              <div v-if="item.value === 'empty'" style="pointer-events: none;">您当前搜索的项目，不适用{{vehicleInfo.vehModelName}}车型，请联系服务工程</div>
+              <div v-if="item.value === 'empty'" style="pointer-events: none;">未搜索到配件</div>
               <div v-else>
                 {{ item.value }}
               </div>
@@ -734,11 +741,18 @@ export default {
         const data = res.map(item => ({
           ...item,
           value: `${item.name}-${item.code}`
-        }));
+        })) || [];
+        if (data.length === 0) {
+          data.push({ value: 'empty' });
+        }
         cb(data);
       });
     },
     handleSelect (item) {
+      if (item.value === 'empty') {
+        this.itemSearchKey = '';
+        return;
+      }
       // 校验是否重复添加
       const target = this.itemData.filter(el => el.repairItemId !== '999999' && el.workRecordStatus !== 40).find(el => el.repairItemId === item.id);
       if (target) {
