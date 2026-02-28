@@ -50,7 +50,7 @@ export function enableItem (data) {
  * @param {Object} data
  */
 export function purchaseOrderDetail (data) {
-  return api.jsonPost(prefixDetail + 'page', data);
+  return api.jsonPost(prefixDetail + 'pageAll', data);
 }
 
 /**
