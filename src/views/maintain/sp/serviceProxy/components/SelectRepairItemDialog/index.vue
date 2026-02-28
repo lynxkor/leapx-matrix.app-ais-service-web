@@ -76,6 +76,7 @@
             size="small"
             :trigger-on-focus="false"
             style="width: 650px;"
+            clearable
           >
             <template #prepend>
               <div>
