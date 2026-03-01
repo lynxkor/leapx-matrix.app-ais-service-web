@@ -186,10 +186,10 @@ export default {
       // 构建参数：遍历 tableData 提取每行的输入值
       const params = {
         claimCreateList: this.tableData.map(row => ({
-          purchaseOrderDetailId: row.purchaseOrderId,
-          claimReason: row.form.claimDesc,
+          purchaseOrderDetailId: row.id,
+          claimDescription: row.form.claimDesc,
           claimType: row.form.claimType,
-          qty: Number(row.form.claimQty)
+          claimQty: Number(row.form.claimQty)
         }))
       };
 

@@ -395,7 +395,7 @@ export default {
         },
         dataProp: [
           {
-            props: 'code',
+            props: 'purchaseOrderCode',
             label: '采购订单号',
             visible: true,
             width: 200,
@@ -479,7 +479,7 @@ export default {
         },
         dataProp: [
           {
-            props: 'code',
+            props: 'purchaseOrderCode',
             label: '采购订单号',
             visible: true,
             width: 200,
@@ -792,7 +792,7 @@ export default {
     // 签收  签收并入库
     handleSignFor (val, type) {
       this.signForm = {
-        purchaseOrderId: val.purchaseOrderId,
+        purchaseOrderDetailId: val.id,
         inbound: type
       };
       this.signDialogVisible = true;
