@@ -830,8 +830,12 @@ export default {
       }
       // 过滤出已入库数大于0的备件
       const validItems = this.selectionList.filter(item => item.inboundQty > 0);
-
       // 如果没有符合条件的备件，提示用户
+      if (this.selectionList.length !== validItems.length) {
+        this.$message.warning('请选择已入库的备件进行索赔');
+        return;
+      }
+      // 如果没有符合条件的备件，提示用户 两条判断有点混了 暂保留
       if (validItems.length === 0) {
         this.$message.warning('请选择已入库的备件进行索赔');
         return;
