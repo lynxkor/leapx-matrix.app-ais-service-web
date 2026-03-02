@@ -3,107 +3,56 @@
 const fs = require('fs-extra');
 const path = require('path');
 const { program } = require('commander');
-// const mustache = require('mustache');
-const Handlebars = require('handlebars'); //
-const helpers = require('handlebars-helpers');
+const mustache = require('mustache');
 const { exec } = require('child_process');
 const recast = require('recast');
 const parser = require('@babel/parser');
 
-// 注册所有 helpers
-helpers({ handlebars: Handlebars });
-
-Handlebars.registerHelper('yesNoFormat', function (value) {
-  return value ? '是' : '否'; // 或其他映射
-});
-Handlebars.registerHelper('or', function (...args) {
-  const options = args.pop();
-  // 检查是否有任何一个条件为真
-  return args.some(arg => arg);
-});
-// 注册返回布尔值的 helper
-Handlebars.registerHelper('has', function (array, value) {
-  return Array.isArray(array) && array.includes(value);
-});
-Handlebars.registerHelper('unless', function (condition, options) {
-  if (!condition) {
-    return options.fn(this);
-  }
-  return options.inverse(this);
-});
-
-Handlebars.registerHelper('fromIndex', function (array, startIndex) {
-  if (!Array.isArray(array)) return [];
-  return array.slice(startIndex); // 直接返回数组，不处理 options.fn
-});
-
 // 获取模板目录路径
 const templatesDir = path.join(__dirname, '../templates');
 
-// // 设置命令行参数
-// program
-//   .version('1.0.0')
-//   .description('Vue2代码生成工具')
-//   .argument('<name>', '模块名称')
-//   .parse(process.argv);
+// 设置命令行参数
+program
+  .version('1.0.0')
+  .description('Vue2代码生成工具')
+  .argument('<name>', '模块名称')
+  .parse(process.argv);
 
-// // 获取参数
-// const [name] = program.args;
-
+// 获取参数
+const [name] = program.args;
 // 读取generate.json数据
 const generateJson = require('./generate.json');
 // 读取完成之后删除该文件
 // fs.removeSync(path.join(__dirname, './generate.json'));
 
 // 解析 name，支持目录结构
-const nameParts = generateJson.path.split('/');
+const nameParts = name.split('/');
 const moduleName = nameParts.pop(); // 最后一部分作为模块名
+const moduleDir = nameParts.join('/'); // 剩余部分作为目录路径
 
-function handleList (list) {
-  if (!list) {
-    return [];
-  }
-  return list.filter(item => {
-    return (item.format === 'date-time' || item.type === 'array' || item.description);
-  }).map((el, index) => {
-    const isDateRange = el.format === 'dateRange';
-    const isDate = el.format === 'date';
-    const isSearch = el.format === 'search';
-    const isEnum = el.format === 'enum';
-    const isInput = el.format === 'input';
-    const isTextarea = el.format === 'textarea';
-    const isBoolean = el.type === 'boolean';
-    return {
-      ...el,
-      isFirst: index === 0,
-      isDateRange,
-      isDate,
-      isSearch,
-      isEnum,
-      isInput,
-      isTextarea,
-      isBoolean,
-      // isSelect,
-      description: el.description?.replace(/\(.*?\)/g, ''),
-      // isNormal: !isDate && !isSelect && !isBoolean,
-    };
-  });
-}
-const searchList = handleList(generateJson.listPage.searchList);
-const tableList = handleList(generateJson.listPage.tableList);
-const detailList = handleList(generateJson.listPage.detailList);
-
-const detailTable = handleList(generateJson.detailPage.tableList);
-
-// 弹窗
-const dialogSearchList = handleList(generateJson.detailPage.dialogSearchList);
-const dialogTableList = handleList(generateJson.detailPage.dialogTableList);
-const pathPrefix = generateJson.pathPrefix;
-
-const apiPath = pathPrefix + generateJson.path;
-const modulePath = apiPath.split('/').filter((val) => val !== 'web').join('/');
-
-const detailPage = generateJson.detailPage;
+// 准备模板数据
+const colsData = generateJson.list.filter(item => {
+  return (item.format === 'date-time' || item.type === 'array' || item.description);
+}).map((el, index) => {
+  const key = el.key.toLowerCase();
+  const isDate = el.format === 'date-time' || !!key.match(/time/);
+  const isBoolean = el.type === 'boolean';
+  const isSelect = !isBoolean && !!key.match(/type|status|state/);
+  return {
+    ...el,
+    isFirst: index === 0,
+    isDate,
+    isBoolean,
+    isSelect,
+    description: el.description?.replace(/\(.*?\)/g, ''),
+    isNormal: !isDate && !isSelect && !isBoolean,
+  };
+});
+console.log(colsData, 'colsData');
+const nameSplit = name.split('/').filter(el => el);
+nameSplit.splice(1, 0, 'web');
+const apiPath = nameSplit.join('/');
+const isProForm = colsData.some(el => el.type === 'array');
 const data = {
   title: generateJson.title,
   name: moduleName,
@@ -112,29 +61,13 @@ const data = {
   nameCamelCase: moduleName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()),
   apiPath: apiPath,
   isProForm: true,
-  modulePath: modulePath,
-  pathPrefix,
-  searchList,
-  top2SearchList: searchList.slice(0, 2),
-  thirdSearchList: searchList.slice(2, 3),
-  lastSearchList: searchList.slice(3),
-  tableList,
-  detailList,
-  //
-  detailTable,
-  isModalAddTable: detailTable.length > 0 && detailPage.tableType === 'modal-add',
-  isReadonlyTable: detailTable.length > 0 && detailPage.tableType === 'readonly',
-  isSearchAddTable: detailTable.length > 0 && detailPage.tableType === 'search-add',
-  //
-  detailApiPath: detailPage.detailApiPath ? pathPrefix + detailPage.detailApiPath : '',
-  detailAddPath: detailPage.addPath ? pathPrefix + detailPage.addPath : '',
-  detailSearchPath: detailPage.searchPath ? pathPrefix + detailPage.searchPath : '', // search-add下
-  detailRemovePath: detailPage.removePath ? pathPrefix + detailPage.removePath : '',
-  checkedList: generateJson.checkedList || [],
-  //
-  dialogSearchList,
-  dialogTableList,
-  dialogApiPath: detailPage.dialogApiPath ? pathPrefix + detailPage.dialogApiPath : '',
+  modulePath: name.split('/').filter(el => el).join('/'),
+  cols: colsData,
+  searchList: colsData.filter(el => el.searchable),
+  top1List: colsData.slice(0, 1),
+  top2SearchList: colsData.filter(el => el.searchable).slice(0, 2),
+  thirdSearchList: colsData.filter(el => el.searchable).slice(2, 3),
+  lastSearchList: colsData.filter(el => el.searchable).slice(3),
 };
 
 // 创建vue文件
@@ -143,16 +76,10 @@ async function createFile ({ templateName, templatePath = '', outPath = '', outN
     const templateFile = path.join(templatesDir, templatePath + templateName);
 
     // 读取模板
-    // const template = await fs.readFile(templateFile, 'utf8');
+    const template = await fs.readFile(templateFile, 'utf8');
 
-    // // 渲染模板
-    // const content = mustache.render(template, data, {}, ['{{{', '}}}']);
-
-    const templateContent = await fs.readFile(templateFile, 'utf8');
-    const template = Handlebars.compile(templateContent, {
-      noEscape: true, // 与 mustache 的 {{{ }}} 类似，不转义 HTML
-    });
-    const content = template(data);
+    // 渲染模板
+    const content = mustache.render(template, data, {}, ['{{{', '}}}']);
 
     // 确定输出路径
     const baseOutputDir = `src/views/${data.modulePath}${templatePath}`;
@@ -348,6 +275,7 @@ async function insertRoute () {
 
   // 生成新代码
   const newContent = recast.print(ast).code;
+  console.log(newContent);
 
   await fs.writeFile(routerFilePath, newContent);
   console.log('✓ 路由已插入到 src/router/index.js');
@@ -376,25 +304,6 @@ async function main () {
     // { templateName: 'editDialog.vue', templatePath: '/components/' },
     { templateName: 'api.js', outPath: `src/api/${data.modulePath}`, outName: 'index.js' }
   ];
-  if (data.isModalAddTable) {
-    list.push({
-      templatePath: '/components/',
-      templateName: 'ModalAddTable.vue',
-    }, {
-      templatePath: '/components/',
-      templateName: 'AddDataDialog.vue',
-    });
-  } else if (data.isReadonlyTable) {
-    list.push({
-      templatePath: '/components/',
-      templateName: 'ModalAddTable.vue',
-    });
-  } else if (data.isSearchAddTable) {
-    list.push({
-      templatePath: '/components/',
-      templateName: 'SearchAddTable.vue',
-    });
-  }
 
   for (const item of list) {
     await createFile(item);

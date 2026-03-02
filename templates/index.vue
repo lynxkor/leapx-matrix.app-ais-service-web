@@ -1,5 +1,5 @@
 <template>
-  <div class="page-common m-{{nameKebabCase}}-list">
+  <div class="page-common m-{{{nameKebabCase}}}-list">
     <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
     <el-form
       :inline="true"
@@ -9,23 +9,12 @@
       label-width="150px"
       class="ais-search-form"
     >
-    {{#each top2SearchList}}
-    {{#if isDate}}
-      <el-form-item label="{{description}}">
-        <el-date-picker
-          v-model="form.{{key}}"
-          type="date"
-          format="yyyy-MM-dd"
-          value-format="yyyy-MM-dd"
-          placeholder="选择日期时间">
-        </el-date-picker>
-      </el-form-item>
-    {{/if}}
-    {{#if isDateRange}}
-      <el-form-item label="{{description}}">
+    {{{#top2SearchList}}}
+    {{{#isDate}}}
+      <el-form-item label="{{{description}}}">
         <el-date-picker
          :default-time="['00:00:00', '23:59:59']"
-          v-model="form.{{key}}"
+          v-model="form.{{{key}}}"
           type="daterange"
           :picker-options="pickerOptions"
           range-separator="至"
@@ -34,87 +23,48 @@
           end-placeholder="结束日期"
         />
       </el-form-item>
-    {{/if}}
-    {{#if isEnum}}
-      <el-form-item label="{{description}}">
+    {{{/isDate}}}
+    {{{#isSelect}}}
+      <el-form-item label="{{{description}}}">
         <fetch-select
           :request="fetchOptions"
-          enumCode="{{enum}}"
-          v-model="form.{{key}}"
+          enumCode="xxx"
+          v-model="form.{{{key}}}"
           placeholder="请选择"
           clearable
           multiple
           filterable
         />
       </el-form-item>
-    {{/if}}
-    {{#if isSearch}}
-      <el-form-item label="{{description}}">
-        <list-select
-          listUrl="{{searchUrl}}"
-          placeholder="请选择"
-          v-model="form.{{key}}"
-          query-key="{{queryKey}}"
-          clearable
-          collapseTags
-          :show-code="false"
-          filterable
-          label-key="code"
-          value-key="id"
-        />
-      </el-form-item>
-    {{/if}}
-    {{#if isBoolean}}
-      <el-form-item label="{{description}}">
+    {{{/isSelect}}}
+    {{{#isBoolean}}}
+      <el-form-item label="{{{description}}}">
         <fetch-select
           :options="yes_no_enum"
-          v-model="form.{{key}}"
+          v-model="form.{{{key}}}"
           placeholder="请选择"
           clearable
           multiple
           filterable
         />
       </el-form-item>
-    {{/if}}
-    {{#if isInput}}
-      <el-form-item label="{{description}}">
+    {{{/isBoolean}}}
+    {{{#isNormal}}}
+      <el-form-item label="{{{description}}}">
         <el-input
           placeholder="请输入"
-          v-model="form.{{key}}"
+          v-model="form.{{{key}}}"
           clearable
         />
       </el-form-item>
-    {{/if}}
-    {{#if isTextarea}}
-      <el-form-item label="{{description}}">
-        <el-input
-          type="textarea"
-          placeholder="请输入"
-          v-model="form.{{key}}"
-          clearable
-          :rows="2"
-          maxLength="500"
-        />
-      </el-form-item>
-    {{/if}}
-    {{/each}}
-    {{#each thirdSearchList}}
-    {{#if isDate}}
-      <el-form-item label="{{description}}">
-        <el-date-picker
-          v-model="form.{{key}}"
-          type="date"
-          format="yyyy-MM-dd"
-          value-format="yyyy-MM-dd"
-          placeholder="选择日期时间">
-        </el-date-picker>
-      </el-form-item>
-    {{/if}}
-    {{#if isDateRange}}
-      <el-form-item label="{{description}}">
+    {{{/isNormal}}}
+    {{{/top2SearchList}}}
+    {{{#thirdSearchList}}}
+    {{{#isDate}}}
+      <el-form-item label="{{{description}}}"  v-show="this.visibleCount === 3 || show">
         <el-date-picker
          :default-time="['00:00:00', '23:59:59']"
-          v-model="form.{{key}}"
+          v-model="form.{{{key}}}"
           type="daterange"
           :picker-options="pickerOptions"
           range-separator="至"
@@ -123,88 +73,49 @@
           end-placeholder="结束日期"
         />
       </el-form-item>
-    {{/if}}
-    {{#if isEnum}}
-      <el-form-item label="{{description}}">
+    {{{/isDate}}}
+    {{{#isSelect}}}
+      <el-form-item label="{{{description}}}"  v-show="this.visibleCount === 3 || show">
         <fetch-select
           :request="fetchOptions"
-          enumCode="{{enum}}"
-          v-model="form.{{key}}"
+          enumCode="xxx"
+          v-model="form.{{{key}}}"
           placeholder="请选择"
           clearable
           multiple
           filterable
         />
       </el-form-item>
-    {{/if}}
-    {{#if isSearch}}
-      <el-form-item label="{{description}}">
-        <list-select
-          listUrl="{{searchUrl}}"
-          placeholder="请选择"
-          v-model="form.{{key}}"
-          query-key="{{queryKey}}"
-          clearable
-          collapseTags
-          :show-code="false"
-          filterable
-          label-key="code"
-          value-key="id"
-        />
-      </el-form-item>
-    {{/if}}
-    {{#if isBoolean}}
-      <el-form-item label="{{description}}">
+    {{{/isSelect}}}
+    {{{#isBoolean}}}
+      <el-form-item label="{{{description}}}"  v-show="this.visibleCount === 3 || show">
         <fetch-select
           :options="yes_no_enum"
-          v-model="form.{{key}}"
+          v-model="form.{{{key}}}"
           placeholder="请选择"
           clearable
           multiple
           filterable
         />
       </el-form-item>
-    {{/if}}
-    {{#if isInput}}
-      <el-form-item label="{{description}}">
+    {{{/isBoolean}}}
+    {{{#isNormal}}}
+      <el-form-item label="{{{description}}}"  v-show="this.visibleCount === 3 || show">
         <el-input
           placeholder="请输入"
-          v-model="form.{{key}}"
+          v-model="form.{{{key}}}"
           clearable
         />
       </el-form-item>
-    {{/if}}
-    {{#if isTextarea}}
-      <el-form-item label="{{description}}">
-        <el-input
-          type="textarea"
-          placeholder="请输入"
-          v-model="form.{{key}}"
-          clearable
-          :rows="2"
-          maxLength="500"
-        />
-      </el-form-item>
-    {{/if}}
-    {{/each}}
+    {{{/isNormal}}}
+    {{{/thirdSearchList}}}
       <template v-if="show">
-      {{#each lastSearchList}}
-      {{#if isDate}}
-        <el-form-item label="{{description}}">
+      {{{#lastSearchList}}}
+      {{{#isDate}}}
+        <el-form-item label="{{{description}}}">
           <el-date-picker
-            v-model="form.{{key}}"
-            type="date"
-            format="yyyy-MM-dd"
-            value-format="yyyy-MM-dd"
-            placeholder="选择日期时间">
-          </el-date-picker>
-        </el-form-item>
-      {{/if}}
-      {{#if isDateRange}}
-        <el-form-item label="{{description}}">
-          <el-date-picker
-          :default-time="['00:00:00', '23:59:59']"
-            v-model="form.{{key}}"
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="form.{{{key}}}"
             type="daterange"
             :picker-options="pickerOptions"
             range-separator="至"
@@ -213,70 +124,42 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-      {{/if}}
-      {{#if isEnum}}
-        <el-form-item label="{{description}}">
+      {{{/isDate}}}
+      {{{#isSelect}}}
+        <el-form-item label="{{{description}}}">
           <fetch-select
             :request="fetchOptions"
-            enumCode="{{enum}}"
-            v-model="form.{{key}}"
+            enumCode="xxx"
+            v-model="form.{{{key}}}"
             placeholder="请选择"
             clearable
             multiple
             filterable
           />
         </el-form-item>
-      {{/if}}
-      {{#if isSearch}}
-        <el-form-item label="{{description}}">
-          <list-select
-            listUrl="{{searchUrl}}"
-            placeholder="请选择"
-            v-model="form.{{key}}"
-            query-key="{{queryKey}}"
-            clearable
-            collapseTags
-            :show-code="false"
-            filterable
-            label-key="code"
-            value-key="id"
-          />
-        </el-form-item>
-      {{/if}}
-      {{#if isBoolean}}
-        <el-form-item label="{{description}}">
+      {{{/isSelect}}}
+      {{{#isBoolean}}}
+        <el-form-item label="{{{description}}}">
           <fetch-select
             :options="yes_no_enum"
-            v-model="form.{{key}}"
+            v-model="form.{{{key}}}"
             placeholder="请选择"
             clearable
             multiple
             filterable
           />
         </el-form-item>
-      {{/if}}
-      {{#if isInput}}
-        <el-form-item label="{{description}}">
+      {{{/isBoolean}}}
+      {{{#isNormal}}}
+        <el-form-item label="{{{description}}}">
           <el-input
             placeholder="请输入"
-            v-model="form.{{key}}"
+            v-model="form.{{{key}}}"
             clearable
           />
         </el-form-item>
-      {{/if}}
-      {{#if isTextarea}}
-        <el-form-item label="{{description}}">
-          <el-input
-            type="textarea"
-            placeholder="请输入"
-            v-model="form.{{key}}"
-            clearable
-            :rows="2"
-            maxLength="500"
-          />
-        </el-form-item>
-      {{/if}}
-      {{/each}}
+      {{{/isNormal}}}
+      {{{/lastSearchList}}}
       </template>
       <page-search-action
         v-if="canList"
@@ -331,7 +214,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/{{modulePath}}/index';
+import { getList, deleteItem, enableItem } from '@/api/{{{{modulePath}}}}/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -341,13 +224,12 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
-import ListSelect from '@/libs/components/list-select/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  {{#each searchList}}
-  {{key}}: '',
-  {{/each}}
+  {{{#searchList}}}
+  {{{key}}}: '',
+  {{{/searchList}}}
 };
 
 const pageSize = 20;
@@ -362,15 +244,14 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    Upload,
-    ListSelect,
+    Upload
   },
   data () {
     return {
-      pageTitle: '{{title}}',
+      pageTitle: '{{{title}}}',
       pageType: 'list',
-      // TIPS: 权限前缀 AISCR，根据实际情况修改
-      moduleKey: 'AISCR-{{name}}',
+      // TIPS: 权限前缀 AISMC，根据实际情况修改
+      moduleKey: 'AISMC-{{{name}}}',
       form: {
         ...defaultForm
       },
@@ -382,25 +263,30 @@ export default {
       uploadDialogVisible: false,
       clickItemId: '',
       optionObj: {
-        id: '{{name}}Table',
+        id: '{{{name}}}Table',
         dataList: [],
         form: {
           page: 1,
           size: pageSize
         },
         dataProp: [
-          {{#each tableList}}
-          {{#if isFirst}}
+          {{{#cols}}}
+          {{{#isFirst}}}
           {
-            props: '{{key}}',
-            label: '{{description}}',
-            visible: true,
+            props: '{{{key}}}',
+            label: '{{{description}}}',
+            visible: {{{visible}}},
             width: 200,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/{{@root.modulePath}}/edit',
+                  {{{#isProForm}}}
+                  path: '/{{{{modulePath}}}}/edit',
+                  {{{/isProForm}}}
+                  {{{^isProForm}}}
+                  path: '/{{{{modulePath}}}}/detail',
+                  {{{/isProForm}}}
                   query: {
                     id: row.id
                   }
@@ -409,10 +295,13 @@ export default {
               type: 'primary'
             }]
           },
-          {{else}}
-          { props: '{{key}}', label: '{{description}}', visible: true, width: 200 },
-          {{/if}}
-          {{/each}}
+          {{{/isFirst}}}
+          {{{^isFirst}}}
+          {{{#visible}}}
+          { props: '{{{key}}}', label: '{{{description}}}', visible: {{{visible}}}, width: 200 },
+          {{{/visible}}}
+          {{{/isFirst}}}
+          {{{/cols}}}
           {
             props: 'operate',
             label: '操作',
@@ -423,10 +312,9 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/{{modulePath}}/edit',
+                  path: '/{{{{modulePath}}}}/edit',
                   query: {
-                    id: row.id,
-                    isEditing: true,
+                    id: row.id
                   }
                 });
               },
@@ -488,7 +376,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/{{modulePath}}/edit'
+        path: '/{{{{modulePath}}}}/edit'
       });
     },
     onSubmit () {
@@ -509,15 +397,15 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '{{title}}',
-        dataFetchPath: '{{apiPath}}/page',
+        businessType: '{{{title}}}',
+        dataFetchPath: '{{{{apiPath}}}}/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '{{title}}.xlsx');
+            await downloadExcel(res.excelUrl, '{{{title}}}.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
@@ -591,19 +479,13 @@ export default {
         }
       });
 
-      // 动态处理所有日期范围字段
-      {{#each searchList}}
-      {{#if isDateRange}}
-      if (this.form.{{key}}) {
-        delete data.{{key}};
-        if (this.form.{{key}}.length > 1) {
-          data.{{key}}Start = this.form.{{key}}[0];
-          data.{{key}}End = this.form.{{key}}[1];
+      if (this.form.createTime) {
+        delete data.createTime;
+        if (this.form.createTime.length > 1) {
+          data.createTimeStart = this.form.createTime[0];
+          data.createTimeEnd = this.form.createTime[1];
         }
       }
-      {{/if}}
-      {{/each}}
-
       // 排序字段
       data.sortColumns = this.sortColumns;
       return data;
@@ -672,6 +554,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.m-{{nameKebabCase}}-list {
+.m-{{{nameKebabCase}}}-list {
 }
 </style>
