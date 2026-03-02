@@ -608,7 +608,7 @@ export default {
     },
     // 发运
     handleShipment (val) {
-      this.clickItemId = val.id;
+      this.shipmentId = val.id;
       this.shipmentDialogVisible = true;
     },
     handleShipmentDialogClose () {
