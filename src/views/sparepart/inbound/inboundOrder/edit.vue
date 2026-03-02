@@ -171,7 +171,7 @@
                 <el-form-item label="入库操作人：" prop="inboundOperator">
                   <el-input
                     placeholder="请输入"
-                    v-model="form.inboundOperator"
+                    v-model="form.inboundOperatorName"
                     clearable
                   />
                 </el-form-item>
@@ -392,12 +392,12 @@ export default {
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
-          field: 'name',
+          field: 'sparePartCode',
           title: '备件编码',
           width: '10%',
         },
         {
-          field: 'age',
+          field: 'sparePartName',
           title: '备件名称',
           width: '10%',
         },

@@ -12,18 +12,18 @@
       <el-form-item label="套餐代码">
         <el-input
           placeholder="请输入"
-          v-model="form.code"
+          v-model="form.codeLike"
           clearable
         />
       </el-form-item>
       <el-form-item label="套餐名称">
         <el-input
           placeholder="请输入"
-          v-model="form.packageName"
+          v-model="form.packageNameLike"
           clearable
         />
       </el-form-item>
-      <el-form-item label="套餐类型id"  v-show="this.visibleCount === 3 || show">
+      <!-- <el-form-item label="套餐类型id"  v-show="this.visibleCount === 3 || show">
         <fetch-select
           :request="fetchOptions"
           enumCode="xxx"
@@ -33,9 +33,9 @@
           multiple
           filterable
         />
-      </el-form-item>
+      </el-form-item> -->
       <template v-if="show">
-        <el-form-item label="拼音简码">
+        <!-- <el-form-item label="拼音简码">
           <el-input
             placeholder="请输入"
             v-model="form.spellCode"
@@ -55,15 +55,19 @@
             v-model="form.vehicleSeriesIds"
             clearable
           />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="数据来源">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dataSource"
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="RepairPackageDataSourceEnum"
+            v-model="form.dataSourceList"
+            placeholder="请选择"
             clearable
+            multiple
+            filterable
           />
         </el-form-item>
-        <el-form-item label="门店名称">
+        <!-- <el-form-item label="门店名称">
           <el-input
             placeholder="请输入"
             v-model="form.dealerName"
@@ -80,40 +84,7 @@
             multiple
             filterable
           />
-        </el-form-item>
-        <el-form-item label="总金额">
-          <el-input
-            placeholder="请输入"
-            v-model="form.totalAmount"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="修改者名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.modifierName"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="修改时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.updateTime"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="创建者名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.creatorName"
-            clearable
-          />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="创建时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -124,6 +95,17 @@
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="是否下发">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.suedDealerList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
           />
         </el-form-item>
       </template>
@@ -139,7 +121,7 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
@@ -180,7 +162,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/maintain/basic/repairPackages/index';
+import { getList, deleteItem, enableItem, issue, backout } from '@/api/maintain/basic/repairPackages/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -200,6 +182,7 @@ const defaultForm = {
   vehicleSeriesId: '',
   vehicleSeriesIds: '',
   dataSource: '',
+  dataSourceList: '',
   dealerName: '',
   status: '',
   totalAmount: '',
@@ -207,6 +190,7 @@ const defaultForm = {
   updateTime: '',
   creatorName: '',
   createTime: '',
+  suedDealerList: '',
 };
 
 const pageSize = 20;
@@ -219,13 +203,12 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    FetchSelect,
     EditPage,
     Upload
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '维修套餐管理',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-repairPackages',
@@ -267,13 +250,13 @@ export default {
           },
           { props: 'code', label: '套餐代码', visible: true, width: 200 },
           { props: 'packageName', label: '套餐名称', visible: true, width: 200 },
-          { props: 'typeId', label: '套餐类型id', visible: true, width: 200 },
+          { props: 'typeName', label: '套餐类型', visible: true, width: 200 },
           { props: 'spellCode', label: '拼音简码', visible: true, width: 200 },
-          { props: 'vehicleSeriesId', label: '适用车系', visible: true, width: 200 },
-          { props: 'vehicleSeriesIds', label: '适用车系', visible: true, width: 200 },
-          { props: 'dataSource', label: '数据来源', visible: true, width: 200 },
+          { props: 'vehicleSeriesNames', label: '车系', visible: true, width: 200 },
+          { props: 'carModelNames', label: '车型年型', visible: true, width: 200 },
+          { props: 'dataSourceLabel', label: '数据来源', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'status', label: '状态', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
           { props: 'totalAmount', label: '总金额', visible: true, width: 200 },
           { props: 'modifierName', label: '修改者名称', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -296,6 +279,48 @@ export default {
                 });
               },
               type: 'info'
+            }, {
+              name: '下发',
+              show: (row) => {
+                return row.suedDealer === 1 && row.comboStatus === 10;
+              },
+              popconfirmTitle: '确认下发该维修套餐',
+              click: (rowIndex, row) => {
+                issue([row.id]).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '下发成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '下发失败!'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '撤回',
+              show: (row) => {
+                return row.suedDealer === 1 && row.comboStatus !== 10;
+              },
+              popconfirmTitle: '确认撤回该维修套餐',
+              click: (rowIndex, row) => {
+                backout([row.id]).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '撤回成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '撤回失败!'
+                  });
+                });
+              },
+              type: 'danger'
             }, {
               name: '删除',
               popconfirmTitle: '此操作将永久删除, 是否继续?',

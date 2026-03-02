@@ -4,8 +4,8 @@
     <div class="table-section">
       <vxe-table ref="workTable" :data="tableData" stripe show-overflow resizable border="inner" size="medium">
         <vxe-column field="purchaseOrderCode" title="采购订单号" />
-        <vxe-column field="partCode" title="备件编码" />
-        <vxe-column field="partName" title="备件名称" />
+        <vxe-column field="sparePartCode" title="备件编码" />
+        <vxe-column field="sparePartName" title="备件名称" />
         <vxe-column field="settlementQty" title="结算数量" />
         <vxe-column field="inboundQty" title="已入库数" />
         <vxe-column field="claimQty" title="本次索赔数量">
@@ -186,10 +186,10 @@ export default {
       // 构建参数：遍历 tableData 提取每行的输入值
       const params = {
         claimCreateList: this.tableData.map(row => ({
-          purchaseOrderDetailId: row.purchaseOrderId,
-          claimReason: row.form.claimDesc,
+          purchaseOrderDetailId: row.id,
+          claimDescription: row.form.claimDesc,
           claimType: row.form.claimType,
-          qty: Number(row.form.claimQty)
+          claimQty: Number(row.form.claimQty)
         }))
       };
 

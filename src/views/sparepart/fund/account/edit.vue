@@ -311,8 +311,8 @@
                     </vxe-column>
                     <vxe-column field="dealerCode" title="门店编码" width="150" />
                     <vxe-column field="dealerName" title="门店名称" width="200" />
-                    <vxe-column field="companyCode" title="零件/商品编码" width="200" />
-                    <vxe-column field="companyName" title="零件/商品名称" width="160" />
+                    <vxe-column field="partCode" title="零件/商品编码" width="200" />
+                    <vxe-column field="partName" title="零件/商品名称" width="160" />
                     <vxe-column field="frozenQty" title="冻结数量" width="100" />
                     <vxe-column field="cashUnitPrice" title="现金单价" width="100" />
                     <vxe-column field="frozenAmount" title="冻结金额" width="100" />
