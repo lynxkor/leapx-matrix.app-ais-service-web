@@ -259,7 +259,7 @@ const defaultForm = {
   {{/each}}
 };
 export default {
-  name: 'OldPartDialog',
+  name: 'AddDataDialog',
   components: {
     PageSearchAction,
   },
@@ -374,9 +374,6 @@ export default {
         ...this.getFormData(),
         pageNum: this.pageNum,
         pageSize: this.pageSize,
-        // dealerCode: this.dealerCode,
-        oemStatus: '700', // 主机厂入库
-        oemOutboundOrderIdIsNull: true,
       };
       getDialogList(data)
         .then(res => {

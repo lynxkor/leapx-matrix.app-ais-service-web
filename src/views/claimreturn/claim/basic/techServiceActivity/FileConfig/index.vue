@@ -45,11 +45,9 @@
 </template>
 <script>
 // 维修保养 -> 维修项目
-import { getList as repairList } from '@/api/maintain/basic/repairItem';
-import { getList as repairTypeList } from '@/api/maintain/basic/repairItemType';
 import permissions from '@/libs/mixins/permissions';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
-import { getEnum, sparePartList } from '@/api/common';
+import { getEnum } from '@/api/common';
 import Table from './Table.vue';
 import FetchBox from '@/libs/components/FetchBox';
 import { debounce } from 'lodash';
@@ -143,46 +141,7 @@ export default {
       }
       return [];
     },
-    // 工时下拉接口
-    repairRemote (query) {
-      return repairList({
-        codeLike: query,
-        nameLike: query,
-        pageSize: 20,
-        pageNum: 1,
-      }).then(res => {
-        // this.form
-        return res;
-      });
-    },
-    //
-    repairChange (val, record) {
-    },
-    // 10.5天 + 2.5天
-    // 10 + 9 + 11 + 9 + 11 + 8 + 4 + 10 + 10 + 11 + 9
-    // 102h
-    // 维修类型下拉
-    repairItemRemote (query) {
-      return repairTypeList({
-        codeLike: query,
-        nameLike: query,
-        pageSize: 20,
-        pageNum: 1,
-        categorys: [10], // 维修记录
-      }).then(res => {
-        // this.form
-        return res;
-      });
-    },
     // ------------
-    // 零件
-    partRemote (query) {
-      // 是否OEM, 是否启用
-      return sparePartList({ partCodeOrNameLike: query, oemPart: 1, status: 1 });
-    },
-    handlePartChange (val, record) {
-      this.curPart = record;
-    },
     // 详情表格相关数据
     handleAddPart: debounce(function () {
       if (!this.search) {

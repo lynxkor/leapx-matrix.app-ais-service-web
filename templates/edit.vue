@@ -86,16 +86,18 @@
               {{/if}}
               {{#if isSearch}}
                 <el-form-item label="{{description}}：" prop="{{key}}">
-                  <list-select
-                    listUrl="{{searchUrl}}"
-                    placeholder="请选择"
-                    v-model="form.{{key}}"
-                    query-key="{{queryKey}}"
-                    auto-load-options
-                    no-param-load
-                    clearable
+                  <fetch-select
                     filterable
-                    :params="{}" />
+                    clearable
+                    remote
+                    reserve-keyword
+                    v-model="form.{{key}}"
+                    :remote-method="{{key}}Search"
+                    :params="form.{{key}}"
+                    @change="{{key}}Change"
+                    value-key="code"
+                    label-key="name"
+                  />
                 </el-form-item>
               {{/if}}
               {{#if isBoolean}}
@@ -106,7 +108,7 @@
                 </el-form-item>
               {{/if}}
               {{#if isInput}}
-                <el-form-item label="{{description}}" prop="{{key}}">
+                <el-form-item label="{{description}}：" prop="{{key}}">
                   <el-input
                     placeholder="请输入"
                     v-model="form.{{key}}"
@@ -151,57 +153,20 @@
             @checkboxChange="checkboxChange"
           />
           {{/if}}
-          <!-- {{#if (gt detailTable.length 0)}}
-          <section class="common-section">
-            <div class="common-section-header">
-              <h2>子表标题</h2>
-            </div>
-            <div class="common-section-body">
-              <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
-                  <el-button type="primary" size="small">添加</el-button>
-                </div>
-              </div>
-              <div class="common-section-table">
-                <vxe-table
-                  ref="tableRef"
-                  stripe
-                  :data="tableData"
-                  show-overflow
-                  resizable
-                  border="inner"
-                  size="medium"
-                  min-height="0"
-                  max-height="400px"
-                >
-                  {{#each detailTable}}
-                  <vxe-column field="{{key}}" title="{{description}}" width="150" />
-                  {{/each}}
-                  <vxe-column title="操作" width="100" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
-                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                      </el-popconfirm>
-                    </template>
-                  </vxe-column>
-                  <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
-                  </template>
-                </vxe-table>
-              </div>
-            </div>
-          </section>
-          {{/if}} -->
+          {{#if isReadonlyTable}}
+          <modal-add-table
+            :disabled="true"
+            :canAddOrUpdate="canAddOrUpdate"
+            :_id="_id"
+          />
+          {{/if}}
+          {{#if isSearchAddTable}}
+          <search-add-table
+            :_id="_id"
+            @data-change="() => {}"
+            @checkboxChange="checkboxChange"
+          />
+          {{/if}}
         </el-main>
       </edit-base-container>
   {{#contains checkedList 'isSide'}}
@@ -219,6 +184,11 @@
 import {
   getDetail,
   addOrUpdate,
+  {{#each detailList}}
+  {{#if isSearch}}
+  {{key}}SearchApi,
+  {{/if}}
+  {{/each}}
 } from '@/api/{{modulePath}}/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 {{#contains checkedList 'isSide'}}
@@ -230,11 +200,13 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-{{#if isModalAddTable}}
+{{#if (or isModalAddTable isReadonlyTable)}}
 import ModalAddTable from './components/ModalAddTable';
 {{/if}}
-// 按钮 + 明细表
-// 搜索 + 明细表
+{{#if isSearchAddTable}}
+import SearchAddTable from './components/SearchAddTable';
+{{/if}}
+
 const defaultForm = {
   // 多选时字段有变化，自行修复
   {{#each detailList}}
@@ -256,8 +228,11 @@ export default {
     {{#contains checkedList 'isSide'}}
     EditPageLayout,
     {{/contains}}
-    {{#if isModalAddTable}}
+    {{#if (or isModalAddTable isReadonlyTable)}}
     ModalAddTable,
+    {{/if}}
+    {{#if isSearchAddTable}}
+    SearchAddTable,
     {{/if}}
     EditBaseContainer,
     FetchSelect
@@ -426,6 +401,20 @@ export default {
       }
       return [];
     },
+    {{#each detailList}}
+    {{#if isSearch}}
+    {{key}}Search (query) {
+      return {{key}}SearchApi({
+        {{queryKey}}: query,
+        pageSize: 20,
+        pageNum: 1,
+      }).then(res => {
+        return res;
+      });
+    },
+    {{key}}Change (val, record) {},
+    {{/if}}
+    {{/each}}
     {{#if isModalAddTable}}
     checkboxChange (records) {
       this.selectedRows = records;

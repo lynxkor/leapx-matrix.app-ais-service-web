@@ -66,7 +66,6 @@ function handleList (list) {
   return list.filter(item => {
     return (item.format === 'date-time' || item.type === 'array' || item.description);
   }).map((el, index) => {
-    // const key = el.key.toLowerCase();
     const isDateRange = el.format === 'dateRange';
     const isDate = el.format === 'date';
     const isSearch = el.format === 'search';
@@ -74,7 +73,6 @@ function handleList (list) {
     const isInput = el.format === 'input';
     const isTextarea = el.format === 'textarea';
     const isBoolean = el.type === 'boolean';
-    // const isSelect = !isBoolean && !!key.match(/type|status|state/);
     return {
       ...el,
       isFirst: index === 0,
@@ -100,10 +98,12 @@ const detailTable = handleList(generateJson.detailPage.tableList);
 // 弹窗
 const dialogSearchList = handleList(generateJson.detailPage.dialogSearchList);
 const dialogTableList = handleList(generateJson.detailPage.dialogTableList);
+const pathPrefix = generateJson.pathPrefix;
 
-const apiPath = generateJson.pathPrefix + generateJson.path;
+const apiPath = pathPrefix + generateJson.path;
 const modulePath = apiPath.split('/').filter((val) => val !== 'web').join('/');
 
+const detailPage = generateJson.detailPage;
 const data = {
   title: generateJson.title,
   name: moduleName,
@@ -113,6 +113,7 @@ const data = {
   apiPath: apiPath,
   isProForm: true,
   modulePath: modulePath,
+  pathPrefix,
   searchList,
   top2SearchList: searchList.slice(0, 2),
   thirdSearchList: searchList.slice(2, 3),
@@ -121,15 +122,19 @@ const data = {
   detailList,
   //
   detailTable,
-  isModalAddTable: detailTable.length > 0 && generateJson.detailPage.tableType === 'ModalAddTable',
-  detailApiPath: generateJson.pathPrefix + generateJson.detailPage.detailApiPath,
-  detailAddPath: generateJson.pathPrefix + generateJson.detailPage.addPath,
-  detailRemovePath: generateJson.pathPrefix + generateJson.detailPage.removePath,
+  isModalAddTable: detailTable.length > 0 && detailPage.tableType === 'modal-add',
+  isReadonlyTable: detailTable.length > 0 && detailPage.tableType === 'readonly',
+  isSearchAddTable: detailTable.length > 0 && detailPage.tableType === 'search-add',
+  //
+  detailApiPath: detailPage.detailApiPath ? pathPrefix + detailPage.detailApiPath : '',
+  detailAddPath: detailPage.addPath ? pathPrefix + detailPage.addPath : '',
+  detailSearchPath: detailPage.searchPath ? pathPrefix + detailPage.searchPath : '', // search-add下
+  detailRemovePath: detailPage.removePath ? pathPrefix + detailPage.removePath : '',
   checkedList: generateJson.checkedList || [],
   //
   dialogSearchList,
   dialogTableList,
-  dialogApiPath: generateJson.pathPrefix + generateJson.detailPage.dialogApiPath,
+  dialogApiPath: detailPage.dialogApiPath ? pathPrefix + detailPage.dialogApiPath : '',
 };
 
 // 创建vue文件
@@ -371,13 +376,23 @@ async function main () {
     // { templateName: 'editDialog.vue', templatePath: '/components/' },
     { templateName: 'api.js', outPath: `src/api/${data.modulePath}`, outName: 'index.js' }
   ];
-  if (detailTable.length) {
+  if (data.isModalAddTable) {
     list.push({
       templatePath: '/components/',
       templateName: 'ModalAddTable.vue',
     }, {
       templatePath: '/components/',
       templateName: 'AddDataDialog.vue',
+    });
+  } else if (data.isReadonlyTable) {
+    list.push({
+      templatePath: '/components/',
+      templateName: 'ModalAddTable.vue',
+    });
+  } else if (data.isSearchAddTable) {
+    list.push({
+      templatePath: '/components/',
+      templateName: 'SearchAddTable.vue',
     });
   }
 

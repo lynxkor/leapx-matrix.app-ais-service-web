@@ -41,7 +41,8 @@
             class="form-edit"
             >
             <el-form-item label="工时名称：" prop="repairItemName">
-              <fetch-select
+              <!-- <fetch-select
+                :key="form.repairItemId"
                 filterable
                 clearable
                 remote
@@ -52,6 +53,12 @@
                 @change="repairChange"
                 value-key="id"
                 label-key="name"
+                disabled
+              /> -->
+              <base-input
+                placeholder="请输入"
+                v-model="form.repairItemName"
+                clearable
                 disabled
               />
             </el-form-item>
@@ -351,7 +358,6 @@ export default {
         pageSize: 20,
         pageNum: 1,
       }).then(res => {
-        // this.form
         return res;
       });
     },

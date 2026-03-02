@@ -37,12 +37,14 @@
     <div class="common-section-body not-commit" v-else>
       提交新建后，即可添加
     </div>
+    {{#if isModalAddTable}}
     <add-data-dialog
       type="outbound"
       :visible.sync="visible"
       :_id="_id"
       @update="getTableData"
       />
+    {{/if}}
   </section>
 </template>
 <script>
@@ -52,7 +54,9 @@ import {
   removeDetail,
 } from '@/api/{{modulePath}}/index';
 import EditTable from '@/libs/components/EditTable/index.vue';
+{{#if isModalAddTable}}
 import AddDataDialog from './AddDataDialog';
+{{/if}}
 
 export default {
   props: {
@@ -70,7 +74,9 @@ export default {
   },
   components: {
     EditTable,
+    {{#if isModalAddTable}}
     AddDataDialog,
+    {{/if}}
   },
   data () {
     return {
