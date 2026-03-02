@@ -39,7 +39,8 @@
         </el-form-item>
         <el-form-item label="预计交车时间：" prop="expectFinishAt">
           <el-date-picker
-            placeholder="请选择日期"
+            type="datetime"
+            placeholder="请选择时间"
             v-model="form.expectFinishAt"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
@@ -56,7 +57,8 @@
         </el-form-item>
         <el-form-item label="预检完成时间：" prop="previewingFinishAt">
           <el-date-picker
-            placeholder="请选择日期"
+            type="datetime"
+            placeholder="请选择时间"
             v-model="form.previewingFinishAt"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
@@ -66,7 +68,8 @@
         </el-form-item>
         <el-form-item label="生成结算单时间：" prop="createStatementInfoDate">
           <el-date-picker
-            placeholder="请选择日期"
+            type="datetime"
+            placeholder="请选择时间"
             v-model="form.createStatementInfoDate"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
@@ -82,7 +85,8 @@
         </el-form-item>
         <el-form-item label="制单完成时间：" prop="confirmedOn">
           <el-date-picker
-            placeholder="请选择日期"
+            type="datetime"
+            placeholder="请选择时间"
             v-model="form.confirmedOn"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
@@ -103,7 +107,8 @@
         </el-form-item>
         <el-form-item label="计划作业时间：" prop="expectStartAt">
           <el-date-picker
-            placeholder="请选择日期"
+            type="datetime"
+            placeholder="请选择时间"
             v-model="form.expectStartAt"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
@@ -121,7 +126,8 @@
         </el-form-item>
         <el-form-item label="实际作业时间：" prop="startAt">
           <el-date-picker
-            placeholder="请选择日期"
+            type="datetime"
+            placeholder="请选择时间"
             v-model="form.startAt"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
@@ -139,7 +145,8 @@
         </el-form-item>
         <el-form-item label="完成作业时间：" prop="finishAt">
           <el-date-picker
-            placeholder="请选择日期"
+            type="datetime"
+            placeholder="请选择时间"
             v-model="form.finishAt"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
