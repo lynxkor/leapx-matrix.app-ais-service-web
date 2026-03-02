@@ -1,0 +1,97 @@
+{
+    "pathPrefix": "claimreturn",
+    "path": "/oldpart/web/outbound/oldPartOemOutboundOrder",
+    "listPage": {
+        "searchList": [
+            {
+                "key": "modifier",
+                "description": "修改者",
+                "type": "integer",
+                "format": "input"
+            },
+            {
+                "key": "modifierName",
+                "description": "修改者名称",
+                "type": "string",
+                "format": "input"
+            },
+            {
+                "key": "updateTime",
+                "description": "修改时间",
+                "type": "string",
+                "format": "date"
+            }
+        ],
+        "tableList": [
+            {
+                "key": "updateTime",
+                "description": "修改时间",
+                "type": "string"
+            },
+            {
+                "key": "remark",
+                "description": "备注",
+                "type": "string"
+            },
+            {
+                "key": "statusDesc",
+                "description": "状态变更描述",
+                "type": "string"
+            }
+        ],
+        "detailList": [
+            {
+                "key": "warehouseCode",
+                "description": "仓库代码",
+                "type": "string",
+                "format": "input"
+            },
+            {
+                "key": "warehouseName",
+                "description": "仓库名称",
+                "type": "string",
+                "format": "input"
+            },
+            {
+                "key": "supplierId",
+                "description": "收货供应商ID",
+                "type": "string",
+                "format": "input"
+            }
+        ]
+    },
+    "detailPage": {
+        "tableList": [
+            {
+                "key": "creatorName",
+                "description": "创建者名称",
+                "type": "string"
+            },
+            {
+                "key": "createTime",
+                "description": "创建时间",
+                "type": "string"
+            },
+            {
+                "key": "modifierName",
+                "description": "修改者名称",
+                "type": "string"
+            },
+            {
+                "key": "updateTime",
+                "description": "修改时间",
+                "type": "string"
+            }
+        ],
+        "tableType": "search-add",
+        "detailApiPath": "/oldpart/web/inventory/oldPartOemInventory/page",
+        "addPath": "/bbb",
+        "removePath": "/cccc",
+        "searchPath": "/aaa",
+        "dialogApiPath": ""
+    },
+    "checkedList": [
+        "isShowEditing"
+    ],
+    "title": "新页面"
+}
