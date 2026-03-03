@@ -4,63 +4,39 @@
     "listPage": {
         "searchList": [
             {
+                "key": "createTime",
+                "description": "创建时间",
+                "type": "string",
+                "format": "dateRange"
+            },
+            {
                 "key": "modifier",
                 "description": "修改者",
                 "type": "integer",
-                "format": "input"
+                "format": "enum",
+                "enum": "enum_sdf"
             },
             {
                 "key": "modifierName",
                 "description": "修改者名称",
                 "type": "string",
-                "format": "input"
+                "format": "search",
+                "searchUrl": "/ddd/ssddf",
+                "queryKey": "queryd"
             },
             {
-                "key": "updateTime",
-                "description": "修改时间",
+                "key": "estimatedArrivalDate",
+                "description": "预计到达日期，格式：年-月-日 时:分",
                 "type": "string",
                 "format": "date"
+            },
+            {
+                "key": "syncStatus",
+                "description": "同步状态，显示推送到qms的状态，无推送信息时空置，字典：old_part_sync_status",
+                "type": "string",
+                "format": "textarea"
             }
         ],
-        "tableList": [
-            {
-                "key": "updateTime",
-                "description": "修改时间",
-                "type": "string"
-            },
-            {
-                "key": "remark",
-                "description": "备注",
-                "type": "string"
-            },
-            {
-                "key": "statusDesc",
-                "description": "状态变更描述",
-                "type": "string"
-            }
-        ],
-        "detailList": [
-            {
-                "key": "warehouseCode",
-                "description": "仓库代码",
-                "type": "string",
-                "format": "input"
-            },
-            {
-                "key": "warehouseName",
-                "description": "仓库名称",
-                "type": "string",
-                "format": "input"
-            },
-            {
-                "key": "supplierId",
-                "description": "收货供应商ID",
-                "type": "string",
-                "format": "input"
-            }
-        ]
-    },
-    "detailPage": {
         "tableList": [
             {
                 "key": "creatorName",
@@ -71,6 +47,79 @@
                 "key": "createTime",
                 "description": "创建时间",
                 "type": "string"
+            },
+            {
+                "key": "modifier",
+                "description": "修改者",
+                "type": "integer"
+            }
+        ],
+        "detailList": [
+            {
+                "key": "creatorName",
+                "description": "创建者名称",
+                "type": "string",
+                "format": "input"
+            },
+            {
+                "key": "createTime",
+                "description": "创建时间",
+                "type": "string",
+                "format": "dateRange"
+            },
+            {
+                "key": "modifier",
+                "description": "修改者",
+                "type": "integer",
+                "format": "enum",
+                "enum": "enum_ssd"
+            },
+            {
+                "key": "modifierName",
+                "description": "修改者名称",
+                "type": "string",
+                "format": "search",
+                "searchUrl": "/ad/sdf",
+                "queryKey": "querysdf"
+            }
+        ]
+    },
+    "detailPage": {
+        "tableList": [
+            {
+                "key": "modifier",
+                "description": "修改者",
+                "type": "integer"
+            },
+            {
+                "key": "modifierName",
+                "description": "修改者名称",
+                "type": "string"
+            },
+            {
+                "key": "updateTime",
+                "description": "修改时间",
+                "type": "string"
+            },
+             {
+                "key": "modifier",
+                "description": "修改者",
+                "type": "integer"
+            },
+            {
+                "key": "modifierName",
+                "description": "修改者名称",
+                "type": "string"
+            },
+            {
+                "key": "updateTime",
+                "description": "修改时间",
+                "type": "string"
+            },
+             {
+                "key": "modifier",
+                "description": "修改者",
+                "type": "integer"
             },
             {
                 "key": "modifierName",
@@ -85,13 +134,10 @@
         ],
         "tableType": "search-add",
         "detailApiPath": "/oldpart/web/inventory/oldPartOemInventory/page",
-        "addPath": "/bbb",
-        "removePath": "/cccc",
-        "searchPath": "/aaa",
+        "addPath": "/oldpart/web/outbound/oldPartOemOutboundOrder/addDetail",
+        "removePath": "/oldpart/web/outbound/oldPartOemOutboundOrder/removeDetail",
+        "searchPath": "/search/asdf",
         "dialogApiPath": ""
     },
-    "checkedList": [
-        "isShowEditing"
-    ],
     "title": "新页面"
 }

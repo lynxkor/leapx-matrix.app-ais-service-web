@@ -318,7 +318,7 @@ export default {
       {{/if}}
       {{/each}}
       },
-      {{#if isModalAddTable}}
+      {{#if (or isModalAddTable isSearchAddTable)}}
       selectedRows: [],
       {{/if}}
     };
@@ -415,7 +415,7 @@ export default {
     {{key}}Change (val, record) {},
     {{/if}}
     {{/each}}
-    {{#if isModalAddTable}}
+    {{#if (or isModalAddTable isSearchAddTable)}}
     checkboxChange (records) {
       this.selectedRows = records;
     },

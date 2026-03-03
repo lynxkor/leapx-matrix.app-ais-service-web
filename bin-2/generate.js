@@ -37,6 +37,14 @@ Handlebars.registerHelper('fromIndex', function (array, startIndex) {
   return array.slice(startIndex); // 直接返回数组，不处理 options.fn
 });
 
+Handlebars.registerHelper('calc-width', function (list, options) {
+  const count = list ? list.length : 0;
+  if (count < 8) {
+    return '';
+  }
+  return 160;
+});
+
 // 获取模板目录路径
 const templatesDir = path.join(__dirname, '../templates-2');
 
