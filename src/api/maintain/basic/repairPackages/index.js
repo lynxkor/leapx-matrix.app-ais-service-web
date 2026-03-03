@@ -58,3 +58,35 @@ export function issue (data) {
 export function backout (data) {
   return api.jsonPost(prefix + 'backout', data);
 }
+
+/**
+ * 维修套餐--类型表列表查询
+ * @param {Object} data
+ */
+export function getRepairType (data) {
+  return api.jsonPost('maintain/web/basic/repairPackagesType/list', data);
+}
+
+/**
+ * 套餐类型适配车型分页查询
+ * @param {Object} data
+ */
+export function getModel (data) {
+  return api.jsonPost('maintain/web/basic/repairPackagesModel/page', data);
+}
+
+/**
+ * 套餐类型适配车型添加
+ * @param {Object} data
+ */
+export function saveModelBatch (data) {
+  return api.jsonPost('maintain/web/basic/repairPackagesModel/saveBatch', data);
+}
+
+/**
+ * 维修套餐--维修项目分页查询
+ * @param {Object} data
+ */
+export function getPackagesItem (data) {
+  return api.jsonPost('maintain/web/basic/repairPackagesItem/page', data);
+}

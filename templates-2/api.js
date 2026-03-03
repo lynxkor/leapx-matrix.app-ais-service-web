@@ -99,3 +99,8 @@ export function detailSearchApi (data) {
   return api.jsonPost('{{detailSearchPath}}', data);
 }
 {{/if}}
+{{#if tabsPath}}
+export function getTabsListApi (data) {
+  return api.jsonPost('{{tabsPath}}', data);
+}
+{{/if}}

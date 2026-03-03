@@ -44,53 +44,37 @@
                 </el-form-item>
                 <el-form-item label="拼音简码：" prop="spellCode">
                   <el-input
-                    placeholder="请输入"
+                    placeholder="自动生成"
                     v-model="form.spellCode"
                     clearable
+                    disabled
                   />
                 </el-form-item>
-                <el-form-item label="是否下发：" prop="used">
+                <el-form-item label="是否下发：" prop="suedDealer">
                   <el-radio-group v-model="form.suedDealer">
                     <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
                   </el-radio-group>
-                </el-form-item>
-                <el-form-item label="套餐类型" prop="typeId">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.typeId"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
                 </el-form-item>
                 <el-form-item label="数据来源：" prop="dataSource">
                   <el-input
                     placeholder="请输入"
                     v-model="form.dataSource"
                     clearable
+                    disabled
                   />
                 </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerName">
+                <el-form-item label="门店：" prop="dealerName">
                   <el-input
                     placeholder="请输入"
                     v-model="form.dealerName"
                     clearable
+                    disabled
                   />
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="归属门店：" prop="ownerOrgId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.ownerOrgId"
-                    clearable
-                  />
+                <el-form-item label="套餐类型：" prop="typeId" style="width: 100%;">
+                  <el-checkbox-group v-model="form.typeIdList">
+                    <el-checkbox v-for="city in repairTypeList" :label="city.id" :key="city.id">{{city.name}}</el-checkbox>
+                  </el-checkbox-group>
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
@@ -100,78 +84,43 @@
                 <el-form-item label="套餐名称：" prop="packageName">
                   {{ form.packageName }}
                 </el-form-item>
-                <el-form-item label="套餐类型id：" prop="typeId">
-                  {{ form.typeId }}
-                </el-form-item>
                 <el-form-item label="拼音简码：" prop="spellCode">
                   {{ form.spellCode }}
                 </el-form-item>
-                <el-form-item label="适用车系：" prop="vehicleSeriesId">
-                  {{ form.vehicleSeriesId }}
-                </el-form-item>
-                <el-form-item label="适用车系：" prop="vehicleSeriesIds">
-                  {{ form.vehicleSeriesIds }}
+                <el-form-item label="是否下发：" prop="suedDealer">
+                  {{ form.suedDealerLabel }}
                 </el-form-item>
                 <el-form-item label="数据来源：" prop="dataSource">
                   {{ form.dataSource }}
                 </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerName">
+                <el-form-item label="门店：" prop="dealerName">
                   {{ form.dealerName }}
                 </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  {{ form.status }}
-                </el-form-item>
-                <el-form-item label="总金额：" prop="totalAmount">
-                  {{ form.totalAmount }}
-                </el-form-item>
-                <!-- <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item> -->
-                <el-form-item label="撤销下发日期：" prop="backoutSuedDate">
-                  {{ form.backoutSuedDate }}
-                </el-form-item>
-                <el-form-item label="是否下发门店：" prop="suedDealer">
-                  {{ form.suedDealer }}
-                </el-form-item>
-                <el-form-item label="下发状态：" prop="comboStatus">
-                  {{ form.comboStatus }}
-                </el-form-item>
-                <el-form-item label="下发日期：" prop="suedDate">
-                  {{ form.suedDate }}
-                </el-form-item>
-                <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode }}
-                </el-form-item>
-                <el-form-item label="维修备件合计：" prop="repairPartAmount">
-                  {{ form.repairPartAmount }}
-                </el-form-item>
-                <el-form-item label="维修项目合计：" prop="repairProjectAmount">
-                  {{ form.repairProjectAmount }}
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
-                </el-form-item>
-                <!-- <el-form-item label="修改者名称：" prop="modifierName">
-                  {{ form.modifierName }}
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  {{ form.updateTime }}
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  {{ form.createTime }}
-                </el-form-item> -->
-                <!-- <el-form-item label="是否已使用：" prop="used">
-                  {{ yes_no_enum_map[form.used] }}
-                </el-form-item> -->
               </el-form>
             </div>
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>子表标题</h2>
+              <h2>适配车型</h2>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-table">
+              <div class="model-select" @click="handleModel">选择适配车型</div>
+                <edit-table
+                  ref="editTable"
+                  :columns="columns"
+                  :data="tableDataModel"
+                  :defaultNewRow="defaultNewRow"
+                  :show-toolbar="false"
+                  :delTitle="delTitle"
+                  :auth="{delete: canDelete}"
+                />
+              </div>
+            </div>
+          </section>
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>套餐明细</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
@@ -180,13 +129,12 @@
                     style="width: 300px;"
                     :remote-method="queryListData"
                     remote
-                    placeholder="请选择"
+                    placeholder="搜索维修项目代码、名称、拼音简码"
                     clearable
                     value-key="id"
                     label-key="name"
                     @change="handleAddTableData"
                   />
-                  <el-button type="primary" size="small">添加</el-button>
                 </div>
               </div>
               <div class="common-section-table">
@@ -201,11 +149,16 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
+                  <vxe-column field="repairItemName" title="维修项目" width="14.3%" />
+                  <vxe-column field="repairItemCode" title="维修项目代码" width="14.3%" />
+                  <vxe-column field="workHour" title="工时" width="14.3%" />
+                  <vxe-column field="price" title="工时单价" width="14.3%" />
+                  <vxe-column field="discountAmount" title="优惠金额" width="14.3%" />
+                  <vxe-column field="actualAmount" title="项目金额" width="14.3%" />
+                  <vxe-column title="操作" width="150" v-if="canDelete">
                     <template #default="{ rowIndex }">
+                      <div @click="handleEditRow(rowIndex)" class="action-button btn-edit">日志</div>
+                      <div @click="handleSaveRow(rowIndex)" class="action-button btn-edit">编辑</div>
                       <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
@@ -226,26 +179,30 @@
         <!-- 右侧栏组件，自行开发 -->
       </div>
     </template>
+    <!-- 适配车型组件 -->
+    <ModelDialog :visible="modelDialogVisible" :data="tableData" @success="handleSuccessModel" @close="handleCloseModel" />
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/maintain/basic/repairPackages/index';
+import { getDetail, addOrUpdate, getRepairType, getModel, getPackagesItem } from '@/api/maintain/basic/repairPackages/index';
+import { getPage } from '@/api/maintain/basic/repairItem/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
-import { YES_NO_ENUM } from '@/libs/constants';
+import { getEnum, getLoginUser } from '@/api/common';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import EditTable from '@/libs/components/EditTable';
+import ModelDialog from './ModelDialog.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
   modifier: '',
   code: '',
   packageName: '',
-  typeId: '',
+  typeIdList: [],
   spellCode: '',
   vehicleSeriesId: '',
   vehicleSeriesIds: '',
@@ -266,7 +223,7 @@ const defaultForm = {
   typeName: '',
   backoutSuedDate: '',
   comboStatus: '',
-  suedDealer: '',
+  suedDealer: 1,
   ownerOrgId: '',
   dealerCode: '',
   suedDate: '',
@@ -290,7 +247,9 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect
+    FetchSelect,
+    EditTable,
+    ModelDialog
   },
   computed: {
     _id () {
@@ -308,6 +267,15 @@ export default {
         }
       },
       immediate: true
+    },
+    'form.id': {
+      handler (val) {
+        if (val) {
+          this.getModelList();
+          this.getProjectPackage();
+        }
+      },
+      immediate: true
     }
   },
   data () {
@@ -319,115 +287,80 @@ export default {
       moduleKey: 'AISMC-repairPackages',
       loading: false,
       submitLoading: false,
-      yes_no_enum: YES_NO_ENUM,
+      yes_no_enum: [
+        {
+          message: '是',
+          code: 1
+        },
+        {
+          message: '否',
+          code: 0
+        }
+      ],
       form: { ...form },
       originalForm: { ...form },
-      emptyText: '若要启用此内容，请创建记录',
+      emptyText: '暂无数据',
       tableData: [
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
       rules: {
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
         code: [
           { required: true, message: '请输入套餐代码', trigger: 'change' }
         ],
         packageName: [
           { required: true, message: '请输入套餐名称', trigger: 'change' }
         ],
-        typeId: [
-          { required: true, message: '请选择套餐类型id', trigger: 'change' }
-        ],
-        spellCode: [
-          { required: true, message: '请输入拼音简码', trigger: 'change' }
-        ],
-        vehicleSeriesId: [
-          { required: true, message: '请输入适用车系', trigger: 'change' }
-        ],
-        vehicleSeriesIds: [
-          { required: true, message: '请输入适用车系', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        totalAmount: [
-          { required: true, message: '请输入总金额', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        itemRespList: [
-          { required: true, message: '请输入维修套餐--维修项目', trigger: 'change' }
-        ],
-        partRespList: [
-          { required: true, message: '请输入维修套餐--零配件', trigger: 'change' }
-        ],
-        typeName: [
+        repairPackagesId: [
           { required: true, message: '请选择套餐类型', trigger: 'change' }
         ],
-        backoutSuedDate: [
-          { required: true, message: '请输入撤销下发日期', trigger: 'change' }
+        spellCode: [
+          { required: false, message: '请输入拼音简码', trigger: 'change' }
         ],
-        comboStatus: [
-          { required: true, message: '请选择下发状态', trigger: 'change' }
+        dataSource: [
+          { required: false, message: '请选择数据来源', trigger: 'change' }
+        ],
+        ownerOrgId: [
+          { required: false, message: '请选择门店', trigger: 'change' }
+        ],
+        typeIdList: [
+          { required: true, message: '请选择套餐类型', trigger: 'change' }
         ],
         suedDealer: [
           { required: true, message: '请输入是否下发门店', trigger: 'change' }
         ],
-        ownerOrgId: [
-          { required: true, message: '请输入归属门店ID（组织ID），当数据权限归属到本组织以及本下级', trigger: 'change' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码', trigger: 'change' }
-        ],
-        suedDate: [
-          { required: true, message: '请输入下发日期', trigger: 'change' }
-        ],
-        repairPartAmount: [
-          { required: true, message: '请输入维修备件合计', trigger: 'change' }
-        ],
-        repairProjectAmount: [
-          { required: true, message: '请输入维修项目合计', trigger: 'change' }
-        ],
-        carModelId: [
-          { required: true, message: '请输入适用车型', trigger: 'change' }
-        ],
-        carModelIds: [
-          { required: true, message: '请输入适用车型', trigger: 'change' }
-        ],
-      }
+      },
+      modelDialogVisible: false, // 适配车型弹窗
+      repairTypeList: [], // 维修套餐列表
+      tableDataModel: [],
+      defaultNewRow: {
+        vehicleYearType: '',
+        vehicleModelName: '',
+        vehicleSeriesName: '',
+      },
+      delTitle: '此操作将删除此 维修套餐-适配车型 信息，您无法撤消此操作，是否继续？',
+      columns: [ // 适配车型
+        {
+          field: 'vehicleSeriesName',
+          title: '车系名称',
+          width: '30%',
+        },
+        {
+          field: 'vehicleModelName',
+          title: '车型名称',
+          width: '30%',
+        },
+        {
+          field: 'vehicleYearType',
+          title: '车辆年型',
+          width: '30%',
+        },
+      ],
     };
   },
   mounted () {
+    this.initDealerUser();
+    this.getType();
   },
   methods: {
     detailRequest () {
@@ -457,16 +390,13 @@ export default {
     queryListData (queryString) {
       return new Promise(resolve => {
         // 根据需求调用接口
-        // sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
-        //   const list = res || [];
-        //   resolve(list);
-        // });
-        resolve([
-          { id: 1, name: 'test', age: 25, email: 'test@example.com' }
-        ]);
+        getPage({ nameOrCodeOrPinyinLike: queryString, status: 1, limitSize: 20 }).then(res => {
+          const list = res || [];
+          resolve(list);
+        });
       });
     },
-    // 新增子表数据
+    // 新增维修项目
     handleAddTableData (val, record) {
       if (!record) {
         this.$message.warning('请先选择数据');
@@ -479,16 +409,7 @@ export default {
         return;
       }
       // 根据需求调用接口
-      this.tableData.push(record);
-      // addPartItem({
-      //   maintenancePartId: this._id,
-      //   partsCode: record.partCode,
-      //   partsName: record.partName,
-      //   partsId: record.id,
-      // }).then(res => {
-      //   this.$message.success('添加成功');
-      //   this.detailRequest();
-      // });
+      this.openPane(); // 打开侧边栏
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
@@ -508,7 +429,74 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    async initDealerUser () {
+      // 查询是否店端 true为门店  false为厂端
+      const res = await getLoginUser();
+      this.accountFlag = res.accountFlag;
+      this.form.ownerOrgId = res.currentDealerCode;// 当前门店code
+      this.form.dealerCode = res.currentDealerCode;// 当前门店编码
+      this.form.dealerName = res.currentDealerName;// 当前门店名称
+    },
+    // 维修套餐--类型表列表查询
+    async getType () {
+      const res = await getRepairType({});
+      this.repairTypeList = res || [];
+    },
+    // 适配车型接口
+    async getModelList () {
+      const res = await getModel({ repairPackagesId: this._id });
+      this.tableDataModel = res.records || [];
+    },
+    // 维修项目套餐列表
+    async getProjectPackage () {
+      const res = await getPackagesItem({ repairPackagesId: this._id });
+      this.tableData = res.records || [];
+    },
+    // 适配车型弹窗
+    handleModel () {
+      this.modelDialogVisible = true;
+    },
+    // 处理更新表格数据事件
+    handleSuccessModel () {
+      this.modelDialogVisible = false;
+      this.getModelList();
+    },
+    // 处理关闭弹窗事件
+    handleCloseModel () {
+      this.modelDialogVisible = false;
+    },
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.model-select {
+  width: 114px;
+  height: 32px;
+  border-radius: 4px;
+  box-sizing: border-box;
+  /* 功能色/零跑绿 */
+  border: 1px solid #009100;
+  color: #009100;
+  font-size: 14px;
+  line-height: 32px;
+  text-align: center;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+.action-button{
+    margin: 0 5px;
+    cursor: pointer;
+    &.btn-edit{
+      color:#4C4CD6;
+    }
+    &.btn-delete{
+      color: #b91919 !important;;
+    }
+    &.disabled{
+      cursor: not-allowed;
+      color: var(--disabled-color);
+    }
+  }
+</style>
