@@ -15,12 +15,12 @@
         <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
           min-height="0" max-height="400px">
           {{#each detailTable}}
-          <vxe-column field="{{key}}" title="{{description}}" width="150" />
+          <vxe-column field="{{key}}" title="{{description}}" width="{{calc-width @root.detailTable}}" />
           {{/each}}
           <vxe-column title="操作" width="100">
             <template #default="{ row }">
               <el-popconfirm title="确定要删除吗？" @confirm="handleRemoveRow(row)">
-                <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
+                <span slot="reference" type="text" size="small" class="btn-delete" fixed="right">删除</span>
               </el-popconfirm>
             </template>
           </vxe-column>
@@ -44,13 +44,6 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 
-const defaultForm = {
-  // 多选时字段有变化，自行修复
-  {{#each detailTable}}
-  {{key}}: '', // {{description}}
-  {{/each}}
-};
-
 export default {
   props: {
     _id: {
@@ -62,16 +55,10 @@ export default {
     FetchSelect
   },
   computed: {
-    title () {
-      return '标题xxx'
-    }
   },
   data () {
-    const form = this.getDefautlForm();
     return {
       yes_no_enum: YES_NO_ENUM,
-      form: { ...form },
-      originalForm: { ...form },
       emptyText: '若要启用此内容，请创建记录',
       current: 1,
       pageSize: 10,
@@ -132,11 +119,13 @@ export default {
         });
       });
     },
-    // 查询新增项的列表
     queryListData (queryString) {
       return new Promise(resolve => {
-        // 根据需求调用接口
-        detailSearchApi({ xxxx: queryString, status: 1, limitSize: 20 }).then(res => {
+        detailSearchApi({
+          limitSize: 20,
+          // TODO 根据需求进行替换
+          // xxxx: queryString,
+        }).then(res => {
           const list = res || [];
           resolve(list);
         });
@@ -162,15 +151,6 @@ export default {
         this.$message.success('添加成功');
         this.detailRequest();
       });
-    },
-    getDefautlForm () {
-      // TIPS: 此处可添加表单默认值，如当前用户信息等
-      // const userInfo = this.$store.state.user.userInfo;
-      return {
-        ...defaultForm
-        // ownerId: userInfo.userId,
-        // ownerName: userInfo.userName,
-      };
     },
     async fetchOptions (code) {
       if (code) {
