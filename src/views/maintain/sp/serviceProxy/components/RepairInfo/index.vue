@@ -4,6 +4,66 @@
 			<h2>维修信息</h2>
 		</div>
 		<div class="common-section-body">
+      <div class="table-section">
+        <el-form :inline="true" :model="form" :rules="rules" ref="basicForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
+          <el-form-item label="本次维修估算费用：">
+            <el-input
+              placeholder="请输入"
+              v-model="costCountResp.maintenanceCostEstimation"
+              clearable
+              disabled
+            />
+          </el-form-item>
+          <el-form-item label="工时费用小计：">
+            <el-input
+              placeholder="请输入"
+              v-model="costCountResp.workCostCount"
+              clearable
+              disabled
+            />
+          </el-form-item>
+          <el-form-item label="自费金额估算：">
+            <el-input
+              placeholder="请输入"
+              v-model="costCountResp.ownMoneyEstimation"
+              clearable
+              disabled
+            />
+          </el-form-item>
+          <el-form-item label="内转金额估算：">
+            <el-input
+              placeholder="请输入"
+              v-model="costCountResp.innerTurnMoneyEstimation"
+              clearable
+              disabled
+            />
+          </el-form-item>
+          <el-form-item label="优惠金额小计：">
+            <el-input
+              placeholder="请输入"
+              v-model="costCountResp.preferentialMoneyCount"
+              clearable
+              disabled
+            />
+          </el-form-item>
+          <el-form-item label="备件费用小计：">
+            <el-input
+              placeholder="请输入"
+              v-model="costCountResp.barkCostCount"
+              clearable
+              disabled
+            />
+          </el-form-item>
+          <el-form-item label="保险金额估算：">
+            <el-input
+              placeholder="请输入"
+              v-model="costCountResp.insuranceMoneyEstimation"
+              clearable
+              disabled
+            />
+          </el-form-item>
+        </el-form>
+      </div>
 			<div class="table-section">
         <div class="table-section-header">
           <h3>维修项目</h3>
@@ -205,6 +265,7 @@ export default {
           this.partsTraceRecordRespList = val.partsTraceRecordRespList || [];
           this.repairItemRespList = val.costCountResp?.repairItemRespList || [];
           this.sparePartRespList = val.costCountResp?.sparePartRespList || [];
+          this.costCountResp = val.costCountResp || {};
         }
       },
       immediate: true,
@@ -216,7 +277,8 @@ export default {
       workRecordRespList: [],
       partsTraceRecordRespList: [],
       repairItemRespList: [],
-      sparePartRespList: []
+      sparePartRespList: [],
+      costCountResp: {}
     };
   },
   methods: {
