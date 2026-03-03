@@ -350,7 +350,7 @@ export default {
     SelectRepairItemDialog,
     StartWorkDialog,
     DispatchWorkDialog,
-    Upload
+    Upload,
   },
   computed: {
     _id () {

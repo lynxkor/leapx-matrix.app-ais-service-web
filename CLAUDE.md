@@ -3,7 +3,7 @@
 Vue 2.6 微前端子应用 | 技术栈: Vue Router + Vuex + Element UI + VXE Table | 端口: 7779
 
 ## 规范
-- 缩进2空格，语句加分号，函数括号前后有空格
+- 缩进2空格，语句加分号，函数括号前后有空格，文件最后必须有一个换行符
 - 样式变量: `@/libs/assets/style/variables.scss` | BEM命名 | 主题色 `var(--leap-color-primary)`
 - 组件优先级: `@/libs/components` > element-ui
 

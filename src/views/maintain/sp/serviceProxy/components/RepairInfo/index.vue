@@ -5,7 +5,7 @@
 		</div>
 		<div class="common-section-body">
       <div class="table-section">
-        <el-form :inline="true" :model="form" :rules="rules" ref="basicForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
+        <el-form :inline="true" label-width="150px" class="form-edit">
           <el-form-item label="本次维修估算费用：">
             <el-input
               placeholder="请输入"
