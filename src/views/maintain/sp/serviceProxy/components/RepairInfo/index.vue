@@ -80,7 +80,11 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="repairItemCode" title="维修项目代码" width="200px" />
+          <vxe-column field="repairItemCode" title="维修项目代码" width="200px">
+            <template #default="{ row }">
+              <el-link type="success" :href="`/service/maintain/basic/repairItem/detail?id=${row.repairItemId}`" target="_blank">{{ row.repairItemCode }}</el-link>
+            </template>
+          </vxe-column>
           <vxe-column field="repairItemName" title="维修项目名称" width="200px" />
           <vxe-column field="repairItemTypeName" title="维修类型" width="200px" />
           <vxe-column field="checkoutTypeName" title="结算类型" width="200px" />
