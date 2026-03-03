@@ -53,7 +53,11 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="partsCode" title="零件代码" width="200px" />
+          <vxe-column field="partsCode" title="零件代码" width="200px">
+            <template #default="{ row }">
+              <el-link type="success" :href="`/sparepart/basic/sparePart/detail?id=${row.partsCode}`" target="_blank">{{ row.partsCode }}</el-link>
+            </template>
+          </vxe-column>
           <vxe-column field="partsName" title="零件名称" width="200px" />
           <vxe-column field="repairItemTypeName" title="维修类型" width="200px" />
           <vxe-column field="isOutstock" title="是否出库" width="200px">
