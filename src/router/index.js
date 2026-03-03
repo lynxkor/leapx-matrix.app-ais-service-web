@@ -405,7 +405,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartVehicleModel/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件适用车型',
         keepAlive: true
       }
     }, {
@@ -414,7 +414,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartVehicleModel/detail.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件适用车型详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -423,7 +423,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartVehicleModel/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件适用车型详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -432,7 +432,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/spareSalesCategory/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件营销分类',
         keepAlive: true
       }
     }, {
@@ -441,7 +441,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/spareSalesCategory/detail.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件营销分类详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -450,7 +450,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/spareSalesCategory/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件营销分类详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -459,7 +459,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/spareSupplyCategory/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件供应分类',
         keepAlive: true
       }
     }, {
@@ -468,7 +468,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/spareSupplyCategory/detail.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件供应分类详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -477,7 +477,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/spareSupplyCategory/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件供应分类详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -486,7 +486,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/spareEngineeringCategory/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件工程分类',
         keepAlive: true
       }
     }, {
@@ -495,7 +495,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/spareEngineeringCategory/detail.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件工程分类详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -504,7 +504,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/spareEngineeringCategory/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件工程分类详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -666,7 +666,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/supplierInfo/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '供应商主数据',
         keepAlive: true
       }
     }, {
@@ -675,7 +675,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/supplierInfo/detail.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '供应商主数据详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -684,7 +684,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/supplierInfo/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '供应商主数据详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -693,7 +693,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartSupplier/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '供应商备件关系',
         keepAlive: true
       }
     }, {
@@ -702,7 +702,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartSupplier/detail.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '供应商备件关系详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -711,7 +711,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartSupplier/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '供应商备件关系详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -720,7 +720,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartReplacer/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件替换件关系',
         keepAlive: true
       }
     }, {
@@ -729,7 +729,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartReplacer/detail.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件替换件关系详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -738,7 +738,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartReplacer/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件替换件关系详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -747,7 +747,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartPurchasePrice/index.vue'),
 
       meta: {
-        name: '新页面'
+        name: '备件采购价格'
       }
     }, {
       path: '/sparepart/basic/sparepartpurchaseprice/detail',
@@ -755,7 +755,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartPurchasePrice/detail.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件采购价格详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -764,7 +764,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartPurchasePrice/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件采购价格详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -773,7 +773,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartSalesPrice/index.vue'),
 
       meta: {
-        name: '新页面'
+        name: '备件销售价格'
       }
     }, {
       path: '/sparepart/basic/sparepartsalesprice/detail',
@@ -781,7 +781,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePartSalesPrice/detail.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件销售价格详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -789,7 +789,7 @@ const routes = [
       name: 'sparePartSalesPriceEdit',
       component: () => import('@/views/sparepart/basic/sparePartSalesPrice/edit.vue'),
       meta: {
-        name: '新页面详情',
+        name: '备件销售价格详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -807,7 +807,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePart/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件主数据',
         keepAlive: true
       }
     }, {
@@ -816,7 +816,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePart/detail.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件主数据详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -825,7 +825,25 @@ const routes = [
       component: () => import('@/views/sparepart/basic/sparePart/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件主数据详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/dealerSparePart',
+      name: 'dealerSparePart',
+      component: () => import('@/views/sparepart/basic/dealerSparePart/index.vue'),
+
+      meta: {
+        name: '外购件主数据',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/dealerSparePart/edit',
+      name: 'dealerSparePartEdit',
+      component: () => import('@/views/sparepart/basic/dealerSparePart/edit.vue'),
+
+      meta: {
+        name: '外购件主数据详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -933,7 +951,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchaseMinAmount/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件起订金额设置',
         keepAlive: true
       }
     }, {
@@ -942,7 +960,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchaseMinAmount/detail.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件起订金额设置详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -951,7 +969,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchaseMinAmount/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件起订金额设置详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -1249,7 +1267,7 @@ const routes = [
       component: () => import('@/views/sparepart/warehouse/inventory/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '厅店备件库存',
         keepAlive: true
       }
     }, {
@@ -1258,7 +1276,7 @@ const routes = [
       component: () => import('@/views/sparepart/warehouse/inventory/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '厅店备件库存详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -1267,7 +1285,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchasePrice/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件采购价格',
         keepAlive: true
       }
     }, {
@@ -1276,7 +1294,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchasePrice/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件采购价格详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -1285,7 +1303,7 @@ const routes = [
       component: () => import('@/views/sparepart/warehouse/oemWarehouse/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '主机厂仓库设置',
         keepAlive: true
       }
     }, {
@@ -1294,7 +1312,7 @@ const routes = [
       component: () => import('@/views/sparepart/warehouse/oemWarehouse/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '主机厂仓库设置详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -1303,7 +1321,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchasePriceCoupon/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '门店备件优惠券',
         keepAlive: true
       }
     }, {
@@ -1312,7 +1330,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/purchasePriceCoupon/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '门店备件优惠券详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -1496,7 +1514,7 @@ const routes = [
       component: () => import('@/views/sparepart/claim/sparePartClaim/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件索赔',
         keepAlive: true
       }
     }, {
@@ -1505,7 +1523,7 @@ const routes = [
       component: () => import('@/views/sparepart/claim/sparePartClaim/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件索赔详情',
         noResourceUrl: 'true'
       }
     }, {

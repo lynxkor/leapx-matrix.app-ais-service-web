@@ -305,6 +305,7 @@
         <!-- 右侧栏组件，自行开发 -->
         <SparePartsDetail
           :purchase-apply-id="_id"
+          @submit="getDetailData"
         />
       </div>
     </template>
@@ -318,7 +319,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getPurchaseApplyPage } from '@/api/sparepart/purchase/purchaseApply/index';
+import { getDetail, addOrUpdate, getPurchaseApplyPage, purchaseApplyDelete } from '@/api/sparepart/purchase/purchaseApply/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -662,6 +663,11 @@ export default {
       this.current = current;
       this.getDetailData();
     },
+    // 删除事件
+    async handleDel (val) {
+      await purchaseApplyDelete([val.id]);
+      this.getDetailData();
+    }
   }
 };
 </script>

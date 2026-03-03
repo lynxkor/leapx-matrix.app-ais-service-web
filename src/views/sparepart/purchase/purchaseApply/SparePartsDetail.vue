@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import { addDetail, getPurchaseApplyDetail, purchaseApplyDelete } from '@/api/sparepart/purchase/purchaseApply/index';
+import { addDetail, getPurchaseApplyDetail, getPurchaseApplyPage } from '@/api/sparepart/purchase/purchaseApply/index';
 import EditTable from '@/libs/components/EditTable';
 import { sparePartListShort } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -133,15 +133,15 @@ export default {
       ],
     };
   },
-  watch: {
-    purchaseApplyId: {
-      async handler (val) {
-        await this.getDetailData();
-      },
-      immediate: true,
-      deep: true
-    }
-  },
+  // watch: {
+  //   purchaseApplyId: {
+  //     async handler (val) {
+  //       await this.getDetailData();
+  //     },
+  //     immediate: true,
+  //     deep: true
+  //   }
+  // },
   methods: {
     // 备件远程搜索
     async getSparePart (query) {
@@ -164,7 +164,8 @@ export default {
       };
       addDetail(params).then(res => {
         this.detailId = res || '';
-        this.getDetailData();
+        this.getSparePartDetail(res); // 拿到获取的 备件列表id 去查询详情
+        this.$emit('submit');
       });
     },
     // 备件采购申请明细表新增/编辑
@@ -190,11 +191,6 @@ export default {
       await this.getAddDetail(params);
       this.getSparePartDetail(this.detailId);
     },
-    // 删除事件
-    async handleDel (val) {
-      await purchaseApplyDelete([val.id]);
-      this.getDetailData();
-    }
   }
 };
 
