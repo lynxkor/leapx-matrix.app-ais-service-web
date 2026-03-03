@@ -414,7 +414,7 @@ export default {
           editRender: { name: 'ElInput' },
         },
         {
-          field: 'oemPartLabel',
+          field: 'isOemPart',
           title: '是否OEM件',
           width: '20%',
           editRender: { name: 'ElInput' }
@@ -641,7 +641,7 @@ export default {
     },
     // 维修类型模糊搜索方法（带防抖）
     async repairItemSearch (query) {
-      if (query !== '' && query.length < 2) {
+      if (query === '') {
         this.repairItemOptions = [];
         return;
       }
