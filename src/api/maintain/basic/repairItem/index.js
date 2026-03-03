@@ -12,6 +12,14 @@ export function getList (data) {
 };
 
 /**
+ * 维修项目列表查询
+ * @param {Object} data
+ */
+export function getPage (data) {
+  return api.jsonPost(prefix + 'list', data);
+};
+
+/**
  * 新增或修改
  * @param {Object} data
  */
