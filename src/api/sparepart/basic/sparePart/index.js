@@ -13,6 +13,14 @@ export function getList (data) {
   return api.jsonPost(prefix + 'page', data);
 };
 
+/**
+ * 查询列表
+ * @param {Object} data
+ */
+export function getDealerList (data) {
+  return api.jsonPost(prefix + 'dealerPage', data);
+};
+
 export function getSparePart (data) {
   return api.jsonPost(prefix + 'list', data);
 };
