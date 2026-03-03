@@ -28,13 +28,6 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="修改者：" prop="modifier">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifier"
-                    clearable
-                  />
-                </el-form-item>
                 <el-form-item label="套餐代码：" prop="code">
                   <el-input
                     placeholder="请输入"
@@ -49,16 +42,6 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="套餐类型id：" prop="typeId">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.typeId"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
                 <el-form-item label="拼音简码：" prop="spellCode">
                   <el-input
                     placeholder="请输入"
@@ -66,18 +49,19 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="适用车系：" prop="vehicleSeriesId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vehicleSeriesId"
-                    clearable
-                  />
+                <el-form-item label="是否下发：" prop="used">
+                  <el-radio-group v-model="form.suedDealer">
+                    <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
+                  </el-radio-group>
                 </el-form-item>
-                <el-form-item label="适用车系：" prop="vehicleSeriesIds">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vehicleSeriesIds"
+                <el-form-item label="套餐类型" prop="typeId">
+                  <fetch-select
+                    :request="fetchOptions"
+                    enumCode="xxx"
+                    v-model="form.typeId"
+                    placeholder="请选择"
                     clearable
+                    filterable
                   />
                 </el-form-item>
                 <el-form-item label="数据来源：" prop="dataSource">
@@ -94,71 +78,6 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.status"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="总金额：" prop="totalAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.totalAmount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifierName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.updateTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creatorName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.createTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.id"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creator"
-                    clearable
-                  />
-                </el-form-item>
                 <el-form-item label="备注：" prop="remark">
                   <el-input
                     placeholder="请输入"
@@ -166,123 +85,15 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statusDesc"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="维修套餐--维修项目：" prop="itemRespList">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.itemRespList"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="维修套餐--零配件：" prop="partRespList">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.partRespList"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="套餐类型：" prop="typeName">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.typeName"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="撤销下发日期：" prop="backoutSuedDate">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.backoutSuedDate"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="下发状态：" prop="comboStatus">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.comboStatus"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="是否下发门店：" prop="suedDealer">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.suedDealer"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="归属门店ID（组织ID），当数据权限归属到本组织以及本下级：" prop="ownerOrgId">
+                <el-form-item label="归属门店：" prop="ownerOrgId">
                   <el-input
                     placeholder="请输入"
                     v-model="form.ownerOrgId"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="门店编码：" prop="dealerCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dealerCode"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="下发日期：" prop="suedDate">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.suedDate"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="维修备件合计：" prop="repairPartAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.repairPartAmount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="维修项目合计：" prop="repairProjectAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.repairProjectAmount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="适用车型：" prop="carModelId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.carModelId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="适用车型：" prop="carModelIds">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.carModelIds"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="是否已使用：" prop="used">
-                  <el-radio-group v-model="form.used">
-                    <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
-                  </el-radio-group>
-                </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
-                </el-form-item>
                 <el-form-item label="套餐代码：" prop="code">
                   {{ form.code }}
                 </el-form-item>
@@ -313,7 +124,34 @@
                 <el-form-item label="总金额：" prop="totalAmount">
                   {{ form.totalAmount }}
                 </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
+                <!-- <el-form-item label="主键：" prop="id">
+                  {{ form.id }}
+                </el-form-item> -->
+                <el-form-item label="撤销下发日期：" prop="backoutSuedDate">
+                  {{ form.backoutSuedDate }}
+                </el-form-item>
+                <el-form-item label="是否下发门店：" prop="suedDealer">
+                  {{ form.suedDealer }}
+                </el-form-item>
+                <el-form-item label="下发状态：" prop="comboStatus">
+                  {{ form.comboStatus }}
+                </el-form-item>
+                <el-form-item label="下发日期：" prop="suedDate">
+                  {{ form.suedDate }}
+                </el-form-item>
+                <el-form-item label="门店编码：" prop="dealerCode">
+                  {{ form.dealerCode }}
+                </el-form-item>
+                <el-form-item label="维修备件合计：" prop="repairPartAmount">
+                  {{ form.repairPartAmount }}
+                </el-form-item>
+                <el-form-item label="维修项目合计：" prop="repairProjectAmount">
+                  {{ form.repairProjectAmount }}
+                </el-form-item>
+                <el-form-item label="备注：" prop="remark">
+                  {{ form.remark }}
+                </el-form-item>
+                <!-- <el-form-item label="修改者名称：" prop="modifierName">
                   {{ form.modifierName }}
                 </el-form-item>
                 <el-form-item label="修改时间：" prop="updateTime">
@@ -324,61 +162,10 @@
                 </el-form-item>
                 <el-form-item label="创建时间：" prop="createTime">
                   {{ form.createTime }}
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  {{ form.statusDesc }}
-                </el-form-item>
-                <el-form-item label="维修套餐--维修项目：" prop="itemRespList">
-                  {{ form.itemRespList }}
-                </el-form-item>
-                <el-form-item label="维修套餐--零配件：" prop="partRespList">
-                  {{ form.partRespList }}
-                </el-form-item>
-                <el-form-item label="套餐类型：" prop="typeName">
-                  {{ form.typeName }}
-                </el-form-item>
-                <el-form-item label="撤销下发日期：" prop="backoutSuedDate">
-                  {{ form.backoutSuedDate }}
-                </el-form-item>
-                <el-form-item label="下发状态：" prop="comboStatus">
-                  {{ form.comboStatus }}
-                </el-form-item>
-                <el-form-item label="是否下发门店：" prop="suedDealer">
-                  {{ form.suedDealer }}
-                </el-form-item>
-                <el-form-item label="归属门店ID（组织ID），当数据权限归属到本组织以及本下级：" prop="ownerOrgId">
-                  {{ form.ownerOrgId }}
-                </el-form-item>
-                <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode }}
-                </el-form-item>
-                <el-form-item label="下发日期：" prop="suedDate">
-                  {{ form.suedDate }}
-                </el-form-item>
-                <el-form-item label="维修备件合计：" prop="repairPartAmount">
-                  {{ form.repairPartAmount }}
-                </el-form-item>
-                <el-form-item label="维修项目合计：" prop="repairProjectAmount">
-                  {{ form.repairProjectAmount }}
-                </el-form-item>
-                <el-form-item label="适用车型：" prop="carModelId">
-                  {{ form.carModelId }}
-                </el-form-item>
-                <el-form-item label="适用车型：" prop="carModelIds">
-                  {{ form.carModelIds }}
-                </el-form-item>
-                <el-form-item label="是否已使用：" prop="used">
+                </el-form-item> -->
+                <!-- <el-form-item label="是否已使用：" prop="used">
                   {{ yes_no_enum_map[form.used] }}
-                </el-form-item>
+                </el-form-item> -->
               </el-form>
             </div>
           </section>
@@ -510,7 +297,7 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '修改者：' + this.form.modifier;
+      return '套餐代码：' + this.form.code;
     }
   },
   watch: {
@@ -526,7 +313,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: '维修套餐管理',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-repairPackages',

@@ -294,7 +294,8 @@
                   size="small"
                   placeholder="请选择"
                   filterable
-                  @change="handlePartRepairItemTypeChange(row)"
+                  :disabled="!!row.repairItemName"
+                @change="handlePartRepairItemTypeChange(row)"
                 >
                   <el-option
                     v-for="item in itemOptions.repairItemTypeName"
@@ -396,7 +397,8 @@
                   placeholder="请选择"
                   filterable
                   :disabled="!!row.isBindltem"
-                  @change="handlePartRepairItemNameChange(row)"
+                  clearable
+                @change="handlePartRepairItemNameChange(row)"
                 >
                   <el-option
                     v-for="item in repairItemNameOptions"
@@ -695,7 +697,12 @@ export default {
       //   this.$message.warning('请至少添加一个维修项目或维修配件');
       //   return;
       // }
-
+      // 保修类型为售前保修只能单独开单
+      const el = this.itemData.find(item => item.warrantyTypeId === 'ED68D3F0-C1FB-E911-B0BB-FC82BA5F9EDF');
+      if (el && this.itemData.length > 1) {
+        this.$message.warning('售前保修只能单独开单');
+        return;
+      }
       this.submitLoading = true;
 
       const data = {
@@ -984,6 +991,10 @@ export default {
       const selectedItem = this.itemData.find(item => item.repairItemName === row.repairItemName);
       if (selectedItem) {
         row.repairItemId = selectedItem.repairItemId;
+        row.repairItemTypeName = selectedItem.repairItemTypeName;
+        row.repairItemTypeId = selectedItem.repairItemTypeId;
+      } else {
+        row.repairItemId = null;
       }
     },
     // 结算类型是否为合同、保修

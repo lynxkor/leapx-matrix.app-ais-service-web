@@ -1,0 +1,183 @@
+<template>
+  <section class="common-section">
+    <div class="common-section-header">
+      <h2>子表标题</h2>
+    </div>
+    <div class="common-section-body">
+      <div class="common-section-header">
+        <div class="ais-select-group">
+          <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请选择" clearable
+            value-key="id" label-key="name" @change="handleAddTableData" />
+          <el-button type="primary" size="small">添加</el-button>
+        </div>
+      </div>
+      <div class="common-section-table">
+        <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
+          min-height="0" max-height="400px">
+          {{#each detailTable}}
+          <vxe-column field="{{key}}" title="{{description}}" width="150" />
+          {{/each}}
+          <vxe-column title="操作" width="100">
+            <template #default="{ row }">
+              <el-popconfirm title="确定要删除吗？" @confirm="handleRemoveRow(row)">
+                <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
+              </el-popconfirm>
+            </template>
+          </vxe-column>
+          <template #empty>
+            <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
+          </template>
+        </vxe-table>
+      </div>
+    </div>
+  </section>
+</template>
+
+<script>
+import {
+  addDetail,
+  removeDetail,
+  getDetailList,
+  detailSearchApi,
+} from '@/api/{{modulePath}}/index';
+import FetchSelect from '@/libs/components/FetchSelect';
+import { getEnum } from '@/api/common';
+import { YES_NO_ENUM } from '@/libs/constants';
+
+const defaultForm = {
+  // 多选时字段有变化，自行修复
+  {{#each detailTable}}
+  {{key}}: '', // {{description}}
+  {{/each}}
+};
+
+export default {
+  props: {
+    _id: {
+      type: [String, Number],
+      default: null
+    },
+  },
+  components: {
+    FetchSelect
+  },
+  computed: {
+    title () {
+      return '标题xxx'
+    }
+  },
+  data () {
+    const form = this.getDefautlForm();
+    return {
+      yes_no_enum: YES_NO_ENUM,
+      form: { ...form },
+      originalForm: { ...form },
+      emptyText: '若要启用此内容，请创建记录',
+      current: 1,
+      pageSize: 10,
+      total: 0,
+      tableData: [],
+      options: {
+        // 对应表格里选型枚举
+        // 如 type: [{label: 'xxx', value: 'xxx'}]
+      },
+      rules: {},
+    };
+  },
+  watch: {
+    _id: {
+      handler () {
+        this.getTableData();
+      },
+      immediate: true
+    }
+  },
+  mounted () {
+    this.getTableData();
+  },
+  methods: {
+    getTableData () {
+      if (!this._id) {
+        return;
+      }
+      getDetailList({
+        // TODO 根据需求进行替换
+        // xxxId: this._id,
+        //
+        pageSize: this.pageSize,
+        pageNum: this.current,
+      }).then((res) => {
+        this.tableData = res.records;
+        this.total = res.total;
+        this.$emit('data-change', this.tableData);
+      });
+    },
+    handleRemoveRow (row) {
+      if (!row.id) {
+        return;
+      }
+      this.removeRows([row.id]);
+    },
+    removeRows (ids) {
+      removeDetail({
+        id: this._id,
+        detailIdList: ids,
+      }).then((d) => {
+        this.$message.success('删除成功');
+        this.getTableData();
+      }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '删除失败!'
+        });
+      });
+    },
+    // 查询新增项的列表
+    queryListData (queryString) {
+      return new Promise(resolve => {
+        // 根据需求调用接口
+        detailSearchApi({ xxxx: queryString, status: 1, limitSize: 20 }).then(res => {
+          const list = res || [];
+          resolve(list);
+        });
+      });
+    },
+    // 新增子表数据
+    handleAddTableData (val, record) {
+      if (!record) {
+        this.$message.warning('请先选择数据');
+        return;
+      }
+      // 检查是否已存在
+      const exists = this.tableData.some(item => item.id === record.id);
+      if (exists) {
+        this.$message.warning('请勿重复添加');
+        return;
+      }
+      // 根据需求调用接口
+      this.tableData.push(record);
+      addDetail({
+        //
+      }).then(res => {
+        this.$message.success('添加成功');
+        this.detailRequest();
+      });
+    },
+    getDefautlForm () {
+      // TIPS: 此处可添加表单默认值，如当前用户信息等
+      // const userInfo = this.$store.state.user.userInfo;
+      return {
+        ...defaultForm
+        // ownerId: userInfo.userId,
+        // ownerName: userInfo.userName,
+      };
+    },
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
+    },
+  }
+};
+</script>
