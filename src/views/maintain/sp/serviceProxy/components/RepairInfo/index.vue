@@ -89,13 +89,20 @@
           <vxe-column field="repairItemTypeName" title="维修类型" width="200px" />
           <vxe-column field="checkoutTypeName" title="结算类型" width="200px" />
           <vxe-column field="warrantyTypeName" title="保修类型" width="200px" />
-          <vxe-column field="workHour" title="工时" width="200px" />
-          <vxe-column field="price" title="单价" width="200px" />
-          <vxe-column field="discountRate" title="折扣率" width="200px" />
+          <vxe-column field="isAddItems" title="是否增项" width="200px" >
+            <template #default="{ row }">
+              <span>{{ row.isOutstock === 1 ? '是' : '否' }}</span>
+            </template>
+          </vxe-column>
+          <vxe-column field="price" title="工时单价" width="200px" />
+          <vxe-column field="workHour" title="工时数" width="200px" />
           <vxe-column field="discountAmount" title="优惠金额" width="200px" />
+          <vxe-column field="discountRate" title="折扣率" width="200px" />
           <vxe-column field="repairAmount" title="项目金额" width="200px" />
-          <vxe-column field="statusLabel" title="维修项目状态" width="200px" />
           <vxe-column field="packageCode" title="套餐代码" width="200px" />
+          <vxe-column field="packageType" title="服务权益代码" width="200px" />
+          <vxe-column field="packageCode" title="车主服务权益明细" width="200px" />
+          <vxe-column field="createTime" title="创建时间" width="200px" sortable/>
           <template #empty>
             <div class="m-vxe-table-empty-text">若要启用此内容，请创建记录</div>
           </template>
@@ -117,7 +124,11 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="partsCode" title="零件代码" width="200px" />
+          <vxe-column field="partsCode" title="零件代码" width="200px" >
+            <template #default="{ row }">
+              <el-link type="success" :href="`/service/sparepart/basic/sparePart/detail?id=${row.partsId}`" target="_blank">{{ row.partsCode }}</el-link>
+            </template>
+          </vxe-column>
           <vxe-column field="partsName" title="零件名称" width="200px" />
           <vxe-column field="repairItemTypeName" title="维修类型" width="200px" />
           <vxe-column field="isOutstock" title="是否出库" width="200px">
