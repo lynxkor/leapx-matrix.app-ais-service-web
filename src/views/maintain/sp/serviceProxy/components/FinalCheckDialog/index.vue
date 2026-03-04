@@ -646,7 +646,7 @@ export default {
       if (record) {
         this.formInline.batteryUnitName = record.name;
         this.formInline.batteryUnitId = record.id;
-        this.formInline.targetUnitCode = record.unifiedSocialCreditCode || '';
+        this.formInline.targetUnitCode = record.code || '';
       }
     },
     // 零件去向单位变更
