@@ -46,7 +46,7 @@
     <div class="right-panel">
       <div v-if="selectedPackage" class="detail-content">
         <!-- 套餐标题 -->
-        <div class="detail-header">{{ selectedPackage.packageName }}</div>
+        <div class="detail-header">{{ selectedPackage.schemeName }}</div>
 
         <!-- 项目列表 -->
         <div class="project-list">
@@ -57,11 +57,11 @@
             :class="{ expanded: project.expanded }"
           >
             <!-- 项目标题行 -->
-            <div class="project-title" @click="toggleProject(project)">
+            <!-- <div class="project-title" @click="toggleProject(project)">
               <i class="el-icon-arrow-right expand-icon"></i>
-              <span class="project-name">{{ project.repairItemName }}</span>
-              <span class="project-code">{{ project.repairItemCode }}</span>
-            </div>
+              <span class="project-name">{{ project.activityResponse?.activityName }}</span>
+              <span class="project-code">{{ project.activityResponse?.activityCode }}</span>
+            </div> -->
 
             <!-- 项目详情 -->
             <div v-show="project.expanded" class="project-detail">
@@ -69,74 +69,77 @@
               <div class="info-row">
                 <div class="info-item">
                   <span class="label">主因零部件：</span>
-                  <span class="value">{{ project.repairItemTypeName }}</span>
+                  <span class="value">{{ project.mainPartName }}</span>
                 </div>
                 <div class="info-item">
                   <span class="label">主因供应商：</span>
-                  <span class="value">{{ project.checkoutTypeName }}</span>
+                  <span class="value">{{ project.mainSupplierName }}</span>
                 </div>
               </div>
               <div class="info-row">
                 <div class="info-item">
                   <span class="label">VRT名称：</span>
-                  <span class="value">{{ project.workHour }}</span>
+                  <span class="value">{{ project.vrtName }}</span>
                 </div>
                 <div class="info-item">
                   <span class="label">VFG名称：</span>
-                  <span class="value">{{ project.price }}</span>
+                  <span class="value">{{ project.vfgName }}</span>
                 </div>
               </div>
               <div class="info-row">
                 <div class="info-item">
                   <span class="label">是否允许修改旧件：</span>
-                  <span class="value">{{ project.discountAmount }}</span>
+                  <span class="value">{{ project.allowModifyOldPart === 1 ? '是': '否' }}</span>
                 </div>
               </div>
               <div class="info-row remark-row">
                 <span class="label">方案说明：</span>
-                <span class="value">{{ project.remark }}</span>
+                <span class="value">{{ project.description }}</span>
               </div>
 
               <!-- 维修零件表格 -->
               <div class="parts-section">
                 <h3>项目零件</h3>
+                <div class="parts-tabs">
+                  <div :class="{'parts-tabs-item': true, 'active': item.id === curPartTab}" v-for="item in partsList" :key="item.id" @click="curPartTab=item.id">{{ item.repairItemName }}123</div>
+                </div>
                 <div class="info-row">
                   <div class="info-item">
                     <span class="label">维修类型：</span>
-                    <span class="value">{{ project.repairItemTypeName }}</span>
+                    <span class="value">{{ project.activityResponse?.repairItemTypeName }}</span>
                   </div>
                   <div class="info-item">
                     <span class="label">结算类型：</span>
-                    <span class="value">{{ project.checkoutTypeName }}</span>
+                    <span class="value">{{ project.activityResponse?.checkoutTypeName }}</span>
                   </div>
                 </div>
                 <div class="info-row">
                   <div class="info-item">
                     <span class="label">保修类型：</span>
-                    <span class="value">{{ project.workHour }}</span>
+                    <span class="value">{{ project.activityResponse?.repairItemTypeName }}</span>
                   </div>
                   <div class="info-item">
                     <span class="label">主因工时：</span>
-                    <span class="value">{{ project.price }}</span>
+                    <span class="value">{{ project.activityResponse?.amount }}</span>
                   </div>
                 </div>
                 <div class="info-row">
                   <div class="info-item">
                     <span class="label">工时数：</span>
-                    <span class="value">{{ project.discountAmount }}</span>
+                    <span class="value">{{ project.activityResponse?.workHour }}</span>
                   </div>
                    <div class="info-item">
                     <span class="label">索赔价：</span>
-                    <span class="value">{{ project.price }}</span>
+                    <span class="value">{{ project.activityResponse?.quantity }}</span>
                   </div>
                 </div>
                 <div class="info-row remark-row">
                   <span class="label">方案说明：</span>
-                  <span class="value">{{ project.remark }}</span>
+                  <span class="value">{{ project.activityResponse?.remark }}</span>
                 </div>
                 <div class="section-title">维修零件</div>
                 <vxe-table
-                  :data="project.partRespList"
+                  :data="partRespList"
                   stripe
                   border="inner"
                   size="small"
@@ -144,11 +147,19 @@
                   max-height="200px"
                 >
                   <vxe-column type="checkbox" width="50" align="center"/>
-                  <vxe-column field="partsName" title="零件名称" min-width="140" />
-                  <vxe-column field="partsCode" title="零件代码" min-width="140" />
-                  <vxe-column field="repairItemTypeName" title="数量" min-width="100" />
-                  <vxe-column field="checkoutTypeName" title="是否允许删除" min-width="100" />
-                  <vxe-column field="warrantyTypeName" title="是否主因件" min-width="100" />
+                  <vxe-column field="partName" title="零件名称" min-width="140" />
+                  <vxe-column field="partCode" title="零件代码" min-width="140" />
+                  <vxe-column field="quantity" title="数量" min-width="100" />
+                  <vxe-column field="allowDelete" title="是否允许删除" min-width="100" >
+                    <template v-slot="{ row }">
+                      {{ !!row.allowDelete ? '是' : '否' }}
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="mainPart" title="是否主因件" min-width="100"  >
+                    <template v-slot="{ row }">
+                      {{ !!row.allowDelete ? '是' : '否' }}
+                    </template>
+                  </vxe-column>
                 </vxe-table>
               </div>
             </div>
@@ -188,13 +199,15 @@ export default {
   data () {
     return {
       searchKey: '',
-      selectedPackage: null,
+      selectedPackage: {},
+      projectList: [],
       packageList: [],
       packageTypeList: [],
       selectedType: '',
-      projectList: [],
       loading: false,
-      searchTimer: null
+      searchTimer: null,
+      curPartTab: '',
+      response: {}
     };
   },
   computed: {
@@ -207,6 +220,10 @@ export default {
     },
     confirmBtnText () {
       return this.selectedPackage?.used ? '取消选择' : '核销使用';
+    },
+    partRespList () {
+      const res = (this.response?.partResponseList || []).filter(item => item.serviceActivityItemId === this.curPartTab);
+      return res;
     }
   },
   methods: {
@@ -273,11 +290,15 @@ export default {
           id: this.vehicleInfo.id
         };
         const res = await getActivityDetail(params);
-        this.projectList = (res || []).itemResponseList?.map(item => ({
+        this.response = res || {};
+        this.projectList = ([res] || [])?.map(item => ({
           ...item,
-          expanded: true,
-          partsList: item.partsList || []
+          expanded: true
         }));
+        this.partsList = res.itemResponseList || [];
+        if (this.partsList.length > 0) {
+          this.curPartTab = this.partsList[0].id;
+        }
       } catch (error) {
         console.error('获取套餐详情失败', error);
         this.projectList = [];
@@ -514,7 +535,6 @@ export default {
           }
 
           .project-detail {
-            padding: 16px;
             background-color: #fff;
 
             .info-row {
@@ -566,6 +586,20 @@ export default {
                 margin-bottom: 12px;
               }
             }
+          }
+        }
+      }
+      .parts-tabs {
+        &-item {
+          border: 1px solid #E6E6E5;
+          display: inline-block;
+          margin: 0 8px 8px 0;
+          padding: 3px 10px;
+          border-radius: 4px;
+          cursor: pointer;
+          &.active {
+            border: 1px solid var(--leap-color-primary);
+            color: var(--leap-color-primary);
           }
         }
       }
