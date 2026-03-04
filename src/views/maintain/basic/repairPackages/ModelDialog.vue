@@ -152,7 +152,7 @@ import { listVehicleSeries, listVehicleYearTypeFull, listVehicleYearType } from 
 import { saveModelBatch } from '@/api/maintain/basic/repairPackages/index';
 
 export default {
-  name: 'SeriesYearDialog',
+  name: 'ModelDialog',
   props: {
     visible: {
       type: Boolean,
@@ -166,6 +166,10 @@ export default {
     initialData: {
       type: Array,
       default: () => []
+    },
+    repairId: {
+      type: String,
+      default: ''
     }
   },
   data () {
@@ -285,7 +289,11 @@ export default {
 
     // 处理确定按钮
     async handleConfirm () {
-      await saveModelBatch(this.tableData);
+      const params = this.tableData.map(item => ({
+        ...item,
+        repairPackagesId: this.repairId, // 维修套餐ID
+      }));
+      await saveModelBatch(params);
       // 将数据传递给父组件
       this.$emit('success');
       // 车系 年款  车型 全部初始化 表格数据清空

@@ -1,5 +1,5 @@
 <template>
-  <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
+  <edit-page-layout ref="editLayout" :title="repairDetailName" showPaneFooter @save="handleSave">
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container
@@ -155,10 +155,10 @@
                   <vxe-column field="price" title="工时单价" width="14.3%" />
                   <vxe-column field="discountAmount" title="优惠金额" width="14.3%" />
                   <vxe-column field="actualAmount" title="项目金额" width="14.3%" />
-                  <vxe-column title="操作" width="150" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <div @click="handleEditRow(rowIndex)" class="action-button btn-edit">日志</div>
-                      <div @click="handleSaveRow(rowIndex)" class="action-button btn-edit">编辑</div>
+                  <vxe-column title="操作" width="150" fixed="right" v-if="canDelete">
+                    <template #default="{ row, rowIndex }">
+                      <!-- <span @click="handleEditRow(rowIndex)" class="action-button btn-edit">日志</span> -->
+                      <span @click="handleEditRow(row)" class="action-button btn-edit">编辑</span>
                       <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
@@ -177,10 +177,16 @@
     <template #right>
       <div class="page-common-edit">
         <!-- 右侧栏组件，自行开发 -->
+        <RepairPackagesDetail
+          ref="repairPackagesDetail"
+          :repairPackagesId="repairItemId"
+          :repairItemId="repairDetailId"
+          @submit="getProjectPackage"
+        />
       </div>
     </template>
     <!-- 适配车型组件 -->
-    <ModelDialog :visible="modelDialogVisible" :data="tableData" @success="handleSuccessModel" @close="handleCloseModel" />
+    <ModelDialog :visible="modelDialogVisible" :repairId="repairId" :data="tableData" @success="handleSuccessModel" @close="handleCloseModel" />
   </edit-page-layout>
 </template>
 
@@ -196,6 +202,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditTable from '@/libs/components/EditTable';
 import ModelDialog from './ModelDialog.vue';
+import RepairPackagesDetail from './RepairPackagesDetail.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -249,7 +256,8 @@ export default {
     EditBaseContainer,
     FetchSelect,
     EditTable,
-    ModelDialog
+    ModelDialog,
+    RepairPackagesDetail
   },
   computed: {
     _id () {
@@ -356,6 +364,10 @@ export default {
           width: '30%',
         },
       ],
+      repairDetailId: '', // 维修项目明细ID
+      repairDetailName: '', // 维修项目名称
+      repairId: '', // 维修套餐ID
+      repairItemId: '', // 维修套餐ID 传入子组件
     };
   },
   mounted () {
@@ -398,18 +410,23 @@ export default {
     },
     // 新增维修项目
     handleAddTableData (val, record) {
-      if (!record) {
-        this.$message.warning('请先选择数据');
-        return;
-      }
+      console.log('handleAddTableData', val, record);
       // 检查是否已存在
       const exists = this.tableData.some(item => item.id === record.id);
       if (exists) {
         this.$message.warning('请勿重复添加');
         return;
       }
-      // 根据需求调用接口
-      this.openPane(); // 打开侧边栏
+      this.repairDetailName = record.name || '';
+      this.repairDetailId = record.id || '';
+      this.repairItemId = this._id;
+      this.openPane();
+    },
+    // 编辑维修项目
+    handleEditRow (row) {
+      this.repairDetailId = row.id;
+      this.repairItemId = this._id;
+      this.openPane();
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
@@ -455,6 +472,7 @@ export default {
     },
     // 适配车型弹窗
     handleModel () {
+      this.repairId = this._id;
       this.modelDialogVisible = true;
     },
     // 处理更新表格数据事件
@@ -466,6 +484,12 @@ export default {
     handleCloseModel () {
       this.modelDialogVisible = false;
     },
+    // 保存侧边栏事件
+    async handleSave () {
+      await this.$refs.repairPackagesDetail?.handleSave();
+      this.getModelList();
+      this.getProjectPackage();
+    }
   }
 };
 </script>
@@ -498,5 +522,8 @@ export default {
       cursor: not-allowed;
       color: var(--disabled-color);
     }
+  }
+  .btn-delete {
+    margin-left: 5px;
   }
 </style>
