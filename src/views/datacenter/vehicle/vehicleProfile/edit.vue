@@ -17,7 +17,8 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail" v-show="!isEditing">
+              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+
                 <el-form-item label="VIN码：">
                   <LPEncrypted
                     :value.sync="form.vin"
@@ -26,6 +27,7 @@
                     {{ form.vin }}
                   </LPEncrypted>
                 </el-form-item>
+
                 <el-form-item label="车牌号：">
                   <LPEncrypted
                     :value.sync="form.vehiclePlateNo"
@@ -34,6 +36,7 @@
                     {{ form.vehiclePlateNo }}
                   </LPEncrypted>
                 </el-form-item>
+
                 <el-form-item label="整车物料编码：">
                   {{ form.vehicleMaterialCode }}
                 </el-form-item>
@@ -136,6 +139,25 @@
                 <el-form-item label="基本车系名称：">
                   {{ form.vehicleSeriesName }}
                 </el-form-item>
+
+                <el-form-item label="是否通知进入激活模式：" prop="isNoticeActivateLabel">
+                  {{ form.isNoticeActivateLabel }}
+                </el-form-item>
+                <el-form-item label="通知进入激活模式时间：" prop="noticeActivateTime">
+                  {{ form.noticeActivateTime }}
+                </el-form-item>
+                <el-form-item label="通知失败原因：" prop="noticeFailReason">
+                  {{ form.noticeFailReason }}
+                </el-form-item>
+                <el-form-item label="通知失败原因：" prop="noticeFailReason">
+                  {{ form.noticeFailReason }}
+                </el-form-item>
+                <el-form-item label="全国交付顺序：" prop="countryDeliveryNo">
+                  {{ form.countryDeliveryNo }}
+                </el-form-item>
+                <el-form-item label="城市交付顺序：" prop="cityDeliveryNo">
+                  {{ form.cityDeliveryNo }}
+                </el-form-item>
               </el-form>
             </div>
           </section>
@@ -146,7 +168,7 @@
               <h2>车主信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" label-width="150px" class="form-detail" v-show="!isEditing">
+              <el-form :inline="true" label-width="150px" class="form-detail">
                 <el-form-item label="车主姓名：">
                   <LPEncrypted
                     :value.sync="form.ownerName"
@@ -163,6 +185,7 @@
                     {{ form.idcardNo }}
                   </LPEncrypted>
                 </el-form-item>
+
                 <el-form-item label="车主手机号码：">
                   <LPEncrypted
                     :value.sync="form.mobilephone"
@@ -171,30 +194,66 @@
                     {{ form.mobilephone }}
                   </LPEncrypted>
                 </el-form-item>
-                <el-form-item label="生日：">
+                <el-form-item v-show="isEditing || !_id" label="称呼：" prop="gender">
+                  <fetch-select
+                    :request="fetchOptions"
+                    enumCode="vehicle_profile_gender"
+                    v-model="form.gender"
+                    placeholder="请选择"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item v-show="!(isEditing || !_id)" label="称呼：" prop="gender">
+                  {{ form.genderLabel }}
+                </el-form-item>
+
+                <el-form-item v-show="isEditing || !_id" label="生日：" prop="birthdate">
+                  <el-date-picker v-model="form.birthdate" type="date" value-format="yyyy-MM-dd"  placeholder="请选择">
+
+                  </el-date-picker>
+                </el-form-item>
+                <el-form-item v-show="!(isEditing || !_id)" label="生日：" prop="birthdate">
                   {{ form.birthdate }}
                 </el-form-item>
-                <el-form-item label="省：">
-                  {{ form.provinceName }}
+
+                <el-form-item  v-show="(isEditing || !_id)"  label="省市区：" prop="provinceCode">
+                  <el-cascader
+                    placeholder="请选择省市区"
+                    v-model="form.districtCode"
+                    :props="orgProps"
+                    :options="areaOptions"
+                    filterable
+                    @change="handleCascaderChange"
+                    clearable>
+                  </el-cascader>
                 </el-form-item>
-                <el-form-item label="市：">
-                  {{ form.cityName }}
+                <el-form-item label="省市区：" v-show="!(isEditing || !_id)">
+                  {{ form.provinceName + form.cityName+ form.districtName }}
                 </el-form-item>
-                <el-form-item label="区：">
-                  {{ form.districtName }}
+
+                <el-form-item v-show="isEditing || !_id" label="家庭地址：" prop="homeAddress">
+                  <el-input v-model="form.homeAddress" placeholder="请输入内容"></el-input>
                 </el-form-item>
-                <el-form-item label="家庭地址：">
+                <el-form-item v-show="!(isEditing || !_id)" label="家庭地址：" prop="homeAddress">
                   {{ form.homeAddress }}
                 </el-form-item>
-                <el-form-item label="工作地址：">
+
+                <el-form-item v-show="isEditing || !_id" label="工作地址：" prop="workAddress">
+                  <el-input v-model="form.workAddress" placeholder="请输入内容"></el-input>
+                </el-form-item>
+                <el-form-item v-show="!(isEditing || !_id)" label="工作地址：" prop="workAddress">
                   {{ form.workAddress }}
                 </el-form-item>
-                <el-form-item label="特殊备注：">
+                <el-form-item v-show="isEditing || !_id" label="特殊备注：" prop="remark">
+                  <el-input v-model="form.remark" placeholder="请输入内容"></el-input>
+                </el-form-item>
+                <el-form-item v-show="!(isEditing || !_id)" label="特殊备注：" prop="remark">
                   {{ form.remark }}
                 </el-form-item>
                 <el-form-item label="实名状态：">
                   {{ form.realnameStatusLabel }}
                 </el-form-item>
+
                 <el-form-item label="绑车人姓名：">
                   <LPEncrypted
                     :value.sync="form.bindingUser"
@@ -203,6 +262,7 @@
                     {{ form.bindingUser }}
                   </LPEncrypted>
                 </el-form-item>
+
                 <el-form-item label="绑车人手机号码：">
                   <LPEncrypted
                     :value.sync="form.bindingPhone"
@@ -211,6 +271,14 @@
                     {{ form.bindingPhone }}
                   </LPEncrypted>
                 </el-form-item>
+                <el-form-item label="绑车人证件类型：">
+                  {{ form.bindingIdtypeLabel }}
+                </el-form-item>
+
+                <el-form-item label="绑车人证件号码：">
+                  {{ form.bindingIdno }}
+                </el-form-item>
+
                 <el-form-item label="绑车时间：">
                   {{ form.bindingOn }}
                 </el-form-item>
@@ -230,7 +298,7 @@
               <h2>服务信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" label-width="150px" class="form-detail" v-show="!isEditing">
+              <el-form :inline="true" label-width="180px" class="form-detail">
                 <el-form-item label="是否终身免保：">
                   {{ form.isLifetimeFreeMaintainLabel }}
                 </el-form-item>
@@ -273,28 +341,51 @@
                 <el-form-item label="最近保养里程：">
                   {{ form.lastMaintainMileages }}
                 </el-form-item>
-                <el-form-item label="下次保养时间：">
+                <el-form-item v-show="isEditing || !_id" label="下次保养时间：" prop="remark">
+                  <el-date-picker
+                    v-model="form.nextMaintainDate"
+                    type="date"
+                    style="max-width: 200px"
+                    value-format="yyyy-MM-dd"
+                    placeholder="选择日期"
+                  />
+                </el-form-item>
+                <el-form-item v-show="!(isEditing || !_id)" label="下次保养时间：" prop="remark">
                   {{ form.nextMaintainDate }}
                 </el-form-item>
-                <el-form-item label="下次保养里程：">
+
+                <el-form-item v-show="isEditing || !_id" label="下次保养里程：" prop="remark">
+                  <el-input-number
+                    v-model="form.nextMaintainMileages"
+                    placeholder="请输入"
+                    :controls="false"
+                    :precision="0"
+                  />
+                </el-form-item>
+                <el-form-item v-show="!(isEditing || !_id)" label="下次保养里程：" prop="remark">
                   {{ form.nextMaintainMileages }}
                 </el-form-item>
-                <el-form-item label="送修人：">
-                  <LPEncrypted
-                    :value.sync="form.shuttleName"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'shuttleName')"
-                  >
+
+                <el-form-item v-show="isEditing || !_id" label="送修人：" prop="shuttleName">
+                  <el-input
+                    v-model="form.shuttleName"
+                    placeholder="请输入"
+                  />
+                </el-form-item>
+                <el-form-item v-show="!(isEditing || !_id)"  label="送修人：" prop="shuttleName">
                     {{ form.shuttleName }}
-                  </LPEncrypted>
                 </el-form-item>
-                <el-form-item label="送修人手机：">
-                  <LPEncrypted
-                    :value.sync="form.shuttlePhone"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'shuttlePhone')"
-                  >
+
+                <el-form-item v-show="isEditing || !_id" label="送修人手机：" prop="shuttlePhone">
+                  <el-input
+                    v-model="form.shuttlePhone"
+                    placeholder="请输入"
+                  />
+                </el-form-item>
+                <el-form-item v-show="!(isEditing || !_id)"  label="送修人手机：" prop="shuttlePhone">
                     {{ form.shuttlePhone }}
-                  </LPEncrypted>
                 </el-form-item>
+
                 <el-form-item label="整车保修结束日期(预测)：">
                   {{ form.warrantyEnddateForecast }}
                 </el-form-item>
@@ -302,7 +393,14 @@
                   {{ form.isLifetimeWarrantyForecastLabel }}
                 </el-form-item>
                 <el-form-item label="车辆状态：">
-                  {{ getVehicleStatusText(form.vehicleStatus) }}
+                  {{ form.vehicleStatusLabel }}
+                </el-form-item>
+                <el-form-item v-show="isEditing || !_id" label="车辆销售变更时间：" prop="vehicleStaffupDatetime">
+                  <el-date-picker v-model="form.vehicleStaffupDatetime" type="date" value-format="yyyy-MM-dd" placeholder="请选择">
+                  </el-date-picker>
+                </el-form-item>
+                <el-form-item v-show="!(isEditing || !_id)" label="车辆销售变更时间：" prop="vehicleStaffupDatetime">
+                  {{ form.vehicleStaffupDatetime }}
                 </el-form-item>
               </el-form>
             </div>
@@ -319,13 +417,16 @@
 </template>
 
 <script>
-import { getDetail, getDetailDecryptField } from '@/api/datacenter/vehicle/vehicleProfile/index';
+import { getDetail, getDetailDecryptField, updateFlat } from '@/api/datacenter/vehicle/vehicleProfile/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import LPEncrypted from '@/libs/components/LPEncrypted/index.vue';
+import FetchSelect from '@/libs/components/FetchSelect/index.vue';
+import { getEnum } from '@/api/common';
+import { getAreaInfo } from '@/utils';
 
 const defaultForm = {
   // 基础信息
@@ -475,6 +576,7 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
+    FetchSelect,
     LPEncrypted,
     EditPageLayout,
     EditBaseContainer
@@ -482,6 +584,9 @@ export default {
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
+    },
+    _vin () {
+      return this.vin || this.$route.query.vin || this.form.vin;
     }
   },
   watch: {
@@ -497,6 +602,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      areaOptions: JSON.parse(localStorage.areaTree),
       pageTitle: '车辆档案管理',
       pageType: 'edit',
       title: 'VIN码：' + form.vin,
@@ -506,6 +612,13 @@ export default {
       isEditing: false,
       form: { ...form },
       originalForm: { ...form },
+      orgProps: {
+        checkStrictly: true,
+        emitPath: false,
+        label: 'name',
+        value: 'code',
+        children: 'child'
+      },
     };
   },
   mounted () {
@@ -513,30 +626,42 @@ export default {
   methods: {
     detailRequest () {
       const id = this._id;
-      if (id) {
+      const vin = this._vin;
+      console.log(id, vin);
+      if (id || vin) {
         // 使用平铺接口
-        return getDetail({ id });
+        return getDetail({ id, vin });
       }
     },
     submitRequest () {
       // 明细页不需要提交功能
-      return Promise.resolve();
+      if (this.form.districtCode) {
+        let areaInfo = getAreaInfo(this.form.districtCode);
+        this.form.provinceName = areaInfo.provinceName;
+        this.form.provinceCode = areaInfo.provinceCode;
+        this.form.cityName = areaInfo.cityName;
+        this.form.cityCode = areaInfo.cityCode;
+        this.form.districtName = areaInfo.districtName;
+        this.form.districtCode = areaInfo.districtCode;
+      }
+      return updateFlat({ ...this.form });
     },
     getDefautlForm () {
       return {
         ...defaultForm
       };
     },
-    getVehicleStatusText (status) {
-      const statusMap = {
-        1: '正常',
-        2: '维修中',
-        3: '报废'
-      };
-      return statusMap[status] || '';
-    },
     getDetailDecryptField (id, field) {
       return getDetailDecryptField(id, field);
+    },
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
+    },
+    handleCascaderChange (value) {
+      console.log(value);
     },
   }
 };

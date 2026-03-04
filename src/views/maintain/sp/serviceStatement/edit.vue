@@ -141,7 +141,7 @@
                   <el-input placeholder="请输入" v-model="form.partPayableAmount" disabled clearable />
                 </el-form-item>
               </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="结算单号：" prop="code">
                   {{ form.code }}
                 </el-form-item>
@@ -382,10 +382,13 @@ export default {
     // 按钮权限控制 - 使用计算属性确保响应式更新
     buttonPermissions () {
       // 驳回按钮：自费、保险、内部结算类型，且状态为待收款
-      // 自费=352BB70C-82AC-E911-B0BB-FC82BA5F9EDF,
-      // 保险=372BB70C-82AC-E911-B0BB-FC82BA5F9EDF,
-      // 内部结算=3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF(根据实际枚举值调整)
+      // SELF_PAY("352BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "自费"),
+      // INSURANCE("372BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "保险"),
+      // WARRANTY("392BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "保修"),
+      // CONTRACT("3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "合同"),
+      // INTERNAL_SETTLEMENT("3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "内部结算");
       const baseType = ['352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF'];
+      const baseType2 = ['392BB70C-82AC-E911-B0BB-FC82BA5F9EDF', '3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF'];
       const { statementType, statementStatus, isCheck } = this.form;
       return {
         // 权益核销：结算类型为自费/保险/内部结算，状态为待结算
@@ -407,7 +410,7 @@ export default {
         addRecord: baseType.includes(statementType) && statementStatus === 30,
 
         // 创建保修申请单：结算类型为自费/保险，状态为已完成
-        createWarranty: statementType === '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF' && statementStatus === 30
+        createWarranty: baseType2.includes(statementType) && statementStatus === 30
       };
     }
   },

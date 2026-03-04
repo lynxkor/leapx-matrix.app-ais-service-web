@@ -12,7 +12,11 @@
                 size="medium"
             >
                 <vxe-column field="orderType" title="业务类型" />
-                <vxe-column field="orderCode" title="业务单号" />
+                <vxe-column field="orderCode" title="业务单号" width="200">
+                  <template #default="{ row }">
+                    <div class="href-link" @click="handleJump(row)">{{ row.orderCode }}</div>
+                  </template>
+                </vxe-column>
                 <vxe-column v-if="orderType === '冻结订单'" field="qty" title="冻结数量" />
                 <vxe-column v-else field="qty" title="在途数量" />
                 <vxe-column field="createTime" title="创建时间" />
@@ -65,17 +69,46 @@ export default {
     id: {
       handler (newVal) {
         this.inventoryId = newVal;
+      },
+      immediate: true, // 立即执行一次
+      deep: true, // 深度监听
+    },
+    orderType: {
+      handler () {
         this.getDetailPageApi();
       },
       immediate: true, // 立即执行一次
       deep: true, // 深度监听
-    }
+    },
   },
   mounted () {
   },
   beforeDestroy () {
   },
   methods: {
+    // 业务单号跳转
+    handleJump (row) {
+      let path = '';
+      if (row.orderType === '采购订单未入库') {
+        path = '/sparepart/purchase/purchaseOrder/edit';
+      } else if (row.orderType === '采购缺货未解欠') {
+        path = '/sparepart/purchase/backOrder/edit';
+      } else if (row.orderType === '退货不合格退回') {
+        path = '/sparepart/return/returnOrder/edit';
+      } else if (row.orderType === '采购退货提交') {
+        path = '/sparepart/return/returnOrder/edit';
+      } else {
+        return;
+      }
+
+      this.$router.push({
+        path: path,
+        query: {
+          id: row.orderId
+        }
+      });
+    },
+
     getId () {
       return this.id || this.$route.query.id;
     },

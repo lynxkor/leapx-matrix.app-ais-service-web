@@ -21,8 +21,6 @@
             <h2>基础信息</h2>
           </div>
           <div class="common-section-body">
-            <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
-            <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
               <el-form-item label="仓库名称：" prop="warehouseName">
                 <el-input
@@ -64,7 +62,7 @@
                 <el-input
                   placeholder="请输入"
                   v-model="form.address"
-                  maxlength="200"
+                  maxlength="100"
                   clearable
                 />
               </el-form-item>
@@ -89,7 +87,7 @@
                   placeholder="请输入"
                   type="textarea"
                   v-model="form.remark"
-                  maxlength="500"
+                  maxlength="1000"
                   clearable
                 />
               </el-form-item>
@@ -247,6 +245,9 @@ export default {
         warehouseCode: [
           { required: true, message: '请输入仓库编码', trigger: 'change' }
         ],
+        receiverContact: [
+          { required: true, message: '请输入收货联系人', trigger: 'change' }
+        ],
         districtCode: [
           { required: true, message: '请选择省市区', trigger: 'change' }
         ],
@@ -273,6 +274,15 @@ export default {
       return Object.assign(data, areaInfo);
     },
     submitRequest () {
+      if (this.form.districtCode) {
+        let areaInfo = getAreaInfo(this.form.districtCode);
+        this.form.provinceName = areaInfo.provinceName;
+        this.form.provinceCode = areaInfo.provinceCode;
+        this.form.cityName = areaInfo.cityName;
+        this.form.cityCode = areaInfo.cityCode;
+        this.form.districtName = areaInfo.districtName;
+        this.form.districtCode = areaInfo.districtCode;
+      }
       return addOrUpdate({ ...this.form });
     },
     handleBack () {

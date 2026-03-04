@@ -110,8 +110,8 @@
               </el-form-item>
               <el-form-item label="保养项目分类" prop="maintenanceItemType">
                 <fetch-select
-                  :request="fetchOptions"
-                  enumCode="mc_maintenance_item"
+                  :request="fetchOptionsMaintenanceItem"
+                  enumCode="MaintenanceItemEnum"
                   v-model="form.maintenanceItemType"
                   placeholder="请选择"
                   clearable
@@ -237,7 +237,7 @@
 import { getDetail, addOrUpdate } from '@/api/maintain/basic/repairItem/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
-import { getEnum, listVehicleYearTypeFull, listVehicleYearType, repairItemType, sparePartList } from '@/api/common';
+import { getEnum, listVehicleYearTypeFull, listVehicleYearType, repairItemType, sparePartList, getMaintenanceItemEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -414,7 +414,7 @@ export default {
           editRender: { name: 'ElInput' },
         },
         {
-          field: 'oemPartLabel',
+          field: 'isOemPart',
           title: '是否OEM件',
           width: '20%',
           editRender: { name: 'ElInput' }
@@ -641,7 +641,7 @@ export default {
     },
     // 维修类型模糊搜索方法（带防抖）
     async repairItemSearch (query) {
-      if (query !== '' && query.length < 2) {
+      if (query === '') {
         this.repairItemOptions = [];
         return;
       }
@@ -691,6 +691,12 @@ export default {
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);
+      }
+      return [];
+    },
+    async fetchOptionsMaintenanceItem (code) {
+      if (code) {
+        return getMaintenanceItemEnum(code);
       }
       return [];
     },

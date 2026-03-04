@@ -212,8 +212,8 @@
     <BatchSignForDialogAll
       ref="batchSignForDialogRef"
       :visible="batchSignDialogVisible"
-      :batchForm="batchForm"
       :inbound="inbound"
+      :signForList="selectionSignFor"
       @close="handleBatchSignDialogClose"
       @submit="handleBatchSignForSubmit"
     />
@@ -305,6 +305,7 @@ export default {
       batchSignDialogVisible: false, // 批量签收/入库弹窗
       inbound: false, // 批量签收/入库
       batchForm: [], // 批量签收/入库
+      selectionSignFor: [], // 选中的采购订单 批量签收 入库
       submitClaimDialogVisible: false, // 提交索赔弹窗
       selectionClaim: [], // 选中的采购订单
       clickItemId: '',
@@ -355,14 +356,14 @@ export default {
           { props: 'backOrderCode', label: '缺货单号', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'deliveryWarehouse', label: '发货仓库', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 200 },
-          { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 200 },
+          { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
+          { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
           { props: 'shippingOrder', label: '发运单', visible: true, width: 200 },
-          { props: 'purchaseAmount', label: '采购金额', visible: true, width: 200 },
-          { props: 'cashAmount', label: '使用现金', visible: true, width: 200 },
-          { props: 'rebateAmount', label: '使用返利', visible: true, width: 200 },
+          { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
+          { props: 'cashAmount', label: '使用现金', visible: true, align: 'right', width: 120 },
+          { props: 'rebateAmount', label: '使用返利', visible: true, align: 'right', width: 120 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
         ],
@@ -394,7 +395,7 @@ export default {
         },
         dataProp: [
           {
-            props: 'code',
+            props: 'purchaseOrderCode',
             label: '采购订单号',
             visible: true,
             width: 200,
@@ -429,23 +430,23 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180 },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
-          { props: 'settlementQty', label: '结算数量', visible: true, width: 200 },
-          { props: 'cancelQty', label: '取消数量', visible: true, width: 200 },
-          { props: 'outboundQty', label: '已发运数', visible: true, width: 200 },
-          { props: 'signedQty', label: '已签收数', visible: true, width: 200 },
-          { props: 'inboundQty', label: '已入库数', visible: true, width: 200 },
-          { props: 'cancelOperator', label: '取消人', visible: true, width: 200 },
+          { props: 'settlementQty', label: '结算数量', visible: true, align: 'right', width: 120 },
+          { props: 'cancelQty', label: '取消数量', visible: true, align: 'right', width: 120 },
+          { props: 'outboundQty', label: '已发运数', visible: true, align: 'right', width: 120 },
+          { props: 'signedQty', label: '已签收数', visible: true, align: 'right', width: 120 },
+          { props: 'inboundQty', label: '已入库数', visible: true, align: 'right', width: 120 },
+          { props: 'cancelOperator', label: '取消人', visible: true, width: 120 },
           { props: 'cancelTime', label: '取消时间', visible: true, width: 200 },
           { props: 'cancelDescription', label: '取消说明', visible: true, width: 200 },
-          { props: 'originalPrice', label: '原价', visible: true, width: 200 },
-          { props: 'purchasePrice', label: '采购价', visible: true, width: 200 },
-          { props: 'purchaseAmount', label: '采购金额', visible: true, width: 200 },
-          { props: 'rebateUnitPrice', label: '折后价', visible: true, width: 200 },
-          { props: 'rebateAmount', label: '折后金额', visible: true, width: 200 },
+          { props: 'originalPrice', label: '原价', visible: true, align: 'right', width: 120 },
+          { props: 'purchasePrice', label: '采购价', visible: true, align: 'right', width: 120 },
+          { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
+          { props: 'rebateUnitPrice', label: '折后价', visible: true, align: 'right', width: 120 },
+          { props: 'rebateAmount', label: '折后金额', visible: true, align: 'right', width: 120 },
           { props: 'detailRemark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -457,6 +458,9 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '提交索赔',
+              show: (row) => {
+                return row.inboundQty !== '0';
+              },
               click: (rowIndex, row) => {
                 this.handleClaim(row);
               },
@@ -475,7 +479,7 @@ export default {
         },
         dataProp: [
           {
-            props: 'code',
+            props: 'purchaseOrderCode',
             label: '采购订单号',
             visible: true,
             width: 200,
@@ -514,13 +518,13 @@ export default {
           { props: 'detailRemark', label: '备注', visible: true, width: 200 },
           { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
-          { props: 'settlementQty', label: '结算数量', visible: true, width: 200 },
-          { props: 'cancelQty', label: '取消数量', visible: true, width: 200 },
-          { props: 'outboundQty', label: '已发运数', visible: true, width: 200 },
-          { props: 'signedQty', label: '已签收数', visible: true, width: 200 },
-          { props: 'inboundQty', label: '已入库数', visible: true, width: 200 },
+          { props: 'settlementQty', label: '结算数量', visible: true, align: 'right', width: 120 },
+          { props: 'cancelQty', label: '取消数量', visible: true, align: 'right', width: 120 },
+          { props: 'outboundQty', label: '已发运数', visible: true, align: 'right', width: 120 },
+          { props: 'signedQty', label: '已签收数', visible: true, align: 'right', width: 120 },
+          { props: 'inboundQty', label: '已入库数', visible: true, align: 'right', width: 120 },
           { props: 'cancelOperator', label: '仓库名称', visible: true, width: 200 },
-          { props: 'cancelTime', label: '本次签收数', visible: true, width: 200 },
+          { props: 'cancelTime', label: '本次签收数', visible: true, align: 'right', width: 120 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -788,7 +792,7 @@ export default {
     // 签收  签收并入库
     handleSignFor (val, type) {
       this.signForm = {
-        purchaseOrderId: val.purchaseOrderId,
+        purchaseOrderDetailId: val.id,
         inbound: type
       };
       this.signDialogVisible = true;
@@ -802,9 +806,7 @@ export default {
     },
     // 批量签收  批量并入库
     handleBatchSignFor (type) {
-      this.batchForm = this.selectionList.map(item => ({
-        purchaseOrderId: item.purchaseOrderId,
-      }));
+      this.selectionSignFor = this.selectionList;
       this.inbound = type;
       this.batchSignDialogVisible = true;
     },
@@ -822,7 +824,23 @@ export default {
       this.submitClaimDialogVisible = true;
     },
     handleBatchClaim () {
-      this.selectionClaim = this.selectionList;
+      if (this.selectionList.length > 50) {
+        this.$message.warning('最多支持50行记录进行提交索赔');
+        return;
+      }
+      // 过滤出已入库数大于0的备件
+      const validItems = this.selectionList.filter(item => item.inboundQty > 0);
+      // 如果没有符合条件的备件，提示用户
+      if (this.selectionList.length !== validItems.length) {
+        this.$message.warning('请选择已入库的备件进行索赔');
+        return;
+      }
+      // 如果没有符合条件的备件，提示用户 两条判断有点混了 暂保留
+      if (validItems.length === 0) {
+        this.$message.warning('请选择已入库的备件进行索赔');
+        return;
+      }
+      this.selectionClaim = validItems;
       this.submitClaimDialogVisible = true;
     },
     handleSubmitClaimDialogClose () {

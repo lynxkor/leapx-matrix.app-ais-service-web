@@ -269,7 +269,7 @@ export default {
           },
           { props: 'expectFinishAt', label: '预计交车时间', visible: true, width: 200 },
           { props: 'creatorName', label: '登记人', visible: true, width: 200 },
-          { props: 'createTime', label: '开单时间', visible: true, width: 200, sortable: true },
+          { props: 'createTime', label: '开单时间', visible: true, width: 200, sortable: true, fixed: 'right' },
         ],
         total: 0
       },
@@ -416,12 +416,12 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
-      data.sortColumns = this.sortColumns.concat([
+      data.sortColumns = ([
         {
           column: 'order_status',
           sort: 'ASC'
         }
-      ]);
+      ]).concat(this.sortColumns);
       return data;
     },
     async fetchOptions (code) {

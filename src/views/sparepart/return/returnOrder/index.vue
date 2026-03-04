@@ -245,13 +245,13 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
           { props: 'returnReasonLabel', label: '退货原因', visible: true, width: 200 },
-          { props: 'returnStatusLabel', label: '退货状态', visible: true, width: 200 },
+          { props: 'returnStatusLabel', label: '退货状态', visible: true, width: 120 },
           { props: 'logisticsOrderNo', label: '物流单号', visible: true, width: 200 },
-          { props: 'logisticsProvider', label: '物流商', visible: true, width: 200 },
+          { props: 'logisticsProvider', label: '物流商', visible: true, width: 120 },
           { props: 'deliveryTime', label: '发货时间', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
@@ -441,10 +441,15 @@ export default {
     },
     exportExcel () {
       this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      };
       exportTable({
         businessType: '备件退货单',
         dataFetchPath: 'sparepart/web/return/returnOrder/page',
-        reqParams: this.getFormData(),
+        reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
@@ -603,7 +608,7 @@ export default {
     },
     // 发运
     handleShipment (val) {
-      this.clickItemId = val.id;
+      this.shipmentId = val.id;
       this.shipmentDialogVisible = true;
     },
     handleShipmentDialogClose () {

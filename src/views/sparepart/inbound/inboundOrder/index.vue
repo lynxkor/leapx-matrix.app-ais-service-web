@@ -60,7 +60,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="InboundStatusEnum"
-            v-model="form.inboundStatus"
+            v-model="form.inboundStatusList"
             placeholder="请选择"
             clearable
             multiple
@@ -143,7 +143,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/inbound/inboundOrder/index';
+import { getList, deleteItem, enableItem, warehousing } from '@/api/sparepart/inbound/inboundOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -162,7 +162,7 @@ const defaultForm = {
   dealerCode: '',
   warehouseId: '',
   inboundType: '',
-  inboundStatus: '',
+  inboundStatusList: [],
   createTime: '',
   updateTime: '',
 };
@@ -225,11 +225,11 @@ export default {
             }]
           },
           { props: 'businessOrderCode', label: '业务单号', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
-          { props: 'inboundTypeLabel', label: '入库类型', visible: true, width: 200 },
-          { props: 'inboundStatusLabel', label: '入库状态', visible: true, width: 200 },
+          { props: 'inboundTypeLabel', label: '入库类型', visible: true, width: 120 },
+          { props: 'inboundStatusLabel', label: '入库状态', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -263,6 +263,27 @@ export default {
                 });
               },
               type: 'danger'
+            }, {
+              name: '入库',
+              show: (row) => {
+                return row.inboundStatus === '0';
+              },
+              popconfirmTitle: '此操作将入库, 是否继续?',
+              click: (rowIndex, row) => {
+                warehousing({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '入库成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '入库失败!'
+                  });
+                });
+              },
+              type: 'info'
             }]
           }
         ],

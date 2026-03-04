@@ -60,7 +60,7 @@ export default {
       const params = {
         purchaseOrderSignList: [
           {
-            purchaseOrderId: this.signForForm?.purchaseOrderId,
+            purchaseOrderDetailId: this.signForForm?.purchaseOrderDetailId,
             qty: this.formData.qty
           }
         ],

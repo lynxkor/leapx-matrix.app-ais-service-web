@@ -31,19 +31,19 @@
             filterable
               />
       </el-form-item>
+      <el-form-item label="创建时间" v-show="this.visibleCount === 3 || show">
+        <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="创建时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
         <el-form-item label="修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -69,11 +69,11 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button> -->
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button> -->
+      <!-- <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
+      <!-- <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -119,7 +119,7 @@ import { handleBatchStatusChange, downloadExcel, getEndOfDayString } from '@/lib
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
-
+// console.log('类型' + this.$route.query.type);
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
@@ -127,7 +127,6 @@ const defaultForm = {
   companyNameList: '',
   createTime: '',
   updateTime: '',
-  accountType: 'FUND',
 };
 
 const pageSize = 20;
@@ -146,10 +145,10 @@ export default {
   },
   data () {
     return {
-      pageTitle: '备件现金账户',
+      pageTitle: this.accountName,
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISPART-account',
+      moduleKey: this.accountType === 'FUND' ? 'AISPART-account' : 'AISPART-accountRebate',
       form: {
         ...defaultForm
       },
@@ -186,15 +185,15 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'companyCode', label: '公司编码', visible: true, width: 200 },
+          { props: 'companyCode', label: '公司编码', visible: true, width: 180 },
           { props: 'companyName', label: '公司名称', visible: true, width: 200 },
           { props: 'bankName', label: '开户银行', visible: true, width: 200 },
           { props: 'bankAccountHolder', label: '银行户主', visible: true, width: 200 },
           { props: 'bankAccount', label: '开户账户', visible: true, width: 200 },
-          { props: 'availableAmount', label: '可用资金', visible: true, width: 200 },
-          { props: 'frozenAmount', label: '冻结资金', visible: true, width: 200 },
-          { props: 'marginAmount', label: '保证资金', visible: true, width: 200 },
-          { props: 'totalAmount', label: '账户总额', visible: true, width: 200 },
+          { props: 'availableAmount', label: '可用资金', visible: true, align: 'right', width: 120 },
+          { props: 'frozenAmount', label: '冻结资金', visible: true, align: 'right', width: 120 },
+          { props: 'marginAmount', label: '保证资金', visible: true, align: 'right', width: 120 },
+          { props: 'totalAmount', label: '账户总额', visible: true, align: 'right', width: 120 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           // {
@@ -236,10 +235,29 @@ export default {
           // }
         ],
         total: 0
-      }
+      },
+      accountType: '',
+      accountName: ''
     };
   },
   created () {
+    // 1. 先尝试从 URL query 获取（防止用户手动刷新或分享链接）
+    const queryType = this.$route.query.type;
+    const queryName = this.$route.query.name;
+
+    if (queryType) {
+      this.accountType = queryType;
+      this.accountName = queryName;
+    } else {
+      // 2. 如果 URL 没有参数，再从 meta 中获取默认值
+      // 注意：这里通过 $route.matched 获取当前激活路由的配置
+      const currentRoute = this.$route.matched[this.$route.matched.length - 1];
+
+      if (currentRoute && currentRoute.meta && currentRoute.meta.query) {
+        this.accountType = currentRoute.meta.query.type;
+        this.accountName = currentRoute.meta.query.name;
+      }
+    }
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },
@@ -284,7 +302,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '备件现金账户',
+        businessType: this.$route.query.name,
         dataFetchPath: 'sparepart/web/fund/account/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -292,7 +310,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '备件现金账户.xlsx');
+            await downloadExcel(res.excelUrl, this.$route.query.name + '.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
@@ -313,7 +331,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getList({ ...this.getFormData(), accountType: this.accountType, pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {

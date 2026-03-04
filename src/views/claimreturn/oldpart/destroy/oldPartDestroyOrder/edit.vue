@@ -18,7 +18,7 @@
         </template>
         <template #extraButtons>
           <!-- 门店可操作 -->
-          <el-button v-if="isDealer && form.destroyStatus === '40'" @click="dialogFormVisible = true" size="small">销毁</el-button>
+          <el-button v-if="isDealer && (form.destroyStatus === '40' || form.destroyStatus === '70')" @click="onDestory" size="small">销毁</el-button>
           <!-- 主机厂可操作 -->
           <el-button v-if="!isDealer && form.destroyStatus === '50'" @click="dialogFormVisible2 = true" size="small">审批</el-button>
         </template>
@@ -28,7 +28,7 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form label-width="150px" :inline="true" class="form-detail">
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="旧件销毁单号：" prop="destroyOrderNo">
                   {{ form.destroyOrderNo }}
                 </el-form-item>
@@ -46,7 +46,7 @@
               <h2>销毁审批信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form label-width="150px" :inline="true" class="form-detail">
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="销毁人：" prop="destroyerName">
                   {{ form.destroyerName }}
                 </el-form-item>
@@ -92,7 +92,7 @@
                   @current-page-change="currentPageChange"
                 >
                   <template v-slot:default="{ row, column, col }">
-                    <span class="href-link" v-if="col.click" @click="() => col.click(row)">{{ row[column.field] }}</span>
+                    <el-button v-if="col.click" class="link" @click="() => col.click(row)" type="text">{{ row[column.field] }}</el-button>
                     <span v-else>{{ row[column.field] }}</span>
                   </template>
                 </edit-table>
@@ -110,6 +110,7 @@
                   :businessId="_id"
                   configCode="mcs_spmusedprtdestory_apply"
                   attachType="其他"
+                  ref="attachment"
                 />
               </div>
             </div>
@@ -118,19 +119,19 @@
       </edit-base-container>
       <!-- 旧件销毁申请 -->
       <el-dialog title="旧件销毁申请" :visible.sync="dialogFormVisible">
-        <el-form :model="form" ref="dialogRuleForm" :rules="rules" label-width="150px" class="form-edit">
+        <el-form :model="form" ref="dialogRuleForm" :rules="rules" class="form-edit">
           <el-form-item label="请输入销毁说明:" prop="destroyRemark">
             <el-input type="textarea" :maxlength="1000" v-model="form.destroyRemark" autocomplete="off"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button :loading="loadingDialog" type="primary" @click="executeDestroy">确 定</el-button>
+          <el-button size="small" @click="dialogFormVisible = false">取 消</el-button>
+          <el-button size="small" :loading="loadingDialog" type="primary" @click="executeDestroy">确 定</el-button>
         </div>
       </el-dialog>
       <!-- 旧件销毁审批 -->
       <el-dialog title="旧件销毁审批" :visible.sync="dialogFormVisible2">
-        <el-form label-width="150px" class="form-edit">
+        <el-form  class="form-edit">
           <el-form-item label="审批结果:">
             <el-radio-group v-model="isPass">
               <el-radio :label="true">通过</el-radio>
@@ -167,6 +168,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { getList, getDetailDecryptField } from '../../../../../api/claimreturn/oldpart/inventory/oem';
 import AisAttachment from '@/libs/components/AisAttachment';
+import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -238,7 +240,7 @@ export default {
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey,
       // 是否是门店用户
-      isDealer: this.$store.state.user.userInfo?.accountFlag,
+      isDealer: null,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -275,19 +277,6 @@ export default {
             });
             // BUG: 保修申请单跳转路径未设置
             this.$router.push(`/maintain/sp/serviceProxy/edit?id=${row.serviceProxyId}`);
-          }
-        },
-        {
-          field: 'serviceOrderNo',
-          title: '接车服务单',
-          width: '160',
-          click: (row) => {
-            this.navigateToRoute({
-              path: '/maintain/sp/serviceOrder/edit',
-              query: {
-                id: row.serviceOrderId
-              }
-            });
           }
         },
         {
@@ -389,7 +378,7 @@ export default {
           width: '160'
         },
         {
-          field: 'oemStatus',
+          field: 'oemStatusLabel',
           title: '主机厂库存状态',
           width: '150'
         },
@@ -528,6 +517,9 @@ export default {
   },
   mounted () {
     this.getTableData();
+    loginUserGet().then(data => {
+      this.isDealer = data.accountFlag;
+    });
   },
   methods: {
     detailRequest () {
@@ -666,6 +658,14 @@ export default {
         row[rawField] = row[field];
         row[field] = data;
       });
+    },
+    onDestory () {
+      const allFiles = this.$refs.attachment.getFileList();
+      if (!allFiles?.length) {
+        this.$message.error('请上传销毁附件信息后，再申请销毁，谢谢');
+        return;
+      }
+      this.dialogFormVisible = true;
     }
   }
 };

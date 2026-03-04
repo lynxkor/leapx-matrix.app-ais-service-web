@@ -95,7 +95,7 @@
                   />
                 </el-form-item>
               </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="库存单号：" prop="code">
                   {{ form.code }}
                 </el-form-item>
@@ -174,7 +174,11 @@
                   <vxe-column field="code" title="流水编号" width="9%" />
                   <vxe-column field="outInTypeLabel" title="操作类型" width="9%" />
                   <vxe-column field="businessTypeLabel" title="业务类型" width="9%" />
-                  <vxe-column field="businessNo" title="业务单号" width="9%" />
+                  <vxe-column field="businessNo" title="业务单号" width="200">
+                    <template #default="{ row }">
+                      <div class="href-link" @click="handleJump(row)">{{ row.businessNo }}</div>
+                    </template>
+                  </vxe-column>
                   <vxe-column field="qty" title="数量" width="9%" />
                   <vxe-column field="costUnitPrice" title="成本单价" width="9%" />
                   <vxe-column field="costAmount" title="成本金额" width="9%" />
@@ -220,7 +224,11 @@
                   <vxe-column field="inventoryFlowCode" title="流水编号" width="11%" />
                   <vxe-column field="addSubTypeLabel" title="操作类型" width="11%" />
                   <vxe-column field="bizTypeName" title="业务类型" width="11%" />
-                  <vxe-column field="businessNo" title="业务单号" width="11%" />
+                  <vxe-column field="businessNo" title="业务单号" width="200">
+                    <template #default="{ row }">
+                      <div class="href-link" @click="handleJump(row)">{{ row.businessNo }}</div>
+                    </template>
+                  </vxe-column>
                   <vxe-column field="qty" title="数量" width="11%" />
                   <vxe-column field="oldQty" title="旧值" width="11%" />
                   <vxe-column field="newQty" title="新值" width="11%" />
@@ -258,11 +266,11 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, flowPage, operationFlowPage } from '@/api/sparepart/warehouse/inventory/index';
+import { getDetail, addOrUpdate, flowPage, operationFlowPage, getBizType } from '@/api/sparepart/warehouse/inventory/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
+import { getEnum, getSparePartOrderIdByCode } from '@/api/common';
 import { locationList } from '@/api/sparepart/warehouse/warehouse/index';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -396,6 +404,41 @@ export default {
     this.loadAllTableData();
   },
   methods: {
+    // 业务单号跳转
+    async handleJump (row) {
+      const bizType = await getBizType({ code: row.businessType, type: row.type });
+      const res = await getSparePartOrderIdByCode({ code: row.businessNo, type: bizType });
+
+      let path = '';
+      if (bizType === 'purchaseOrder') {
+        path = '/sparepart/purchase/purchaseOrder/edit';
+      } else if (bizType === 'purchaseApply') {
+        path = '/sparepart/purchase/purchaseApply/edit';
+      } else if (bizType === 'backOrder') {
+        path = '/sparepart/purchase/backOrder/edit';
+      } else if (bizType === 'returnOrder') {
+        path = '/sparepart/return/returnOrder/edit';
+      } else if (bizType === 'inboundOrder') {
+        path = '/sparepart/inbound/inboundOrder/edit';
+      } else if (bizType === 'maintenanceReturnInbound') {
+        path = '/sparepart/inbound/maintenanceReturnInbound/edit';
+      } else if (bizType === 'maintenanceOutboundOrder') {
+        path = '/sparepart/outbound/maintenanceOutboundOrder/edit';
+      } else if (bizType === 'claimOrder') {
+        path = '/sparepart/claim/sparePartClaim/edit';
+      } else if (bizType === 'oemOutboundOrder') {
+        path = '/sparepart/warehouse/oemOutboundOrder/edit';
+      } else {
+        return;
+      }
+
+      this.$router.push({
+        path: path,
+        query: {
+          id: res
+        }
+      });
+    },
     async getLocaltion (query) {
       try {
         const res = await locationList({ codeOrName: query });

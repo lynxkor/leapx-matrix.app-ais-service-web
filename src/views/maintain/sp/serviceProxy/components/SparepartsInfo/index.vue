@@ -33,11 +33,10 @@
             </template>
           </vxe-column>
           <vxe-column field="carPlate" title="车牌号" min-width="150"/>
-          <vxe-column field="cccName" title="出库类型" min-width="150"/>
-          <vxe-column field="cccName" title="处理状态" min-width="150"/>
+          <vxe-column field="outboundStatusLabel" title="处理状态" min-width="150"/>
           <vxe-column field="remark" title="备注" min-width="150"/>
-          <vxe-column field="cccName" title="负责人" min-width="150"/>
-          <vxe-column field="cccName" title="创建时间" min-width="150"/>
+          <vxe-column field="creatorName" title="负责人" min-width="150"/>
+          <vxe-column field="createTime" title="创建时间" min-width="150"/>
           <template #empty>
             <div class="m-vxe-table-empty-text">若要启用此内容，请创建记录</div>
           </template>

@@ -15,7 +15,7 @@
       <el-form-item label="采购订单号">
         <tag-input v-model="form.purchaseOrderCodeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="门店">
+      <el-form-item label="门店" v-show="this.visibleCount === 3 || show">
           <fetch-select
             :remote-method="getDealerList"
             remote
@@ -65,7 +65,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="ClaimStatusEnum"
-            v-model="form.claimStatus"
+            v-model="form.claimStatusList"
             placeholder="请选择"
             clearable
             multiple
@@ -148,7 +148,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/claim/sparePartClaim/index';
+import { getList, deleteItem, enableItem, getCommit, getAgree, getReject } from '@/api/sparepart/claim/sparePartClaim/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -168,7 +168,7 @@ const defaultForm = {
   dealerName: '',
   submitTime: '',
   claimType: '',
-  claimStatus: '',
+  claimStatusList: '',
   createTime: '',
   updateTime: '',
 };
@@ -231,15 +231,15 @@ export default {
             }]
           },
           { props: 'purchaseOrderCode', label: '采购订单号', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'submitTime', label: '提交时间', visible: true, width: 200 },
-          { props: 'submitter', label: '提交人', visible: true, width: 200 },
-          { props: 'claimTypeLabel', label: '索赔类型', visible: true, width: 200 },
-          { props: 'claimStatusLabel', label: '索赔状态', visible: true, width: 200 },
+          { props: 'submitter', label: '提交人', visible: true, width: 120 },
+          { props: 'claimTypeLabel', label: '索赔类型', visible: true, width: 120 },
+          { props: 'claimStatusLabel', label: '索赔状态', visible: true, width: 120 },
           { props: 'rejectionDescription', label: '驳回说明', visible: true, width: 200 },
           { props: 'approvalDescription', label: '审批说明', visible: true, width: 200 },
-          { props: 'completedIsLabel', label: '是否完结', visible: true, width: 200 },
+          { props: 'completedIsLabel', label: '是否完结', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -278,6 +278,57 @@ export default {
                 });
               },
               type: 'danger'
+            }, {
+              name: '提交',
+              show: (row) => {
+                return row.claimStatus === '10' || row.claimStatus === '30';
+              },
+              popconfirmTitle: '是否提交?',
+              click: (rowIndex, row) => {
+                getCommit({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '提交成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '提交失败!'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '同意',
+              show: (row) => {
+                return row.claimStatus === '20';
+              },
+              popconfirmTitle: '是否同意?',
+              click: (rowIndex, row) => {
+                getAgree({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '同意成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '同意失败!'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '驳回',
+              show: (row) => {
+                return row.claimStatus === '20';
+              },
+              click: (rowIndex, row) => {
+                this.handleReject(row.id);
+              },
+              type: 'info'
             }]
           }
         ],
@@ -475,6 +526,23 @@ export default {
       } catch (error) {
         console.error('Error fetching series list:', error);
       }
+    },
+    // 驳回
+    handleReject (val) {
+      this.$prompt('请输入驳回原因！', '驳回', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      }).then(({ value }) => {
+        // 调用驳回接口
+        getReject({ id: val, description: value }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '驳回成功!'
+          });
+          this.getData();
+        }).catch(() => {
+        });
+      }).catch(() => { });
     }
   }
 };

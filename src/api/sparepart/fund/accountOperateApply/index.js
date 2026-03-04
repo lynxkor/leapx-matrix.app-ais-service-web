@@ -43,3 +43,43 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 提交
+ * @param {Object} data
+ */
+export function getCommit (data) {
+  return api.jsonPost(prefix + 'commit', data);
+}
+
+/**
+ * 通过
+ * @param {Object} data
+ */
+export function getAgree (data) {
+  return api.jsonPost(prefix + 'agree', data);
+}
+
+/**
+ * 批量通过
+ * @param {Object} data
+ */
+export function getAgreeBatch (data) {
+  return api.jsonPost(prefix + 'agreeBatch', data);
+}
+
+/**
+ * 驳回
+ * @param {Object} data
+ */
+export function getReject (data) {
+  return api.jsonPost(prefix + 'reject', data);
+}
+
+/**
+ * 批量驳回
+ * @param {Object} data
+ */
+export function getRejectBatch (data) {
+  return api.jsonPost(prefix + 'rejectBatch', data);
+}

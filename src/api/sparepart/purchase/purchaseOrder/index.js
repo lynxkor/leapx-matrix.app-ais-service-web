@@ -50,7 +50,7 @@ export function enableItem (data) {
  * @param {Object} data
  */
 export function purchaseOrderDetail (data) {
-  return api.jsonPost(prefixDetail + 'page', data);
+  return api.jsonPost(prefixDetail + 'pageAll', data);
 }
 
 /**
@@ -58,7 +58,7 @@ export function purchaseOrderDetail (data) {
  * @param {Object} data
  */
 export function pageAll (data) {
-  return api.jsonPost('sp/web/purchase/purchaseOrderDetail/pageAll', data);
+  return api.jsonPost(prefixDetail + 'pageAll', data);
 }
 
 /**
@@ -66,7 +66,7 @@ export function pageAll (data) {
  * @param {Object} data
  */
 export function pageWaitSign (data) {
-  return api.jsonPost('sp/web/purchase/purchaseOrderDetail/pageWaitSign', data);
+  return api.jsonPost(prefixDetail + 'pageWaitSign', data);
 }
 
 /**
@@ -74,7 +74,7 @@ export function pageWaitSign (data) {
  * @param {Object} data
  */
 export function batchSign (data) {
-  return api.jsonPost('sp/web/purchase/purchaseOrder/batchSign', data);
+  return api.jsonPost(prefix + 'batchSign', data);
 }
 
 /**
@@ -82,5 +82,5 @@ export function batchSign (data) {
  * @param {Object} data
  */
 export function purchaseOrderClaim (data) {
-  return api.jsonPost('sp/web/purchase/purchaseOrder/claim', data);
+  return api.jsonPost(prefix + 'claim', data);
 }

@@ -224,12 +224,12 @@ export default {
           },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'orderTypeLabel', label: '订单类型', visible: true, width: 200 },
-          { props: 'percent', label: '调价比例%', visible: true, width: 200 },
-          { props: 'originalPriceCoupon', label: '原价优惠券数', visible: true, width: 200 },
-          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
-          { props: 'couponValidityPeriodLabel', label: '优惠券有效期', visible: true, width: 200 },
-          { props: 'couponIssueTimeLabel', label: '优惠券发放时间', visible: true, width: 200 },
+          { props: 'orderTypeLabel', label: '订单类型', visible: true, width: 120 },
+          { props: 'percent', label: '调价比例%', visible: true, align: 'right', width: 120 },
+          { props: 'originalPriceCoupon', label: '原价优惠券数', visible: true, align: 'right', width: 140 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 120 },
+          { props: 'couponValidityPeriodLabel', label: '优惠券有效期', visible: true, width: 140 },
+          { props: 'couponIssueTimeLabel', label: '优惠券发放时间', visible: true, width: 160 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -306,10 +306,15 @@ export default {
     },
     exportExcel () {
       this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      };
       exportTable({
         businessType: '备件特殊采购价设置',
         dataFetchPath: 'sparepart/web/basic/purchasePrice/page',
-        reqParams: this.getFormData(),
+        reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {

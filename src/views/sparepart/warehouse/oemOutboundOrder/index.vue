@@ -123,12 +123,13 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchSync" :disabled="selectionList.length === 0">同步</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -163,7 +164,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/oemOutboundOrder/index';
+import { getList, deleteItem, enableItem, getAsync } from '@/api/sparepart/warehouse/oemOutboundOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -272,7 +273,7 @@ export default {
             props: 'purchaseApplyCode',
             label: '采购申请单',
             visible: true,
-            width: 200,
+            width: 180,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -286,21 +287,21 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'deliveryWarehouse', label: '发货仓库', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 200 },
+          { props: 'deliveryWarehouse', label: '发货仓库', visible: true, width: 180 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 180 },
+          { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
           { props: 'logisticsOrderNo', label: '发运单', visible: true, width: 200 },
-          { props: 'orderSyncSuccessIsLabel', label: '订单同步是否成功', visible: true, width: 200 },
+          { props: 'orderSyncSuccessIsLabel', label: '订单同步是否成功', visible: true, width: 160 },
           { props: 'sapReturnInfo', label: 'SAP返回信息', visible: true, width: 200 },
-          { props: 'salesVoucher', label: '销售凭证', visible: true, width: 200 },
-          { props: 'deliveryVoucher', label: '交货凭证', visible: true, width: 200 },
+          { props: 'salesVoucher', label: '销售凭证', visible: true, width: 160 },
+          { props: 'deliveryVoucher', label: '交货凭证', visible: true, width: 160 },
           { props: 'invoiceNo', label: '发票号', visible: true, width: 200 },
           { props: 'invoiceDate', label: '开票日期', visible: true, width: 200 },
           { props: 'taxInvoiceNo', label: '税务发票号', visible: true, width: 200 },
-          { props: 'purchaseAmount', label: '采购金额', visible: true, width: 200 },
-          { props: 'cashAmount', label: '现金金额', visible: true, width: 200 },
-          { props: 'rebateAmount', label: '返利金额', visible: true, width: 200 },
+          { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
+          { props: 'cashAmount', label: '现金金额', visible: true, align: 'right', width: 120 },
+          { props: 'rebateAmount', label: '返利金额', visible: true, align: 'right', width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -339,6 +340,15 @@ export default {
                 });
               },
               type: 'danger'
+            }, {
+              name: '同步',
+              show: (row) => {
+                return row.orderSyncSuccessIs === '0' || row.outboundSyncSuccessIs === '0' || row.invoiceSyncSuccessIs === '0';
+              },
+              click: (rowIndex, row) => {
+                this.handleSync(row.id);
+              },
+              type: 'info'
             }]
           }
         ],
@@ -394,10 +404,15 @@ export default {
     },
     exportExcel () {
       this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      };
       exportTable({
         businessType: 'OEM出库单',
         dataFetchPath: 'sparepart/web/warehouse/oemOutboundOrder/page',
-        reqParams: this.getFormData(),
+        reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
@@ -537,28 +552,37 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
+    },
+    // 公共执行逻辑
+    _doSync (params, successMsg) {
+      this.$confirm('此操作将同步选中项，是否继续?', '提示', { type: 'warning' })
+        .then(() => getAsync(params))
+        .then(() => {
+          this.$message({ type: 'success', message: successMsg });
+          this.getData();
+        })
+        .catch(err => {
+        // 用户取消不报错，接口失败才报错
+          if (err !== 'cancel') {
+            this.$message({ type: 'error', message: err?.message || '同步失败' });
+          }
+        });
+    },
+
+    // 单个同步
+    handleSync (val) {
+      this._doSync({ id: val }, '同步成功!');
+    },
+
+    // 批量同步
+    handleBatchSync () {
+    // 1. 先检查是否选中
+      if (!this.selectionList.length) {
+        return this.$message({ type: 'warning', message: '请先选择数据' });
+      }
+      // 2. 提取 ID 并调用
+      const ids = this.selectionList.map(item => item.id);
+      this._doSync({ idList: ids }, `成功同步 ${ids.length} 项`);
     }
   }
 };

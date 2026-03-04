@@ -4,6 +4,66 @@
 			<h2>维修信息</h2>
 		</div>
 		<div class="common-section-body">
+      <div class="table-section">
+        <el-form :inline="true" :model="form" :rules="rules" ref="basicForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
+          <el-form-item label="本次维修估算费用：">
+            <el-input
+              placeholder="请输入"
+              v-model="costCountResp.maintenanceCostEstimation"
+              clearable
+              disabled
+            />
+          </el-form-item>
+          <el-form-item label="工时费用小计：">
+            <el-input
+              placeholder="请输入"
+              v-model="costCountResp.workCostCount"
+              clearable
+              disabled
+            />
+          </el-form-item>
+          <el-form-item label="自费金额估算：">
+            <el-input
+              placeholder="请输入"
+              v-model="costCountResp.ownMoneyEstimation"
+              clearable
+              disabled
+            />
+          </el-form-item>
+          <el-form-item label="内转金额估算：">
+            <el-input
+              placeholder="请输入"
+              v-model="costCountResp.innerTurnMoneyEstimation"
+              clearable
+              disabled
+            />
+          </el-form-item>
+          <el-form-item label="优惠金额小计：">
+            <el-input
+              placeholder="请输入"
+              v-model="costCountResp.preferentialMoneyCount"
+              clearable
+              disabled
+            />
+          </el-form-item>
+          <el-form-item label="备件费用小计：">
+            <el-input
+              placeholder="请输入"
+              v-model="costCountResp.barkCostCount"
+              clearable
+              disabled
+            />
+          </el-form-item>
+          <el-form-item label="保险金额估算：">
+            <el-input
+              placeholder="请输入"
+              v-model="costCountResp.insuranceMoneyEstimation"
+              clearable
+              disabled
+            />
+          </el-form-item>
+        </el-form>
+      </div>
 			<div class="table-section">
         <div class="table-section-header">
           <h3>维修项目</h3>
@@ -20,18 +80,29 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="repairItemCode" title="维修项目代码" width="200px" />
+          <vxe-column field="repairItemCode" title="维修项目代码" width="200px">
+            <template #default="{ row }">
+              <el-link type="success" :href="`/service/maintain/basic/repairItem/detail?id=${row.repairItemId}`" target="_blank">{{ row.repairItemCode }}</el-link>
+            </template>
+          </vxe-column>
           <vxe-column field="repairItemName" title="维修项目名称" width="200px" />
           <vxe-column field="repairItemTypeName" title="维修类型" width="200px" />
           <vxe-column field="checkoutTypeName" title="结算类型" width="200px" />
           <vxe-column field="warrantyTypeName" title="保修类型" width="200px" />
-          <vxe-column field="workHour" title="工时" width="200px" />
-          <vxe-column field="price" title="单价" width="200px" />
-          <vxe-column field="discountRate" title="折扣率" width="200px" />
+          <vxe-column field="isAddItems" title="是否增项" width="200px" >
+            <template #default="{ row }">
+              <span>{{ row.isOutstock === 1 ? '是' : '否' }}</span>
+            </template>
+          </vxe-column>
+          <vxe-column field="price" title="工时单价" width="200px" />
+          <vxe-column field="workHour" title="工时数" width="200px" />
           <vxe-column field="discountAmount" title="优惠金额" width="200px" />
+          <vxe-column field="discountRate" title="折扣率" width="200px" />
           <vxe-column field="repairAmount" title="项目金额" width="200px" />
-          <vxe-column field="statusLabel" title="维修项目状态" width="200px" />
           <vxe-column field="packageCode" title="套餐代码" width="200px" />
+          <vxe-column field="packageType" title="服务权益代码" width="200px" />
+          <vxe-column field="packageCode" title="车主服务权益明细" width="200px" />
+          <vxe-column field="createTime" title="创建时间" width="200px" sortable/>
           <template #empty>
             <div class="m-vxe-table-empty-text">若要启用此内容，请创建记录</div>
           </template>
@@ -53,7 +124,11 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="partsCode" title="零件代码" width="200px" />
+          <vxe-column field="partsCode" title="零件代码" width="200px" >
+            <template #default="{ row }">
+              <el-link type="success" :href="`/service/sparepart/basic/sparePart/detail?id=${row.partsId}`" target="_blank">{{ row.partsCode }}</el-link>
+            </template>
+          </vxe-column>
           <vxe-column field="partsName" title="零件名称" width="200px" />
           <vxe-column field="repairItemTypeName" title="维修类型" width="200px" />
           <vxe-column field="isOutstock" title="是否出库" width="200px">
@@ -142,7 +217,7 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="serviceProxyId" title="施工单号" width="180px" />
+          <vxe-column field="code" title="施工单号" width="180px" />
           <vxe-column field="dealerName" title="厅店名称" width="180px" />
           <vxe-column field="repairItemName" title="维修项目名称" width="200px" />
           <vxe-column field="repairItemCode" title="维修项目代码" width="180px" />
@@ -205,6 +280,7 @@ export default {
           this.partsTraceRecordRespList = val.partsTraceRecordRespList || [];
           this.repairItemRespList = val.costCountResp?.repairItemRespList || [];
           this.sparePartRespList = val.costCountResp?.sparePartRespList || [];
+          this.costCountResp = val.costCountResp || {};
         }
       },
       immediate: true,
@@ -216,7 +292,8 @@ export default {
       workRecordRespList: [],
       partsTraceRecordRespList: [],
       repairItemRespList: [],
-      sparePartRespList: []
+      sparePartRespList: [],
+      costCountResp: {}
     };
   },
   methods: {

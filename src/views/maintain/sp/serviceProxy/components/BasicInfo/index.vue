@@ -71,7 +71,6 @@
         </el-form-item>
         <el-form-item label="销售日期：" prop="saleDate">
           <el-date-picker
-            :default-time="['00:00:00', '23:59:59']"
             v-model="form.saleDate"
             placeholder="请选择日期"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -98,7 +97,6 @@
         </el-form-item>
         <el-form-item label="建议保养时间：" prop="maintenanceTime">
           <el-date-picker
-            :default-time="['00:00:00', '23:59:59']"
             v-model="form.maintenanceTime"
             placeholder="请选择日期"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -109,7 +107,6 @@
         </el-form-item>
         <el-form-item label="保修开始日期：" prop="startWarrantyDate">
           <el-date-picker
-            :default-time="['00:00:00', '23:59:59']"
             v-model="form.startWarrantyDate"
             placeholder="请选择日期"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -353,17 +350,16 @@
             disabled
           />
         </el-form-item>
-          <el-form-item label="签字渠道：" prop="signChannel">
+          <el-form-item label="签字渠道：" prop="signChannelLabel">
           <el-input
             placeholder="请输入"
-            v-model="form.signChannel"
+            v-model="form.signChannelLabel"
             clearable
             disabled
           />
         </el-form-item>
         <el-form-item label="签字生成时间：" prop="signGeneratedOn">
           <el-date-picker
-            :default-time="['00:00:00', '23:59:59']"
             v-model="form.signGeneratedOn"
             placeholder="请选择日期"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -374,7 +370,6 @@
         </el-form-item>
         <el-form-item label="签字完成时间：" prop="signCompletedOn">
           <el-date-picker
-            :default-time="['00:00:00', '23:59:59']"
             v-model="form.signCompletedOn"
             placeholder="请选择日期"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -385,7 +380,6 @@
         </el-form-item>
         <el-form-item label="短信签字链接过期时间：" prop="signUrlExpiredOn">
           <el-date-picker
-            :default-time="['00:00:00', '23:59:59']"
             v-model="form.signUrlExpiredOn"
             placeholder="请选择日期"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -510,8 +504,8 @@
         <el-form-item label="离店车联网里程数（增）：" prop="departureNetMileageExtend">
           {{ form.departureNetMileageExtend }}
         </el-form-item>
-        <el-form-item label="签字渠道：" prop="signChannel">
-          {{ form.signChannel }}
+        <el-form-item label="签字渠道：" prop="signChannelLabel">
+          {{ form.signChannelLabel }}
         </el-form-item>
         <el-form-item label="签字生成时间：" prop="signGeneratedOn">
           {{ form.signGeneratedOn }}

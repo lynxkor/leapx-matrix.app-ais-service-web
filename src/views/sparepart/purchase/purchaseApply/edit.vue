@@ -1,5 +1,5 @@
 <template>
-  <edit-page-layout ref="editLayout" :title="detailTitle" showPaneFooter>
+  <edit-page-layout ref="editLayout" :title="detailTitle">
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :form.sync="form" :submitRequest="submitRequest"
@@ -77,13 +77,13 @@
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
                 v-show="isEditing || !_id">
                 <el-form-item label="提交人：" prop="submitter">
-                  {{ form.submitter }}
+                  {{ form.submitterName }}
                 </el-form-item>
                 <el-form-item label="提交时间：" prop="submitTime">
                   {{ form.submitTime }}
                 </el-form-item>
                 <el-form-item label="审批人：" prop="approver">
-                  {{ form.approver }}
+                  {{ form.approverName }}
                 </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
                   {{ form.approvalTime }}
@@ -128,7 +128,7 @@
                 </el-form-item>
               </el-form>
               <div class="common-title" v-show="!(isEditing || !_id)">基本信息</div>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="门店编码：" prop="dealerCode">
                   {{ form.dealerCode }}
                 </el-form-item>
@@ -155,7 +155,7 @@
                 </el-form-item>
               </el-form>
               <div class="common-title" v-show="!(isEditing || !_id)">收件信息</div>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="仓库名称：" prop="warehouseId">
                   {{ form.warehouseName }}
                 </el-form-item>
@@ -180,15 +180,15 @@
               </el-form>
 
               <div class="common-title" v-show="!(isEditing || !_id)">审批信息</div>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="提交人：" prop="submitter">
-                  {{ form.submitter }}
+                  {{ form.submitterName }}
                 </el-form-item>
                 <el-form-item label="提交时间：" prop="submitTime">
                   {{ form.submitTime }}
                 </el-form-item>
                 <el-form-item label="审批人：" prop="approver">
-                  {{ form.approver }}
+                  {{ form.approverName }}
                 </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
                   {{ form.approvalTime }}
@@ -199,7 +199,7 @@
               </el-form>
 
               <div class="common-title" v-show="!(isEditing || !_id)">资金信息</div>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="采购金额：" prop="purchaseAmount">
                   {{ form.purchaseAmount }}
                 </el-form-item>
@@ -218,7 +218,7 @@
               </el-form>
 
               <div class="common-title" v-show="!(isEditing || !_id)">其他信息</div>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="缺货单号：" prop="backOrderId">
                   {{ form.backOrderCode }}
                 </el-form-item>
@@ -246,6 +246,55 @@
                 </el-button>
                 <el-button size="small" @click="handleImport" >备件导入</el-button>
               </div>
+              <div class="common-title">备件列表</div>
+              <div class="common-section-table">
+                  <vxe-table
+                      ref="editTableRight"
+                      :data="tableData"
+                      stripe
+                      show-overflow
+                      resizable
+                      border="inner"
+                      size="medium"
+                  >
+                      <vxe-column field="partCode" title="备件编码" />
+                      <vxe-column field="partName" title="备件名称" />
+                      <vxe-column field="originalPrice" title="原价" />
+                      <vxe-column field="purchasePrice" title="采购价" />
+                      <vxe-column field="cashUnitPrice" title="现金单价" />
+                      <vxe-column field="cashAmount" title="现金金额" />
+                      <vxe-column field="purchaseQty" title="采购数" />
+                      <vxe-column field="remark" title="备注" />
+                      <vxe-column field="originalPriceSource" title="原价来源" />
+                      <vxe-column title="操作" >
+                          <template #default="{ row }">
+                              <el-popconfirm
+                                  title="确定删除此备件吗？"
+                                  @confirm="handleDel(row)"
+                              >
+                                  <span
+                                  class="action-button btn-delete"
+                                  slot="reference"
+                                  type="text">
+                                  删除
+                                  </span>
+                              </el-popconfirm>
+                          </template>
+                      </vxe-column>
+                  </vxe-table>
+                  <div class="table-pagination">
+                      <el-pagination
+                          @size-change="(val) => pageSizeChange(val)"
+                          @current-change="(val) => currentPageChange(val)"
+                          :current-page="current"
+                          :page-sizes="[10, 20, 50, 100]"
+                          :page-size="pageSize"
+                          layout="total, sizes, prev, pager, next, jumper"
+                          :total="total"
+                      >
+                      </el-pagination>
+                  </div>
+              </div>
             </div>
           </section>
         </el-main>
@@ -256,6 +305,7 @@
         <!-- 右侧栏组件，自行开发 -->
         <SparePartsDetail
           :purchase-apply-id="_id"
+          @submit="getDetailData"
         />
       </div>
     </template>
@@ -269,7 +319,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/purchase/purchaseApply/index';
+import { getDetail, addOrUpdate, getPurchaseApplyPage, purchaseApplyDelete } from '@/api/sparepart/purchase/purchaseApply/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -420,6 +470,10 @@ export default {
       purchaseOrderTypeOptions: [], // 采购申请单 订单类型
       accountPermissions: false,
       orderTypeDisabled: true,
+      pageSize: 10,
+      current: 1,
+      total: 0,
+      tableData: [],
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       rules: {
         purchaseOrderType: [
@@ -453,6 +507,7 @@ export default {
     this.oem = this.$store.state.pageSource?.aisPageSource.includes('AISPART-sparePart-oem');
     this.getLoginUser();
     this.getOrderType();
+    this.getDetailData();
   },
   methods: {
     detailRequest () {
@@ -587,6 +642,31 @@ export default {
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
+    },
+    // 请求备件列表表格接口
+    async getDetailData () {
+      const params = {
+        purchaseApplyId: this._id,
+        pageSize: this.pageSize,
+        pageNum: this.current
+      };
+      const res = await getPurchaseApplyPage(params);
+      this.tableData = res.records || [];
+      this.total = res.total;
+    },
+    pageSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.current = 1;
+      this.getDetailData();
+    },
+    currentPageChange (current) {
+      this.current = current;
+      this.getDetailData();
+    },
+    // 删除事件
+    async handleDel (val) {
+      await purchaseApplyDelete([val.id]);
+      this.getDetailData();
     }
   }
 };
@@ -603,5 +683,16 @@ export default {
 .ais-button {
   margin-left: 12px;
   border-radius: 4px;
+}
+.common-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0A0E0A;
+  margin-bottom: 10px;
+}
+.table-pagination {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
