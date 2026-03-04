@@ -50,3 +50,35 @@ export function cancel (data) {
 export function getEnum (data) {
   return api.jsonPost(`maintain/web/common/enum/${data}`, data);
 };
+
+/**
+ * 特殊开单--服务活动--列表查询
+ * @param {Object} data
+ */
+export function getActivityList (data) {
+  return api.jsonPost(prefix + 'activity/list', data);
+};
+
+/**
+ * 特殊开单--服务活动--详情
+ * @param {Object} data
+ */
+export function getActivityDetail (data) {
+  return api.jsonPost(prefix + 'activity/detail', data);
+};
+
+/**
+ * 特殊开单--服务活动--使用
+ * @param {Object} data
+ */
+export function useActivity (data) {
+  return api.jsonPost(prefix + 'activity/use', data);
+};
+
+/**
+ * 特殊开单--服务活动--取消
+ * @param {Object} data
+ */
+export function cancelActivity (data) {
+  return api.jsonPost(prefix + 'activity/cancel', data);
+};

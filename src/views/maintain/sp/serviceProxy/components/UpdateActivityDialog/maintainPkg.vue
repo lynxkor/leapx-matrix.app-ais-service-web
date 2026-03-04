@@ -125,7 +125,12 @@
 
         <!-- 底部操作栏 -->
         <div class="footer-bar">
-          <el-button type="primary" size="small" @click="handleConfirm">{{ confirmBtnText }}</el-button>
+          <el-popconfirm
+            :title="!selectedPackage?.used ? '确定取消使用该维修套餐？' : '确定选择使用该维修套餐？'"
+            @confirm="handleConfirm"
+          >
+            <el-button :type="!selectedPackage?.used ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
+          </el-popconfirm>
         </div>
       </div>
 

@@ -48,9 +48,15 @@
         <span>免保项目功能开发中...</span>
       </div>
       <!-- 服务活动 -->
-      <div v-else-if="activeTab == 50" class="placeholder-content">
+       <ActivityPkg
+        v-else-if="activeTab == 50"
+        ref="activityRef"
+        :vehicle-info="vehicleInfo"
+        @refresh="handleRefresh"
+      />
+      <!-- <div v-else-if="activeTab == 50" class="placeholder-content">
         <span>服务活动功能开发中...</span>
-      </div>
+      </div> -->
     </div>
   </el-dialog>
 </template>
@@ -58,12 +64,14 @@
 <script>
 import MaintainPkg from './maintainPkg.vue';
 import EquityPkg from './equityPkg.vue';
+import ActivityPkg from './activityPkg.vue';
 
 export default {
   name: 'UpdateActivityDialog',
   components: {
     MaintainPkg,
-    EquityPkg
+    EquityPkg,
+    ActivityPkg
   },
   props: {
     visible: {
