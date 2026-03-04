@@ -431,15 +431,13 @@ export default {
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      padding: 20px;
+      padding: 16px;
 
       .detail-header {
         font-size: 16px;
         font-weight: 600;
         color: var(--leap-color-default);
-        margin-bottom: 20px;
         padding-bottom: 12px;
-        border-bottom: 1px solid var(--leap-color-default-light-4);
       }
 
       .project-list {
@@ -501,12 +499,12 @@ export default {
 
                 .label {
                   color: var(--leap-color-default-light-1);
-                  font-size: 13px;
+                  font-size: 14px;
                 }
 
                 .value {
                   color: var(--leap-color-default-dark-1);
-                  font-size: 13px;
+                  font-size: 14px;
                   font-weight: 500;
                 }
               }
@@ -517,13 +515,13 @@ export default {
 
                 .label {
                   color: var(--leap-color-default-light-1);
-                  font-size: 13px;
+                  font-size: 14px;
                   flex-shrink: 0;
                 }
 
                 .value {
                   color: var(--leap-color-default);
-                  font-size: 13px;
+                  font-size: 14px;
                   line-height: 1.6;
                 }
               }

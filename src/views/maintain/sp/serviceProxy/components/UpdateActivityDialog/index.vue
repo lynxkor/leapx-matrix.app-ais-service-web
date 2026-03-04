@@ -17,7 +17,7 @@
           :class="['tabs-item', { 'is-active': activeTab === tab.code }]"
           @click="handleTabClick(tab.code)"
         >
-          <span class="tabs-item__text">{{ tab.message }}({{ tab.value }})</span>
+          <span class="tabs-item__text">{{ tab.message }}{{ tab.value > 0 ? `(${tab.value})` : '' }}</span>
           <span v-if="activeTab === tab.code" class="tabs-item__indicator"></span>
         </div>
       </div>
@@ -40,13 +40,25 @@
         @refresh="handleRefresh"
       />
       <!-- 商城订单 -->
-      <div v-else-if="activeTab == 30" class="placeholder-content">
+      <StorePkg
+        v-else-if="activeTab == 30"
+        ref="orderRef"
+        :vehicle-info="vehicleInfo"
+        @refresh="handleRefresh"
+      />
+      <!-- <div v-else-if="activeTab == 30" class="placeholder-content">
         <span>商城订单功能开发中...</span>
-      </div>
+      </div> -->
       <!-- 免保项目 -->
-      <div v-else-if="activeTab == 40" class="placeholder-content">
+       <FreePkg
+        v-else-if="activeTab == 40"
+        ref="freeRef"
+        :vehicle-info="vehicleInfo"
+        @refresh="handleRefresh"
+      />
+      <!-- <div v-else-if="activeTab == 40" class="placeholder-content">
         <span>免保项目功能开发中...</span>
-      </div>
+      </div> -->
       <!-- 服务活动 -->
        <ActivityPkg
         v-else-if="activeTab == 50"
@@ -65,13 +77,17 @@
 import MaintainPkg from './maintainPkg.vue';
 import EquityPkg from './equityPkg.vue';
 import ActivityPkg from './activityPkg.vue';
+import StorePkg from './storePkg.vue';
+import FreePkg from './freePkg.vue';
 
 export default {
   name: 'UpdateActivityDialog',
   components: {
     MaintainPkg,
     EquityPkg,
-    ActivityPkg
+    ActivityPkg,
+    StorePkg,
+    FreePkg
   },
   props: {
     visible: {
