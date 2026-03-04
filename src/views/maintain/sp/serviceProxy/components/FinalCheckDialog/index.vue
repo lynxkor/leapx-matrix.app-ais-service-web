@@ -378,6 +378,15 @@ import { getUserByNameOrNo } from '@/libs/api/common';
 import { getListData } from '@/api/maintain/basic/batteryUnit/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import moment from 'moment';
+
+const allTabs = ['质检', '故障模块确认', '电池信息确认', '追溯信息确认', '终检'];
+const allSubTabs = [
+  { key: 'repair', label: '维修项目' },
+  { key: 'fault', label: '故障模块' },
+  { key: 'battery', label: '电池信息' },
+  { key: 'trace', label: '追溯信息' }
+];
+
 export default {
   name: 'FinalCheckDialog',
   components: {
@@ -551,6 +560,8 @@ export default {
       this.faultTableData = [];
       this.partsTraceRecordResps = [];
       this.recordId = '';
+      this.mainTabs = allTabs;
+      this.subTabs = allSubTabs;
     },
     // 质检时间变更 - 同步更新未质检表格数据
     handleQualityCheckAtChange (val) {
