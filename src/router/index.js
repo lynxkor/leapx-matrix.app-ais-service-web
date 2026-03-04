@@ -1405,7 +1405,8 @@ const routes = [
         name: '新页面',
         keepAlive: true
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/claimreturn/oldpart/outbound/edit',
       name: 'outboundEdit',
       component: () => import('@/views/claimreturn/oldpart/outbound/edit.vue'),
@@ -1414,8 +1415,7 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/claimreturn/oldpart/destroy/oldPartDestroyOrder',
       name: 'oldPartDestroyOrder',
       component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/index.vue'),
@@ -1425,7 +1425,8 @@ const routes = [
         moduleKey: 'oldPartDestroyOrder',
         keepAlive: true
       }
-    }, {
+    }, // 门店销毁
+    {
       path: '/claimreturn/oldpart/destroy/oldpartdestroyorder/edit',
       name: 'oldPartDestroyOrderEdit',
       component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit.vue'),
@@ -1435,8 +1436,7 @@ const routes = [
         moduleKey: 'oldPartDestroyOrder',
         noResourceUrl: 'true'
       }
-    }, // 门店销毁
-    {
+    }, {
       path: '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder',
       name: 'oldPartDestroyOrder',
       component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/index.vue'),
@@ -1803,6 +1803,24 @@ const routes = [
 
       meta: {
         name: '维修套餐详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/dealerSupplierInfo',
+      name: 'dealerSupplierInfo',
+      component: () => import('@/views/sparepart/basic/dealerSupplierInfo/index.vue'),
+
+      meta: {
+        name: '外购件供应商主数据',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/dealersupplierinfo/edit',
+      name: 'dealerSupplierInfoEdit',
+      component: () => import('@/views/sparepart/basic/dealerSupplierInfo/edit.vue'),
+
+      meta: {
+        name: '外购件供应商主数据详情',
         noResourceUrl: 'true'
       }
     }]
