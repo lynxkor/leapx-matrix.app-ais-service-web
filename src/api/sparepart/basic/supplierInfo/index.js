@@ -19,6 +19,9 @@ export function list (data) {
 export function getList (data) {
   return api.jsonPost(prefix + 'page', data);
 };
+export function getDealerPage (data) {
+  return api.jsonPost(prefix + 'dealerPage', data);
+};
 
 /**
  * 新增或修改

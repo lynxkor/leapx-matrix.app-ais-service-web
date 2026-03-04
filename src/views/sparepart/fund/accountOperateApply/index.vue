@@ -256,7 +256,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/fund/accountOperateApply/edit',
+                  path: '/sparepart/fund/accountOperateApply/edit?type=' + this.accountType,
                   query: {
                     id: row.id
                   }
@@ -390,7 +390,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/sparepart/fund/accountOperateApply/edit?type=' + this.$route.query.type
+        path: '/sparepart/fund/accountOperateApply/edit?type=' + this.accountType
       });
     },
     onSubmit () {
