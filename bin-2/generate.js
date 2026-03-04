@@ -37,6 +37,14 @@ Handlebars.registerHelper('fromIndex', function (array, startIndex) {
   return array.slice(startIndex); // 直接返回数组，不处理 options.fn
 });
 
+Handlebars.registerHelper('calc-width', function (list, options) {
+  const count = list ? list.length : 0;
+  if (count < 8) {
+    return '';
+  }
+  return 160;
+});
+
 // 获取模板目录路径
 const templatesDir = path.join(__dirname, '../templates-2');
 
@@ -89,9 +97,10 @@ function handleList (list) {
     };
   });
 }
-const searchList = handleList(generateJson.listPage.searchList);
-const tableList = handleList(generateJson.listPage.tableList);
-const detailList = handleList(generateJson.listPage.detailList);
+const listPage = generateJson.listPage;
+const searchList = handleList(listPage.searchList);
+const tableList = handleList(listPage.tableList);
+const detailList = handleList(listPage.detailList);
 
 const detailTable = handleList(generateJson.detailPage.tableList);
 
@@ -120,6 +129,8 @@ const data = {
   lastSearchList: searchList.slice(3),
   tableList,
   detailList,
+  // 列表页tabs接口
+  tabsPath: listPage.tabsPath ? pathPrefix + listPage.tabsPath : '',
   //
   detailTable,
   isModalAddTable: detailTable.length > 0 && detailPage.tableType === 'modal-add',

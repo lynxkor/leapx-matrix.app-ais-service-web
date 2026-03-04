@@ -34,7 +34,6 @@
           filterable
         />
       </el-form-item> -->
-      <template v-if="show">
         <!-- <el-form-item label="拼音简码">
           <el-input
             placeholder="请输入"
@@ -56,7 +55,7 @@
             clearable
           />
         </el-form-item> -->
-        <el-form-item label="数据来源">
+        <el-form-item label="数据来源" v-show="this.visibleCount === 3 || show">
           <fetch-select
             :request="fetchOptions"
             enumCode="RepairPackageDataSourceEnum"
@@ -67,6 +66,7 @@
             filterable
           />
         </el-form-item>
+        <template v-if="show">
         <!-- <el-form-item label="门店名称">
           <el-input
             placeholder="请输入"
@@ -204,7 +204,8 @@ export default {
     PageSearchAction,
     LPVxeTable,
     EditPage,
-    Upload
+    Upload,
+    FetchSelect
   },
   data () {
     return {

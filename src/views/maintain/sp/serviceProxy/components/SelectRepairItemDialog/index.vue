@@ -283,6 +283,7 @@
                 size="small"
                 placeholder="请选择"
                 filterable
+                :disabled="!!row.repairItemName"
                 @change="handlePartRepairItemTypeChange(row)"
               >
                 <el-option
@@ -385,6 +386,7 @@
                 placeholder="请选择"
                 filterable
                 :disabled="!!row.isBindltem"
+                clearable
                 @change="handlePartRepairItemNameChange(row)"
               >
                 <el-option
@@ -474,7 +476,9 @@ export default {
       // 维修配件表格配置
       partData: [],
       // 结算类型和保修类型映射关系
-      checkoutTypeMap: {}
+      checkoutTypeMap: {},
+      // 原始数据
+      originalDataJson: null
     };
   },
   computed: {
@@ -675,7 +679,12 @@ export default {
       //   this.$message.warning('请至少添加一个维修项目或维修配件');
       //   return;
       // }
-
+      // 保修类型为售前保修只能单独开单
+      const el = this.itemData.find(item => item.warrantyTypeId === 'ED68D3F0-C1FB-E911-B0BB-FC82BA5F9EDF');
+      if (el && this.itemData.length > 1) {
+        this.$message.warning('售前保修只能单独开单');
+        return;
+      }
       this.submitLoading = true;
 
       const data = {
@@ -684,6 +693,12 @@ export default {
         discountId: this.discountMode,
         serviceProxyId: this.vehicleInfo.id,
       };
+
+      if (JSON.stringify(data) === this.originalDataJson) {
+        this.$emit('update:visible', false);
+        this.submitLoading = false;
+        return;
+      }
 
       saveRepairItem(data).then(res => {
         this.$emit('update:visible', false);
@@ -735,6 +750,16 @@ export default {
           // 如果零件有关联的维修项目ID，标记为自动导入
           isBindltem: !!part.repairItemId
         }));
+
+        setTimeout(() => {
+          const data = {
+            itemList: this.itemData,
+            partsList: this.partData,
+            discountId: this.discountMode,
+            serviceProxyId: this.vehicleInfo.id,
+          };
+          this.originalDataJson = JSON.stringify(data);
+        }, 300);
       });
     },
     searchRepairItem (queryString, cb) {
@@ -964,6 +989,10 @@ export default {
       const selectedItem = this.itemData.find(item => item.repairItemName === row.repairItemName);
       if (selectedItem) {
         row.repairItemId = selectedItem.repairItemId;
+        row.repairItemTypeName = selectedItem.repairItemTypeName;
+        row.repairItemTypeId = selectedItem.repairItemTypeId;
+      } else {
+        row.repairItemId = null;
       }
     },
     // 结算类型是否为合同、保修

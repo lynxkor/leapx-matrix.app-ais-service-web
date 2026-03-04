@@ -57,6 +57,7 @@
                   @change="handleRepairItemChange"
                   value-key="id"
                   label-key="name"
+                  :disabled="!form.checkoutTypeId"
                 />
               </el-form-item>
               <el-form-item label="备注" prop="remark">
@@ -260,8 +261,11 @@ export default {
       if (record) {
         this.form.checkoutTypeName = record.name;
       }
+      this.form.repairItemTypeId = null; // 清空 ID
+      this.form.repairItemTypeName = ''; // 如果有对应的名称字段，也一并清空
+      this.repairItemSearch();
     },
-    // 结算类型模糊搜索方法（带防抖）
+    // 结算类型模糊搜索方法
     async settlementSearch (query) {
       return listSettlementType({ nameLike: query });
     },
@@ -271,9 +275,12 @@ export default {
         this.form.repairItemTypeName = record.name;
       }
     },
-    // 维修类型模糊搜索方法（带防抖）
-    async repairItemSearch (query) {
-      return listItem({ nameLike: query });
+    // 维修类型模糊搜索方法
+    async repairItemSearch () {
+      if (!this.form.checkoutTypeId) {
+        return []; // 如果没有结算类型，直接返回空数组，不请求接口
+      }
+      return listItem({ checkoutTypeId: this.form.checkoutTypeId, category: 20 });
     },
     async fetchOptions (code) {
       if (code) {
