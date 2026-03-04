@@ -1823,6 +1823,24 @@ const routes = [
         name: '外购件供应商主数据详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/maintain/sp/qualityOrderReport',
+      name: 'qualityOrderReport',
+      component: () => import('@/views/maintain/sp/qualityOrderReport/index.vue'),
+
+      meta: {
+        name: '质量反馈报告表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/qualityorderreport/edit',
+      name: 'qualityOrderReportEdit',
+      component: () => import('@/views/maintain/sp/qualityOrderReport/edit.vue'),
+
+      meta: {
+        name: '质量反馈报告表管理详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
