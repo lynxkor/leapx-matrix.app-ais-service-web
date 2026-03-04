@@ -27,22 +27,17 @@
                 />
               </el-form-item>
               <el-form-item label="维修类型" prop="repairItemTypeId">
-                <el-select
-                  v-model="form.repairItemTypeId"
-                  filterable
-                  clearable
-                  remote
-                  reserve-keyword
-                  @change="handleRepairItemChange"
+                <fetch-select
                   :remote-method="repairItemSearch"
-                  :loading="repairItemLoading">
-                  <el-option
-                    v-for="item in repairItemOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
+                  remote
+                  v-model="form.repairItemTypeId"
+                  placeholder="请输入维修类型名称"
+                  labelKey="label"
+                  valueKey="value"
+                  clearable
+                  filterable
+                  @change="handleRepairItemChange"
+                />
               </el-form-item>
               <el-form-item label="拼音简码" prop="pinyinCode">
                 <el-input
@@ -639,38 +634,20 @@ export default {
         this.form.repairItemTypeName = selectedVal.label;
       }
     },
-    // 维修类型模糊搜索方法（带防抖）
+    // 维修类型模糊搜索方法
     async repairItemSearch (query) {
-      if (query === '') {
-        this.repairItemOptions = [];
-        return;
+      try {
+        const res = await repairItemType({ nameLike: query, categorys: [10] });
+        this.repairItemOptions = res?.map(item => {
+          return {
+            value: item.id,
+            label: item.name
+          };
+        });
+        return this.repairItemOptions;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
       }
-
-      // 防抖处理，避免频繁请求
-      if (this.repairItemTimer) {
-        clearTimeout(this.repairItemTimer);
-      }
-
-      this.repairItemTimer = setTimeout(async () => {
-        this.repairItemLoading = true;
-        try {
-          // 调用搜索接口，传递搜索关键词
-          const res = await repairItemType({ nameLike: query, categorys: [10] });
-          if (res) {
-            this.repairItemOptions = res?.map(item => ({
-              value: item.id, // 维修类型ID
-              label: item.name // 维修类型名称
-            }));
-          } else {
-            this.repairItemOptions = [];
-          }
-        } catch (error) {
-          this.repairItemOptions = [];
-          this.$message.error('搜索失败');
-        } finally {
-          this.repairItemLoading = false;
-        }
-      }, 300); // 300ms防抖延迟
     },
     // 处理是否预约专用时 选择是 弹窗二次确认
     handleReservationChange (val) {
