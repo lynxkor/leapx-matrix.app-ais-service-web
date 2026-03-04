@@ -476,9 +476,15 @@ export default {
           this.rules.anomalyDescription = [
             { required: false, message: '请输入异常描述', trigger: 'change' }
           ];
+          this.rules.customerContent = [
+            { required: true, message: '请输入故障描述', trigger: 'change' }
+          ];
         } else {
           this.rules.anomalyDescription = [
             { required: true, message: '请输入异常描述', trigger: 'change' }
+          ];
+          this.rules.customerContent = [
+            { required: false, message: '请输入故障描述', trigger: 'change' }
           ];
         }
       }
@@ -506,6 +512,9 @@ export default {
         anomalyDescription: [
           { required: true, message: '请输入异常描述', trigger: 'change' }
         ],
+        customerContent: [
+          { required: false, message: '请输入故障描述', trigger: 'change' }
+        ]
       }
     };
   },
