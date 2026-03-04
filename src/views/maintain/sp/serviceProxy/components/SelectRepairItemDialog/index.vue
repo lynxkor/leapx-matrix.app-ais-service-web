@@ -476,7 +476,9 @@ export default {
       // 维修配件表格配置
       partData: [],
       // 结算类型和保修类型映射关系
-      checkoutTypeMap: {}
+      checkoutTypeMap: {},
+      // 原始数据
+      originalDataJson: null
     };
   },
   computed: {
@@ -692,6 +694,12 @@ export default {
         serviceProxyId: this.vehicleInfo.id,
       };
 
+      if (JSON.stringify(data) === this.originalDataJson) {
+        this.$emit('update:visible', false);
+        this.submitLoading = false;
+        return;
+      }
+
       saveRepairItem(data).then(res => {
         this.$emit('update:visible', false);
         this.submitLoading = false;
@@ -742,6 +750,16 @@ export default {
           // 如果零件有关联的维修项目ID，标记为自动导入
           isBindltem: !!part.repairItemId
         }));
+
+        setTimeout(() => {
+          const data = {
+            itemList: this.itemData,
+            partsList: this.partData,
+            discountId: this.discountMode,
+            serviceProxyId: this.vehicleInfo.id,
+          };
+          this.originalDataJson = JSON.stringify(data);
+        }, 300);
       });
     },
     searchRepairItem (queryString, cb) {
