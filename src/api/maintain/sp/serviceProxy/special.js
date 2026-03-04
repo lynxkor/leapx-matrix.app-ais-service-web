@@ -74,11 +74,3 @@ export function getActivityDetail (data) {
 export function useActivity (data) {
   return api.jsonPost(prefix + 'activity/use', data);
 };
-
-/**
- * 特殊开单--服务活动--取消
- * @param {Object} data
- */
-export function cancelActivity (data) {
-  return api.jsonPost(prefix + 'activity/cancel', data);
-};

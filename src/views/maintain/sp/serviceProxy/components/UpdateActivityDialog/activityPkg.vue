@@ -34,8 +34,8 @@
           @click="handleSelectPackage(item)"
         >
           <div class="list-item__content">
-            <div class="list-item__name">{{ item.packageName }}</div>
-            <div class="list-item__code">{{ item.spellCode }}</div>
+            <div class="list-item__name">{{ item.schemeName }}</div>
+            <div class="list-item__code">{{ item.description }}</div>
           </div>
           <i v-if="item.used" class="el-icon-success selected-icon"></i>
         </div>
@@ -175,7 +175,7 @@
 </template>
 
 <script>
-import { getRpList, getRpListType, getRpDetail, useRp, cancel } from '@/api/maintain/sp/serviceProxy/special';
+import { getActivityList, getActivityListType, getActivityDetail, useActivity, cancel } from '@/api/maintain/sp/serviceProxy/special';
 
 export default {
   name: 'MaintainPkg',
@@ -226,17 +226,7 @@ export default {
     initData () {
       this.selectedPackage = null;
       this.projectList = [];
-      this.loadPackageType();
       this.loadPackageList();
-    },
-    // 获取套餐类型
-    async loadPackageType () {
-      try {
-        const res = await getRpListType({ id: this.vehicleInfo.id });
-        this.packageTypeList = res || [];
-      } catch (error) {
-        console.error('获取套餐类型失败', error);
-      }
     },
     // 获取套餐列表
     async loadPackageList () {
@@ -251,7 +241,7 @@ export default {
         if (this.searchKey) {
           params.searchKey = this.searchKey;
         }
-        const res = await getRpList(params);
+        const res = await getActivityList(params);
         this.packageList = (res || []).map(item => ({
           ...item,
           selected: item.selected || false
@@ -282,8 +272,8 @@ export default {
           packageId: pkg.id,
           id: this.vehicleInfo.id
         };
-        const res = await getRpDetail(params);
-        this.projectList = (res || []).itemRespList?.map(item => ({
+        const res = await getActivityDetail(params);
+        this.projectList = (res || []).itemResponseList?.map(item => ({
           ...item,
           expanded: true,
           partsList: item.partsList || []
@@ -342,7 +332,7 @@ export default {
           packageId: this.selectedPackage.id,
           id: this.vehicleInfo.id,
         };
-        await useRp(params);
+        await useActivity(params);
         this.selectedPackage.used = true;
         this.$message.success('使用成功');
         return true;
