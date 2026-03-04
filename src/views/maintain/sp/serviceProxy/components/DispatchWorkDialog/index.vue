@@ -376,11 +376,11 @@ export default {
 
       // 校验是否选择工位、班组、技师
       const invalidRows = this.selectedRows.filter(row => {
-        return !row.dealerStationId || !row.dealerWorkTeamId || !row.repairTechnicianId;
+        return !row.dealerStationId || (!row.dealerWorkTeamId && !row.repairTechnicianId);
       });
 
       if (invalidRows.length > 0) {
-        this.$message.warning('请完善工位、班组、维修技师信息后再进行派工');
+        this.$message.warning('请完善信息后再进行派工');
         return;
       }
 

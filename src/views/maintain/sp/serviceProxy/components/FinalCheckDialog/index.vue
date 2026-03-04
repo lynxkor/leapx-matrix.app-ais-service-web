@@ -116,8 +116,42 @@
             max-height="500px"
           >
             <vxe-column type="seq" title="序号" width="70" align="center" />
-            <vxe-column field="qualityCheckAt" title="质检时间" width="180" />
-            <vxe-column field="qualityCheckerName" title="质检人" width="120" />
+            <vxe-column field="qualityCheckAt" title="质检时间" width="220" >
+              <template #default="{ row }">
+                <el-date-picker
+                  v-if="row.qualityCheckStatus !== 30"
+                  v-model="row.qualityCheckAt"
+                  type="datetime"
+                  placeholder="选择日期时间"
+                  value-format="yyyy-MM-dd HH:mm:ss"
+                  :clearable="false"
+                  style="width: 100%;"
+                  size="small"
+                />
+                <span v-else>{{ row.qualityCheckAt }}</span>
+              </template>
+            </vxe-column>
+            <vxe-column field="qualityCheckerName" title="质检人" width="120" >
+              <template #default="{ row }">
+                <fetch-select
+                  v-if="row.qualityCheckStatus !== 30"
+                  v-model="row.qualityCheckerName"
+                  :remote-method="searchUser"
+                  value-key="userId"
+                  label-key="username"
+                  :params="row.qualityCheckerName"
+                  filterable
+                  remote
+                  clearable
+                  reserve-keyword
+                  placeholder="请选择质检人"
+                  style="width: 100%;"
+                  size="small"
+                  @change="(val, record) => handleRowQualityCheckerChange(val, record, row)"
+                />
+                <span v-else>{{ row.qualityCheckerName }}</span>
+              </template>
+            </vxe-column>
             <vxe-column field="repairItemCode" title="维修项目代码" width="150" />
             <vxe-column field="repairItemName" title="维修项目名称" min-width="150" show-overflow />
             <vxe-column field="dealerStationName" title="工位" width="120" />
@@ -440,6 +474,7 @@ export default {
           // 设置故障模块数据
           this.faultTableData = res.faultAlertRecordResps || [];
           this.filterForm.qualityCheckAt = moment().format('YYYY-MM-DD HH:mm:ss');
+          this.filterForm.finalCheckTime = moment().format('YYYY-MM-DD HH:mm:ss');
           this.tableData.forEach(row => {
             if (row.qualityCheckStatus === 10) { // 假设10表示未质检状态
               row.qualityCheckAt = this.filterForm.qualityCheckAt;
@@ -540,19 +575,19 @@ export default {
         this.$message.warning('已质检完成');
         return;
       }
-      if (!this.filterForm.qualityCheckAt) {
+      if (!row.qualityCheckAt) {
         this.$message.warning('请选择质检时间');
         return;
       }
 
-      if (!this.filterForm.qualityCheckerId) {
+      if (!row.qualityCheckerId) {
         this.$message.warning('请选择质检人');
         return;
       }
       // 将质检时间和质检人设置到row对象中
-      row.qualityCheckAt = this.filterForm.qualityCheckAt;
-      row.qualityCheckerId = this.filterForm.qualityCheckerId;
-      row.qualityCheckerName = this.filterForm.qualityCheckerName;
+      // row.qualityCheckAt = this.filterForm.qualityCheckAt;
+      // row.qualityCheckerId = this.filterForm.qualityCheckerId;
+      // row.qualityCheckerName = this.filterForm.qualityCheckerName;
       qualityInspection(row).then(res => {
         this.$message({
           type: 'success',
@@ -584,6 +619,12 @@ export default {
             row.qualityCheckerName = record.username;
           }
         });
+      }
+    },
+    handleRowQualityCheckerChange (val, record, row) {
+      if (record) {
+        row.qualityCheckerName = record.username;
+        row.qualityCheckerId = record.userId;
       }
     },
     // 终检人变更 - 同步更新未质检表格数据
