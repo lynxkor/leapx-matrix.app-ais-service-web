@@ -77,8 +77,8 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="是否返修：" prop="isRetainOldPartsLabel">
-          <el-switch :active-value="1" :inactive-value="0" v-model="form.isRetainOldPartsLabel"/>
+        <el-form-item label="是否返修：" prop="haveRework">
+          <el-switch :active-value="1" :inactive-value="0" v-model="form.haveRework"/>
         </el-form-item>
         <el-form-item label="是否洗车：" prop="isCarWash">
           <el-switch :active-value="1" :inactive-value="0" v-model="form.isCarWash" />
