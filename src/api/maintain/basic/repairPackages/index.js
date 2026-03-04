@@ -90,3 +90,27 @@ export function saveModelBatch (data) {
 export function getPackagesItem (data) {
   return api.jsonPost('maintain/web/basic/repairPackagesItem/page', data);
 }
+
+/**
+ * 维修套餐--零配件表列表查询
+ * @param {Object} data
+ */
+export function getPackagesPart (data) {
+  return api.jsonPost('maintain/web/basic/repairPackagesPart/list', data);
+}
+
+/**
+ * 维修套餐--维修项目新增/编辑
+ * @param {Object} data
+ */
+export function getAddOrUpdate (data) {
+  return api.jsonPost('maintain/web/basic/repairPackagesItem/addOrUpdate', data);
+}
+
+/**
+ * 维修套餐--类型表列表查询
+ * @param {Object} data
+ */
+export function repairList (data) {
+  return api.jsonPost('maintain/web/basic/repairPackagesType/list', data);
+}

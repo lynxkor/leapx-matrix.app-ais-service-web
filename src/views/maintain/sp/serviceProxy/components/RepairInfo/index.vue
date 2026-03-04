@@ -5,7 +5,7 @@
 		</div>
 		<div class="common-section-body">
       <div class="table-section">
-        <el-form :inline="true" :model="form" :rules="rules" ref="basicForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
+        <el-form :inline="true" label-width="150px" class="form-edit">
           <el-form-item label="本次维修估算费用：">
             <el-input
               placeholder="请输入"
@@ -188,7 +188,7 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="id" title="追溯编码" width="350px"/>
+          <vxe-column field="code" title="追溯编码" width="350px"/>
           <vxe-column field="partsName" title="零件名称" width="300px"/>
           <vxe-column field="targetUnitName" title="电池去向单位" width="350px"/>
           <vxe-column field="beforeChangeCode" title="更换前编码" width="200px"/>
@@ -217,7 +217,7 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="serviceProxyId" title="施工单号" width="180px" />
+          <vxe-column field="code" title="施工单号" width="180px" />
           <vxe-column field="dealerName" title="厅店名称" width="180px" />
           <vxe-column field="repairItemName" title="维修项目名称" width="200px" />
           <vxe-column field="repairItemCode" title="维修项目代码" width="180px" />
