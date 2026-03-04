@@ -339,53 +339,6 @@ export default {
     openPane () {
       this.$refs.editLayout.openPane();
     },
-    // 删除子表数据
-    handleDeleteRow (index) {
-      const item = this.tableData[index];
-      this.tableData.splice(index, 1);
-      // 根据需求调用接口
-      // deletePartVehModel([item.id]).then(res => {
-      //   this.$message.success('删除成功');
-      //   this.tableData.splice(index, 1);
-      // });
-    },
-    // 查询新增项的列表
-    queryListData (queryString) {
-      return new Promise(resolve => {
-        // 根据需求调用接口
-        // sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
-        //   const list = res || [];
-        //   resolve(list);
-        // });
-        resolve([
-          { id: 1, name: 'test', age: 25, email: 'test@example.com' }
-        ]);
-      });
-    },
-    // 新增子表数据
-    handleAddTableData (val, record) {
-      if (!record) {
-        this.$message.warning('请先选择数据');
-        return;
-      }
-      // 检查是否已存在
-      const exists = this.tableData.some(item => item.id === record.id);
-      if (exists) {
-        this.$message.warning('请勿重复添加');
-        return;
-      }
-      // 根据需求调用接口
-      this.tableData.push(record);
-      // addPartItem({
-      //   maintenancePartId: this._id,
-      //   partsCode: record.partCode,
-      //   partsName: record.partName,
-      //   partsId: record.id,
-      // }).then(res => {
-      //   this.$message.success('添加成功');
-      //   this.detailRequest();
-      // });
-    },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
       // const userInfo = this.$store.state.user.userInfo;

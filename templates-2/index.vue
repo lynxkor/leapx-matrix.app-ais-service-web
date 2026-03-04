@@ -296,6 +296,14 @@
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
+    {{#if tabsPath}}
+    <div class="ais-tabs">
+      <div v-for="(item, index) in tabList" :key="item.label" :class="{'ais-tabs-item': true, 'active': item.value == form.aisActiveTab}" @click="onTabChange(item.value)">
+        \{{item.label}}
+        <!-- <span v-if="index">(\{{ item.count }})</span> -->
+      </div>
+    </div>
+    {{/if}}
     <div
       class="ais-table-c"
     >
@@ -331,7 +339,12 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/{{modulePath}}/index';
+import {
+  getList,
+  deleteItem,
+  enableItem,
+  getTabsListApi,
+} from '@/api/{{modulePath}}/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -348,6 +361,9 @@ const defaultForm = {
   {{#each searchList}}
   {{key}}: '',
   {{/each}}
+  {{#if tabsPath}}
+  aisActiveTab: '',
+  {{/if}}
 };
 
 const pageSize = 20;
@@ -459,12 +475,18 @@ export default {
         // column: 'create_time',
         // sort: 'DESC'
         // }
-      ]
+      ],
+      {{#if tabsPath}}
+      tabList: [],
+      {{/if}}
     };
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    {{#if tabsPath}}
+    this.getTabsList();
+    {{/if}}
   },
   methods: {
     // 排序
@@ -585,6 +607,9 @@ export default {
     getFormData () {
       const data = { ...this.form };
 
+      // TODO xxxx为过滤参数 待修改
+      data.xxxx = data.aisActiveTab;
+
       Object.keys(this.form).forEach(key => {
         if (data[key] === '' || data[key] === null) {
           delete data[key];
@@ -666,12 +691,42 @@ export default {
       //     });
       //   });
       // });
-    }
+    },
+    {{#if tabsPath}}
+    onTabChange (v) {
+      this.form.aisActiveTab = v;
+      this.optionObj.form.page = 1;
+      this.debouncedGetData();
+    },
+    getTabsList () {
+      this.tabList = [
+        { label: '全部', value: '' },
+        { label: '分类1', value: '1' },
+        { label: '分类2', value: '2' },
+      ];
+      getTabsListApi().then(res => {
+        const target = res || {};
+        // this.tabList = [
+        //   { label: '全部', value: null },
+        //   { label: '分类1', value: '1' },
+        //   { label: '分类2', value: '2' },
+        // ];
+      });
+    },
+    {{/if}}
   }
 };
 </script>
 
 <style lang="scss" scoped>
 .m-{{nameKebabCase}}-list {
+  {{#if tabsPath}}
+  ::v-deep .m-vxe-table .m-vxe-table-options {
+    top: -96px;
+  }
+  .ais-actions {
+    margin-bottom: 8px;
+  }
+  {{/if}}
 }
 </style>

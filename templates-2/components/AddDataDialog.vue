@@ -218,7 +218,7 @@
         >
           <vxe-column type="checkbox" width="60" align="center" />
           {{#each dialogTableList}}
-          <vxe-column field="{{key}}" title="{{description}}" width="160" />
+          <vxe-column field="{{key}}" title="{{description}}" width="{{calc-width @root.dialogTableList}}"/>
           {{/each}}
         </vxe-table>
         <el-pagination

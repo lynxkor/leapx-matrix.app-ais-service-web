@@ -100,7 +100,7 @@ export default {
         {
           field: '{{key}}',
           title: '{{description}}',
-          width: '160',
+          width: '{{calc-width @root.detailTable}}',
         },
         {{/each}}
       ]
