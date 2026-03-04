@@ -87,12 +87,14 @@
       <DispatchWorkDialog
         :visible.sync="dispatchWorkDialogVisible"
         :vehicleInfo="form"
+        mode="add"
         @refresh="handleRefresh"
       />
       <!-- 删除派工 -->
       <DispatchWorkDialog
         :visible.sync="deleteDispatchWorkDialogVisible"
         :vehicleInfo="form"
+        mode="delete"
         @refresh="handleRefresh"
       />
       <!-- 作业开始 -->
@@ -165,7 +167,6 @@ import MaterialReturnDialog from './components/MaterialReturnDialog';
 import SelectRepairItemDialog from './components/SelectRepairItemDialog';
 import StartWorkDialog from './components/StartWorkDialog';
 import DispatchWorkDialog from './components/DispatchWorkDialog';
-import DispatchWorkDelDialog from './components/DispatchWorkDelDialog';
 import Upload from './components/UploadDialog';
 import { getFileList } from '@/libs/api/attachment';
 

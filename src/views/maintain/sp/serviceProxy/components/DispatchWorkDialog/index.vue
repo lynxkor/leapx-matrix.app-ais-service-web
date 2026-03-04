@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     class="m-dispatch-work-dialog"
-    title="派工"
+    :title="title"
     width="1200px"
     :visible.sync="dialogVisible"
     @close="close"
@@ -71,8 +71,9 @@
           :loading="dispatchLoading"
           :disabled="!canDispatch"
           @click="handleDispatch"
+          v-if="mode === 'add'"
         >派工</el-button>
-        <el-button type="danger" size="small" :disabled="!canDispatch" :loading="deleteLoading" @click="handleDeleteDispatch">删除派工</el-button>
+        <el-button type="danger" size="small" :disabled="!canDispatch" :loading="deleteLoading" @click="handleDeleteDispatch" v-if="mode === 'delete'">删除派工</el-button>
       </div>
 
       <!-- 数据表格 -->
@@ -87,7 +88,7 @@
           size="medium"
           @checkbox-change="handleSelectionChange"
           @checkbox-all="handleSelectionChange"
-          :checkbox-config="{ checkField: 'checked' }"
+          :checkbox-config="{ checkField: 'checked', checkMethod: checkSelectable }"
           min-height="0"
           max-height="500px"
         >
@@ -183,6 +184,10 @@ export default {
       default: () => {
         return {};
       }
+    },
+    mode: {
+      type: String,
+      default: 'add'
     }
   },
   data () {
@@ -209,6 +214,9 @@ export default {
   computed: {
     canDispatch () {
       return this.selectedRows.length > 0;
+    },
+    title () {
+      return this.mode === 'add' ? '派工' : '删除派工';
     }
   },
   watch: {
@@ -250,6 +258,16 @@ export default {
     }
   },
   methods: {
+    // 根据mode控制checkbox是否可选
+    // add模式：禁用已派工的行
+    // delete模式：禁用未派工的行
+    checkSelectable ({ row }) {
+      if (this.mode === 'add') {
+        return row.isDispatch !== 1;
+      } else {
+        return row.isDispatch === 1;
+      }
+    },
     updateUndispatchedRows (field, value) {
       // 更新所有未派工的行数据
       this.tableData.forEach(row => {
@@ -294,14 +312,25 @@ export default {
             row.startAt = this.filterForm.qualityCheckAt;
           }
         });
-        this.$nextTick(() => {
-          this.tableData.forEach(row => {
-            if (!row.isDispatch) {
-              this.$refs.dispatchTable.setCheckboxRow(row, true);
-              this.selectedRows.push(row);
-            }
+        if (this.mode === 'add') {
+          this.$nextTick(() => {
+            this.tableData.forEach(row => {
+              if (!row.isDispatch) {
+                this.$refs.dispatchTable.setCheckboxRow(row, true);
+                this.selectedRows.push(row);
+              }
+            });
           });
-        });
+        } else if (this.mode === 'delete') {
+          this.$nextTick(() => {
+            this.tableData.forEach(row => {
+              if (row.isDispatch === 1) {
+                this.$refs.dispatchTable.setCheckboxRow(row, true);
+                this.selectedRows.push(row);
+              }
+            });
+          });
+        }
       } catch (error) {
         console.error('获取派工数据失败', error);
         this.$message.error('获取派工数据失败');
