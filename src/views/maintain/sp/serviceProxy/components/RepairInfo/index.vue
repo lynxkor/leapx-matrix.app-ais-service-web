@@ -91,7 +91,7 @@
           <vxe-column field="warrantyTypeName" title="保修类型" width="200px" />
           <vxe-column field="isAddItems" title="是否增项" width="200px" >
             <template #default="{ row }">
-              <span>{{ row.isOutstock === 1 ? '是' : '否' }}</span>
+              <span>{{ row.isAddItems === 1 ? '是' : '否' }}</span>
             </template>
           </vxe-column>
           <vxe-column field="price" title="工时单价" width="200px" />
@@ -190,7 +190,7 @@
         >
           <vxe-column field="code" title="追溯编码" width="350px"/>
           <vxe-column field="partsName" title="零件名称" width="300px"/>
-          <vxe-column field="targetUnitName" title="电池去向单位" width="350px"/>
+          <vxe-column field="targetUnitName" title="去向单位" width="350px"/>
           <vxe-column field="beforeChangeCode" title="更换前编码" width="200px"/>
           <vxe-column field="afterChangeCode" title="更换后编码" width="200px"/>
           <vxe-column field="updateTime" title="修改时间" width="200px"/>

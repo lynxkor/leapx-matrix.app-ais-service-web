@@ -114,3 +114,43 @@ export function getAddOrUpdate (data) {
 export function repairList (data) {
   return api.jsonPost('maintain/web/basic/repairPackagesType/list', data);
 }
+
+/**
+ * 维修套餐--类型表排序（上移/下移）
+ * @param {Object} data
+ */
+export function moveSort (data) {
+  return api.jsonPost('maintain/web/basic/repairPackagesType/moveSort', data);
+}
+
+/**
+ * 维修套餐--类型表新增/编辑
+ * @param {Object} data
+ */
+export function addOrUpdateBatch (data) {
+  return api.jsonPost('maintain/web/basic/repairPackagesType/addOrUpdateBatch', data);
+}
+
+/**
+ * 维修套餐--类型表启用/禁用
+ * @param {Object} data
+ */
+export function enableOrDisable (data) {
+  return api.jsonPost('maintain/web/basic/repairPackagesType/enableOrDisable', data);
+}
+
+/**
+ * 维修套餐--适配车型表删除
+ * @param {Object} data
+ */
+export function modelDelete (data) {
+  return api.jsonPost('maintain/web/basic/repairPackagesModel/delete', data);
+}
+
+/**
+ * 维修套餐--零配件表删除
+ * @param {Object} data
+ */
+export function partDelete (data) {
+  return api.jsonPost('maintain/web/basic/repairPackagesPart/delete', data);
+}

@@ -1672,24 +1672,6 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/warehouse/oemInventory',
-      name: 'oemInventory',
-      component: () => import('@/views/sparepart/warehouse/inventory/index.vue'),
-
-      meta: {
-        name: '主机厂备件库存查询',
-        keepAlive: true
-      }
-    }, {
-      path: '/sparepart/warehouse/oemInventory/edit',
-      name: 'oemInventoryEdit',
-      component: () => import('@/views/sparepart/warehouse/inventory/edit.vue'),
-
-      meta: {
-        name: '主机厂备件库存查询详情',
-        noResourceUrl: 'true'
-      }
-    }, {
       path: '/sparepart/return/returnExceptionalOrder',
       name: 'returnExceptionalOrder',
       component: () => import('@/views/sparepart/return/returnOrder/index.vue'),
@@ -1824,6 +1806,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/sparepart/warehouse/oemInventory',
+      name: 'oemInventory',
+      component: () => import('@/views/sparepart/warehouse/oemInventory/index.vue'),
+
+      meta: {
+        name: '主机厂备件库存查询',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/warehouse/oeminventory/edit',
+      name: 'oemInventoryEdit',
+      component: () => import('@/views/sparepart/warehouse/oemInventory/edit.vue'),
+
+      meta: {
+        name: '主机厂备件库存查询详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/maintain/sp/qualityOrderReport',
       name: 'qualityOrderReport',
       component: () => import('@/views/maintain/sp/qualityOrderReport/index.vue'),
@@ -1839,6 +1839,42 @@ const routes = [
 
       meta: {
         name: '质量反馈报告表管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyHourSetting',
+      name: 'warrantyHourSetting',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyHourSetting/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyHourSetting/edit',
+      name: 'warrantyHourSettingEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyHourSetting/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyHourSetting',
+      name: 'warrantyHourSetting',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyHourSetting/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyhoursetting/edit',
+      name: 'warrantyHourSettingEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyHourSetting/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
         noResourceUrl: 'true'
       }
     }]

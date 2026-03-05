@@ -106,15 +106,31 @@
             <div class="common-section-body">
               <div class="common-section-table">
               <div class="model-select" @click="handleModel">选择适配车型</div>
-                <edit-table
+              <vxe-table
                   ref="editTable"
-                  :columns="columns"
+                  stripe
                   :data="tableDataModel"
-                  :defaultNewRow="defaultNewRow"
-                  :show-toolbar="false"
-                  :delTitle="delTitle"
-                  :auth="{delete: canDelete}"
-                />
+                  show-overflow
+                  resizable
+                  border="inner"
+                  size="medium"
+                  min-height="0"
+                  max-height="400px"
+                >
+                  <vxe-column field="vehicleSeriesName" title="车系名称" width="30%" />
+                  <vxe-column field="vehicleModelName" title="车型名称" width="30%" />
+                  <vxe-column field="vehicleYearType" title="车辆年型" width="30%" />
+                  <vxe-column title="操作" width="150" fixed="right" v-if="canDelete">
+                    <template #default="{ row }">
+                      <el-popconfirm title="此操作将删除此 维修套餐-适配车型 信息，您无法撤消此操作，是否继续？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteModel(row)">
+                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
+                      </el-popconfirm>
+                    </template>
+                  </vxe-column>
+                  <template #empty>
+                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
+                  </template>
+                </vxe-table>
               </div>
             </div>
           </section>
@@ -156,10 +172,10 @@
                   <vxe-column field="discountAmount" title="优惠金额" width="14.3%" />
                   <vxe-column field="actualAmount" title="项目金额" width="14.3%" />
                   <vxe-column title="操作" width="150" fixed="right" v-if="canDelete">
-                    <template #default="{ row, rowIndex }">
+                    <template #default="{ row }">
                       <!-- <span @click="handleEditRow(rowIndex)" class="action-button btn-edit">日志</span> -->
                       <span @click="handleEditRow(row)" class="action-button btn-edit">编辑</span>
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
+                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(row)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
@@ -191,7 +207,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getRepairType, getModel, getPackagesItem } from '@/api/maintain/basic/repairPackages/index';
+import { getDetail, addOrUpdate, getRepairType, getModel, getPackagesItem, modelDelete, partDelete } from '@/api/maintain/basic/repairPackages/index';
 import { getPage } from '@/api/maintain/basic/repairItem/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -200,7 +216,6 @@ import { getEnum, getLoginUser } from '@/api/common';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import EditTable from '@/libs/components/EditTable';
 import ModelDialog from './ModelDialog.vue';
 import RepairPackagesDetail from './RepairPackagesDetail.vue';
 
@@ -255,7 +270,6 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    EditTable,
     ModelDialog,
     RepairPackagesDetail
   },
@@ -341,29 +355,6 @@ export default {
       modelDialogVisible: false, // 适配车型弹窗
       repairTypeList: [], // 维修套餐列表
       tableDataModel: [],
-      defaultNewRow: {
-        vehicleYearType: '',
-        vehicleModelName: '',
-        vehicleSeriesName: '',
-      },
-      delTitle: '此操作将删除此 维修套餐-适配车型 信息，您无法撤消此操作，是否继续？',
-      columns: [ // 适配车型
-        {
-          field: 'vehicleSeriesName',
-          title: '车系名称',
-          width: '30%',
-        },
-        {
-          field: 'vehicleModelName',
-          title: '车型名称',
-          width: '30%',
-        },
-        {
-          field: 'vehicleYearType',
-          title: '车辆年型',
-          width: '30%',
-        },
-      ],
       repairDetailId: '', // 维修项目明细ID
       repairDetailName: '', // 维修项目名称
       repairId: '', // 维修套餐ID
@@ -388,15 +379,17 @@ export default {
     openPane () {
       this.$refs.editLayout.openPane();
     },
-    // 删除子表数据
-    handleDeleteRow (index) {
-      const item = this.tableData[index];
-      this.tableData.splice(index, 1);
-      // 根据需求调用接口
-      // deletePartVehModel([item.id]).then(res => {
-      //   this.$message.success('删除成功');
-      //   this.tableData.splice(index, 1);
-      // });
+    // 删除套餐明细  适配车型
+    async handleDeleteModel (val) {
+      await modelDelete([val.id]);
+      this.message.success('删除成功');
+      this.getModelList();
+    },
+    // 删除套餐明细 维修项目
+    async handleDeleteRow (val) {
+      await partDelete([val.id]);
+      this.message.success('删除成功');
+      this.getProjectPackage();
     },
     // 查询新增项的列表
     queryListData (queryString) {
