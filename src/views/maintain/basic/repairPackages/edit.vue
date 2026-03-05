@@ -197,12 +197,13 @@
           ref="repairPackagesDetail"
           :repairPackagesId="repairItemId"
           :repairItemId="repairDetailId"
+          :judgment="judgment"
           @submit="getProjectPackage"
         />
       </div>
     </template>
     <!-- 适配车型组件 -->
-    <ModelDialog :visible="modelDialogVisible" :repairId="repairId" :data="tableData" @success="handleSuccessModel" @close="handleCloseModel" />
+    <ModelDialog :visible="modelDialogVisible" :repairId="repairId" :initialData="tableDataModel" @success="handleSuccessModel" @close="handleCloseModel" />
   </edit-page-layout>
 </template>
 
@@ -359,6 +360,7 @@ export default {
       repairDetailName: '', // 维修项目名称
       repairId: '', // 维修套餐ID
       repairItemId: '', // 维修套餐ID 传入子组件
+      judgment: 'add', // 判断是下拉还是编辑 进入的侧边栏详情
     };
   },
   mounted () {
@@ -381,7 +383,9 @@ export default {
     },
     // 删除套餐明细  适配车型
     async handleDeleteModel (val) {
+      console.log('删除套餐明细', val);
       await modelDelete([val.id]);
+      console.log('dad');
       this.message.success('删除成功');
       this.getModelList();
     },
@@ -403,13 +407,13 @@ export default {
     },
     // 新增维修项目
     handleAddTableData (val, record) {
-      console.log('handleAddTableData', val, record);
       // 检查是否已存在
       const exists = this.tableData.some(item => item.id === record.id);
       if (exists) {
         this.$message.warning('请勿重复添加');
         return;
       }
+      this.judgment = 'add';
       this.repairDetailName = record.name || '';
       this.repairDetailId = record.id || '';
       this.repairItemId = this._id;
@@ -419,6 +423,7 @@ export default {
     handleEditRow (row) {
       this.repairDetailId = row.id;
       this.repairItemId = this._id;
+      this.judgment = 'edit';
       this.openPane();
     },
     getDefautlForm () {

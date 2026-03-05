@@ -50,7 +50,7 @@
                             {{ repairDetail.workhour }}
                         </el-form-item>
                         <el-form-item label="项目金额：" prop="purchaseQty">
-                            {{ repairDetail.actualAmount }}
+                            {{ repairDetail.actualAmount || 0 }}
                         </el-form-item>
                         <el-form-item style="width: 100%;" label="备注：" prop="remark">
                             <el-input type="textarea" maxlength="500" show-word-limit
@@ -155,8 +155,8 @@
 </template>
 
 <script>
-import { getPackagesPart, getAddOrUpdate } from '@/api/maintain/basic/repairPackages/index';
-import { getDetail, getPage } from '@/api/maintain/basic/repairItem/index';
+import { getPackagesPart, getAddOrUpdate, repairItemDetail } from '@/api/maintain/basic/repairPackages/index';
+import { getDetail } from '@/api/maintain/basic/repairItem/index';
 import { repairItemType, sparePartList } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { listSettlementType } from '@/api/maintain/basic/checkoutType';
@@ -171,7 +171,11 @@ export default {
     repairItemId: { // 维修项目ID
       type: [String, Number],
       default: ''
-    }
+    },
+    judgment: { // 判断是下拉还是编辑 进入的侧边栏详情
+      type: String,
+      default: ''
+    },
   },
   mixins: [commonMixins],
   components: { FetchSelect },
@@ -204,7 +208,13 @@ export default {
   methods: {
     // 获取维修项目详情信息
     async getDetail (id) {
-      const res = await getDetail(id);
+      let fathApi = getDetail;
+      if (this.judgment === 'add') {
+        fathApi = getDetail;
+      } else {
+        fathApi = repairItemDetail;
+      }
+      const res = await fathApi(id);
       this.repairDetail = res || {};
       if (res.discountAmount) { // 有优惠金额时，计算项目金额
         this.repairDetail.actualAmount = Number(res.workhourPrice) * Number(res.workhour) - Number(res.discountAmount);
