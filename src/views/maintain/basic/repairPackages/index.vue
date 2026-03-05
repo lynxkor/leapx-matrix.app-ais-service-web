@@ -542,6 +542,10 @@ export default {
     },
     handleCloseMaintenance () {
       this.maintenanceDialogVisible = false;
+    },
+    handleSuccessMaintenance () {
+      this.maintenanceDialogVisible = false;
+      this.getData();
     }
   }
 };

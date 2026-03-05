@@ -103,7 +103,7 @@ export default {
     },
     async handleSave () {
       await addOrUpdateBatch(this.tableData);
-      this.getRepairList();
+      this.$emit('success');
     },
   }
 };
