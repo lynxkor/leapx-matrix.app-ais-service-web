@@ -4,7 +4,7 @@
       <h2>委托信息</h2>
     </div>
     <div class="common-section-body">
-      <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="190px" class="form-edit" v-if="isEditing || !_id">
+      <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="190px" class="form-edit" v-if="isEditing || !_id" :disabled="formData.orderStatus === RepairOrderStatusEnum.CANCEL">
         <el-form-item label="维修类型（汇总）：" prop="repairItemTypeDetailCollect">
           <fetch-select
             :request="fetchOptions"
@@ -377,6 +377,7 @@
               collapse-tags
               value-key="id"
               label-key="name"
+              :disabled="formData.orderStatus === RepairOrderStatusEnum.CANCEL"
             />
             <el-button
               type="primary"
@@ -434,6 +435,7 @@
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum, getCCCList, updateSpFaultAlertRecord, deleteSpFaultAlertRecord } from '@/api/maintain/sp/serviceProxy/index';
+import { RepairOrderStatusEnum } from '../../edit.vue';
 
 export default {
   props: {
@@ -515,7 +517,8 @@ export default {
         customerContent: [
           { required: false, message: '请输入故障描述', trigger: 'change' }
         ]
-      }
+      },
+      RepairOrderStatusEnum
     };
   },
   methods: {
