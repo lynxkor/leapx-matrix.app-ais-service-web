@@ -91,7 +91,7 @@
           <vxe-column field="warrantyTypeName" title="保修类型" width="200px" />
           <vxe-column field="isAddItems" title="是否增项" width="200px" >
             <template #default="{ row }">
-              <span>{{ row.isOutstock === 1 ? '是' : '否' }}</span>
+              <span>{{ row.isAddItems === 1 ? '是' : '否' }}</span>
             </template>
           </vxe-column>
           <vxe-column field="price" title="工时单价" width="200px" />

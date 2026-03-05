@@ -302,6 +302,7 @@
                 size="small"
                 placeholder="请选择"
                 filterable
+                :disabled="!!row.repairItemName"
                 @change="handlePartCheckoutTypeChange(row)"
               >
                 <el-option
@@ -991,6 +992,8 @@ export default {
         row.repairItemId = selectedItem.repairItemId;
         row.repairItemTypeName = selectedItem.repairItemTypeName;
         row.repairItemTypeId = selectedItem.repairItemTypeId;
+        row.checkoutTypeName = selectedItem.checkoutTypeName;
+        row.checkoutTypeId = selectedItem.checkoutTypeId;
       } else {
         row.repairItemId = null;
       }
