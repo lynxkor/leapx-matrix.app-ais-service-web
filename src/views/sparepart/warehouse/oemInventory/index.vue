@@ -48,18 +48,15 @@
       class="ais-table-c"
     >
       <LPVxeTable
+        :key="tableKey"
         ref="tableRef"
         v-loading="loading"
-        is-checkbox
         is-page
-        checkboxFixed
         centralized
         :option-obj="optionObj"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
-        @handleSelect="handleSelectionChange"
-        @listSelect="handleListSelect"
         @sortChange="handleSortChange"
       >
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
@@ -125,6 +122,8 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      // 【新增】存储仓库列表，用于生成表头
+      warehouseNameList: [],
       optionObj: {
         id: 'oemInventoryTable',
         dataList: [],
@@ -132,65 +131,7 @@ export default {
           page: 1,
           size: pageSize
         },
-        dataProp: [
-          {
-            props: 'warehouseId',
-            label: '仓库code',
-            visible: false,
-            width: 200,
-            fixed: 'left',
-            buttons: [{
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/warehouse/oemInventory/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'primary'
-            }]
-          },
-          { props: 'warehouseDescr', label: '仓库名称', visible: true, width: 200 },
-          { props: 'skuDescr', label: '备件名称', visible: true, width: 200 },
-          {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
-            visible: true,
-            fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/warehouse/oemInventory/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
-            }]
-          }
-        ],
+        dataProp: [],
         total: 0
       },
       sortColumns: [
@@ -198,12 +139,12 @@ export default {
         // column: 'create_time',
         // sort: 'DESC'
         // }
-      ]
+      ],
+      tableKey: 0
     };
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
-    this.getData();
   },
   methods: {
     // 排序
@@ -288,20 +229,124 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
-
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
-          console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
-            return {
+          // 1. 提取动态表头数据 (假设在 res.data 下，根据你提供的返回值结构调整)
+        // 如果 warehouseNameList 直接在 res 下，则用 res.warehouseNameList
+          const whList = res.warehouseNameList || [];
+          this.warehouseNameList = whList;
+
+          // 2. 初始化/更新表头配置 (包含动态列)
+          this.initDynamicColumns(whList);
+
+          // 3. 处理表格行数据
+          // 接口返回的是 partList，需要映射成表格能识别的格式
+          const rawList = res.partList || [];
+
+          this.optionObj.dataList = rawList.map((item, index) => {
+          // 原始数据: { partCode: "...", partName: "...", invCountStrList: ["有库存", "无库存"] }
+          // 目标数据: { partCode: "...", partName: "...", stock_0: "有库存", stock_1: "无库存", ... }
+
+            const row = {
               ...item,
-              deleteLoading: false
+            // 保留原始数组以防万一，同时展开为独立字段供表格列读取
+            // 假设 invCountStrList 的顺序严格对应 warehouseNameList 的顺序
             };
+
+            // 将数组转换为对象属性，key 为 stock_0, stock_1... 对应下面的列 props
+            if (Array.isArray(item.invCountStrList)) {
+              item.invCountStrList.forEach((val, idx) => {
+                row[`stock_${idx}`] = val;
+              });
+            }
+
+            // 添加删除加载状态
+            row.deleteLoading = false;
+            return row;
           });
+          // console.log(res);
+          // this.optionObj.dataList = res.records.map(item => {
+          //   return {
+          //     ...item,
+          //     deleteLoading: false
+          //   };
+          // });
           this.optionObj.total = res.total;
+          this.tableKey += 1; // 强制销毁重建组件
         }).finally(() => {
           this.loading = false;
         });
+    },
+    // 动态生成表头配置
+    initDynamicColumns (whList) {
+      // 1. 定义固定列 (左侧)
+      const fixedColumns = [
+        {
+          props: 'partCode',
+          label: '备件代码',
+          visible: true,
+          width: 200,
+          fixed: 'left',
+          buttons: [{
+            click: (rowIndex, row) => {
+              this.$router.push({
+                path: '/sparepart/warehouse/inventory/edit',
+                query: {
+                  id: row.id
+                }
+              });
+            },
+            type: 'primary'
+          }]
+        },
+        {
+          props: 'partName',
+          label: '备件名称',
+          visible: true,
+          width: 200,
+          fixed: 'left',
+        }
+      ];
+
+      // 2. 生成动态仓库列 (中间)
+      const dynamicColumns = whList.map((code, index) => {
+        return {
+          props: `stock_${index}`, // 对应 getData 中生成的 key
+          label: code, // 表头显示仓库 Code (如 QY04)
+          visible: true,
+          width: 120,
+        };
+      });
+
+      // 3. 定义操作列 (右侧)
+      // const operateColumn = {
+      //   props: 'operate',
+      //   label: '操作',
+      //   type: 'operate',
+      //   visible: true,
+      //   fixed: 'right',
+      //   width: 150,
+      //   buttons: [
+      //     {
+      //       name: '详情', // 或者编辑
+      //       click: (rowIndex, row) => {
+      //         // 这里可以跳转或者打开弹窗
+      //         this.clickItemId = row.id || row.partCode;
+      //         // 如果有编辑页面，类似之前：
+      //         // this.$router.push({ path: '/...', query: { code: row.partCode } });
+      //       },
+      //       type: 'info'
+      //     }
+      //     // 如果需要删除，可以在这里加，但库存查询通常只读
+      //   ]
+      // };
+
+      // 4. 合并所有列并赋值
+      this.optionObj.dataProp = [
+        ...fixedColumns,
+        ...dynamicColumns,
+        // operateColumn
+      ];
     },
     // 需要防抖场景时使用
     debouncedGetData: debounce(function () {

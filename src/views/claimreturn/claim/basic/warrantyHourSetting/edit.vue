@@ -77,6 +77,7 @@
                     <el-input
                       type="textarea"
                       v-model="form.remark"
+                      :disabled="form.pricingMode === '2' && !canEditRemarkForStore"
                       placeholder="请输入"
                       :rows="3"
                     />
@@ -143,13 +144,16 @@
                       type="date"
                       :picker-options="endDatePickerOptions"
                       value-format="yyyy-MM-dd HH:mm:ss"
+                      default-time="23:59:59"
                       placeholder="请选择生效结束日期"
+                      @change="handleEndDateChange"
                     />
                   </el-form-item>
                   <el-form-item label="备注：" prop="remark">
                     <el-input
                       type="textarea"
                       v-model="form.remark"
+                      :disabled="form.pricingMode === '1' && !canEditRemarkForStandard"
                       placeholder="请输入"
                       :rows="3"
                     />
@@ -361,6 +365,11 @@ export default {
       if (!this.isEditMode) return true;
       return this.isOriginalEffectiveStartTimeLaterThanToday;
     },
+    // 标准价模式：备注是否可编辑
+    canEditRemarkForStandard () {
+      if (!this.isEditMode) return true;
+      return this.isOriginalEffectiveStartTimeTodayOrLater;
+    },
     // 门店限时政策价模式：是否满足编辑前提条件（生效结束时间晚于或等于当天）
     canEditForStorePolicy () {
       if (!this.isEditMode) return true;
@@ -388,6 +397,11 @@ export default {
     canEditEffectiveEndTimeForStore () {
       if (!this.isEditMode) return true;
       return this.isOriginalEffectiveEndTimeLaterThanToday;
+    },
+    // 门店限时政策价模式：备注是否可编辑
+    canEditRemarkForStore () {
+      if (!this.isEditMode) return true;
+      return this.isOriginalEffectiveEndTimeTodayOrLater;
     }
   },
   watch: {
@@ -412,7 +426,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: '保修工时单价设置',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-warrantyHourSetting',
@@ -441,7 +455,11 @@ export default {
         disabledDate: (time) => {
           // 必须晚于生效开始日期
           if (this.form.effectiveStartTime) {
-            return time.getTime() <= new Date(this.form.effectiveStartTime).getTime();
+            const startTime = new Date(this.form.effectiveStartTime);
+            // 只比较日期部分，不比较时间
+            const startDate = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate());
+            const currentDate = new Date(time.getFullYear(), time.getMonth(), time.getDate());
+            return currentDate < startDate;
           }
           return false;
         }
@@ -554,6 +572,17 @@ export default {
       // 如果生效结束日期早于生效开始日期，清空生效结束日期
       if (this.form.effectiveEndTime && new Date(this.form.effectiveEndTime) <= new Date(val)) {
         this.form.effectiveEndTime = '';
+      }
+    },
+    // 生效结束日期变化处理
+    handleEndDateChange (val) {
+      if (val) {
+        // 确保时分秒为23:59:59
+        const date = new Date(val);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        this.form.effectiveEndTime = `${year}-${month}-${day} 23:59:59`;
       }
     },
     // 校验正数

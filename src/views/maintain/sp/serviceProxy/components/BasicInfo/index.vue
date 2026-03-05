@@ -5,7 +5,7 @@
     </div>
     <div class="common-section-body">
       <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-      <el-form :inline="true" :model="form" :rules="rules" ref="basicForm" label-width="190px" class="form-edit" v-if="isEditing || !_id">
+      <el-form :inline="true" :model="form" :rules="rules" ref="basicForm" label-width="190px" class="form-edit" v-if="isEditing || !_id" :disabled="formData.orderStatus === RepairOrderStatusEnum.CANCEL">
         <el-form-item label="单据编号：" prop="code">
           <el-input
             placeholder="请输入"
@@ -566,6 +566,7 @@ export default {
     return {
       form: {},
       popoverVisible: false,
+      RepairOrderStatusEnum,
       rules: {
         vehProfileVin: [
           { required: true, message: '请输入VIN', trigger: 'change' }
