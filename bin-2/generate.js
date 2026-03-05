@@ -71,15 +71,13 @@ function handleList (list) {
   if (!list) {
     return [];
   }
-  return list.filter(item => {
-    return (item.format === 'date-time' || item.type === 'array' || item.description);
-  }).map((el, index) => {
-    const isDateRange = el.format === 'dateRange';
-    const isDate = el.format === 'date';
-    const isSearch = el.format === 'search';
-    const isEnum = el.format === 'enum';
-    const isInput = el.format === 'input';
-    const isTextarea = el.format === 'textarea';
+  return list.map((el, index) => {
+    const isDateRange = el.componentType === 'dateRange';
+    const isDate = el.componentType === 'date';
+    const isSearch = el.componentType === 'search';
+    const isEnum = el.componentType === 'enum';
+    const isInput = el.componentType === 'input';
+    const isTextarea = el.componentType === 'textarea';
     const isBoolean = el.type === 'boolean';
     return {
       ...el,
@@ -102,17 +100,17 @@ const searchList = handleList(listPage.searchList);
 const tableList = handleList(listPage.tableList);
 const detailList = handleList(listPage.detailList);
 
-const detailTable = handleList(generateJson.detailPage.tableList);
+const detailPage = generateJson.detailPage || {};
+const detailTable = handleList(detailPage.tableList);
 
 // 弹窗
-const dialogSearchList = handleList(generateJson.detailPage.dialogSearchList);
-const dialogTableList = handleList(generateJson.detailPage.dialogTableList);
+const dialogSearchList = handleList(detailPage.dialogSearchList);
+const dialogTableList = handleList(detailPage.dialogTableList);
 const pathPrefix = generateJson.pathPrefix;
 
 const apiPath = pathPrefix + generateJson.path;
 const modulePath = apiPath.split('/').filter((val) => val !== 'web').join('/');
 
-const detailPage = generateJson.detailPage;
 const data = {
   title: generateJson.title,
   name: moduleName,
@@ -146,6 +144,8 @@ const data = {
   dialogSearchList,
   dialogTableList,
   dialogApiPath: detailPage.dialogApiPath ? pathPrefix + detailPage.dialogApiPath : '',
+  // 附件
+  fileConfig: generateJson.fileConfig,
 };
 
 // 创建vue文件

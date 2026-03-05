@@ -16,6 +16,7 @@
             clearable
             reserve-keyword
             placeholder="请选择电池去向单位"
+            @change="handleBatteryUnitChange"
           />
         </el-form-item>
         <el-form-item label="去向单位统一代码：" prop="targetUnitCode">
@@ -42,8 +43,8 @@
         </el-form-item>
       </el-form>
       <el-form :inline="true" class="form-detail" v-else>
-        <el-form-item label="电池去向单位：" prop="batteryUnitId">
-          {{ form.batteryUnitId }}
+        <el-form-item label="电池去向单位：" prop="targetUnitName">
+          {{ form.targetUnitName }}
         </el-form-item>
         <el-form-item label="去向单位统一代码：" prop="targetUnitCode">
           {{ form.targetUnitCode }}
@@ -133,6 +134,12 @@ export default {
         return [];
       }
     },
+    handleBatteryUnitChange (val, record) {
+      if (record) {
+        this.form.targetUnitCode = record.code;
+        this.form.targetUnitName = record.name;
+      }
+    }
   }
 };
 
