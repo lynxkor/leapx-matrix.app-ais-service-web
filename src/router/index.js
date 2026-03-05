@@ -1877,6 +1877,24 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/maintain/sp/interestsGoods',
+      name: 'interestsGoods',
+      component: () => import('@/views/maintain/sp/interestsGoods/index.vue'),
+
+      meta: {
+        name: '权益商品',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/interestsgoods/edit',
+      name: 'interestsGoodsEdit',
+      component: () => import('@/views/maintain/sp/interestsGoods/edit.vue'),
+
+      meta: {
+        name: '权益商品详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];

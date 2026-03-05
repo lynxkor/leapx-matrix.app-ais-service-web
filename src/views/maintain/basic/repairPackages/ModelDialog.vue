@@ -142,7 +142,7 @@
     <!-- 弹窗底部按钮 -->
     <div slot="footer" class="dialog-footer">
         <el-button size="small" @click="handleClose">取 消</el-button>
-        <el-button type="primary" size="small" @click="handleConfirm">确 定</el-button>
+        <el-button type="primary" size="small" :loading="loading" @click="handleConfirm">确 定</el-button>
     </div>
     </el-dialog>
   </template>
@@ -157,10 +157,6 @@ export default {
     visible: {
       type: Boolean,
       default: false
-    },
-    data: {
-      type: Array,
-      default: () => []
     },
     // 可以接收外部传入的初始数据
     initialData: {
@@ -185,12 +181,13 @@ export default {
       applicableModelList: [],
       selectedModelIndex: null,
       // 表格 选择数据
-      tableData: []
+      tableData: [],
+      loading: false
     };
   },
   watch: {
     // 监听父组件传入的数据变化
-    data: {
+    initialData: {
       handler (newVal) {
         this.tableData = newVal ? [...newVal] : [];
       },
@@ -289,11 +286,13 @@ export default {
 
     // 处理确定按钮
     async handleConfirm () {
+      this.loading = true;
       const params = this.tableData.map(item => ({
         ...item,
         repairPackagesId: this.repairId, // 维修套餐ID
       }));
       await saveModelBatch(params);
+      this.loading = false;
       // 将数据传递给父组件
       this.$emit('success');
       // 车系 年款  车型 全部初始化 表格数据清空

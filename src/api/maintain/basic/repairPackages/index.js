@@ -154,3 +154,11 @@ export function modelDelete (data) {
 export function partDelete (data) {
   return api.jsonPost('maintain/web/basic/repairPackagesPart/delete', data);
 }
+
+/**
+ * 维修套餐--维修项目详情
+ * @param {Object} data
+ */
+export function repairItemDetail (data) {
+  return api.jsonPost('maintain/web/basic/repairPackagesItem/get', data);
+}
