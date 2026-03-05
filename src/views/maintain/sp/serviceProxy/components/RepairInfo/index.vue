@@ -190,7 +190,7 @@
         >
           <vxe-column field="code" title="追溯编码" width="350px"/>
           <vxe-column field="partsName" title="零件名称" width="300px"/>
-          <vxe-column field="targetUnitName" title="电池去向单位" width="350px"/>
+          <vxe-column field="targetUnitName" title="去向单位" width="350px"/>
           <vxe-column field="beforeChangeCode" title="更换前编码" width="200px"/>
           <vxe-column field="afterChangeCode" title="更换后编码" width="200px"/>
           <vxe-column field="updateTime" title="修改时间" width="200px"/>
