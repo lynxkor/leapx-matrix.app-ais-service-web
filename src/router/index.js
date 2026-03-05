@@ -1672,24 +1672,6 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/warehouse/oemInventory',
-      name: 'oemInventory',
-      component: () => import('@/views/sparepart/warehouse/inventory/index.vue'),
-
-      meta: {
-        name: '主机厂备件库存查询',
-        keepAlive: true
-      }
-    }, {
-      path: '/sparepart/warehouse/oemInventory/edit',
-      name: 'oemInventoryEdit',
-      component: () => import('@/views/sparepart/warehouse/inventory/edit.vue'),
-
-      meta: {
-        name: '主机厂备件库存查询详情',
-        noResourceUrl: 'true'
-      }
-    }, {
       path: '/sparepart/return/returnExceptionalOrder',
       name: 'returnExceptionalOrder',
       component: () => import('@/views/sparepart/return/returnOrder/index.vue'),
@@ -1821,6 +1803,24 @@ const routes = [
 
       meta: {
         name: '外购件供应商主数据详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/warehouse/oemInventory',
+      name: 'oemInventory',
+      component: () => import('@/views/sparepart/warehouse/oemInventory/index.vue'),
+
+      meta: {
+        name: '主机厂备件库存查询',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/warehouse/oeminventory/edit',
+      name: 'oemInventoryEdit',
+      component: () => import('@/views/sparepart/warehouse/oemInventory/edit.vue'),
+
+      meta: {
+        name: '主机厂备件库存查询详情',
         noResourceUrl: 'true'
       }
     }]
