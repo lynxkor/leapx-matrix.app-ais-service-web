@@ -78,7 +78,7 @@ function handleList (list) {
     const isEnum = el.componentType === 'enum';
     const isInput = el.componentType === 'input';
     const isTextarea = el.componentType === 'textarea';
-    const isBoolean = el.type === 'boolean';
+    const isBoolean = el.componentType === 'yesno';
     return {
       ...el,
       isFirst: index === 0,
