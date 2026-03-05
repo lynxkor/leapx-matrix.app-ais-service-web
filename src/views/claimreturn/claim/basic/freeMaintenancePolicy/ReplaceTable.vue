@@ -251,5 +251,10 @@ export default {
 
 </script>
 <style lang="scss" scoped>
-
+.common-section {
+  margin: 0;
+}
+.common-section-body {
+  padding: 0;
+}
 </style>

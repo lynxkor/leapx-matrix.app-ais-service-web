@@ -215,6 +215,22 @@ export function getPartDealer (data) {
 }
 
 /**
+ * 备件 门店供应商查询
+ * @param {*} data
+ */
+export function getSupplierInfo (data) {
+  return api.jsonPost('/sp/web/basic/supplierInfo/listDealer', data);
+}
+
+/**
+ * 备件 OEM供应商查询
+ * @param {*} data
+ */
+export function getSupplierInfoOem (data) {
+  return api.jsonPost('/sp/web/basic/supplierInfo/list', data);
+}
+
+/**
  * 备件用户信息查询
  * @param {*} data
  */
