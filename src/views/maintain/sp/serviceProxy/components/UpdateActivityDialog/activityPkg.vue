@@ -12,7 +12,7 @@
             :key="item.id"
             :command="item.id"
           >
-            {{ item.name }}
+            {{ item.message }}
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -110,13 +110,13 @@
                   </div>
                   <div class="info-item">
                     <span class="label">结算类型：</span>
-                    <span class="value">{{ curItemList?.checkoutTypeName }}</span>
+                    <span class="value">{{ response?.activityResponse?.checkoutTypeName }}</span>
                   </div>
                 </div>
                 <div class="info-row">
                   <div class="info-item">
                     <span class="label">保修类型：</span>
-                    <span class="value">{{ curItemList?.repairItemTypeName }}</span>
+                    <span class="value">{{ response?.activityResponse?.repairItemTypeName }}</span>
                   </div>
                   <div class="info-item">
                     <span class="label">主因工时：</span>
@@ -133,18 +133,16 @@
                     <span class="value">{{ curItemList?.quantity }}</span>
                   </div>
                 </div>
-                <div class="info-row remark-row">
-                  <span class="label">方案说明：</span>
-                  <span class="value">{{ curItemList?.remark }}</span>
-                </div>
                 <div class="section-title">维修零件</div>
                 <vxe-table
+                  ref="partsTableRef"
                   :data="partRespList"
                   stripe
                   border="inner"
                   size="small"
                   min-height="0"
                   max-height="200px"
+                  :checkbox-config="{ checkMethod: checkMainPartMethod }"
                 >
                   <vxe-column type="checkbox" width="50" align="center"/>
                   <vxe-column field="partName" title="零件名称" min-width="140" />
@@ -152,12 +150,12 @@
                   <vxe-column field="quantity" title="数量" min-width="100" />
                   <vxe-column field="allowDelete" title="是否允许删除" min-width="100" >
                     <template v-slot="{ row }">
-                      {{ !!row.allowDelete ? '是' : '否' }}
+                      {{ row.allowDelete == '1' ? '是' : '否' }}
                     </template>
                   </vxe-column>
                   <vxe-column field="mainPart" title="是否主因件" min-width="100"  >
                     <template v-slot="{ row }">
-                      {{ !!row.allowDelete ? '是' : '否' }}
+                      {{ row.mainPart == '1' ? '是' : '否' }}
                     </template>
                   </vxe-column>
                 </vxe-table>
@@ -169,10 +167,10 @@
         <!-- 底部操作栏 -->
         <div class="footer-bar">
           <el-popconfirm
-            :title="!selectedPackage?.used ? '确定取消使用该维修套餐？' : '确定选择使用该维修套餐？'"
+            :title="popconfirmText"
             @confirm="handleConfirm"
           >
-            <el-button :type="!selectedPackage?.used ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
+            <el-button :type="response?.activityUsed ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
           </el-popconfirm>
         </div>
       </div>
@@ -187,6 +185,7 @@
 
 <script>
 import { getActivityList, getActivityListType, getActivityDetail, useActivity, cancel } from '@/api/maintain/sp/serviceProxy/special';
+import { getEnum } from '@/api/common';
 
 export default {
   name: 'MaintainPkg',
@@ -214,18 +213,29 @@ export default {
   computed: {
     selectedTypeName () {
       if (!this.selectedType) {
-        return '全部套餐';
+        return '全部活动';
       }
       const type = this.packageTypeList.find(item => item.id === this.selectedType);
-      return type?.name || '全部套餐';
+      return type?.message || '全部活动';
     },
     confirmBtnText () {
-      return this.selectedPackage?.used ? '取消选择' : '核销使用';
+      return this.response?.activityUsed ? '取消使用方案' : '使用方案';
     },
     partRespList () {
       const res = (this.response?.partResponseList || []).filter(item => item.serviceActivityItemId === this.curPartTab);
       return res;
-    }
+    },
+    popconfirmText () {
+      if (this.selectedPackage?.used) {
+        if (this.response?.activityUsed) {
+          return '确定取消选择使用该方案？';
+        } else {
+          return '该车辆已使用其他方案，是否确认要替换为本方案';
+        }
+      } else {
+        return '确定选择使用该方案？';
+      }
+    },
   },
   methods: {
     handleSearch () {
@@ -245,6 +255,15 @@ export default {
       this.selectedPackage = null;
       this.projectList = [];
       this.loadPackageList();
+      this.getActivityListType();
+    },
+    getActivityListType () {
+      getEnum('claim_activity_type').then(res => {
+        this.packageTypeList = [{
+          id: '',
+          message: '全部活动'
+        }].concat(res || []);
+      });
     },
     // 获取套餐列表
     async loadPackageList () {
@@ -253,7 +272,7 @@ export default {
           id: this.vehicleInfo.id
         };
         if (this.selectedType) {
-          params.typeId = this.selectedType;
+          params.activityType = this.selectedType;
         }
         if (this.searchKey) {
           params.searchKey = this.searchKey;
@@ -287,7 +306,8 @@ export default {
         this.loading = true;
         const params = {
           packageId: pkg.id,
-          id: this.vehicleInfo.id
+          id: this.vehicleInfo.id,
+          activityId: pkg.activityId
         };
         const res = await getActivityDetail(params);
         this.response = res || {};
@@ -300,6 +320,10 @@ export default {
           this.curPartTab = this.partsList[0].id;
           this.curItemList = this.partsList[0];
         }
+        // 数据加载完成后设置主因件勾选
+        setTimeout(() => {
+          this.setCheckedMainParts();
+        }, 300);
       } catch (error) {
         console.error('获取套餐详情失败', error);
         this.projectList = [];
@@ -317,7 +341,7 @@ export default {
         return;
       }
       let result = false;
-      if (this.selectedPackage.used) {
+      if (this.response.activityUsed) {
         result = await this.cancelPackage();
       } else {
         result = await this.usePackage();
@@ -334,7 +358,8 @@ export default {
       }
       try {
         await cancel({
-          packageId: this.selectedPackage.id,
+          packageType: 50,
+          packageId: this.selectedPackage.activityId + '#' + this.selectedPackage.id,
           id: this.vehicleInfo.id
         });
         this.$message.success('取消成功');
@@ -351,10 +376,76 @@ export default {
         this.$message.warning('请选择套餐');
         return false;
       }
+      const tableRef = Array.isArray(this.$refs.partsTableRef)
+        ? this.$refs.partsTableRef[0]
+        : this.$refs.partsTableRef;
+      const selectedParts = tableRef.getCheckboxRecords();
+      // 对 itemList 进行字段映射
+      const activityRes = this.response?.activityResponse || {};
+      const itemList = (this.response.itemResponseList || []).map(item => ({
+        serviceProxyId: this.vehicleInfo.id,
+        repairItemId: item.id,
+        repairItemCode: item.repairItemCode,
+        repairItemName: item.repairItemName,
+        repairItemTypeId: item.repairItemTypeId,
+        repairItemTypeName: item.repairItemTypeName,
+        checkoutTypeId: activityRes.checkoutTypeId,
+        checkoutTypeName: activityRes.checkoutTypeName,
+        warrantyTypeId: activityRes.repairItemTypeId,
+        warrantyTypeName: activityRes.repairItemTypeName,
+        workHour: item.workHour || 1,
+        isAddItems: 0,
+        discountAmount: item.discountAmount,
+        packageType: 50,
+        packageId: this.selectedPackage.activityId + '#' + this.selectedPackage.id,
+        packageCode: activityRes.activityCode,
+        packageName: activityRes.activityName,
+        price: item.amount
+      }));
+      // 构建 serviceActivityItemId -> repairItem 的映射
+      const itemMap = {};
+      (this.response.itemResponseList || []).forEach(item => {
+        itemMap[item.id] = item;
+      });
+      // 对 partsList 进行字段映射
+      const partsList = selectedParts.map(part => {
+        const repairItem = itemMap[part.serviceActivityItemId] || {};
+        return {
+          serviceProxyId: this.vehicleInfo.id,
+          partsId: part.partId,
+          partsCode: part.partCode,
+          partsName: part.partName,
+          isOutstock: 0,
+          planPickNumber: part.quantity,
+          actualPickNumber: 0,
+          refundedNumber: 0,
+          repairItemTypeId: part.repairItemTypeId,
+          repairItemTypeName: part.repairItemTypeName,
+          checkoutTypeId: activityRes.checkoutTypeId,
+          checkoutTypeName: activityRes.checkoutTypeName,
+          warrantyTypeId: activityRes.repairItemTypeId,
+          warrantyTypeName: activityRes.repairItemTypeName,
+          isOemPart: 0,
+          quantity: part.quantity,
+          discountAmount: part.discountAmount,
+          spRepairItemId: part.serviceActivityItemId,
+          isBindItem: 0,
+          repairItemId: part.serviceActivityItemId,
+          repairItemCode: repairItem.repairItemCode || '',
+          repairItemName: repairItem.repairItemName || '',
+          packageType: 50,
+          packageId: this.selectedPackage.activityId + '#' + this.selectedPackage.id,
+          packageCode: activityRes.activityCode,
+          packageName: activityRes.activityName,
+        };
+      });
       try {
         const params = {
           packageId: this.selectedPackage.id,
           id: this.vehicleInfo.id,
+          activityId: this.selectedPackage.activityId,
+          itemList: itemList,
+          partsList: partsList
         };
         await useActivity(params);
         this.selectedPackage.used = true;
@@ -366,10 +457,27 @@ export default {
       }
     },
     handleTabClick (item) {
-      console.log(item);
       this.curPartTab = item.id;
       this.curItemList = item;
-    }
+    },
+    // 主因件强制勾选，禁止取消
+    checkMainPartMethod ({ row }) {
+      // 主因件禁止取消勾选（checkbox 不可操作）
+      return row.mainPart !== '1';
+    },
+    // 设置主因件为勾选状态
+    setCheckedMainParts () {
+      // 由于表格在 v-for 循环内，ref 会是数组形式
+      const tableRef = Array.isArray(this.$refs.partsTableRef)
+        ? this.$refs.partsTableRef[0]
+        : this.$refs.partsTableRef;
+      if (!tableRef) return;
+      // 找出所有主因件并勾选
+      const mainPartRows = this.partRespList.filter(row => row.mainPart === '1');
+      if (mainPartRows.length > 0) {
+        tableRef.setCheckboxRow(mainPartRows, true);
+      }
+    },
   }
 };
 </script>
@@ -388,6 +496,9 @@ export default {
     padding: 0 16px;
     text-align: left;
   }
+  ::v-deep .vxe-table--render-default .vxe-cell--checkbox.is--checked .vxe-checkbox--icon {
+    color: var(--leap-color-primary)!important;
+  }
 
   // 左侧面板
   .left-panel {
@@ -397,6 +508,7 @@ export default {
     flex-direction: column;
     .el-dropdown {
       padding: 12px 12px 0 12px;
+      cursor: pointer;
     }
     .search-box {
       padding: 12px;
