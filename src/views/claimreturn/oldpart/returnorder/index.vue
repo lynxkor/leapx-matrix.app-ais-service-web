@@ -171,13 +171,173 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
-      optionObj: {
+      // 【修改点 1】拆分数据：将动态变化的列表数据和配置分开
+      tableDataList: [],
+      tableTotal: 0,
+      tableForm: { page: 1, size: pageSize },
+      // optionObj: {
+      //   id: this.$route.meta.moduleKey,
+      //   dataList: [],
+      //   form: {
+      //     page: 1,
+      //     size: pageSize
+      //   },
+      //   dataProp: [
+      //     {
+      //       props: 'returnOrderNo',
+      //       label: '门店回运单号',
+      //       visible: true,
+      //       width: 240,
+      //       fixed: 'left',
+      //       buttons: [{
+      //         click: (rowIndex, row) => {
+      //           this.$router.push({
+      //             path: this.editPath,
+      //             query: {
+      //               id: row.id
+      //             }
+      //           });
+      //         },
+      //         type: 'primary'
+      //       }]
+      //     },
+      //     {
+      //       props: 'dealerName',
+      //       label: '门店名称',
+      //       visible: true,
+      //       width: 220,
+      //       fixed: 'left',
+      //       buttons: [{
+      //         click: (rowIndex, row) => {
+      //           this.navigateToRoute({
+      //             path: '/partner/channelManagement/shopDetail',
+      //             query: {
+      //               dealerCode: row.dealerCode,
+      //             },
+      //           });
+      //         },
+      //         type: 'primary'
+      //       }]
+      //     },
+      //     { props: 'dealerCode', label: '门店编码', visible: true, width: 140 },
+      //     { props: 'returnStatusLabel', label: '回运状态', visible: true, width: 110 },
+      //     { props: 'isCheckedLabel', label: '是否验收完成', visible: true, width: 140 },
+      //     { props: 'returnDate', label: '回运日期', visible: true, width: 200 },
+      //     { props: 'returnTypeLabel', label: '旧件返回类型', visible: true, width: 140 },
+      //     { props: 'receiverAddress', label: '回运地址', visible: true, width: 200 },
+      //     { props: 'receiverContact', label: '收货联系人', visible: true, width: 200 },
+      //     { props: 'logisticsTrackingNo', label: '物流单号', visible: true, width: 200 },
+      //     { props: 'logisticsCompany', label: '物流商', visible: true, width: 200 },
+      //     { props: 'estimatedArrivalDate', label: '预计到达日期', visible: true, width: 200 },
+      //     { props: 'returnUnit', label: '回运件数（纸箱/木架）', visible: true, width: 200 },
+      //     { props: 'signReceiveDate', label: '签收日期', visible: true, width: 200 },
+      //     { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+      //     {
+      //       props: 'operate',
+      //       label: '操作',
+      //       type: 'operate',
+      //       visible: true,
+      //       fixed: 'right',
+      //       buttons: [{
+      //         name: '编辑',
+      //         show: (row) => {
+      //           console.log('isDealer', this.isDealer);
+      //           // 门店 && 已签收
+      //           if (this.isDealer && row.returnStatus === '40') {
+      //             return false;
+      //           }
+      //           return true;
+      //         },
+      //         click: (rowIndex, row) => {
+      //           this.$router.push({
+      //             path: this.editPath,
+      //             query: {
+      //               id: row.id,
+      //               isEditing: true,
+      //             }
+      //           });
+      //         },
+      //         type: 'info'
+      //       },
+      //       {
+      //         name: '下发',
+      //         show: (row) => {
+      //           return row.returnStatus === '10' && this.canPublish;
+      //         },
+      //         popconfirmTitle: '是否下发?',
+      //         click: (rowIndex, row) => {
+      //           publish(row.id).then(() => {
+      //             this.$message({
+      //               type: 'success',
+      //               message: '下发成功!'
+      //             });
+      //             this.getData();
+      //           }).catch(() => {
+      //           });
+      //         },
+      //         type: 'info'
+      //       }, {
+      //         name: '删除',
+      //         show: (row) => {
+      //           return row.returnStatus === '10' && this.canDelete;
+      //         },
+      //         popconfirmTitle: '此操作将永久删除, 是否继续?',
+      //         click: (rowIndex, row) => {
+      //           deleteItem([row.id]).then(() => {
+      //             this.$message({
+      //               type: 'success',
+      //               message: '删除成功!'
+      //             });
+      //             this.getData();
+      //           }).catch(() => {
+      //             this.$message({
+      //               type: 'error',
+      //               message: '删除失败!'
+      //             });
+      //           });
+      //         },
+      //         type: 'danger'
+      //       }]
+      //     }
+      //   ],
+      //   total: 0
+      // }
+    };
+  },
+  beforeCreate () {
+    defaultForm.returnType = this.$route.meta.returnType;
+  },
+  created () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    this.getData();
+    loginUserGet().then(data => {
+      this.isDealer = data.accountFlag;
+    });
+  },
+  mounted () {
+  },
+  computed: {
+    isFastReturn () {
+      return this.$route.meta.returnType === '40';
+    },
+    editPath () {
+      if (this.isDealer) {
+        return this.isFastReturn ? '/claimreturn/oldpart/dealerReturnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
+      }
+      return this.isFastReturn ? '/claimreturn/oldpart/returnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
+    },
+    canPublish () {
+      return this.permissions.has(`${this.moduleKey}-publish`);
+    },
+    canSign () {
+      return this.permissions.has(`${this.moduleKey}-sign`);
+    },
+    optionObj () {
+      const isDealer = this.isDealer;
+      return {
         id: this.$route.meta.moduleKey,
-        dataList: [],
-        form: {
-          page: 1,
-          size: pageSize
-        },
+        dataList: this.tableDataList,
+        form: this.tableForm,
         dataProp: [
           {
             props: 'returnOrderNo',
@@ -236,6 +396,13 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '编辑',
+              show: (row) => {
+                // 门店 && 已签收
+                if (isDealer && row.returnStatus === '40') {
+                  return false;
+                }
+                return true;
+              },
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: this.editPath,
@@ -289,34 +456,7 @@ export default {
           }
         ],
         total: 0
-      }
-    };
-  },
-  beforeCreate () {
-    defaultForm.returnType = this.$route.meta.returnType;
-  },
-  created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
-    this.getData();
-    loginUserGet().then(data => {
-      this.isDealer = data.accountFlag;
-    });
-  },
-  computed: {
-    isFastReturn () {
-      return this.$route.meta.returnType === '40';
-    },
-    editPath () {
-      if (this.isDealer) {
-        return this.isFastReturn ? '/claimreturn/oldpart/dealerReturnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
-      }
-      return this.isFastReturn ? '/claimreturn/oldpart/returnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
-    },
-    canPublish () {
-      return this.permissions.has(`${this.moduleKey}-publish`);
-    },
-    canSign () {
-      return this.permissions.has(`${this.moduleKey}-sign`);
+      };
     }
   },
   methods: {
@@ -335,13 +475,13 @@ export default {
       });
     },
     onSubmit () {
-      this.optionObj.form.page = 1;
+      this.tableForm.page = 1;
       this.getData();
     },
     onReset () {
       this.form = { ...defaultForm };
-      this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      this.tableForm.page = 1;
+      this.tableForm.pageSize = pageSize;
       this.getData();
     },
     exportExcel () {
@@ -376,15 +516,15 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
         .then(res => {
-          this.optionObj.dataList = res.records.map(item => {
+          this.tableDataList = res.records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.tableTotal = res.total;
         }).finally(() => {
           this.loading = false;
         });
@@ -409,9 +549,9 @@ export default {
     },
     paginationChange (type, num) {
       if (type === 'page') {
-        this.optionObj.form.page = num;
+        this.tableForm.page = num;
       } else {
-        this.optionObj.form.size = num;
+        this.tableForm.size = num;
       }
       this.debouncedGetData();
     },
