@@ -339,6 +339,12 @@ export default {
         repairItemId: this.repairItemId, // 维修项目ID 下拉选择框传入
         repairPackagesId: this.repairPackagesId // 维修套餐ID 父组件传入
       };
+      // 如果是新增模式，确保不携带 id 传给后端（防止后端误判为更新）
+      if (this.judgment === 'add') {
+        if (params.id) {
+          delete params.id;
+        }
+      }
       getAddOrUpdate(params).then(() => {
         this.$message.success('保存成功');
       });
