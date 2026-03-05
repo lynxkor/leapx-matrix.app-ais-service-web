@@ -329,7 +329,7 @@
           max-height="500px"
         >
           <vxe-column type="seq" title="序号" width="70" align="center" />
-          <vxe-column field="id" title="追溯编码" min-width="150" show-overflow />
+          <vxe-column field="code" title="追溯编码" min-width="150" show-overflow />
           <vxe-column field="partsCode" title="零件代码" min-width="150" show-overflow />
           <vxe-column field="partsName" title="零件名称" min-width="150" show-overflow />
           <vxe-column field="targetUnitName" title="去向单位" width="200" align="center">
@@ -657,13 +657,13 @@ export default {
       if (record) {
         this.formInline.batteryUnitName = record.name;
         this.formInline.batteryUnitId = record.id;
-        this.formInline.targetUnitCode = record.code || '';
+        this.formInline.targetUnitCode = record.buinessLicense || '';
       }
     },
     // 零件去向单位变更
     handlePartUnitChange (val, record, row) {
       row.targetUnitId = record.id;
-      row.targetUnitCode = record.code;
+      row.targetUnitCode = record.buinessLicense;
       row.targetUnitName = record.name;
     },
     // 搜索用户(质检人/终检人)
