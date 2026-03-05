@@ -42,7 +42,6 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
-
 {{#each detailList}}
 {{#if isSearch}}
 /**
@@ -93,7 +92,6 @@ export function getDialogList (data) {
   return api.jsonPost('{{dialogApiPath}}', data);
 }
 {{/if}}
-
 {{#if detailSearchPath}}
 export function detailSearchApi (data) {
   return api.jsonPost('{{detailSearchPath}}', data);

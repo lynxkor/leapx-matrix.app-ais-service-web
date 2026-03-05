@@ -343,7 +343,9 @@ import {
   getList,
   deleteItem,
   enableItem,
+  {{#if tabsPath}}
   getTabsListApi,
+  {{/if}}
 } from '@/api/{{modulePath}}/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
