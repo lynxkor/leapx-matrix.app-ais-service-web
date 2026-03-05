@@ -45,18 +45,26 @@
                 <el-form-item label="服务权益类型：" prop="serviceInterestsType">
                   <fetch-select
                     :request="fetchOptions"
-                    enumCode="xxx"
+                    enumCode="InterestsGoodsServiceInterestsTypeEnum"
                     v-model="form.serviceInterestsType"
                     placeholder="请选择"
                     clearable
                     filterable
                   />
                 </el-form-item>
-                <el-form-item label="权益商品分类：" prop="classificationGoodsName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.classificationGoodsName"
+                <el-form-item label="权益商品分类：" prop="classificationGoodsId">
+                  <fetch-select
+                    prop="classificationGoodsId"
+                    filterable
                     clearable
+                    remote
+                    reserve-keyword
+                    v-model="form.classificationGoodsId"
+                    :remote-method="getClassificationGoods"
+                    labelKey="classificationName"
+                    valueKey="id"
+                    subLabelKey="classificationName"
+                    @change="listClassificationGoodsChange"
                   />
                 </el-form-item>
                 <el-form-item label="购买后有效期（月）：" prop="datePurchase">
@@ -66,182 +74,20 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="状态：" prop="status">
+                <el-form-item label="是否上架" prop="status">
                   <fetch-select
                     :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.status"
+                    enumCode="StatusEnum"
+                    v-model="form.whetherShelf"
                     placeholder="请选择"
                     clearable
                     filterable
-                  />
-                </el-form-item>
-                <el-form-item label="索赔项目工时费用（总）：" prop="claimItemAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.claimItemAmount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="索赔备件费用（总）：" prop="claimPartsAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.claimPartsAmount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="索赔费用（总）：" prop="claimOtherAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.claimOtherAmount"
-                    clearable
                   />
                 </el-form-item>
                 <el-form-item label="备注：" prop="note">
                   <el-input
                     placeholder="请输入"
                     v-model="form.note"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifierName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.updateTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creator"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creatorName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.createTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.id"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifier"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statusDesc"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="编码：" prop="code">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.code"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="权益商品分类id：" prop="classificationGoodsId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.classificationGoodsId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="是否上架：" prop="whetherShelf">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.whetherShelf"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="上架时间：" prop="shelfTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.shelfTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="上架人员：" prop="systemUserId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.systemUserId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="上架人员：" prop="systemUserName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.systemUserName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="下架时间：" prop="frameTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.frameTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="下架人员：" prop="helvesPerUserId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.helvesPerUserId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="下架人员：" prop="helvesPerUserName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.helvesPerUserName"
                     clearable
                   />
                 </el-form-item>
@@ -254,16 +100,13 @@
                   {{ form.commodityName }}
                 </el-form-item>
                 <el-form-item label="服务权益类型：" prop="serviceInterestsType">
-                  {{ form.serviceInterestsType }}
+                  {{ form.serviceInterestsTypeLabel }}
                 </el-form-item>
                 <el-form-item label="权益商品分类：" prop="classificationGoodsName">
                   {{ form.classificationGoodsName }}
                 </el-form-item>
                 <el-form-item label="购买后有效期（月）：" prop="datePurchase">
                   {{ form.datePurchase }}
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  {{ form.status }}
                 </el-form-item>
                 <el-form-item label="索赔项目工时费用（总）：" prop="claimItemAmount">
                   {{ form.claimItemAmount }}
@@ -274,50 +117,26 @@
                 <el-form-item label="索赔费用（总）：" prop="claimOtherAmount">
                   {{ form.claimOtherAmount }}
                 </el-form-item>
-                <el-form-item label="备注：" prop="note">
-                  {{ form.note }}
-                </el-form-item>
                 <el-form-item label="修改者名称：" prop="modifierName">
                   {{ form.modifierName }}
                 </el-form-item>
                 <el-form-item label="修改时间：" prop="updateTime">
                   {{ form.updateTime }}
                 </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
+                <el-form-item label="创建者：" prop="creatorName">
                   {{ form.creatorName }}
                 </el-form-item>
                 <el-form-item label="创建时间：" prop="createTime">
                   {{ form.createTime }}
                 </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item>
                 <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  {{ form.statusDesc }}
-                </el-form-item>
-                <el-form-item label="编码：" prop="code">
-                  {{ form.code }}
-                </el-form-item>
-                <el-form-item label="权益商品分类id：" prop="classificationGoodsId">
-                  {{ form.classificationGoodsId }}
+                  {{ form.modifierName }}
                 </el-form-item>
                 <el-form-item label="是否上架：" prop="whetherShelf">
-                  {{ form.whetherShelf }}
+                  {{ form.whetherShelfLabel }}
                 </el-form-item>
                 <el-form-item label="上架时间：" prop="shelfTime">
                   {{ form.shelfTime }}
-                </el-form-item>
-                <el-form-item label="上架人员：" prop="systemUserId">
-                  {{ form.systemUserId }}
                 </el-form-item>
                 <el-form-item label="上架人员：" prop="systemUserName">
                   {{ form.systemUserName }}
@@ -325,12 +144,15 @@
                 <el-form-item label="下架时间：" prop="frameTime">
                   {{ form.frameTime }}
                 </el-form-item>
-                <el-form-item label="下架人员：" prop="helvesPerUserId">
-                  {{ form.helvesPerUserId }}
-                </el-form-item>
                 <el-form-item label="下架人员：" prop="helvesPerUserName">
                   {{ form.helvesPerUserName }}
                 </el-form-item>
+                <el-form-item label="备注：" prop="note">
+                  {{ form.note }}
+                </el-form-item>
+                <!-- <el-form-item label="备注：" prop="remark">
+                  {{ form.remark }}
+                </el-form-item> -->
               </el-form>
             </div>
           </section>
@@ -404,6 +226,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import api from '@/axios';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -473,7 +296,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: '权益商品管理',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-interestsGoods',
@@ -656,6 +479,13 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    getClassificationGoods () {
+      return api.jsonPost('/maintain/web/sp/classificationGoods/list', {});
+    },
+    listClassificationGoodsChange (val, all) {
+      this.form.classificationGoodsId = all.id;
+      this.form.classificationGoodsName = all.classificationName;
     }
   }
 };

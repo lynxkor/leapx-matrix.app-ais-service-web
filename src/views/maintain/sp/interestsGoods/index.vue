@@ -9,13 +9,6 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="权益商品代码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.commodityCode"
-          clearable
-        />
-      </el-form-item>
       <el-form-item label="权益商品名称">
         <el-input
           placeholder="请输入"
@@ -23,10 +16,17 @@
           clearable
         />
       </el-form-item>
+      <el-form-item label="权益商品代码">
+        <el-input
+          placeholder="请输入"
+          v-model="form.commodityCode"
+          clearable
+        />
+      </el-form-item>
       <el-form-item label="服务权益类型"  v-show="this.visibleCount === 3 || show">
         <fetch-select
           :request="fetchOptions"
-          enumCode="xxx"
+          enumCode="InterestsGoodsServiceInterestsTypeEnum"
           v-model="form.serviceInterestsType"
           placeholder="请选择"
           clearable
@@ -51,54 +51,19 @@
         </el-form-item>
         <el-form-item label="状态">
           <fetch-select
-            :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.status"
+            :request="whetherShelf"
+            enumCode="BooleanEnum"
+            v-model="form.whetherShelf"
             placeholder="请选择"
             clearable
             multiple
             filterable
           />
         </el-form-item>
-        <el-form-item label="索赔项目工时费用（总）">
-          <el-input
-            placeholder="请输入"
-            v-model="form.claimItemAmount"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="索赔备件费用（总）">
-          <el-input
-            placeholder="请输入"
-            v-model="form.claimPartsAmount"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="索赔费用（总）">
-          <el-input
-            placeholder="请输入"
-            v-model="form.claimOtherAmount"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="备注">
-          <el-input
-            placeholder="请输入"
-            v-model="form.note"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="修改者名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.modifierName"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="修改时间">
+        <el-form-item label="创建时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
-            v-model="form.updateTime"
+            v-model="form.createTime"
             type="daterange"
             :picker-options="pickerOptions"
             range-separator="至"
@@ -107,17 +72,10 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="创建者名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.creatorName"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="创建时间">
+        <el-form-item label="修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
+            v-model="form.updateTime"
             type="daterange"
             :picker-options="pickerOptions"
             range-separator="至"
@@ -180,7 +138,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/maintain/sp/interestsGoods/index';
+import { getList, deleteItem, enableItem, addOrUpdate, changeWhetherShelf } from '@/api/maintain/sp/interestsGoods/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -225,7 +183,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '权益商品管理',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-interestsGoods',
@@ -266,10 +224,10 @@ export default {
             }]
           },
           { props: 'commodityName', label: '权益商品名称', visible: true, width: 200 },
-          { props: 'serviceInterestsType', label: '服务权益类型', visible: true, width: 200 },
+          { props: 'serviceInterestsTypeLabel', label: '服务权益类型', visible: true, width: 200 },
           { props: 'classificationGoodsName', label: '权益商品分类', visible: true, width: 200 },
           { props: 'datePurchase', label: '购买后有效期（月）', visible: true, width: 200 },
-          { props: 'status', label: '状态', visible: true, width: 200 },
+          { props: 'whetherShelfLabel', label: '是否上架', visible: true, width: 200 },
           { props: 'claimItemAmount', label: '索赔项目工时费用（总）', visible: true, width: 200 },
           { props: 'claimPartsAmount', label: '索赔备件费用（总）', visible: true, width: 200 },
           { props: 'claimOtherAmount', label: '索赔费用（总）', visible: true, width: 200 },
@@ -295,6 +253,24 @@ export default {
                 });
               },
               type: 'info'
+            }, {
+              name: '下架',
+              click: (rowIndex, row) => {
+                this.toggleWhetherShelf(row.id, 0, row);
+              },
+              show: (row) => {
+                return row.whetherShelf === 1; // Show button only if user has permission
+              },
+              type: 'info' // Different color for different states
+            }, {
+              name: '上架',
+              click: (rowIndex, row) => {
+                this.toggleWhetherShelf(row.id, 1, row);
+              },
+              show: (row) => {
+                return row.whetherShelf === 0; // Show button only if user has permission
+              },
+              type: 'info' // Different color for different states
             }, {
               name: '删除',
               popconfirmTitle: '此操作将永久删除, 是否继续?',
@@ -524,6 +500,36 @@ export default {
       //     });
       //   });
       // });
+    },
+    toggleWhetherShelf (id, status, row) {
+      const action = status === 1 ? '上架' : '下架';
+      this.$confirm(`此操作将${action}该权益商品，是否继续?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // Assuming there's an API endpoint for updating sales status
+        // You may need to adjust the API call according to your backend implementation
+        changeWhetherShelf({
+          id: id,
+          whetherShelf: status
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: `${action}成功!`
+          });
+          // Update the local row data
+          row.whetherShelf = status;
+          row.whetherShelfLabel = status === 1 ? '是' : '否';
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: `${action}失败!`
+          });
+        });
+      }).catch(() => {
+        // User cancelled
+      });
     }
   }
 };
