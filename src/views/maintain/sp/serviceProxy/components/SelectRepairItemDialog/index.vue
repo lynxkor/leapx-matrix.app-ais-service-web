@@ -254,7 +254,7 @@
               </div>
             </template>
             <template #default="{item}">
-              <div v-if="item.value === 'empty'" style="pointer-events: none;">未搜索到配件</div>
+              <div v-if="item.value === 'empty'" style="pointer-events: none;">您当前搜索的维修配件，不适用{{vehicleInfo.vehModelName}}车型，请联系服务工程</div>
               <div v-else>
                 {{ item.value }}
               </div>

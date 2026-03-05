@@ -8,126 +8,83 @@
                 "description": "创建时间",
                 "type": "string",
                 "format": "date-time",
+                "isSearch": true,
+                "dateFormat": "yyyy-MM-dd HH:mm:ss",
                 "componentType": "dateRange"
             },
             {
                 "key": "workstationName",
                 "description": "工位名称",
                 "type": "string",
-                "componentType": "input"
-            },
-            {
-                "key": "status",
-                "description": "状态(1:启用,0:停用)",
-                "type": "integer",
-                "format": "int32",
-                "componentType": "input"
-            },
-            {
-                "key": "workstationType",
-                "description": "工位类型",
-                "type": "string",
-                "componentType": "input"
-            },
-            {
-                "key": "dealerName",
-                "description": "门店名称",
-                "type": "string",
-                "componentType": "input"
-            }
-        ],
-        "tableList": [
-            {
-                "key": "code",
-                "description": "工位代码",
-                "type": "string"
-            },
-            {
-                "key": "name",
-                "description": "工位名称",
-                "type": "string"
-            },
-            {
-                "key": "workstationType",
-                "description": "工位类型",
-                "type": "string"
+                "isSearch": true,
+                "componentType": "search"
             },
             {
                 "key": "status",
                 "description": "状态",
                 "type": "integer",
-                "format": "int32"
+                "format": "int32",
+                "isSelectMultiple": true,
+                "isEnum": true,
+                "componentType": "yesno"
+            },
+            {
+                "key": "workstationType",
+                "description": "工位类型",
+                "type": "string",
+                "isSelectMultiple": true,
+                "componentType": "input"
             },
             {
                 "key": "dealerName",
                 "description": "门店名称",
-                "type": "string"
-            },
-            {
-                "key": "remark",
-                "description": "说明",
-                "type": "string"
-            },
+                "type": "string",
+                "isSearch": true,
+                "isSelectMultiple": true,
+                "componentType": "search"
+            }
+        ],
+        "tableList": [
             {
                 "key": "createTime",
                 "description": "创建时间",
                 "type": "string",
-                "format": "date-time"
-            }
-        ],
-        "detailList": [
-            {
-                "key": "code",
-                "description": "工位代码",
-                "type": "string",
-                "componentType": "input"
+                "format": "date-time",
+                "isSearch": true,
+                "dateFormat": "yyyy-MM-dd HH:mm:ss"
             },
             {
-                "key": "name",
+                "key": "workstationName",
                 "description": "工位名称",
                 "type": "string",
-                "componentType": "input"
+                "isSearch": true
             },
             {
-                "key": "type",
+                "key": "status",
+                "description": "状态",
+                "type": "integer",
+                "format": "int32",
+                "isSelectMultiple": true,
+                "isEnum": true
+            },
+            {
+                "key": "workstationType",
                 "description": "工位类型",
                 "type": "string",
-                "componentType": "input"
+                "isSelectMultiple": true
             },
             {
                 "key": "dealerName",
                 "description": "门店名称",
                 "type": "string",
-                "componentType": "input"
-            },
-            {
-                "key": "responsiblePersonName",
-                "description": "负责人",
-                "type": "string",
-                "componentType": "input"
-            },
-            {
-                "key": "remark",
-                "description": "说明",
-                "type": "string",
-                "componentType": "textarea"
+                "isSearch": true,
+                "isSelectMultiple": true
             }
-        ]
-    },
-    "detailPage": {
-        "tableList": [],
-        "tableType": "search-add",
-        "detailApiPath": "",
-        "addPath": "",
-        "removePath": "",
-        "searchPath": "",
-        "dialogApiPath": ""
+        ],
+        "detailList": []
     },
     "checkedList": [
         "isShowEditing"
     ],
-    "fileConfig": {
-        "isAttachment": false
-    },
     "title": "工时价格设置管理"
 }
