@@ -1406,7 +1406,7 @@ const routes = [
         name: '新页面',
         keepAlive: true
       }
-    }, // 门店销毁
+    }, // 主机厂
     {
       path: '/claimreturn/oldpart/outbound/edit',
       name: 'outboundEdit',
@@ -1426,7 +1426,8 @@ const routes = [
         moduleKey: 'oldPartDestroyOrder',
         keepAlive: true
       }
-    }, {
+    }, // 门店销毁
+    {
       path: '/claimreturn/oldpart/destroy/oldpartdestroyorder/edit',
       name: 'oldPartDestroyOrderEdit',
       component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit.vue'),
@@ -1911,6 +1912,24 @@ const routes = [
 
       meta: {
         name: '外购件退货单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/sp/interestsGoods',
+      name: 'interestsGoods',
+      component: () => import('@/views/maintain/sp/interestsGoods/index.vue'),
+
+      meta: {
+        name: '权益商品',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/interestsgoods/edit',
+      name: 'interestsGoodsEdit',
+      component: () => import('@/views/maintain/sp/interestsGoods/edit.vue'),
+
+      meta: {
+        name: '权益商品详情',
         noResourceUrl: 'true'
       }
     }]
