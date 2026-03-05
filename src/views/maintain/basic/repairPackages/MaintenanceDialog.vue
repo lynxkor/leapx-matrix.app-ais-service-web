@@ -11,19 +11,24 @@
                     {{ rowIndex + 1 }}
                   </template>
                 </vxe-column>
-                <vxe-column field="name" title="套餐类型名称" />
+                <vxe-column field="name" title="套餐类型名称">
+                  <template #default="{ row }">
+                    <el-input v-model="row.name" size="small" placeholder="请输入内容" />
+                  </template>
+                </vxe-column>
                 <vxe-column field="partName" title="状态">
                   <template #default="{ row }">
-                    <span class="action-button btn-edit" @click="handleEdit(rowIndex)">{{ row.status === 1 ? '停用' : '启用' }}</span>
+                    <el-popconfirm :title="`确定要${row.status === 1 ? '停用' : '启用'}该套餐类型吗？`" @confirm="handleEdit(row)">
+                        <span slot="reference" type="text" :style="{ color: row.status === 1 ? '#B91919' : '#009100' }" size="small" class="btn-delete">{{ row.status === 1 ? '停用' : '启用' }}</span>
+                    </el-popconfirm>
                   </template>
                 </vxe-column>
                 <vxe-column field="unPurchaseReason" title="操作">
-                    <template #default="{ rowIndex }">
-                        <span class="action-button btn-edit" @click="handleEdit(rowIndex)">上移</span>
-                        <span class="action-button btn-edit" @click="handleEdit(rowIndex)">下移</span>
-                        <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
-                            <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                        </el-popconfirm>
+                    <template #default="{ row,rowIndex }">
+                        <el-button type="text" class="action-button btn-edit" @click="handleUpDown(row, 'UP')">上移</el-button>
+                        <el-button type="text" class="action-button btn-edit" @click="handleUpDown(row, 'DOWN')">下移</el-button>
+                        <el-popconfirm title="确定要删除该套餐类型吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
+                            <span slot="reference" type="text" size="small" class="btn-delete">删除</span></el-popconfirm>
                     </template>
                 </vxe-column>
             </vxe-table>
@@ -40,7 +45,7 @@
 </template>
 
 <script>
-import { repairList } from '@/api/maintain/basic/repairPackages/index';
+import { repairList, moveSort, addOrUpdateBatch, enableOrDisable } from '@/api/maintain/basic/repairPackages/index';
 
 export default {
   name: 'MaintenanceDialog',
@@ -67,10 +72,38 @@ export default {
     close () {
       this.$emit('close');
     },
+    handleAdd () {
+      this.tableData.push({
+        name: '',
+        status: 1
+      });
+    },
     // 请求维修套餐类型维护接口
     async getRepairList () {
       const res = await repairList({});
       this.tableData = res || [];
+    },
+    // 启用停用套餐类型
+    async handleEdit (row) {
+      let status = row.status === 1 ? 0 : 1;
+      const params = { idSet: [row.id], status: status };
+      await enableOrDisable(params);
+      this.$message.success('操作成功');
+      this.getRepairList();
+    },
+    // 删除套餐类型
+    handleDeleteRow (rowIndex) {
+      this.tableData.splice(rowIndex, 1);
+    },
+    // 上移和下移
+    async handleUpDown (row, direction) {
+      await moveSort({ id: row.id, direction: direction });
+      this.$message.success('操作成功');
+      this.getRepairList();
+    },
+    async handleSave () {
+      await addOrUpdateBatch(this.tableData);
+      this.getRepairList();
     },
   }
 };
@@ -126,5 +159,7 @@ export default {
 .btn-delete {
     color: #B91919;
     cursor: pointer;
+    margin-left: 5px;
 }
+
 </style>
