@@ -44,7 +44,7 @@
 
     <!-- 右侧详情 -->
     <div class="right-panel">
-      <div v-if="selectedPackage" class="detail-content">
+      <div v-if="selectedPackage" class="detail-content" v-loading="loading">
         <!-- 套餐标题 -->
         <div class="detail-header">{{ selectedPackage.schemeName }}</div>
 
@@ -101,41 +101,41 @@
               <div class="parts-section">
                 <h3>项目零件</h3>
                 <div class="parts-tabs">
-                  <div :class="{'parts-tabs-item': true, 'active': item.id === curPartTab}" v-for="item in partsList" :key="item.id" @click="curPartTab=item.id">{{ item.repairItemName }}123</div>
+                  <div :class="{'parts-tabs-item': true, 'active': item.id === curPartTab}" v-for="item in partsList" :key="item.id" @click="handleTabClick(item)">{{ item.repairItemName }}123</div>
                 </div>
                 <div class="info-row">
                   <div class="info-item">
                     <span class="label">维修类型：</span>
-                    <span class="value">{{ project.activityResponse?.repairItemTypeName }}</span>
+                    <span class="value">{{ curItemList?.repairItemTypeName }}</span>
                   </div>
                   <div class="info-item">
                     <span class="label">结算类型：</span>
-                    <span class="value">{{ project.activityResponse?.checkoutTypeName }}</span>
+                    <span class="value">{{ curItemList?.checkoutTypeName }}</span>
                   </div>
                 </div>
                 <div class="info-row">
                   <div class="info-item">
                     <span class="label">保修类型：</span>
-                    <span class="value">{{ project.activityResponse?.repairItemTypeName }}</span>
+                    <span class="value">{{ curItemList?.repairItemTypeName }}</span>
                   </div>
                   <div class="info-item">
                     <span class="label">主因工时：</span>
-                    <span class="value">{{ project.activityResponse?.amount }}</span>
+                    <span class="value">{{ curItemList?.amount }}</span>
                   </div>
                 </div>
                 <div class="info-row">
                   <div class="info-item">
                     <span class="label">工时数：</span>
-                    <span class="value">{{ project.activityResponse?.workHour }}</span>
+                    <span class="value">{{ curItemList?.workHour }}</span>
                   </div>
                    <div class="info-item">
                     <span class="label">索赔价：</span>
-                    <span class="value">{{ project.activityResponse?.quantity }}</span>
+                    <span class="value">{{ curItemList?.quantity }}</span>
                   </div>
                 </div>
                 <div class="info-row remark-row">
                   <span class="label">方案说明：</span>
-                  <span class="value">{{ project.activityResponse?.remark }}</span>
+                  <span class="value">{{ curItemList?.remark }}</span>
                 </div>
                 <div class="section-title">维修零件</div>
                 <vxe-table
@@ -207,7 +207,8 @@ export default {
       loading: false,
       searchTimer: null,
       curPartTab: '',
-      response: {}
+      curItemList: {},
+      response: {},
     };
   },
   computed: {
@@ -248,7 +249,6 @@ export default {
     // 获取套餐列表
     async loadPackageList () {
       try {
-        this.loading = true;
         const params = {
           id: this.vehicleInfo.id
         };
@@ -273,11 +273,10 @@ export default {
       } catch (error) {
         console.error('获取套餐列表失败', error);
         this.packageList = [];
-      } finally {
-        this.loading = false;
       }
     },
     handleSelectPackage (item) {
+      if (this.loading) return;
       this.selectedPackage = item;
       this.loadProjectDetail(item);
     },
@@ -285,6 +284,7 @@ export default {
     async loadProjectDetail (pkg) {
       if (!pkg?.id) return;
       try {
+        this.loading = true;
         const params = {
           packageId: pkg.id,
           id: this.vehicleInfo.id
@@ -298,10 +298,13 @@ export default {
         this.partsList = res.itemResponseList || [];
         if (this.partsList.length > 0) {
           this.curPartTab = this.partsList[0].id;
+          this.curItemList = this.partsList[0];
         }
       } catch (error) {
         console.error('获取套餐详情失败', error);
         this.projectList = [];
+      } finally {
+        this.loading = false;
       }
     },
     toggleProject (project) {
@@ -361,6 +364,11 @@ export default {
         console.error('使用套餐失败', error);
         return false;
       }
+    },
+    handleTabClick (item) {
+      console.log(item);
+      this.curPartTab = item.id;
+      this.curItemList = item;
     }
   }
 };
