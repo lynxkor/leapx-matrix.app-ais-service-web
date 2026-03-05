@@ -167,6 +167,23 @@
             @checkboxChange="checkboxChange"
           />
           {{/if}}
+          {{#if fileConfig.isAttachment}}
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>附件</h2>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-table">
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="{{fileConfig.configCode}}"
+                  attachType="{{fileConfig.attachType}}"
+                  ref="attachment"
+                />
+              </div>
+            </div>
+          </section>
+          {{/if}}
         </el-main>
       </edit-base-container>
   {{#contains checkedList 'isSide'}}
@@ -206,6 +223,9 @@ import ModalAddTable from './components/ModalAddTable';
 {{#if isSearchAddTable}}
 import SearchAddTable from './components/SearchAddTable';
 {{/if}}
+{{#if fileConfig.isAttachment}}
+import AisAttachment from '@/libs/components/AisAttachment';
+{{/if}}
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -235,7 +255,10 @@ export default {
     SearchAddTable,
     {{/if}}
     EditBaseContainer,
-    FetchSelect
+    FetchSelect,
+    {{#if fileConfig.isAttachment}}
+    AisAttachment,
+    {{/if}}
   },
   computed: {
     _id () {

@@ -335,7 +335,7 @@
           <vxe-column field="targetUnitName" title="去向单位" width="200" align="center">
             <template #default="{ row }">
               <fetch-select
-                v-model="row.targetUnitName"
+                v-model="row.targetUnitId"
                 :remote-method="searchBatteryUnit"
                 value-key="id"
                 label-key="name"
@@ -345,7 +345,7 @@
                 reserve-keyword
                 size="small"
                 placeholder="请选择"
-                @change="handlePartUnitChange($event, row)"
+                @change="(val, record) => handlePartUnitChange(val, record, row)"
               />
             </template>
           </vxe-column>
@@ -661,15 +661,10 @@ export default {
       }
     },
     // 零件去向单位变更
-    handlePartUnitChange (val, record) {
-      if (record) {
-        const index = this.partsTraceRecordResps.findIndex(item => item.id === record.id);
-        if (index > -1) {
-          this.partsTraceRecordResps[index].targetUnitCode = record.code || '';
-          this.partsTraceRecordResps[index].batteryUnitId = val;
-        }
-        console.log('零件去向单位变更', this.partsTraceRecordResps[index]);
-      }
+    handlePartUnitChange (val, record, row) {
+      row.targetUnitId = record.id;
+      row.targetUnitCode = record.code;
+      row.targetUnitName = record.name;
     },
     // 搜索用户(质检人/终检人)
     async searchUser (query) {
@@ -733,7 +728,6 @@ export default {
           finalCheckerId: this.filterForm.finalChecker,
           finalChecker: this.filterForm.finalCheckerName
         };
-
         await finalInspection(submitData);
         this.$message.success('终检成功');
         this.$emit('refresh');

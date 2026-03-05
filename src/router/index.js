@@ -1841,6 +1841,42 @@ const routes = [
         name: '质量反馈报告表管理详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyHourSetting',
+      name: 'warrantyHourSetting',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyHourSetting/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyHourSetting/edit',
+      name: 'warrantyHourSettingEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyHourSetting/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyHourSetting',
+      name: 'warrantyHourSetting',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyHourSetting/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyhoursetting/edit',
+      name: 'warrantyHourSettingEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyHourSetting/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];

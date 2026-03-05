@@ -1,1 +1,133 @@
-{"pathPrefix":"claimreturn","path":"/oldpart/web/outbound/oldPartOemOutboundOrder","listPage":{"searchList":[{"key":"createTime","description":"创建时间","type":"string","format":"dateRange"},{"key":"modifier","description":"修改者","type":"integer","format":"input"},{"key":"modifierName","description":"修改者名称","type":"string","format":"input"}],"tableList":[{"key":"createTime","description":"创建时间","type":"string"},{"key":"modifier","description":"修改者","type":"integer"},{"key":"modifierName","description":"修改者名称","type":"string"}],"detailList":[{"key":"supplierCode","description":"收货供应商编码","type":"string","format":"input"},{"key":"supplierName","description":"收货供应商名称","type":"string","format":"input"},{"key":"dealerCode","description":"门店编码","type":"string","format":"input"},{"key":"estimatedArrivalDate","description":"预计到达日期，格式：年-月-日 时:分","type":"string","format":"date"}],"tabsPath":"/sfs/sfsd/fs/fdsdf/sfd/sdf"},"detailPage":{"tableList":[{"key":"creatorName","description":"创建者名称","type":"string"},{"key":"createTime","description":"创建时间","type":"string"},{"key":"modifier","description":"修改者","type":"integer"},{"key":"modifierName","description":"修改者名称","type":"string"}],"tableType":"modal-add","detailApiPath":"/oldpart/web/inventory/oldPartOemInventory/page","addPath":"/oldpart/web/outbound/oldPartOemOutboundOrder/addDetail","removePath":"/oldpart/web/outbound/oldPartOemOutboundOrder/removeDetail","searchPath":"","dialogSearchList":[{"key":"creator","description":"创建者","type":"integer","format":"input"},{"key":"creatorName","description":"创建者名称","type":"string","format":"input"},{"key":"createTime","description":"创建时间","type":"string","format":"dateRange"},{"key":"modifier","description":"修改者","type":"integer","format":"input"},{"key":"modifierName","description":"修改者名称","type":"string","format":"input"}],"dialogTableList":[{"key":"creatorName","description":"创建者名称","type":"string"},{"key":"createTime","description":"创建时间","type":"string"},{"key":"updateTime","description":"修改时间","type":"string"},{"key":"status","description":"状态","type":"integer"}],"dialogApiPath":"/oldpart/web/inventory/oldPartOemInventory/page"},"checkedList":["isShowEditing","isStatus","isExtraButtons","isDetailDesc","isSide"],"title":"新页面"}
+{
+    "pathPrefix": "maintain",
+    "path": "/web/basic/dealerWorkhourPriceSetting",
+    "listPage": {
+        "searchList": [
+            {
+                "key": "createTime",
+                "description": "创建时间",
+                "type": "string",
+                "format": "date-time",
+                "componentType": "dateRange"
+            },
+            {
+                "key": "workstationName",
+                "description": "工位名称",
+                "type": "string",
+                "componentType": "input"
+            },
+            {
+                "key": "status",
+                "description": "状态(1:启用,0:停用)",
+                "type": "integer",
+                "format": "int32",
+                "componentType": "input"
+            },
+            {
+                "key": "workstationType",
+                "description": "工位类型",
+                "type": "string",
+                "componentType": "input"
+            },
+            {
+                "key": "dealerName",
+                "description": "门店名称",
+                "type": "string",
+                "componentType": "input"
+            }
+        ],
+        "tableList": [
+            {
+                "key": "code",
+                "description": "工位代码",
+                "type": "string"
+            },
+            {
+                "key": "name",
+                "description": "工位名称",
+                "type": "string"
+            },
+            {
+                "key": "workstationType",
+                "description": "工位类型",
+                "type": "string"
+            },
+            {
+                "key": "status",
+                "description": "状态",
+                "type": "integer",
+                "format": "int32"
+            },
+            {
+                "key": "dealerName",
+                "description": "门店名称",
+                "type": "string"
+            },
+            {
+                "key": "remark",
+                "description": "说明",
+                "type": "string"
+            },
+            {
+                "key": "createTime",
+                "description": "创建时间",
+                "type": "string",
+                "format": "date-time"
+            }
+        ],
+        "detailList": [
+            {
+                "key": "code",
+                "description": "工位代码",
+                "type": "string",
+                "componentType": "input"
+            },
+            {
+                "key": "name",
+                "description": "工位名称",
+                "type": "string",
+                "componentType": "input"
+            },
+            {
+                "key": "type",
+                "description": "工位类型",
+                "type": "string",
+                "componentType": "input"
+            },
+            {
+                "key": "dealerName",
+                "description": "门店名称",
+                "type": "string",
+                "componentType": "input"
+            },
+            {
+                "key": "responsiblePersonName",
+                "description": "负责人",
+                "type": "string",
+                "componentType": "input"
+            },
+            {
+                "key": "remark",
+                "description": "说明",
+                "type": "string",
+                "componentType": "textarea"
+            }
+        ]
+    },
+    "detailPage": {
+        "tableList": [],
+        "tableType": "search-add",
+        "detailApiPath": "",
+        "addPath": "",
+        "removePath": "",
+        "searchPath": "",
+        "dialogApiPath": ""
+    },
+    "checkedList": [
+        "isShowEditing"
+    ],
+    "fileConfig": {
+        "isAttachment": false
+    },
+    "title": "工时价格设置管理"
+}

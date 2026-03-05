@@ -302,6 +302,7 @@
                 size="small"
                 placeholder="请选择"
                 filterable
+                :disabled="!!row.repairItemName"
                 @change="handlePartCheckoutTypeChange(row)"
               >
                 <el-option
@@ -385,7 +386,7 @@
                 size="small"
                 placeholder="请选择"
                 filterable
-                :disabled="!!row.isBindltem"
+                :disabled="!!row.autoImport"
                 clearable
                 @change="handlePartRepairItemNameChange(row)"
               >
@@ -602,7 +603,8 @@ export default {
             packageCode: part.packageCode || '',
             repairItemId: newItem.repairItemId, // 关联维修项目ID
             repairitemcode: selectedItem.code,
-            isBindltem: 1, // 标记为自动导入
+            isBindltem: 1,
+            autoImport: 1 // 标记为自动导入
           };
           this.partData.push(newPart);
         });
@@ -991,8 +993,12 @@ export default {
         row.repairItemId = selectedItem.repairItemId;
         row.repairItemTypeName = selectedItem.repairItemTypeName;
         row.repairItemTypeId = selectedItem.repairItemTypeId;
+        row.checkoutTypeName = selectedItem.checkoutTypeName;
+        row.checkoutTypeId = selectedItem.checkoutTypeId;
+        row.isBindltem = 1;
       } else {
         row.repairItemId = null;
+        row.isBindltem = 0;
       }
     },
     // 结算类型是否为合同、保修
