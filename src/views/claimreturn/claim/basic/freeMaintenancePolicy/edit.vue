@@ -174,21 +174,20 @@
                     v-if="canAddOrUpdate && _id"
                     class="common-section-header"
                   >
-                    <fetch-box v-if="canAddOrUpdate">
-                      <fetch-select
-                        filterable
-                        clearable
-                        remote
-                        reserve-keyword
-                        v-model="part"
-                        :remote-method="partRemote"
-                        @change="handlePartChange"
-                        value-key="id"
-                        label-key="partName"
-                        subLabelKey="partCode"
-                        placeholder="请输入零件编码/名称"
-                      />
-                    </fetch-box>
+                    <base-search
+                      v-if="canAddOrUpdate"
+                      filterable
+                      clearable
+                      remote
+                      reserve-keyword
+                      v-model="part"
+                      :remote-method="partRemote"
+                      @change="handlePartChange"
+                      value-key="id"
+                      label-key="partName"
+                      subLabelKey="partCode"
+                      placeholder="请输入零件编码/名称"
+                    />
                   </div>
                   <part-table
                     :moduleKey="moduleKey"
@@ -221,7 +220,7 @@
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
-import FetchBox from '@/libs/components/FetchBox';
+import BaseSearch from '@/libs/components/BaseSearch';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -278,7 +277,7 @@ export default {
     PartTable,
     EditPageLayout,
     EnhancedTabs,
-    FetchBox,
+    BaseSearch,
     ReplaceTable,
   },
   computed: {
