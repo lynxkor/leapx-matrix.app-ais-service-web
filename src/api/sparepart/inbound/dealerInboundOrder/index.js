@@ -43,3 +43,11 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 外购件入库明细表分页查询
+ * @param {Object} data
+ */
+export function dealerInboundOrderDetailPage (data) {
+  return api.jsonPost('/sp/web/dealer/dealerInboundOrderDetail/page', data);
+}
