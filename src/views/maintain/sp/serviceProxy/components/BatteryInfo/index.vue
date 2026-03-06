@@ -4,7 +4,7 @@
       <h2>电池更换信息</h2>
     </div>
     <div class="common-section-body">
-      <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
+      <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id" :disabled="formData.orderStatus === RepairOrderStatusEnum.CANCEL">
         <el-form-item label="电池去向单位：" prop="batteryUnitId">
           <fetch-select
             v-model="form.batteryUnitId"
@@ -16,6 +16,7 @@
             clearable
             reserve-keyword
             placeholder="请选择电池去向单位"
+            @change="handleBatteryUnitChange"
           />
         </el-form-item>
         <el-form-item label="去向单位统一代码：" prop="targetUnitCode">
@@ -42,8 +43,8 @@
         </el-form-item>
       </el-form>
       <el-form :inline="true" class="form-detail" v-else>
-        <el-form-item label="电池去向单位：" prop="batteryUnitId">
-          {{ form.batteryUnitId }}
+        <el-form-item label="电池去向单位：" prop="targetUnitName">
+          {{ form.targetUnitName }}
         </el-form-item>
         <el-form-item label="去向单位统一代码：" prop="targetUnitCode">
           {{ form.targetUnitCode }}
@@ -62,6 +63,7 @@
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
 import { getListData } from '@/api/maintain/basic/batteryUnit/index';
+import { RepairOrderStatusEnum } from '@/views/maintain/sp/serviceProxy/edit';
 
 export default {
   props: {
@@ -97,7 +99,8 @@ export default {
   },
   data () {
     return {
-      form: {}
+      form: {},
+      RepairOrderStatusEnum
     };
   },
   methods: {
@@ -133,6 +136,12 @@ export default {
         return [];
       }
     },
+    handleBatteryUnitChange (val, record) {
+      if (record) {
+        this.form.targetUnitCode = record.buinessLicense;
+        this.form.targetUnitName = record.name;
+      }
+    }
   }
 };
 

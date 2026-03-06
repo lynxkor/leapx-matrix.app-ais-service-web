@@ -34,7 +34,6 @@
           filterable
         />
       </el-form-item> -->
-      <template v-if="show">
         <!-- <el-form-item label="拼音简码">
           <el-input
             placeholder="请输入"
@@ -56,7 +55,7 @@
             clearable
           />
         </el-form-item> -->
-        <el-form-item label="数据来源">
+        <el-form-item label="数据来源" v-show="this.visibleCount === 3 || show">
           <fetch-select
             :request="fetchOptions"
             enumCode="RepairPackageDataSourceEnum"
@@ -67,6 +66,7 @@
             filterable
           />
         </el-form-item>
+        <template v-if="show">
         <!-- <el-form-item label="门店名称">
           <el-input
             placeholder="请输入"
@@ -124,8 +124,9 @@
       <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button size="small" @click="handleBatchMaintenance">套餐类型维护</el-button>
+      <!-- <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -155,6 +156,8 @@
       @close="handleUploadDialogClose"
       @getData="getData"
     />
+    <!-- 套餐类型维护 -->
+    <MaintenanceDialog :visible="maintenanceDialogVisible" @success="handleSuccessMaintenance" @close="handleCloseMaintenance" />
   </div>
 </template>
 
@@ -172,6 +175,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import MaintenanceDialog from './MaintenanceDialog.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -204,7 +208,9 @@ export default {
     PageSearchAction,
     LPVxeTable,
     EditPage,
-    Upload
+    Upload,
+    FetchSelect,
+    MaintenanceDialog
   },
   data () {
     return {
@@ -349,7 +355,8 @@ export default {
         // column: 'create_time',
         // sort: 'DESC'
         // }
-      ]
+      ],
+      maintenanceDialogVisible: false, // 套餐类型维护弹窗
     };
   },
   created () {
@@ -528,28 +535,17 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
+    },
+    // 套餐维护弹窗
+    handleBatchMaintenance () {
+      this.maintenanceDialogVisible = true;
+    },
+    handleCloseMaintenance () {
+      this.maintenanceDialogVisible = false;
+    },
+    handleSuccessMaintenance () {
+      this.maintenanceDialogVisible = false;
+      this.getData();
     }
   }
 };

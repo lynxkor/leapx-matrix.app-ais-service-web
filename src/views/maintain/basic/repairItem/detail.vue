@@ -108,12 +108,29 @@
         </div>
         <div class="common-section-body">
           <div class="common-section-table">
-            <edit-table
-              ref="editTablePj"
-              :columns="columnsPj"
+            <vxe-table
+              ref="tableRef"
+              stripe
               :data="tableDataPj"
-              :show-toolbar="false"
-            />
+              show-overflow
+              resizable
+              border="inner"
+              size="medium"
+              min-height="0"
+              max-height="400px"
+            >
+              <vxe-column field="partsCode" title="配件编码" max-width="25%">
+                <template #default="{ row }">
+                  <el-link type="success" :href="`/sparepart/basic/sparePart/detail?id=${row.id}`" target="_blank">{{ row.partsCode }}</el-link>
+                </template>
+              </vxe-column>
+              <vxe-column field="partsName" title="配件名称" max-width="25%" />
+              <vxe-column field="isOemPartLabel" title="是否 OEM 配件" max-width="25%" />
+              <vxe-column field="createTime" title="创建时间" max-width="25%" />
+              <template #empty>
+                <div class="m-vxe-table-empty-text">暂无数据</div>
+              </template>
+            </vxe-table>
           </div>
         </div>
       </section>
@@ -152,7 +169,7 @@ export default {
           width: '25%',
         },
         {
-          field: 'isOemPart',
+          field: 'isOemPartLabel',
           title: '是否 OEM 配件',
           width: '25%',
         },

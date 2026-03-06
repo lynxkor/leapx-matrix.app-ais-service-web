@@ -27,12 +27,12 @@
         <div class="section-title">年款</div>
         <div class="selection-items">
             <div
-            v-for="(year, index) in options.vehicleYearTypeName"
+            v-for="(year, index) in yearList"
             :key="'year-' + index"
             :class="['selection-item', { 'selected': selectedYearIndex === index }]"
             @click="selectYear(index, year)"
             >
-            {{ year.label }}
+            {{ year.name }}
             </div>
         </div>
         </div>
@@ -52,79 +52,121 @@
         </div>
     </div>
 
+    <!-- 分隔线 -->
+    <el-divider></el-divider>
+
     <!-- 表格区域 -->
     <div class="table-container">
-      <expand-table
-        ref="expandTable"
-        :columns="columns"
+        <el-table
         :data="tableData"
-        :options="options"
-        :auth="{
-          add: false,
-          edit: false,
-          delete: false,
-        }"
-        :delTitle="'确认删除该门店吗？'"
-        :show-toolbar="false"
-        @value-change="handleYearChange"
-      >
-        <template #btn-middle="{ row, rowIndex }">
-          <el-popconfirm
-              v-if="row.id"
-              title="确定要停用此车型吗？"
-              @confirm="toggleStatus(row)"
+        style="width: 100%"
+        stripe
+        size="medium"
+        >
+        <el-table-column
+            prop="index"
+            label="序号"
+            width="80"
+            align="center"
+        >
+            <template slot-scope="scope">
+            {{ scope.$index + 1 }}
+            </template>
+        </el-table-column>
+
+        <el-table-column
+            prop="series"
+            label="车系"
+            width="150"
+            align="center"
+        >
+            <template slot-scope="scope">
+            {{ scope.row.vehicleSeriesName }}
+            </template>
+        </el-table-column>
+
+        <el-table-column
+            prop="applicableModel"
+            label="适用车型"
+            align="center"
+        >
+            <template slot-scope="scope">
+            {{ scope.row.vehicleModelName }}
+            </template>
+        </el-table-column>
+
+        <el-table-column
+            prop="year"
+            label="年款"
+            width="150"
+            align="center"
+        >
+            <template slot-scope="scope">
+            <el-select
+                v-model="scope.row.vehicleYearTypeId"
+                placeholder="请选择"
+                size="small"
+                @change="handleYearChange($event, scope.$index)"
             >
-              <span
-                slot="reference"
-                class="action-button btn-delete"
-              >
-                停用
-              </span>
-            </el-popconfirm>
+                <el-option
+                v-for="(year, index) in yearList"
+                :key="index"
+                :label="year.name"
+                :value="year.id"
+                ></el-option>
+            </el-select>
+            <!-- <span v-else>{{ scope.row.year }}</span> -->
+            </template>
+        </el-table-column>
+
+        <el-table-column
+            label="操作"
+            width="120"
+            align="center"
+            fixed="right"
+        >
+            <template slot-scope="scope">
             <el-button
-              v-if="!row.id"
-              type="text"
-              class="btn-move"
-              @click="delStatus(row, rowIndex)"
+                type="text"
+                size="small"
+                style="color: #B91919 !important;"
+                @click="toggleStatus(scope.row, scope.$index)"
             >
-              移除
+                停用
             </el-button>
-        </template>
-      </expand-table>
+            </template>
+        </el-table-column>
+        </el-table>
     </div>
 
     <!-- 弹窗底部按钮 -->
     <div slot="footer" class="dialog-footer">
         <el-button size="small" @click="handleClose">取 消</el-button>
-        <el-button type="primary" size="small" @click="handleConfirm">确 定</el-button>
+        <el-button type="primary" size="small" :loading="loading" @click="handleConfirm">确 定</el-button>
     </div>
     </el-dialog>
   </template>
 
 <script>
 import { listVehicleSeries, listVehicleYearTypeFull, listVehicleYearType } from '@/api/common';
-import { searchVehicleModel, addOrUpdateVehicleModel, deleteVehicleModel } from '@/api/sparepart/basic/sparePart/index';
-import expandTable from '@/libs/components/expandTable';
+import { saveModelBatch } from '@/api/maintain/basic/repairPackages/index';
 
 export default {
-  name: 'SeriesYearDialog',
+  name: 'ModelDialog',
   props: {
     visible: {
       type: Boolean,
       default: false
     },
-    modelId: {
-      type: String || Number,
-      default: null
-    },
     // 可以接收外部传入的初始数据
     initialData: {
       type: Array,
       default: () => []
+    },
+    repairId: {
+      type: String,
+      default: ''
     }
-  },
-  components: {
-    expandTable
   },
   data () {
     return {
@@ -140,50 +182,14 @@ export default {
       selectedModelIndex: null,
       // 表格 选择数据
       tableData: [],
-      columns: [ // 适配车型
-        {
-          field: 'index',
-          title: '序号',
-          width: '20%',
-        },
-        {
-          field: 'vehicleSeriesName',
-          title: '车系',
-          width: '20%',
-        },
-        {
-          field: 'vehicleModelName',
-          title: '适用车型',
-          width: '20%',
-        },
-        {
-          field: 'vehicleYearTypeName',
-          title: '年款',
-          width: '20%',
-          editable: true,
-          editRender: {
-            name: 'ElSelect',
-            props: {
-              clearable: true,
-              'suffix-icon': 'el-icon-search',
-              placeholder: '请选择年款',
-            },
-          },
-        }
-      ],
-      options: {
-        vehicleYearTypeName: []
-      }
+      loading: false
     };
   },
   watch: {
     // 监听父组件传入的数据变化
-    modelId: {
+    initialData: {
       handler (newVal) {
-        if (!newVal) {
-          return;
-        }
-        this.getData(newVal);
+        this.tableData = newVal ? [...newVal] : [];
       },
       immediate: true, // 立即执行一次
       deep: true,
@@ -197,20 +203,6 @@ export default {
     this.selectYear(0);
   },
   methods: {
-    async getData (val) {
-      const params = {
-        pageNum: 1,
-        pageSize: 100,
-        sparePartId: val,
-      };
-      const res = await searchVehicleModel(params);
-      this.tableData = res.records.map((item, index) => {
-        return {
-          ...item,
-          index: index + 1 // 添加序号字段
-        };
-      });
-    },
     async getVehicleList () {
       const res = await listVehicleSeries({ status: 1 });
       this.seriesList = res || [];
@@ -223,24 +215,11 @@ export default {
     async getYearList () {
       const res = await listVehicleYearType({ status: 1 });
       // 在数组开头添加"无年款"选项
-      this.options.vehicleYearTypeName = [
-        { value: '0', label: '无年款' },
-        ...(res?.map(item => ({
-          value: item.id, // 或 item.value，根据实际数据结构
-          label: item.name // 或 item.label
-        })) || [])
+      this.yearList = [
+        { id: 0, name: '无年款' },
+        ...(res || [])
       ];
     },
-    // 确定提交
-    async addModel () {
-      // 提交数据
-      const params = {
-        sparePartId: this.modelId,
-        addOrUpdateReqList: this.tableData,
-      };
-      await addOrUpdateVehicleModel(params);
-    },
-
     // 选择车系 车系id查询 车型
     async getModelList (seriesId) {
       const res = await listVehicleYearTypeFull({ seriesId: seriesId, status: 1 });
@@ -259,12 +238,10 @@ export default {
         // 如果是单个对象，包装成数组
         modelArray = [model];
       }
-      // 获取当前 tableData 的长度作为起始索引
-      const startIndex = this.tableData.length;
       // 更新当前行的车型选择
-      const list = modelArray.map((item) => {
+      const list = modelArray.map(item => {
         return {
-          index: startIndex + 1,
+          ...item,
           value: item.id,
           label: item.modelName,
           vehicleModelId: item.id,
@@ -273,9 +250,10 @@ export default {
           vehicleSeriesName: item.seriesName,
           vehicleModelDesc: item.remark,
           vehicleYearTypeId: this.yearDetail.vehicleYearTypeId,
-          vehicleYearTypeName: this.yearDetail.vehicleYearTypeName,
+          vehicleYearType: this.yearDetail.vehicleYearTypeName,
         };
       }) || [];
+
       this.tableData.push(...list);
     },
     // 选择车系
@@ -290,55 +268,42 @@ export default {
     selectYear (index, year) {
       this.selectedYearIndex = index;
       this.yearDetail = {
-        vehicleYearTypeId: year?.value,
-        vehicleYearTypeName: year?.label,
+        vehicleYearTypeId: year?.id,
+        vehicleYearTypeName: year?.name,
       };
     },
 
     // 年款下拉选择变更
-    handleYearChange (row) {
-      console.log('选择的年款数据:', row);
-
-      // 计算数组下标：row.row.index 是从1开始的序号，需要减1得到数组下标
-      const arrayIndex = row.row.index - 1;
-
-      // 检查下标是否有效
-      if (arrayIndex >= 0 && arrayIndex < this.tableData.length) {
-        // 使用 $set 确保响应式更新
-        const updatedRow = {
-          ...this.tableData[arrayIndex],
-          vehicleYearTypeId: row.option?.value,
-          vehicleYearTypeName: row.option?.label
-        };
-        this.$set(this.tableData, arrayIndex, updatedRow);
-      }
+    handleYearChange (ele, row) {
+      // ele当前选择的id  row当前行索引  更新当前行的年款名称 id已有
+      this.tableData[row].vehicleYearType = this.yearList.find(item => item.id === ele).name;
     },
 
-    // 停用
-    async toggleStatus (row) {
-      await deleteVehicleModel([row.id]);
-      this.getData(this.modelId);
-    },
     // 删除
-    delStatus (row, index) {
+    toggleStatus (row, index) {
       this.tableData.splice(index, 1);
     },
 
     // 处理确定按钮
     async handleConfirm () {
-      await this.addModel();
-      this.getData(this.modelId);
+      this.loading = true;
+      const params = this.tableData.map(item => ({
+        ...item,
+        repairPackagesId: this.repairId, // 维修套餐ID
+      }));
+      await saveModelBatch(params);
+      this.loading = false;
+      // 将数据传递给父组件
       this.$emit('success');
-      this.handleClose();
       // 车系 年款  车型 全部初始化 表格数据清空
       this.selectSeries(0);
       this.selectYear(0);
       this.getVehicleList();
+      this.tableData = [];
     },
 
     // 处理取消按钮
     handleClose () {
-      this.$emit('success');
       this.$emit('close');
     },
   }
@@ -349,14 +314,14 @@ export default {
   /* 选择区域样式 */
   .selection-section {
     display: flex;;
-    /* align-items: center; */
+    align-items: center;
     margin-bottom: 20px;
   }
 
   .section-title {
     white-space: nowrap;
     font-size: 14px;
-    margin: 6px 12px 6px 0;
+    margin-right: 12px;
     color: #333;
   }
 
@@ -367,23 +332,21 @@ export default {
   }
 
   .selection-item {
-    padding: 0 16px;
+    padding: 5px 16px;
     border: 1px solid #E6E6E5;
     border-radius: 4px;
     background-color: #ffffff;
-    color: #3B3E3B;
+    color: #3B3E3B;;
     cursor: pointer;
     transition: all 0.3s;
     font-size: 14px;
     user-select: none;
-    height: 32px;
-    line-height: 32px;
   }
 
   .selection-item:hover {
-    border-color: #c0c4cc;
-    background-color: #f5f7fa;
-    border-radius: 4px;
+    color: var(--themColor);
+    background-color: #fff;
+    border-color: var(--themColor);
   }
 
   .selection-item.selected {
@@ -420,32 +383,4 @@ export default {
   .dialog-footer {
     text-align: right;
   }
-
-  .action-button{
-  margin: 0 5px;
-  cursor: pointer;
-  &.btn-edit{
-    color:#4C4CD6;
-  }
-  &.btn-delete{
-    color:#B91919;
-  }
-}
-.btn-move {
-  color:#B91919 !important;
-}
-.action-button{
-  margin: 0 5px;
-  cursor: pointer;
-  &.btn-edit{
-    color:#4C4CD6;
-  }
-  &.active{
-    text-decoration: underline;
-  }
-  &.disabled{
-    cursor: not-allowed;
-    color: var(--disabled-color);
-  }
-}
   </style>

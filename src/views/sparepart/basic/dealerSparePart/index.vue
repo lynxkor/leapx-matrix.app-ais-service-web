@@ -1,5 +1,5 @@
 <template>
-  <div class="page-common m-spare-part-list">
+  <div class="page-common m-dealer-spare-part-list">
     <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
     <el-form
       :inline="true"
@@ -9,7 +9,7 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="备件编码">
+    <el-form-item label="备件编码">
         <tag-input v-model="form.partCodeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="备件名称">
@@ -20,56 +20,20 @@
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="是否可销售">
+        <el-form-item label="门店">
           <fetch-select
-            :request="fetchOptions"
-            enumCode="BooleanEnum"
-            v-model="form.saleableIs"
-            placeholder="请选择"
-            clearable
-            filterable
-          />
-        </el-form-item>
-        <el-form-item label="是否常备库存件">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="BooleanEnum"
-            v-model="form.standingInventoryIs"
-            placeholder="请选择"
-            clearable
-            filterable
-          />
-        </el-form-item>
-        <el-form-item label="备件工程师">
-          <el-input
-            placeholder="请输入"
-            v-model="form.partsEngineerLike"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="VFG">
-          <fetch-select
-            filterable
-            clearable
+            :remote-method="getDealerList"
             remote
-            reserve-keyword
-            v-model="form.vfgId"
-            :remote-method="listVfg"
-            value-key="id"
-            label-key="name"
-          />
-        </el-form-item>
-        <el-form-item label="VRT">
-          <fetch-select
-            filterable
+            v-model="form.dealerCodeList"
+            placeholder="请输入门店编码或名称"
+            labelKey="orgName"
+            valueKey="orgCode"
+            subLabelKey="orgName"
             clearable
-            remote
-            reserve-keyword
-            v-model="form.vrtId"
-            :remote-method="listVrt"
-            value-key="id"
-            label-key="name"
-          />
+            multiple
+            collapseTags
+            filterable
+              />
         </el-form-item>
         <el-form-item label="是否启用">
           <fetch-select
@@ -107,6 +71,8 @@
           />
         </el-form-item>
       </template>
+      <template v-if="show">
+      </template>
       <page-search-action
         v-if="canList"
         v-model="show"
@@ -118,15 +84,8 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button> -->
-      <el-button v-permission="moduleKey + '-salesImport'" size="small" @click="handleImport('sparePartSalesImport', '销售导入模板')">销售导入</el-button>
-      <el-button v-permission="moduleKey + '-transportImport'" size="small" @click="handleImport('sparePartTransportImport', '物流导入模板')">物流导入</el-button>
-      <el-button v-permission="moduleKey + '-purchaseImport'" size="small" @click="handleImport('sparePartPurchaseImport', '采购导入模板')">采购导入</el-button>
-      <el-button v-permission="moduleKey + '-modelImport'" size="small" @click="handleImport('sparePartModelImport', '车型导入模板')">车型导入</el-button>
-      <el-button v-permission="moduleKey + '-vfgImport'" size="small" @click="handleImport('sparePartVfgImport', 'VFG导入模板')">VFG导入</el-button>
-      <el-button v-permission="moduleKey + '-printImport'" size="small">打印报价单</el-button>
-      <!-- <el-button v-permission="moduleKey + '-detail'" size="small">集中视图</el-button> -->
-
+      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <el-button v-if="canImport" size="small" @click="handleImport">外购件导入</el-button>
       <!-- <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
@@ -141,19 +100,24 @@
         is-checkbox
         is-page
         checkboxFixed
+        centralized
         :option-obj="optionObj"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
         @handleSelect="handleSelectionChange"
-      />
+        @listSelect="handleListSelect"
+        @sortChange="handleSortChange"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="importType"
-      :downloadTitle="downloadTitle"
+      :id="'1'"
       @close="handleUploadDialogClose"
+      @getData="getData"
     />
   </div>
 </template>
@@ -162,36 +126,20 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getDealerList, deleteItem, enableItem } from '@/api/sparepart/basic/sparePart';
-import { vfglist } from '@/api/claimreturn/claim/basic/vfg';
-import { vrtlist } from '@/api/claimreturn/claim/basic/vrt';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getDealerList, deleteItem, enableItem } from '@/api/sparepart/basic/sparePart/index';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange, getEndOfDayString, downloadExcel } from '@/libs/utils';
+import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
-import TagInput from '@/libs/components/TagInput';
+import EditPage from './edit.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  partCodeList: '',
-  partNameLike: '',
-  minOrderQuantity: '',
-  salePrice: '',
-  purchasePrice: '',
-  oemPart: '',
-  dealerName: '',
-  saleableIs: undefined,
-  standingInventoryIs: undefined,
-  partsEngineerLike: '',
-  vfgId: '',
-  vrtId: '',
-  remark: '',
-  createTime: '',
-  updateTime: '',
+  dealerCode: '',
 };
 
 const pageSize = 20;
@@ -205,17 +153,15 @@ export default {
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
-    Upload,
-    TagInput
+    EditPage,
+    Upload
   },
   data () {
     return {
-      importType: '', // 导出id
-      downloadTitle: '销售导入模板', // 导出标题
-      pageTitle: '备件主数据',
+      pageTitle: '外购件主数据',
       pageType: 'list',
-      // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISPART-sparePart',
+      // TIPS: 权限前缀 AISPART，根据实际情况修改
+      moduleKey: 'AISPART-dealerSparePart',
       form: {
         ...defaultForm
       },
@@ -225,8 +171,9 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      clickItemId: '',
       optionObj: {
-        id: 'sparePartTable',
+        id: 'dealerSparePartTable',
         dataList: [],
         form: {
           page: 1,
@@ -242,7 +189,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePart/detail',
+                  path: '/sparepart/basic/dealerSparePart/edit',
                   query: {
                     id: row.id
                   }
@@ -252,18 +199,13 @@ export default {
             }]
           },
           { props: 'partName', label: '备件名称', visible: true, width: 200 },
-          { props: 'minOrderQuantity', label: '最小订购量', visible: true, align: 'right', width: 120 },
           { props: 'salePrice', label: '销售价格', visible: true, align: 'right', width: 120 },
           { props: 'purchasePrice', label: '采购价格', visible: true, align: 'right', width: 120 },
           { props: 'oemPartLabel', label: '是否OEM件', visible: true, width: 130 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'saleableIsLabel', label: '是否可销售', visible: true, width: 130 },
-          { props: 'standingInventoryIsLabel', label: '是否常备库存件', visible: true, width: 150 },
-          { props: 'partsEngineer', label: '备件工程师', visible: true, width: 200 },
-          { props: 'vfgName', label: 'VFG名称', visible: true, width: 200 },
-          { props: 'vrtName', label: 'VRT名称', visible: true, width: 200 },
-          { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 120 },
+          { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -273,14 +215,10 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
-              name: '编辑 ',
-              disabled: () => {
-                const a = this.permissions.has('AISPART-sparePart-vfgImport') || this.permissions.has('AISPART-sparePart-modelImport') || this.permissions.has('AISPART-sparePart-purchaseImport') || this.permissions.has('AISPART-sparePart-transportImport') || this.permissions.has('AISPART-sparePart-salesImport');
-                return !a;
-              },
+              name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePart/edit',
+                  path: '/sparepart/basic/dealerSparePart/edit',
                   query: {
                     id: row.id
                   }
@@ -292,33 +230,12 @@ export default {
         ],
         total: 0
       },
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近一个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近三个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
-      }
+      sortColumns: [
+        // {
+        // column: 'create_time',
+        // sort: 'DESC'
+        // }
+      ]
     };
   },
   created () {
@@ -326,18 +243,20 @@ export default {
     this.getData();
   },
   methods: {
-
-    listVfg (query) {
-      return vfglist({ vfgNameLike: query });
+    // 排序
+    handleSortChange (value) {
+      this.sortColumns = (value || []).map(item => {
+        return {
+          column: (item.field || '').replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, ''),
+          sort: (item.order || '').toUpperCase()
+        };
+      });
+      this.getData();
     },
-
-    listVrt (query) {
-      return vrtlist({ vrtNameLike: query });
+    handleListSelect (row) {
+      this.clickItemId = row.id;
     },
-
-    handleImport (type, val) {
-      this.importType = type;
-      this.downloadTitle = val;
+    handleImport () {
       this.uploadDialogVisible = true;
     },
     handleUploadDialogClose () {
@@ -345,7 +264,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/sparepart/basic/sparePart/edit'
+        path: '/sparepart/basic/dealerSparePart/edit'
       });
     },
     onSubmit () {
@@ -360,16 +279,21 @@ export default {
     },
     exportExcel () {
       this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
       exportTable({
-        businessType: '备件主数据',
-        dataFetchPath: 'sparepart/web/basic/sparePart/page',
-        reqParams: this.getFormData(),
+        businessType: '外购件主数据',
+        dataFetchPath: 'sparepart/web/basic/dealerSparePart/page',
+        reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '模板.xlsx');
+            await downloadExcel(res.excelUrl, '外购件主数据.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
@@ -389,7 +313,7 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
-      console.log(this.permissions.has('AISPART-sparePart-transportImport'));
+
       getDealerList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           this.optionObj.dataList = res.records.map(item => {
@@ -417,6 +341,14 @@ export default {
           resolve(mockConfig);
         });
       });
+    },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     },
     saveOrUpdate (data) {
       return tableAddOrUpdate(data);
@@ -446,23 +378,11 @@ export default {
         delete data.createTime;
         if (this.form.createTime.length > 1) {
           data.createTimeStart = this.form.createTime[0];
-          data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
+          data.createTimeEnd = this.form.createTime[1];
         }
       }
-
-      if (this.form.updateTime) {
-        delete data.updateTime;
-        if (this.form.updateTime.length > 1) {
-          data.updateTimeStart = this.form.updateTime[0];
-          data.updateTimeEnd = getEndOfDayString(this.form.updateTime[1]);
-        }
-      }
-
-      if (Array.isArray(this.form.partCodeList) && this.form.partCodeList.length <= 1) {
-        delete data.partCodeList;
-        data.partCodeLike = this.form.partCodeList[0] || '';
-      }
-
+      // 排序字段
+      data.sortColumns = this.sortColumns;
       return data;
     },
     async fetchOptions (code) {
@@ -501,12 +421,34 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-    },
+      // const ids = this.selectionList.map(item => item.id) || [];
+      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
+      //   confirmButtonText: '确定',
+      //   cancelButtonText: '取消',
+      //   type: 'warning'
+      // }).then(() => {
+      //   enableItem({
+      //     idSet: ids,
+      //     status
+      //   }).then(() => {
+      //     this.$message({
+      //       type: 'success',
+      //       message: '操作成功!'
+      //     });
+      //     this.getData();
+      //   }).catch(() => {
+      //     this.$message({
+      //       type: 'error',
+      //       message: '操作失败!'
+      //     });
+      //   });
+      // });
+    }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.m-spare-part-list {
+.m-dealer-spare-part-list {
 }
 </style>

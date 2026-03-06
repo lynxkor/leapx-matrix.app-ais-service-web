@@ -497,6 +497,8 @@ export default {
       partData: [],
       // 结算类型和保修类型映射关系
       checkoutTypeMap: {},
+      // 原始数据
+      originalDataJson: null,
 
       // 套餐类型
       packageType: [
@@ -637,7 +639,8 @@ export default {
             packageCode: part.packageCode || '',
             repairItemId: newItem.repairItemId, // 关联维修项目ID
             repairitemcode: selectedItem.code,
-            isBindltem: 1, // 标记为自动导入
+            isBindltem: 1,
+            autoImport: 1 // 标记为自动导入
           };
           this.partData.push(newPart);
         });
@@ -729,6 +732,12 @@ export default {
         serviceProxyId: this.vehicleInfo.id,
       };
 
+      if (JSON.stringify(data) === this.originalDataJson) {
+        this.$emit('update:visible', false);
+        this.submitLoading = false;
+        return;
+      }
+
       saveRepairItem(data).then(res => {
         this.$emit('update:visible', false);
         this.submitLoading = false;
@@ -779,6 +788,17 @@ export default {
           // 如果零件有关联的维修项目ID，标记为自动导入
           isBindltem: !!part.repairItemId
         }));
+
+        setTimeout(() => {
+          const data = {
+            itemList: this.itemData,
+            partsList: this.partData,
+            discountId: this.discountMode,
+            serviceProxyId: this.vehicleInfo.id,
+          };
+          this.originalDataJson = JSON.stringify(data);
+        }, 300);
+
         getEnum('PackageTypeEnum').then(res2 => {
           this.packageType = (res2 || []).map(item => {
             const el = this.info.packageRespList?.find(item2 => +item.code === item2.packageType);
@@ -787,7 +807,6 @@ export default {
               value: el?.packageCount || 0
             };
           });
-          console.log(this.packageType);
         });
       });
     },
@@ -853,11 +872,9 @@ export default {
     handleDiscountModeChange (value) {
       // 查找选中的优惠模式
       const selectedDiscount = this.discountType.find(item => item.id === value);
-      this.selectedDiscount = selectedDiscount;
+      this.selectedDiscount = selectedDiscount || {};
 
-      if (!selectedDiscount) return;
-
-      const { discountPartRate, discountWorkhourRate } = selectedDiscount;
+      const { discountPartRate = 0, discountWorkhourRate = 0 } = this.selectedDiscount;
 
       // 更新维修项目的折扣率
       this.itemData.forEach(item => {
@@ -1020,8 +1037,12 @@ export default {
         row.repairItemId = selectedItem.repairItemId;
         row.repairItemTypeName = selectedItem.repairItemTypeName;
         row.repairItemTypeId = selectedItem.repairItemTypeId;
+        row.checkoutTypeName = selectedItem.checkoutTypeName;
+        row.checkoutTypeId = selectedItem.checkoutTypeId;
+        row.isBindltem = 1;
       } else {
         row.repairItemId = null;
+        row.isBindltem = 0;
       }
     },
     // 结算类型是否为合同、保修

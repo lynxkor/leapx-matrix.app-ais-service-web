@@ -1387,7 +1387,8 @@ const routes = [
         name: '订单类型采购备件设置',
         keepAlive: true
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/basic/purchasepartsaleable/edit',
       name: 'purchasePartSaleableEdit',
       component: () => import('@/views/sparepart/basic/purchasePartSaleable/edit.vue'),
@@ -1405,7 +1406,8 @@ const routes = [
         name: '新页面',
         keepAlive: true
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/claimreturn/oldpart/outbound/edit',
       name: 'outboundEdit',
       component: () => import('@/views/claimreturn/oldpart/outbound/edit.vue'),
@@ -1414,8 +1416,7 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/claimreturn/oldpart/destroy/oldPartDestroyOrder',
       name: 'oldPartDestroyOrder',
       component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/index.vue'),
@@ -1425,7 +1426,8 @@ const routes = [
         moduleKey: 'oldPartDestroyOrder',
         keepAlive: true
       }
-    }, {
+    }, // 门店销毁
+    {
       path: '/claimreturn/oldpart/destroy/oldpartdestroyorder/edit',
       name: 'oldPartDestroyOrderEdit',
       component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit.vue'),
@@ -1435,8 +1437,7 @@ const routes = [
         moduleKey: 'oldPartDestroyOrder',
         noResourceUrl: 'true'
       }
-    }, // 门店销毁
-    {
+    }, {
       path: '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder',
       name: 'oldPartDestroyOrder',
       component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/index.vue'),
@@ -1672,24 +1673,6 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/warehouse/oemInventory',
-      name: 'oemInventory',
-      component: () => import('@/views/sparepart/warehouse/inventory/index.vue'),
-
-      meta: {
-        name: '主机厂备件库存查询',
-        keepAlive: true
-      }
-    }, {
-      path: '/sparepart/warehouse/oemInventory/edit',
-      name: 'oemInventoryEdit',
-      component: () => import('@/views/sparepart/warehouse/inventory/edit.vue'),
-
-      meta: {
-        name: '主机厂备件库存查询详情',
-        noResourceUrl: 'true'
-      }
-    }, {
       path: '/sparepart/return/returnExceptionalOrder',
       name: 'returnExceptionalOrder',
       component: () => import('@/views/sparepart/return/returnOrder/index.vue'),
@@ -1803,6 +1786,150 @@ const routes = [
 
       meta: {
         name: '维修套餐详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/dealerSupplierInfo',
+      name: 'dealerSupplierInfo',
+      component: () => import('@/views/sparepart/basic/dealerSupplierInfo/index.vue'),
+
+      meta: {
+        name: '外购件供应商主数据',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/dealersupplierinfo/edit',
+      name: 'dealerSupplierInfoEdit',
+      component: () => import('@/views/sparepart/basic/dealerSupplierInfo/edit.vue'),
+
+      meta: {
+        name: '外购件供应商主数据详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/warehouse/oemInventory',
+      name: 'oemInventory',
+      component: () => import('@/views/sparepart/warehouse/oemInventory/index.vue'),
+
+      meta: {
+        name: '主机厂备件库存查询',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/warehouse/oeminventory/edit',
+      name: 'oemInventoryEdit',
+      component: () => import('@/views/sparepart/warehouse/oemInventory/edit.vue'),
+
+      meta: {
+        name: '主机厂备件库存查询详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/sp/qualityOrderReport',
+      name: 'qualityOrderReport',
+      component: () => import('@/views/maintain/sp/qualityOrderReport/index.vue'),
+
+      meta: {
+        name: '质量反馈报告表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/qualityorderreport/edit',
+      name: 'qualityOrderReportEdit',
+      component: () => import('@/views/maintain/sp/qualityOrderReport/edit.vue'),
+
+      meta: {
+        name: '质量反馈报告表管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyHourSetting',
+      name: 'warrantyHourSetting',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyHourSetting/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyHourSetting/edit',
+      name: 'warrantyHourSettingEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyHourSetting/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyHourSetting',
+      name: 'warrantyHourSetting',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyHourSetting/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyhoursetting/edit',
+      name: 'warrantyHourSettingEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyHourSetting/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/inbound/dealerInboundOrder',
+      name: 'dealerInboundOrder',
+      component: () => import('@/views/sparepart/inbound/dealerInboundOrder/index.vue'),
+
+      meta: {
+        name: '外购件入库单',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/inbound/dealerinboundorder/edit',
+      name: 'dealerInboundOrderEdit',
+      component: () => import('@/views/sparepart/inbound/dealerInboundOrder/edit.vue'),
+
+      meta: {
+        name: '外购件入库单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/outbound/dealerReturnOrder',
+      name: 'dealerReturnOrder',
+      component: () => import('@/views/sparepart/outbound/dealerReturnOrder/index.vue'),
+
+      meta: {
+        name: '外购件退货单',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/outbound/dealerreturnorder/edit',
+      name: 'dealerReturnOrderEdit',
+      component: () => import('@/views/sparepart/outbound/dealerReturnOrder/edit.vue'),
+
+      meta: {
+        name: '外购件退货单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/sp/interestsGoods',
+      name: 'interestsGoods',
+      component: () => import('@/views/maintain/sp/interestsGoods/index.vue'),
+
+      meta: {
+        name: '权益商品',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/interestsgoods/edit',
+      name: 'interestsGoodsEdit',
+      component: () => import('@/views/maintain/sp/interestsGoods/edit.vue'),
+
+      meta: {
+        name: '权益商品详情',
         noResourceUrl: 'true'
       }
     }]

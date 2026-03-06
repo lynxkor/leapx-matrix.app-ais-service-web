@@ -1,97 +1,90 @@
 {
-    "pathPrefix": "claimreturn",
-    "path": "/oldpart/web/outbound/oldPartOemOutboundOrder",
+    "pathPrefix": "maintain",
+    "path": "/web/basic/dealerWorkhourPriceSetting",
     "listPage": {
         "searchList": [
             {
-                "key": "modifier",
-                "description": "修改者",
+                "key": "createTime",
+                "description": "创建时间",
+                "type": "string",
+                "format": "date-time",
+                "isSearch": true,
+                "dateFormat": "yyyy-MM-dd HH:mm:ss",
+                "componentType": "dateRange"
+            },
+            {
+                "key": "workstationName",
+                "description": "工位名称",
+                "type": "string",
+                "isSearch": true,
+                "componentType": "search"
+            },
+            {
+                "key": "status",
+                "description": "状态",
                 "type": "integer",
-                "format": "input"
+                "format": "int32",
+                "isSelectMultiple": true,
+                "isEnum": true,
+                "componentType": "yesno"
             },
             {
-                "key": "modifierName",
-                "description": "修改者名称",
+                "key": "workstationType",
+                "description": "工位类型",
                 "type": "string",
-                "format": "input"
+                "isSelectMultiple": true,
+                "componentType": "input"
             },
             {
-                "key": "updateTime",
-                "description": "修改时间",
+                "key": "dealerName",
+                "description": "门店名称",
                 "type": "string",
-                "format": "date"
+                "isSearch": true,
+                "isSelectMultiple": true,
+                "componentType": "search"
             }
         ],
         "tableList": [
-            {
-                "key": "updateTime",
-                "description": "修改时间",
-                "type": "string"
-            },
-            {
-                "key": "remark",
-                "description": "备注",
-                "type": "string"
-            },
-            {
-                "key": "statusDesc",
-                "description": "状态变更描述",
-                "type": "string"
-            }
-        ],
-        "detailList": [
-            {
-                "key": "warehouseCode",
-                "description": "仓库代码",
-                "type": "string",
-                "format": "input"
-            },
-            {
-                "key": "warehouseName",
-                "description": "仓库名称",
-                "type": "string",
-                "format": "input"
-            },
-            {
-                "key": "supplierId",
-                "description": "收货供应商ID",
-                "type": "string",
-                "format": "input"
-            }
-        ]
-    },
-    "detailPage": {
-        "tableList": [
-            {
-                "key": "creatorName",
-                "description": "创建者名称",
-                "type": "string"
-            },
             {
                 "key": "createTime",
                 "description": "创建时间",
-                "type": "string"
+                "type": "string",
+                "format": "date-time",
+                "isSearch": true,
+                "dateFormat": "yyyy-MM-dd HH:mm:ss"
             },
             {
-                "key": "modifierName",
-                "description": "修改者名称",
-                "type": "string"
+                "key": "workstationName",
+                "description": "工位名称",
+                "type": "string",
+                "isSearch": true
             },
             {
-                "key": "updateTime",
-                "description": "修改时间",
-                "type": "string"
+                "key": "status",
+                "description": "状态",
+                "type": "integer",
+                "format": "int32",
+                "isSelectMultiple": true,
+                "isEnum": true
+            },
+            {
+                "key": "workstationType",
+                "description": "工位类型",
+                "type": "string",
+                "isSelectMultiple": true
+            },
+            {
+                "key": "dealerName",
+                "description": "门店名称",
+                "type": "string",
+                "isSearch": true,
+                "isSelectMultiple": true
             }
         ],
-        "tableType": "search-add",
-        "detailApiPath": "/oldpart/web/inventory/oldPartOemInventory/page",
-        "addPath": "/bbb",
-        "removePath": "/cccc",
-        "searchPath": "/aaa",
-        "dialogApiPath": ""
+        "detailList": []
     },
     "checkedList": [
         "isShowEditing"
     ],
-    "title": "新页面"
+    "title": "工时价格设置管理"
 }

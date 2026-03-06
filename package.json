@@ -11,7 +11,7 @@
     "pre": "vue-cli-service build --mode pre",
     "build": "vue-cli-service build",
     "postinstall": "cp ./patches/dom.js ./node_modules/vxe-pc-ui/lib/ui/src/dom.js",
-    "template": "node ./bin/generate.js"
+    "template": "node ./bin-2/generate.js"
   },
   "husky": {
     "hooks": {
@@ -52,7 +52,7 @@
     "vxe-table": "^3.15.17"
   },
   "devDependencies": {
-    "@leapmotor/design": "^0.1.7-alpha.35",
+    "@leapmotor/design": "^0.1.7-alpha.36",
     "@types/lodash": "^4.17.21",
     "@vue/cli-plugin-babel": "^4.2.0",
     "@vue/cli-plugin-eslint": "^4.2.0",

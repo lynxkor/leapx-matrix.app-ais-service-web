@@ -35,7 +35,7 @@
           <template v-if="form.returnStatus==='30'">
             <el-button v-if="!isDealer" @click="onSign" size="small">签收</el-button>
           </template>
-          <template v-if="form.returnStatus==='40'">
+          <template v-if="form.returnStatus==='40' && form.isChecked !== '1'">
             <el-button v-if="!isDealer" @click="onCompleteAcceptance" size="small">验收完成</el-button>
             <el-button v-if="!isDealer" @click="onSingleAcceptance" size="small">单件验收</el-button>
           </template>
