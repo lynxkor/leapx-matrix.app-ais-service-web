@@ -52,21 +52,6 @@
                     filterable
                   />
                 </el-form-item>
-                <el-form-item label="权益商品分类：" prop="classificationGoodsId">
-                  <fetch-select
-                    prop="classificationGoodsId"
-                    filterable
-                    clearable
-                    remote
-                    reserve-keyword
-                    v-model="form.classificationGoodsId"
-                    :remote-method="getClassificationGoods"
-                    labelKey="classificationName"
-                    valueKey="id"
-                    subLabelKey="classificationName"
-                    @change="listClassificationGoodsChange"
-                  />
-                </el-form-item>
                 <el-form-item label="购买后有效期（月）：" prop="datePurchase">
                   <el-input
                     placeholder="请输入"
@@ -77,7 +62,7 @@
                 <el-form-item label="是否上架" prop="status">
                   <fetch-select
                     :request="fetchOptions"
-                    enumCode="StatusEnum"
+                    enumCode="BooleanEnum"
                     v-model="form.whetherShelf"
                     placeholder="请选择"
                     clearable
@@ -101,9 +86,6 @@
                 </el-form-item>
                 <el-form-item label="服务权益类型：" prop="serviceInterestsType">
                   {{ form.serviceInterestsTypeLabel }}
-                </el-form-item>
-                <el-form-item label="权益商品分类：" prop="classificationGoodsName">
-                  {{ form.classificationGoodsName }}
                 </el-form-item>
                 <el-form-item label="购买后有效期（月）：" prop="datePurchase">
                   {{ form.datePurchase }}
