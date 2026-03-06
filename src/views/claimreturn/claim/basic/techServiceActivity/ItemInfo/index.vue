@@ -142,21 +142,19 @@
             v-if="canAddOrUpdate && id"
             class="common-section-header"
           >
-            <fetch-box>
-              <fetch-select
-                filterable
-                clearable
-                remote
-                reserve-keyword
-                v-model="part"
-                :remote-method="partRemote"
-                @change="handlePartChange"
-                value-key="id"
-                label-key="partName"
-                subLabelKey="partCode"
-                placeholder="请输入备件编码/名称"
-              />
-            </fetch-box>
+            <base-search
+              filterable
+              clearable
+              remote
+              reserve-keyword
+              v-model="part"
+              :remote-method="partRemote"
+              @change="handlePartChange"
+              value-key="id"
+              label-key="partName"
+              subLabelKey="partCode"
+              placeholder="请输入备件编码/名称"
+            />
           </div>
           <part-table
             :moduleKey="moduleKey"
@@ -189,7 +187,7 @@ import BaseInput from '@/libs/components/BaseInput/index.vue';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum, sparePartList } from '@/api/common';
 import PartTable from './PartTable.vue';
-import FetchBox from '@/libs/components/FetchBox';
+import BaseSearch from '@/libs/components/BaseSearch';
 import { debounce } from 'lodash';
 
 const defaultForm = {
@@ -232,7 +230,7 @@ export default {
     BaseInput,
     FetchSelect,
     PartTable,
-    FetchBox,
+    BaseSearch,
   },
   data () {
     return {

@@ -9,19 +9,17 @@
           v-if="canAddOrUpdate && id"
           class="common-section-header"
         >
-          <fetch-box>
-            <fetch-select
-              :request="fetchOptions"
-              enumCode="claim_auto_approval_file_type"
-              v-model="search"
-              placeholder="选择附件类型"
-              clearable
-              filterable
-              value-key="message"
-              label-key="message"
-              @change="onChange"
-            />
-          </fetch-box>
+          <base-search
+            :request="fetchOptions"
+            enumCode="claim_auto_approval_file_type"
+            v-model="search"
+            placeholder="选择附件类型"
+            clearable
+            filterable
+            value-key="message"
+            label-key="message"
+            @change="onChange"
+          />
         </div>
         <Table
           :moduleKey="moduleKey"
@@ -39,10 +37,9 @@
 <script>
 // 维修保养 -> 维修项目
 import permissions from '@/libs/mixins/permissions';
-import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum } from '@/api/common';
 import Table from './Table.vue';
-import FetchBox from '@/libs/components/FetchBox';
+import BaseSearch from '@/libs/components/BaseSearch';
 import { debounce } from 'lodash';
 
 const defaultForm = {
@@ -77,9 +74,8 @@ export default {
   },
   mixins: [permissions],
   components: {
-    FetchSelect,
     Table,
-    FetchBox,
+    BaseSearch,
   },
   data () {
     return {
