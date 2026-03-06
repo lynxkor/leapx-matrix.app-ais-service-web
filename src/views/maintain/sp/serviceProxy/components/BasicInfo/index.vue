@@ -5,7 +5,7 @@
     </div>
     <div class="common-section-body">
       <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-      <el-form :inline="true" :model="form" :rules="rules" ref="basicForm" label-width="190px" class="form-edit" v-if="isEditing || !_id" :disabled="formData.orderStatus === RepairOrderStatusEnum.CANCEL">
+      <el-form :inline="true" :model="form" :rules="rules" ref="basicForm" label-width="190px" class="form-edit" v-if="isEditing || !_id" :disabled="formDisabled">
         <el-form-item label="单据编号：" prop="code">
           <el-input
             placeholder="请输入"
@@ -547,6 +547,9 @@ export default {
   computed: {
     vinDisabled () {
       return !!this.form.orderStatus && this.form.orderStatus !== RepairOrderStatusEnum.RECEPTION_INSPECTION;
+    },
+    formDisabled () {
+      return this.formData.orderStatus === RepairOrderStatusEnum.CANCEL || this.formData.orderStatus === RepairOrderStatusEnum.DELIVERED;
     }
   },
   components: {

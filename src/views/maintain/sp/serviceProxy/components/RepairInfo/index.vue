@@ -5,6 +5,9 @@
 		</div>
 		<div class="common-section-body">
       <div class="table-section">
+        <div class="table-section-header">
+          <h3>费用估算</h3>
+        </div>
         <el-form :inline="true" label-width="150px" class="form-edit">
           <el-form-item label="本次维修估算费用：">
             <el-input
@@ -30,7 +33,7 @@
               disabled
             />
           </el-form-item>
-          <el-form-item label="内转金额估算：">
+          <el-form-item label="内结金额估算：">
             <el-input
               placeholder="请输入"
               v-model="costCountResp.innerTurnMoneyEstimation"
@@ -161,6 +164,7 @@
               <span>{{ row.isBindItem === 1 ? '是' : '否' }}</span>
             </template>
           </vxe-column>
+          <vxe-column field="repairItemCode" title="维修项目代码" width="200px"/>
           <vxe-column field="repairItemName" title="维修项目名称" width="200px"/>
           <vxe-column field="packageCode" title="套餐代码" width="200px" />
           <vxe-column field="packageName" title="套餐名称" width="200px" />
@@ -189,6 +193,7 @@
           size="medium"
         >
           <vxe-column field="code" title="追溯编码" width="350px"/>
+          <vxe-column field="partsCode" title="零件代码" width="300px"/>
           <vxe-column field="partsName" title="零件名称" width="300px"/>
           <vxe-column field="targetUnitName" title="去向单位" width="350px"/>
           <vxe-column field="beforeChangeCode" title="更换前编码" width="200px"/>
