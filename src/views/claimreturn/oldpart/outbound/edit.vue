@@ -449,6 +449,7 @@ export default {
         confirmOutbound(this._id).then(res => {
           this.$message.success('出库成功');
           this.updateDetail();
+          this.$refs.returntable.getTableData();
         });
       });
     },

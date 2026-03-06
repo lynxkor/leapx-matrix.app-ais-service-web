@@ -203,10 +203,11 @@ export default {
                 });
               },
               show: (row) => {
-                if (row.outboundStatus === '20') {
-                  return false;
-                }
-                return true;
+                return false;
+                // if (row.outboundStatus === '20') {
+                //   return false;
+                // }
+                // return true;
               },
               type: 'info'
             }, {

@@ -144,13 +144,19 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
-      optionObj: {
-        id: moduleKey,
-        dataList: [],
-        form: {
-          page: 1,
-          size: pageSize
-        },
+      //
+      tableDataList: [],
+      tableTotal: 0,
+      tableForm: { page: 1, size: pageSize },
+    };
+  },
+  computed: {
+    optionObj () {
+      const isDealer = this.isDealer;
+      return {
+        id: this.moduleKey,
+        dataList: this.tableDataList,
+        form: this.tableForm,
         dataProp: [
           {
             props: 'destroyOrderNo',
@@ -161,7 +167,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 let path = '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit';
-                if (this.isDealer) {
+                if (isDealer) {
                   path = '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder/edit';
                 }
                 this.$router.push({
@@ -206,9 +212,12 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '编辑',
+              show: (row) => {
+                return false;
+              },
               click: (rowIndex, row) => {
                 let path = '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit';
-                if (this.isDealer) {
+                if (isDealer) {
                   path = '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder/edit';
                 }
                 this.$router.push({
@@ -222,9 +231,9 @@ export default {
             }]
           }
         ],
-        total: 0
-      }
-    };
+        total: this.tableTotal,
+      };
+    }
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
@@ -250,13 +259,13 @@ export default {
       });
     },
     onSubmit () {
-      this.optionObj.form.page = 1;
+      this.tableForm.page = 1;
       this.getData();
     },
     onReset () {
       this.form = { ...defaultForm };
-      this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      this.tableForm.page = 1;
+      this.tableForm.pageSize = pageSize;
       this.getData();
     },
     exportExcel () {
@@ -291,16 +300,15 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
         .then(res => {
-          console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          this.tableDataList = res.records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.tableTotal = res.total;
         }).finally(() => {
           this.loading = false;
         });
@@ -325,9 +333,9 @@ export default {
     },
     paginationChange (type, num) {
       if (type === 'page') {
-        this.optionObj.form.page = num;
+        this.tableForm.page = num;
       } else {
-        this.optionObj.form.size = num;
+        this.tableForm.size = num;
       }
       this.debouncedGetData();
     },
