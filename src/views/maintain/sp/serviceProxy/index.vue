@@ -60,7 +60,19 @@
           />
         </el-form-item>
         <el-form-item label="门店">
-          <dealer-select v-model="form.dealerCodes" multiple/>
+          <fetch-select
+            :remote-method="getDealerList"
+            remote
+            v-model="form.dealerCodeList"
+            placeholder="请输入门店编码或名称"
+            labelKey="orgName"
+            valueKey="orgCode"
+            subLabelKey="orgCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
+          />
         </el-form-item>
       </template>
       <page-search-action
@@ -122,15 +134,15 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, getStatistics } from '@/api/maintain/sp/serviceProxy/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
+import FetchSelect from '@/libs/components/FetchSelect';
 import EditPage from './edit.vue';
-import DealerSelect from '@/components/dealer-select/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -165,7 +177,7 @@ export default {
     LPVxeTable,
     EditPage,
     Upload,
-    DealerSelect
+    FetchSelect
   },
   data () {
     return {
@@ -223,7 +235,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'warrantyTypeCollect', label: '保修类型（汇总）', visible: true, width: 200 },
+          { props: 'warrantyTypeCollect', label: '保修类型汇总', visible: true, width: 200 },
           { props: 'customerName', label: '车主姓名', visible: true, width: 200 },
           { props: 'custTypeLabel', label: '客户类型', visible: true, width: 200 },
           {
@@ -501,7 +513,15 @@ export default {
           target.outboundCount,
         ];
       });
-    }
+    },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
   }
 };
 </script>

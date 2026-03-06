@@ -29,6 +29,8 @@
           size="small"
           style="width: 120px;"
           @change="handleDiscountModeChange"
+          @clear="handleDiscountModeChange"
+          clearable
         >
           <el-option :label="item.name" :value="item.id" v-for="item in discountType" :key="item.id"></el-option>
         </el-select>
@@ -826,14 +828,12 @@ export default {
     handleDiscountModeChange (value) {
       // 查找选中的优惠模式
       const selectedDiscount = this.discountType.find(item => item.id === value);
-      this.selectedDiscount = selectedDiscount;
+      this.selectedDiscount = selectedDiscount || {};
 
-      if (!selectedDiscount) return;
-
-      const { discountPartRate, discountWorkhourRate } = selectedDiscount;
+      const { discountPartRate = 0, discountWorkhourRate = 0 } = this.selectedDiscount;
 
       // 更新维修项目的折扣率
-      this.itemData.forEach(item => {
+      this.itemData.filter(item => typeof (item.id) === 'undefined').forEach(item => {
         if (!this.checkoutTypeIncluded(item.checkoutTypeId)) {
           item.discountRate = discountWorkhourRate || 0;
           // 重新计算优惠金额和项目金额
@@ -844,7 +844,7 @@ export default {
       });
 
       // 更新维修配件的折扣率
-      this.partData.forEach(part => {
+      this.partData.filter(item => typeof (item.id) === 'undefined').forEach(part => {
         part.discountRate = discountPartRate || 0;
         // 重新计算优惠金额和配件金额
         const originalAmount = part.quantity * part.price;

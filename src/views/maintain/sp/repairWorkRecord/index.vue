@@ -34,7 +34,7 @@
         :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
     <div class="ais-table-c">
-      <LPVxeTable ref="tableRef" v-loading="loading" is-page :option-obj="optionObj" :get-config="getConfig"
+      <LPVxeTable ref="tableRef" v-loading="loading" is-page :option-obj="optionObj" :get-config="getConfig" showIndex
         :save-or-update="saveOrUpdate" @paginationChange="paginationChange" @listSelect="handleListSelect">
         <EditPage slot="centralizedViewSlot" :id="clickItemId" />
       </LPVxeTable>
@@ -76,7 +76,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '维修作业记录',
+      pageTitle: '质检记录',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-spRepairWorkRecord',
@@ -99,13 +99,11 @@ export default {
           size: pageSize
         },
         dataProp: [
-          { props: 'code', label: '编号', visible: true, width: 200 },
           {
-            props: 'serviceProxyCode',
+            props: 'code',
             label: '施工单号',
             visible: true,
             width: 200,
-            fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({

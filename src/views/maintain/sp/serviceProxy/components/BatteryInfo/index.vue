@@ -4,7 +4,7 @@
       <h2>电池更换信息</h2>
     </div>
     <div class="common-section-body">
-      <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id" :disabled="formData.orderStatus === RepairOrderStatusEnum.CANCEL">
+      <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id" :disabled="formDisabled">
         <el-form-item label="电池去向单位：" prop="batteryUnitId">
           <fetch-select
             v-model="form.batteryUnitId"
@@ -95,6 +95,11 @@ export default {
         }
       },
       immediate: true
+    }
+  },
+  computed: {
+    formDisabled () {
+      return this.formData.orderStatus === RepairOrderStatusEnum.CANCEL || this.formData.orderStatus === RepairOrderStatusEnum.DELIVERED;
     }
   },
   data () {

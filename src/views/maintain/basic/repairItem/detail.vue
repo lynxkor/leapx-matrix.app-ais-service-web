@@ -121,7 +121,7 @@
             >
               <vxe-column field="partsCode" title="配件编码" max-width="25%">
                 <template #default="{ row }">
-                  <el-link type="success" :href="`/sparepart/basic/sparePart/detail?id=${row.partsCode}`" target="_blank">{{ row.partsCode }}</el-link>
+                  <el-link type="success" :href="`/sparepart/basic/sparePart/detail?id=${row.id}`" target="_blank">{{ row.partsCode }}</el-link>
                 </template>
               </vxe-column>
               <vxe-column field="partsName" title="配件名称" max-width="25%" />

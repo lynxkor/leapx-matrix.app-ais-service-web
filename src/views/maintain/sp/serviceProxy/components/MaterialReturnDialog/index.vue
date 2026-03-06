@@ -160,8 +160,9 @@ export default {
       const maxQuantity = this.getMaxReturnQuantity(row);
       const refundedNumber = +row.refundedNumber || 0;
       const actualPickNumber = +row.actualPickNumber || 0;
+      const isOutstock = +row.isOutstock || 0;
 
-      if (actualPickNumber === 0) {
+      if (isOutstock === 0) {
         return '未出库';
       } else if (refundedNumber > 0 && refundedNumber === actualPickNumber) {
         return '全部退料';

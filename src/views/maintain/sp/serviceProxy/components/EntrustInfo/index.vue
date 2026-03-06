@@ -4,7 +4,7 @@
       <h2>委托信息</h2>
     </div>
     <div class="common-section-body">
-      <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="190px" class="form-edit" v-if="isEditing || !_id" :disabled="formData.orderStatus === RepairOrderStatusEnum.CANCEL">
+      <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="190px" class="form-edit" v-if="isEditing || !_id" :disabled="formDisabled">
         <el-form-item label="维修类型（汇总）：" prop="repairItemTypeDetailCollect">
           <fetch-select
             :request="fetchOptions"
@@ -377,7 +377,7 @@
               collapse-tags
               value-key="id"
               label-key="name"
-              :disabled="formData.orderStatus === RepairOrderStatusEnum.CANCEL"
+              :disabled="formDisabled"
             />
             <el-button
               type="primary"
@@ -424,6 +424,7 @@
               </el-popconfirm>
             </template>
           </vxe-column>
+          <vxe-column field="createTime" title="创建时间" min-width="150"/>
           <template #empty>
             <div class="m-vxe-table-empty-text">若要启用此内容，请创建记录</div>
           </template>
@@ -458,6 +459,11 @@ export default {
   },
   components: {
     FetchSelect
+  },
+  computed: {
+    formDisabled () {
+      return this.formData.orderStatus === RepairOrderStatusEnum.CANCEL || this.formData.orderStatus === RepairOrderStatusEnum.DELIVERED;
+    }
   },
   watch: {
     formData: {
