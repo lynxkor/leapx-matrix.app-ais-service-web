@@ -21,13 +21,6 @@
               label-key="message"
               @change="onChange"
             />
-            <el-button
-              type="primary"
-              size="small"
-              @click="handleAddPart"
-              >
-              添加
-            </el-button>
           </fetch-box>
         </div>
         <Table
@@ -129,6 +122,7 @@ export default {
   methods: {
     onChange (val, option) {
       this.searchOption = option;
+      this.handleAddPart();
     },
     resetForm () {
       this.form = {

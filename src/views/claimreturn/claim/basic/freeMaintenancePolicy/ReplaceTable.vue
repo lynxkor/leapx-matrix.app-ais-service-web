@@ -15,15 +15,9 @@
           @change="handlePartChange"
           value-key="id"
           label-key="partName"
+          sub-label-key="partCode"
           placeholder="请输入零件编码/名称"
         />
-        <el-button
-          type="primary"
-          size="small"
-          @click="handleAddPart"
-          >
-          添加
-        </el-button>
       </fetch-box>
     </div>
     <div class="common-section-body">
@@ -225,6 +219,7 @@ export default {
     },
     handlePartChange (val, record) {
       this.curPart = record;
+      this.handleAddPart();
     },
     // 详情表格相关数据
     handleAddPart: debounce(function () {
