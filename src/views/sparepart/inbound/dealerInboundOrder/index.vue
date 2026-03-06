@@ -26,8 +26,7 @@
             filterable
             />
         </el-form-item>
-      <template v-if="show">
-        <el-form-item label="门店">
+        <el-form-item label="门店" v-show="this.visibleCount === 3 || show">
           <fetch-select
             :remote-method="getDealerList"
             remote
@@ -42,7 +41,7 @@
             filterable
             />
         </el-form-item>
-
+        <template v-if="show">
         <el-form-item label="订单状态">
           <fetch-select
             :request="fetchOptions"
@@ -102,11 +101,11 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -243,17 +242,24 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '编辑',
+              show: (row) => {
+                return row.orderStatus === '10' || row.orderStatus === '40';
+              },
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/inbound/dealerInboundOrder/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    orderType: 1
                   }
                 });
               },
               type: 'info'
             }, {
               name: '删除',
+              show: (row) => {
+                return row.orderStatus === '10' || row.orderStatus === '40';
+              },
               popconfirmTitle: '此操作将永久删除, 是否继续?',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
@@ -270,6 +276,57 @@ export default {
                 });
               },
               type: 'danger'
+            }, {
+              name: '打印入库单',
+              click: (rowIndex, row) => {
+                this.handleAgree(row);
+              },
+              type: 'info'
+            }, {
+              name: '提交',
+              show: (row) => {
+                return row.orderStatus === '10' || row.orderStatus === '40';
+              },
+              click: (rowIndex, row) => {
+                this.handleAgree(row);
+              },
+              type: 'info'
+            }, {
+              name: '通过',
+              show: (row) => {
+                return row.orderStatus === '20';
+              },
+              click: (rowIndex, row) => {
+                this.handleAgree(row);
+              },
+              type: 'info'
+            }, {
+              name: '驳回',
+              show: (row) => {
+                return row.orderStatus === '20';
+              },
+              click: (rowIndex, row) => {
+                this.handleAgree(row);
+              },
+              type: 'info'
+            }, {
+              name: '入库',
+              show: (row) => {
+                return row.orderStatus === '30' || row.inboundStatus === '10';
+              },
+              click: (rowIndex, row) => {
+                this.handleAgree(row);
+              },
+              type: 'info'
+            }, {
+              name: '申请退货',
+              show: (row) => {
+                return row.orderStatus === '30' || row.inboundStatus === '20';
+              },
+              click: (rowIndex, row) => {
+                this.handleAgree(row);
+              },
+              type: 'info'
             }]
           }
         ],
@@ -485,28 +542,6 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
     }
   }
 };
