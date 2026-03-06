@@ -170,7 +170,7 @@
             :title="popconfirmText"
             @confirm="handleConfirm"
           >
-            <el-button :type="response?.activityUsed ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
+            <el-button :type="selectedPackage?.used ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
           </el-popconfirm>
         </div>
       </div>
@@ -219,15 +219,15 @@ export default {
       return type?.message || '全部活动';
     },
     confirmBtnText () {
-      return this.response?.activityUsed ? '取消使用方案' : '使用方案';
+      return this.selectedPackage?.used ? '取消使用方案' : '使用方案';
     },
     partRespList () {
       const res = (this.response?.partResponseList || []).filter(item => item.serviceActivityItemId === this.curPartTab);
       return res;
     },
     popconfirmText () {
-      if (this.selectedPackage?.used) {
-        if (this.response?.activityUsed) {
+      if (this.response?.activityUsed) {
+        if (this.selectedPackage?.used) {
           return '确定取消选择使用该方案？';
         } else {
           return '该车辆已使用其他方案，是否确认要替换为本方案';
@@ -341,7 +341,7 @@ export default {
         return;
       }
       let result = false;
-      if (this.response.activityUsed) {
+      if (this.selectedPackage?.used) {
         result = await this.cancelPackage();
       } else {
         result = await this.usePackage();
@@ -395,7 +395,7 @@ export default {
         warrantyTypeName: activityRes.repairItemTypeName,
         workHour: item.workHour || 1,
         isAddItems: 0,
-        discountAmount: item.discountAmount,
+        discountAmount: item.discountAmount || 0,
         packageType: 50,
         packageId: this.selectedPackage.activityId + '#' + this.selectedPackage.id,
         packageCode: activityRes.activityCode,
@@ -427,7 +427,7 @@ export default {
           warrantyTypeName: activityRes.repairItemTypeName,
           isOemPart: 0,
           quantity: part.quantity,
-          discountAmount: part.discountAmount,
+          discountAmount: part.discountAmount || 0,
           spRepairItemId: part.serviceActivityItemId,
           isBindItem: 0,
           repairItemId: part.serviceActivityItemId,
@@ -459,11 +459,14 @@ export default {
     handleTabClick (item) {
       this.curPartTab = item.id;
       this.curItemList = item;
+      setTimeout(() => {
+        this.setCheckedMainParts();
+      }, 300);
     },
     // 主因件强制勾选，禁止取消
     checkMainPartMethod ({ row }) {
       // 主因件禁止取消勾选（checkbox 不可操作）
-      return row.mainPart !== '1';
+      return row.allowDelete !== '1';
     },
     // 设置主因件为勾选状态
     setCheckedMainParts () {
@@ -473,7 +476,7 @@ export default {
         : this.$refs.partsTableRef;
       if (!tableRef) return;
       // 找出所有主因件并勾选
-      const mainPartRows = this.partRespList.filter(row => row.mainPart === '1');
+      const mainPartRows = this.partRespList.filter(row => row.allowDelete === '1');
       if (mainPartRows.length > 0) {
         tableRef.setCheckboxRow(mainPartRows, true);
       }
