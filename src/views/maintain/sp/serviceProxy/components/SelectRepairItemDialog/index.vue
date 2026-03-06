@@ -30,6 +30,8 @@
             size="small"
             style="width: 120px;"
             @change="handleDiscountModeChange"
+            @clear="handleDiscountModeChange"
+            clearable
           >
             <el-option :label="item.name" :value="item.id" v-for="item in discountType" :key="item.id"></el-option>
           </el-select>
@@ -312,6 +314,7 @@
                     size="small"
                     placeholder="请选择"
                     filterable
+                    :disabled="!!row.repairItemName"
                     @change="handlePartCheckoutTypeChange(row)"
                   >
                     <el-option
@@ -395,7 +398,7 @@
                     size="small"
                     placeholder="请选择"
                     filterable
-                    :disabled="!!row.isBindltem"
+                    :disabled="!!row.autoImport"
                     clearable
                   @change="handlePartRepairItemNameChange(row)"
                   >
@@ -541,9 +544,6 @@ export default {
     }
   },
   methods: {
-    handleRefresh () {
-
-    },
     handleOpenDialog (type) {
       this.currentPackageType = type;
       this.updateDialogVisible = true;
@@ -1099,7 +1099,9 @@ export default {
     handleTypeChange (v) {
       this.repairType = v;
       this.partRepairType = v;
-    }
+    },
+    handleRefresh () {
+    },
   }
 };
 </script>

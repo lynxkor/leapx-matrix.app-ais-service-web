@@ -143,6 +143,7 @@
                   min-height="0"
                   max-height="200px"
                   :checkbox-config="{ checkMethod: checkMainPartMethod }"
+                  @checkbox-change="handlePartCheckboxChange"
                 >
                   <vxe-column type="checkbox" width="50" align="center"/>
                   <vxe-column field="partName" title="零件名称" min-width="140" />
@@ -170,7 +171,7 @@
             :title="popconfirmText"
             @confirm="handleConfirm"
           >
-            <el-button :type="selectedPackage?.used ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
+            <el-button :type="selectedPackage?.used && !hasNewPart ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
           </el-popconfirm>
         </div>
       </div>
@@ -208,6 +209,7 @@ export default {
       curPartTab: '',
       curItemList: {},
       response: {},
+      hasNewPart: false
     };
   },
   computed: {
@@ -219,6 +221,9 @@ export default {
       return type?.message || '全部活动';
     },
     confirmBtnText () {
+      if (this.hasNewPart) {
+        return '使用方案';
+      }
       return this.selectedPackage?.used ? '取消使用方案' : '使用方案';
     },
     partRespList () {
@@ -238,6 +243,11 @@ export default {
     },
   },
   methods: {
+    handlePartCheckboxChange ({ checked, row }) {
+      row.checked = checked;
+      this.curItemList.checked = checked;
+      this.hasNewPart = this.response.partResponseList.some(item => item.checked && item.allowDelete === '1');
+    },
     handleSearch () {
       if (this.searchTimer) {
         clearTimeout(this.searchTimer);
@@ -256,6 +266,7 @@ export default {
       this.projectList = [];
       this.loadPackageList();
       this.getActivityListType();
+      this.hasNewPart = false;
     },
     getActivityListType () {
       getEnum('claim_activity_type').then(res => {
@@ -341,7 +352,7 @@ export default {
         return;
       }
       let result = false;
-      if (this.selectedPackage?.used) {
+      if (this.selectedPackage?.used && !this.hasNewPart) {
         result = await this.cancelPackage();
       } else {
         result = await this.usePackage();
@@ -363,11 +374,17 @@ export default {
           id: this.vehicleInfo.id
         });
         this.$message.success('取消成功');
-        this.selectedPackage.used = false;
         return true;
       } catch (error) {
         console.error('取消套餐失败', error);
         return false;
+      }
+    },
+    checkItemCanAdd (item) {
+      if (item.used) {
+        return false;
+      } else {
+        return item.allowDelete === '0' || item.checked;
       }
     },
     // 使用套餐
@@ -376,13 +393,9 @@ export default {
         this.$message.warning('请选择套餐');
         return false;
       }
-      const tableRef = Array.isArray(this.$refs.partsTableRef)
-        ? this.$refs.partsTableRef[0]
-        : this.$refs.partsTableRef;
-      const selectedParts = tableRef.getCheckboxRecords();
       // 对 itemList 进行字段映射
       const activityRes = this.response?.activityResponse || {};
-      const itemList = (this.response.itemResponseList || []).map(item => ({
+      const itemList = (this.response.itemResponseList || []).filter(item => this.checkItemCanAdd(item)).map(item => ({
         serviceProxyId: this.vehicleInfo.id,
         repairItemId: item.id,
         repairItemCode: item.repairItemCode,
@@ -408,7 +421,7 @@ export default {
         itemMap[item.id] = item;
       });
       // 对 partsList 进行字段映射
-      const partsList = selectedParts.map(part => {
+      const partsList = this.response?.partResponseList.filter(item => this.checkItemCanAdd(item)).map(part => {
         const repairItem = itemMap[part.serviceActivityItemId] || {};
         return {
           serviceProxyId: this.vehicleInfo.id,
@@ -448,7 +461,6 @@ export default {
           partsList: partsList
         };
         await useActivity(params);
-        this.selectedPackage.used = true;
         this.$message.success('使用成功');
         return true;
       } catch (error) {
@@ -465,8 +477,7 @@ export default {
     },
     // 主因件强制勾选，禁止取消
     checkMainPartMethod ({ row }) {
-      // 主因件禁止取消勾选（checkbox 不可操作）
-      return row.allowDelete !== '1';
+      return row.allowDelete !== '0';
     },
     // 设置主因件为勾选状态
     setCheckedMainParts () {
@@ -475,8 +486,8 @@ export default {
         ? this.$refs.partsTableRef[0]
         : this.$refs.partsTableRef;
       if (!tableRef) return;
-      // 找出所有主因件并勾选
-      const mainPartRows = this.partRespList.filter(row => row.allowDelete === '1');
+      // 找出所有不允许删除的项目并勾选
+      const mainPartRows = this.partRespList.filter(row => row.allowDelete === '0' || row.used);
       if (mainPartRows.length > 0) {
         tableRef.setCheckboxRow(mainPartRows, true);
       }
