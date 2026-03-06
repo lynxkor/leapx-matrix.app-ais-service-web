@@ -194,9 +194,9 @@ export default {
         },
         dataProp: [
           {
-            props: 'id',
-            label: '主键',
-            visible: false,
+            props: 'priceSerialNo',
+            label: '价格序号',
+            visible: true,
             width: 200,
             fixed: 'left',
             buttons: [{
@@ -211,7 +211,6 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'priceSerialNo', label: '价格序号', visible: true, width: 200 },
           { props: 'pricingModeLabel', label: '定价模式', visible: true, width: 200 },
           { props: 'hourlyPrice', label: '工时单价', visible: true, width: 200 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
@@ -318,7 +317,7 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '新页面',
+        businessType: '保修工时单价设置',
         dataFetchPath: 'claimreturn/web/claim/basic/warrantyHourSetting/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -326,7 +325,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '保修工时单价设置.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
