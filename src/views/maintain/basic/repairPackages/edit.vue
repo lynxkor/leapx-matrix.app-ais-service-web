@@ -55,10 +55,10 @@
                     <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
                   </el-radio-group>
                 </el-form-item>
-                <el-form-item label="数据来源：" prop="dataSource">
+                <el-form-item label="数据来源：" prop="dataSourceLabel">
                   <el-input
                     placeholder="请输入"
-                    v-model="form.dataSource"
+                    v-model="form.dataSourceLabel"
                     clearable
                     disabled
                   />
@@ -91,7 +91,7 @@
                   {{ form.suedDealerLabel }}
                 </el-form-item>
                 <el-form-item label="数据来源：" prop="dataSource">
-                  {{ form.dataSource }}
+                  {{ form.dataSourceLabel }}
                 </el-form-item>
                 <el-form-item label="门店：" prop="dealerName">
                   {{ form.dealerName }}
@@ -208,7 +208,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getRepairType, getModel, getPackagesItem, modelDelete, partDelete } from '@/api/maintain/basic/repairPackages/index';
+import { getDetail, addOrUpdate, getRepairType, getModel, getPackagesItem, modelDelete, partDelete, packagesItemDelete } from '@/api/maintain/basic/repairPackages/index';
 import { getPage } from '@/api/maintain/basic/repairItem/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -230,6 +230,7 @@ const defaultForm = {
   vehicleSeriesId: '',
   vehicleSeriesIds: '',
   dataSource: '',
+  dataSourceLabel: '',
   dealerName: '',
   status: '',
   totalAmount: '',
@@ -381,6 +382,10 @@ export default {
     openPane () {
       this.$refs.editLayout.openPane();
     },
+    // 关闭侧边栏
+    closePane () {
+      this.$refs.editLayout.closePane();
+    },
     // 删除套餐明细  适配车型
     async handleDeleteModel (val) {
       console.log('删除套餐明细', val);
@@ -391,7 +396,7 @@ export default {
     },
     // 删除套餐明细 维修项目
     async handleDeleteRow (val) {
-      await partDelete([val.id]);
+      await packagesItemDelete([val.id]);
       this.message.success('删除成功');
       this.getProjectPackage();
     },
@@ -449,9 +454,16 @@ export default {
       // 查询是否店端 true为门店  false为厂端
       const res = await getLoginUser();
       this.accountFlag = res.accountFlag;
-      this.form.ownerOrgId = res.currentDealerCode;// 当前门店code
+      this.form.ownerOrgId = res.currentOrgId;// 当前门店code
       this.form.dealerCode = res.currentDealerCode;// 当前门店编码
       this.form.dealerName = res.currentDealerName;// 当前门店名称
+      if (this.accountFlag) {
+        this.form.dataSource = 10;
+        this.form.dataSourceLabel = '门店';
+      } else {
+        this.form.dataSource = 20;
+        this.form.dataSourceLabel = '主机厂';
+      }
     },
     // 维修套餐--类型表列表查询
     async getType () {
@@ -485,6 +497,7 @@ export default {
     // 保存侧边栏事件
     async handleSave () {
       await this.$refs.repairPackagesDetail?.handleSave();
+      this.closePane();
       this.getModelList();
       this.getProjectPackage();
     }
