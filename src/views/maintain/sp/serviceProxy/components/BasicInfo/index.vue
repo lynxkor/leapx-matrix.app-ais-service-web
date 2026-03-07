@@ -637,6 +637,18 @@ export default {
     handleVinChange (val, record) {
       if (record.vin) {
         checkVinTag(record.vin).then(res => {
+          if (res) {
+            const message = `<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>提示</div><div class="ais-leave-tips-sub">该车辆为${res}，请注意接待。</div>`;
+            this.$confirm(message, '', {
+              confirmButtonText: '确定',
+              dangerouslyUseHTMLString: true,
+              showCancelButton: false,
+              customClass: 'ais-leave-tips',
+              showClose: false
+            }).then(() => {
+            }).catch(() => {
+            });
+          }
           const data = {
             carPlate: record.vehiclePlateNo, // 车牌号
             maintenanceMileage: record.vehicleProfileServiceResp.nextMaintainMileages, // 建议保养里程
