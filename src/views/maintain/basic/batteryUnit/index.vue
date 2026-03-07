@@ -77,6 +77,8 @@
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
         @handleSelect="handleSelectionChange"
+        :popconfirmConfirmButtonType="danger"
+        :popconfirmConfirmButtonText="'test'"
       />
     </div>
   </div>
@@ -179,6 +181,8 @@ export default {
               type: 'info'
             }, {
               name: '删除',
+              popconfirmConfirmButtonType: 'danger',
+              popconfirmConfirmButtonText: '删除',
               popconfirmTitle: '此操作将删除选中电池去向单位设置信息，您无法撤销此操作，是否继续？',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
