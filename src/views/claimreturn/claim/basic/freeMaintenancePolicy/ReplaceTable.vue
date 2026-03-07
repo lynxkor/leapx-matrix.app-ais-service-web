@@ -4,27 +4,19 @@
       v-if="canAddOrUpdate"
       class="common-section-header"
     >
-      <fetch-box>
-        <fetch-select
-          filterable
-          clearable
-          remote
-          reserve-keyword
-          v-model="part"
-          :remote-method="partRemote"
-          @change="handlePartChange"
-          value-key="id"
-          label-key="partName"
-          placeholder="请输入零件编码/名称"
-        />
-        <el-button
-          type="primary"
-          size="small"
-          @click="handleAddPart"
-          >
-          添加
-        </el-button>
-      </fetch-box>
+      <BaseSearch
+        filterable
+        clearable
+        remote
+        reserve-keyword
+        v-model="part"
+        :remote-method="partRemote"
+        @change="handlePartChange"
+        value-key="id"
+        label-key="partName"
+        sub-label-key="partCode"
+        placeholder="请输入零件编码/名称"
+      />
     </div>
     <div class="common-section-body">
       <div class="common-section-table">
@@ -53,7 +45,6 @@
   </section>
 </template>
 <script>
-import { uIntRule } from '@/validation/rule';
 import {
   freeMaintenancePartReplaceDetailDelete,
   freeMaintenancePartReplaceDetailPage,
@@ -61,8 +52,7 @@ import {
 } from '../../../../../api/claimreturn/claim/basic/freeMaintenancePolicy';
 import EditTable from '@/libs/components/EditTable';
 import permissions from '@/libs/mixins/permissions';
-import FetchSelect from '@/libs/components/FetchSelect';
-import FetchBox from '@/libs/components/FetchBox';
+import BaseSearch from '@/libs/components/BaseSearch';
 import { sparePartList } from '../../../../../api/common';
 import { debounce } from 'lodash';
 
@@ -81,8 +71,7 @@ export default {
   },
   components: {
     EditTable,
-    FetchSelect,
-    FetchBox,
+    BaseSearch,
   },
   mixins: [permissions],
   data () {
@@ -225,6 +214,7 @@ export default {
     },
     handlePartChange (val, record) {
       this.curPart = record;
+      this.handleAddPart();
     },
     // 详情表格相关数据
     handleAddPart: debounce(function () {

@@ -5,20 +5,19 @@
     </div>
     <div class="common-section-body">
       <div class="common-section-header">
-        <fetch-box v-if="canAddOrUpdate">
-          <fetch-select
-            filterable
-            clearable
-            remote
-            reserve-keyword
-            :remote-method="queryListData"
-            @change="handleAddTableData"
-            value-key="id"
-            label-key="name"
-            subLabelKey="code"
-            placeholder="请输入"
-          />
-        </fetch-box>
+        <base-search
+          v-if="canAddOrUpdate"
+          filterable
+          clearable
+          remote
+          reserve-keyword
+          :remote-method="queryListData"
+          @change="handleAddTableData"
+          value-key="id"
+          label-key="name"
+          subLabelKey="code"
+          placeholder="请输入"
+        />
       </div>
       <div class="common-section-table">
         <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
@@ -49,8 +48,7 @@ import {
   getDetailList,
   detailSearchApi,
 } from '@/api/{{modulePath}}/index';
-import FetchSelect from '@/libs/components/FetchSelect';
-import FetchBox from '@/libs/components/FetchBox';
+import BaseSearch from '@/libs/components/BaseSearch';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 
@@ -65,8 +63,7 @@ export default {
     }
   },
   components: {
-    FetchSelect,
-    FetchBox,
+    BaseSearch,
   },
   computed: {
   },
