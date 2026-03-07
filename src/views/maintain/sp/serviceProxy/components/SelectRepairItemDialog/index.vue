@@ -877,7 +877,7 @@ export default {
       const { discountPartRate = 0, discountWorkhourRate = 0 } = this.selectedDiscount;
 
       // 更新维修项目的折扣率
-      this.itemData.forEach(item => {
+      this.itemData.filter(item => typeof (item.id) === 'undefined').forEach(item => {
         if (!this.checkoutTypeIncluded(item.checkoutTypeId)) {
           item.discountRate = discountWorkhourRate || 0;
           // 重新计算优惠金额和项目金额
@@ -888,7 +888,7 @@ export default {
       });
 
       // 更新维修配件的折扣率
-      this.partData.forEach(part => {
+      this.partData.filter(item => typeof (item.id) === 'undefined').forEach(part => {
         part.discountRate = discountPartRate || 0;
         // 重新计算优惠金额和配件金额
         const originalAmount = part.quantity * part.price;

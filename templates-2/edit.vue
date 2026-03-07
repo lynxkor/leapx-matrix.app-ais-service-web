@@ -163,6 +163,7 @@
           {{#if isSearchAddTable}}
           <search-add-table
             :_id="_id"
+            :canAddOrUpdate="canAddOrUpdate"
             @data-change="() => {}"
             @checkboxChange="checkboxChange"
           />

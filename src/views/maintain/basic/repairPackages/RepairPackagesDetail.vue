@@ -8,10 +8,10 @@
                 <div class="common-section-body">
                     <el-form label-width="120px" :form="repairDetail" :inline="true" class="form-detail">
                         <el-form-item label="项目名称：" prop="name">
-                            {{ repairDetail.name }}
+                            {{ repairDetail.repairItemName }}
                         </el-form-item>
                         <el-form-item label="项目代码：" prop="code">
-                            {{ repairDetail.code }}
+                            {{ repairDetail.repairItemCode }}
                         </el-form-item>
                         <el-form-item label="维修类型：" prop="repairItemTypeId">
                             <fetch-select
@@ -43,11 +43,11 @@
                             <el-input type="number" @blur="handleDiscountAmountBlur" clearable
                                 v-model="repairDetail.discountAmount"></el-input>
                         </el-form-item>
-                        <el-form-item label="工时单价：" prop="workhourPrice">
-                            {{ repairDetail.workhourPrice }}
+                        <el-form-item label="工时单价：" prop="price">
+                            {{ repairDetail.price }}
                         </el-form-item>
-                        <el-form-item label="工时数量：" prop="workhour">
-                            {{ repairDetail.workhour }}
+                        <el-form-item label="工时数量：" prop="workHour">
+                            {{ repairDetail.workHour }}
                         </el-form-item>
                         <el-form-item label="项目金额：" prop="purchaseQty">
                             {{ repairDetail.actualAmount || 0 }}
@@ -182,8 +182,8 @@ export default {
   data () {
     return {
       repairDetail: {
-        workhourPrice: null,
-        workhour: null,
+        price: null,
+        workHour: null,
         discountAmount: null,
         actualAmount: null
       }, // 维修套餐详情信息
@@ -199,7 +199,7 @@ export default {
     repairItemId: {
       async handler (val) {
         await this.getDetail(val);
-        await this.getSparePartList();
+        // await this.getSparePartList();
       },
       immediate: true,
       deep: true
@@ -215,11 +215,33 @@ export default {
         fathApi = repairItemDetail;
       }
       const res = await fathApi(id);
-      this.repairDetail = res || {};
-      if (res.discountAmount) { // 有优惠金额时，计算项目金额
-        this.repairDetail.actualAmount = Number(res.workhourPrice) * Number(res.workhour) - Number(res.discountAmount);
+      if (this.judgment === 'add') {
+        this.repairDetail.price = res.workhourPrice;
+        this.repairDetail.workHour = res.workhour;
+        this.repairDetail.repairItemId = res.id;
+        this.repairDetail.repairItemCode = res.code;
+        this.repairDetail.repairItemName = res.name;
+        console.log(res.partsRespList);
+        if (res.partsRespList && Array.isArray(res.partsRespList)) {
+          for (let item of res.partsRespList) {
+            this.tableData.push({
+              price: item.price,
+              partsId: item.partsId,
+              partsCode: item.partsCode,
+              partsName: item.partsName,
+              isOemPart: item.isOemPart,
+              remark: item.remark
+            });
+          }
+        }
       } else {
-        this.repairDetail.actualAmount = Number(res.workhourPrice) * Number(res.workhour);
+        this.repairDetail = res || {};
+        this.tableData = res.partRespList || [];
+      }
+      if (this.repairDetail.discountAmount) { // 有优惠金额时，计算项目金额
+        this.repairDetail.actualAmount = Number(this.repairDetail.price) * Number(this.repairDetail.workHour) - Number(this.repairDetail.discountAmount);
+      } else {
+        this.repairDetail.actualAmount = Number(this.repairDetail.price) * Number(this.repairDetail.workHour);
       }
     },
     // 获取零件信息
@@ -273,8 +295,8 @@ export default {
     },
     // 处理优惠金额失焦以后计算项目金额
     handleDiscountAmountBlur () {
-      const price = Number(this.repairDetail.workhourPrice) || 0;
-      const hour = Number(this.repairDetail.workhour) || 0;
+      const price = Number(this.repairDetail.price) || 0;
+      const hour = Number(this.repairDetail.workHour) || 0;
       const discount = Number(this.repairDetail.discountAmount) || 0;
 
       const result = (price * hour) - discount;

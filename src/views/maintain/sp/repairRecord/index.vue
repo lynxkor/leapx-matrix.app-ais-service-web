@@ -79,6 +79,7 @@
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
         @listSelect="handleListSelect"
+        showIndex
       >
         <EditPage slot="centralizedViewSlot" :id="clickItemId" />
       </LPVxeTable>
@@ -155,13 +156,11 @@ export default {
           size: pageSize,
         },
         dataProp: [
-          { props: 'code', label: '编号', visible: true, width: 200 },
           {
-            props: 'serviceProxyCode',
+            props: 'code',
             label: '施工单号',
             visible: true,
             width: 200,
-            fixed: 'left',
             buttons: [
               {
                 click: (rowIndex, row) => {

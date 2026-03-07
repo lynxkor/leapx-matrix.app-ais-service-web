@@ -409,7 +409,11 @@ export default {
       });
 
       if (invalidRows.length > 0) {
-        this.$message.warning('请完善信息后再进行派工');
+        if (!invalidRows[0]?.dealerStationId) {
+          this.$message.warning(`维修作业:${invalidRows[0]?.repairItemName}，工位不能为空`);
+        } else {
+          this.$message.warning(`维修作业:${invalidRows[0]?.repairItemName}，班组、维修技师不能同时为空`);
+        }
         return;
       }
 
