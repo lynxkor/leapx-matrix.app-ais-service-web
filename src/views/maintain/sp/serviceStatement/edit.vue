@@ -84,7 +84,7 @@
                   <el-input placeholder="请输入" v-model="form.nextMaintenanceMileage" disabled clearable />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark" class="form-item-full">
-                  <el-input placeholder="请输入" v-model="form.remark" clearable />
+                  <el-input placeholder="请输入" v-model="form.remark" clearable  maxlength="500"/>
                 </el-form-item>
                 <el-form-item label="总金额：" prop="totalAmount">
                   <el-input placeholder="请输入" v-model="form.totalAmount" disabled clearable />
