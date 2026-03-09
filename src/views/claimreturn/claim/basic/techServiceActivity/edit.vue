@@ -239,6 +239,10 @@
               :moduleKey="moduleKey"
               @change="schemeChange"
             />
+            <vehicle
+              :id="_id"
+              :moduleKey="moduleKey"
+            />
             <file-config
               :id="_id"
               :moduleKey="moduleKey"
@@ -266,11 +270,12 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import { getList } from '../../../../../api/maintain/basic/checkoutType';
 import { getList as repairGetList } from '../../../../../api/maintain/basic/repairItemType';
-import { getDetail, addOrUpdate } from '../../../../../api/claimreturn/claim/basic/techServiceActivity';
+import { getDetail, addOrUpdate } from '../../../../../api/claimreturn/claim/basic/serviceActivity';
 import PlanInfo from './PlanInfo.vue';
 import FileConfig from './FileConfig/index.vue';
 import { formatDateTime } from '@/libs/utils';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
+import Vehicle from './Vehicle';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -328,6 +333,7 @@ export default {
     BaseInput,
     PlanInfo,
     FileConfig,
+    Vehicle,
   },
   computed: {
     _id () {

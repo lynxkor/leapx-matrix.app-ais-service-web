@@ -191,7 +191,7 @@ import {
   techServiceActivitySchemeCopy,
   techServiceActivitySchemeDelete,
   techServiceActivitySchemeGet, techServiceActivitySchemeList, techServiceActivitySchemeUpdate
-} from '../../../../../api/claimreturn/claim/basic/techServiceActivity';
+} from '../../../../../api/claimreturn/claim/basic/serviceActivity';
 import { getList as partList } from '../../../../../api/sparepart/basic/sparePart';
 import { getList as sparePartList } from '../../../../../api/sparepart/basic/sparePartSupplier';
 import permissions from '@/libs/mixins/permissions';

@@ -1000,15 +1000,6 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/oldpart/basic/oldpartunqualifiedconfig/detail',
-      name: 'oldPartUnqualifiedConfigDetail',
-      component: () => import('@/views/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/detail.vue'),
-
-      meta: {
-        name: '新页面详情',
-        noResourceUrl: 'true'
-      }
-    }, {
       path: '/claimreturn/oldpart/basic/oldpartunqualifiedconfig/edit',
       name: 'oldPartUnqualifiedConfigEdit',
       component: () => import('@/views/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/edit.vue'),
