@@ -13,7 +13,7 @@
             valueKey: 'id',
             labelKey: 'repairItemName',
             disableCloseKey: 'disableClose',
-            disableFirst: false,
+            disableFirst: true,
             labelFormat: '${repairItemName}(${repairItemCode})',
           }"
           :remote-method="repairRemote"
@@ -21,7 +21,7 @@
             valueKey: 'id',
             labelKey: 'name',
             labelFormat: '${name}(${code})',
-            placeholder: '输入项目零件代码、名称',
+            placeholder: '输入项目零件代码/名称',
           }"
           close-tip="确定删除该项目零件吗？"
           :disabled="!isEditing"
@@ -30,7 +30,7 @@
           :menus="menus"
           />
         </section>
-        <section class="common-section" v-if="partId">
+        <section class="common-section" v-if="partId && isShow">
           <el-form
             v-if="isEditing"
             :inline="true"
@@ -135,26 +135,28 @@
           </el-form>
         </section>
         <section class="common-section" v-if="partId">
-          <div class="sub-title">
-            零件明细
-          </div>
-          <div
-            v-if="canAddOrUpdate && id"
-            class="common-section-header"
-          >
-            <base-search
-              filterable
-              clearable
-              remote
-              reserve-keyword
-              v-model="part"
-              :remote-method="partRemote"
-              @change="handlePartChange"
-              value-key="id"
-              label-key="partName"
-              subLabelKey="partCode"
-              placeholder="请输入备件编码/名称"
-            />
+          <div v-if="isShow">
+            <div class="sub-title">
+              零件明细
+            </div>
+            <div
+              v-if="canAddOrUpdate && id"
+              class="common-section-header"
+            >
+              <base-search
+                filterable
+                clearable
+                remote
+                reserve-keyword
+                v-model="part"
+                :remote-method="partRemote"
+                @change="handlePartChange"
+                value-key="id"
+                label-key="partName"
+                subLabelKey="partCode"
+                placeholder="请输入备件编码/名称"
+              />
+            </div>
           </div>
           <part-table
             :moduleKey="moduleKey"
@@ -162,8 +164,7 @@
             :id="id"
             :schemeId="schemeId"
             :serviceActivityItemId="partId"
-            >
-          </part-table>
+            />
         </section>
     </div>
     <div class="common-section-body not-commit" v-else>
@@ -177,7 +178,7 @@ import {
   techServiceActivityItemGet,
   techServiceActivityItemUpdate,
   techServiceActivityItemDelete,
-} from '@/api/claimreturn/claim/basic/techServiceActivity';
+} from '@/api/claimreturn/claim/basic/serviceActivity';
 // 维修保养 -> 维修项目
 import { getList as repairList } from '@/api/maintain/basic/repairItem';
 import { getList as repairTypeList } from '@/api/maintain/basic/repairItemType';
@@ -257,6 +258,7 @@ export default {
       part: '',
       curPart: null,
       // ----
+      isShow: true,
     };
   },
   computed: {
@@ -315,9 +317,22 @@ export default {
     },
     // 获取项目零件列表
     loadData (params) {
-      return techServiceActivityItemPage(params);
+      return techServiceActivityItemPage(params).then(res => {
+        res.records.unshift({
+          id: '全部备件',
+          repairItemName: '全部备件',
+          repairItemCode: '全部备件',
+          noFormat: true,
+        });
+        return res;
+      });
     },
     getDetail (id) {
+      if (id === '全部备件') {
+        this.isShow = false;
+        return;
+      }
+      this.isShow = true;
       // 获取项目零件
       techServiceActivityItemGet(id).then(data => {
         Object.keys(this.form).forEach(key => {

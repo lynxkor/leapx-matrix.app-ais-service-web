@@ -29,7 +29,7 @@ import {
   techServiceActivityFileConfigDelete,
   techServiceActivityFileConfigPage,
   techServiceActivityFileConfigUpdate,
-} from '@/api/claimreturn/claim/basic/techServiceActivity';
+} from '@/api/claimreturn/claim/basic/serviceActivity';
 
 import EditTable from '@/libs/components/EditTable';
 import permissions from '@/libs/mixins/permissions';
