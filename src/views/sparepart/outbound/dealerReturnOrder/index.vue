@@ -15,21 +15,21 @@
       <el-form-item label="外购退货单">
         <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
+      <el-form-item label="供应商名称" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :remote-method="getSupplierList"
+          remote
+          v-model="form.supplierInfoId"
+          placeholder="请输入供应商编码或名称"
+          labelKey="name"
+          valueKey="id"
+          subLabelKey="code"
+          clearable
+          collapseTags
+          filterable
+          />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="供应商名称">
-          <fetch-select
-            :remote-method="getSupplierList"
-            remote
-            v-model="form.supplierInfoId"
-            placeholder="请输入供应商编码或名称"
-            labelKey="name"
-            valueKey="id"
-            subLabelKey="code"
-            clearable
-            collapseTags
-            filterable
-            />
-        </el-form-item>
         <el-form-item label="门店">
           <fetch-select
             :remote-method="getDealerList"
@@ -49,7 +49,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="DealerReturnOrderOrderStatusEnum"
-            v-model="form.orderStatus"
+            v-model="form.orderStatusList"
             placeholder="请选择"
             clearable
             multiple
@@ -60,7 +60,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="DealerReturnOrderOutboundStatusEnum"
-            v-model="form.outboundStatus"
+            v-model="form.outboundStatusList"
             placeholder="请选择"
             clearable
             multiple
@@ -103,12 +103,12 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -145,7 +145,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/outbound/dealerReturnOrder/index';
+import { getList, deleteItem, enableItem, dealerReturnOrderAgree, dealerReturnOrderCancel, dealerReturnOrderOutbound } from '@/api/sparepart/outbound/dealerReturnOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getSupplierInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -265,6 +265,9 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '编辑',
+              show: (row) => {
+                return row.orderStatus === '10';
+              },
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/outbound/dealerReturnOrder/edit',
@@ -275,23 +278,62 @@ export default {
               },
               type: 'info'
             }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
+              name: '打印出库单',
               click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
+                this.handlePrint(row);
+              },
+              type: 'info'
+            }, {
+              name: '通过',
+              show: (row) => {
+                return row.orderStatus === '10';
+              },
+              popconfirmTitle: '此操作将通过订单, 是否继续?',
+              click: (rowIndex, row) => {
+                dealerReturnOrderAgree({ id: row.id }).then(() => {
                   this.$message({
                     type: 'success',
-                    message: '删除成功!'
+                    message: '通过成功!'
                   });
                   this.getData();
                 }).catch(() => {
                   this.$message({
                     type: 'error',
-                    message: '删除失败!'
+                    message: '通过失败!'
                   });
                 });
               },
-              type: 'danger'
+              type: 'info'
+            }, {
+              name: '作废',
+              show: (row) => {
+                return row.orderStatus === '10';
+              },
+              click: (rowIndex, row) => {
+                this.handleVoid(row);
+              },
+              type: 'info'
+            }, {
+              name: '出库',
+              show: (row) => {
+                return row.orderStatus === '20' || row.outboundStatus === '10';
+              },
+              popconfirmTitle: '此操作将出库订单, 是否继续?',
+              click: (rowIndex, row) => {
+                dealerReturnOrderOutbound({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '出库成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '出库失败!'
+                  });
+                });
+              },
+              type: 'info'
             }]
           }
         ],
@@ -476,6 +518,14 @@ export default {
       }
       return [];
     },
+    // 打印外购件退货单
+    handlePrint (val) {
+      this.$print.show({
+        id: val.id, // 必选，对应数据id
+        template: 'ReturnOrderPurchased', // 必选，对应 ./template/文件名.vue
+        title: `${val.dealerName}厅店外购件退货单`// 可选，打印标题
+      });
+    },
     // 批量删除
     handleBatchDelete () {
       const ids = this.selectionList.map(item => item.id) || [];
@@ -506,29 +556,23 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
-    }
+    },
+    // 作废
+    handleVoid (val) {
+      this.$prompt('请输入审批原因！', '作废', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      }).then(({ value }) => {
+        // 调用驳回接口
+        dealerReturnOrderCancel({ id: val.id, description: value }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '作废成功!'
+          });
+          this.getData();
+        });
+      });
+    },
   }
 };
 </script>

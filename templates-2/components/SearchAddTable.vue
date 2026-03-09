@@ -5,11 +5,19 @@
     </div>
     <div class="common-section-body">
       <div class="common-section-header">
-        <div class="ais-select-group">
-          <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请选择" clearable
-            value-key="id" label-key="name" @change="handleAddTableData" />
-          <el-button type="primary" size="small">添加</el-button>
-        </div>
+        <base-search
+          v-if="canAddOrUpdate"
+          filterable
+          clearable
+          remote
+          reserve-keyword
+          :remote-method="queryListData"
+          @change="handleAddTableData"
+          value-key="id"
+          label-key="name"
+          subLabelKey="code"
+          placeholder="请输入"
+        />
       </div>
       <div class="common-section-table">
         <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
@@ -40,7 +48,7 @@ import {
   getDetailList,
   detailSearchApi,
 } from '@/api/{{modulePath}}/index';
-import FetchSelect from '@/libs/components/FetchSelect';
+import BaseSearch from '@/libs/components/BaseSearch';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 
@@ -50,9 +58,12 @@ export default {
       type: [String, Number],
       default: null
     },
+    canAddOrUpdate: {
+      type: Boolean,
+    }
   },
   components: {
-    FetchSelect
+    BaseSearch,
   },
   computed: {
   },
@@ -119,17 +130,8 @@ export default {
         });
       });
     },
-    queryListData (queryString) {
-      return new Promise(resolve => {
-        detailSearchApi({
-          limitSize: 20,
-          // TODO 根据需求进行替换
-          // xxxx: queryString,
-        }).then(res => {
-          const list = res || [];
-          resolve(list);
-        });
-      });
+    queryListData (query) {
+      return detailSearchApi({ limitSize: 20, query: query });
     },
     // 新增子表数据
     handleAddTableData (val, record) {

@@ -320,7 +320,18 @@ export default {
             visible: true,
             width: 200,
             mask: true,
-            getValue: (row) => getDetailDecryptField(row.id, 'vin')
+            getValue: (row) => getDetailDecryptField(row.id, 'vin'),
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/datacenter/vehicle/vehicleProfile/edit',
+                  query: {
+                    id: row.vehicleProfileId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
           },
           { props: 'activityName', label: '活动名称', visible: true, width: 200, centralized: true },
           { props: 'activityTypeLabel', label: '活动类型', visible: true, width: 200, centralized: true },

@@ -26,8 +26,7 @@
             filterable
             />
         </el-form-item>
-      <template v-if="show">
-        <el-form-item label="门店">
+        <el-form-item label="门店" v-show="this.visibleCount === 3 || show">
           <fetch-select
             :remote-method="getDealerList"
             remote
@@ -42,7 +41,7 @@
             filterable
             />
         </el-form-item>
-
+        <template v-if="show">
         <el-form-item label="订单状态">
           <fetch-select
             :request="fetchOptions"
@@ -102,11 +101,11 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -136,6 +135,14 @@
       @close="handleUploadDialogClose"
       @getData="getData"
     />
+    <!-- 退货弹窗 -->
+    <OrderReturnDialog
+      ref="orderReturnDialogRef"
+      :visible.sync="orderReturnDialogVisible"
+      :orderList="orderList"
+      @update:visible="val => orderReturnDialogVisible = val"
+      @confirm="getData"
+    />
   </div>
 </template>
 
@@ -143,7 +150,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/inbound/dealerInboundOrder/index';
+import { getList, deleteItem, enableItem, dealerInboundOrderCommit, dealerInboundOrderAgree, dealerInboundOrderReject, dealerInboundOrderInbound } from '@/api/sparepart/inbound/dealerInboundOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getSupplierInfo, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -154,6 +161,8 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
+import OrderReturnDialog from './OrderReturnDialog.vue';
+import { get } from 'lodash';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -182,7 +191,8 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    TagInput
+    TagInput,
+    OrderReturnDialog
   },
   data () {
     return {
@@ -243,18 +253,26 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '编辑',
+              show: (row) => {
+                return row.orderStatus === '10' || row.orderStatus === '40';
+              },
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/inbound/dealerInboundOrder/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
                   }
                 });
               },
               type: 'info'
             }, {
               name: '删除',
+              show: (row) => {
+                return row.orderStatus === '10' || row.orderStatus === '40';
+              },
               popconfirmTitle: '此操作将永久删除, 是否继续?',
+              popconfirmConfirmButtonType: 'danger',
+              popconfirmConfirmButtonText: '删除',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
                   this.$message({
@@ -270,6 +288,93 @@ export default {
                 });
               },
               type: 'danger'
+            }, {
+              name: '打印入库单',
+              click: (rowIndex, row) => {
+                this.handlePrint(row);
+              },
+              type: 'info'
+            }, {
+              name: '提交',
+              show: (row) => {
+                return row.orderStatus === '10' || row.orderStatus === '40';
+              },
+              popconfirmTitle: '此操作将提交订单, 是否继续?',
+              click: (rowIndex, row) => {
+                dealerInboundOrderCommit({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '提交成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '提交失败!'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '通过',
+              show: (row) => {
+                return row.orderStatus === '20';
+              },
+              popconfirmTitle: '此操作将通过订单, 是否继续?',
+              click: (rowIndex, row) => {
+                dealerInboundOrderAgree({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '通过成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '通过失败!'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '驳回',
+              show: (row) => {
+                return row.orderStatus === '20';
+              },
+              click: (rowIndex, row) => {
+                this.handleReject(row);
+              },
+              type: 'info'
+            }, {
+              name: '入库',
+              show: (row) => {
+                return row.orderStatus === '30' || row.inboundStatus === '10';
+              },
+              popconfirmTitle: '此操作将入库订单, 是否继续?',
+              click: (rowIndex, row) => {
+                dealerInboundOrderInbound({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '入库成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '入库失败!'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '申请退货',
+              show: (row) => {
+                return row.orderStatus === '30' || row.inboundStatus === '20';
+              },
+              click: (rowIndex, row) => {
+                this.handleReturn(row);
+              },
+              type: 'info'
             }]
           }
         ],
@@ -280,7 +385,9 @@ export default {
         // column: 'create_time',
         // sort: 'DESC'
         // }
-      ]
+      ],
+      orderReturnDialogVisible: false, // 退货申请弹窗
+      orderList: [], // 退货申请列表
     };
   },
   created () {
@@ -455,6 +562,14 @@ export default {
       }
       return [];
     },
+    // 打印外购件入库单
+    handlePrint (val) {
+      this.$print.show({
+        id: val.id, // 必选，对应数据id
+        template: 'OutsourcedPartsReceipt', // 必选，对应 ./template/文件名.vue
+        title: `${val.dealerName}厅店外购件入库单`// 可选，打印标题
+      });
+    },
     // 批量删除
     handleBatchDelete () {
       const ids = this.selectionList.map(item => item.id) || [];
@@ -485,29 +600,28 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
-    }
+    },
+    // 驳回
+    handleReject (val) {
+      this.$prompt('请输入审批原因！', '驳回', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      }).then(({ value }) => {
+        // 调用驳回接口
+        dealerInboundOrderReject({ id: val.id, description: value }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '驳回成功!'
+          });
+          this.getData();
+        });
+      });
+    },
+    // 申请退货
+    handleReturn (val) {
+      this.orderReturnDialogVisible = true;
+      this.orderList = [val];
+    },
   }
 };
 </script>

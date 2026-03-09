@@ -29,6 +29,8 @@
           size="small"
           style="width: 120px;"
           @change="handleDiscountModeChange"
+          @clear="handleDiscountModeChange"
+          clearable
         >
           <el-option :label="item.name" :value="item.id" v-for="item in discountType" :key="item.id"></el-option>
         </el-select>
@@ -525,6 +527,7 @@ export default {
       this.partSearchKey = '';
       this.selectedRepairItem = null;
       this.selectedRepairPart = null;
+      this.selectedDiscount = {};
     },
     addItem () {
       // 验证是否选择了维修项目
@@ -826,11 +829,9 @@ export default {
     handleDiscountModeChange (value) {
       // 查找选中的优惠模式
       const selectedDiscount = this.discountType.find(item => item.id === value);
-      this.selectedDiscount = selectedDiscount;
+      this.selectedDiscount = selectedDiscount || {};
 
-      if (!selectedDiscount) return;
-
-      const { discountPartRate, discountWorkhourRate } = selectedDiscount;
+      const { discountPartRate = 0, discountWorkhourRate = 0 } = this.selectedDiscount;
 
       // 更新维修项目的折扣率
       this.itemData.forEach(item => {

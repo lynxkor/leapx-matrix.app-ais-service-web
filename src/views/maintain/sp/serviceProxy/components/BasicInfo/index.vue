@@ -5,7 +5,7 @@
     </div>
     <div class="common-section-body">
       <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-      <el-form :inline="true" :model="form" :rules="rules" ref="basicForm" label-width="190px" class="form-edit" v-if="isEditing || !_id" :disabled="formData.orderStatus === RepairOrderStatusEnum.CANCEL">
+      <el-form :inline="true" :model="form" :rules="rules" ref="basicForm" label-width="190px" class="form-edit" v-if="isEditing || !_id" :disabled="formDisabled">
         <el-form-item label="单据编号：" prop="code">
           <el-input
             placeholder="请输入"
@@ -547,6 +547,9 @@ export default {
   computed: {
     vinDisabled () {
       return !!this.form.orderStatus && this.form.orderStatus !== RepairOrderStatusEnum.RECEPTION_INSPECTION;
+    },
+    formDisabled () {
+      return this.formData.orderStatus === RepairOrderStatusEnum.CANCEL || this.formData.orderStatus === RepairOrderStatusEnum.DELIVERED;
     }
   },
   components: {
@@ -634,6 +637,18 @@ export default {
     handleVinChange (val, record) {
       if (record.vin) {
         checkVinTag(record.vin).then(res => {
+          if (res) {
+            const message = `<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>提示</div><div class="ais-leave-tips-sub">该车辆为${res}，请注意接待。</div>`;
+            this.$confirm(message, '', {
+              confirmButtonText: '确定',
+              dangerouslyUseHTMLString: true,
+              showCancelButton: false,
+              customClass: 'ais-leave-tips',
+              showClose: false
+            }).then(() => {
+            }).catch(() => {
+            });
+          }
           const data = {
             carPlate: record.vehiclePlateNo, // 车牌号
             maintenanceMileage: record.vehicleProfileServiceResp.nextMaintainMileages, // 建议保养里程

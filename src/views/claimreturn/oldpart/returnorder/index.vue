@@ -171,13 +171,46 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
-      optionObj: {
+      //
+      tableDataList: [],
+      tableTotal: 0,
+      tableForm: { page: 1, size: pageSize },
+    };
+  },
+  beforeCreate () {
+    defaultForm.returnType = this.$route.meta.returnType;
+  },
+  created () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    this.getData();
+    loginUserGet().then(data => {
+      this.isDealer = data.accountFlag;
+    });
+  },
+  mounted () {
+  },
+  computed: {
+    isFastReturn () {
+      return this.$route.meta.returnType === '40';
+    },
+    editPath () {
+      if (this.isDealer) {
+        return this.isFastReturn ? '/claimreturn/oldpart/dealerReturnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
+      }
+      return this.isFastReturn ? '/claimreturn/oldpart/returnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
+    },
+    canPublish () {
+      return this.permissions.has(`${this.moduleKey}-publish`);
+    },
+    canSign () {
+      return this.permissions.has(`${this.moduleKey}-sign`);
+    },
+    optionObj () {
+      const isDealer = this.isDealer;
+      return {
         id: this.$route.meta.moduleKey,
-        dataList: [],
-        form: {
-          page: 1,
-          size: pageSize
-        },
+        dataList: this.tableDataList,
+        form: this.tableForm,
         dataProp: [
           {
             props: 'returnOrderNo',
@@ -236,6 +269,13 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '编辑',
+              show: (row) => {
+                // 门店不展示编辑
+                if (isDealer) {
+                  return false;
+                }
+                return true;
+              },
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: this.editPath,
@@ -289,34 +329,7 @@ export default {
           }
         ],
         total: 0
-      }
-    };
-  },
-  beforeCreate () {
-    defaultForm.returnType = this.$route.meta.returnType;
-  },
-  created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
-    this.getData();
-    loginUserGet().then(data => {
-      this.isDealer = data.accountFlag;
-    });
-  },
-  computed: {
-    isFastReturn () {
-      return this.$route.meta.returnType === '40';
-    },
-    editPath () {
-      if (this.isDealer) {
-        return this.isFastReturn ? '/claimreturn/oldpart/dealerReturnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
-      }
-      return this.isFastReturn ? '/claimreturn/oldpart/returnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
-    },
-    canPublish () {
-      return this.permissions.has(`${this.moduleKey}-publish`);
-    },
-    canSign () {
-      return this.permissions.has(`${this.moduleKey}-sign`);
+      };
     }
   },
   methods: {
@@ -335,13 +348,13 @@ export default {
       });
     },
     onSubmit () {
-      this.optionObj.form.page = 1;
+      this.tableForm.page = 1;
       this.getData();
     },
     onReset () {
       this.form = { ...defaultForm };
-      this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      this.tableForm.page = 1;
+      this.tableForm.pageSize = pageSize;
       this.getData();
     },
     exportExcel () {
@@ -376,15 +389,15 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
         .then(res => {
-          this.optionObj.dataList = res.records.map(item => {
+          this.tableDataList = res.records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.tableTotal = res.total;
         }).finally(() => {
           this.loading = false;
         });
@@ -409,9 +422,9 @@ export default {
     },
     paginationChange (type, num) {
       if (type === 'page') {
-        this.optionObj.form.page = num;
+        this.tableForm.page = num;
       } else {
-        this.optionObj.form.size = num;
+        this.tableForm.size = num;
       }
       this.debouncedGetData();
     },

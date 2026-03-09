@@ -50,6 +50,7 @@
                     @change="handleRepairItemChange"
                     value-key="id"
                     label-key="code"
+                    placeholder="请输入项目代码/名称"
                   />
                 </el-form-item>
                 <el-form-item label="维修项目名称：" prop="repairItemName">
@@ -173,27 +174,20 @@
                     v-if="canAddOrUpdate && _id"
                     class="common-section-header"
                   >
-                    <fetch-box v-if="canAddOrUpdate">
-                      <fetch-select
-                        filterable
-                        clearable
-                        remote
-                        reserve-keyword
-                        v-model="part"
-                        :remote-method="partRemote"
-                        @change="handlePartChange"
-                        value-key="id"
-                        label-key="partName"
-                        placeholder="请输入零件编码/名称"
-                      />
-                      <el-button
-                        type="primary"
-                        size="small"
-                        @click="handleAddPart"
-                        >
-                        添加
-                      </el-button>
-                    </fetch-box>
+                    <base-search
+                      v-if="canAddOrUpdate"
+                      filterable
+                      clearable
+                      remote
+                      reserve-keyword
+                      v-model="part"
+                      :remote-method="partRemote"
+                      @change="handlePartChange"
+                      value-key="id"
+                      label-key="partName"
+                      subLabelKey="partCode"
+                      placeholder="请输入零件编码/名称"
+                    />
                   </div>
                   <part-table
                     :moduleKey="moduleKey"
@@ -226,7 +220,7 @@
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
-import FetchBox from '@/libs/components/FetchBox';
+import BaseSearch from '@/libs/components/BaseSearch';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -283,7 +277,7 @@ export default {
     PartTable,
     EditPageLayout,
     EnhancedTabs,
-    FetchBox,
+    BaseSearch,
     ReplaceTable,
   },
   computed: {
@@ -379,6 +373,17 @@ export default {
     // 项目维修代码
     handleRepairItemChange (val, record) {
       if (record) {
+        const regex = /(\d+(?:\.\d+)?)\s*公里/;
+        const match = record.name.match(regex);
+        if (match) {
+          this.form.mileage = parseFloat(match[1]);
+        }
+        const regex2 = /(\d+(?:\.\d+)?)\s*个月/;
+        const match2 = record.name.match(regex2);
+        if (match) {
+          this.form.freePeriod = parseFloat(match2[1]);
+        }
+
         this.form.repairItemId = record.id;
         this.form.repairItemCode = record.code;
         this.form.repairItemName = record.name;
@@ -389,7 +394,7 @@ export default {
     async repairItemSearch (query) {
       return getList({
         maintenanceItemTypes: [],
-        codeLike: query,
+        nameOrCodeOrPinyinLike: query,
         pageSize: 20,
         pageNum: 1,
       });
@@ -440,6 +445,7 @@ export default {
     },
     handlePartChange (val, record) {
       this.curPart = record;
+      this.handleAddPart();
     },
     // 公告车型
     loadData (params) {
