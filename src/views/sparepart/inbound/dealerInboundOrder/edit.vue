@@ -232,7 +232,7 @@ import { getDetail, addOrUpdate, dealerInboundOrderDetailPage } from '@/api/spar
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, listOrgStoreInfoByParam, getSupplierInfo } from '@/api/common';
+import { getEnum, getSupplierInfo, getLoginUser, getPartDealer, sparePartList } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -270,6 +270,7 @@ const defaultForm = {
   inboundOperator: '',
   inboundOperatorName: '',
   inboundTime: '',
+  warehouseName: '',
 };
 
 export default {
@@ -364,6 +365,7 @@ export default {
     };
   },
   mounted () {
+    this.getLoginUser();
   },
   methods: {
     detailRequest () {
@@ -412,10 +414,11 @@ export default {
     queryListData (queryString) {
       return new Promise(resolve => {
         // 根据需求调用接口
-        // sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
+        // sparePartList({ partCodeOrNameLike: queryString, status: 1, oemPart: 1, }).then(res => {
         //   const list = res || [];
         //   resolve(list);
         // });
+
         resolve([
           { id: 1, name: 'test', age: 25, email: 'test@example.com' }
         ]);
@@ -458,6 +461,34 @@ export default {
     // handleJumpAuditLog () {
     //   this.$auditLog.show({ id: 123 });
     // },
+    // 查询账号信息
+    async getLoginUser () {
+      try {
+        const res = await getLoginUser();
+        this.form.dealerCode = res.currentDealerCode;
+        this.form.dealerName = res.currentDealerName;
+        this.accountPermissions = res.accountFlag;
+        if (this.form.dealerCode) {
+          this.getPartDealer(this.form.dealerCode);
+        }
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    // 获取门店信息
+    async getPartDealer (query) {
+      try {
+        const res = await getPartDealer({ code: query });
+        this.form.companyCode = res.parentCompanyCode;
+        this.form.companyName = res.parentCompanyName;
+        this.form.warehouseId = res.warehouseId;
+        this.form.warehouseCode = res.warehouseCode;
+        this.form.warehouseName = res.warehouseName;
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);

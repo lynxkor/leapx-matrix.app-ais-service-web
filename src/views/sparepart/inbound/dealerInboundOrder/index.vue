@@ -135,6 +135,14 @@
       @close="handleUploadDialogClose"
       @getData="getData"
     />
+    <!-- 退货弹窗 -->
+    <OrderReturnDialog
+      ref="orderReturnDialogRef"
+      :visible.sync="orderReturnDialogVisible"
+      :orderList="orderList"
+      @update:visible="val => orderReturnDialogVisible = val"
+      @confirm="getData"
+    />
   </div>
 </template>
 
@@ -142,7 +150,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/inbound/dealerInboundOrder/index';
+import { getList, deleteItem, enableItem, dealerInboundOrderCommit, dealerInboundOrderAgree, dealerInboundOrderReject, dealerInboundOrderInbound } from '@/api/sparepart/inbound/dealerInboundOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getSupplierInfo, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -153,6 +161,8 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
+import OrderReturnDialog from './OrderReturnDialog.vue';
+import { get } from 'lodash';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -181,7 +191,8 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    TagInput
+    TagInput,
+    OrderReturnDialog
   },
   data () {
     return {
@@ -287,8 +298,20 @@ export default {
               show: (row) => {
                 return row.orderStatus === '10' || row.orderStatus === '40';
               },
+              popconfirmTitle: '此操作将提交订单, 是否继续?',
               click: (rowIndex, row) => {
-                this.handleAgree(row);
+                dealerInboundOrderCommit({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '提交成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '提交失败!'
+                  });
+                });
               },
               type: 'info'
             }, {
@@ -296,8 +319,20 @@ export default {
               show: (row) => {
                 return row.orderStatus === '20';
               },
+              popconfirmTitle: '此操作将通过订单, 是否继续?',
               click: (rowIndex, row) => {
-                this.handleAgree(row);
+                dealerInboundOrderAgree({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '通过成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '通过失败!'
+                  });
+                });
               },
               type: 'info'
             }, {
@@ -306,7 +341,7 @@ export default {
                 return row.orderStatus === '20';
               },
               click: (rowIndex, row) => {
-                this.handleAgree(row);
+                this.handleReject(row);
               },
               type: 'info'
             }, {
@@ -314,8 +349,20 @@ export default {
               show: (row) => {
                 return row.orderStatus === '30' || row.inboundStatus === '10';
               },
+              popconfirmTitle: '此操作将入库订单, 是否继续?',
               click: (rowIndex, row) => {
-                this.handleAgree(row);
+                dealerInboundOrderInbound({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '入库成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '入库失败!'
+                  });
+                });
               },
               type: 'info'
             }, {
@@ -324,7 +371,7 @@ export default {
                 return row.orderStatus === '30' || row.inboundStatus === '20';
               },
               click: (rowIndex, row) => {
-                this.handleAgree(row);
+                this.handleReturn(row);
               },
               type: 'info'
             }]
@@ -337,7 +384,9 @@ export default {
         // column: 'create_time',
         // sort: 'DESC'
         // }
-      ]
+      ],
+      orderReturnDialogVisible: false, // 退货申请弹窗
+      orderList: [], // 退货申请列表
     };
   },
   created () {
@@ -542,7 +591,28 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-    }
+    },
+    // 驳回
+    handleReject (val) {
+      this.$prompt('请输入审批原因！', '驳回', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      }).then(({ value }) => {
+        // 调用驳回接口
+        dealerInboundOrderReject({ id: val.id, description: value }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '驳回成功!'
+          });
+          this.getData();
+        });
+      });
+    },
+    // 申请退货
+    handleReturn (val) {
+      this.orderReturnDialogVisible = true;
+      this.orderList = [val];
+    },
   }
 };
 </script>
