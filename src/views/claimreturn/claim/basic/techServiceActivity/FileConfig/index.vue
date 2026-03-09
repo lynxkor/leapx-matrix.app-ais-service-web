@@ -135,9 +135,15 @@ export default {
     // 详情表格相关数据
     handleAddPart: debounce(function () {
       if (!this.search) {
-        this.$message.error('请选择');
         return null;
       }
+      const list = this.$refs.table.getTableData();
+      const existItem = list.find(item => item.fileType === this.search);
+      if (existItem) {
+        this.$message.error('附件类型重复');
+        return;
+      }
+
       const search = this.search;
       this.search = '';
 

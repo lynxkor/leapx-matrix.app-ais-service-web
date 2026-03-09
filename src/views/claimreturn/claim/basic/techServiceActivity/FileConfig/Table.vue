@@ -68,7 +68,7 @@ export default {
       columns: [
         {
           field: 'fileType',
-          title: '零件编码',
+          title: '附件类型',
           width: '50%',
           editable: true,
           editRender: { name: 'BaseInput' },
@@ -117,6 +117,9 @@ export default {
         this.tableData = res.records;
         this.total = res.total;
       });
+    },
+    getTableData () {
+      return this.$refs.editTable.getData();
     },
     handleRemoveRow (row, index, defer) {
       if (!row.id) {

@@ -385,9 +385,15 @@ export default {
     // 详情表格相关数据
     handleAddPart: debounce(function () {
       if (!this.part) {
-        this.$message.error('请选择零件');
         return null;
       }
+      const list = this.$refs.partTable.getTableData();
+      const existItem = list.find(item => item.partCode === this.curPart.partCode);
+      if (existItem) {
+        this.$message.error('零件重复');
+        return;
+      }
+
       const partId = this.part;
       const cur = this.curPart;
       this.part = '';

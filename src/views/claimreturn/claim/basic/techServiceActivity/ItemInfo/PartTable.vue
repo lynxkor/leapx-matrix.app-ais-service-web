@@ -279,6 +279,9 @@ export default {
         this.total = res.total;
       });
     },
+    getTableData () {
+      return this.$refs.editTable.getData();
+    },
     handleRemoveRow (row, index, defer) {
       if (!row.id) {
         return;
