@@ -156,6 +156,14 @@ export function partDelete (data) {
 }
 
 /**
+ * 维修套餐--维修项目表删除
+ * @param {Object} data
+ */
+export function packagesItemDelete (data) {
+  return api.jsonPost('maintain/web/basic/repairPackagesItem/delete', data);
+}
+
+/**
  * 维修套餐--维修项目详情
  * @param {Object} data
  */

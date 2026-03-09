@@ -10,60 +10,25 @@
         </div>
         <el-form :inline="true" label-width="150px" class="form-edit">
           <el-form-item label="本次维修估算费用：">
-            <el-input
-              placeholder="请输入"
-              v-model="costCountResp.maintenanceCostEstimation"
-              clearable
-              disabled
-            />
+            {{ costCountResp.maintenanceCostEstimation }}
           </el-form-item>
           <el-form-item label="工时费用小计：">
-            <el-input
-              placeholder="请输入"
-              v-model="costCountResp.workCostCount"
-              clearable
-              disabled
-            />
+            {{ costCountResp.workCostCount }}
           </el-form-item>
           <el-form-item label="自费金额估算：">
-            <el-input
-              placeholder="请输入"
-              v-model="costCountResp.ownMoneyEstimation"
-              clearable
-              disabled
-            />
+            {{ costCountResp.ownMoneyEstimation }}
           </el-form-item>
           <el-form-item label="内结金额估算：">
-            <el-input
-              placeholder="请输入"
-              v-model="costCountResp.innerTurnMoneyEstimation"
-              clearable
-              disabled
-            />
+            {{ costCountResp.innerTurnMoneyEstimation }}
           </el-form-item>
           <el-form-item label="优惠金额小计：">
-            <el-input
-              placeholder="请输入"
-              v-model="costCountResp.preferentialMoneyCount"
-              clearable
-              disabled
-            />
+            {{ costCountResp.preferentialMoneyCount }}
           </el-form-item>
           <el-form-item label="备件费用小计：">
-            <el-input
-              placeholder="请输入"
-              v-model="costCountResp.barkCostCount"
-              clearable
-              disabled
-            />
+            {{ costCountResp.barkCostCount }}
           </el-form-item>
           <el-form-item label="保险金额估算：">
-            <el-input
-              placeholder="请输入"
-              v-model="costCountResp.insuranceMoneyEstimation"
-              clearable
-              disabled
-            />
+            {{ costCountResp.insuranceMoneyEstimation }}
           </el-form-item>
         </el-form>
       </div>

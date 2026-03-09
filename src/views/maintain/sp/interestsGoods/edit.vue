@@ -59,7 +59,7 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="是否上架" prop="status">
+                <el-form-item label="是否上架：" prop="status">
                   <fetch-select
                     :request="fetchOptions"
                     enumCode="BooleanEnum"
@@ -69,7 +69,7 @@
                     filterable
                   />
                 </el-form-item>
-                <el-form-item label="备注：" prop="note">
+                <el-form-item label="备注：" prop="note" class="form-item-full">
                   <el-input
                     placeholder="请输入"
                     v-model="form.note"
@@ -78,11 +78,11 @@
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="权益商品代码：" prop="commodityCode">
-                  {{ form.commodityCode }}
-                </el-form-item>
                 <el-form-item label="权益商品名称：" prop="commodityName">
                   {{ form.commodityName }}
+                </el-form-item>
+                <el-form-item label="权益商品代码：" prop="commodityCode">
+                  {{ form.commodityCode }}
                 </el-form-item>
                 <el-form-item label="服务权益类型：" prop="serviceInterestsType">
                   {{ form.serviceInterestsTypeLabel }}
@@ -90,51 +90,12 @@
                 <el-form-item label="购买后有效期（月）：" prop="datePurchase">
                   {{ form.datePurchase }}
                 </el-form-item>
-                <el-form-item label="索赔项目工时费用（总）：" prop="claimItemAmount">
-                  {{ form.claimItemAmount }}
-                </el-form-item>
-                <el-form-item label="索赔备件费用（总）：" prop="claimPartsAmount">
-                  {{ form.claimPartsAmount }}
-                </el-form-item>
-                <el-form-item label="索赔费用（总）：" prop="claimOtherAmount">
-                  {{ form.claimOtherAmount }}
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  {{ form.modifierName }}
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  {{ form.updateTime }}
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creatorName">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  {{ form.createTime }}
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifierName }}
-                </el-form-item>
                 <el-form-item label="是否上架：" prop="whetherShelf">
                   {{ form.whetherShelfLabel }}
                 </el-form-item>
-                <el-form-item label="上架时间：" prop="shelfTime">
-                  {{ form.shelfTime }}
-                </el-form-item>
-                <el-form-item label="上架人员：" prop="systemUserName">
-                  {{ form.systemUserName }}
-                </el-form-item>
-                <el-form-item label="下架时间：" prop="frameTime">
-                  {{ form.frameTime }}
-                </el-form-item>
-                <el-form-item label="下架人员：" prop="helvesPerUserName">
-                  {{ form.helvesPerUserName }}
-                </el-form-item>
-                <el-form-item label="备注：" prop="note">
+                <el-form-item label="备注：" prop="note" class="form-item-full">
                   {{ form.note }}
                 </el-form-item>
-                <!-- <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
-                </el-form-item> -->
               </el-form>
             </div>
           </section>

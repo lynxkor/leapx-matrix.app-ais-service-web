@@ -211,6 +211,8 @@ export default {
               type: 'info'
             }, {
               name: '删除',
+              popconfirmConfirmButtonType: 'danger',
+              popconfirmConfirmButtonText: '删除',
               popconfirmTitle: '此操作将删除选中优惠模式信息，您无法撤销此操作，是否继续？',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
