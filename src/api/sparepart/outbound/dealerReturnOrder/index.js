@@ -43,3 +43,35 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 通过
+ * @param {Object} data
+ */
+export function dealerReturnOrderAgree (data) {
+  return api.jsonPost(prefix + 'agree', data);
+}
+
+/**
+ * 作废
+ * @param {Object} data
+ */
+export function dealerReturnOrderCancel (data) {
+  return api.jsonPost(prefix + 'cancel', data);
+}
+
+/**
+ * 出库
+ * @param {Object} data
+ */
+export function dealerReturnOrderOutbound (data) {
+  return api.jsonPost(prefix + 'outbound', data);
+}
+
+/**
+ * 出库
+ * @param {Object} data
+ */
+export function dealerReturnOrderDetailPage (data) {
+  return api.jsonPost('/sp/web/dealer/dealerReturnOrderDetail/page', data);
+}
