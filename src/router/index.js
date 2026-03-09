@@ -2148,6 +2148,30 @@ const routes = [
         name: '备件发运单详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyPartManagementRateSetting',
+      name: 'warrantyPartManagementRateSetting',
+
+      component: () => import(
+        '@/views/claimreturn/claim/basic/warrantyPartManagementRateSetting/index.vue'
+      ),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantypartmanagementratesetting/edit',
+      name: 'warrantyPartManagementRateSettingEdit',
+
+      component: () => import(
+        '@/views/claimreturn/claim/basic/warrantyPartManagementRateSetting/edit.vue'
+      ),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
