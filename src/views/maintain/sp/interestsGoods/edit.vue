@@ -1,5 +1,5 @@
 <template>
-  <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
+  <edit-page-layout ref="editLayout" :title="repairDetailName" showPaneFooter @save="handleSave">
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container
@@ -59,7 +59,7 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="是否上架：" prop="status">
+                <el-form-item label="是否上架：" prop="whetherShelf">
                   <fetch-select
                     :request="fetchOptions"
                     enumCode="BooleanEnum"
@@ -101,29 +101,25 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>子表标题</h2>
+              <h2>维修项目</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
-                  <el-button type="primary" size="small">添加</el-button>
-                </div>
+                <BaseSearch
+                  :remote-method="queryRepairItemList"
+                  remote
+                  placeholder="搜索维修项目代码、名称、拼音简码"
+                  clearable
+                  value-key="id"
+                  label-key="name"
+                  @change="handleAddRepairItem"
+                />
               </div>
               <div class="common-section-table">
                 <vxe-table
                   ref="tableRef"
                   stripe
-                  :data="tableData"
+                  :data="repairItemTableData"
                   show-overflow
                   resizable
                   border="inner"
@@ -131,18 +127,25 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
+                  <vxe-column field="repairItemCode" title="项目代码" width="200" />
+                  <vxe-column field="repairItemName" title="项目名称" width="200" />
+                  <vxe-column field="repairItemTypeName" title="维修类型" width="150" />
+                  <vxe-column field="checkoutTypeName" title="结算类型" width="150" />
+                  <vxe-column field="discountAmount" title="优惠金额" width="150" />
+                  <vxe-column field="claimPrice" title="索赔价格" width="150" />
+                  <vxe-column field="unitPrice" title="工时单价" width="150" />
+                  <vxe-column field="workingHours" title="工时数量" width="150" />
+                  <vxe-column field="receivableAmount" title="项目金额" width="150" />
+                  <vxe-column title="操作" width="150" fixed="right" v-if="canDelete">
+                    <template #default="{ row }">
+                      <span @click="handleEditRepairItem(row)" class="action-button btn-edit">编辑</span>
+                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRepairItem(row)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
                   </vxe-column>
                   <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
+                    <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
                   </template>
                 </vxe-table>
               </div>
@@ -153,7 +156,12 @@
     </template>
     <template #right>
       <div class="page-common-edit">
-        <!-- 右侧栏组件，自行开发 -->
+        <InterestsGoodsDetail
+          ref="interestsGoodsDetail"
+          :repairItemId="currentRepairItemId"
+          :detailData="currentDetailData"
+          @submit="handleDetailSubmit"
+        />
       </div>
     </template>
   </edit-page-layout>
@@ -161,7 +169,9 @@
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/maintain/sp/interestsGoods/index';
+import { getPage as getRepairItemPage } from '@/api/maintain/basic/repairItem/index';
 import FetchSelect from '@/libs/components/FetchSelect';
+import BaseSearch from '@/libs/components/BaseSearch';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -169,10 +179,9 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import api from '@/axios';
+import InterestsGoodsDetail from './InterestsGoodsDetail.vue';
 
 const defaultForm = {
-  // 多选时字段有变化，自行修复
   commodityCode: '',
   commodityName: '',
   serviceInterestsType: '',
@@ -205,7 +214,6 @@ const defaultForm = {
 
 export default {
   name: 'interestsGoodsEdit',
-  // 集中视图预留
   props: {
     id: {
       type: [String, Number],
@@ -216,7 +224,9 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect
+    FetchSelect,
+    InterestsGoodsDetail,
+    BaseSearch
   },
   computed: {
     _id () {
@@ -234,6 +244,14 @@ export default {
         }
       },
       immediate: true
+    },
+    'form.id': {
+      handler (val) {
+        if (val) {
+          this.getRepairItemList();
+        }
+      },
+      immediate: true
     }
   },
   data () {
@@ -241,18 +259,17 @@ export default {
     return {
       pageTitle: '权益商品管理',
       pageType: 'edit',
-      // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-interestsGoods',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      emptyText: '若要启用此内容，请创建记录',
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
+      emptyText: '暂无数据',
+      repairItemTableData: [],
+      currentRepairItemId: '',
+      currentDetailData: {},
+      repairDetailName: '',
       rules: {
         commodityCode: [
           { required: true, message: '请输入权益商品代码', trigger: 'change' }
@@ -263,80 +280,8 @@ export default {
         serviceInterestsType: [
           { required: true, message: '请选择服务权益类型', trigger: 'change' }
         ],
-        classificationGoodsName: [
-          { required: true, message: '请输入权益商品分类', trigger: 'change' }
-        ],
         datePurchase: [
           { required: true, message: '请输入购买后有效期（月）', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        claimItemAmount: [
-          { required: true, message: '请输入索赔项目工时费用（总）', trigger: 'change' }
-        ],
-        claimPartsAmount: [
-          { required: true, message: '请输入索赔备件费用（总）', trigger: 'change' }
-        ],
-        claimOtherAmount: [
-          { required: true, message: '请输入索赔费用（总）', trigger: 'change' }
-        ],
-        note: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        code: [
-          { required: true, message: '请输入编码', trigger: 'change' }
-        ],
-        classificationGoodsId: [
-          { required: true, message: '请输入权益商品分类id', trigger: 'change' }
-        ],
-        whetherShelf: [
-          { required: true, message: '请输入是否上架', trigger: 'change' }
-        ],
-        shelfTime: [
-          { required: true, message: '请选择上架时间', trigger: 'change' }
-        ],
-        systemUserId: [
-          { required: true, message: '请输入上架人员', trigger: 'change' }
-        ],
-        systemUserName: [
-          { required: true, message: '请输入上架人员', trigger: 'change' }
-        ],
-        frameTime: [
-          { required: true, message: '请选择下架时间', trigger: 'change' }
-        ],
-        helvesPerUserId: [
-          { required: true, message: '请输入下架人员', trigger: 'change' }
-        ],
-        helvesPerUserName: [
-          { required: true, message: '请输入下架人员', trigger: 'change' }
         ],
       }
     };
@@ -357,79 +302,109 @@ export default {
     openPane () {
       this.$refs.editLayout.openPane();
     },
-    // 删除子表数据
-    handleDeleteRow (index) {
-      const item = this.tableData[index];
-      this.tableData.splice(index, 1);
-      // 根据需求调用接口
-      // deletePartVehModel([item.id]).then(res => {
-      //   this.$message.success('删除成功');
-      //   this.tableData.splice(index, 1);
-      // });
+    // 关闭侧边栏
+    closePane () {
+      this.$refs.editLayout.closePane();
     },
-    // 查询新增项的列表
-    queryListData (queryString) {
+    // 获取维修项目列表
+    async getRepairItemList () {
+      const res = await this.detailRequest();
+      if (res && res.goodsRepairItemList) {
+        this.repairItemTableData = res.goodsRepairItemList;
+      }
+    },
+    // 搜索维修项目
+    queryRepairItemList (queryString) {
       return new Promise(resolve => {
-        // 根据需求调用接口
-        // sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
-        //   const list = res || [];
-        //   resolve(list);
-        // });
-        resolve([
-          { id: 1, name: 'test', age: 25, email: 'test@example.com' }
-        ]);
+        getRepairItemPage({ nameOrCodeOrPinyinLike: queryString, status: 1, limitSize: 20, isActivity: 0 }).then(res => {
+          const list = res || [];
+          resolve(list);
+        });
       });
     },
-    // 新增子表数据
-    handleAddTableData (val, record) {
+    // 新增维修项目
+    handleAddRepairItem (val, record) {
       if (!record) {
         this.$message.warning('请先选择数据');
         return;
       }
-      // 检查是否已存在
-      const exists = this.tableData.some(item => item.id === record.id);
+      const exists = this.repairItemTableData.some(item => item.repairItemId === record.id);
       if (exists) {
-        this.$message.warning('请勿重复添加');
+        this.$message.warning('该维修项目已存在，请勿重复添加');
         return;
       }
-      // 根据需求调用接口
-      this.tableData.push(record);
-      // addPartItem({
-      //   maintenancePartId: this._id,
-      //   partsCode: record.partCode,
-      //   partsName: record.partName,
-      //   partsId: record.id,
-      // }).then(res => {
-      //   this.$message.success('添加成功');
-      //   this.detailRequest();
-      // });
+      this.repairDetailName = record.name || '';
+      // 新增模式：传repairItemId，不传detailData，子组件会调用getDetail
+      this.currentRepairItemId = record.id;
+      this.currentDetailData = {};
+      this.openPane();
+    },
+    // 编辑维修项目
+    handleEditRepairItem (row) {
+      this.repairDetailName = row.repairItemName || '';
+      // 编辑模式：不传repairItemId，传detailData，子组件直接使用
+      this.currentRepairItemId = '';
+      this.currentDetailData = { ...row };
+      this.openPane();
+    },
+    // 删除维修项目
+    async handleDeleteRepairItem (row) {
+      const index = this.repairItemTableData.findIndex(item => item.repairItemId === row.repairItemId);
+      if (index > -1) {
+        this.repairItemTableData.splice(index, 1);
+        addOrUpdate({ ...this.form, goodsRepairItemList: this.repairItemTableData }).then(res => {
+          this.$message.success('删除成功');
+        });
+      }
+    },
+    // 侧边栏保存回调
+    handleDetailSubmit (data) {
+      const index = this.repairItemTableData.findIndex(item => item.repairItemId === data.repairItemId);
+      if (index > -1) {
+        // 编辑：更新已有数据
+        this.$set(this.repairItemTableData, index, data);
+      } else {
+        // 新增：添加到列表
+        this.repairItemTableData.push(data);
+      }
+      this.closePane();
+      addOrUpdate({ ...this.form, goodsRepairItemList: this.repairItemTableData }).then(res => {
+        this.$message.success('保存成功');
+      });
+    },
+    // 保存侧边栏
+    async handleSave () {
+      await this.$refs.interestsGoodsDetail?.handleSave();
     },
     getDefautlForm () {
-      // TIPS: 此处可添加表单默认值，如当前用户信息等
-      // const userInfo = this.$store.state.user.userInfo;
       return {
         ...defaultForm
-        // ownerId: userInfo.userId,
-        // ownerName: userInfo.userName,
       };
     },
-    // 审核日志
-    // handleJumpAuditLog () {
-    //   this.$auditLog.show({ id: 123 });
-    // },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);
       }
       return [];
     },
-    getClassificationGoods () {
-      return api.jsonPost('/maintain/web/sp/classificationGoods/list', {});
-    },
-    listClassificationGoodsChange (val, all) {
-      this.form.classificationGoodsId = all.id;
-      this.form.classificationGoodsName = all.classificationName;
-    }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.action-button {
+  margin: 0 5px;
+  cursor: pointer;
+  &.btn-edit {
+    color: #4C4CD6;
+  }
+  &.btn-delete {
+    color: #b91919 !important;
+  }
+}
+.btn-delete {
+  margin-left: 5px;
+  cursor: pointer;
+  color: #b91919;
+}
+</style>
