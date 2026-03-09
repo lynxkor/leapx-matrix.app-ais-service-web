@@ -365,7 +365,7 @@ export default {
             width: 200,
           },
           {
-            props: 'createReStatement',
+            props: 'createReStatementLabel',
             label: '是否已创建反结算申请',
             visible: true,
             width: 200,

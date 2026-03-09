@@ -3,7 +3,7 @@
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container ref="containerRef" :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form"
-        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" :showEditBtn="routeQueryType">
+        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" :showEditBtn="orderStatusType">
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
           <!-- <span class="status primary">状态</span> -->
@@ -309,19 +309,12 @@ export default {
       handler (val) {
         if (val) {
           this.getData();
+          if (this.form.orderStatus === '10' || this.form.orderStatus === '40') {
+            this.orderStatusType = true;
+          }
         }
       },
       immediate: true
-    },
-    // 监听路由变化
-    '$route.query.orderType': {
-      handler (newVal) {
-        if (newVal === '1') {
-          this.routeQueryType = true;
-        }
-      },
-      immediate: true,
-      deep: true
     },
   },
   data () {
@@ -337,7 +330,7 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       emptyText: '暂无数据',
-      routeQueryType: false, // 路由参数ID 是否可编辑
+      orderStatusType: false, // 订单状态 是否可编辑
       pageNum: 1,
       pageSize: 10,
       total: 0,
