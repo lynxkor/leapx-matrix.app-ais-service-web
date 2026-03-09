@@ -9,7 +9,7 @@
   >
     <div class="dispatch-work-content">
       <!-- 筛选区域 -->
-      <div class="filter-section">
+      <div class="filter-section" v-if="mode === 'add'">
         <el-form size="small" :model="filterForm" :inline="true" style="width:100%">
           <el-row>
             <el-col :span="6">
