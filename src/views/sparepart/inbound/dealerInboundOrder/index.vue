@@ -291,7 +291,7 @@ export default {
             }, {
               name: '打印入库单',
               click: (rowIndex, row) => {
-                this.handleAgree(row);
+                this.handlePrint(row);
               },
               type: 'info'
             }, {
@@ -561,6 +561,14 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    // 打印外购件入库单
+    handlePrint (val) {
+      this.$print.show({
+        id: val.id, // 必选，对应数据id
+        template: 'OutsourcedPartsReceipt', // 必选，对应 ./template/文件名.vue
+        title: `${val.dealerName}厅店外购件入库单`// 可选，打印标题
+      });
     },
     // 批量删除
     handleBatchDelete () {
