@@ -234,6 +234,10 @@ export default {
     },
     title () {
       return '权益商品代码：' + this.form.commodityCode;
+    },
+    canDelete () {
+      // 根据权限判断是否显示删除按钮
+      return this.checkPermission('AISMC-interestsGoods', 'delete');
     }
   },
   watch: {
@@ -350,27 +354,53 @@ export default {
     // 删除维修项目
     async handleDeleteRepairItem (row) {
       const index = this.repairItemTableData.findIndex(item => item.repairItemId === row.repairItemId);
-      if (index > -1) {
-        this.repairItemTableData.splice(index, 1);
-        addOrUpdate({ ...this.form, goodsRepairItemList: this.repairItemTableData }).then(res => {
-          this.$message.success('删除成功');
-        });
+      if (index === -1) {
+        this.$message.warning('未找到要删除的数据');
+        return;
+      }
+
+      try {
+        // 先从列表中移除
+        const tempList = [...this.repairItemTableData];
+        tempList.splice(index, 1);
+
+        // 调用接口保存
+        await addOrUpdate({ ...this.form, goodsRepairItemList: tempList });
+
+        // 成功后更新本地数据
+        this.repairItemTableData = tempList;
+        this.$message.success('删除成功');
+      } catch (error) {
+        this.$message.error('删除失败');
+        console.error('删除维修项目失败:', error);
       }
     },
     // 侧边栏保存回调
-    handleDetailSubmit (data) {
-      const index = this.repairItemTableData.findIndex(item => item.repairItemId === data.repairItemId);
-      if (index > -1) {
-        // 编辑：更新已有数据
-        this.$set(this.repairItemTableData, index, data);
-      } else {
-        // 新增：添加到列表
-        this.repairItemTableData.push(data);
-      }
-      this.closePane();
-      addOrUpdate({ ...this.form, goodsRepairItemList: this.repairItemTableData }).then(res => {
+    async handleDetailSubmit (data) {
+      try {
+        // 构建新的列表
+        const index = this.repairItemTableData.findIndex(item => item.repairItemId === data.repairItemId);
+        let tempList;
+        if (index > -1) {
+          // 编辑：更新已有数据
+          tempList = [...this.repairItemTableData];
+          tempList[index] = data;
+        } else {
+          // 新增：添加到列表
+          tempList = [...this.repairItemTableData, data];
+        }
+
+        // 先调用接口保存
+        await addOrUpdate({ ...this.form, goodsRepairItemList: tempList });
+
+        // 成功后更新本地数据
+        this.repairItemTableData = tempList;
+        this.closePane();
         this.$message.success('保存成功');
-      });
+      } catch (error) {
+        this.$message.error('保存失败');
+        console.error('保存维修项目失败:', error);
+      }
     },
     // 保存侧边栏
     async handleSave () {

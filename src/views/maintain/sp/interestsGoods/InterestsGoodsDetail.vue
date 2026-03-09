@@ -87,7 +87,8 @@
             placeholder="搜索零件代码、名称"
             clearable
             value-key="id"
-            label-key="name"
+            label-key="partName"
+            sub-label-key="partCode"
             @change="handleAddParts"
           />
         </div>
@@ -113,6 +114,7 @@
                   clearable
                   filterable
                   size="small"
+                  @change="handlePartsRepairItemChange(row)"
                 >
                   <el-option
                     v-for="item in repairItemOptions"
@@ -131,6 +133,7 @@
                   clearable
                   filterable
                   size="small"
+                  @change="handlePartsCheckoutTypeChange(row)"
                 >
                   <el-option
                     v-for="item in checkoutTypeOptions"
@@ -216,7 +219,6 @@ export default {
       partsTableData: [],
       repairItemOptions: [],
       checkoutTypeOptions: [],
-      partsOptions: [],
       rules: {
         repairItemTypeId: [
           { required: true, message: '请选择维修类型', trigger: 'change' }
@@ -365,12 +367,38 @@ export default {
         this.repairDetail.checkoutTypeName = selected.label;
       }
     },
+    // 配件表格维修类型变更
+    handlePartsRepairItemChange (row) {
+      const selected = this.repairItemOptions.find(option => option.value === row.repairItemTypeId);
+      if (selected) {
+        row.repairItemTypeName = selected.label;
+      }
+    },
+    // 配件表格结算类型变更
+    handlePartsCheckoutTypeChange (row) {
+      const selected = this.checkoutTypeOptions.find(option => option.value === row.checkoutTypeId);
+      if (selected) {
+        row.checkoutTypeName = selected.label;
+      }
+    },
     // 配件搜索
     async queryPartsList (queryString) {
-      // TODO: 根据实际接口调整
-      return new Promise(resolve => {
-        resolve([]);
-      });
+      if (!queryString) {
+        return [];
+      }
+      try {
+        const res = await sparePartList({
+          partCodeOrNameLike: queryString,
+          oemPart: 1,
+          status: 1,
+          pageSize: 20,
+          pageNum: 1
+        });
+        return res || [];
+      } catch (error) {
+        console.error('配件搜索失败:', error);
+        return [];
+      }
     },
     // 添加配件
     handleAddParts (val, record) {
@@ -401,7 +429,14 @@ export default {
       this.partsTableData.splice(index, 1);
     },
     // 保存
-    handleSave () {
+    async handleSave () {
+      // 验证表单
+      try {
+        await this.$refs.ruleForm.validate();
+      } catch (error) {
+        return false;
+      }
+
       const params = {
         ...this.repairDetail,
         goodsPartsList: this.partsTableData.map(item => ({
@@ -416,6 +451,7 @@ export default {
       };
 
       this.$emit('submit', params);
+      return true;
     }
   }
 };
