@@ -261,7 +261,6 @@ export default {
                   path: '/sparepart/inbound/dealerInboundOrder/edit',
                   query: {
                     id: row.id,
-                    orderType: 1
                   }
                 });
               },
@@ -272,6 +271,8 @@ export default {
                 return row.orderStatus === '10' || row.orderStatus === '40';
               },
               popconfirmTitle: '此操作将永久删除, 是否继续?',
+              popconfirmConfirmButtonType: 'danger',
+              popconfirmConfirmButtonText: '删除',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
                   this.$message({
