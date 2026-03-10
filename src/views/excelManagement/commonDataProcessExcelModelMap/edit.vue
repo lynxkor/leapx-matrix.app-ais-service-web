@@ -37,7 +37,7 @@
                     :limit="1"
                     :on-exceed="handleExceed"
                     :file-list="fileList"
-                    accept=".xlsx"
+                    accept=".xlsx, .xls"
                     :headers=uploadHeaders
                   >
                     <el-button
@@ -261,10 +261,10 @@ export default {
 
     // 上传前的文件校验 只允许.xlsx文件
     beforeUpload (file) {
-      const isExcel = /\.xlsx$/i.test(file.name);
+      const isExcel = /\.xlsx$|\.xls$/i.test(file.name);
       const isLt1M = file.size / 1024 / 1024 < 1;
       if (!isExcel) {
-        this.$message.error('只能上传 Excel.xlsx 文件!');
+        this.$message.error('只能上传 Excel.xlsx 或者.xls 文件!');
         return false;
       }
       if (!isLt1M) {

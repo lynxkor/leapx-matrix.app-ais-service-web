@@ -10,6 +10,7 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :showEditBtn="stockStatusType"
       >
         <template #status>
           <span v-if="form.status" class="status primary">{{ form.status }}</span>
@@ -48,6 +49,7 @@
                     placeholder="请选择"
                     clearable
                     filterable
+                    :disabled="form.stockStatus !== '0'"
                   />
                 </el-form-item>
                 <el-form-item label="盘点状态：" prop="stockStatus">
@@ -77,7 +79,7 @@
                     value-format="yyyy-MM-dd HH:mm:ss"
                   />
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
+                <el-form-item label="备注：" prop="remark" style="width: 100%;">
                   <el-input
                     type="textarea"
                     :rows="3"
@@ -115,7 +117,7 @@
                 <el-form-item label="计划完成时间：" prop="planCompleteTime">
                   {{ form.planCompleteTime }}
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
+                <el-form-item label="备注：" prop="remark" style="width: 100%;">
                   {{ form.remark }}
                 </el-form-item>
               </el-form>
@@ -136,6 +138,7 @@
                     clearable
                     value-key="id"
                     label-key="name"
+                    :disabled="form.stockStatus !== '0'"
                     @change="handleAddTableData"
                   />
                   <el-button type="primary" size="small">添加</el-button>
@@ -153,12 +156,29 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
+                <vxe-column field="partCode" title="备件编码" min-width="12.5%" />
+                  <vxe-column field="partName" title="备件名称" min-width="12.5%" />
+                  <vxe-column field="locationCode" title="库位" min-width="12.5%" />
+                  <vxe-column field="totalQty" title="库存总数" min-width="12.5%" />
+                  <vxe-column field="actualQty" title="实盘库存" min-width="12.5%">
+                    <template #default="{ row }">
+                      <el-input v-model="row.inboundQuantity" :disabled="!row.stockStatusType" type="number" min="1" />
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="remark" title="备注" min-width="12.5%">
+                    <template #default="{ row }">
+                      <el-input v-model="row.remark" :disabled="!row.stockStatusType" />
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="inboundQty" title="操作人" min-width="12.5%">
+                    <template #default="{ row }">
+                      <el-input v-model="row.operator" placeholder="请输入操作人" :disabled="!row.stockStatusType" />
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="createTime" title="创建时间" min-width="12.5%" />
+                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
                     <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
+                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
@@ -167,6 +187,18 @@
                     <div class="m-vxe-table-empty-text">{{emptyText}}</div>
                   </template>
                 </vxe-table>
+                <div class="table-pagination">
+                  <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="pageNum"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total"
+                  >
+                  </el-pagination>
+                </div>
               </div>
             </div>
           </section>
@@ -181,11 +213,11 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/warehouse/stockTaking/index';
+import { getDetail, addOrUpdate, stockTakingDetailPage } from '@/api/sparepart/warehouse/stockTaking/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getParentCompany, listWarehouse, getPartDealer, getLoginUser  } from '@/api/common';
+import { getEnum, getPartDealer, getLoginUser } from '@/api/common';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -236,7 +268,18 @@ export default {
         }
       },
       immediate: true
-    }
+    },
+    'form.code': {
+      handler (val) {
+        if (val) {
+          this.getData();
+          if (this.form.stockStatus === '0' || this.form.stockStatus === '2') {
+            this.stockStatusType = true;
+          }
+        }
+      },
+      immediate: true
+    },
   },
   data () {
     const form = this.getDefautlForm();
@@ -246,6 +289,7 @@ export default {
       moduleKey: 'AISPART-stockTaking',
       loading: false,
       submitLoading: false,
+      stockStatusType: false, // 查看状态是否可编辑, 可编辑哪些内容
       form: { ...form },
       originalForm: { ...form },
       emptyText: '若要启用此内容，请创建记录',
@@ -256,15 +300,6 @@ export default {
         ],
         stockType: [
           { required: true, message: '请选择盘点类型', trigger: 'change' }
-        ],
-        stockStatus: [
-          { required: true, message: '请选择盘点状态', trigger: 'change' }
-        ],
-        planStartTime: [
-          { required: true, message: '请选择计划开始时间', trigger: 'change' }
-        ],
-        planCompleteTime: [
-          { required: true, message: '请选择计划完成时间', trigger: 'change' }
         ],
       }
     };
@@ -331,7 +366,31 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    // 获取盘点明细
+    async getData () {
+      const params = {
+        stockTakingId: this._id,
+        pageNum: this.pageNum,
+        pageSize: this.pageSize,
+      };
+      const res = await stockTakingDetailPage(params);
+      this.total = res.total || 0;
+      this.tableData = res.records.map(item => ({
+        ...item,
+        stockStatusType: this.stockStatusType,
+      })) || [];
+      console.log(this.tableData);
+    },
+    handleCurrentChange (pageNum) {
+      this.pageNum = pageNum;
+      this.getData();
+    },
+    handleSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.pageNum = 1;
+      this.getData();
+    },
   }
 };
 </script>

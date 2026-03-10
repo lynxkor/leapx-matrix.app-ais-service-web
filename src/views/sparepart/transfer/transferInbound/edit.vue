@@ -139,7 +139,6 @@
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/sparepart/transfer/transferInbound/index';
-import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -173,8 +172,7 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     EditPageLayout,
-    EditBaseContainer,
-    FetchSelect
+    EditBaseContainer
   },
   computed: {
     _id () {

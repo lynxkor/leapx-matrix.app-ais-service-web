@@ -7,6 +7,7 @@
         :id="_id"
         :title="title"
         :isEditing.sync="isEditing"
+        :showEditBtn="false"
         :form.sync="form"
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
@@ -408,11 +409,11 @@
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="商城订单编号：" prop="mallOrderNumber">
+                <el-form-item label="商城订单号：" prop="mallOrderNumber">
                   {{ form.mallOrderNumber }}
                 </el-form-item>
                 <el-form-item label="权益商品类型：" prop="goodInterestsType">
-                  {{ form.goodInterestsType }}
+                  {{ form.goodInterestsTypeLabel }}
                 </el-form-item>
                 <el-form-item label="权益商品代码：" prop="interestsGoodsCode">
                   {{ form.interestsGoodsCode }}
@@ -421,16 +422,13 @@
                   {{ form.interestsGoodsName }}
                 </el-form-item>
                 <el-form-item label="订单状态：" prop="orderStatus">
-                  {{ form.orderStatus }}
+                  {{ form.orderStatusLabel }}
                 </el-form-item>
                 <el-form-item label="状态：" prop="status">
-                  {{ form.status }}
+                  {{ form.statusLabel }}
                 </el-form-item>
-                <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode }}
-                </el-form-item>
-                <el-form-item label="施工单号：" prop="serviceProxyCode">
-                  {{ form.serviceProxyCode }}
+                <el-form-item label="服务门店：" prop="dealerCode">
+                  {{ form.dealerName }}
                 </el-form-item>
                 <el-form-item label="VIN码：" prop="vehProfileVin">
                   {{ form.vehProfileVin }}
@@ -447,23 +445,20 @@
                 <el-form-item label="推荐码：" prop="referralCode">
                   {{ form.referralCode }}
                 </el-form-item>
+                <el-form-item label="有效截止时间：" prop="validUntil">
+                  {{ form.validUntil }}
+                </el-form-item>
                 <el-form-item label="物流商：" prop="logisticsCompanies">
                   {{ form.logisticsCompanies }}
                 </el-form-item>
                 <el-form-item label="物流单号：" prop="logisticsOrder">
                   {{ form.logisticsOrder }}
                 </el-form-item>
-                <el-form-item label="工时索赔合计：" prop="claimWorkHourAmount">
-                  {{ form.claimWorkHourAmount }}
+                <el-form-item label="数据来源：" prop="dataSource">
+                  {{ form.dataSourceLabel }}
                 </el-form-item>
-                <el-form-item label="零件索赔合计：" prop="claimPartsAmount">
-                  {{ form.claimPartsAmount }}
-                </el-form-item>
-                <el-form-item label="索赔合计：" prop="claimAmount">
-                  {{ form.claimAmount }}
-                </el-form-item>
-                <el-form-item label="核销人：" prop="writeOffUserName">
-                  {{ form.writeOffUserName }}
+                <el-form-item label="施工单号：" prop="serviceProxyCode">
+                  {{ form.serviceProxyCode }}
                 </el-form-item>
                 <el-form-item label="核销时间：" prop="writeOffDate">
                   {{ form.writeOffDate }}
@@ -474,142 +469,109 @@
                 <el-form-item label="备注：" prop="remark">
                   {{ form.remark }}
                 </el-form-item>
-                <el-form-item label="失效时间：" prop="invalidDate">
-                  {{ form.invalidDate }}
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  {{ form.modifierName }}
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  {{ form.updateTime }}
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  {{ form.createTime }}
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  {{ form.statusDesc }}
-                </el-form-item>
-                <el-form-item label="名称：" prop="name">
-                  {{ form.name }}
-                </el-form-item>
-                <el-form-item label="权益订单编号：" prop="equityOrderNumber">
-                  {{ form.equityOrderNumber }}
-                </el-form-item>
-                <el-form-item label="生效操作人：" prop="forceSystemUserId">
-                  {{ form.forceSystemUserId }}
-                </el-form-item>
-                <el-form-item label="生效操作人：" prop="forceSystemUserName">
-                  {{ form.forceSystemUserName }}
-                </el-form-item>
-                <el-form-item label="生效时间：" prop="forceTime">
-                  {{ form.forceTime }}
-                </el-form-item>
-                <el-form-item label="权益商品id：" prop="interestsGoodsId">
-                  {{ form.interestsGoodsId }}
-                </el-form-item>
-                <el-form-item label="失效原因：" prop="invalidReason">
-                  {{ form.invalidReason }}
-                </el-form-item>
-                <el-form-item label="失效操作人：" prop="invalidSystemUserId">
-                  {{ form.invalidSystemUserId }}
-                </el-form-item>
-                <el-form-item label="失效操作人：" prop="invalidSystemUserName">
-                  {{ form.invalidSystemUserName }}
-                </el-form-item>
-                <el-form-item label="是否生效：" prop="isEffect">
-                  {{ form.isEffect }}
-                </el-form-item>
-                <el-form-item label="是否退订：" prop="isUnsubscribe">
-                  {{ form.isUnsubscribe }}
-                </el-form-item>
-                <el-form-item label="是否已拆单：" prop="separateBill">
-                  {{ form.separateBill }}
-                </el-form-item>
-                <el-form-item label="拆单时间：" prop="separateBillData">
-                  {{ form.separateBillData }}
-                </el-form-item>
-                <el-form-item label="整车档案id：" prop="vehProfileId">
-                  {{ form.vehProfileId }}
-                </el-form-item>
-                <el-form-item label="退订原因：" prop="checkoutReason">
-                  {{ form.checkoutReason }}
-                </el-form-item>
-                <el-form-item label="归属门店ID（组织ID），当数据权限归属到本组织以及本下级：" prop="ownerOrgId">
-                  {{ form.ownerOrgId }}
-                </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
-                </el-form-item>
-                <el-form-item label="施工单id：" prop="serviceProxyId">
-                  {{ form.serviceProxyId }}
-                </el-form-item>
-                <el-form-item label="核销人：" prop="writeOffUserId">
-                  {{ form.writeOffUserId }}
-                </el-form-item>
-                <el-form-item label="数据来源：" prop="dataSource">
-                  {{ form.dataSource }}
-                </el-form-item>
               </el-form>
             </div>
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>子表标题</h2>
+              <h2>商品明细</h2>
             </div>
             <div class="common-section-body">
-              <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
-                  <el-button type="primary" size="small">添加</el-button>
-                </div>
+              <!-- 合计金额显示 -->
+              <div class="claim-summary">
+                <span>项目索赔合计：¥{{ claimItemsTotal }}</span>
+                <span>零件索赔合计：¥{{ claimPartsTotal }}</span>
+                <span>索赔费用合计：¥{{ totalClaimAmount }}</span>
               </div>
-              <div class="common-section-table">
-                <vxe-table
-                  ref="tableRef"
-                  stripe
-                  :data="tableData"
-                  show-overflow
-                  resizable
-                  border="inner"
-                  size="medium"
-                  min-height="0"
-                  max-height="400px"
+
+              <!-- 多条明细 -->
+              <div class="item-details-list">
+                <div
+                  v-for="(item, index) in itemDetails"
+                  :key="index"
+                  class="item-detail-item"
                 >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
-                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                      </el-popconfirm>
-                    </template>
-                  </vxe-column>
-                  <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
-                  </template>
-                </vxe-table>
+                  <!-- 可折叠头部 -->
+                  <div class="item-detail-header" @click="toggleItem(index)">
+                    <div class="item-info">
+                      <div class="item-code">项目代码：{{ item.repairItemCode }}</div>
+                      <div class="item-name">项目名称：{{ item.repairItemName }}</div>
+                    </div>
+                    <!-- <el-form :inline="true" class="form-detail" label-width="120px">
+                      <el-form-item label="*项目代码：">
+                        {{ item.repairItemTypeName }}
+                      </el-form-item>
+                      <el-form-item label="*项目名称：">
+                        {{ item.checkoutTypeName }}
+                      </el-form-item>
+                    </el-form> -->
+                    <div class="expand-toggle">
+                      <i :class="['el-icon-arrow-down', { 'el-icon-arrow-up': expandedItems.includes(index) }]"></i>
+                    </div>
+                  </div>
+
+                  <!-- 展开内容 -->
+                  <div
+                    v-show="expandedItems.includes(index)"
+                    class="item-detail-body"
+                  >
+                    <el-form :inline="true" class="form-detail" label-width="120px">
+                      <el-form-item label="*维修类型：">
+                        {{ item.repairItemTypeName }}
+                      </el-form-item>
+                      <el-form-item label="结算类型：">
+                        {{ item.checkoutTypeName }}
+                      </el-form-item>
+                      <el-form-item label="工时单价：">
+                        ¥{{ item.unitPrice }}
+                      </el-form-item>
+                      <el-form-item label="工时数量：">
+                        {{ item.workingHours }}
+                      </el-form-item>
+                      <el-form-item label="优惠金额：">
+                        ¥{{ item.discountAmount }}
+                      </el-form-item>
+                      <el-form-item label="项目金额：">
+                        ¥{{ item.receivableAmount }}
+                      </el-form-item>
+                      <el-form-item label="索赔金额：">
+                        ¥{{ item.claimPrice }}
+                      </el-form-item>
+                    </el-form>
+
+                    <!-- 零件列表 -->
+                    <div class="parts-table-wrapper">
+                      <vxe-table
+                        ref="tableRef"
+                        stripe
+                        :data="item.goodsPartsList"
+                        show-overflow
+                        resizable
+                        border="inner"
+                        size="medium"
+                        min-height="0"
+                        max-height="400px"
+                      >
+                        <vxe-column field="partsName" title="零件名称" width="150" />
+                        <vxe-column field="partsCode" title="零件代码" width="120" />
+                        <vxe-column field="repairItemTypeName" title="维修类型" width="150" />
+                        <vxe-column field="checkoutTypeName" title="结算类型" width="150" />
+                        <vxe-column field="totalAmount" title="数量" width="80" />
+                        <vxe-column field="unitPrice" title="单价" width="100" />
+                        <vxe-column field="discountAmount" title="优惠金额" width="120" />
+                        <vxe-column field="partAmount" title="零件金额" width="120">
+                          <template #default="{ row }">
+                            {{ (row.totalAmount * row.unitPrice).toFixed(2) }}
+                          </template>
+                        </vxe-column>
+                        <vxe-column field="claimPrice" title="索赔金额" width="120" />
+                        <template #empty>
+                          <div class="m-vxe-table-empty-text">暂无数据</div>
+                        </template>
+                      </vxe-table>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -721,12 +683,20 @@ export default {
         }
       },
       immediate: true
+    },
+    'form.id': {
+      handler (val) {
+        if (val) {
+          this.getRepairItemList();
+        }
+      },
+      immediate: true
     }
   },
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: '商城订单管理',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-ownersEquityOrder',
@@ -736,6 +706,11 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       emptyText: '若要启用此内容，请创建记录',
+      itemDetails: [], // 商品明细列表
+      expandedItems: [], // 展开的明细索引
+      claimItemsTotal: 0,
+      claimPartsTotal: 0,
+      totalClaimAmount: 0,
       tableData: [
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
@@ -978,7 +953,173 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    // 切换明细展开状态
+    toggleItem (index) {
+      const currentIndex = this.expandedItems.indexOf(index);
+      if (currentIndex === -1) {
+        this.expandedItems.push(index);
+      } else {
+        this.expandedItems.splice(currentIndex, 1);
+      }
+    },
+    // 删除零件
+    handleDeletePart (partIndex, itemIndex) {
+      this.$confirm('确定要删除该零件吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.itemDetails[itemIndex].goodsPartsList.splice(partIndex, 1);
+        this.$message.success('删除成功');
+      }).catch(() => {
+        this.$message.info('已取消删除');
+      });
+    },
+    // 计算合计金额
+    calculateTotals () {
+      // let workHourTotal = 0;
+      // let partsTotal = 0;
+      let claimItemsTotal = 0;
+      let claimPartsTotal = 0;
+      this.itemDetails.forEach(item => {
+        // workHourTotal += item.unitPrice * item.workingHours;
+        console.log('项目索赔金额' + item.claimPrice);
+        const claimPrice = Number(item.claimPrice) || 0;
+        claimItemsTotal += claimPrice;
+        item.goodsPartsList.forEach(part => {
+          // partsTotal += part.unitPrice * part.totalAmount;
+          const partClaimPrice = Number(part.claimPrice) || 0;
+          claimPartsTotal += partClaimPrice;
+        });
+      });
+      // this.totalWorkHourClaim = workHourTotal;
+      // this.totalPartsClaim = partsTotal;
+      this.totalClaimAmount = claimItemsTotal + claimPartsTotal;
+      this.claimItemsTotal = claimItemsTotal;
+      this.claimPartsTotal = claimPartsTotal;
+    },
+    // 获取维修项目列表
+    async getRepairItemList () {
+      const res = await this.detailRequest();
+      if (res && res.goodsRepairItemList) {
+        this.itemDetails = res.goodsRepairItemList;
+        // 计算合计金额
+        this.calculateTotals();
+      }
     }
   }
 };
 </script>
+<style lang="scss" scoped>
+// 商品明细样式
+.item-details-list {
+  margin-top: 20px;
+}
+
+.item-detail-item {
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.item-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #f5f7fa;
+  cursor: pointer;
+  border-bottom: 1px solid #ebeef5;
+
+  &:hover {
+    background-color: #e6f7ff;
+  }
+}
+
+.item-info {
+  display: flex;
+  flex-direction: row;
+  font-size: 14px;
+}
+
+.item-info-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.item-code {
+  font-weight: bold;
+  color: #303133;
+  white-space: nowrap;
+  width: 300px;
+}
+
+.item-divider {
+  color: #dcdfe6;
+  margin: 0 5px;
+}
+
+.item-name {
+  color: #606266;
+  white-space: nowrap;
+  width: 300px;
+}
+
+.expand-toggle {
+  font-size: 14px;
+  color: #909399;
+  transition: transform 0.3s ease;
+}
+
+.item-detail-body {
+  padding: 15px;
+  background-color: #fff;
+}
+
+.item-detail-content {
+  margin-bottom: 15px;
+}
+
+.item-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #ebeef5;
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.label {
+  width: 100px;
+  font-weight: 500;
+  color: #606266;
+}
+
+.value {
+  flex: 1;
+  color: #303133;
+}
+
+.parts-table-wrapper {
+  margin-top: 10px;
+}
+
+// 合计金额样式
+.claim-summary {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #606266;
+}
+
+.claim-summary span {
+  padding: 5px 10px;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+}
+</style>

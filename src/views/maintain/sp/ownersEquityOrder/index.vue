@@ -9,216 +9,95 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="商城订单编号">
+      <el-form-item label="商城订单号">
         <el-input
           placeholder="请输入"
-          v-model="form.mallOrderNumber"
+          v-model="form.mallOrderNumberLike"
           clearable
         />
       </el-form-item>
-      <el-form-item label="权益商品类型">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="xxx"
-          v-model="form.goodInterestsType"
-          placeholder="请选择"
-          clearable
-          multiple
-          filterable
-        />
-      </el-form-item>
-      <el-form-item label="权益商品代码"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="商品代码">
         <el-input
           placeholder="请输入"
-          v-model="form.interestsGoodsCode"
+          v-model="form.interestsGoodsCodeLike"
           clearable
         />
       </el-form-item>
-      <template v-if="show">
-        <el-form-item label="权益商品名称">
+      <el-form-item label="商品名称" v-show="this.visibleCount === 3 || show">
           <el-input
             placeholder="请输入"
-            v-model="form.interestsGoodsName"
+            v-model="form.interestsGoodsNameLike"
             clearable
           />
         </el-form-item>
+      <template v-if="show">
         <el-form-item label="订单状态">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.orderStatus"
+            enumCode="OwnersEquityOrderStatusEnum"
+            v-model="form.orderStatusList"
             placeholder="请选择"
             clearable
             multiple
             filterable
-          />
-        </el-form-item>
-        <el-form-item label="状态">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.status"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
-        <el-form-item label="门店编码">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dealerCode"
-            clearable
           />
         </el-form-item>
         <el-form-item label="施工单号">
           <el-input
             placeholder="请输入"
-            v-model="form.serviceProxyCode"
+            v-model="form.serviceProxyCodeLike"
             clearable
           />
         </el-form-item>
         <el-form-item label="VIN码">
           <el-input
             placeholder="请输入"
-            v-model="form.vehProfileVin"
+            v-model="form.vehProfileVinLike"
             clearable
           />
         </el-form-item>
         <el-form-item label="购买人">
           <el-input
             placeholder="请输入"
-            v-model="form.purchaser"
+            v-model="form.purchaserLike"
             clearable
           />
         </el-form-item>
         <el-form-item label="购买人电话">
           <el-input
             placeholder="请输入"
-            v-model="form.purchaserPhone"
+            v-model="form.purchaserPhoneLike"
             clearable
           />
         </el-form-item>
-        <el-form-item label="购买日期">
-          <el-input
-            placeholder="请输入"
-            v-model="form.saleDate"
+        <el-form-item label="服务门店">
+          <el-select
+            v-model="form.dealerCodeList"
+            multiple
+            filterable
             clearable
-          />
+            remote
+            placeholder="请选择"
+            :remote-method="getStoreByName"
+            collapse-tags
+            >
+            <el-option
+              v-for="item in storeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="推荐码">
-          <el-input
-            placeholder="请输入"
-            v-model="form.referralCode"
+        <el-form-item label="启用状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="StatusEnum"
+            v-model="form.statusExcludeList"
+            placeholder="请选择"
             clearable
-          />
-        </el-form-item>
-        <el-form-item label="物流商">
-          <el-input
-            placeholder="请输入"
-            v-model="form.logisticsCompanies"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="物流单号">
-          <el-input
-            placeholder="请输入"
-            v-model="form.logisticsOrder"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="工时索赔合计">
-          <el-input
-            placeholder="请输入"
-            v-model="form.claimWorkHourAmount"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="零件索赔合计">
-          <el-input
-            placeholder="请输入"
-            v-model="form.claimPartsAmount"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="索赔合计">
-          <el-input
-            placeholder="请输入"
-            v-model="form.claimAmount"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="核销人">
-          <el-input
-            placeholder="请输入"
-            v-model="form.writeOffUserName"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="核销时间">
-          <el-input
-            placeholder="请输入"
-            v-model="form.writeOffDate"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="退订日期">
-          <el-input
-            placeholder="请输入"
-            v-model="form.unsubscribeDate"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="备注">
-          <el-input
-            placeholder="请输入"
-            v-model="form.remark"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="失效时间">
-          <el-input
-            placeholder="请输入"
-            v-model="form.invalidDate"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="修改者名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.modifierName"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="修改时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.updateTime"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="创建者名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.creatorName"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="创建时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
+            multiple
+            filterable
           />
         </el-form-item>
       </template>
@@ -233,10 +112,10 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
+      <!-- <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
@@ -276,7 +155,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/sp/ownersEquityOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -333,7 +212,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '商城订单管理',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-ownersEquityOrder',
@@ -347,6 +226,7 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      storeOptions: [],
       optionObj: {
         id: 'ownersEquityOrderTable',
         dataList: [],
@@ -373,12 +253,12 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'goodInterestsType', label: '权益商品类型', visible: true, width: 200 },
+          { props: 'goodInterestsTypeLabel', label: '权益商品类型', visible: true, width: 200 },
           { props: 'interestsGoodsCode', label: '权益商品代码', visible: true, width: 200 },
           { props: 'interestsGoodsName', label: '权益商品名称', visible: true, width: 200 },
-          { props: 'orderStatus', label: '订单状态', visible: true, width: 200 },
-          { props: 'status', label: '状态', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
+          { props: 'dealerName', label: '门店编码', visible: true, width: 200 },
           { props: 'serviceProxyCode', label: '施工单号', visible: true, width: 200 },
           { props: 'vehProfileVin', label: 'VIN码', visible: true, width: 200 },
           { props: 'purchaser', label: '购买人', visible: true, width: 200 },
@@ -406,7 +286,7 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
-              name: '编辑',
+              name: '详情',
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/maintain/sp/ownersEquityOrder/edit',
@@ -416,27 +296,29 @@ export default {
                 });
               },
               type: 'info'
-            }, {
-              name: '删除',
-              popconfirmConfirmButtonType: 'danger',
-              popconfirmConfirmButtonText: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
-            }]
+            }
+            // , {
+            //   name: '删除',
+            //   popconfirmConfirmButtonType: 'danger',
+            //   popconfirmConfirmButtonText: '删除',
+            //   popconfirmTitle: '此操作将永久删除, 是否继续?',
+            //   click: (rowIndex, row) => {
+            //     deleteItem([row.id]).then(() => {
+            //       this.$message({
+            //         type: 'success',
+            //         message: '删除成功!'
+            //       });
+            //       this.getData();
+            //     }).catch(() => {
+            //       this.$message({
+            //         type: 'error',
+            //         message: '删除失败!'
+            //       });
+            //     });
+            //   },
+            //   type: 'danger'
+            // }
+            ]
           }
         ],
         total: 0
@@ -624,6 +506,19 @@ export default {
         targetStatus: status,
         apiFunc: enableItem,
         refreshFunc: this.getData
+      });
+    },
+    getStoreByName (query) {
+      listOrgStoreInfo({
+        name: query
+      }).then(res => {
+        this.storeOptions = res?.map(item => {
+          return {
+            ...item,
+            value: item.orgCode,
+            label: item.orgName
+          };
+        });
       });
     }
   }
