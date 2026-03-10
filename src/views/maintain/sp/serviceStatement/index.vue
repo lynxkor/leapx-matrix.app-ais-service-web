@@ -249,7 +249,7 @@ export default {
 
           {
             props: 'warrantyTypeCollect',
-            label: '保修类型（汇总）',
+            label: '维修类型（汇总）',
             visible: true,
             width: 200,
           },
@@ -365,7 +365,7 @@ export default {
             width: 200,
           },
           {
-            props: 'createReStatement',
+            props: 'createReStatementLabel',
             label: '是否已创建反结算申请',
             visible: true,
             width: 200,

@@ -52,7 +52,8 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/oemOutboundCallbackSetting/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getParentCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
+import TagInput from '@/libs/components/TagInput';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -82,7 +83,8 @@ export default {
   components: {
     LPVxeTable,
     EditPage,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {

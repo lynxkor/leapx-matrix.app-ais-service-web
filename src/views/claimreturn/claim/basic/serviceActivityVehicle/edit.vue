@@ -1,6 +1,6 @@
 <template>
   <!-- TIPS: 如果填写项大于15项，使用类名page-common-edit替换page-common-add -->
-  <edit-page-layout ref="editLayout" title="" >
+  <edit-page-layout ref="editLayout" title="">
     <template #left>
       <edit-base-container
         ref="containerRef"
@@ -22,7 +22,8 @@
               <div class="common-section-body">
                 <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
                 <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-                 <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px"
+                         class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="活动编码：" prop="activityId">
                     <list-select
                       listUrl="/claimreturn/claim/web/basic/techServiceActivity/listFull"
@@ -42,19 +43,30 @@
                   <el-form-item label="活动名称：" prop="activityName">
                     {{ form.activityName }}
                   </el-form-item>
-                  <el-form-item label="VIN：" prop="vin">
-                    <!-- todo 车辆档案 -->
+                  <el-form-item label="VIN：" prop="vehicleProfileId">
+                    <list-select
+                      v-if="!Boolean(_id)"
+                      listUrl="/datacenter/web/vehicle/vehicleProfile/listFull"
+                      placeholder="请选择"
+                      v-model="form.vehicleProfileId"
+                      query-key="searchVin"
+                      clearable
+                      :disabled="Boolean(_id)"
+                      collapseTags
+                      :show-code="false"
+                      labelKey="vin"
+                      value-key="id"
+                      filterable
+                      @change="handleVINChange"
+                    />
                     <LPEncrypted
+                      v-else
                       :value.sync="form.vin"
                       :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
                     >
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.vin"
-                        :disabled="Boolean(_id)"
-                        clearable
-                      />
+                      <span>{{form.vin}}</span>
                     </LPEncrypted>
+
                   </el-form-item>
                   <el-form-item label="计划实施门店名称：" prop="plannedDealerCode">
                     <dealer-select
@@ -88,7 +100,7 @@
                     {{ form.schemeName }}
                   </el-form-item>
                 </el-form>
-                <el-form :inline="true" label-width="150px"  class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form :inline="true" label-width="150px" class="form-detail" v-show="!(isEditing || !_id)">
                   <el-form-item label="活动编码：" prop="activityId">
                     {{ form.activityId }}
                   </el-form-item>
@@ -293,6 +305,11 @@ export default {
       } else {
         this.form.activityName = selectedItem.activityName;
       }
+    },
+    handleVINChange (val, selectedItem) {
+      console.log('handleVINChange', val, selectedItem);
+      this.form.ownerName = selectedItem.vehicleProfileOwnerResp.ownerName;
+      this.form.ownerPhone = selectedItem.vehicleProfileOwnerResp.mobilephone;
     }
   }
 };

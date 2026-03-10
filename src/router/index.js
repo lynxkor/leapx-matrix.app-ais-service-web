@@ -1000,15 +1000,6 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/oldpart/basic/oldpartunqualifiedconfig/detail',
-      name: 'oldPartUnqualifiedConfigDetail',
-      component: () => import('@/views/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/detail.vue'),
-
-      meta: {
-        name: '新页面详情',
-        noResourceUrl: 'true'
-      }
-    }, {
       path: '/claimreturn/oldpart/basic/oldpartunqualifiedconfig/edit',
       name: 'oldPartUnqualifiedConfigEdit',
       component: () => import('@/views/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/edit.vue'),
@@ -1288,7 +1279,8 @@ const routes = [
         name: '备件采购价格',
         keepAlive: true
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/basic/purchaseprice/edit',
       name: 'purchasePriceEdit',
       component: () => import('@/views/sparepart/basic/purchasePrice/edit.vue'),
@@ -1306,7 +1298,8 @@ const routes = [
         name: '主机厂仓库设置',
         keepAlive: true
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/warehouse/oemwarehouse/edit',
       name: 'oemWarehouseEdit',
       component: () => import('@/views/sparepart/warehouse/oemWarehouse/edit.vue'),
@@ -1324,7 +1317,8 @@ const routes = [
         name: '门店备件优惠券',
         keepAlive: true
       }
-    }, {
+    }, // 门店销毁
+    {
       path: '/sparepart/basic/purchasepricecoupon/edit',
       name: 'purchasePriceCouponEdit',
       component: () => import('@/views/sparepart/basic/purchasePriceCoupon/edit.vue'),
@@ -1387,8 +1381,7 @@ const routes = [
         name: '订单类型采购备件设置',
         keepAlive: true
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/sparepart/basic/purchasepartsaleable/edit',
       name: 'purchasePartSaleableEdit',
       component: () => import('@/views/sparepart/basic/purchasePartSaleable/edit.vue'),
@@ -1406,8 +1399,7 @@ const routes = [
         name: '新页面',
         keepAlive: true
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/claimreturn/oldpart/outbound/edit',
       name: 'outboundEdit',
       component: () => import('@/views/claimreturn/oldpart/outbound/edit.vue'),
@@ -1426,8 +1418,7 @@ const routes = [
         moduleKey: 'oldPartDestroyOrder',
         keepAlive: true
       }
-    }, // 门店销毁
-    {
+    }, {
       path: '/claimreturn/oldpart/destroy/oldpartdestroyorder/edit',
       name: 'oldPartDestroyOrderEdit',
       component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit.vue'),
@@ -1930,6 +1921,264 @@ const routes = [
 
       meta: {
         name: '权益商品详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/outbound/dealerOutboundOrder',
+      name: 'dealerOutboundOrder',
+      component: () => import('@/views/sparepart/outbound/dealerOutboundOrder/index.vue'),
+
+      meta: {
+        name: '内部领料申请',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/outbound/dealeroutboundorder/edit',
+      name: 'dealerOutboundOrderEdit',
+      component: () => import('@/views/sparepart/outbound/dealerOutboundOrder/edit.vue'),
+
+      meta: {
+        name: '内部领料申请详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/notify/notificationGroup',
+      name: 'notificationGroup',
+      component: () => import('@/views/sparepart/notify/notificationGroup/index.vue'),
+
+      meta: {
+        name: '通知组配置',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/notify/notificationgroup/edit',
+      name: 'notificationGroupEdit',
+      component: () => import('@/views/sparepart/notify/notificationGroup/edit.vue'),
+
+      meta: {
+        name: '通知组配置详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/warehouse/stockTaking',
+      name: 'stockTaking',
+      component: () => import('@/views/sparepart/warehouse/stockTaking/index.vue'),
+
+      meta: {
+        name: '库存盘点',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/warehouse/stocktaking/edit',
+      name: 'stockTakingEdit',
+      component: () => import('@/views/sparepart/warehouse/stockTaking/edit.vue'),
+
+      meta: {
+        name: '库存盘点详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/warehouse/stockTakingDifferences',
+      name: 'stockTakingDifferences',
+      component: () => import('@/views/sparepart/warehouse/stockTakingDifferences/index.vue'),
+
+      meta: {
+        name: '盘点差异单',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/warehouse/stocktakingdifferences/edit',
+      name: 'stockTakingDifferencesEdit',
+      component: () => import('@/views/sparepart/warehouse/stockTakingDifferences/edit.vue'),
+
+      meta: {
+        name: '盘点差异单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/warehouse/sharedInventory',
+      name: 'sharedInventory',
+      component: () => import('@/views/sparepart/warehouse/sharedInventory/index.vue'),
+
+      meta: {
+        name: '共享呆滞件库存',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/warehouse/sharedinventory/edit',
+      name: 'sharedInventoryEdit',
+      component: () => import('@/views/sparepart/warehouse/sharedInventory/edit.vue'),
+
+      meta: {
+        name: '共享呆滞件库存详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/transfer/transferOutbound',
+      name: 'transferOutbound',
+      component: () => import('@/views/sparepart/transfer/transferOutbound/index.vue'),
+
+      meta: {
+        name: '备件调拨出库',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/transfer/transferoutbound/edit',
+      name: 'transferOutboundEdit',
+      component: () => import('@/views/sparepart/transfer/transferOutbound/edit.vue'),
+
+      meta: {
+        name: '备件调拨出库详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/transfer/transferInbound',
+      name: 'transferInbound',
+      component: () => import('@/views/sparepart/transfer/transferInbound/index.vue'),
+
+      meta: {
+        name: '备件调拨入库',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/transfer/transferinbound/edit',
+      name: 'transferInboundEdit',
+      component: () => import('@/views/sparepart/transfer/transferInbound/edit.vue'),
+
+      meta: {
+        name: '备件调拨入库详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/transfer/sharedTransferOutbound',
+      name: 'sharedTransferOutbound',
+      component: () => import('@/views/sparepart/transfer/sharedTransferOutbound/index.vue'),
+
+      meta: {
+        name: '共享备件调拨出库',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/transfer/sharedtransferoutbound/edit',
+      name: 'sharedTransferOutboundEdit',
+      component: () => import('@/views/sparepart/transfer/sharedTransferOutbound/edit.vue'),
+
+      meta: {
+        name: '共享备件调拨出库详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/transfer/sharedTransferInbound',
+      name: 'sharedTransferInbound',
+      component: () => import('@/views/sparepart/transfer/sharedTransferInbound/index.vue'),
+
+      meta: {
+        name: 'sharedTransferInbound',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/transfer/sharedtransferinbound/edit',
+      name: 'sharedTransferInboundEdit',
+      component: () => import('@/views/sparepart/transfer/sharedTransferInbound/edit.vue'),
+
+      meta: {
+        name: 'sharedTransferInbound详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/purchase/boToShareTransfer',
+      name: 'boToShareTransfer',
+      component: () => import('@/views/sparepart/purchase/boToShareTransfer/index.vue'),
+
+      meta: {
+        name: 'BO转共享调拨',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/purchase/botosharetransfer/edit',
+      name: 'boToShareTransferEdit',
+      component: () => import('@/views/sparepart/purchase/boToShareTransfer/edit.vue'),
+
+      meta: {
+        name: 'BO转共享调拨详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/sale/retailOrder',
+      name: 'retailOrder',
+      component: () => import('@/views/sparepart/sale/retailOrder/index.vue'),
+
+      meta: {
+        name: '备附件销售',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/sale/retailOrder/edit',
+      name: 'retailOrderEdit',
+      component: () => import('@/views/sparepart/sale/retailOrder/edit.vue'),
+
+      meta: {
+        name: '备附件销售详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/purchase/shippingOrder',
+      name: 'shippingOrder',
+      component: () => import('@/views/sparepart/purchase/shippingOrder/index.vue'),
+
+      meta: {
+        name: '备件发运单',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/purchase/shippingorder/edit',
+      name: 'shippingOrderEdit',
+      component: () => import('@/views/sparepart/purchase/shippingOrder/edit.vue'),
+
+      meta: {
+        name: '备件发运单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyPartManagementRateSetting',
+      name: 'warrantyPartManagementRateSetting',
+
+      component: () => import(
+        '@/views/claimreturn/claim/basic/warrantyPartManagementRateSetting/index.vue'
+      ),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantypartmanagementratesetting/edit',
+      name: 'warrantyPartManagementRateSettingEdit',
+
+      component: () => import(
+        '@/views/claimreturn/claim/basic/warrantyPartManagementRateSetting/edit.vue'
+      ),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/sp/ownersEquityOrder',
+      name: 'ownersEquityOrder',
+      component: () => import('@/views/maintain/sp/ownersEquityOrder/index.vue'),
+
+      meta: {
+        name: '商城订单管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/ownersequityorder/edit',
+      name: 'ownersEquityOrderEdit',
+      component: () => import('@/views/maintain/sp/ownersEquityOrder/edit.vue'),
+
+      meta: {
+        name: '商城订单详情',
         noResourceUrl: 'true'
       }
     }]

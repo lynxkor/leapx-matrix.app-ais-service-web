@@ -63,7 +63,7 @@
           <fetch-select
             :remote-method="getDealerList"
             remote
-            v-model="form.dealerCodeList"
+            v-model="form.dealerCodes"
             placeholder="请输入门店编码或名称"
             labelKey="orgName"
             valueKey="orgCode"

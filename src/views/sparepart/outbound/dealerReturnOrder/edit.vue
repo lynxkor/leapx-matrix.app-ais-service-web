@@ -2,16 +2,9 @@
   <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
-      <edit-base-container
-        ref="containerRef"
-        :id="_id"
-        :title="title"
-        :isEditing.sync="isEditing"
-        :form.sync="form"
-        :originalForm.sync="originalForm"
-        :submitRequest="submitRequest"
-        :detailRequest="detailRequest"
-      >
+      <edit-base-container ref="containerRef" :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form"
+        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest"
+        :showEditBtn="orderStatusType">
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
           <!-- <span class="status primary">状态</span> -->
@@ -21,38 +14,44 @@
           <el-button size="small">按钮2</el-button> -->
         </template>
         <el-main>
-          <section class="common-section">
+          <section class="common-section" v-show="isEditing || !_id">
             <div class="common-section-header">
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="外购退货单号：" prop="code">
                   {{ form.code }}
-                </el-form-item>
-                <el-form-item label="外购件入库单：" prop="dealerInboundOrderCode">
-                  {{ form.dealerInboundOrderCode }}
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
                 </el-form-item>
                 <el-form-item label="备件仓库：" prop="warehouseId">
                   {{ form.warehouseName }}
                 </el-form-item>
-                <el-form-item label="供应商名称：" prop="supplierInfoId">
-                  {{ form.supplierInfoName }}
-                </el-form-item>
                 <el-form-item label="订单状态：" prop="orderStatus">
                   {{ form.orderStatusLabel }}
+                </el-form-item>
+                <el-form-item label="外购件入库单：" prop="dealerInboundOrderCode">
+                  {{ form.dealerInboundOrderCode }}
+                </el-form-item>
+                <el-form-item label="供应商名称：" prop="supplierInfoId">
+                  {{ form.supplierInfoName }}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
                 </el-form-item>
+                <el-form-item label="备注：" prop="remark" style="width: 100%;">
+                  <el-input placeholder="请输入" v-model="form.remark" type="textarea" clearable maxLength="500" show-word-limit />
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="isEditing || !_id">
+            <div class="common-section-header">
+              <h2>审批信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="提交人：" prop="submitterName">
                   {{ form.submitterName }}
                 </el-form-item>
@@ -71,41 +70,67 @@
                 <el-form-item label="审批说明：" prop="approvalDescription">
                   {{ form.approvalDescription }}
                 </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="isEditing || !_id">
+            <div class="common-section-header">
+              <h2>出库信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="出库状态：" prop="outboundStatus">
                   {{ form.outboundStatusLabel }}
                 </el-form-item>
-                <el-form-item label="出库总金额：" prop="totalAmount">
-                  {{ form.totalAmount }}
-                </el-form-item>
                 <el-form-item label="出库操作人：" prop="outboundOperatorName">
                   {{ form.outboundOperatorName }}
+                </el-form-item>
+                <el-form-item label="出库总金额：" prop="totalAmount">
+                  {{ form.totalAmount }}
                 </el-form-item>
                 <el-form-item label="出库时间：" prop="outboundTime">
                   {{ form.outboundTime }}
                 </el-form-item>
               </el-form>
-              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+            </div>
+          </section>
+          <section class="common-section" v-show="!(isEditing || !_id)">
+            <div class="common-section-header">
+              <h2>基础信息</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="外购退货单号：" prop="code">
                   {{ form.code }}
-                </el-form-item>
-                <el-form-item label="外购件入库单：" prop="dealerInboundOrderCode">
-                  {{ form.dealerInboundOrderCode }}
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
                 </el-form-item>
                 <el-form-item label="备件仓库：" prop="warehouseId">
                   {{ form.warehouseName }}
                 </el-form-item>
-                <el-form-item label="供应商名称：" prop="supplierInfoId">
-                  {{ form.supplierInfoName }}
-                </el-form-item>
                 <el-form-item label="订单状态：" prop="orderStatus">
                   {{ form.orderStatusLabel }}
+                </el-form-item>
+                <el-form-item label="外购件入库单：" prop="dealerInboundOrderCode">
+                  {{ form.dealerInboundOrderCode }}
+                </el-form-item>
+                <el-form-item label="供应商名称：" prop="supplierInfoId">
+                  {{ form.supplierInfoName }}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
                 </el-form-item>
+                <el-form-item label="备注：" prop="remark" style="width: 100%;">
+                  {{ form.remark }}
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="!(isEditing || !_id)">
+            <div class="common-section-header">
+              <h2>审批信息</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="提交人：" prop="submitterName">
                   {{ form.submitterName }}
                 </el-form-item>
@@ -124,14 +149,23 @@
                 <el-form-item label="审批说明：" prop="approvalDescription">
                   {{ form.approvalDescription }}
                 </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="!(isEditing || !_id)">
+            <div class="common-section-header">
+              <h2>出库信息</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="出库状态：" prop="outboundStatus">
                   {{ form.outboundStatusLabel }}
                 </el-form-item>
-                <el-form-item label="出库总金额：" prop="totalAmount">
-                  {{ form.totalAmount }}
-                </el-form-item>
                 <el-form-item label="出库操作人：" prop="outboundOperatorName">
                   {{ form.outboundOperatorName }}
+                </el-form-item>
+                <el-form-item label="出库总金额：" prop="totalAmount">
+                  {{ form.totalAmount }}
                 </el-form-item>
                 <el-form-item label="出库时间：" prop="outboundTime">
                   {{ form.outboundTime }}
@@ -141,50 +175,50 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>子表标题</h2>
+              <h2>备件清单</h2>
             </div>
             <div class="common-section-body">
-              <div class="common-section-header">
+              <!-- <div class="common-section-header">
                 <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
+                  <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请选择" clearable
+                    value-key="id" label-key="name" @change="handleAddTableData" />
                   <el-button type="primary" size="small">添加</el-button>
                 </div>
-              </div>
+              </div> -->
               <div class="common-section-table">
-                <vxe-table
-                  ref="tableRef"
-                  stripe
-                  :data="tableData"
-                  show-overflow
-                  resizable
-                  border="inner"
-                  size="medium"
-                  min-height="0"
-                  max-height="400px"
-                >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
+                <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
+                  min-height="0" max-height="400px">
+                  <vxe-column field="partCode" title="备件编码" min-width="10%" />
+                  <vxe-column field="partName" title="备件名称" min-width="10%" />
+                  <vxe-column field="locationCode" title="库位编码" min-width="10%" />
+                  <vxe-column field="availableQuantity" title="可用库存" min-width="10%" />
+                  <vxe-column field="unitPrice" title="单价" min-width="10%" />
+                  <vxe-column field="outboundQty" title="出库数量" min-width="10%" />
+                  <vxe-column field="outboundAmount" title="出库金额" min-width="10%" />
+                  <vxe-column field="createTime" title="创建时间" min-width="10%" />
+                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
                     <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
+                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
                   </vxe-column>
                   <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
+                    <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
                   </template>
                 </vxe-table>
+                <div class="table-pagination">
+                  <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="pageNum"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total"
+                  >
+                  </el-pagination>
+                </div>
               </div>
             </div>
           </section>
@@ -200,7 +234,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/outbound/dealerReturnOrder/index';
+import { getDetail, addOrUpdate, dealerReturnOrderDetailPage } from '@/api/sparepart/outbound/dealerReturnOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -259,8 +293,7 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     EditPageLayout,
-    EditBaseContainer,
-    FetchSelect
+    EditBaseContainer
   },
   computed: {
     _id () {
@@ -278,7 +311,18 @@ export default {
         }
       },
       immediate: true
-    }
+    },
+    'form.code': {
+      handler (val) {
+        if (val) {
+          this.getData();
+          if (this.form.orderStatus === '10') {
+            this.orderStatusType = true;
+          }
+        }
+      },
+      immediate: true
+    },
   },
   data () {
     const form = this.getDefautlForm();
@@ -289,113 +333,21 @@ export default {
       moduleKey: 'AISPART-dealerReturnOrder',
       loading: false,
       submitLoading: false,
+      orderStatusType: false, // 是否可编辑
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
       emptyText: '若要启用此内容，请创建记录',
+      pageNum: 1,
+      pageSize: 10,
+      total: 0,
       tableData: [
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
       rules: {
-        code: [
-          { required: false, message: '请输入外购退货单号，开头ORO', trigger: 'change' }
-        ],
-        dealerInboundOrderId: [
-          { required: false, message: '请输入外购件入库单ID', trigger: 'change' }
-        ],
-        dealerInboundOrderCode: [
-          { required: false, message: '请输入外购件入库单code', trigger: 'change' }
-        ],
-        ownerOrgId: [
-          { required: false, message: '请输入门店组织id', trigger: 'change' }
-        ],
-        dealerCode: [
-          { required: false, message: '请输入门店编码', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: false, message: '请输入门店名称', trigger: 'change' }
-        ],
         warehouseId: [
-          { required: false, message: '请输入备件仓库ID', trigger: 'change' }
-        ],
-        supplierInfoId: [
-          { required: false, message: '请输入供应商ID', trigger: 'change' }
-        ],
-        outboundStatus: [
-          { required: false, message: '请选择出库状态:未出库，已出库', trigger: 'change' }
-        ],
-        totalAmount: [
-          { required: false, message: '请输入出库总金额', trigger: 'change' }
-        ],
-        createTime: [
-          { required: false, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: false, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: false, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: false, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: false, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: false, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: false, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        remark: [
-          { required: false, message: '请输入备注', trigger: 'change' }
-        ],
-        status: [
-          { required: false, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: false, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: false, message: '请输入数据来源，150:新销服; 老销服:10', trigger: 'change' }
-        ],
-        returnDescription: [
-          { required: false, message: '请输入退货说明', trigger: 'change' }
-        ],
-        submitter: [
-          { required: false, message: '请输入提交人', trigger: 'change' }
-        ],
-        submitterName: [
-          { required: false, message: '请输入提交人名称', trigger: 'change' }
-        ],
-        submitTime: [
-          { required: false, message: '请选择提交时间', trigger: 'change' }
-        ],
-        approver: [
-          { required: false, message: '请输入审批人', trigger: 'change' }
-        ],
-        approverName: [
-          { required: false, message: '请输入审批人名称', trigger: 'change' }
-        ],
-        approvalTime: [
-          { required: false, message: '请选择审批时间', trigger: 'change' }
-        ],
-        approvalDescription: [
-          { required: false, message: '请输入审批说明', trigger: 'change' }
-        ],
-        outboundOperator: [
-          { required: false, message: '请输入出库操作人', trigger: 'change' }
-        ],
-        outboundOperatorName: [
-          { required: false, message: '请输入出库操作人名称', trigger: 'change' }
-        ],
-        outboundTime: [
-          { required: false, message: '请选择出库时间', trigger: 'change' }
-        ],
-        orderStatus: [
-          { required: false, message: '请选择订单状态:待审批，通过，作废', trigger: 'change' }
+          { required: false, message: '请输入备件仓库', trigger: 'change' }
         ],
       }
     };
@@ -481,7 +433,34 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    // 获取备件清单
+    async getData () {
+      const params = {
+        dealerReturnOrderId: this._id,
+        pageNum: this.pageNum,
+        pageSize: this.pageSize,
+      };
+      const res = await dealerReturnOrderDetailPage(params);
+      this.total = res.total || 0;
+      this.tableData = res.records || [];
+    },
+    handleCurrentChange (pageNum) {
+      this.pageNum = pageNum;
+      this.getData();
+    },
+    handleSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.pageNum = 1;
+      this.getData();
+    },
   }
 };
 </script>
+<style lang="scss" scoped>
+.table-pagination {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+}
+</style>

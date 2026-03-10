@@ -12,7 +12,8 @@
           <el-button size="small" @click="addInvoiceRecord" v-if="buttonPermissions.addRecord">添加收款记录</el-button>
           <el-button size="small" @click="paySuccess" v-if="buttonPermissions.success">完成收款</el-button>
           <el-button size="small" @click="createRefund" v-if="buttonPermissions.reCreate">创建反结算单</el-button>
-          <el-button size="small" @click="createWarrantyApply" v-if="buttonPermissions.createWarranty">创建保修申请单</el-button>
+          <el-button size="small" @click="createWarrantyApply"
+            v-if="buttonPermissions.createWarranty">创建保修申请单</el-button>
           <el-button size="small" @click="handlePrint">打印结算单</el-button>
           <el-button size="small" @click="logList">审核日志</el-button>
         </template>
@@ -70,7 +71,7 @@
                   <!-- <fetch-select :request="fetchOptions" enumCode="xxx" v-model="form.payTypeLabel" placeholder="请选择" disabled
                     clearable filterable /> -->
                 </el-form-item>
-                <el-form-item label="保修类型（汇总）：" prop="warrantyTypeCollect">
+                <el-form-item label="维修类型（汇总）：" prop="warrantyTypeCollect">
                   <!-- <fetch-select :request="fetchOptions" enumCode="xxx" v-model="form.warrantyTypeCollect"
                     placeholder="请选择" disabled clearable filterable /> -->
                   <el-input placeholder="请输入" v-model="form.warrantyTypeCollect" disabled clearable />
@@ -84,7 +85,7 @@
                   <el-input placeholder="请输入" v-model="form.nextMaintenanceMileage" disabled clearable />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark" class="form-item-full">
-                  <el-input placeholder="请输入" v-model="form.remark" clearable />
+                  <el-input placeholder="请输入" v-model="form.remark" clearable maxlength="500" />
                 </el-form-item>
                 <el-form-item label="总金额：" prop="totalAmount">
                   <el-input placeholder="请输入" v-model="form.totalAmount" disabled clearable />
@@ -152,8 +153,9 @@
                   {{ form.isPushVisitResultLabel }}
                 </el-form-item>
                 <el-form-item label="接车施工单：" prop="serviceProxyCode">
-                  <el-link type="success"
-                    @click.prevent="goToServiceProxy(form.serviceProxyId)">{{ form.serviceProxyCode }}</el-link>
+                  <el-link type="success" @click.prevent="goToServiceProxy(form.serviceProxyId)">{{
+                    form.serviceProxyCode
+                    }}</el-link>
                 </el-form-item>
                 <el-form-item label="销账标识：" prop="accountTypeLabel">
                   {{ form.accountTypeLabel }}
@@ -166,7 +168,7 @@
                 </el-form-item>
                 <el-form-item label="VIN码：" prop="vehProfileVin">
                   <el-link type="success" @click.prevent="goToVehicleProfile(form.vehProfileId)">{{
-                    form.vehProfileVin}}</el-link>
+                    form.vehProfileVin }}</el-link>
                 </el-form-item>
                 <el-form-item label="数据来源：" prop="dataSourceLabel">
                   {{ form.dataSourceLabel }}
@@ -177,7 +179,7 @@
                 <el-form-item label="支付方式：" prop="payTypeLabel">
                   {{ form.payTypeLabel }}
                 </el-form-item>
-                <el-form-item label="保修类型（汇总）：" prop="warrantyTypeCollect">
+                <el-form-item label="维修类型（汇总）：" prop="warrantyTypeCollect">
                   {{ form.warrantyTypeCollect }}
                 </el-form-item>
                 <el-form-item label="下次保养时间：" prop="nextMaintenanceTime">
@@ -195,24 +197,26 @@
                 <el-form-item label="维修项目金额：" prop="repairItemAmount">
                   {{ form.repairItemAmount }}
                 </el-form-item>
+                <el-form-item label="维修项优惠金额：" prop="repairItemDiscount">
+                  {{ form.repairItemDiscount }}
+                </el-form-item>
+                <el-form-item label="维修项目应付金额：" prop="repairItemPayableAmount">
+                  {{ form.repairItemPayableAmount }}
+                </el-form-item>
                 <el-form-item label="结算人员：" prop="statementPersonName">
                   {{ form.statementPersonName }}
                 </el-form-item>
                 <el-form-item label="去零金额：" prop="noFractionAmount">
                   {{ form.noFractionAmount }}
                 </el-form-item>
-                <el-form-item label="维修项优惠金额：" prop="repairItemDiscount">
-                  {{ form.repairItemDiscount }}
-                </el-form-item>
+
                 <el-form-item label="结算时间：" prop="statementTime">
                   {{ form.statementTime }}
                 </el-form-item>
                 <el-form-item label="权益金额：" prop="rightsAmount">
                   {{ form.rightsAmount }}
                 </el-form-item>
-                <el-form-item label="维修项目应付金额：" prop="repairItemPayableAmount">
-                  {{ form.repairItemPayableAmount }}
-                </el-form-item>
+
                 <el-form-item label="收款人：" prop="payeeName">
                   {{ form.payeeName }}
                 </el-form-item>
