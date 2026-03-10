@@ -74,3 +74,27 @@ export function getActivityDetail (data) {
 export function useActivity (data) {
   return api.jsonPost(prefix + 'activity/use', data);
 };
+
+/**
+ * 特殊开单--权益套餐--列表查询
+ * @param {Object} data
+ */
+export function getEquityList (data) {
+  return api.jsonPost(prefix + 'equity/list', data);
+};
+
+/**
+ * 特殊开单--权益套餐--详情
+ * @param {Object} data
+ */
+export function getEquityDetail (data) {
+  return api.jsonPost(prefix + 'equity/detail', data);
+};
+
+/**
+ * 特殊开单--权益套餐--使用
+ * @param {Object} data
+ */
+export function useEquity (data) {
+  return api.jsonPost(prefix + 'equity/use', data);
+};
