@@ -142,7 +142,7 @@ import {
   deleteItem,
   enableItem,
   submitPartsPreparation, partsPreparationCompleted
-} from '@/api/claimreturn/claim/basic/techServiceActivity';
+} from '@/api/claimreturn/claim/basic/serviceActivity';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { YES_NO_ENUM } from '@/libs/constants';
