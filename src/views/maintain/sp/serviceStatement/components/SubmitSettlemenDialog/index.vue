@@ -488,6 +488,9 @@ export default {
       const discountAmount = +row.discountAmount || 0;
       const totalAmount = price * workHour;
       row.repairAmount = parseFloat((totalAmount - discountAmount).toFixed(2));
+      row.discountRate = parseFloat(
+        (discountAmount / totalAmount).toFixed(2)
+      );
 
       // 重新计算汇总金额
       this.calculateSummaryAmounts();
@@ -500,6 +503,9 @@ export default {
       const discountAmount = +row.discountAmount || 0;
       const totalAmount = price * quantity;
       row.partsAmount = Math.max(0, totalAmount - discountAmount);
+      row.discountRate = parseFloat(
+        (discountAmount / totalAmount).toFixed(2)
+      );
       // 重新计算汇总金额
       this.calculateSummaryAmounts();
     },
@@ -542,6 +548,9 @@ export default {
             row.repairAmount = parseFloat(
               (totalAmount - row.discountAmount).toFixed(2)
             );
+            row.discountRate = parseFloat(
+              (row.discountAmount / totalAmount).toFixed(2)
+            );
           }
         });
 
@@ -556,6 +565,9 @@ export default {
             row.discountAmount = parseFloat(discountAmount.toFixed(2));
             row.partsAmount = parseFloat(
               (totalAmount - row.discountAmount).toFixed(2)
+            );
+            row.discountRate = parseFloat(
+              (row.discountAmount / totalAmount).toFixed(2)
             );
           }
         });
