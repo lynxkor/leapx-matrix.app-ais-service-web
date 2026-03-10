@@ -228,7 +228,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, dealerInboundOrderDetailPage } from '@/api/sparepart/inbound/dealerInboundOrder/index';
+import { getDetail, addOrUpdate, dealerInboundOrderDetailPage, dealerInboundOrderDetailDelete } from '@/api/sparepart/inbound/dealerInboundOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -396,12 +396,13 @@ export default {
     // 删除子表数据
     handleDeleteRow (index) {
       const item = this.tableData[index];
-      this.tableData.splice(index, 1);
+      // this.tableData.splice(index, 1);
       // 根据需求调用接口
-      // deletePartVehModel([item.id]).then(res => {
-      //   this.$message.success('删除成功');
-      //   this.tableData.splice(index, 1);
-      // });
+      dealerInboundOrderDetailDelete([item.id]).then(res => {
+        this.$message.success('删除成功');
+        // this.tableData.splice(index, 1);
+        this.getData();
+      });
     },
     // 查询新增项的列表
     queryListData (queryString) {
