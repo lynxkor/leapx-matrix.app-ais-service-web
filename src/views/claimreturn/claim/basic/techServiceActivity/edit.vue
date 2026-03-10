@@ -239,6 +239,10 @@
               :moduleKey="moduleKey"
               @change="schemeChange"
             />
+            <fault
+              :id="_id"
+              :moduleKey="moduleKey"
+            />
             <vehicle
               :id="_id"
               :moduleKey="moduleKey"
@@ -276,6 +280,7 @@ import FileConfig from './FileConfig/index.vue';
 import { formatDateTime } from '@/libs/utils';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import Vehicle from './Vehicle';
+import Fault from './Fault';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -334,6 +339,7 @@ export default {
     PlanInfo,
     FileConfig,
     Vehicle,
+    Fault,
   },
   computed: {
     _id () {

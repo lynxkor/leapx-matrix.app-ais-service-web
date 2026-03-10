@@ -22,13 +22,11 @@
         <el-button size="small" @click="handleImport">导入车辆</el-button>
       </section>
       <section class="common-section"  v-if="canAddOrUpdate">
-        <div class="common-section-body">
-          <vehicle-table
-            :moduleKey="moduleKey"
-            ref="vehicleTable"
-            :id="id"
-            />
-        </div>
+        <vehicle-table
+          :moduleKey="moduleKey"
+          ref="vehicleTable"
+          :id="id"
+          />
       </section>
     </div>
     <div class="common-section-body not-commit" v-else>
@@ -136,19 +134,6 @@ export default {
         return getEnum(code);
       }
       return [];
-    },
-    //
-    onUpdate () {
-      return serviceActivityVehicleUpdate({
-        vin: this.vin,
-        activityId: this.id,
-      });
-    },
-    onEnter () {
-      if (!this.vin) {
-        return;
-      }
-      this.onUpdate();
     },
     vinRemote (query) {
       return vehicleListFull({

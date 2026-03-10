@@ -43,3 +43,51 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 初始化
+ * @param {Object} data
+ */
+export function initializeItem (data) {
+  return api.jsonPost(prefix + 'initialize', data);
+}
+
+/**
+ * 作废
+ * @param {Object} data
+ */
+export function cancelItem (data) {
+  return api.jsonPost(prefix + 'cancel', data);
+}
+
+/**
+ * 盘点结果新增
+ * @param {Object} data
+ */
+export function addResultItem (data) {
+  return api.jsonPost(prefix + 'addResult', data);
+}
+
+/**
+ * 生成差异单
+ * @param {Object} data
+ */
+export function generateDifferences (data) {
+  return api.jsonPost(prefix + 'generateDifferences', data);
+}
+
+/**
+ * 备件库存盘点明细表分页查询
+ * @param {Object} data
+ */
+export function stockTakingDetailPage (data) {
+  return api.jsonPost('/sp/web/dealer/stockTakingDetail/page', data);
+}
+
+/**
+ * 备件库存盘点明细表分页查询
+ * @param {Object} data
+ */
+export function stockTakingDetailDelete (data) {
+  return api.jsonPost('/sp/web/dealer/stockTakingDetail/delete', data);
+}

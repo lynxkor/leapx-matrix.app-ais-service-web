@@ -23,23 +23,23 @@
           filterable
         />
       </el-form-item>
+      <el-form-item label="门店" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :remote-method="getDealerList"
+          remote
+          v-model="form.dealerCodeList"
+          placeholder="请输入门店编码或名称"
+          labelKey="orgName"
+          valueKey="orgCode"
+          subLabelKey="orgCode"
+          clearable
+          multiple
+          collapseTags
+          filterable
+            />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="门店">
-          <fetch-select
-            :remote-method="getDealerList"
-            remote
-            v-model="form.dealerCodeList"
-            placeholder="请输入门店编码或名称"
-            labelKey="orgName"
-            valueKey="orgCode"
-            subLabelKey="orgCode"
-            clearable
-            multiple
-            collapseTags
-            filterable
-              />
-        </el-form-item>
-        <el-form-item label="母公司名称" v-show="this.visibleCount === 3 || show">
+        <el-form-item label="母公司名称">
           <fetch-select
             :remote-method="getParentCompany"
             remote
@@ -134,11 +134,11 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -168,6 +168,13 @@
       @close="handleUploadDialogClose"
       @getData="getData"
     />
+    <!-- 生成差异单弹窗 -->
+    <DifferenceDialog
+      ref="differenceDialogRef"
+      :visible.sync="differenceDialogVisible"
+      @update:visible="val => differenceDialogVisible = val"
+      @confirm="getData"
+    />
   </div>
 </template>
 
@@ -175,7 +182,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/stockTaking/index';
+import { getList, deleteItem, enableItem, initializeItem, cancelItem } from '@/api/sparepart/warehouse/stockTaking/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getParentCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -186,6 +193,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import DifferenceDialog from './DifferenceDialog.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -216,7 +224,8 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    TagInput
+    TagInput,
+    DifferenceDialog
   },
   data () {
     return {
@@ -233,6 +242,7 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      differenceDialogVisible: false, // 生成差异单弹窗
       clickItemId: '',
       optionObj: {
         id: 'stockTakingTable',
@@ -279,6 +289,9 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '编辑',
+              show: (row) => {
+                return row.stockStatus === '0' || row.stockStatus === '2';
+              },
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/warehouse/stockTaking/edit',
@@ -291,6 +304,8 @@ export default {
             }, {
               name: '删除',
               popconfirmTitle: '此操作将永久删除, 是否继续?',
+              popconfirmConfirmButtonType: 'danger',
+              popconfirmConfirmButtonText: '删除',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
                   this.$message({
@@ -306,6 +321,69 @@ export default {
                 });
               },
               type: 'danger'
+            }, {
+              name: '初始化',
+              show: (row) => {
+                return row.stockStatus === '0';
+              },
+              popconfirmTitle: '此操作将初始化该库存盘点, 是否继续?',
+              click: (rowIndex, row) => {
+                initializeItem({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '初始化成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '初始化失败!'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '作废',
+              show: (row) => {
+                return row.stockStatus === '0' || row.stockStatus === '2';
+              },
+              popconfirmTitle: '此操作将作废该库存盘点, 是否继续?',
+              click: (rowIndex, row) => {
+                cancelItem({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '作废成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '作废失败!'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '盘点结果导入',
+              show: (row) => {
+                return row.stockStatus === '2';
+              },
+              type: 'info'
+            }, {
+              name: '生成差异单',
+              show: (row) => {
+                return row.stockStatus === '2';
+              },
+              click: (rowIndex, row) => {
+                this.handleDifference(row);
+              },
+              type: 'info'
+            }, {
+              name: '打印',
+              click: (rowIndex, row) => {
+                this.handlePrint(row);
+              },
+              type: 'info'
             }]
           }
         ],
@@ -538,6 +616,14 @@ export default {
       }
       return [];
     },
+    // 打印盘点任务单
+    handlePrint (val) {
+      this.$print.show({
+        id: val.id, // 必选，对应数据id
+        template: 'InventoryCount', // 必选，对应 ./template/文件名.vue
+        title: `${val.dealerName}厅店库存盘点单`// 可选，打印标题
+      });
+    },
     // 批量删除
     handleBatchDelete () {
       const ids = this.selectionList.map(item => item.id) || [];
@@ -568,28 +654,10 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
+    },
+    // 生成差异单
+    handleDifference (row) {
+      this.differenceDialogVisible = true;
     }
   }
 };
