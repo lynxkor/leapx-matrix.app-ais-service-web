@@ -241,7 +241,14 @@ export default {
         }
       },
       immediate: true
-    }
+    },
+    'detailData.id': {
+      handler (val) {
+        if (val) {
+          this.initData(this.detailData);
+        }
+      }
+    },
   },
   mounted () {
     // 加载维修类型和结算类型选项
