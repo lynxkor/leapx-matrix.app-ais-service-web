@@ -2173,6 +2173,15 @@ const routes = [
         keepAlive: true
       }
     }, {
+      path: '/claimreturn/claim/basic/warrantyParameterConfig',
+      name: 'warrantyParameterConfig',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyParameterConfig/edit.vue'),
+
+      meta: {
+        name: '保修参数设置',
+        keepAlive: true
+      }
+    }, {
       path: '/maintain/sp/ownersequityorder/edit',
       name: 'ownersEquityOrderEdit',
       component: () => import('@/views/maintain/sp/ownersEquityOrder/edit.vue'),
