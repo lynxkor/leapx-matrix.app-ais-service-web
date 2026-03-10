@@ -23,22 +23,22 @@
             filterable
           />
         </el-form-item>
+      <el-form-item label="门店" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :remote-method="getDealerList"
+          remote
+          v-model="form.dealerCodeList"
+          placeholder="请输入门店编码或名称"
+          labelKey="orgName"
+          valueKey="orgCode"
+          subLabelKey="orgCode"
+          clearable
+          multiple
+          collapseTags
+          filterable
+            />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="门店">
-          <fetch-select
-            :remote-method="getDealerList"
-            remote
-            v-model="form.dealerCodeList"
-            placeholder="请输入门店编码或名称"
-            labelKey="orgName"
-            valueKey="orgCode"
-            subLabelKey="orgCode"
-            clearable
-            multiple
-            collapseTags
-            filterable
-              />
-        </el-form-item>
         <el-form-item label="出库状态">
           <fetch-select
             :request="fetchOptions"
@@ -98,11 +98,11 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -139,7 +139,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/outbound/dealerOutboundOrder/index';
+import { getList, deleteItem, enableItem, applyRequest, agreeRequest, rejectRequest, outbound, applyReturn, rejectReturn, inbound } from '@/api/sparepart/outbound/dealerOutboundOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getParentCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -236,7 +236,16 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
+              name: '打印出库单',
+              click: (rowIndex, row) => {
+                this.handlePrint(row);
+              },
+              type: 'info'
+            }, {
               name: '编辑',
+              show: (row) => {
+                return row.orderStatus === '10' || row.orderStatus === '30';
+              },
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/outbound/dealerOutboundOrder/edit',
@@ -249,6 +258,11 @@ export default {
             }, {
               name: '删除',
               popconfirmTitle: '此操作将永久删除, 是否继续?',
+              popconfirmConfirmButtonType: 'danger',
+              popconfirmConfirmButtonText: '删除',
+              show: (row) => {
+                return row.orderStatus === '10' || row.orderStatus === '30';
+              },
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
                   this.$message({
@@ -264,6 +278,199 @@ export default {
                 });
               },
               type: 'danger'
+            }, {
+              name: '申请领料',
+              show: (row) => {
+                return row.orderStatus === '10' || row.orderStatus === '30';
+              },
+              click: (rowIndex, row) => {
+                applyRequest({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '申请成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '申请失败!'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '同意领料',
+              show: (row) => {
+                return row.orderStatus === '20';
+              },
+              click: (rowIndex, row) => {
+                agreeRequest({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '同意成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '同意失败!'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '驳回领料',
+              show: (row) => {
+                return row.orderStatus === '20';
+              },
+              click: (rowIndex, row) => {
+                this.$prompt('请输入驳回原因', '驳回领料', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  inputValue: ''
+                }).then(({ value }) => {
+                  rejectRequest({ id: row.id, description: value }).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '驳回成功!'
+                    });
+                    this.getData();
+                  }).catch(() => {
+                    this.$message({
+                      type: 'error',
+                      message: '驳回失败!'
+                    });
+                  });
+                }).catch(() => {
+                  this.$message({
+                    type: 'info',
+                    message: '已取消驳回'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '出库',
+              show: (row) => {
+                return row.orderStatus === '40' || row.outboundStatus === '0';
+              },
+              click: (rowIndex, row) => {
+                outbound({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '出库成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '出库失败!'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '申请退料',
+              show: (row) => {
+                return row.orderStatus === '40' || row.outboundStatus === '1';
+              },
+              click: (rowIndex, row) => {
+                this.$prompt('请输入申请退料原因', '申请退料', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  inputValue: ''
+                }).then(({ value }) => {
+                  rejectReturn({ id: row.id, description: value }).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '申请退料成功!'
+                    });
+                    this.getData();
+                  }).catch(() => {
+                    this.$message({
+                      type: 'error',
+                      message: '申请退料失败!'
+                    });
+                  });
+                }).catch(() => {
+                  this.$message({
+                    type: 'info',
+                    message: '已取消申请退料'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '同意退料',
+              show: (row) => {
+                return row.orderStatus === '50';
+              },
+              click: (rowIndex, row) => {
+                rejectReturn({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '同意退料成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '同意退料失败!'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '驳回退料',
+              show: (row) => {
+                return row.orderStatus === '50';
+              },
+              click: (rowIndex, row) => {
+                this.$prompt('请输入驳回退料原因', '驳回退料', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  inputValue: ''
+                }).then(({ value }) => {
+                  applyReturn({ id: row.id, description: value }).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '驳回退料成功!'
+                    });
+                    this.getData();
+                  }).catch(() => {
+                    this.$message({
+                      type: 'error',
+                      message: '驳回退料失败!'
+                    });
+                  });
+                }).catch(() => {
+                  this.$message({
+                    type: 'info',
+                    message: '已取消驳回退料'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '入库',
+              show: (row) => {
+                return row.orderStatus === '70' || row.inboundStatus === '0';
+              },
+              click: (rowIndex, row) => {
+                inbound({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '入库成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '入库失败!'
+                  });
+                });
+              },
+              type: 'info'
             }]
           }
         ],
@@ -482,6 +689,14 @@ export default {
       }
       return [];
     },
+    // 打印内部领料入库单
+    handlePrint (val) {
+      this.$print.show({
+        id: val.id, // 必选，对应数据id
+        template: 'InternalMaterialRequisition', // 必选，对应 ./template/文件名.vue
+        title: `${val.dealerName}厅店内部领料入库单`// 可选，打印标题
+      });
+    },
     // 批量删除
     handleBatchDelete () {
       const ids = this.selectionList.map(item => item.id) || [];
@@ -512,28 +727,9 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
+    },
+    handleRowClick (row) {
+      this.$refs.tableRef.toggleRowSelection(row, true);
     }
   }
 };
