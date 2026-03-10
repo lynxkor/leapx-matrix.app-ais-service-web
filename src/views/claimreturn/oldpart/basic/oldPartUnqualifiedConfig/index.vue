@@ -130,7 +130,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/detail',
+                  path: '/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/edit',
                   query: {
                     id: row.id
                   }
@@ -154,7 +154,8 @@ export default {
                 this.$router.push({
                   path: '/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true,
                   }
                 });
               },

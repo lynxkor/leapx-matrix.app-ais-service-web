@@ -1,22 +1,30 @@
 <template>
-  <!-- TIPS: 如果填写项大于15项，使用类名page-common-edit替换page-common-add -->
-  <div class="page-common-add">
-    <el-container>
+  <edit-base-container
+    ref="containerRef"
+    :id="_id"
+    :title="`代码：${form.unqualifiedCode}`"
+    direction="vertical"
+    :isEditing.sync="isEditing"
+    :form.sync="form"
+    :originalForm.sync="originalForm"
+    :submitRequest="submitRequest"
+    :detailRequest="detailRequest"
+    >
       <el-main>
         <section class="common-section">
           <div class="common-section-header">
             <h2>基础信息</h2>
           </div>
           <div class="common-section-body">
-            <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="代码" prop="unqualifiedCode">
+            <el-form label-width="150px" :inline="true" :model="form" :rules="rules" ref="ruleForm"  class="form-edit" v-show="isEditing || !_id">
+              <el-form-item label="代码：" prop="unqualifiedCode">
                 <el-input
                   v-model="form.unqualifiedCode"
                   clearable
                   disabled
                 />
               </el-form-item>
-              <el-form-item label="描述" prop="unqualifiedDesc">
+              <el-form-item label="描述：" prop="unqualifiedDesc">
                 <el-input
                   placeholder="请输入"
                   v-model="form.unqualifiedDesc"
@@ -25,26 +33,28 @@
                 />
               </el-form-item>
             </el-form>
+            <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form-item label="代码：" prop="unqualifiedCode">
+                {{form.unqualifiedCode}}
+              </el-form-item>
+              <el-form-item label="描述：" prop="unqualifiedDesc">
+                {{form.unqualifiedDesc}}
+              </el-form-item>
+            </el-form>
           </div>
         </section>
       </el-main>
-      <el-footer height="60px">
-        <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-        <el-button size="small" @click="handleBack">取消</el-button>
-        <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
-      </el-footer>
-    </el-container>
-  </div>
+  </edit-base-container>
 </template>
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/index';
-import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -74,6 +84,7 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
+    EditBaseContainer,
   },
   computed: {
     _id () {
@@ -83,8 +94,8 @@ export default {
   watch: {
     id: {
       handler (val) {
-        if (val) {
-          this.getDetailData();
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
         }
       },
       immediate: true
@@ -97,7 +108,6 @@ export default {
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-oldPartUnqualifiedConfig',
-      isEditing: false,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -107,75 +117,23 @@ export default {
         unqualifiedDesc: [
           { required: true, message: '请输入描述', trigger: 'change' }
         ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ]
       }
     };
   },
   mounted () {
-    this.getDetailData();
   },
   methods: {
+    detailRequest () {
+      const id = this._id;
+      if (id) {
+        return getDetail(id);
+      }
+    },
+    submitRequest () {
+      return addOrUpdate({ ...this.form });
+    },
     handleBack () {
       this.$router.back();
-    },
-    getDetailData () {
-      const id = this._id;
-      if (!this.id) {
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['旧件不合格配置', `${id ? '详情' : '新建'}`]);
-      }
-      if (id) {
-        getDetail(id).then(res => {
-          this.loading = false;
-          Object.assign(this.form, res);
-          Object.assign(this.originalForm, res);
-        });
-      }
-    },
-    submitForm (formName, rest = false) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          this.submitLoading = true;
-          addOrUpdate({ ...this.form }).then(res => {
-            this.$message({
-              message: '保存成功',
-              type: 'success'
-            });
-            const id = this.$route.query.id;
-            if (rest || !id) {
-              this.resetForm(formName);
-            } else {
-              this.getDetailData();
-            }
-          }).finally(() => {
-            this.submitLoading = false;
-          });
-        }
-      });
-    },
-    resetForm (formName) {
-      this.$refs[formName].resetFields();
-      this.tableData = [];
-      this.form = this.getDefautlForm();
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
@@ -186,10 +144,6 @@ export default {
         // ownerName: userInfo.userName,
       };
     },
-    // 审核日志
-    // handleJumpAuditLog () {
-    //   this.$auditLog.show({ id: 123 });
-    // },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);

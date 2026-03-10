@@ -23,7 +23,7 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="活动类型"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="活动类型"  v-show="!isServiceCareActivity && (this.visibleCount === 3 || show)">
         <fetch-select
           :request="fetchOptions"
           enumCode="claim_activity_type"
@@ -142,7 +142,7 @@ import {
   deleteItem,
   enableItem,
   submitPartsPreparation, partsPreparationCompleted
-} from '@/api/claimreturn/claim/basic/techServiceActivity';
+} from '@/api/claimreturn/claim/basic/serviceActivity';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -183,11 +183,13 @@ export default {
     EditPage
   },
   data () {
+    const moduleKey = 'AISCR-' + this.$route.meta.moduleKey;
     return {
-      pageTitle: '技术服务活动',
+      pageTitle: this.$route.meta.name,
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISCR-techServiceActivity',
+      moduleKey,
+      isServiceCareActivity: this.$route.meta.isServiceCareActivity,
       form: {
         ...defaultForm
       },
@@ -215,7 +217,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/basic/techServiceActivity/edit',
+                  path: this.getPath(),
                   query: {
                     id: row.id
                   }
@@ -246,7 +248,7 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/basic/techServiceActivity/edit',
+                  path: this.getPath(),
                   query: {
                     id: row.id,
                     isEditing: true,
@@ -280,6 +282,12 @@ export default {
     this.getData();
   },
   methods: {
+    getPath () {
+      if (this.isServiceCareActivity) {
+        return '/claimreturn/claim/basic/serviceCareActivity/edit';
+      }
+      return '/claimreturn/claim/basic/techServiceActivity/edit';
+    },
     handleImport () {
       this.uploadDialogVisible = true;
     },
@@ -288,7 +296,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/claimreturn/claim/basic/techServiceActivity/edit'
+        path: this.getPath(),
       });
     },
     onSubmit () {
@@ -331,7 +339,12 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getList({
+        ...this.getFormData(),
+        pageNum: this.optionObj.form.page,
+        pageSize: this.optionObj.form.size,
+        isServiceCareActivity: this.isServiceCareActivity,
+      })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {
