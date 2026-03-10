@@ -2163,6 +2163,24 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/maintain/sp/ownersEquityOrder',
+      name: 'ownersEquityOrder',
+      component: () => import('@/views/maintain/sp/ownersEquityOrder/index.vue'),
+
+      meta: {
+        name: '商城订单管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/ownersequityorder/edit',
+      name: 'ownersEquityOrderEdit',
+      component: () => import('@/views/maintain/sp/ownersEquityOrder/edit.vue'),
+
+      meta: {
+        name: '商城订单详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
