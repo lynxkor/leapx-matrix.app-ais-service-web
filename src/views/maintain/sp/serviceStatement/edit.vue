@@ -171,8 +171,8 @@
                 <el-form-item label="数据来源：" prop="dataSourceLabel">
                   {{ form.dataSourceLabel }}
                 </el-form-item>
-                <el-form-item label="负责人：" prop="serviceOwnerId">
-                  {{ form.serviceOwnerId }}
+                <el-form-item label="负责人：" prop="serviceOwnerName">
+                  {{ form.serviceOwnerName }}
                 </el-form-item>
                 <el-form-item label="支付方式：" prop="payTypeLabel">
                   {{ form.payTypeLabel }}
