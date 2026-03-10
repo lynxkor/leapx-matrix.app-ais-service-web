@@ -598,7 +598,7 @@ export default {
         // 找到最近的 el-form-item
         const formItem = errorItem.closest('.el-form-item');
         if (formItem) {
-          formItem.style.scrollMarginTop = '50px';
+          formItem.style.scrollMarginTop = '150px';
           formItem.scrollIntoView({
             behavior: 'smooth',
             block: 'start',
