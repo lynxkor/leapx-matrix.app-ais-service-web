@@ -528,6 +528,26 @@ export default {
     };
   },
   methods: {
+    scrollToError (invalidFields) {
+      if (!invalidFields || !Object.keys(invalidFields).length) return;
+      // 查找包含错误信息的表单项
+      const errorItem = this.$refs.ruleForm.$el.querySelector('.is-error');
+      if (errorItem) {
+        // 找到最近的 el-form-item
+        const formItem = errorItem.closest('.el-form-item');
+        if (formItem) {
+          formItem.style.scrollMarginTop = '150px';
+          formItem.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+            inline: 'nearest'
+          });
+        }
+        setTimeout(() => {
+          formItem.style.scrollMarginTop = '';
+        }, 100);
+      }
+    },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);
@@ -537,9 +557,13 @@ export default {
     getFormData () {
       return new Promise((resolve, reject) => {
         if (this.$refs.ruleForm) {
-          this.$refs.ruleForm.validate((valid) => {
+          this.$refs.ruleForm.validate((valid, invalidFields) => {
             if (valid) {
               resolve(this.form);
+            } else {
+              this.$nextTick(() => {
+                this.scrollToError(invalidFields);
+              });
             }
           });
         } else {

@@ -3,6 +3,10 @@ import api from '@/axios';
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = 'datacenter/web/vehicle/vehicleProfile/';
 
+export function vehicleListFull (data) {
+  return api.jsonPost(prefix + 'listFull', data);
+};
+
 /**
  * 查询列表
  * @param {Object} data
