@@ -2189,6 +2189,57 @@ const routes = [
         name: '备件发运单详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyPartManagementRateSetting',
+      name: 'warrantyPartManagementRateSetting',
+
+      component: () => import(
+        '@/views/claimreturn/claim/basic/warrantyPartManagementRateSetting/index.vue'
+      ),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantypartmanagementratesetting/edit',
+      name: 'warrantyPartManagementRateSettingEdit',
+
+      component: () => import(
+        '@/views/claimreturn/claim/basic/warrantyPartManagementRateSetting/edit.vue'
+      ),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/sp/ownersEquityOrder',
+      name: 'ownersEquityOrder',
+      component: () => import('@/views/maintain/sp/ownersEquityOrder/index.vue'),
+
+      meta: {
+        name: '商城订单管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyParameterConfig',
+      name: 'warrantyParameterConfig',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyParameterConfig/edit.vue'),
+
+      meta: {
+        name: '保修参数设置',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/ownersequityorder/edit',
+      name: 'ownersEquityOrderEdit',
+      component: () => import('@/views/maintain/sp/ownersEquityOrder/edit.vue'),
+
+      meta: {
+        name: '商城订单详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
