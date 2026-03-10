@@ -23,7 +23,7 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="活动类型"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="活动类型"  v-show="!isServiceCareActivity && (this.visibleCount === 3 || show)">
         <fetch-select
           :request="fetchOptions"
           enumCode="claim_activity_type"
