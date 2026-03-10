@@ -1102,6 +1102,7 @@ export default {
       this.partRepairType = v;
     },
     handleRefresh () {
+      this.getRepairItemInfo();
     },
   }
 };
