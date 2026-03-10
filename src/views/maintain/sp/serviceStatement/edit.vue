@@ -15,7 +15,6 @@
           <el-button size="small" @click="createWarrantyApply"
             v-if="buttonPermissions.createWarranty">创建保修申请单</el-button>
           <el-button size="small" @click="handlePrint">打印结算单</el-button>
-          <el-button size="small" @click="logList">审核日志</el-button>
         </template>
         <div class="common-sub-title">
           <span>结算单号：{{ form.code || '-' }}</span>
@@ -204,21 +203,19 @@
                   {{ form.repairItemPayableAmount }}
                 </el-form-item>
                 <el-form-item label="结算人员：" prop="statementPersonName">
-                  {{ form.statementPersonName }}
+                  <el-link type="success" target="_blank" :href="`/partner/user/list/detail?&userId=${form.statementPersonId}`">{{ form.statementPersonName }}</el-link>
                 </el-form-item>
                 <el-form-item label="去零金额：" prop="noFractionAmount">
                   {{ form.noFractionAmount }}
                 </el-form-item>
-
                 <el-form-item label="结算时间：" prop="statementTime">
                   {{ form.statementTime }}
                 </el-form-item>
                 <el-form-item label="权益金额：" prop="rightsAmount">
                   {{ form.rightsAmount }}
                 </el-form-item>
-
                 <el-form-item label="收款人：" prop="payeeName">
-                  {{ form.payeeName }}
+                  <el-link type="success" target="_blank" :href="`/partner/user/list/detail?&userId=${form.payeeId}`">{{ form.payeeName }}</el-link>
                 </el-form-item>
                 <el-form-item label="优惠总金额：" prop="discountAmount">
                   {{ form.discountAmount }}
