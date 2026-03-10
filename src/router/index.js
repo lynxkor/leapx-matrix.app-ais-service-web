@@ -793,15 +793,6 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/claim/basic/serviceActivityVehicle',
-      name: 'serviceActivityVehicle',
-      component: () => import('@/views/claimreturn/claim/basic/serviceActivityVehicle/index.vue'),
-
-      meta: {
-        name: '新页面',
-        keepAlive: true
-      }
-    }, {
       path: '/sparepart/basic/sparePart',
       name: 'sparePart',
       component: () => import('@/views/sparepart/basic/sparePart/index.vue'),
@@ -847,13 +838,48 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/claimreturn/claim/basic/serviceActivityVehicle',
+      name: 'serviceActivityVehicle',
+      component: () => import('@/views/claimreturn/claim/basic/serviceActivityVehicle/index.vue'),
+
+      meta: {
+        keepAlive: true,
+        name: '服务活动车辆',
+        isServiceCareActivity: false,
+        moduleKey: 'serviceActivityVehicle',
+      }
+    }, {
       path: '/claimreturn/claim/basic/serviceactivityvehicle/edit',
       name: 'serviceActivityVehicleEdit',
       component: () => import('@/views/claimreturn/claim/basic/serviceActivityVehicle/edit.vue'),
 
       meta: {
-        name: '新页面详情',
-        noResourceUrl: 'true'
+        noResourceUrl: 'true',
+        name: '服务活动车辆',
+        isServiceCareActivity: false,
+        moduleKey: 'serviceActivityVehicle',
+      }
+    }, {
+      path: '/claimreturn/claim/basic/serviceCareActivityVehicle',
+      name: 'serviceActivityVehicle',
+      component: () => import('@/views/claimreturn/claim/basic/serviceActivityVehicle/index.vue'),
+
+      meta: {
+        keepAlive: true,
+        name: '服务关爱活动车辆',
+        isServiceCareActivity: true,
+        moduleKey: 'serviceCareActivityVehicle',
+      }
+    }, {
+      path: '/claimreturn/claim/basic/serviceCareActivityVehicle/edit',
+      name: 'serviceActivityVehicleEdit',
+      component: () => import('@/views/claimreturn/claim/basic/serviceActivityVehicle/edit.vue'),
+
+      meta: {
+        noResourceUrl: 'true',
+        name: '服务关爱活动车辆',
+        isServiceCareActivity: true,
+        moduleKey: 'serviceCareActivityVehicle',
       }
     }, {
       path: '/claimreturn/claim/basic/techServiceActivity',
@@ -861,8 +887,10 @@ const routes = [
       component: () => import('@/views/claimreturn/claim/basic/techServiceActivity/index.vue'),
 
       meta: {
-        name: '新页面',
-        keepAlive: true
+        name: '技术服务活动',
+        keepAlive: true,
+        isServiceCareActivity: false,
+        moduleKey: 'techServiceActivity',
       }
     }, {
       path: '/claimreturn/claim/basic/techServiceActivity/edit',
@@ -870,8 +898,30 @@ const routes = [
       component: () => import('@/views/claimreturn/claim/basic/techServiceActivity/edit.vue'),
 
       meta: {
-        name: '新页面详情',
-        noResourceUrl: 'true'
+        name: '技术服务活动',
+        noResourceUrl: 'true',
+        isServiceCareActivity: false,
+        moduleKey: 'techServiceActivity',
+      }
+    }, {
+      path: '/claimreturn/claim/basic/serviceCareActivity',
+      name: 'serviceActivity',
+      component: () => import('@/views/claimreturn/claim/basic/techServiceActivity/index.vue'),
+      meta: {
+        keepAlive: true,
+        name: '服务关爱活动',
+        isServiceCareActivity: true,
+        moduleKey: 'serviceCareActivity',
+      }
+    }, {
+      path: '/claimreturn/claim/basic/serviceCareActivity/edit',
+      name: 'serviceActivityEdit',
+      component: () => import('@/views/claimreturn/claim/basic/techServiceActivity/edit.vue'),
+      meta: {
+        noResourceUrl: 'true',
+        name: '服务关爱活动',
+        isServiceCareActivity: true,
+        moduleKey: 'serviceCareActivity',
       }
     }, {
       path: '/claimreturn/claim/basic/freeMaintenancePolicy',
@@ -998,15 +1048,6 @@ const routes = [
       meta: {
         name: '新页面',
         keepAlive: true
-      }
-    }, {
-      path: '/claimreturn/oldpart/basic/oldpartunqualifiedconfig/detail',
-      name: 'oldPartUnqualifiedConfigDetail',
-      component: () => import('@/views/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/detail.vue'),
-
-      meta: {
-        name: '新页面详情',
-        noResourceUrl: 'true'
       }
     }, {
       path: '/claimreturn/oldpart/basic/oldpartunqualifiedconfig/edit',
@@ -2146,6 +2187,57 @@ const routes = [
 
       meta: {
         name: '备件发运单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyPartManagementRateSetting',
+      name: 'warrantyPartManagementRateSetting',
+
+      component: () => import(
+        '@/views/claimreturn/claim/basic/warrantyPartManagementRateSetting/index.vue'
+      ),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantypartmanagementratesetting/edit',
+      name: 'warrantyPartManagementRateSettingEdit',
+
+      component: () => import(
+        '@/views/claimreturn/claim/basic/warrantyPartManagementRateSetting/edit.vue'
+      ),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/sp/ownersEquityOrder',
+      name: 'ownersEquityOrder',
+      component: () => import('@/views/maintain/sp/ownersEquityOrder/index.vue'),
+
+      meta: {
+        name: '商城订单管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyParameterConfig',
+      name: 'warrantyParameterConfig',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyParameterConfig/edit.vue'),
+
+      meta: {
+        name: '保修参数设置',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/ownersequityorder/edit',
+      name: 'ownersEquityOrderEdit',
+      component: () => import('@/views/maintain/sp/ownersEquityOrder/edit.vue'),
+
+      meta: {
+        name: '商城订单详情',
         noResourceUrl: 'true'
       }
     }]

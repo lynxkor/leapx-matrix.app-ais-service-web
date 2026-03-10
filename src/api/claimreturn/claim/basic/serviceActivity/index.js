@@ -1,7 +1,7 @@
 import api from '@/axios';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
-const prefix = 'claimreturn/claim/web/basic/techServiceActivity/';
+const prefix = 'claimreturn/claim/web/basic/serviceActivity/';
 
 /**
  * 查询列表
@@ -59,7 +59,7 @@ export function partsPreparationCompleted (data) {
   return api.jsonPost(prefix + 'partsPreparationCompleted', data);
 }
 
-const prefixScheme = 'claimreturn/claim/web/basic/techServiceActivityScheme/';
+const prefixScheme = 'claimreturn/claim/web/basic/serviceActivityScheme/';
 // 服务活动方案列表查询
 export function techServiceActivitySchemeList (data) {
   return api.jsonPost(prefixScheme + 'list', data);
@@ -81,7 +81,7 @@ export function techServiceActivitySchemeCopy (data) {
   return api.jsonPost(prefixScheme + 'copy', data);
 }
 
-const ItemPart = 'claimreturn/claim/web/basic/techServiceActivityItem/';
+const ItemPart = 'claimreturn/claim/web/basic/serviceActivityItem/';
 // 技术服务活动项目分页查询
 export function techServiceActivityItemPage (data) {
   return api.jsonPost(ItemPart + 'page', data);
@@ -99,7 +99,7 @@ export function techServiceActivityItemDelete (data) {
   return api.jsonPost(ItemPart + 'delete', data);
 }
 
-const prefixPart = 'claimreturn/claim/web/basic/techServiceActivityPart/';
+const prefixPart = 'claimreturn/claim/web/basic/serviceActivityPart/';
 // 技术服务活动零件列表查询
 export function techServiceActivityPartPage (data) {
   return api.jsonPost(prefixPart + 'page', data);
@@ -117,7 +117,7 @@ export function techServiceActivityPartDelete (data) {
   return api.jsonPost(prefixPart + 'delete', data);
 }
 
-const prefixFileConfig = 'claimreturn/claim/web/basic/techServiceActivityFileConfig/';
+const prefixFileConfig = 'claimreturn/claim/web/basic/serviceActivityFileConfig/';
 // 服务活动自动审批附件分页查询
 export function techServiceActivityFileConfigPage (data) {
   return api.jsonPost(prefixFileConfig + 'page', data);
@@ -131,4 +131,19 @@ export function techServiceActivityFileConfigUpdate (data) {
 }
 export function techServiceActivityFileConfigDelete (data) {
   return api.jsonPost(prefixFileConfig + 'delete', data);
+}
+
+const prefixVehicle = 'claimreturn/claim/web/basic/serviceActivityVehicle/';
+// 服务活动车辆档案分页查询
+export function serviceActivityVehiclePage (data) {
+  return api.jsonPost(prefixVehicle + 'page', data);
+}
+export function serviceActivityVehicleUpdate (data) {
+  return api.jsonPost(prefixVehicle + 'addOrUpdate', data);
+}
+export function serviceActivityVehicleDelete (data) {
+  return api.jsonPost(prefixVehicle + 'delete', data);
+}
+export function serviceActivityVehicleImportExcel (data) {
+  return api.jsonPost(prefixVehicle + 'importExcel', data);
 }

@@ -90,14 +90,14 @@
                     <td>客户经理</td>
                     <td>{{ info.dedicatedServiceManager }}</td>
                   </tr>
-                  <tr>
+                  <!-- <tr>
                     <td style="border-bottom-width: 0px">客户地址</td>
                     <td
                       colspan="7"
                       id="mcs_customeraddr"
                       style="border-bottom-width: 0px; text-align: left"
                     ></td>
-                  </tr>
+                  </tr> -->
                   <tr>
                     <td style="border-bottom-width: 0px; height: 40px">
                       客户诉求
@@ -125,7 +125,7 @@
                       style="border-bottom-width: 0px; text-align: left"
                     >{{ info.testResult }}</td>
                   </tr>
-                  <tr>
+                  <!-- <tr>
                     <td style="border-bottom-width: 0px; height: 40px">
                       拆解说明
                     </td>
@@ -142,7 +142,7 @@
                       colspan="7"
                       style="border-bottom-width: 0px; text-align: left"
                     >(如涉及路试或其他特殊情况，请客户经理在此记录，避免纠纷)</td>
-                  </tr>
+                  </tr> -->
                   <tr>
                     <td style="border-bottom-width: 0px; height: 40px">
                       异常描述

@@ -26,7 +26,7 @@
                          class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="活动编码：" prop="activityId">
                     <list-select
-                      listUrl="/claimreturn/claim/web/basic/techServiceActivity/listFull"
+                      listUrl="/claimreturn/claim/web/basic/serviceActivity/listFull"
                       placeholder="请选择"
                       v-model="form.activityId"
                       query-key="activityCodeLike"
@@ -249,10 +249,13 @@ export default {
   },
   data () {
     const form = this.getDefautlForm();
+    const moduleKey = 'AISCR-' + this.$route.meta.moduleKey;
     return {
-      pageTitle: '服务活动车辆',
+      pageTitle: this.$route.meta.name,
       pageType: 'edit',
-      moduleKey: 'AISCR-serviceActivityVehicle',
+      moduleKey,
+      isServiceCareActivity: this.$route.meta.isServiceCareActivity,
+      //
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,

@@ -239,6 +239,10 @@
               :moduleKey="moduleKey"
               @change="schemeChange"
             />
+            <vehicle
+              :id="_id"
+              :moduleKey="moduleKey"
+            />
             <file-config
               :id="_id"
               :moduleKey="moduleKey"
@@ -266,11 +270,12 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import { getList } from '../../../../../api/maintain/basic/checkoutType';
 import { getList as repairGetList } from '../../../../../api/maintain/basic/repairItemType';
-import { getDetail, addOrUpdate } from '../../../../../api/claimreturn/claim/basic/techServiceActivity';
+import { getDetail, addOrUpdate } from '../../../../../api/claimreturn/claim/basic/serviceActivity';
 import PlanInfo from './PlanInfo.vue';
 import FileConfig from './FileConfig/index.vue';
 import { formatDateTime } from '@/libs/utils';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
+import Vehicle from './Vehicle';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -328,6 +333,7 @@ export default {
     BaseInput,
     PlanInfo,
     FileConfig,
+    Vehicle,
   },
   computed: {
     _id () {
@@ -346,11 +352,13 @@ export default {
   },
   data () {
     const form = this.getDefautlForm();
+    const moduleKey = 'AISCR-' + this.$route.meta.moduleKey;
     return {
-      pageTitle: '技术服务活动',
+      pageTitle: this.$route.meta.name,
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISCR-techServiceActivity',
+      moduleKey,
+      isServiceCareActivity: this.$route.meta.isServiceCareActivity,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -378,9 +386,6 @@ export default {
         ],
         autoApprove: [
           { required: true, message: '请输入是否自动审核', trigger: 'blur' }
-        ],
-        costContent: [
-          { required: true, message: '请输入活动费用内容', trigger: 'blur' }
         ],
         faultPhenomenon: [
           { required: true, message: '请输入故障现象描述', trigger: 'blur' }

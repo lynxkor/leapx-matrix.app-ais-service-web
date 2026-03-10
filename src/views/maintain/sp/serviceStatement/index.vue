@@ -249,7 +249,7 @@ export default {
 
           {
             props: 'warrantyTypeCollect',
-            label: '保修类型（汇总）',
+            label: '维修类型（汇总）',
             visible: true,
             width: 200,
           },
