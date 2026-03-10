@@ -13,12 +13,12 @@
         :detailRequest="detailRequest"
       >
         <template #status>
-          <!-- 支持primary,warning,success,danger等状态 -->
+          <!-- 支持 primary,warning,success,danger 等状态 -->
           <!-- <span class="status primary">状态</span> -->
         </template>
         <template #extraButtons>
-          <!-- <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button> -->
+          <!-- <el-button size="small">按钮 1</el-button>
+          <el-button size="small">按钮 2</el-button> -->
         </template>
         <el-main>
           <section class="common-section">
@@ -26,215 +26,13 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <!-- TIPS: 自行调整 label-width="150px"，使得 label 不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="共享调拨入库单号：" prop="code">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.code"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="共享调拨出库单ID：" prop="sharedTransferOutboundId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.sharedTransferOutboundId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="入库门店编码：" prop="inboundDealerCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.inboundDealerCode"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="入库门店名称：" prop="inboundDealerName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.inboundDealerName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="入库仓库ID：" prop="inboundWarehouseId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.inboundWarehouseId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="出库门店编码：" prop="outboundDealerCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.outboundDealerCode"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="出库门店名称：" prop="outboundDealerName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.outboundDealerName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="签收状态:待签收，已签收，已入库：" prop="signStatus">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.signStatus"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.createTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.updateTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.id"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creator"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creatorName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifier"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifierName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.status"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statusDesc"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dataSource"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="是否共享订单：" prop="shareIs">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.shareIs"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="共享调拨出库单：" prop="sharedTransferOutboundCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.sharedTransferOutboundCode"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="入库门店组织id：" prop="inboundOwnerOrgId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.inboundOwnerOrgId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="出库门店组织id：" prop="outboundOwnerOrgId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.outboundOwnerOrgId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="签收人：" prop="signUser">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.signUser"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="签收人名称：" prop="signUserName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.signUserName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="签收时间：" prop="signTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.signTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
+
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="共享调拨入库单号：" prop="code">
                   {{ form.code }}
-                </el-form-item>
-                <el-form-item label="共享调拨出库单ID：" prop="sharedTransferOutboundId">
-                  {{ form.sharedTransferOutboundId }}
                 </el-form-item>
                 <el-form-item label="入库门店编码：" prop="inboundDealerCode">
                   {{ form.inboundDealerCode }}
@@ -242,8 +40,8 @@
                 <el-form-item label="入库门店名称：" prop="inboundDealerName">
                   {{ form.inboundDealerName }}
                 </el-form-item>
-                <el-form-item label="入库仓库ID：" prop="inboundWarehouseId">
-                  {{ form.inboundWarehouseId }}
+                <el-form-item label="入库仓库：" prop="inboundWarehouseName">
+                  {{ form.inboundWarehouseName }}
                 </el-form-item>
                 <el-form-item label="出库门店编码：" prop="outboundDealerCode">
                   {{ form.outboundDealerCode }}
@@ -251,58 +49,13 @@
                 <el-form-item label="出库门店名称：" prop="outboundDealerName">
                   {{ form.outboundDealerName }}
                 </el-form-item>
-                <el-form-item label="签收状态:待签收，已签收，已入库：" prop="signStatus">
-                  {{ form.signStatus }}
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  {{ form.createTime }}
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  {{ form.updateTime }}
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  {{ form.modifierName }}
+                <el-form-item label="签收状态：" prop="signStatus">
+                  {{ form.signStatusLabel }}
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
                   {{ form.remark }}
                 </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  {{ form.status }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  {{ form.statusDesc }}
-                </el-form-item>
-                <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
-                  {{ form.dataSource }}
-                </el-form-item>
-                <el-form-item label="是否共享订单：" prop="shareIs">
-                  {{ form.shareIs }}
-                </el-form-item>
-                <el-form-item label="共享调拨出库单：" prop="sharedTransferOutboundCode">
-                  {{ form.sharedTransferOutboundCode }}
-                </el-form-item>
-                <el-form-item label="入库门店组织id：" prop="inboundOwnerOrgId">
-                  {{ form.inboundOwnerOrgId }}
-                </el-form-item>
-                <el-form-item label="出库门店组织id：" prop="outboundOwnerOrgId">
-                  {{ form.outboundOwnerOrgId }}
-                </el-form-item>
-                <el-form-item label="签收人：" prop="signUser">
-                  {{ form.signUser }}
-                </el-form-item>
-                <el-form-item label="签收人名称：" prop="signUserName">
+                <el-form-item label="签收人：" prop="signUserName">
                   {{ form.signUserName }}
                 </el-form-item>
                 <el-form-item label="签收时间：" prop="signTime">
@@ -463,83 +216,8 @@ export default {
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
       rules: {
-        code: [
-          { required: true, message: '请输入共享调拨入库单号', trigger: 'change' }
-        ],
-        sharedTransferOutboundId: [
-          { required: true, message: '请输入共享调拨出库单ID', trigger: 'change' }
-        ],
-        inboundDealerCode: [
-          { required: true, message: '请输入入库门店编码', trigger: 'change' }
-        ],
-        inboundDealerName: [
-          { required: true, message: '请输入入库门店名称', trigger: 'change' }
-        ],
-        inboundWarehouseId: [
-          { required: true, message: '请输入入库仓库ID', trigger: 'change' }
-        ],
-        outboundDealerCode: [
-          { required: true, message: '请输入出库门店编码', trigger: 'change' }
-        ],
-        outboundDealerName: [
-          { required: true, message: '请输入出库门店名称', trigger: 'change' }
-        ],
-        signStatus: [
-          { required: true, message: '请选择签收状态:待签收，已签收，已入库', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
         remark: [
           { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，150:新销服; 老销服:10', trigger: 'change' }
-        ],
-        shareIs: [
-          { required: true, message: '请输入是否共享订单', trigger: 'change' }
-        ],
-        sharedTransferOutboundCode: [
-          { required: true, message: '请输入共享调拨出库单', trigger: 'change' }
-        ],
-        inboundOwnerOrgId: [
-          { required: true, message: '请输入入库门店组织id', trigger: 'change' }
-        ],
-        outboundOwnerOrgId: [
-          { required: true, message: '请输入出库门店组织id', trigger: 'change' }
-        ],
-        signUser: [
-          { required: true, message: '请输入签收人', trigger: 'change' }
-        ],
-        signUserName: [
-          { required: true, message: '请输入签收人名称', trigger: 'change' }
-        ],
-        signTime: [
-          { required: true, message: '请选择签收时间', trigger: 'change' }
         ],
       }
     };

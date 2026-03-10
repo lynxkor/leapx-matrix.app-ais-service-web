@@ -1,7 +1,6 @@
 <template>
   <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
-      <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container
         ref="containerRef"
         :id="_id"
@@ -13,12 +12,9 @@
         :detailRequest="detailRequest"
       >
         <template #status>
-          <!-- 支持primary,warning,success,danger等状态 -->
-          <!-- <span class="status primary">状态</span> -->
+          <span v-if="form.status" class="status primary">{{ form.status }}</span>
         </template>
         <template #extraButtons>
-          <!-- <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button> -->
         </template>
         <el-main>
           <section class="common-section">
@@ -26,377 +22,51 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="差异单号：" prop="code">
+                  {{ form.code }}
+                </el-form-item>
+                <el-form-item label="盘点单号：" prop="stockTakingCode">
+                  {{ form.stockTakingCode }}
+                </el-form-item>
+                <el-form-item label="备注：" prop="remark">
+                  {{ form.remark }}
+                </el-form-item>
+                <el-form-item label="门店名称：" prop="dealerName">
+                  {{ form.dealerName }}
+                </el-form-item>
+                <el-form-item label="母公司名称：" prop="companyName">
+                  {{ form.companyName }}
+                </el-form-item>
+                <el-form-item label="备件仓库：" prop="warehouseId">
+                  {{ form.warehouseName }}
+                </el-form-item>
+                <el-form-item label="差异单状态：" prop="orderStatus">
+                  {{ form.orderStatusLabel }}
+                </el-form-item>
+                <el-form-item label="差异类型：" prop="differencesType">
+                  {{ form.differencesTypeLabel }}
+                </el-form-item>
+                <el-form-item label="盘点类型：" prop="stockType">
+                  {{ form.stockTypeLabel }}
+                </el-form-item>
+                <el-form-item label="申请人：" prop="apply">
+                  {{ form.apply }}
+                </el-form-item>
+                <el-form-item label="申请时间：" prop="applyTime">
+                  {{ form.applyTime }}
+                </el-form-item>
                 <el-form-item label="申请说明：" prop="applyDescription">
                   <el-input
+                    type="textarea"
+                    :rows="3"
                     placeholder="请输入"
                     v-model="form.applyDescription"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="差异单号：" prop="code">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.code"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="盘点单：" prop="stockTakingCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.stockTakingCode"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="门店编码：" prop="dealerCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dealerCode"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="公司编码：" prop="companyCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.companyCode"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="备件仓库ID：" prop="warehouseId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.warehouseId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="盘点类型:全盘，抽盘：" prop="stockType">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.stockType"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="差异类型:盘盈，盘亏：" prop="differencesType">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.differencesType"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="差异单状态:草稿，待审批，同意，拒绝；默认草稿：" prop="orderStatus">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.orderStatus"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="出入库状态:待出库，已出库，待入库，已入库：" prop="outInboundStatus">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.outInboundStatus"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.createTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.updateTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.id"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creator"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creatorName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifier"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifierName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.status"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statusDesc"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dataSource"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="盘点单ID：" prop="stockTakingId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.stockTakingId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="门店组织id：" prop="ownerOrgId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.ownerOrgId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dealerName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="公司名称：" prop="companyName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.companyName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="申请人：" prop="apply">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.apply"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="申请人名称：" prop="applyName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.applyName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="申请时间：" prop="applyTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.applyTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="审批人：" prop="approver">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.approver"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="审批人名称：" prop="approverName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.approverName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="审批时间：" prop="approvalTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.approvalTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="审批说明：" prop="approvalDescription">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.approvalDescription"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="出入库操作人：" prop="operationOperator">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.operationOperator"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="出入库操作人名称：" prop="operationOperatorName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.operationOperatorName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="出入库操作时间：" prop="operationTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.operationTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-              </el-form>
-              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="申请说明：" prop="applyDescription">
-                  {{ form.applyDescription }}
-                </el-form-item>
-                <el-form-item label="差异单号：" prop="code">
-                  {{ form.code }}
-                </el-form-item>
-                <el-form-item label="盘点单：" prop="stockTakingCode">
-                  {{ form.stockTakingCode }}
-                </el-form-item>
-                <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode }}
-                </el-form-item>
-                <el-form-item label="公司编码：" prop="companyCode">
-                  {{ form.companyCode }}
-                </el-form-item>
-                <el-form-item label="备件仓库ID：" prop="warehouseId">
-                  {{ form.warehouseId }}
-                </el-form-item>
-                <el-form-item label="盘点类型:全盘，抽盘：" prop="stockType">
-                  {{ form.stockType }}
-                </el-form-item>
-                <el-form-item label="差异类型:盘盈，盘亏：" prop="differencesType">
-                  {{ form.differencesType }}
-                </el-form-item>
-                <el-form-item label="差异单状态:草稿，待审批，同意，拒绝；默认草稿：" prop="orderStatus">
-                  {{ form.orderStatus }}
-                </el-form-item>
-                <el-form-item label="出入库状态:待出库，已出库，待入库，已入库：" prop="outInboundStatus">
-                  {{ form.outInboundStatus }}
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  {{ form.createTime }}
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  {{ form.updateTime }}
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  {{ form.modifierName }}
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  {{ form.status }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  {{ form.statusDesc }}
-                </el-form-item>
-                <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
-                  {{ form.dataSource }}
-                </el-form-item>
-                <el-form-item label="盘点单ID：" prop="stockTakingId">
-                  {{ form.stockTakingId }}
-                </el-form-item>
-                <el-form-item label="门店组织id：" prop="ownerOrgId">
-                  {{ form.ownerOrgId }}
-                </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
-                </el-form-item>
-                <el-form-item label="公司名称：" prop="companyName">
-                  {{ form.companyName }}
-                </el-form-item>
-                <el-form-item label="申请人：" prop="apply">
-                  {{ form.apply }}
-                </el-form-item>
-                <el-form-item label="申请人名称：" prop="applyName">
-                  {{ form.applyName }}
-                </el-form-item>
-                <el-form-item label="申请时间：" prop="applyTime">
-                  {{ form.applyTime }}
-                </el-form-item>
                 <el-form-item label="审批人：" prop="approver">
                   {{ form.approver }}
-                </el-form-item>
-                <el-form-item label="审批人名称：" prop="approverName">
-                  {{ form.approverName }}
                 </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
                   {{ form.approvalTime }}
@@ -407,18 +77,74 @@
                 <el-form-item label="出入库操作人：" prop="operationOperator">
                   {{ form.operationOperator }}
                 </el-form-item>
-                <el-form-item label="出入库操作人名称：" prop="operationOperatorName">
-                  {{ form.operationOperatorName }}
+                <el-form-item label="出入库操作时间：" prop="operationTime">
+                  {{ form.operationTime }}
+                </el-form-item>
+                <el-form-item label="出入库状态：" prop="outInboundStatus">
+                  {{ form.outInboundStatusLabel }}
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="差异单号：" prop="code">
+                  {{ form.code }}
+                </el-form-item>
+                <el-form-item label="盘点单号：" prop="stockTakingCode">
+                  {{ form.stockTakingCode }}
+                </el-form-item>
+                <el-form-item label="备注：" prop="remark">
+                  {{ form.remark }}
+                </el-form-item>
+                <el-form-item label="门店名称：" prop="dealerName">
+                  {{ form.dealerName }}
+                </el-form-item>
+                <el-form-item label="母公司名称：" prop="companyName">
+                  {{ form.companyName }}
+                </el-form-item>
+                <el-form-item label="备件仓库：" prop="warehouseId">
+                  {{ form.warehouseName }}
+                </el-form-item>
+                <el-form-item label="差异单状态：" prop="orderStatus">
+                  {{ form.orderStatusLabel }}
+                </el-form-item>
+                <el-form-item label="差异类型：" prop="differencesType">
+                  {{ form.differencesTypeLabel }}
+                </el-form-item>
+                <el-form-item label="盘点类型：" prop="stockType">
+                  {{ form.stockTypeLabel }}
+                </el-form-item>
+                <el-form-item label="申请人：" prop="apply">
+                  {{ form.apply }}
+                </el-form-item>
+                <el-form-item label="申请时间：" prop="applyTime">
+                  {{ form.applyTime }}
+                </el-form-item>
+                <el-form-item label="申请说明：" prop="applyDescription">
+                  {{ form.applyDescription }}
+                </el-form-item>
+                <el-form-item label="审批人：" prop="approver">
+                  {{ form.approver }}
+                </el-form-item>
+                <el-form-item label="审批时间：" prop="approvalTime">
+                  {{ form.approvalTime }}
+                </el-form-item>
+                <el-form-item label="审批说明：" prop="approvalDescription">
+                  {{ form.approvalDescription }}
+                </el-form-item>
+                <el-form-item label="出入库操作人：" prop="operationOperator">
+                  {{ form.operationOperator }}
                 </el-form-item>
                 <el-form-item label="出入库操作时间：" prop="operationTime">
                   {{ form.operationTime }}
+                </el-form-item>
+                <el-form-item label="出入库状态：" prop="outInboundStatus">
+                  {{ form.outInboundStatusLabel }}
                 </el-form-item>
               </el-form>
             </div>
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>子表标题</h2>
+              <h2>差异明细</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
@@ -470,7 +196,6 @@
     </template>
     <template #right>
       <div class="page-common-edit">
-        <!-- 右侧栏组件，自行开发 -->
       </div>
     </template>
   </edit-page-layout>
@@ -482,13 +207,11 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
-import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
-  // 多选时字段有变化，自行修复
   applyDescription: '',
   code: '',
   stockTakingCode: '',
@@ -501,34 +224,20 @@ const defaultForm = {
   outInboundStatus: '',
   createTime: '',
   updateTime: '',
-  id: '',
-  creator: '',
-  creatorName: '',
-  modifier: '',
-  modifierName: '',
   remark: '',
-  status: '',
-  statusDesc: '',
-  dataSource: '',
-  stockTakingId: '',
-  ownerOrgId: '',
   dealerName: '',
   companyName: '',
   apply: '',
-  applyName: '',
   applyTime: '',
   approver: '',
-  approverName: '',
   approvalTime: '',
   approvalDescription: '',
   operationOperator: '',
-  operationOperatorName: '',
   operationTime: '',
 };
 
 export default {
   name: 'stockTakingDifferencesEdit',
-  // 集中视图预留
   props: {
     id: {
       type: [String, Number],
@@ -546,7 +255,7 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '申请说明：' + this.form.applyDescription;
+      return '盘点差异单号：' + this.form.code;
     }
   },
   watch: {
@@ -564,128 +273,25 @@ export default {
     return {
       pageTitle: '盘点差异单',
       pageType: 'edit',
-      // TIPS: 权限前缀 AISPART，根据实际情况修改
       moduleKey: 'AISPART-stockTakingDifferences',
       loading: false,
       submitLoading: false,
-      yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
       emptyText: '若要启用此内容，请创建记录',
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
+      tableData: [],
       rules: {
-        applyDescription: [
-          { required: true, message: '请输入申请说明', trigger: 'change' }
-        ],
-        code: [
-          { required: true, message: '请输入差异单号', trigger: 'change' }
-        ],
-        stockTakingCode: [
-          { required: true, message: '请输入盘点单', trigger: 'change' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码', trigger: 'change' }
-        ],
-        companyCode: [
-          { required: true, message: '请输入公司编码', trigger: 'change' }
-        ],
         warehouseId: [
-          { required: true, message: '请输入备件仓库ID', trigger: 'change' }
-        ],
-        stockType: [
-          { required: true, message: '请选择盘点类型:全盘，抽盘', trigger: 'change' }
+          { required: false, message: '请选择备件仓库 ID', trigger: 'change' }
         ],
         differencesType: [
-          { required: true, message: '请选择差异类型:盘盈，盘亏', trigger: 'change' }
-        ],
-        orderStatus: [
-          { required: true, message: '请选择差异单状态:草稿，待审批，同意，拒绝；默认草稿', trigger: 'change' }
-        ],
-        outInboundStatus: [
-          { required: true, message: '请选择出入库状态:待出库，已出库，待入库，已入库', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
+          { required: false, message: '请选择差异类型', trigger: 'change' }
         ],
         remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，150:新销服; 老销服:10', trigger: 'change' }
-        ],
-        stockTakingId: [
-          { required: true, message: '请输入盘点单ID', trigger: 'change' }
-        ],
-        ownerOrgId: [
-          { required: true, message: '请输入门店组织id', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称', trigger: 'change' }
-        ],
-        companyName: [
-          { required: true, message: '请输入公司名称', trigger: 'change' }
-        ],
-        apply: [
-          { required: true, message: '请输入申请人', trigger: 'change' }
-        ],
-        applyName: [
-          { required: true, message: '请输入申请人名称', trigger: 'change' }
-        ],
-        applyTime: [
-          { required: true, message: '请选择申请时间', trigger: 'change' }
-        ],
-        approver: [
-          { required: true, message: '请输入审批人', trigger: 'change' }
-        ],
-        approverName: [
-          { required: true, message: '请输入审批人名称', trigger: 'change' }
-        ],
-        approvalTime: [
-          { required: true, message: '请选择审批时间', trigger: 'change' }
-        ],
-        approvalDescription: [
-          { required: true, message: '请输入审批说明', trigger: 'change' }
-        ],
-        operationOperator: [
-          { required: true, message: '请输入出入库操作人', trigger: 'change' }
-        ],
-        operationOperatorName: [
-          { required: true, message: '请输入出入库操作人名称', trigger: 'change' }
-        ],
-        operationTime: [
-          { required: true, message: '请选择出入库操作时间', trigger: 'change' }
+          { required: false, message: '请输入备注', trigger: 'change' }
         ],
       }
     };
-  },
-  mounted () {
   },
   methods: {
     detailRequest () {
@@ -697,70 +303,34 @@ export default {
     submitRequest () {
       return addOrUpdate({ ...this.form });
     },
-    // 打开侧边栏
     openPane () {
       this.$refs.editLayout.openPane();
     },
-    // 删除子表数据
     handleDeleteRow (index) {
-      const item = this.tableData[index];
       this.tableData.splice(index, 1);
-      // 根据需求调用接口
-      // deletePartVehModel([item.id]).then(res => {
-      //   this.$message.success('删除成功');
-      //   this.tableData.splice(index, 1);
-      // });
     },
-    // 查询新增项的列表
     queryListData (queryString) {
       return new Promise(resolve => {
-        // 根据需求调用接口
-        // sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
-        //   const list = res || [];
-        //   resolve(list);
-        // });
-        resolve([
-          { id: 1, name: 'test', age: 25, email: 'test@example.com' }
-        ]);
+        resolve([]);
       });
     },
-    // 新增子表数据
     handleAddTableData (val, record) {
       if (!record) {
         this.$message.warning('请先选择数据');
         return;
       }
-      // 检查是否已存在
       const exists = this.tableData.some(item => item.id === record.id);
       if (exists) {
         this.$message.warning('请勿重复添加');
         return;
       }
-      // 根据需求调用接口
       this.tableData.push(record);
-      // addPartItem({
-      //   maintenancePartId: this._id,
-      //   partsCode: record.partCode,
-      //   partsName: record.partName,
-      //   partsId: record.id,
-      // }).then(res => {
-      //   this.$message.success('添加成功');
-      //   this.detailRequest();
-      // });
     },
     getDefautlForm () {
-      // TIPS: 此处可添加表单默认值，如当前用户信息等
-      // const userInfo = this.$store.state.user.userInfo;
       return {
         ...defaultForm
-        // ownerId: userInfo.userId,
-        // ownerName: userInfo.userName,
       };
     },
-    // 审核日志
-    // handleJumpAuditLog () {
-    //   this.$auditLog.show({ id: 123 });
-    // },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);

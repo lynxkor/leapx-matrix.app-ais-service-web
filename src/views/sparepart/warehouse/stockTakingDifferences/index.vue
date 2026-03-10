@@ -235,9 +235,9 @@ export default {
         },
         dataProp: [
           {
-            props: 'applyDescription',
-            label: '申请说明',
-            visible: false,
+            props: 'code',
+            label: '差异单号',
+            visible: true,
             width: 200,
             fixed: 'left',
             buttons: [{
@@ -252,8 +252,24 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'code', label: '差异单号', visible: true, width: 200 },
-          { props: 'stockTakingCode', label: '盘点单号', visible: true, width: 200 },
+          {
+            props: 'stockTakingCode',
+            label: '盘点单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/warehouse/stockTaking/edit',
+                  query: {
+                    id: row.stockTakingId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'companyName', label: '母公司名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
