@@ -53,6 +53,14 @@ export function dealerInboundOrderDetailPage (data) {
 }
 
 /**
+ * 外购件入库明细表删除
+ * @param {Object} data
+ */
+export function dealerInboundOrderDetailDelete (data) {
+  return api.jsonPost('/sp/web/dealer/dealerInboundOrderDetail/delete', data);
+}
+
+/**
  * 提交
  * @param {Object} data
  */

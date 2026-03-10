@@ -11,6 +11,7 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :showEditBtn="orderStatusType"
       >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
@@ -28,6 +29,20 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="内部领料单号：" prop="code">
+                  {{ form.code }}
+                </el-form-item>
+                <el-form-item label="订单状态：" prop="orderStatus">
+                  <fetch-select
+                    :request="fetchOptions"
+                    enumCode="DealerOutboundOrderStatusEnum"
+                    v-model="form.orderStatus"
+                    placeholder="请选择"
+                    disabled
+                    clearable
+                    filterable
+                  />
+                </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
                   <fetch-select
                     :remote-method="getDealerList"
@@ -43,30 +58,16 @@
                     @change="handleDealerChange"
                   />
                 </el-form-item>
-                <el-form-item label="内部领料单号：" prop="code">
-                  {{ form.code }}
-                </el-form-item>
-                <el-form-item label="订单状态：" prop="orderStatus">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="DealerOutboundOrderStatusEnum"
-                    v-model="form.orderStatus"
-                    placeholder="请选择"
-                    disabled
-                    clearable
-                    filterable
-                  />
+                <el-form-item label="门店名称：" prop="dealerName">
+                  {{ form.dealerName }}
                 </el-form-item>
                 <el-form-item label="公司名称：" prop="companyCode">
                   {{ form.companyName }}
                 </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
-                </el-form-item>
                 <el-form-item label="备件仓库：" prop="warehouseId">
                   {{ form.warehouseName }}
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
+                <el-form-item label="备注：" prop="remark" style="width: 100%;">
                   <el-input
                     type="textarea"
                     maxlength="500"
@@ -78,25 +79,25 @@
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode }}
-                </el-form-item>
                 <el-form-item label="内部领料单号：" prop="code">
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="订单状态：" prop="orderStatus">
                   {{ form.orderStatusLabel }}
                 </el-form-item>
-                <el-form-item label="公司名称：" prop="companyCode">
-                  {{ form.companyName }}
+                <el-form-item label="门店编码：" prop="dealerCode">
+                  {{ form.dealerCode }}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
                 </el-form-item>
+                <el-form-item label="公司名称：" prop="companyCode">
+                  {{ form.companyName }}
+                </el-form-item>
                 <el-form-item label="备件仓库：" prop="warehouseId">
                   {{ form.warehouseName }}
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
+                <el-form-item label="备注：" prop="remark" style="width: 100%;">
                   {{ form.remark }}
                 </el-form-item>
               </el-form>
@@ -114,16 +115,6 @@
                 <el-form-item label="领料申请时间：" prop="requestTime">
                   {{ form.requestTime }}
                 </el-form-item>
-                <el-form-item label="领料申请说明：" prop="requestDescription">
-                  <el-input
-                    type="textarea"
-                    maxlength="500"
-                    show-word-limit
-                    placeholder="请输入领料申请说明"
-                    v-model="form.requestDescription"
-                    clearable
-                  />
-                </el-form-item>
                 <el-form-item label="领料审批人：" prop="approver">
                   {{ form.approverName }}
                 </el-form-item>
@@ -136,11 +127,21 @@
                 <el-form-item label="出库操作人：" prop="outboundOperator">
                   {{ form.outboundOperatorName }}
                 </el-form-item>
+                <el-form-item label="出库状态：" prop="outboundStatus">
+                  {{ form.outboundStatusLabel }}
+                </el-form-item>
                 <el-form-item label="出库操作时间：" prop="outboundTime">
                   {{ form.outboundTime }}
                 </el-form-item>
-                <el-form-item label="出库状态：" prop="outboundStatus">
-                  {{ form.outboundStatusLabel }}
+                <el-form-item label="领料申请说明：" prop="requestDescription" style="width: 100%;">
+                  <el-input
+                    type="textarea"
+                    maxlength="500"
+                    show-word-limit
+                    placeholder="请输入领料申请说明"
+                    v-model="form.requestDescription"
+                    clearable
+                  />
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
@@ -170,6 +171,9 @@
                 </el-form-item>
                 <el-form-item label="出库状态：" prop="outboundStatus">
                   {{ form.outboundStatusLabel }}
+                </el-form-item>
+                <el-form-item label="领料申请说明：" prop="requestDescription" style="width: 100%;">
+                  {{ form.requestDescription }}
                 </el-form-item>
               </el-form>
             </div>
@@ -241,7 +245,7 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>子表标题</h2>
+              <h2>备件清单</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
@@ -271,9 +275,18 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
+                  <vxe-column field="partCode" title="备件编码" min-width="11%" />
+                  <vxe-column field="partName" title="备件名称" min-width="11%" />
+                  <vxe-column field="locationCode" title="库位编码" min-width="11%" />
+                  <vxe-column field="availableQuantity" title="可用库存" min-width="11%" />
+                  <vxe-column field="salesUnitPrice" title="销售单价" min-width="11%" />
+                  <vxe-column field="costUnitPrice" title="成本单价" min-width="11%" />
+                  <vxe-column field="qty" title="数量" min-width="11%">
+                    <template #default="{ row }">
+                      <el-input v-model="row.qty" type="number" min="1" />
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="inboundAmount" title="创建时间" min-width="11%" />
                   <vxe-column title="操作" width="100" v-if="canDelete">
                     <template #default="{ rowIndex }">
                       <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
@@ -285,6 +298,18 @@
                     <div class="m-vxe-table-empty-text">{{emptyText}}</div>
                   </template>
                 </vxe-table>
+                <div class="table-pagination">
+                  <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="pageNum"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total"
+                  >
+                  </el-pagination>
+                </div>
               </div>
             </div>
           </section>
@@ -300,7 +325,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/outbound/dealerOutboundOrder/index';
+import { getDetail, addOrUpdate, orderDetailPage, orderDetailDelete } from '@/api/sparepart/outbound/dealerOutboundOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -319,7 +344,7 @@ const defaultForm = {
   companyName: '',
   warehouseId: '',
   warehouseName: '',
-  orderStatus: '',
+  orderStatus: '10',
   inboundStatus: '',
   createTime: '',
   updateTime: '',
@@ -392,7 +417,18 @@ export default {
         }
       },
       immediate: true
-    }
+    },
+    'form.code': {
+      handler (val) {
+        if (val) {
+          this.getData();
+          if (this.form.orderStatus === '10' || this.form.orderStatus === '30') {
+            this.orderStatusType = true;
+          }
+        }
+      },
+      immediate: true
+    },
   },
   data () {
     const form = this.getDefautlForm();
@@ -412,125 +448,8 @@ export default {
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
       rules: {
-        code: [
-          { required: true, message: '请输入内部领料单号', trigger: 'change' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称', trigger: 'change' }
-        ],
-        warehouseId: [
-          { required: true, message: '请输入备件仓库 ID', trigger: 'change' }
-        ],
-        orderStatus: [
-          { required: true, message: '请选择订单状态：草稿，领料审批中，领料驳回，领料同意，退料审批中，退料驳回，退料同意', trigger: 'change' }
-        ],
-        inboundStatus: [
-          { required: true, message: '请选择入库状态：未入库，已入库', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，150:新销服; 老销服:10', trigger: 'change' }
-        ],
-        ownerOrgId: [
-          { required: true, message: '请输入门店组织 id', trigger: 'change' }
-        ],
-        outboundStatus: [
-          { required: true, message: '请选择出库状态：未出库，已出库', trigger: 'change' }
-        ],
-        requester: [
-          { required: true, message: '请输入领料申请人', trigger: 'change' }
-        ],
-        requesterName: [
-          { required: true, message: '请输入领料申请人名称', trigger: 'change' }
-        ],
-        requestTime: [
-          { required: true, message: '请选择领料申请时间', trigger: 'change' }
-        ],
         requestDescription: [
-          { required: true, message: '请输入领料申请说明', trigger: 'change' }
-        ],
-        approver: [
-          { required: true, message: '请输入领料审批人', trigger: 'change' }
-        ],
-        approverName: [
-          { required: true, message: '请输入领料审批人名称', trigger: 'change' }
-        ],
-        approvalTime: [
-          { required: true, message: '请选择领料审批时间', trigger: 'change' }
-        ],
-        approvalDescription: [
-          { required: true, message: '请输入领料审批说明', trigger: 'change' }
-        ],
-        outboundOperator: [
-          { required: true, message: '请输入出库操作人', trigger: 'change' }
-        ],
-        outboundTime: [
-          { required: true, message: '请选择出库操作时间', trigger: 'change' }
-        ],
-        returnRequester: [
-          { required: true, message: '请输入退料申请人', trigger: 'change' }
-        ],
-        returnRequesterName: [
-          { required: true, message: '请输入退料申请人名称', trigger: 'change' }
-        ],
-        returnRequestTime: [
-          { required: true, message: '请选择退料申请时间', trigger: 'change' }
-        ],
-        returnRequestDescription: [
-          { required: true, message: '请输入退料申请说明', trigger: 'change' }
-        ],
-        returnApprover: [
-          { required: true, message: '请输入退料审批人', trigger: 'change' }
-        ],
-        returnApproverName: [
-          { required: true, message: '请输入退料审批人名称', trigger: 'change' }
-        ],
-        returnApprovalTime: [
-          { required: true, message: '请选择退料审批时间', trigger: 'change' }
-        ],
-        returnApprovalDescription: [
-          { required: true, message: '请输入退料审批说明', trigger: 'change' }
-        ],
-        inboundOperator: [
-          { required: true, message: '请输入入库操作人', trigger: 'change' }
-        ],
-        inboundOperatorName: [
-          { required: true, message: '请输入入库操作人名称', trigger: 'change' }
-        ],
-        inboundTime: [
-          { required: true, message: '请选择入库操作时间', trigger: 'change' }
+          { required: true, message: '请输入领料申请描述', trigger: 'blur' }
         ],
       }
     };
@@ -597,12 +516,13 @@ export default {
     // 删除子表数据
     handleDeleteRow (index) {
       const item = this.tableData[index];
-      this.tableData.splice(index, 1);
+      // this.tableData.splice(index, 1);
       // 根据需求调用接口
-      // deletePartVehModel([item.id]).then(res => {
-      //   this.$message.success('删除成功');
-      //   this.tableData.splice(index, 1);
-      // });
+      orderDetailDelete([item.id]).then(res => {
+        this.$message.success('删除成功');
+        // this.tableData.splice(index, 1);
+        this.getData();
+      });
     },
     // 查询新增项的列表
     queryListData (queryString) {
@@ -659,7 +579,27 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    // 获取备件清单
+    async getData () {
+      const params = {
+        dealerOutboundOrderId: this._id,
+        pageNum: this.pageNum,
+        pageSize: this.pageSize,
+      };
+      const res = await orderDetailPage(params);
+      this.total = res.total || 0;
+      this.tableData = res.records || [];
+    },
+    handleCurrentChange (pageNum) {
+      this.pageNum = pageNum;
+      this.getData();
+    },
+    handleSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.pageNum = 1;
+      this.getData();
+    },
   }
 };
 </script>

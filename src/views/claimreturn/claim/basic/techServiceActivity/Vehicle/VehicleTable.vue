@@ -24,23 +24,23 @@
           clearable
           remote
           reserve-keyword
-          v-model="row.oldPartCode"
-          :remote-method="partRemote"
-          :params="row.oldPartCode"
-          @change="(value, option) => onOldPartCodeChange(row, value, option)"
+          v-model="row.plannedDealerCode"
+          :remote-method="dealerRemote"
+          :params="row.plannedDealerCode"
+          @change="(value, option) => onDealerChange(row, value, option)"
           placeholder="请输入"
-          value-key="partCode"
-          label-key="partName"
+          value-key="orgCode"
+          label-key="orgName"
         />
-        <span v-else>{{ row.oldPartName }}</span>
+        <span v-else>{{ row.plannedDealerName }}</span>
       </template>
     </vxe-column>
-    <vxe-column field="" title="是否完成" width="160"></vxe-column>
-    <vxe-column field="" title="完成时间" width="160"></vxe-column>
-    <vxe-column field="" title="实际施工门店名称" width="160"></vxe-column>
-    <vxe-column field="" title="施工单号" width="160"></vxe-column>
-    <vxe-column field="" title="车主手机" width="160"></vxe-column>
-    <vxe-column field="" title="施工方案" width="160"></vxe-column>
+    <vxe-column field="finishedLabel" title="是否完成" width="160"></vxe-column>
+    <vxe-column field="finishTime" title="完成时间" width="160"></vxe-column>
+    <vxe-column field="actualDealerName" title="实际施工门店名称" width="160"></vxe-column>
+    <vxe-column field="workOrderNo" title="施工单号" width="160"></vxe-column>
+    <vxe-column field="ownerPhone" title="车主手机" width="160"></vxe-column>
+    <vxe-column field="schemeId" title="施工方案" width="160"></vxe-column>
     <vxe-column field="" title="创建时间" width="160"></vxe-column>
     <vxe-column field="" title="修改时间" width="160"></vxe-column>
     <vxe-column title="操作" :width="200" align="center" fixed="right" :resizable="false">
@@ -111,8 +111,7 @@ import {
 } from '@/api/claimreturn/claim/basic/serviceActivity';
 
 import permissions from '@/libs/mixins/permissions';
-import { getEnum, repairItemType } from '@/api/common';
-import { getList as partList } from '@/api/sparepart/basic/sparePart';
+import { listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { cloneDeep } from 'lodash';
 
@@ -189,7 +188,6 @@ export default {
   },
   mounted () {
     this.getDetailPageApi();
-    this.returnTypeRemote();
   },
   beforeDestroy () {
   },
@@ -242,40 +240,11 @@ export default {
         this.eidtRowIndex = -1;
       }
     },
-    // 数量验证
-    validateQuantity (quantity) {
-      if (!quantity) {
-        this.$message.warning('请输入数量');
-        return false;
-      }
-
-      if (!/^\d+(\.\d+)?$/.test(quantity)) {
-        this.$message.warning('请输入有效的数字');
-        return false;
-      }
-
-      if (parseFloat(quantity) <= 0) {
-        this.$message.warning('数量必须大于0');
-        return false;
-      }
-      return true;
-    },
     // 行保存
     saveRowEdit (row) {
-      const parmas = {};
-      Object.keys(this.defaultNewRow).forEach(key => {
-        if (key === 'allowDelete' || key === 'mainPart') {
-          parmas[key] = row[key] === '1' ? '1' : '0';
-          return;
-        }
-        parmas[key] = row[key];
-      });
-      parmas.activityId = this._id;
-      if (!this.validateQuantity(parmas.quantity)) {
-        return;
-      }
-
-      serviceActivityVehicleUpdate(parmas).then(id => {
+      serviceActivityVehicleUpdate({
+        activityId: this._id,
+      }).then(id => {
         this.$message.success('更新成功');
         this.getDetailPageApi();
         this.eidtRowIndex = -1;
@@ -301,52 +270,16 @@ export default {
       this.$refs.editTable.setEditRow(row);
       this.eidtRowIndex = 0;
     },
-    // 维修类型
-    repairItemTypeRemote (query) {
-      return repairItemType({
-        nameLike: query,
-        categorys: [10]
-      });
+    // 门店
+    onDealerChange (row, value, option) {
+      row.plannedDealerCode = option?.orgCode;
+      row.plannedDealerName = option?.orgName;
+      row.plannedDealerId = option?.orgId;
     },
-    onRepairChange (row, value, option) {
-      row.repairItemTypeName = option.name;
-      row.repairItemTypeCode = option.code;
-    },
-    // 旧件返回类型接口
-    returnTypeRemote () {
-      getEnum('old_part_return_type').then(res => {
-        const list = res?.map(item => {
-          return {
-            returnType: item.code,
-            returnTypeLabel: item.message,
-          };
-        }) || [];
-        this.options.returnType = list;
-      });
-    },
-    // 旧件供应商下拉
-    onOldSupplierChange (value, row) {
-      const options = row.__options__?.oldSupplierId || [];
-      const option = options.find((item) => item.value === value);
-      row.oldSupplierId = option?.value;
-      row.oldSupplierName = option?.label;
-      row.oldSupplierCode = option?.labelDesc;
-      this.$refs.editTable.updateData(row, row);
-    },
-    // 旧件编码下拉
-    onOldPartCodeChange (row, value, option) {
-      row.oldPartCode = option?.partCode;
-      row.oldPartName = option?.partName;
-      row.oldPartId = option?.id;
-      console.log(option, row);
-      this.sparePartSupplierListApi(option?.id, row);
-    },
-    // 零部件下拉接口
-    partRemote (query) {
-      return partList({
-        partCodeOrNameLike: query,
-        pageSize: 20,
-        pageNum: 1,
+    // 门店下拉接口
+    dealerRemote (query) {
+      return listOrgStoreInfo({
+        name: query,
       });
     },
   },

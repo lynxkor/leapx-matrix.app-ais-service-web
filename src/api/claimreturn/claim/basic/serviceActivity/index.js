@@ -144,3 +144,6 @@ export function serviceActivityVehicleUpdate (data) {
 export function serviceActivityVehicleDelete (data) {
   return api.jsonPost(prefixVehicle + 'delete', data);
 }
+export function serviceActivityVehicleImportExcel (data) {
+  return api.jsonPost(prefixVehicle + 'importExcel', data);
+}
