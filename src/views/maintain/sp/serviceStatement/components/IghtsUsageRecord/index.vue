@@ -31,6 +31,11 @@
             min-width="150"
           />
           <vxe-column
+            field="rightsUseStateLabel"
+            title="权益状态"
+            min-width="150"
+          />
+          <vxe-column
             field="deductionAmount"
             title="券面满减金额"
             min-width="150"
