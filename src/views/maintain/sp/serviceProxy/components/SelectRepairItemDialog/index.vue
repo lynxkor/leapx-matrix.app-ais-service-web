@@ -748,7 +748,7 @@ export default {
     },
     getRepairItemInfo () {
       getRepairItemInfo(this.vehicleInfo.id).then(res => {
-        this.info = res;
+        this.info = res || {};
         this.itemData = res.repairItemRespList || [];
         this.partData = (res.sparePartRespList || []).map(part => ({
           ...part,
