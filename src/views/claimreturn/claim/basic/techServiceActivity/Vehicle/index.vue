@@ -36,7 +36,8 @@
     </div>
     <Upload
       :visible="uploadDialogVisible"
-      id="serviceActivityVehicle"
+      id="serviceActivityVehicleInActivity"
+      :business-params="id"
       @close="handleUploadDialogClose"
       @getData="getData"
     />
