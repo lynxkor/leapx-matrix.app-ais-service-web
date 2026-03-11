@@ -177,6 +177,7 @@ export default {
     async handleUseEquity () {
       try {
         await useEquity({
+          id: this.vehicleInfo.id,
           equityUseId: this.selectedItem.useId,
           equityCode: this.selectedItem.rightsCode,
           equityName: this.selectedItem.rightsName,
@@ -190,7 +191,6 @@ export default {
         await this.fetchEquityList();
       } catch (error) {
         console.error('核销失败:', error);
-        this.$message.error(error?.message || '核销失败');
       }
     }
   }
