@@ -93,8 +93,9 @@
                 :max="form.quantity * form.unitPrice"
                 size="small"
                 placeholder="请输入"
-                @change="handleDiscountAmount(form)"
+                @change="handleDiscountAmount(form, true)"
                 :disabled="!isServiceCareActivity"
+                :precision="2"
                 />
             </el-form-item>
             <el-form-item v-if="isServiceCareActivity" label="工时金额：" prop="amount">
@@ -297,6 +298,7 @@ export default {
     }
   },
   mounted () {
+    this.getUnitPrice();
   },
   methods: {
     getUnitPrice () {
@@ -312,9 +314,12 @@ export default {
         }
       });
     },
-    handleDiscountAmount (row) {
+    handleDiscountAmount (row, isUpdate) {
       const maxDiscount = row.quantity * row.unitPrice;
       this.$set(row, 'amount', (maxDiscount - row.discountAmount).toFixed(2));
+      if (isUpdate) {
+        this.onUpdate(this.form);
+      }
     },
     resetForm () {
       this.form = {
@@ -387,7 +392,6 @@ export default {
             this.resetForm();
           }
         });
-        console.log(this.form);
       });
     },
     onRemove (item, index, defer) {

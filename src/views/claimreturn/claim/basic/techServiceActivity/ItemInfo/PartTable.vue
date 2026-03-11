@@ -537,7 +537,6 @@ export default {
       row.oldPartCode = option?.partCode;
       row.oldPartName = option?.partName;
       row.oldPartId = option?.id;
-      console.log(option, row);
       this.sparePartSupplierListApi(option?.id, row);
     },
     // 零部件下拉接口
