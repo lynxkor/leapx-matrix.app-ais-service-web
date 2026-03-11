@@ -1,5 +1,5 @@
 <template>
-  <edit-page-layout ref="editLayout" :title="repairDetailName" showPaneFooter @save="handleSave" width="60">
+  <edit-page-layout ref="editLayout" :title="repairDetailName" showPaneFooter @save="handleSave" :width="60">
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container
@@ -234,10 +234,6 @@ export default {
     },
     title () {
       return '权益商品代码：' + this.form.code;
-    },
-    canDelete () {
-      // 根据权限判断是否显示删除按钮
-      return this.checkPermission('AISMC-interestsGoods', 'delete');
     }
   },
   watch: {
