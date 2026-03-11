@@ -58,7 +58,7 @@ export function locationList (data) {
  * @param {Object} data
  */
 export function locationOrUpdate (data) {
-  return api.jsonPost('sp/web/warehouse/location/addOrUpdate', data);
+  return api.jsonPost(localtion_prefix + 'addOrUpdate', data);
 }
 
 /**
@@ -66,7 +66,7 @@ export function locationOrUpdate (data) {
  * @param {Object} data
  */
 export function locationPage (data) {
-  return api.jsonPost('sp/web/warehouse/location/page', data);
+  return api.jsonPost(localtion_prefix + 'page', data);
 }
 
 /**
@@ -74,5 +74,5 @@ export function locationPage (data) {
  * @param {Object} data
  */
 export function locationDel (data) {
-  return api.jsonPost('sp/web/warehouse/location/delete', data);
+  return api.jsonPost(localtion_prefix + 'delete', data);
 }

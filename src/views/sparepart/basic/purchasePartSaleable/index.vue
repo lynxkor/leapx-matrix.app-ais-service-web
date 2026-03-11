@@ -13,7 +13,7 @@
         <fetch-select
           :request="fetchOptions"
           enumCode="PurchaseOrderTypeEnum"
-          v-model="form.orderTypes"
+          v-model="form.orderTypeList"
           placeholder="请选择"
           clearable
           multiple
@@ -131,7 +131,7 @@ import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  orderType: '',
+  orderTypeList: [],
   partCode: '',
   partName: '',
   saleableIs: '',
@@ -389,7 +389,7 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+        if (data[key] === '' || data[key] === null || data[key].length === 0) {
           delete data[key];
         }
       });
@@ -399,6 +399,13 @@ export default {
         if (this.form.createTime.length > 1) {
           data.createTimeStart = this.form.createTime[0];
           data.createTimeEnd = this.form.createTime[1];
+        }
+      }
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = this.form.updateTime[1];
         }
       }
 
