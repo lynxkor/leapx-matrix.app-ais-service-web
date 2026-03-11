@@ -2258,6 +2258,24 @@ const routes = [
         name: '留车项配置详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/claim/basic/approvalRejectSetting',
+      name: 'approvalRejectSetting',
+      component: () => import('@/views/claimreturn/claim/basic/approvalRejectSetting/index.vue'),
+
+      meta: {
+        name: '审批驳回配置',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/approvalrejectsetting/edit',
+      name: 'approvalRejectSettingEdit',
+      component: () => import('@/views/claimreturn/claim/basic/approvalRejectSetting/edit.vue'),
+
+      meta: {
+        name: '审批驳回配置详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
