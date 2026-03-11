@@ -171,7 +171,7 @@ export default {
       pageTitle: '新页面',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-vehRetention',
+      moduleKey: 'AISMC-vehRetentionConfig',
       form: {
         ...defaultForm
       },

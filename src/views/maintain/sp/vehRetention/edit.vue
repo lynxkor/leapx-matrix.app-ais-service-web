@@ -207,6 +207,30 @@
                     filterable
                   />
                 </el-form-item>
+                <el-form-item label="车型名称：" prop="modelId">
+                  <list-select
+                    listUrl="/datacenter/web/materials/vehicleModel/list"
+                    placeholder="请选择"
+                    v-model="form.vehModelId"
+                    query-key="modelNameLike"
+                    auto-load-options
+                    collapseTags
+                    filterable
+                    clearable
+                    :params="{seriesIdList: form.seriesId?[form.seriesId]:[]}" />
+                </el-form-item>
+                <el-form-item label="车辆年款：" prop="yearTypeId">
+                  <list-select
+                    listUrl="/datacenter/web/materials/vehicleYearType/list"
+                    placeholder="请选择"
+                    v-model="form.vehYearTypeId"
+                    query-key="yearTypeNameLike"
+                    collapseTags
+                    no-param-load
+                    auto-load-options
+                    filterable
+                    :params="{}" />
+                </el-form-item>
                 <el-form-item label="故障名称id：" prop="cccId">
                   <el-input
                     placeholder="请输入"
@@ -371,6 +395,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import ListSelect from '@/libs/components/list-select/index.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -414,7 +439,8 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect
+    FetchSelect,
+    ListSelect
   },
   computed: {
     _id () {
@@ -440,7 +466,7 @@ export default {
       pageTitle: '新页面',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-vehRetention',
+      moduleKey: 'AISMC-vehRetentionConfig',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
