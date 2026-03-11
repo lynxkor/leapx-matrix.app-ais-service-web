@@ -156,7 +156,7 @@
                   min-height="0"
                   max-height="400px"
                 >
-                <vxe-column field="partCode" title="备件编码" min-width="12.5%" />
+                  <vxe-column field="partCode" title="备件编码" min-width="12.5%" />
                   <vxe-column field="partName" title="备件名称" min-width="12.5%" />
                   <vxe-column field="locationCode" title="库位" min-width="12.5%" />
                   <vxe-column field="totalQty" title="库存总数" min-width="12.5%" />
@@ -292,6 +292,9 @@ export default {
       stockStatusType: false, // 查看状态是否可编辑, 可编辑哪些内容
       form: { ...form },
       originalForm: { ...form },
+      pageSize: 10,
+      pageNum: 1,
+      total: 0,
       emptyText: '若要启用此内容，请创建记录',
       tableData: [],
       rules: {
