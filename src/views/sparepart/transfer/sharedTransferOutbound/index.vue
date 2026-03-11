@@ -27,22 +27,22 @@
           filterable
             />
       </el-form-item>
+      <el-form-item label="出库门店" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :remote-method="getDealerList"
+          remote
+          v-model="form.outboundDealerCodeList"
+          placeholder="请输入门店编码或名称"
+          labelKey="orgName"
+          valueKey="orgCode"
+          subLabelKey="orgCode"
+          clearable
+          multiple
+          collapseTags
+          filterable
+            />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="出库门店">
-          <fetch-select
-            :remote-method="getDealerList"
-            remote
-            v-model="form.outboundDealerCodeList"
-            placeholder="请输入门店编码或名称"
-            labelKey="orgName"
-            valueKey="orgCode"
-            subLabelKey="orgCode"
-            clearable
-            multiple
-            collapseTags
-            filterable
-              />
-        </el-form-item>
         <el-form-item label="入库方联系人">
           <el-input
             placeholder="请输入"
