@@ -37,6 +37,7 @@
                   </el-form-item>
                   <el-form-item label="活动类型：" prop="activityType">
                     <fetch-select
+                      v-show="!isServiceCareActivity"
                       :request="fetchOptions"
                       enumCode="claim_activity_type"
                       v-model="form.activityType"
@@ -44,6 +45,11 @@
                       placeholder="请选择"
                       clearable
                       filterable
+                    />
+                    <el-input
+                      v-show="isServiceCareActivity"
+                      v-model="form.activityTypeLabel"
+                      disabled
                     />
                   </el-form-item>
                   <el-form-item label="自动审批：" prop="autoApprove">
@@ -197,6 +203,7 @@
                 <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="结算类型：" prop="checkoutTypeId">
                     <fetch-select
+                      v-show="!isServiceCareActivity"
                       filterable
                       clearable
                       remote
@@ -207,6 +214,11 @@
                       @change="handleCheckoutType"
                       value-key="id"
                       label-key="name"
+                    />
+                    <el-input
+                      v-show="isServiceCareActivity"
+                      v-model="form.checkoutTypeName"
+                      disabled
                     />
                   </el-form-item>
                   <el-form-item label="保修类型：" prop="repairItemTypeId">
@@ -240,6 +252,7 @@
               @change="schemeChange"
             />
             <fault
+              v-if="!isServiceCareActivity"
               :id="_id"
               :moduleKey="moduleKey"
             />

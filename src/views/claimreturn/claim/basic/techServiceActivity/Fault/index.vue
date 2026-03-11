@@ -131,7 +131,13 @@ export default {
         return;
       }
       this.selectRef.blur();
-      console.log(node, data);
+      //
+      serviceActivityFaultUpdate({
+        cccId: data.id,
+        activityId: this.id,
+      }).then(res => {
+        this.getData();
+      });
     },
     renderContent (h, { node, data, store }) {
       const isLeaf = node.isLeaf;
