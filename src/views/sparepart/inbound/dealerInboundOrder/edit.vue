@@ -170,7 +170,7 @@
               <div class="common-section-header">
                 <div class="ais-select-group">
                   <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请选择" clearable
-                    value-key="id" label-key="name" @change="handleAddTableData" />
+                    value-key="partCode" label-key="partName" @change="handleAddTableData" />
                   <el-button type="primary" size="small">添加</el-button>
                 </div>
               </div>
@@ -185,7 +185,7 @@
                   <vxe-column field="purchaseUnitPrice" title="采购单价" min-width="10%" />
                   <vxe-column field="inboundQty" title="入库数量" min-width="10%">
                     <template #default="{ row }">
-                      <el-input v-model="row.inboundQuantity" type="number" min="1" />
+                      <el-input v-model="row.inboundQty" type="number" min="1" @blur="handleBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="inboundAmount" title="入库金额" min-width="10%" />
@@ -228,7 +228,8 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, dealerInboundOrderDetailPage, dealerInboundOrderDetailDelete } from '@/api/sparepart/inbound/dealerInboundOrder/index';
+import { getDetail, addOrUpdate, dealerInboundOrderDetailPage, dealerInboundOrderDetailDelete, dealerInboundOrderDetailAdd } from '@/api/sparepart/inbound/dealerInboundOrder/index';
+import { listDealerPart } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -408,39 +409,46 @@ export default {
     queryListData (queryString) {
       return new Promise(resolve => {
         // 根据需求调用接口
-        // sparePartList({ partCodeOrNameLike: queryString, status: 1, oemPart: 1, }).then(res => {
-        //   const list = res || [];
-        //   resolve(list);
-        // });
-
-        resolve([
-          { id: 1, name: 'test', age: 25, email: 'test@example.com' }
-        ]);
+        listDealerPart({ dealerCode: this.form.dealerCode, partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
+          const list = res || [];
+          resolve(list);
+        });
       });
     },
-    // 新增子表数据
+    // 新增备件清单
     handleAddTableData (val, record) {
       if (!record) {
         this.$message.warning('请先选择数据');
         return;
       }
       // 检查是否已存在
-      const exists = this.tableData.some(item => item.id === record.id);
+      const exists = this.tableData.some(item => item.partCode === record.partCode);
       if (exists) {
         this.$message.warning('请勿重复添加');
-        return;
       }
-      // 根据需求调用接口
-      this.tableData.push(record);
-      // addPartItem({
-      //   maintenancePartId: this._id,
-      //   partsCode: record.partCode,
-      //   partsName: record.partName,
-      //   partsId: record.id,
-      // }).then(res => {
-      //   this.$message.success('添加成功');
-      //   this.detailRequest();
-      // });
+      const params = {
+        dealerInboundOrderId: this._id,
+        dealerInboundOrderCode: this.form.code,
+        sparePartId: record.id,
+        inboundQty: 1,
+      };
+      this.handleAddOrUpdate(params, 'add');
+    },
+    // 修改备件清单
+    handleBlur (val) {
+      const params = {
+        dealerInboundOrderId: this._id,
+        dealerInboundOrderCode: this.form.code,
+        sparePartId: val.id,
+        inboundQty: val.inboundQty,
+      };
+      this.handleAddOrUpdate(params, 'update');
+    },
+    // 调取备件接口
+    async handleAddOrUpdate (params) {
+      await dealerInboundOrderDetailAdd(params);
+      this.$message.success('操作成功');
+      this.getData();
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
