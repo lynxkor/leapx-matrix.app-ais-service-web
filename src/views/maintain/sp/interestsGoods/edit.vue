@@ -81,8 +81,8 @@
                 <el-form-item label="权益商品名称：" prop="commodityName">
                   {{ form.commodityName }}
                 </el-form-item>
-                <el-form-item label="权益商品代码：" prop="commodityCode">
-                  {{ form.commodityCode }}
+                <el-form-item label="权益商品代码：" prop="code">
+                  {{ form.code }}
                 </el-form-item>
                 <el-form-item label="服务权益类型：" prop="serviceInterestsType">
                   {{ form.serviceInterestsTypeLabel }}
@@ -233,7 +233,7 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '权益商品代码：' + this.form.commodityCode;
+      return '权益商品代码：' + this.form.code;
     },
     canDelete () {
       // 根据权限判断是否显示删除按钮
@@ -275,7 +275,7 @@ export default {
       currentDetailData: {},
       repairDetailName: '',
       rules: {
-        commodityCode: [
+        code: [
           { required: true, message: '请输入权益商品代码', trigger: 'change' }
         ],
         commodityName: [
