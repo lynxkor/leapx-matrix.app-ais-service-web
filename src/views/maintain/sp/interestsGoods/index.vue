@@ -12,7 +12,7 @@
       <el-form-item label="权益商品名称">
         <el-input
           placeholder="请输入"
-          v-model="form.commodityName"
+          v-model="form.commodityNameLike"
           clearable
         />
       </el-form-item>
@@ -35,20 +35,6 @@
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="权益商品分类">
-          <el-input
-            placeholder="请输入"
-            v-model="form.classificationGoodsName"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="购买后有效期（月）">
-          <el-input
-            placeholder="请输入"
-            v-model="form.datePurchase"
-            clearable
-          />
-        </el-form-item>
         <el-form-item label="状态">
           <fetch-select
             :request="whetherShelf"

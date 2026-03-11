@@ -9,53 +9,69 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.code"
-          clearable
+      <el-form-item label="创建时间">
+        <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
         />
       </el-form-item>
-      <el-form-item label="基本车型">
-        <el-input
-          placeholder="请输入"
-          v-model="form.vehModelName"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="故障名称"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.cccName"
-          clearable
-        />
-      </el-form-item>
-      <template v-if="show">
-        <el-form-item label="零件代码">
-          <el-input
-            placeholder="请输入"
+      <el-form-item label="零件名称：" prop="partCode">
+          <fetch-select
+            placeholder="请输入零件名称/编码搜索"
+            filterable
+            clearable
+            remote
             v-model="form.partsCode"
+            :remote-method="partsSearch"
+            :params="form.partsCode"
+            value-key="partCode"
+            label-key="partName"
+          />
+        </el-form-item>
+        <el-form-item label="故障名称" v-show="this.visibleCount === 3 || show">
+          <el-input
+            placeholder="请输入"
+            v-model="form.cccNameLike"
             clearable
           />
         </el-form-item>
-        <el-form-item label="零件名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.partsName"
+      <template v-if="show">
+        <el-form-item label="车型：" prop="vehModelId">
+          <fetch-select
+            filterable
             clearable
+            remote
+            multiple
+            v-model="form.vehModelIdList"
+            :remote-method="modelSearch"
+            :params="form.vehModelId"
+            value-key="id"
+            label-key="name"
           />
         </el-form-item>
-        <el-form-item label="留车范围">
-          <el-input
-            placeholder="请输入"
-            v-model="form.retainedScope"
+        <el-form-item label="留车范围" prop="retainedScope">
+          <fetch-select
+            filterable
             clearable
+            remote
+            multiple
+            v-model="form.retainedScopeList"
+            :remote-method="getProvince"
+            @change="handleProvinceChange"
+            value-key="code"
+            label-key="name"
           />
         </el-form-item>
         <el-form-item label="状态">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
+            enumCode="StatusEnum"
             v-model="form.status"
             placeholder="请选择"
             clearable
@@ -63,16 +79,11 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="创建时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
+        <el-form-item label="留车配置项代码">
+          <el-input
+            placeholder="请输入"
+            v-model="form.codeLike"
+            clearable
           />
         </el-form-item>
       </template>
@@ -130,7 +141,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/sp/vehRetention/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, sparePartList, listVehicleModel } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -139,6 +150,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import api from '@/axios';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -446,7 +458,22 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-    }
+    },
+    async getProvince (params) {
+      const res = api.get('/area/tree');
+      let list = res || [];
+      if (params && params.trim()) {
+        const searchText = params.trim().toLowerCase();
+        list = list.filter(item => item.name && item.name.toLowerCase().includes(searchText));
+      }
+      return list;
+    },
+    async partsSearch (query) {
+      return sparePartList({ partCodeOrNameLike: query, status: '1' });
+    },
+    async modelSearch (query) {
+      return listVehicleModel({ modelNameLike: query });
+    },
   }
 };
 </script>
