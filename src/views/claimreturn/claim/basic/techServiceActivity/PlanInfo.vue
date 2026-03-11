@@ -47,7 +47,7 @@
                 @blur="() => {this.updatePlan(this.form)}"
               />
             </el-form-item>
-            <el-form-item label="是否允许修改旧件：" prop="allowModifyOldPart">
+            <el-form-item v-if="!isServiceCareActivity" label="是否允许修改旧件：" prop="allowModifyOldPart">
               <el-switch
                 @change="() => {this.updatePlan(this.form)}"
                 v-model="form.allowModifyOldPart">
@@ -59,6 +59,7 @@
                 v-model="form.status">
               </el-switch>
             </el-form-item>
+            <template v-if="!isServiceCareActivity">
             <el-form-item label="主因零部件：" prop="mainPartName">
               <fetch-select
                 filterable
@@ -124,6 +125,7 @@
                 @change="() => {this.updatePlan(this.form)}"
               />
             </el-form-item>
+            </template>
             <el-form-item style="width:100%" label="方案说明：" prop="description">
               <base-input
                 type="textarea"
@@ -135,35 +137,6 @@
               />
             </el-form-item>
           </el-form>
-          <!-- <el-form :inline="true" class="form-detail" v-else>
-            <el-form-item label="方案名称：">
-              {{form.schemeName}}
-            </el-form-item>
-            <el-form-item label="是否允许修改旧件：">
-              {{form.allowModifyOldPart ? '是': '否'}}
-            </el-form-item>
-            <el-form-item label="是否启用：">
-              {{ form.status ? '是': '否'}}
-            </el-form-item>
-            <el-form-item label="主因零部件：">
-              {{ form.mainPartName }}
-            </el-form-item>
-            <el-form-item label="主因供应商：">
-              {{form.mainSupplierName}}
-            </el-form-item>
-            <el-form-item label="VRT名称：">
-              {{form.vrtName}}
-            </el-form-item>
-            <el-form-item label="VFG名称：">
-              {{ form.vfgName }}
-            </el-form-item>
-            <el-form-item label="责任部门：">
-              {{ form.responsibleDept }}
-            </el-form-item>
-            <el-form-item label="方案说明：">
-              {{ form.description }}
-            </el-form-item>
-          </el-form> -->
 
           <div
             class="common-section-header"
@@ -175,6 +148,7 @@
             :id="id"
             :moduleKey="moduleKey"
             :schemeId="schemeId"
+            :isServiceCareActivity="isServiceCareActivity"
           />
         </section>
         <div class="common-section-body not-commit" v-else>
@@ -215,6 +189,9 @@ export default {
     moduleKey: {
       type: String,
       required: true,
+    },
+    isServiceCareActivity: {
+      type: Boolean,
     }
   },
   mixins: [permissions],

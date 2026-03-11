@@ -221,7 +221,7 @@
                       disabled
                     />
                   </el-form-item>
-                  <el-form-item label="保修类型：" prop="repairItemTypeId">
+                  <el-form-item v-if="!isServiceCareActivity" label="保修类型：" prop="repairItemTypeId">
                     <fetch-select
                       filterable
                       clearable
@@ -240,7 +240,7 @@
                   <el-form-item label="结算类型：" prop="checkoutTypeName">
                     {{ form.checkoutTypeName }}
                   </el-form-item>
-                  <el-form-item label="保修类型：" prop="repairItemTypeName">
+                  <el-form-item v-if="!isServiceCareActivity" label="保修类型：" prop="repairItemTypeName">
                     {{ form.repairItemTypeName }}
                   </el-form-item>
                 </el-form>
@@ -250,6 +250,7 @@
               :id="_id"
               :moduleKey="moduleKey"
               @change="schemeChange"
+              :isServiceCareActivity="isServiceCareActivity"
             />
             <fault
               v-if="!isServiceCareActivity"

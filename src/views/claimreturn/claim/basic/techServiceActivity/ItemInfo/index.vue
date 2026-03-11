@@ -87,20 +87,24 @@
               />
             </el-form-item>
             <el-form-item label="优惠金额：" prop="discountAmount">
-              <base-input
-                placeholder="请输入"
+              <el-input-number
                 v-model="form.discountAmount"
-                clearable
-                disabled
-              />
+                :min="0"
+                :max="form.quantity * form.unitPrice"
+                size="small"
+                placeholder="请输入"
+                @change="handleDiscountAmount(form)"
+                :disabled="!isServiceCareActivity"
+                />
             </el-form-item>
-            <!-- <el-form-item label="工时金额：" prop="amount">
+            <el-form-item v-if="isServiceCareActivity" label="工时金额：" prop="amount">
               <base-input
                 placeholder="请输入"
                 v-model="form.amount"
                 clearable
+                disabled
               />
-            </el-form-item> -->
+            </el-form-item>
             <el-form-item label="维修类型：" prop="repairItemTypeName">
               <fetch-select
                 filterable
@@ -117,13 +121,13 @@
             </el-form-item>
             <el-form-item label="工时是否允许修改：" prop="allowDelete">
               <el-switch
-                @change="() => {this.onUpdate(this.form)}"
+                @change="onUpdate(form)"
                 v-model="form.allowDelete">
               </el-switch>
             </el-form-item>
-            <el-form-item label="工时是否主因工时：" prop="isMainRepairItem">
+            <el-form-item v-if="!isServiceCareActivity" label="工时是否主因工时：" prop="isMainRepairItem">
               <el-switch
-                @change="() => {this.onUpdate(this.form)}"
+                @change="onUpdate(form)"
                 v-model="form.isMainRepairItem">
               </el-switch>
             </el-form-item>
@@ -164,6 +168,7 @@
             :id="id"
             :schemeId="schemeId"
             :serviceActivityItemId="partId"
+            :isServiceCareActivity="isServiceCareActivity"
             />
         </section>
     </div>
@@ -190,6 +195,7 @@ import { getEnum, sparePartList } from '@/api/common';
 import PartTable from './PartTable.vue';
 import BaseSearch from '@/libs/components/BaseSearch';
 import { debounce } from 'lodash';
+import { getValidHourlyPrice } from '@/api/claimreturn/claim/basic/warrantyHourSetting';
 
 const defaultForm = {
   id: '',
@@ -223,6 +229,9 @@ export default {
     moduleKey: {
       type: String,
       required: true,
+    },
+    isServiceCareActivity: {
+      type: Boolean,
     }
   },
   mixins: [permissions],
@@ -259,6 +268,8 @@ export default {
       curPart: null,
       // ----
       isShow: true,
+      //
+      unitPrice: 0, // 标准工时单价
     };
   },
   computed: {
@@ -285,7 +296,26 @@ export default {
       }
     }
   },
+  mounted () {
+  },
   methods: {
+    getUnitPrice () {
+      return new Promise((resolve) => {
+        if (this.unitPrice) {
+          return resolve(this.unitPrice);
+        }
+        if (this.isServiceCareActivity) {
+          getValidHourlyPrice().then(data => {
+            this.unitPrice = data;
+            resolve(this.unitPrice);
+          });
+        }
+      });
+    },
+    handleDiscountAmount (row) {
+      const maxDiscount = row.quantity * row.unitPrice;
+      this.$set(row, 'amount', (maxDiscount - row.discountAmount).toFixed(2));
+    },
     resetForm () {
       this.form = {
         ...defaultForm
@@ -345,11 +375,19 @@ export default {
             return;
           }
           if (data) {
-            this.form[key] = data[key];
+            if (this.isServiceCareActivity && key === 'unitPrice') {
+              this.getUnitPrice().then(data => {
+                this.form.unitPrice = data;
+                this.handleDiscountAmount(this.form);
+              });
+            } else {
+              this.form[key] = data[key];
+            }
           } else {
             this.resetForm();
           }
         });
+        console.log(this.form);
       });
     },
     onRemove (item, index, defer) {
@@ -380,7 +418,6 @@ export default {
         pageNum: 1,
         categorys: [10], // 维修记录
       }).then(res => {
-        // this.form
         return res;
       });
     },
@@ -422,6 +459,9 @@ export default {
         oldPartName: cur.partName,
         returnType: cur.oldReturnType,
         returnTypeLabel: cur.oldReturnTypeLabel,
+        discountAmount: 0,
+        quantity: 1,
+        unitPrice: cur.purchasePrice, // 【单价】：默认备件主数据采购价格
       };
       this.$refs.partTable.handleAdd(partId, newItem);
     }, 200),
