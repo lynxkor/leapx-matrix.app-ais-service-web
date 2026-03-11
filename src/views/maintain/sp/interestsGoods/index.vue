@@ -19,7 +19,7 @@
       <el-form-item label="权益商品代码">
         <el-input
           placeholder="请输入"
-          v-model="form.commodityCode"
+          v-model="form.code"
           clearable
         />
       </el-form-item>
@@ -206,7 +206,7 @@ export default {
         },
         dataProp: [
           {
-            props: 'commodityCode',
+            props: 'code',
             label: '权益商品代码',
             visible: true,
             width: 200,
