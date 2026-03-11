@@ -19,7 +19,7 @@
       <el-form-item label="通知组名称">
         <el-input
           placeholder="请输入"
-          v-model="form.groupName"
+          v-model="form.groupNameLike"
           clearable
         />
       </el-form-item>
@@ -111,8 +111,6 @@ import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/notify/notificationGroup/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getParentCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
-import TagInput from '@/libs/components/TagInput';
-import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -124,7 +122,7 @@ import EditPage from './edit.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
-  groupName: '',
+  groupNameLike: '',
   remark: '',
   createTime: '',
   updateTime: '',
@@ -140,7 +138,6 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    FetchSelect,
     EditPage,
     Upload
   },
