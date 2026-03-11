@@ -1259,6 +1259,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/maintain/sp/preAuthRule',
+      name: 'preAuthRule',
+      component: () => import('@/views/maintain/sp/preAuthRule/index.vue'),
+
+      meta: {
+        name: '预授权申请',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/preAuthRule/edit',
+      name: 'preAuthRuleEdit',
+      component: () => import('@/views/maintain/sp/preAuthRule/edit.vue'),
+
+      meta: {
+        name: '预授权申请详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/sparepart/fund/account',
       name: 'account',
       component: () => import('@/views/sparepart/fund/account/index.vue'),
