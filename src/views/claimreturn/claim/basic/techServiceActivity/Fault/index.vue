@@ -5,37 +5,15 @@
     </div>
     <div class="common-section-body" v-if="id">
       <section class="common-section">
-        <tree-search
-          :selectRef="onSelectRef"
-          :style="{width: '305px', marginRight: '8px'}"
-          filterable
-          clearable
-          remote
-          reserve-keyword
-          :value="ccc"
-          :remote-method="cccRemote"
-          :params="ccc"
-          placeholder="请输入CCC编码或名称"
-          label-key="name"
-          value-key="id"
-          sub-label-key="code"
-          :treeProps="{
-            'default-expand-all': true,
-            props: {
-              children: 'children',
-              label: 'name'
-            },
-            'render-content': renderContent
-          }"
-          :treeListeners="{
-            'node-click': handleNodeClick
-          }"
+        <fault-search
+          @update="addData"
+          :isAdd="true"
         />
       </section>
       <section class="common-section"  v-if="canAddOrUpdate">
-        <vehicle-table
+        <fault-table
           :moduleKey="moduleKey"
-          ref="vehicleTable"
+          ref="faultTable"
           :id="id"
           />
       </section>
@@ -52,9 +30,8 @@ import {
 } from '@/api/claimreturn/claim/basic/serviceActivity';
 import permissions from '@/libs/mixins/permissions';
 import { getEnum } from '@/api/common';
-import VehicleTable from './FaultTable.vue';
-import TreeSearch from '@/libs/components/TreeSearch';
-import { searchTree } from '@/api/claimreturn/claim/basic/ccc/index';
+import FaultTable from './FaultTable.vue';
+import FaultSearch from './FaultSearch.vue';
 
 export default {
   props: {
@@ -72,8 +49,8 @@ export default {
   },
   mixins: [permissions],
   components: {
-    VehicleTable,
-    TreeSearch,
+    FaultTable,
+    FaultSearch,
   },
   data () {
     return {
@@ -95,7 +72,7 @@ export default {
       this.selectRef = el;
     },
     getData () {
-      this.$refs.vehicleTable.getDetailPageApi();
+      this.$refs.faultTable.getDetailPageApi();
     },
     async fetchOptions (code) {
       if (code) {
@@ -103,47 +80,14 @@ export default {
       }
       return [];
     },
-    cccRemote (query) {
-      return searchTree({
-        cccCodeLike: query,
-        cccNameLike: query,
-        pageNum: 1,
-        pageSize: 20,
-      }).then(res => {
-        return res.tree.map(item => {
-          return {
-            ...item,
-            disabled: true,
-          };
-        });
-      });
-    },
-    onUpdate (val, selectedItem) {
+    addData (data) {
+      // 新增
       serviceActivityFaultUpdate({
-        vin: val,
+        cccId: data.id,
         activityId: this.id,
       }).then(res => {
         this.getData();
       });
-    },
-    handleNodeClick (data, node) {
-      if (!node.isLeaf) {
-        return;
-      }
-      this.selectRef.blur();
-      console.log(node, data);
-    },
-    renderContent (h, { node, data, store }) {
-      const isLeaf = node.isLeaf;
-      return h('div', {
-        class: {
-          'is-leaf': isLeaf,
-        },
-      }, [
-        h('span', {
-          class: 'node-label'
-        }, node.label)
-      ]);
     }
   }
 };

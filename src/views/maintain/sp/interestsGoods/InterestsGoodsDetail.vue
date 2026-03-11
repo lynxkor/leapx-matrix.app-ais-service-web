@@ -12,51 +12,15 @@
           <el-form-item label="项目代码：" prop="repairItemCode">
             {{ repairDetail.repairItemCode }}
           </el-form-item>
-          <el-form-item label="维修类型：" prop="repairItemTypeId" class="is-required">
-            <el-select
-              v-model="repairDetail.repairItemTypeId"
-              placeholder="请选择维修类型"
-              clearable
-              filterable
-              @change="handleRepairItemChange"
-            >
-              <el-option
-                v-for="item in repairItemOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
+          <el-form-item label="维修类型：" prop="repairItemTypeName" class="is-required">
+            {{ repairDetail.repairItemTypeName }}
           </el-form-item>
-          <el-form-item label="结算类型：" prop="checkoutTypeId" class="is-required">
-            <el-select
-              v-model="repairDetail.checkoutTypeId"
-              placeholder="请选择结算类型"
-              clearable
-              filterable
-              @change="handleCheckoutTypeChange"
-            >
-              <el-option
-                v-for="item in checkoutTypeOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
+          <el-form-item label="结算类型：" prop="checkoutTypeName" class="is-required">
+            {{ repairDetail.checkoutTypeName }}
           </el-form-item>
-          <!-- <el-form-item label="保修类型：" prop="warrantyTypeId">
-            <fetch-select
-              filterable
-              clearable
-              remote
-              v-model="repairDetail.warrantyTypeId"
-              :remote-method="warrantySearch"
-              placeholder="请选择保修类型名称"
-              @change="handleWarrantyChange"
-              value-key="value"
-              label-key="label"
-            />
-          </el-form-item> -->
+          <el-form-item label="保修类型：" prop="warrantyTypeId">
+            {{ repairDetail.warrantyTypeName }}
+          </el-form-item>
           <el-form-item label="工时单价：" prop="unitPrice">
             {{ repairDetail.unitPrice || 0 }}
           </el-form-item>
@@ -64,13 +28,13 @@
             {{ repairDetail.workingHours || 0 }}
           </el-form-item>
           <el-form-item label="优惠金额：" prop="discountAmount">
-            <el-input-number size="small" type="number" v-model="repairDetail.discountAmount" clearable @blur="calculateAmount" />
+            <el-input-number :controls="false" :min="0" :max="repairDetail.unitPrice * repairDetail.workingHours" size="small" type="number" v-model="repairDetail.discountAmount" clearable @change="calculateAmount" />
           </el-form-item>
           <el-form-item label="项目金额：" prop="receivableAmount">
             {{ repairDetail.receivableAmount || 0 }}
           </el-form-item>
           <el-form-item label="索赔价格：" prop="claimPrice">
-            <el-input-number size="small" type="number" v-model="repairDetail.claimPrice" clearable />
+            <el-input-number :controls="false" :min="0" size="small" type="number" v-model="repairDetail.claimPrice" clearable />
           </el-form-item>
         </el-form>
       </div>
@@ -106,59 +70,23 @@
           >
             <vxe-column field="partsName" title="零件名称" width="150" />
             <vxe-column field="partsCode" title="零件代码" width="150" />
-            <vxe-column field="repairItemTypeName" title="维修类型" width="150" >
-              <template #default="{ row }">
-                <el-select
-                  v-model="row.repairItemTypeId"
-                  placeholder="请选择维修类型"
-                  clearable
-                  filterable
-                  size="small"
-                  @change="handlePartsRepairItemChange(row)"
-                >
-                  <el-option
-                    v-for="item in repairItemOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
-              </template>
-            </vxe-column>
-            <vxe-column field="checkoutTypeName" title="结算类型" width="150">
-              <template #default="{ row }">
-                <el-select
-                  v-model="row.checkoutTypeId"
-                  placeholder="请选择结算类型"
-                  clearable
-                  filterable
-                  size="small"
-                  @change="handlePartsCheckoutTypeChange(row)"
-                >
-                  <el-option
-                    v-for="item in checkoutTypeOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
-              </template>
-            </vxe-column>
+            <vxe-column field="repairItemTypeName" title="维修类型" width="150" />
+            <vxe-column field="checkoutTypeName" title="结算类型" width="150" />
             <vxe-column field="totalAmount" title="数量" width="150">
               <template #default="{ row }">
-                <el-input-number size="small" type="number" v-model="row.totalAmount" clearable @blur="calculatePartsAmount(row)" />
+                <el-input-number :min="0" :step="1" step-strictly size="small" type="number" v-model="row.totalAmount" clearable @change="calculatePartsAmount(row)" />
               </template>
             </vxe-column>
             <vxe-column field="unitPrice" title="单价" width="100" />
             <vxe-column field="discountAmount" title="优惠金额" width="150">
               <template #default="{ row }">
-                <el-input-number size="small" type="number" v-model="row.discountAmount" clearable @blur="calculatePartsAmount(row)" />
+                <el-input-number :controls="false" :min="0" :max="row.unitPrice * row.totalAmount" size="small" type="number" v-model="row.discountAmount" clearable @change="calculatePartsAmount(row)" />
               </template>
             </vxe-column>
             <vxe-column field="receivableAmount" title="零件金额" width="100" />
             <vxe-column field="claimPrice" title="索赔价格" width="150">
               <template #default="{ row }">
-                <el-input-number size="small" type="number" v-model="row.claimPrice" clearable />
+                <el-input-number :controls="false" :min="0" size="small" type="number" v-model="row.claimPrice" clearable />
               </template>
             </vxe-column>
             <vxe-column title="操作" width="100" fixed="right">
@@ -265,8 +193,10 @@ export default {
           this.repairDetail = {
             ...this.repairDetail,
             repairItemId: res.id,
-            repairItemCode: res.code,
-            repairItemName: res.name,
+            // repairItemCode: res.code,
+            repairItemTypeName: '精品附件',
+            checkoutTypeName: '自费',
+            warrantyTypeName: '无',
             workingHours: res.workhour || 0,
             unitPrice: res.workhourPrice || 0,
             // 其他字段重置为默认值
@@ -276,7 +206,12 @@ export default {
             receivableAmount: 0,
             remark: ''
           };
-          this.partsTableData = res?.partsRespList;
+          for (const item of res.partsRespList) {
+            item.repairItemTypeName = '精品附件';
+            item.checkoutTypeName = '自费';
+            item.warrantyTypeName = '无';
+            this.partsTableData.push(item);
+          }
           this.calculateAmount();
         }
       } catch (error) {
@@ -419,10 +354,9 @@ export default {
         partsId: record.id,
         partsCode: record.partCode || record.code,
         partsName: record.partName || record.name,
-        repairItemTypeId: this.repairDetail.repairItemTypeId,
-        repairItemTypeName: this.repairDetail.repairItemTypeName,
-        checkoutTypeId: this.repairDetail.checkoutTypeId,
-        checkoutTypeName: this.repairDetail.checkoutTypeName,
+        repairItemTypeName: '精品附件',
+        checkoutTypeName: '自费',
+        warrantyTypeName: '无',
         totalAmount: 1,
         unitPrice: record.salePrice || 0,
         discount: 0,

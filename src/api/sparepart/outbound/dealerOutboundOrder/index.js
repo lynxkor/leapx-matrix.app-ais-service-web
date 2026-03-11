@@ -115,3 +115,11 @@ export function orderDetailPage (data) {
 export function orderDetailDelete (data) {
   return api.jsonPost('/sp/web/dealer/dealerOutboundOrderDetail/delete', data);
 }
+
+/**
+ * 内部领料申请明细表新增/编辑
+ * @param {Object} data
+ */
+export function orderDetailAddOrUpdate (data) {
+  return api.jsonPost('/sp/web/dealer/dealerOutboundOrderDetail/addOrUpdate', data);
+}

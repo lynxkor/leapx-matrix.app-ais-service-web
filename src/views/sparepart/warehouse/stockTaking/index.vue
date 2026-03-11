@@ -172,6 +172,8 @@
     <DifferenceDialog
       ref="differenceDialogRef"
       :visible.sync="differenceDialogVisible"
+      :differenceId="differenceId"
+      :differenceList="differenceTableData"
       @update:visible="val => differenceDialogVisible = val"
       @confirm="getData"
     />
@@ -183,6 +185,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, initializeItem, cancelItem } from '@/api/sparepart/warehouse/stockTaking/index';
+import { getExceptionList, clearAndDifferences } from '@/api/sparepart/warehouse/stockTakingDifferences/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getParentCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -243,6 +246,8 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       differenceDialogVisible: false, // 生成差异单弹窗
+      differenceId: '', // 差异单id
+      differenceTableData: [], // 差异单数据
       clickItemId: '',
       optionObj: {
         id: 'stockTakingTable',
@@ -656,8 +661,15 @@ export default {
       });
     },
     // 生成差异单
-    handleDifference (row) {
-      this.differenceDialogVisible = true;
+    async handleDifference (row) {
+      const res = await getExceptionList({ id: row.id });
+      if (res.length > 0) {
+        this.differenceId = row.id;
+        this.differenceTableData = res;
+        this.differenceDialogVisible = true;
+      } else {
+        await clearAndDifferences({ id: row.id });
+      }
     }
   }
 };

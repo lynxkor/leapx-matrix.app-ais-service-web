@@ -99,3 +99,11 @@ export function dealerInboundOrderInbound (data) {
 export function dealerInboundOrderReturnApply (data) {
   return api.jsonPost('/sp/web/dealer/dealerInboundOrder/returnApply', data);
 }
+
+/**
+ * 外购件入库明细表新增/编辑
+ * @param {Object} data
+ */
+export function dealerInboundOrderDetailAdd (data) {
+  return api.jsonPost('/sp/web/dealer/dealerInboundOrderDetail/addOrUpdate', data);
+}

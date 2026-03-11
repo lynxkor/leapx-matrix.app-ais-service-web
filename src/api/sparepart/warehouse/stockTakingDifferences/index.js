@@ -101,6 +101,22 @@ export function getOutbound (data) {
 }
 
 /**
+ * 备件异常清单
+ * @param {Object} data
+ */
+export function getExceptionList (data) {
+  return api.jsonPost(prefix + 'exceptionList', data);
+}
+
+/**
+ * 清空异常后创建差异单
+ * @param {Object} data
+ */
+export function clearAndDifferences (data) {
+  return api.jsonPost(prefix + 'clearAndDifferences', data);
+}
+
+/**
  * 备件盘点差异单明细表分页查询
  * @param {Object} data
  */

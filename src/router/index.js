@@ -1259,6 +1259,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/maintain/sp/preAuthRule',
+      name: 'preAuthRule',
+      component: () => import('@/views/maintain/sp/preAuthRule/index.vue'),
+
+      meta: {
+        name: '预授权申请',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/preAuthRule/edit',
+      name: 'preAuthRuleEdit',
+      component: () => import('@/views/maintain/sp/preAuthRule/edit.vue'),
+
+      meta: {
+        name: '预授权申请详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/sparepart/fund/account',
       name: 'account',
       component: () => import('@/views/sparepart/fund/account/index.vue'),
@@ -2247,6 +2265,24 @@ const routes = [
 
       meta: {
         name: '留车项配置详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/basic/approvalRejectSetting',
+      name: 'approvalRejectSetting',
+      component: () => import('@/views/claimreturn/claim/basic/approvalRejectSetting/index.vue'),
+
+      meta: {
+        name: '审批驳回配置',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/approvalrejectsetting/edit',
+      name: 'approvalRejectSettingEdit',
+      component: () => import('@/views/claimreturn/claim/basic/approvalRejectSetting/edit.vue'),
+
+      meta: {
+        name: '审批驳回配置详情',
         noResourceUrl: 'true'
       }
     }]

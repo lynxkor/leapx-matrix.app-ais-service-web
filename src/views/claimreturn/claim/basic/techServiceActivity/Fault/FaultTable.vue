@@ -15,29 +15,20 @@
       quantity: [{ required: true },]
     }"
     >
-    <vxe-column title="计划实施门店名称" width="180">
+    <vxe-column field="vrtName" title="VRT名称" width=""></vxe-column>
+    <vxe-column field="vfgName" title="VFG名称" width=""></vxe-column>
+    <vxe-column field="cccName" title="CCC名称" width="">
       <template #default="{ row, rowIndex }">
-        <fetch-select
+        <fault-search
           v-if="eidtRowIndex === rowIndex"
-          filterable
-          clearable
-          remote
-          reserve-keyword
-          v-model="row.plannedDealerId"
-          :remote-method="dealerRemote"
-          :params="row.plannedDealerName"
-          @change="(value, option) => onDealerChange(row, value, option)"
-          placeholder="请输入"
-          value-key="orgId"
-          label-key="orgName"
-          sub-label-key="orgCode"
+          :id="id"
+          @update="(data) => onUpdate(row, data)"
+          :value="row.cccName"
         />
-        <span v-else>{{ row.plannedDealerName }}</span>
+        <span v-else>{{ row.cccName }}</span>
       </template>
     </vxe-column>
-    <vxe-column field="" title="VRT名称" width="160"></vxe-column>
-    <vxe-column field="" title="VFG名称" width="160"></vxe-column>
-    <vxe-column field="" title="CCC名称" width="160"></vxe-column>
+    <vxe-column field="createTime" title="创建时间" width=""></vxe-column>
     <vxe-column title="操作" :width="200" align="center" fixed="right" :resizable="false">
       <template #default="{ row, rowIndex }">
         <template v-if="eidtRowIndex === rowIndex">
@@ -107,8 +98,7 @@ import {
 } from '@/api/claimreturn/claim/basic/serviceActivity';
 
 import permissions from '@/libs/mixins/permissions';
-import { listOrgStoreInfo } from '@/api/common';
-import FetchSelect from '@/libs/components/FetchSelect/index.vue';
+import FaultSearch from './FaultSearch.vue';
 import { cloneDeep } from 'lodash';
 
 export default {
@@ -125,7 +115,7 @@ export default {
     },
   },
   components: {
-    FetchSelect,
+    FaultSearch,
   },
   mixins: [permissions],
   computed: {
@@ -211,9 +201,7 @@ export default {
       serviceActivityFaultUpdate({
         id: row.id,
         activityId: this._id,
-        plannedDealerId: row.plannedDealerId,
-        plannedDealerCode: row.plannedDealerCode,
-        plannedDealerName: row.plannedDealerName,
+        cccId: row.cccId,
       }).then(id => {
         this.$message.success('更新成功');
         this.getDetailPageApi();
@@ -230,28 +218,11 @@ export default {
       this.current = current;
       this.getDetailPageApi();
     },
-    // -------------
-    handleAdd (partId, row) {
-      if (this.eidtRowIndex !== -1) {
-        this.$message.info('请先保存数据，再添加');
-        return;
-      }
-      this.tableData.unshift(row);
-      this.$refs.editTable.setEditRow(row);
-      this.eidtRowIndex = 0;
-    },
-    // 门店
-    onDealerChange (row, value, option) {
-      row.plannedDealerCode = option?.orgCode;
-      row.plannedDealerName = option?.orgName;
-      row.plannedDealerId = option?.orgId;
-    },
-    // 门店下拉接口
-    dealerRemote (query) {
-      return listOrgStoreInfo({
-        name: query,
-      });
-    },
+    onUpdate (row, data) {
+      row.cccName = data.name;
+      row.cccId = data.id;
+      row.cccCode = data.code;
+    }
   },
 };
 

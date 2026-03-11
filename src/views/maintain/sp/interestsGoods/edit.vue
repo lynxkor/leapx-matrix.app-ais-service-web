@@ -1,5 +1,5 @@
 <template>
-  <edit-page-layout ref="editLayout" :title="repairDetailName" showPaneFooter @save="handleSave" width="60">
+  <edit-page-layout ref="editLayout" :title="repairDetailName" showPaneFooter @save="handleSave" :width="60">
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container
@@ -28,10 +28,10 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="权益商品代码：" prop="commodityCode">
+                <el-form-item label="权益商品代码：" prop="code">
                   <el-input
                     placeholder="请输入"
-                    v-model="form.commodityCode"
+                    v-model="form.code"
                     clearable
                   />
                 </el-form-item>
@@ -81,8 +81,8 @@
                 <el-form-item label="权益商品名称：" prop="commodityName">
                   {{ form.commodityName }}
                 </el-form-item>
-                <el-form-item label="权益商品代码：" prop="commodityCode">
-                  {{ form.commodityCode }}
+                <el-form-item label="权益商品代码：" prop="code">
+                  {{ form.code }}
                 </el-form-item>
                 <el-form-item label="服务权益类型：" prop="serviceInterestsType">
                   {{ form.serviceInterestsTypeLabel }}
@@ -233,11 +233,7 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '权益商品代码：' + this.form.commodityCode;
-    },
-    canDelete () {
-      // 根据权限判断是否显示删除按钮
-      return this.checkPermission('AISMC-interestsGoods', 'delete');
+      return '权益商品代码：' + this.form.code;
     }
   },
   watch: {
@@ -275,7 +271,7 @@ export default {
       currentDetailData: {},
       repairDetailName: '',
       rules: {
-        commodityCode: [
+        code: [
           { required: true, message: '请输入权益商品代码', trigger: 'change' }
         ],
         commodityName: [

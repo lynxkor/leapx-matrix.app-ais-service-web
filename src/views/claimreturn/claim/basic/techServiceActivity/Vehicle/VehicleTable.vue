@@ -11,9 +11,6 @@
     size="medium"
     min-height="0"
     max-height="400px"
-    :edit-rules="{
-      quantity: [{ required: true },]
-    }"
     >
     <vxe-column field="vin" title="VIN" width="160">
       <template #default="{row}">
@@ -45,8 +42,18 @@
     <vxe-column field="finishedLabel" title="是否完成" width="160"></vxe-column>
     <vxe-column field="finishTime" title="完成时间" width="160"></vxe-column>
     <vxe-column field="actualDealerName" title="实际施工门店名称" width="160"></vxe-column>
-    <vxe-column field="workOrderNo" title="施工单号" width="160"></vxe-column>
-    <vxe-column field="ownerPhone" title="车主手机" width="160"></vxe-column>
+    <vxe-column field="workOrderNo" title="施工单号" width="160">
+      <template #default="{row}">
+        <el-link type="success" :href="`/service/maintain/sp/serviceProxy/edit?id=${row.workOrderId}`" target="_blank">{{ row.workOrderNo }}</el-link>
+      </template>
+    </vxe-column>
+    <vxe-column title="车主手机" width="160">
+      <template #default="{row}">
+        {{ row.ownerPhone }}
+        <span v-if="row.ownerPhone !== row.ownerPhoneAll" @click="() => onPhone(row)" class="eye-icon iconfont icon-lxppc-eye"></span>
+        <span v-else @click="() => onPhone(row)" class="eye-icon iconfont icon-lxppc-eye-off"></span>
+      </template>
+    </vxe-column>
     <vxe-column field="schemeId" title="施工方案" width="160"></vxe-column>
     <vxe-column field="createTime" title="创建时间" width="160"></vxe-column>
     <vxe-column field="updateTime" title="修改时间" width="160"></vxe-column>
@@ -274,6 +281,17 @@ export default {
         row.vinAll = data;
         row.vinMask = row.vin;
         row.vin = row.vinAll;
+      });
+    },
+    onPhone (row) {
+      if (row.ownerPhoneAll) {
+        row.ownerPhone = row.ownerPhone === row.ownerPhoneAll ? row.ownerPhoneMask : row.ownerPhoneAll;
+        return;
+      }
+      getDetailDecryptField(row.id, 'ownerPhone').then(data => {
+        row.ownerPhoneAll = data;
+        row.ownerPhoneMask = row.ownerPhone;
+        row.ownerPhone = row.ownerPhoneAll;
       });
     }
   },
