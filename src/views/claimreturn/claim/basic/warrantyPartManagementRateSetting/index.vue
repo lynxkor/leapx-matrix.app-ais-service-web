@@ -26,13 +26,6 @@
         <el-form-item label="费率序号">
       <tag-input v-model="form.rateSerialNos" placeholder="请输入"/>
       </el-form-item>
-        <el-form-item label="门店名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dealerName"
-            clearable
-          />
-        </el-form-item>
         <el-form-item label="生效开始日期">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
