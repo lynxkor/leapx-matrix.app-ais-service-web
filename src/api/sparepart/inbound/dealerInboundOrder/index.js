@@ -51,3 +51,51 @@ export function enableItem (data) {
 export function dealerInboundOrderDetailPage (data) {
   return api.jsonPost('/sp/web/dealer/dealerInboundOrderDetail/page', data);
 }
+
+/**
+ * 外购件入库明细表删除
+ * @param {Object} data
+ */
+export function dealerInboundOrderDetailDelete (data) {
+  return api.jsonPost('/sp/web/dealer/dealerInboundOrderDetail/delete', data);
+}
+
+/**
+ * 提交
+ * @param {Object} data
+ */
+export function dealerInboundOrderCommit (data) {
+  return api.jsonPost('/sp/web/dealer/dealerInboundOrder/commit', data);
+}
+
+/**
+ * 通过
+ * @param {Object} data
+ */
+export function dealerInboundOrderAgree (data) {
+  return api.jsonPost('/sp/web/dealer/dealerInboundOrder/agree', data);
+}
+
+/**
+ * 驳回
+ * @param {Object} data
+ */
+export function dealerInboundOrderReject (data) {
+  return api.jsonPost('/sp/web/dealer/dealerInboundOrder/reject', data);
+}
+
+/**
+ * 入库
+ * @param {Object} data
+ */
+export function dealerInboundOrderInbound (data) {
+  return api.jsonPost('/sp/web/dealer/dealerInboundOrder/inbound', data);
+}
+
+/**
+ * 申请退货
+ * @param {Object} data
+ */
+export function dealerInboundOrderReturnApply (data) {
+  return api.jsonPost('/sp/web/dealer/dealerInboundOrder/returnApply', data);
+}

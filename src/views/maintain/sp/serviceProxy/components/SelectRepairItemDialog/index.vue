@@ -561,6 +561,7 @@ export default {
       this.partSearchKey = '';
       this.selectedRepairItem = null;
       this.selectedRepairPart = null;
+      this.selectedDiscount = {};
     },
     addItem () {
       // 验证是否选择了维修项目
@@ -781,7 +782,7 @@ export default {
     },
     getRepairItemInfo () {
       getRepairItemInfo(this.vehicleInfo.id).then(res => {
-        this.info = res;
+        this.info = res || {};
         this.itemData = res.repairItemRespList || [];
         this.partData = (res.sparePartRespList || []).map(part => ({
           ...part,
@@ -877,7 +878,7 @@ export default {
       const { discountPartRate = 0, discountWorkhourRate = 0 } = this.selectedDiscount;
 
       // 更新维修项目的折扣率
-      this.itemData.filter(item => typeof (item.id) === 'undefined').forEach(item => {
+      this.itemData.forEach(item => {
         if (!this.checkoutTypeIncluded(item.checkoutTypeId)) {
           item.discountRate = discountWorkhourRate || 0;
           // 重新计算优惠金额和项目金额
@@ -888,7 +889,7 @@ export default {
       });
 
       // 更新维修配件的折扣率
-      this.partData.filter(item => typeof (item.id) === 'undefined').forEach(part => {
+      this.partData.forEach(part => {
         part.discountRate = discountPartRate || 0;
         // 重新计算优惠金额和配件金额
         const originalAmount = part.quantity * part.price;
@@ -914,6 +915,10 @@ export default {
 
       // 计算费用合计
       this.info.maintenanceCostEstimation = this.info.workCostCount + this.info.barkCostCount;
+      // 保留2位小数
+      this.info.maintenanceCostEstimation = parseFloat(this.info.maintenanceCostEstimation).toFixed(2);
+      this.info.workCostCount = parseFloat(this.info.workCostCount).toFixed(2);
+      this.info.barkCostCount = parseFloat(this.info.barkCostCount).toFixed(2);
     },
     // 处理维修项目表格删除行
     handleRemoveItemRow (index) {
@@ -1101,6 +1106,7 @@ export default {
       this.partRepairType = v;
     },
     handleRefresh () {
+      this.getRepairItemInfo();
     },
   }
 };

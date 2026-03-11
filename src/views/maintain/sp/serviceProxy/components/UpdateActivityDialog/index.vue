@@ -124,7 +124,6 @@ export default {
     visible (val) {
       this.dialogVisible = val;
       if (val) {
-        console.log(this.packageType);
         this.activeTab = this.currentPackageType;
         this.initData();
       }

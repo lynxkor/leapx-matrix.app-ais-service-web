@@ -3,7 +3,7 @@
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container ref="containerRef" :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form"
-        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" :showEditBtn="routeQueryType">
+        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" :showEditBtn="orderStatusType">
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
           <!-- <span class="status primary">状态</span> -->
@@ -228,11 +228,11 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, dealerInboundOrderDetailPage } from '@/api/sparepart/inbound/dealerInboundOrder/index';
+import { getDetail, addOrUpdate, dealerInboundOrderDetailPage, dealerInboundOrderDetailDelete } from '@/api/sparepart/inbound/dealerInboundOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, listOrgStoreInfoByParam, getSupplierInfo } from '@/api/common';
+import { getEnum, getSupplierInfo, getLoginUser, getPartDealer, sparePartList } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -270,6 +270,7 @@ const defaultForm = {
   inboundOperator: '',
   inboundOperatorName: '',
   inboundTime: '',
+  warehouseName: '',
 };
 
 export default {
@@ -308,19 +309,12 @@ export default {
       handler (val) {
         if (val) {
           this.getData();
+          if (this.form.orderStatus === '10' || this.form.orderStatus === '40') {
+            this.orderStatusType = true;
+          }
         }
       },
       immediate: true
-    },
-    // 监听路由变化
-    '$route.query.orderType': {
-      handler (newVal) {
-        if (newVal === '1') {
-          this.routeQueryType = true;
-        }
-      },
-      immediate: true,
-      deep: true
     },
   },
   data () {
@@ -336,7 +330,7 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       emptyText: '暂无数据',
-      routeQueryType: false, // 路由参数ID 是否可编辑
+      orderStatusType: false, // 订单状态 是否可编辑
       pageNum: 1,
       pageSize: 10,
       total: 0,
@@ -364,6 +358,7 @@ export default {
     };
   },
   mounted () {
+    this.getLoginUser();
   },
   methods: {
     detailRequest () {
@@ -401,21 +396,23 @@ export default {
     // 删除子表数据
     handleDeleteRow (index) {
       const item = this.tableData[index];
-      this.tableData.splice(index, 1);
+      // this.tableData.splice(index, 1);
       // 根据需求调用接口
-      // deletePartVehModel([item.id]).then(res => {
-      //   this.$message.success('删除成功');
-      //   this.tableData.splice(index, 1);
-      // });
+      dealerInboundOrderDetailDelete([item.id]).then(res => {
+        this.$message.success('删除成功');
+        // this.tableData.splice(index, 1);
+        this.getData();
+      });
     },
     // 查询新增项的列表
     queryListData (queryString) {
       return new Promise(resolve => {
         // 根据需求调用接口
-        // sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
+        // sparePartList({ partCodeOrNameLike: queryString, status: 1, oemPart: 1, }).then(res => {
         //   const list = res || [];
         //   resolve(list);
         // });
+
         resolve([
           { id: 1, name: 'test', age: 25, email: 'test@example.com' }
         ]);
@@ -458,6 +455,34 @@ export default {
     // handleJumpAuditLog () {
     //   this.$auditLog.show({ id: 123 });
     // },
+    // 查询账号信息
+    async getLoginUser () {
+      try {
+        const res = await getLoginUser();
+        this.form.dealerCode = res.currentDealerCode;
+        this.form.dealerName = res.currentDealerName;
+        this.accountPermissions = res.accountFlag;
+        if (this.form.dealerCode) {
+          this.getPartDealer(this.form.dealerCode);
+        }
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    // 获取门店信息
+    async getPartDealer (query) {
+      try {
+        const res = await getPartDealer({ code: query });
+        this.form.companyCode = res.parentCompanyCode;
+        this.form.companyName = res.parentCompanyName;
+        this.form.warehouseId = res.warehouseId;
+        this.form.warehouseCode = res.warehouseCode;
+        this.form.warehouseName = res.warehouseName;
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);

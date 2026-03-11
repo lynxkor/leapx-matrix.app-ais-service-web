@@ -270,11 +270,13 @@ export default {
     EditPage
   },
   data () {
+    const moduleKey = 'AISCR-' + this.$route.meta.moduleKey;
     return {
-      pageTitle: '服务活动车辆',
+      pageTitle: this.$route.meta.name,
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISCR-serviceActivityVehicle',
+      moduleKey,
+      isServiceCareActivity: this.$route.meta.isServiceCareActivity,
       form: {
         ...defaultForm
       },
@@ -305,7 +307,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/basic/serviceActivityVehicle/edit',
+                  path: this.getPath(),
                   query: {
                     id: row.id
                   }
@@ -320,7 +322,18 @@ export default {
             visible: true,
             width: 200,
             mask: true,
-            getValue: (row) => getDetailDecryptField(row.id, 'vin')
+            getValue: (row) => getDetailDecryptField(row.id, 'vin'),
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/datacenter/vehicle/vehicleProfile/edit',
+                  query: {
+                    id: row.vehicleProfileId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
           },
           { props: 'activityName', label: '活动名称', visible: true, width: 200, centralized: true },
           { props: 'activityTypeLabel', label: '活动类型', visible: true, width: 200, centralized: true },
@@ -354,7 +367,7 @@ export default {
               disabled: row => row.finished === '1',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/basic/serviceActivityVehicle/edit',
+                  path: this.getPath(),
                   query: {
                     id: row.id,
                     isEditing: true,
@@ -402,6 +415,12 @@ export default {
     this.getData();
   },
   methods: {
+    getPath () {
+      if (this.isServiceCareActivity) {
+        return '/claimreturn/claim/basic/serviceCareActivityVehicle/edit';
+      }
+      return '/claimreturn/claim/basic/serviceActivityVehicle/edit';
+    },
     handleImport () {
       this.uploadDialogVisible = true;
     },
@@ -410,7 +429,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/claimreturn/claim/basic/serviceActivityVehicle/edit'
+        path: this.getPath(),
       });
     },
     onSubmit () {
@@ -453,7 +472,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size, isServiceCareActivity: this.isServiceCareActivity })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {

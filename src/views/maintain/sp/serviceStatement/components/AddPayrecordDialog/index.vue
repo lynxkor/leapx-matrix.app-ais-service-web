@@ -1,14 +1,7 @@
 <template>
   <div>
-    <el-dialog
-      class="m-add-payrecord-dialog"
-      title="添加收款记录"
-      width="1000px"
-      :visible="visible"
-      append-to-body
-      @close="close"
-      @closed="closed"
-    >
+    <el-dialog class="m-add-payrecord-dialog" title="添加收款记录" width="1000px" :visible="visible" append-to-body
+      @close="close" @closed="closed">
       <div class="payrecord-content">
         <!-- 头部信息区域 -->
         <div class="info-section">
@@ -31,95 +24,50 @@
         </div>
         <!-- 新增按钮 -->
         <div class="action-section">
-          <el-button size="small" type="primary" @click="handleAdd"
-            >添加收款记录</el-button
-          >
+          <el-button size="small" type="primary" @click="handleAdd">添加收款记录</el-button>
         </div>
 
         <!-- 表格区域 -->
         <div class="table-section">
-          <vxe-table
-            ref="payRecordTable"
-            :data="tableData"
-            stripe
-            show-overflow
-            :row-config="{ isHover: true }"
-            resizable
-            border="inner"
-            size="medium"
-            min-height="0"
-            max-height="400px"
-          >
+          <vxe-table ref="payRecordTable" :data="tableData" stripe show-overflow :row-config="{ isHover: true }"
+            resizable border="inner" size="medium" min-height="0" max-height="400px">
             <vxe-column type="seq" title="序号" width="70" />
             <vxe-column field="payType" title="支付方式" width="150">
               <template #default="{ row }">
-                <fetch-select
-                  v-model="row.payType"
-                  :options="payTypeOptions"
-                  placeholder="请选择"
-                  size="small"
-                  clearable
-                />
+                <fetch-select v-model="row.payType" :options="payTypeOptions" placeholder="请选择"
+                  :disabled="row.payType === 50" size="small" clearable />
               </template>
             </vxe-column>
             <vxe-column field="payAmount" title="实际付款总额" width="150">
               <template #default="{ row }">
-                <el-input-number
-                  v-model="row.payAmount"
-                  size="small"
-                  :precision="2"
-                  :min="0"
-                  controls-position="right"
-                  @change="handlePayAmountChange"
-                  style="width: 100%"
-                ></el-input-number>
+                <el-input-number v-model="row.payAmount" size="small" :precision="2" :min="0" controls-position="right"
+                  :disabled="row.payType === 50" @change="handlePayAmountChange" style="width: 100%"></el-input-number>
               </template>
             </vxe-column>
             <vxe-column field="invoiceType" title="发票类型" width="150">
               <template #default="{ row }">
-                <fetch-select
-                  v-model="row.invoiceType"
-                  :options="invoiceTypeOptions"
-                  :disabled="row.payType === 50"
-                  placeholder="请选择"
-                  size="small"
-                  clearable
-                />
+                <fetch-select v-model="row.invoiceType" :options="invoiceTypeOptions" :disabled="row.payType === 50"
+                  placeholder="请选择" size="small" clearable />
               </template>
             </vxe-column>
             <vxe-column field="invoiceNumber" title="发票号码" width="150">
               <template #default="{ row }">
-                <el-input
-                  v-model="row.invoiceNumber"
-                  size="small"
-                  :disabled="row.payType === 50"
-                  placeholder="请输入"
-                ></el-input>
+                <el-input v-model="row.invoiceNumber" size="small" :disabled="row.payType === 50"
+                  placeholder="请输入"></el-input>
               </template>
             </vxe-column>
             <vxe-column field="rightsCode" title="权益代码" min-width="150">
               <template #default="{ row }">
-                <el-input
-                  v-model="row.rightsCode"
-                  size="small"
-                  placeholder="请输入"
-                ></el-input>
+                <el-input v-model="row.rightsCode" size="small" placeholder="请输入"
+                  :disabled="row.payType === 50"></el-input>
               </template>
             </vxe-column>
             <vxe-column title="操作" width="80" fixed="right">
               <template #default="{ row, rowIndex }">
-                <el-popconfirm
-                  title="确定要删除这条记录吗？"
-                  :disabled="row.payType === 50"
-                  @confirm="handleDelete(row, rowIndex)"
-                >
-                  <span
-                    slot="reference"
-                    type="text"
-                    size="small"
-                    :class="['btn-delete', { disabled: row.payType === 50 }]"
-                    >删除</span
-                  >
+                <el-popconfirm title="确定要删除这条记录吗？" :disabled="row.payType === 50"
+                  @confirm="handleDelete(row, rowIndex)">
+                  <span slot="reference" type="text" size="small"
+                    :class="['btn-delete', { disabled: row.payType === 50 }]">删除</span>
                 </el-popconfirm>
               </template>
             </vxe-column>
@@ -132,9 +80,7 @@
 
       <div slot="footer" class="dialog-footer">
         <el-button size="small" @click="handleClose">取消</el-button>
-        <el-button size="small" type="primary" @click="handleConfirm"
-          >确认</el-button
-        >
+        <el-button size="small" type="primary" @click="handleConfirm">确认</el-button>
       </div>
     </el-dialog>
   </div>
@@ -361,10 +307,12 @@ export default {
   .btn-delete {
     color: var(--leap-color-danger);
     cursor: pointer;
+
     &:hover {
       text-decoration: underline;
       color: var(--leap-color-danger-dark-1);
     }
+
     &.disabled {
       cursor: not-allowed;
       opacity: 0.5;

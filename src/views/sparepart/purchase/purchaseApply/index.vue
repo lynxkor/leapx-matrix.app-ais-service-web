@@ -486,6 +486,42 @@ export default {
     this.initDealerUser();
   },
   methods: {
+    async getUser (query) {
+      try {
+        const res = await getUserByNameOrNo({ name: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    async getParentCompany (query) {
+      try {
+        const res = await getParentCompany({ parentCompanyName: query });
+        res.records = res.records?.map(item => ({
+          ...item,
+          displayName: item.companyName + `(${item.companyCode})`
+        }));
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    async getWarehouse (query) {
+      try {
+        const res = await listWarehouse({ codeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     async initDealerUser () {
       // 查询是否店端 true为门店  false为厂端
       const res = await getLoginUser();
@@ -510,23 +546,7 @@ export default {
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
     },
-    async getDealerList (query) {
-      try {
-        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
-        return res;
-      } catch (error) {
-        console.error('Error fetching series list:', error);
-      }
-    },
 
-    async getWarehouse (query) {
-      try {
-        const res = await listWarehouse({ codeOrName: query });
-        return res;
-      } catch (error) {
-        console.error('Error fetching series list:', error);
-      }
-    },
     handleAdd () {
       if (this.isPartOrder === null) {
         this.$message.error('获取用户信息异常，请刷新页面重试');
@@ -622,27 +642,6 @@ export default {
         this.optionObj.form.size = num;
       }
       this.debouncedGetData();
-    },
-    async getParentCompany (query) {
-      try {
-        const res = await getParentCompany({ parentCompanyName: query });
-        res.records = res.records?.map(item => ({
-          ...item,
-          displayName: item.companyName + `(${item.companyCode})`
-        }));
-        return res;
-      } catch (error) {
-        console.error('Error fetching series list:', error);
-      }
-    },
-
-    async getUser (query) {
-      try {
-        const res = await getUserByNameOrNo({ name: query });
-        return res;
-      } catch (error) {
-        console.error('Error fetching series list:', error);
-      }
     },
     // 多选框选中数据
     handleSelectionChange (selection) {

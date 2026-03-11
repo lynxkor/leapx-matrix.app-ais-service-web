@@ -74,3 +74,51 @@ export function getActivityDetail (data) {
 export function useActivity (data) {
   return api.jsonPost(prefix + 'activity/use', data);
 };
+
+/**
+ * 特殊开单--权益套餐--列表查询
+ * @param {Object} data
+ */
+export function getEquityList (data) {
+  return api.jsonPost(prefix + 'equity/list', data);
+};
+
+/**
+ * 特殊开单--权益套餐--详情
+ * @param {Object} data
+ */
+export function getEquityDetail (data) {
+  return api.jsonPost(prefix + 'equity/detail', data);
+};
+
+/**
+ * 特殊开单--权益套餐--使用
+ * @param {Object} data
+ */
+export function useEquity (data) {
+  return api.jsonPost(prefix + 'equity/use', data);
+};
+
+/**
+ * 特殊开单--免保项目--列表查询
+ * @param {Object} data
+ */
+export function getFpList (data) {
+  return api.jsonPost(prefix + 'fp/list', data);
+};
+
+/**
+ * 特殊开单--免保项目--详情
+ * @param {Object} data
+ */
+export function getFpDetail (data) {
+  return api.jsonPost(prefix + 'fp/detail', data);
+};
+
+/**
+ * 特殊开单--免保项目--使用
+ * @param {Object} data
+ */
+export function useFp (data) {
+  return api.jsonPost(prefix + 'fp/use', data);
+};

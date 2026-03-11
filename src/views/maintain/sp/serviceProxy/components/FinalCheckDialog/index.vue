@@ -306,7 +306,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="更换前编号：" prop="afterChangeCode">
+              <el-form-item label="更换后编号：" prop="afterChangeCode">
                 <el-input v-model="formInline.afterChangeCode" placeholder="请填写电池更换后编号"></el-input>
               </el-form-item>
             </el-col>
@@ -354,7 +354,7 @@
               <el-input v-model="row.beforeChangeCode" size="small" placeholder="请输入" maxlength="100"></el-input>
             </template>
           </vxe-column>
-          <vxe-column field="afterChangeCode" title="更换前编码" min-width="200" show-overflow >
+          <vxe-column field="afterChangeCode" title="更换后编码" min-width="200" show-overflow >
             <template #default="{ row }">
               <el-input v-model="row.afterChangeCode" size="small" placeholder="请输入" maxlength="100"></el-input>
             </template>

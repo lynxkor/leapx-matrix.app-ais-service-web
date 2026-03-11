@@ -42,3 +42,8 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+// CCC树状查询
+export function searchTree (data) {
+  return api.jsonPost(prefix + 'searchTree', data);
+}

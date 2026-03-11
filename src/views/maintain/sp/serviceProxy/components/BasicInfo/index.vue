@@ -303,13 +303,13 @@
             <template slot="append">%</template>
           </el-input>
         </el-form-item>
-        <el-form-item label="保险公司名称：" prop="warrantyCompany">
+        <!-- <el-form-item label="保险公司名称：" prop="warrantyCompany">
           <el-input
             placeholder="请输入"
             v-model="form.warrantyCompany"
             clearable
           />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="绑车人手机号码：" prop="bindingPhone">
           <el-input
             placeholder="请输入"
@@ -486,9 +486,9 @@
         <el-form-item label="离店车联网电量%：" prop="outNetPower">
           {{ form.outNetPower }}
         </el-form-item>
-        <el-form-item label="保险公司名称：" prop="warrantyCompany">
+        <!-- <el-form-item label="保险公司名称：" prop="warrantyCompany">
           {{ form.warrantyCompany }}
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="绑车人手机号码：" prop="bindingPhone">
           {{ form.bindingPhone }}
         </el-form-item>
@@ -582,13 +582,34 @@ export default {
           { required: true, message: '请输入送修人姓名', trigger: 'change' }
         ],
         shuttlePhone: [
-          { required: true, message: '请输入送修人手机', trigger: 'change' }
+          { required: true, message: '请输入送修人手机', trigger: 'blur' },
+          { pattern: /^1\d{10}$/, message: '请输入正确的手机号码', trigger: 'blur' }
         ],
       },
       popconfirmTitle: ''
     };
   },
   methods: {
+    scrollToError (invalidFields) {
+      if (!invalidFields || !Object.keys(invalidFields).length) return;
+      // 查找包含错误信息的表单项
+      const errorItem = this.$refs.basicForm.$el.querySelector('.is-error');
+      if (errorItem) {
+        // 找到最近的 el-form-item
+        const formItem = errorItem.closest('.el-form-item');
+        if (formItem) {
+          formItem.style.scrollMarginTop = '150px';
+          formItem.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+            inline: 'nearest'
+          });
+        }
+        setTimeout(() => {
+          formItem.style.scrollMarginTop = '';
+        }, 100);
+      }
+    },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);
@@ -610,9 +631,13 @@ export default {
             this.popoverVisible = true;
           });
         } else if (this.$refs.basicForm) {
-          this.$refs.basicForm.validate((valid) => {
+          this.$refs.basicForm.validate((valid, invalidFields) => {
             if (valid) {
               resolve(this.form);
+            } else {
+              this.$nextTick(() => {
+                this.scrollToError(invalidFields);
+              });
             }
           });
         } else {
@@ -637,6 +662,18 @@ export default {
     handleVinChange (val, record) {
       if (record.vin) {
         checkVinTag(record.vin).then(res => {
+          if (res) {
+            const message = `<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>提示</div><div class="ais-leave-tips-sub">该车辆为${res}，请注意接待。</div>`;
+            this.$confirm(message, '', {
+              confirmButtonText: '确定',
+              dangerouslyUseHTMLString: true,
+              showCancelButton: false,
+              customClass: 'ais-leave-tips',
+              showClose: false
+            }).then(() => {
+            }).catch(() => {
+            });
+          }
           const data = {
             carPlate: record.vehiclePlateNo, // 车牌号
             maintenanceMileage: record.vehicleProfileServiceResp.nextMaintainMileages, // 建议保养里程
