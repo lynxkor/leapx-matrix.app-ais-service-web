@@ -2240,6 +2240,24 @@ const routes = [
         name: '商城订单详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/maintain/sp/vehRetention',
+      name: 'vehRetention',
+      component: () => import('@/views/maintain/sp/vehRetention/index.vue'),
+
+      meta: {
+        name: '留车项配置',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/vehretention/edit',
+      name: 'vehRetentionEdit',
+      component: () => import('@/views/maintain/sp/vehRetention/edit.vue'),
+
+      meta: {
+        name: '留车项配置详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];

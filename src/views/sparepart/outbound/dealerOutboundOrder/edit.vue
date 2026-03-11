@@ -326,6 +326,7 @@
 
 <script>
 import { getDetail, addOrUpdate, orderDetailPage, orderDetailDelete } from '@/api/sparepart/outbound/dealerOutboundOrder/index';
+import { listDealerPart } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -528,10 +529,10 @@ export default {
     queryListData (queryString) {
       return new Promise(resolve => {
         // 根据需求调用接口
-        // sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
-        //   const list = res || [];
-        //   resolve(list);
-        // });
+        listDealerPart({ dealerCode: this.form.dealerCode, partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
+          const list = res || [];
+          resolve(list);
+        });
         resolve([
           { id: 1, name: 'test', age: 25, email: 'test@example.com' }
         ]);

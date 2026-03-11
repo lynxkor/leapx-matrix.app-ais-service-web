@@ -62,8 +62,8 @@
                 <el-form-item label="数据来源：" prop="dataSource">
                   <el-input placeholder="请输入" v-model="form.dataSource" disabled clearable />
                 </el-form-item>
-                <el-form-item label="负责人：" prop="serviceOwnerId">
-                  <el-input placeholder="请输入" v-model="form.serviceOwnerId" disabled clearable />
+                <el-form-item label="负责人：" prop="serviceOwnerName">
+                  <el-input placeholder="请输入" v-model="form.serviceOwnerName" disabled clearable />
                 </el-form-item>
                 <el-form-item label="支付方式：" prop="payTypeLabel">
                   <el-input placeholder="请输入" v-model="form.payTypeLabel" disabled clearable />
@@ -172,8 +172,8 @@
                 <el-form-item label="数据来源：" prop="dataSourceLabel">
                   {{ form.dataSourceLabel }}
                 </el-form-item>
-                <el-form-item label="负责人：" prop="serviceOwnerId">
-                  {{ form.serviceOwnerId }}
+                <el-form-item label="负责人：" prop="serviceOwnerName">
+                  {{ form.serviceOwnerName }}
                 </el-form-item>
                 <el-form-item label="支付方式：" prop="payTypeLabel">
                   {{ form.payTypeLabel }}

@@ -15,8 +15,14 @@
       quantity: [{ required: true },]
     }"
     >
-    <vxe-column field="vin" title="VIN" width="160"></vxe-column>
-    <vxe-column field="" title="计划实施门店名称" width="160">
+    <vxe-column field="vin" title="VIN" width="160">
+      <template #default="{row}">
+        {{ row.vin }}
+        <span v-if="row.vin !== row.vinAll" @click="() => onVin(row)" class="eye-icon iconfont icon-lxppc-eye"></span>
+        <span v-else @click="() => onVin(row)" class="eye-icon iconfont icon-lxppc-eye-off"></span>
+      </template>
+    </vxe-column>
+    <vxe-column title="计划实施门店名称" width="180">
       <template #default="{ row, rowIndex }">
         <fetch-select
           v-if="eidtRowIndex === rowIndex"
@@ -24,13 +30,14 @@
           clearable
           remote
           reserve-keyword
-          v-model="row.plannedDealerCode"
+          v-model="row.plannedDealerId"
           :remote-method="dealerRemote"
-          :params="row.plannedDealerCode"
+          :params="row.plannedDealerName"
           @change="(value, option) => onDealerChange(row, value, option)"
           placeholder="请输入"
-          value-key="orgCode"
+          value-key="orgId"
           label-key="orgName"
+          sub-label-key="orgCode"
         />
         <span v-else>{{ row.plannedDealerName }}</span>
       </template>
@@ -41,8 +48,8 @@
     <vxe-column field="workOrderNo" title="施工单号" width="160"></vxe-column>
     <vxe-column field="ownerPhone" title="车主手机" width="160"></vxe-column>
     <vxe-column field="schemeId" title="施工方案" width="160"></vxe-column>
-    <vxe-column field="" title="创建时间" width="160"></vxe-column>
-    <vxe-column field="" title="修改时间" width="160"></vxe-column>
+    <vxe-column field="createTime" title="创建时间" width="160"></vxe-column>
+    <vxe-column field="updateTime" title="修改时间" width="160"></vxe-column>
     <vxe-column title="操作" :width="200" align="center" fixed="right" :resizable="false">
       <template #default="{ row, rowIndex }">
         <template v-if="eidtRowIndex === rowIndex">
@@ -86,6 +93,7 @@
     </vxe-column>
     <template #empty>
       <div class="m-vxe-table-empty-text">
+        暂无数据
       </div>
     </template>
   </vxe-table>
@@ -114,6 +122,7 @@ import permissions from '@/libs/mixins/permissions';
 import { listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { cloneDeep } from 'lodash';
+import { getDetailDecryptField } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
 
 export default {
   props: {
@@ -147,36 +156,6 @@ export default {
       pageSize: 10,
       total: 0,
       tableData: [],
-      editConfig: {
-        trigger: 'click',
-        mode: 'row'
-      },
-      options: {
-        returnType: [],
-        oldPartCode: [],
-      },
-      defaultNewRow: {
-        id: '',
-        activityId: '',
-        partId: '',
-        partCode: '',
-        partName: '',
-        repairItemTypeId: '',
-        repairItemTypeCode: '',
-        repairItemTypeName: '',
-        oldPartId: '',
-        oldPartCode: '',
-        oldPartName: '',
-        oldSupplierId: '',
-        oldSupplierCode: '',
-        oldSupplierName: '',
-        quantity: '',
-        mainPart: '',
-        allowDelete: '',
-        returnType: '',
-        returnTypeLabel: '',
-      },
-      selectedRow: {},
     };
   },
   watch: {
@@ -243,7 +222,11 @@ export default {
     // 行保存
     saveRowEdit (row) {
       serviceActivityVehicleUpdate({
+        id: row.id,
         activityId: this._id,
+        plannedDealerId: row.plannedDealerId,
+        plannedDealerCode: row.plannedDealerCode,
+        plannedDealerName: row.plannedDealerName,
       }).then(id => {
         this.$message.success('更新成功');
         this.getDetailPageApi();
@@ -282,29 +265,47 @@ export default {
         name: query,
       });
     },
+    onVin (row) {
+      if (row.vinAll) {
+        row.vin = row.vin === row.vinAll ? row.vinMask : row.vinAll;
+        return;
+      }
+      getDetailDecryptField(row.id, 'vin').then(data => {
+        row.vinAll = data;
+        row.vinMask = row.vin;
+        row.vin = row.vinAll;
+      });
+    }
   },
 };
 
 </script>
 <style lang="scss" scoped>
-  .table-pagination {
-    margin-top: 15px;
-    display: flex;
-    justify-content: flex-end;
-  }
+.table-pagination {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+}
 
-  .action-button{
-    margin: 0 5px;
-    cursor: pointer;
-    &.btn-edit{
-      color:#4C4CD6;
-    }
-    &.btn-delete{
-      color: #b91919 !important;;
-    }
-    &.disabled{
-      cursor: not-allowed;
-      color: var(--disabled-color);
-    }
+.action-button{
+  margin: 0 5px;
+  cursor: pointer;
+  &.btn-edit{
+    color:#4C4CD6;
   }
+  &.btn-delete{
+    color: #b91919 !important;;
+  }
+  &.disabled{
+    cursor: not-allowed;
+    color: var(--disabled-color);
+  }
+}
+.eye-icon{
+  vertical-align: text-top;
+  font-size: 20px;
+  margin-left: 10px;
+  cursor: pointer;
+  color: #009100;
+}
 </style>

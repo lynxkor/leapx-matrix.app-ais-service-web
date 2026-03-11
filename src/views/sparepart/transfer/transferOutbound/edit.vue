@@ -60,10 +60,18 @@
                   {{ form.inboundDealerName }}
                 </el-form-item>
                 <el-form-item label="入库方联系人：" prop="inboundContactName">
-                  {{ form.inboundContactName }}
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.inboundContactName"
+                    clearable
+                  />
                 </el-form-item>
                 <el-form-item label="入库方手机：" prop="inboundContactPhone">
-                  {{ form.inboundContactPhone }}
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.inboundContactPhone"
+                    clearable
+                  />
                 </el-form-item>
                 <el-form-item label="物流商：" prop="logisticsProvider">
                   {{ form.logisticsProvider }}
