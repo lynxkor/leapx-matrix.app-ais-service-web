@@ -43,3 +43,91 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 提交调拨出库单
+ * @param {Object} data
+ */
+export function getSubmit (data) {
+  return api.jsonPost(prefix + 'submit', data);
+}
+
+/**
+ * 同意调拨出库单
+ * @param {Object} data
+ */
+export function getApprove (data) {
+  return api.jsonPost(prefix + 'approve', data);
+}
+
+/**
+ * 驳回调拨出库单
+ * @param {Object} data
+ */
+export function getReject (data) {
+  return api.jsonPost(prefix + 'reject', data);
+}
+
+/**
+ * 撤回调拨出库单
+ * @param {Object} data
+ */
+export function getRevoke (data) {
+  return api.jsonPost(prefix + 'revoke', data);
+}
+
+/**
+ * 发运调拨出库单
+ * @param {Object} data
+ */
+export function getShip (data) {
+  return api.jsonPost(prefix + 'ship', data);
+}
+
+/**
+ * 申请撤销
+ * @param {Object} data
+ */
+export function applyCancel (data) {
+  return api.jsonPost(prefix + 'applyCancel', data);
+}
+
+/**
+ * 同意撤销
+ * @param {Object} data
+ */
+export function approveCancel (data) {
+  return api.jsonPost(prefix + 'approveCancel', data);
+}
+
+/**
+ * 驳回撤销
+ * @param {Object} data
+ */
+export function rejectCancel (data) {
+  return api.jsonPost(prefix + 'rejectCancel', data);
+}
+
+/**
+ * 入库
+ * @param {Object} data
+ */
+export function getInbound (data) {
+  return api.jsonPost(prefix + 'inbound', data);
+}
+
+/**
+ * 备件调拨出库明细表分页查询
+ * @param {Object} data
+ */
+export function transferOutboundPage (data) {
+  return api.jsonPost('/sp/web/dealer/transferOutboundDetail/page', data);
+}
+
+/**
+ * 备件调拨出库明细表删除
+ * @param {Object} data
+ */
+export function transferOutboundDelete (data) {
+  return api.jsonPost('/sp/web/dealer/transferOutboundDetail/delete', data);
+}

@@ -28,13 +28,13 @@
             {{ repairDetail.workingHours || 0 }}
           </el-form-item>
           <el-form-item label="优惠金额：" prop="discountAmount">
-            <el-input-number size="small" type="number" v-model="repairDetail.discountAmount" clearable @blur="calculateAmount" />
+            <el-input-number :controls="false" :min="0" :max="repairDetail.unitPrice * repairDetail.workingHours" size="small" type="number" v-model="repairDetail.discountAmount" clearable @change="calculateAmount" />
           </el-form-item>
           <el-form-item label="项目金额：" prop="receivableAmount">
             {{ repairDetail.receivableAmount || 0 }}
           </el-form-item>
           <el-form-item label="索赔价格：" prop="claimPrice">
-            <el-input-number size="small" type="number" v-model="repairDetail.claimPrice" clearable />
+            <el-input-number :controls="false" :min="0" size="small" type="number" v-model="repairDetail.claimPrice" clearable />
           </el-form-item>
         </el-form>
       </div>
@@ -74,19 +74,19 @@
             <vxe-column field="checkoutTypeName" title="结算类型" width="150" />
             <vxe-column field="totalAmount" title="数量" width="150">
               <template #default="{ row }">
-                <el-input-number size="small" type="number" v-model="row.totalAmount" clearable @blur="calculatePartsAmount(row)" />
+                <el-input-number :min="0" :step="1" step-strictly size="small" type="number" v-model="row.totalAmount" clearable @change="calculatePartsAmount(row)" />
               </template>
             </vxe-column>
             <vxe-column field="unitPrice" title="单价" width="100" />
             <vxe-column field="discountAmount" title="优惠金额" width="150">
               <template #default="{ row }">
-                <el-input-number size="small" type="number" v-model="row.discountAmount" clearable @blur="calculatePartsAmount(row)" />
+                <el-input-number :controls="false" :min="0" :max="row.unitPrice * row.totalAmount" size="small" type="number" v-model="row.discountAmount" clearable @change="calculatePartsAmount(row)" />
               </template>
             </vxe-column>
             <vxe-column field="receivableAmount" title="零件金额" width="100" />
             <vxe-column field="claimPrice" title="索赔价格" width="150">
               <template #default="{ row }">
-                <el-input-number size="small" type="number" v-model="row.claimPrice" clearable />
+                <el-input-number :controls="false" :min="0" size="small" type="number" v-model="row.claimPrice" clearable />
               </template>
             </vxe-column>
             <vxe-column title="操作" width="100" fixed="right">
