@@ -13,19 +13,18 @@
         />
       </div>
       <div class="list-wrapper" v-loading="loading">
-        <template v-if="filteredList.length > 0">
+        <template v-if="packageList.length > 0">
           <div
-            v-for="(item) in filteredList"
-            :key="item.id"
-            :class="['list-item', { 'is-selected': selectedItem.id === item.id }]"
+            v-for="(item) in packageList"
+            :key="item.useId"
+            :class="['list-item', { 'is-selected': selectedItem.useId === item.useId }]"
             @click="handleSelectItem(item)"
           >
             <div class="list-item__content">
-              <div class="list-item__name">{{ item.name }}</div>
-              <div class="list-item__code">{{ item.interestsGoodsCode }}</div>
-              <div class="list-item__count">可用次数 {{ item.remainTimes || 0 }}/{{ item.totalRemainTimes || 0 }}</div>
+              <div class="list-item__name">{{ item.rightsName }}</div>
+              <div class="list-item__code">{{ item.rightsCode }}</div>
             </div>
-            <i v-if="selectedItem.id === item.id" class="el-icon-success selected-icon"></i>
+            <!-- <i v-if="selectedItem.useId === item.useId" class="el-icon-success selected-icon"></i> -->
           </div>
         </template>
         <div v-else class="list-empty">
@@ -36,11 +35,11 @@
 
     <!-- 右侧详情 -->
     <div class="right-panel">
-      <div v-if="selectedItem.id" class="detail-content" v-loading="detailLoading">
+      <div v-if="selectedItem.useId" class="detail-content" v-loading="detailLoading">
         <div class="detail-title">{{ selectedItem.name }}</div>
 
         <!-- 维修项目表格 -->
-        <div class="detail-section" v-if="repairItemData.length > 0">
+        <div class="detail-section">
           <div class="section-title">维修项目</div>
           <vxe-table
             ref="repairItemTable"
@@ -51,19 +50,20 @@
             resizable
             border="inner"
             size="medium"
+            min-height="0"
             max-height="180px"
           >
             <vxe-column field="code" title="维修项目代码" width="120" />
-            <vxe-column field="name" title="维修项目名称" width="114" />
-            <vxe-column field="repairType" title="维修类型" width="105" />
-            <vxe-column field="settlementType" title="结算类型" width="136" />
-            <vxe-column field="warrantyType" title="保修类型" width="165" />
-            <vxe-column field="workHours" title="工时" width="100" />
+            <vxe-column field="name" title="维修项目名称" width="180" />
+            <vxe-column field="repairItemTypeName" title="维修类型" width="120" />
+            <vxe-column field="settlementTypeName" title="结算类型" width="120" />
+            <vxe-column field="warrantyTypeName" title="保修类型" width="120" />
+            <vxe-column field="workhour" title="工时" width="100" />
           </vxe-table>
         </div>
 
         <!-- 维修零件表格 -->
-        <div class="detail-section" v-if="repairPartData.length > 0">
+        <div class="detail-section">
           <div class="section-title">维修零件</div>
           <vxe-table
             ref="repairPartTable"
@@ -74,13 +74,14 @@
             resizable
             border="inner"
             size="medium"
+            min-height="0"
             max-height="180px"
           >
             <vxe-column field="code" title="零件代码" width="120" />
-            <vxe-column field="name" title="零件名称" width="114" />
-            <vxe-column field="repairType" title="维修类型" width="105" />
-            <vxe-column field="settlementType" title="结算类型" width="136" />
-            <vxe-column field="warrantyType" title="保修类型" width="165" />
+            <vxe-column field="serviceName" title="零件名称" width="180" />
+            <vxe-column field="repairType" title="维修类型" width="120" />
+            <vxe-column field="settlementType" title="结算类型" width="120" />
+            <vxe-column field="warrantyType" title="保修类型" width="120" />
             <vxe-column field="workHours" title="工时" width="100" />
           </vxe-table>
         </div>
@@ -88,7 +89,7 @@
         <!-- 底部操作栏 -->
         <div class="footer-bar">
           <el-button type="primary" size="small" @click="handleConfirm">
-            {{ isCancelMode ? '取消使用' : '核销使用' }}
+            核销使用
           </el-button>
         </div>
       </div>
@@ -102,7 +103,7 @@
 </template>
 
 <script>
-import { getEquityList, getEquityDetail, useEquity, cancel } from '@/api/maintain/sp/serviceProxy/special';
+import { getEquityList, useEquity } from '@/api/maintain/sp/serviceProxy/special';
 
 export default {
   name: 'EquityPkg',
@@ -122,16 +123,6 @@ export default {
       repairItemData: [],
       repairPartData: []
     };
-  },
-  computed: {
-    filteredList () {
-      // 搜索由后端处理,前端直接返回列表
-      return this.packageList;
-    },
-    // 是否为取消模式(左侧列表有选中项时为取消模式)
-    isCancelMode () {
-      return !!this.selectedItem?.id;
-    }
   },
   methods: {
     // 初始化数据
@@ -157,21 +148,10 @@ export default {
         }
         const res = await getEquityList(params);
         // YAPI接口返回的列表字段映射
-        this.packageList = (res || []).map(item => ({
-          id: item.useId || item.userId || '', // 使用ID或用户ID
-          name: item.rightsName || '', // 权益名称
-          interestsGoodsCode: item.rightsCode || '', // 权益编码
-          isEffect: item.rightsStatus === 2 ? 1 : 0, // 权益使用状态:2-可使用视为已生效
-          remainTimes: item.remainTimes || 0, // 可使用次数
-          totalRemainTimes: item.totalRemainTimes || 0, // 可使用总次数
-          usedTimes: item.usedTimes || 0, // 已使用总次数
-          rightsType: item.rightsType, // 权益类型
-          rightsStatus: item.rightsStatus, // 权益使用状态
-          effectDate: item.effectDate, // 生效时间
-          expiryDate: item.expiryDate, // 失效时间
-          repairItemList: item.repairItemList || [], // 维修项目清单
-          repairPartList: item.repairPartList || [] // 维修配件清单
-        }));
+        this.packageList = (res || []);
+        if (this.packageList.length > 0) {
+          this.handleSelectItem(this.packageList[0]);
+        }
       } catch (error) {
         console.error('获取权益套餐列表失败:', error);
         this.$message.error('获取权益套餐列表失败');
@@ -181,61 +161,29 @@ export default {
     },
     // 搜索
     handleSearch () {
-      // 搜索由后端处理,重新请求列表
       this.fetchEquityList();
     },
     // 选择套餐项
     async handleSelectItem (item) {
       this.selectedItem = item;
-      await this.fetchEquityDetail(item.id);
+      this.repairItemData = item.repairItemList || [];
+      this.repairPartData = item.repairPartList || [];
     },
-    // 获取权益套餐详情
-    async fetchEquityDetail (packageId) {
-      if (!packageId) return;
-      try {
-        this.detailLoading = true;
-        // 根据YAPI接口,请求参数为 { packageId: "权益套餐ID" }
-        const res = await getEquityDetail({ packageId });
-        // YAPI接口返回的是维修配件清单对象数组
-        // 包含维修项目和零件信息,字段名需要映射
-        this.repairItemData = (res || []).map(item => ({
-          code: item.repairItemCode || '', // 维修项目代码
-          name: item.repairItemName || '', // 维修项目名称
-          repairType: item.repairItemTypeName || '', // 维修类型
-          settlementType: item.checkoutTypeName || '', // 结算类型
-          warrantyType: item.warrantyTypeName || '', // 保修类型
-          workHours: item.workHour || 0 // 工时数
-        }));
-        // 维修零件数据映射
-        this.repairPartData = (res || []).filter(item => item.partsCode).map(item => ({
-          code: item.partsCode || '', // 零件代码
-          name: item.partsName || '', // 零件名称
-          repairType: item.repairItemTypeName || '', // 维修类型
-          settlementType: item.checkoutTypeName || '', // 结算类型
-          warrantyType: item.warrantyTypeName || '', // 保修类型
-          quantity: item.quantity || 0 // 数量
-        }));
-      } catch (error) {
-        console.error('获取权益套餐详情失败:', error);
-        this.$message.error('获取权益套餐详情失败');
-      } finally {
-        this.detailLoading = false;
-      }
-    },
-    // 确认操作 - 核销使用或取消使用
+    // 确认操作
     async handleConfirm () {
-      if (this.isCancelMode) {
-        // 已选中套餐,执行取消使用
-        await this.handleCancel();
-      } else {
-        // 未选中套餐,执行核销使用
-        await this.handleUseEquity();
-      }
+      await this.handleUseEquity();
     },
     // 核销使用
     async handleUseEquity () {
       try {
-        await useEquity({ packageId: this.vehicleInfo.id });
+        await useEquity({
+          equityUseId: this.selectedItem.useId,
+          equityCode: this.selectedItem.rightsCode,
+          equityName: this.selectedItem.rightsName,
+          suggestedSpreadPrice: this.selectedItem.suggestedSpreadPrice,
+          repairItemList: this.selectedItem.repairItemList,
+          repairPartList: this.selectedItem.repairPartList
+        });
         this.$message.success('核销成功');
         this.$emit('refresh');
         // 刷新列表
@@ -243,26 +191,6 @@ export default {
       } catch (error) {
         console.error('核销失败:', error);
         this.$message.error(error?.message || '核销失败');
-      }
-    },
-    // 取消使用
-    async handleCancel () {
-      if (!this.selectedItem?.id) {
-        return;
-      }
-      try {
-        await cancel({ packageId: this.selectedItem.id });
-        this.$message.success('取消使用成功');
-        this.$emit('refresh');
-        // 刷新列表
-        await this.fetchEquityList();
-        // 重置选中状态
-        this.selectedItem = {};
-        this.repairItemData = [];
-        this.repairPartData = [];
-      } catch (error) {
-        console.error('取消使用失败:', error);
-        this.$message.error(error?.message || '取消使用失败');
       }
     }
   }
@@ -276,7 +204,11 @@ export default {
   flex: 1;
   display: flex;
   overflow: hidden;
-
+  ::v-deep .vxe-table--empty-content {
+    color: var(--leap-color-default-light-2);
+    width: 100%;
+    text-align: left;
+  }
   .left-panel {
     width: 204px;
     border-right: 1px solid $--leap-color-default-light-4;
