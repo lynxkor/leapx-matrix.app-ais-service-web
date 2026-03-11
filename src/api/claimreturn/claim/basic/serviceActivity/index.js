@@ -144,3 +144,18 @@ export function serviceActivityVehicleUpdate (data) {
 export function serviceActivityVehicleDelete (data) {
   return api.jsonPost(prefixVehicle + 'delete', data);
 }
+export function serviceActivityVehicleImportExcel (data) {
+  return api.jsonPost(prefixVehicle + 'importExcel', data);
+}
+
+const prefixFault = 'claimreturn/claim/web/basic/serviceActivityFaultModule/';
+// 技术服务活动故障模块分页查询
+export function serviceActivityFaultPage (data) {
+  return api.jsonPost(prefixFault + 'page', data);
+}
+export function serviceActivityFaultUpdate (data) {
+  return api.jsonPost(prefixFault + 'addOrUpdate', data);
+}
+export function serviceActivityFaultDelete (data) {
+  return api.jsonPost(prefixFault + 'delete', data);
+}

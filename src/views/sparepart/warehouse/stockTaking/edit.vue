@@ -1,7 +1,6 @@
 <template>
   <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
-      <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container
         ref="containerRef"
         :id="_id"
@@ -11,14 +10,12 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :showEditBtn="stockStatusType"
       >
         <template #status>
-          <!-- 支持primary,warning,success,danger等状态 -->
-          <!-- <span class="status primary">状态</span> -->
+          <span v-if="form.status" class="status primary">{{ form.status }}</span>
         </template>
         <template #extraButtons>
-          <!-- <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button> -->
         </template>
         <el-main>
           <section class="common-section">
@@ -26,183 +23,68 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="盘点单号：" prop="code">
                   <el-input
-                    placeholder="请输入"
+                    placeholder="自动生成"
                     v-model="form.code"
                     clearable
-                  />
-                </el-form-item>
-                <el-form-item label="门店编码：" prop="dealerCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dealerCode"
-                    clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dealerName"
-                    clearable
-                  />
+                  {{ form.dealerName }}
                 </el-form-item>
-                <el-form-item label="公司编码：" prop="companyCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.companyCode"
-                    clearable
-                  />
+                <el-form-item label="备件仓库：" prop="warehouseId">
+                  {{ form.warehouseName }}
                 </el-form-item>
-                <el-form-item label="备件仓库ID：" prop="warehouseId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.warehouseId"
-                    clearable
-                  />
+                <el-form-item label="母公司名称：" prop="companyCode">
+                  {{ form.companyName }}
                 </el-form-item>
-                <el-form-item label="盘点类型:全盘，抽盘：" prop="stockType">
+                <el-form-item label="盘点类型：" prop="stockType">
                   <fetch-select
                     :request="fetchOptions"
-                    enumCode="xxx"
+                    enumCode="StockTakingTypeEnum"
                     v-model="form.stockType"
                     placeholder="请选择"
                     clearable
                     filterable
+                    :disabled="form.stockStatus !== '0'"
                   />
                 </el-form-item>
-                <el-form-item label="盘点状态:草稿，盘点中，差异处理中，已完成，已作废：" prop="stockStatus">
+                <el-form-item label="盘点状态：" prop="stockStatus">
                   <fetch-select
                     :request="fetchOptions"
-                    enumCode="xxx"
+                    enumCode="StockTakingStatusEnum"
                     v-model="form.stockStatus"
                     placeholder="请选择"
                     clearable
                     filterable
+                    disabled
                   />
                 </el-form-item>
-                <el-form-item label="计划开始时间：" prop="planStartTime">
+                <el-form-item label="计划开始时间：">
                   <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
                     v-model="form.planStartTime"
-                    :picker-options="pickerOptions"
+                    :picker-options="planStartTime"
+                    range-separator="至"
                     value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
                   />
                 </el-form-item>
-                <el-form-item label="计划完成时间：" prop="planCompleteTime">
+                <el-form-item label="计划完成时间：">
                   <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
                     v-model="form.planCompleteTime"
-                    :picker-options="pickerOptions"
+                    :picker-options="planCompleteTime"
+                    range-separator="至"
                     value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
                   />
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
+                <el-form-item label="备注：" prop="remark" style="width: 100%;">
                   <el-input
+                    type="textarea"
+                    :rows="3"
                     placeholder="请输入"
                     v-model="form.remark"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.createTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.updateTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.id"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creator"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creatorName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifier"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifierName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.status"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statusDesc"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dataSource"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="门店组织id：" prop="ownerOrgId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.ownerOrgId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="公司名称：" prop="companyName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.companyName"
                     clearable
                   />
                 </el-form-item>
@@ -217,17 +99,17 @@
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
                 </el-form-item>
-                <el-form-item label="公司编码：" prop="companyCode">
-                  {{ form.companyCode }}
+                <el-form-item label="备件仓库：" prop="warehouseId">
+                  {{ form.warehouseName }}
                 </el-form-item>
-                <el-form-item label="备件仓库ID：" prop="warehouseId">
-                  {{ form.warehouseId }}
+                <el-form-item label="母公司名称：" prop="companyCode">
+                  {{ form.companyName }}
                 </el-form-item>
-                <el-form-item label="盘点类型:全盘，抽盘：" prop="stockType">
-                  {{ form.stockType }}
+                <el-form-item label="盘点类型：" prop="stockType">
+                  {{ form.stockTypeLabel }}
                 </el-form-item>
-                <el-form-item label="盘点状态:草稿，盘点中，差异处理中，已完成，已作废：" prop="stockStatus">
-                  {{ form.stockStatus }}
+                <el-form-item label="盘点状态：" prop="stockStatus">
+                  {{ form.stockStatusLabel }}
                 </el-form-item>
                 <el-form-item label="计划开始时间：" prop="planStartTime">
                   {{ form.planStartTime }}
@@ -235,51 +117,15 @@
                 <el-form-item label="计划完成时间：" prop="planCompleteTime">
                   {{ form.planCompleteTime }}
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
+                <el-form-item label="备注：" prop="remark" style="width: 100%;">
                   {{ form.remark }}
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  {{ form.createTime }}
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  {{ form.updateTime }}
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  {{ form.modifierName }}
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  {{ form.status }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  {{ form.statusDesc }}
-                </el-form-item>
-                <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
-                  {{ form.dataSource }}
-                </el-form-item>
-                <el-form-item label="门店组织id：" prop="ownerOrgId">
-                  {{ form.ownerOrgId }}
-                </el-form-item>
-                <el-form-item label="公司名称：" prop="companyName">
-                  {{ form.companyName }}
                 </el-form-item>
               </el-form>
             </div>
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>子表标题</h2>
+              <h2>盘点明细</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
@@ -292,6 +138,7 @@
                     clearable
                     value-key="id"
                     label-key="name"
+                    :disabled="form.stockStatus !== '0'"
                     @change="handleAddTableData"
                   />
                   <el-button type="primary" size="small">添加</el-button>
@@ -309,12 +156,29 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
+                <vxe-column field="partCode" title="备件编码" min-width="12.5%" />
+                  <vxe-column field="partName" title="备件名称" min-width="12.5%" />
+                  <vxe-column field="locationCode" title="库位" min-width="12.5%" />
+                  <vxe-column field="totalQty" title="库存总数" min-width="12.5%" />
+                  <vxe-column field="actualQty" title="实盘库存" min-width="12.5%">
+                    <template #default="{ row }">
+                      <el-input v-model="row.inboundQuantity" :disabled="!row.stockStatusType" type="number" min="1" />
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="remark" title="备注" min-width="12.5%">
+                    <template #default="{ row }">
+                      <el-input v-model="row.remark" :disabled="!row.stockStatusType" />
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="inboundQty" title="操作人" min-width="12.5%">
+                    <template #default="{ row }">
+                      <el-input v-model="row.operator" placeholder="请输入操作人" :disabled="!row.stockStatusType" />
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="createTime" title="创建时间" min-width="12.5%" />
+                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
                     <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
+                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
@@ -323,6 +187,18 @@
                     <div class="m-vxe-table-empty-text">{{emptyText}}</div>
                   </template>
                 </vxe-table>
+                <div class="table-pagination">
+                  <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="pageNum"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total"
+                  >
+                  </el-pagination>
+                </div>
               </div>
             </div>
           </section>
@@ -331,52 +207,39 @@
     </template>
     <template #right>
       <div class="page-common-edit">
-        <!-- 右侧栏组件，自行开发 -->
       </div>
     </template>
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/warehouse/stockTaking/index';
+import { getDetail, addOrUpdate, stockTakingDetailPage } from '@/api/sparepart/warehouse/stockTaking/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
-import { YES_NO_ENUM } from '@/libs/constants';
+import { getEnum, getPartDealer, getLoginUser } from '@/api/common';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
-  // 多选时字段有变化，自行修复
   code: '',
   dealerCode: '',
   dealerName: '',
   companyCode: '',
   warehouseId: '',
   stockType: '',
-  stockStatus: '',
+  stockStatus: '0',
   planStartTime: '',
   planCompleteTime: '',
   remark: '',
   createTime: '',
   updateTime: '',
-  id: '',
-  creator: '',
-  creatorName: '',
-  modifier: '',
-  modifierName: '',
-  status: '',
-  statusDesc: '',
-  dataSource: '',
-  ownerOrgId: '',
   companyName: '',
 };
 
 export default {
   name: 'stockTakingEdit',
-  // 集中视图预留
   props: {
     id: {
       type: [String, Number],
@@ -405,98 +268,62 @@ export default {
         }
       },
       immediate: true
-    }
+    },
+    'form.code': {
+      handler (val) {
+        if (val) {
+          this.getData();
+          if (this.form.stockStatus === '0' || this.form.stockStatus === '2') {
+            this.stockStatusType = true;
+          }
+        }
+      },
+      immediate: true
+    },
   },
   data () {
     const form = this.getDefautlForm();
     return {
       pageTitle: '库存盘点',
       pageType: 'edit',
-      // TIPS: 权限前缀 AISPART，根据实际情况修改
       moduleKey: 'AISPART-stockTaking',
       loading: false,
       submitLoading: false,
-      yes_no_enum: YES_NO_ENUM,
+      stockStatusType: false, // 查看状态是否可编辑, 可编辑哪些内容
       form: { ...form },
       originalForm: { ...form },
       emptyText: '若要启用此内容，请创建记录',
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
+      tableData: [],
       rules: {
-        code: [
-          { required: true, message: '请输入盘点单号', trigger: 'change' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称', trigger: 'change' }
-        ],
-        companyCode: [
-          { required: true, message: '请输入公司编码', trigger: 'change' }
-        ],
         warehouseId: [
-          { required: true, message: '请输入备件仓库ID', trigger: 'change' }
+          { required: true, message: '请选择备件仓库', trigger: 'change' }
         ],
         stockType: [
-          { required: true, message: '请选择盘点类型:全盘，抽盘', trigger: 'change' }
-        ],
-        stockStatus: [
-          { required: true, message: '请选择盘点状态:草稿，盘点中，差异处理中，已完成，已作废', trigger: 'change' }
-        ],
-        planStartTime: [
-          { required: true, message: '请选择计划开始时间', trigger: 'change' }
-        ],
-        planCompleteTime: [
-          { required: true, message: '请选择计划完成时间', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，150:新销服; 老销服:10', trigger: 'change' }
-        ],
-        ownerOrgId: [
-          { required: true, message: '请输入门店组织id', trigger: 'change' }
-        ],
-        companyName: [
-          { required: true, message: '请输入公司名称', trigger: 'change' }
+          { required: true, message: '请选择盘点类型', trigger: 'change' }
         ],
       }
     };
   },
   mounted () {
+    this.initDealerUser();
   },
   methods: {
+    async initDealerUser () {
+      // 查询是否店端 true为门店  false为厂端
+      const res = await getLoginUser();
+      this.form.dealerCode = res.currentDealerCode;// 当前门店code
+      this.form.dealerName = res.currentDealerName;// 当前门店名称
+
+      // 查询当前门店信息 公司
+      const resDealer = await getPartDealer({ code: this.form.dealerCode });
+
+      this.form.companyCode = resDealer.parentCompanyCode;// 当前门店code
+      this.form.companyName = resDealer.parentCompanyName;// 当前门店名称
+
+      this.form.warehouseName = resDealer.warehouseName;
+      this.form.warehouseId = resDealer.warehouseId;// 当前门店code
+      this.form.warehouseCode = resDealer.warehouseCode;// 当前门店名称
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -506,76 +333,64 @@ export default {
     submitRequest () {
       return addOrUpdate({ ...this.form });
     },
-    // 打开侧边栏
     openPane () {
       this.$refs.editLayout.openPane();
     },
-    // 删除子表数据
     handleDeleteRow (index) {
-      const item = this.tableData[index];
       this.tableData.splice(index, 1);
-      // 根据需求调用接口
-      // deletePartVehModel([item.id]).then(res => {
-      //   this.$message.success('删除成功');
-      //   this.tableData.splice(index, 1);
-      // });
     },
-    // 查询新增项的列表
     queryListData (queryString) {
       return new Promise(resolve => {
-        // 根据需求调用接口
-        // sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
-        //   const list = res || [];
-        //   resolve(list);
-        // });
-        resolve([
-          { id: 1, name: 'test', age: 25, email: 'test@example.com' }
-        ]);
+        resolve([]);
       });
     },
-    // 新增子表数据
     handleAddTableData (val, record) {
       if (!record) {
         this.$message.warning('请先选择数据');
         return;
       }
-      // 检查是否已存在
       const exists = this.tableData.some(item => item.id === record.id);
       if (exists) {
         this.$message.warning('请勿重复添加');
         return;
       }
-      // 根据需求调用接口
       this.tableData.push(record);
-      // addPartItem({
-      //   maintenancePartId: this._id,
-      //   partsCode: record.partCode,
-      //   partsName: record.partName,
-      //   partsId: record.id,
-      // }).then(res => {
-      //   this.$message.success('添加成功');
-      //   this.detailRequest();
-      // });
     },
     getDefautlForm () {
-      // TIPS: 此处可添加表单默认值，如当前用户信息等
-      // const userInfo = this.$store.state.user.userInfo;
       return {
         ...defaultForm
-        // ownerId: userInfo.userId,
-        // ownerName: userInfo.userName,
       };
     },
-    // 审核日志
-    // handleJumpAuditLog () {
-    //   this.$auditLog.show({ id: 123 });
-    // },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    // 获取盘点明细
+    async getData () {
+      const params = {
+        stockTakingId: this._id,
+        pageNum: this.pageNum,
+        pageSize: this.pageSize,
+      };
+      const res = await stockTakingDetailPage(params);
+      this.total = res.total || 0;
+      this.tableData = res.records.map(item => ({
+        ...item,
+        stockStatusType: this.stockStatusType,
+      })) || [];
+      console.log(this.tableData);
+    },
+    handleCurrentChange (pageNum) {
+      this.pageNum = pageNum;
+      this.getData();
+    },
+    handleSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.pageNum = 1;
+      this.getData();
+    },
   }
 };
 </script>

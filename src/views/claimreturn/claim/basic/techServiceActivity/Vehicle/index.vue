@@ -5,36 +5,52 @@
     </div>
     <div class="common-section-body" v-if="id">
       <section class="common-section">
-        <el-input placeholder="输入VIN" :style="{width: '305px', marginRight: '8px'}" v-model="vin" @keyup.enter="onEnter" :clearable="true" />
-        <el-button size="small" @click="vehicle">导入车辆</el-button>
+        <fetch-select
+          :style="{width: '305px', marginRight: '8px'}"
+          filterable
+          clearable
+          remote
+          reserve-keyword
+          :value="vin"
+          :remote-method="vinRemote"
+          :params="vin"
+          @change="handleVin"
+          placeholder="输入VIN"
+          labelKey="vin"
+          value-key="vin"
+        />
+        <el-button size="small" @click="handleImport">导入车辆</el-button>
       </section>
       <section class="common-section"  v-if="canAddOrUpdate">
-        <div class="common-section-body">
-          <vehicle-table
-            :moduleKey="moduleKey"
-            ref="vehicleTable"
-            :id="id"
-            />
-        </div>
+        <vehicle-table
+          :moduleKey="moduleKey"
+          ref="vehicleTable"
+          :id="id"
+          />
       </section>
     </div>
+    <div class="common-section-body not-commit" v-else>
+      提交新建后，即可添加
+    </div>
+    <Upload
+      :visible="uploadDialogVisible"
+      id="serviceActivityVehicleInActivity"
+      :business-params="id"
+      @close="handleUploadDialogClose"
+      @getData="getData"
+    />
   </section>
 </template>
 <script>
 import {
-  techServiceActivitySchemeCopy,
-  techServiceActivitySchemeDelete,
-  techServiceActivitySchemeGet,
-  techServiceActivitySchemeList,
-  techServiceActivitySchemeUpdate
+  serviceActivityVehicleUpdate
 } from '@/api/claimreturn/claim/basic/serviceActivity';
-import { getList as partList } from '@/api/sparepart/basic/sparePart';
-import { getList as sparePartList } from '@/api/sparepart/basic/sparePartSupplier';
 import permissions from '@/libs/mixins/permissions';
 import { getEnum } from '@/api/common';
-import { getList as getVrtList } from '@/api/claimreturn/claim/basic/vrt';
-import { getList as getVfgList } from '@/api/claimreturn/claim/basic/vfg';
 import VehicleTable from './VehicleTable.vue';
+import { vehicleListFull } from '@/api/datacenter/vehicle/vehicleProfile';
+import FetchSelect from '@/libs/components/FetchSelect';
+import Upload from '@/libs/components/UploadDialog/index.vue';
 
 export default {
   props: {
@@ -53,6 +69,8 @@ export default {
   mixins: [permissions],
   components: {
     VehicleTable,
+    FetchSelect,
+    Upload,
   },
   data () {
     return {
@@ -93,7 +111,9 @@ export default {
           label: '删除',
           value: 'delete',
         },
-      ]
+      ],
+      //
+      uploadDialogVisible: false,
     };
   },
   computed: {
@@ -106,159 +126,35 @@ export default {
   watch: {
   },
   methods: {
+    getData () {
+      this.$refs.vehicleTable.getDetailPageApi();
+    },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);
       }
       return [];
     },
-    // 方案
-    onTabAdd (item, defer) {
-      return this.updatePlan({
-        schemeName: item.label,
+    vinRemote (query) {
+      return vehicleListFull({
+        searchVin: query,
+        limitSize: 20,
+      });
+    },
+    handleVin (val, selectedItem) {
+      serviceActivityVehicleUpdate({
+        vin: val,
         activityId: this.id,
       }).then(res => {
-        defer.resolve(res);
+        this.getData();
       });
     },
-    // 更新方案
-    updatePlan (data) {
-      return techServiceActivitySchemeUpdate({
-        ...data,
-        allowModifyOldPart: data.allowModifyOldPart ? '1' : '0',
-        status: data.status ? 1 : 0,
-        activityId: this.id,
-      });
+    handleImport () {
+      this.uploadDialogVisible = true;
     },
-    loadData (params) {
-      return techServiceActivitySchemeList(params);
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
     },
-    getDetail (id) {
-      techServiceActivitySchemeGet(id).then(data => {
-        Object.keys(this.form).forEach(key => {
-          if (key === 'allowModifyOldPart') {
-            if (data[key] === '1') {
-              this.form[key] = true;
-            } else {
-              this.form[key] = false;
-            }
-            return;
-          }
-          if (key === 'status') {
-            if (data[key] === 1) {
-              this.form[key] = true;
-            } else {
-              this.form[key] = false;
-            }
-            return;
-          }
-          this.form[key] = data[key];
-        });
-        this.$emit('change', data.id);
-      });
-    },
-    onRemove (item, index, defer) {
-      techServiceActivitySchemeDelete([item.value]).then(() => {
-        this.$message.success('操作成功');
-      });
-    },
-    // 主因零部件下拉接口
-    partRemote (query) {
-      return partList({
-        partCodeOrNameLike: query,
-        pageSize: 20,
-        pageNum: 1,
-      }).then(res => {
-        // this.form
-        return res;
-      });
-    },
-    // 主因供应商列表
-    partChange (val, record) {
-      // 零部件id
-      if (val) {
-        sparePartList({
-          sparePartId: val,
-          pageNum: 1,
-          pageSize: 100,
-        }).then(res => {
-          this.supplierOptions = res.records.map(item => {
-            return {
-              label: item.supplierName,
-              value: item.supplierInfoId
-            };
-          });
-          // 选中第一个
-          if (this.supplierOptions.length) {
-            const item = this.supplierOptions[0];
-            this.form.mainSupplierId = item.value;
-            this.form.mainSupplierName = item.label;
-          } else {
-            this.form.mainSupplierId = '';
-            this.form.mainSupplierName = '';
-          }
-          // 更新
-          this.updatePlan(this.form);
-        });
-      }
-      //
-    },
-    // vrt
-    vrtRemote (query) {
-      return getVrtList({
-        vrtNameLike: query,
-        vrtCodeLike: query,
-        pageSize: 20,
-        pageNum: 1,
-      });
-    },
-    vrtChange (val, record) {
-      if (val) {
-        this.form.vrtName = record.vrtName;
-      } else {
-        this.form.vrtName = '';
-      }
-      this.updatePlan(this.form);
-    },
-    // vfg
-    vfgRemote (query) {
-      return getVfgList({
-        vfgNameLike: query,
-        vfgCodeLike: query,
-        pageSize: 20,
-        pageNum: 1,
-      });
-    },
-    vfgChange (val, record) {
-      if (val) {
-        this.form.vfgName = record.vfgName;
-      } else {
-        this.form.vfgName = '';
-      }
-      this.updatePlan(this.form);
-    },
-    command (command, item, index) {
-      console.log(command, item, index);
-      switch (command) {
-        case 'copy':
-          techServiceActivitySchemeCopy({
-            id: item.id,
-            activityId: this.id,
-          }).then(() => {
-            this.$refs.tabs.refresh();
-          });
-          break;
-        case 'delete':
-          this.$refs.tabs.onTabClose(item, index);
-          break;
-      }
-    },
-    onEnter () {
-      // this.vin;
-    },
-    vehicle () {
-
-    }
   }
 };
 

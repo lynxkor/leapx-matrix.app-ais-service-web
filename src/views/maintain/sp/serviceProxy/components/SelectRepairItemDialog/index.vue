@@ -915,6 +915,10 @@ export default {
 
       // 计算费用合计
       this.info.maintenanceCostEstimation = this.info.workCostCount + this.info.barkCostCount;
+      // 保留2位小数
+      this.info.maintenanceCostEstimation = parseFloat(this.info.maintenanceCostEstimation).toFixed(2);
+      this.info.workCostCount = parseFloat(this.info.workCostCount).toFixed(2);
+      this.info.barkCostCount = parseFloat(this.info.barkCostCount).toFixed(2);
     },
     // 处理维修项目表格删除行
     handleRemoveItemRow (index) {

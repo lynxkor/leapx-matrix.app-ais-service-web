@@ -239,6 +239,10 @@
               :moduleKey="moduleKey"
               @change="schemeChange"
             />
+            <fault
+              :id="_id"
+              :moduleKey="moduleKey"
+            />
             <vehicle
               :id="_id"
               :moduleKey="moduleKey"
@@ -276,6 +280,7 @@ import FileConfig from './FileConfig/index.vue';
 import { formatDateTime } from '@/libs/utils';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import Vehicle from './Vehicle';
+import Fault from './Fault';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -334,6 +339,7 @@ export default {
     PlanInfo,
     FileConfig,
     Vehicle,
+    Fault,
   },
   computed: {
     _id () {
@@ -352,11 +358,13 @@ export default {
   },
   data () {
     const form = this.getDefautlForm();
+    const moduleKey = 'AISCR-' + this.$route.meta.moduleKey;
     return {
-      pageTitle: '技术服务活动',
+      pageTitle: this.$route.meta.name,
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISCR-techServiceActivity',
+      moduleKey,
+      isServiceCareActivity: this.$route.meta.isServiceCareActivity,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -384,9 +392,6 @@ export default {
         ],
         autoApprove: [
           { required: true, message: '请输入是否自动审核', trigger: 'blur' }
-        ],
-        costContent: [
-          { required: true, message: '请输入活动费用内容', trigger: 'blur' }
         ],
         faultPhenomenon: [
           { required: true, message: '请输入故障现象描述', trigger: 'blur' }
