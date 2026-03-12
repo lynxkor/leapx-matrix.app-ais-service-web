@@ -153,7 +153,7 @@
               <vxe-column field="repairItemCode" title="维修项目代码" width="140px" />
               <vxe-column field="repairItemName" title="维修项目名称" width="180px" >
                <template #default="{ row }">
-                  <template v-if="row.id || row.repairItemId !== '999999'">{{ row?.repairItemName }}</template>
+                  <template v-if="row.id || row.repairItemId !== '999999' || row.packageId">{{ row?.repairItemName }}</template>
                    <el-input
                     v-else
                     v-model="row.repairItemName"
@@ -163,7 +163,7 @@
               </vxe-column>
               <vxe-column field="repairItemTypeName" title="维修类型" width="150px">
                 <template #default="{ row }">
-                  <template v-if="row.id">{{ row?.repairItemTypeName }}</template>
+                  <template v-if="row.id || row.packageId">{{ row?.repairItemTypeName }}</template>
                   <el-select
                     v-else
                     v-model="row.repairItemTypeName"
@@ -183,7 +183,9 @@
               </vxe-column>
               <vxe-column field="checkoutTypeName" title="结算类型" width="120px">
                 <template #default="{ row }">
+                  <template v-if="row.id || row.packageId">{{ row?.repairItemTypeName }}</template>
                   <el-select
+                    v-else
                     v-model="row.checkoutTypeName"
                     size="small"
                     placeholder="请选择"
@@ -259,8 +261,9 @@
               <vxe-column field="packageCode" title="套餐代码" width="120px" />
               <vxe-column title="操作" width="100" align="center" fixed="right">
                 <template #default="{ row, rowIndex }">
-                  <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleRemoveItemRow(rowIndex)" :disabled="row.workRecordStatus === 40">
-                    <span slot="reference" type="text" size="small" :class="['btn-delete', {'disabled': row.workRecordStatus === 40}]">删除</span>
+                  <span v-if="row.packageId" :class="['btn-delete', {'disabled': row.workRecordStatus === 40}]" @click="handleRemoveItemRow(rowIndex, row)">删除</span>
+                  <el-popconfirm v-else title="确定要删除这条记录吗？" @confirm="handleRemoveItemRow(rowIndex, row)" :disabled="row.workRecordStatus === 40">
+                    <span slot="reference" :class="['btn-delete', {'disabled': row.workRecordStatus === 40}]">删除</span>
                   </el-popconfirm>
                 </template>
               </vxe-column>
@@ -412,11 +415,20 @@
                 </template>
               </vxe-column>
               <vxe-column field="packageCode" title="套餐代码" width="120px" />
-              <vxe-column title="操作" width="100" align="center" fixed="right">
+              <vxe-column title="操作" width="150" align="center" fixed="right">
                 <template #default="{ row, rowIndex }">
-                  <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleRemovePartRow(rowIndex)" :disabled="!!row.isOutstock">
-                    <span slot="reference" type="text" size="small" :class="['btn-delete', {'disabled': !!row.isOutstock}]">删除</span>
+                  <span slot="reference" v-if="row.packageId" :class="['btn-delete', {'disabled': !!row.isOutstock}]" @click="handleRemovePartRow(rowIndex, row)">删除</span>
+                  <el-popconfirm v-else title="确定要删除这条记录吗？" @confirm="handleRemovePartRow(rowIndex, row)" :disabled="!!row.isOutstock">
+                    <span slot="reference" :class="['btn-delete', {'disabled': !!row.isOutstock}]">删除</span>
                   </el-popconfirm>
+                  <el-dropdown v-if="row.replaceSparePartRespList && row.replaceSparePartRespList.length > 0" trigger="click" @command="v => handlePartReplaceChange(v, row)">
+                    <span class="el-dropdown-link">
+                      替换件<i class="el-icon-arrow-down el-icon--right"></i>
+                    </span>
+                    <el-dropdown-menu slot="dropdown" placement="bottom-start" style="max-height: 200px;overflow-y: auto;overflow-x: hidden;">
+                      <el-dropdown-item v-for="el in row.replaceSparePartRespList" :command="el" :key="el.id">{{el.partsName}}-库存:{{el.stockCount || 0}}-{{el.partsCode}}</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
                 </template>
               </vxe-column>
               <template #empty>
@@ -512,6 +524,7 @@ export default {
         { label: '服务活动' }
       ],
       currentPackageType: 1,
+      partReplaceList: []
     };
   },
   computed: {
@@ -544,6 +557,21 @@ export default {
     }
   },
   methods: {
+    showMsg (msg) {
+      return new Promise((resolve) => {
+        const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>提醒</div><div class="ais-leave-tips-sub">${msg}</div>`;
+        this.$confirm(message, '', {
+          confirmButtonText: '确定',
+          dangerouslyUseHTMLString: true,
+          customClass: 'ais-leave-tips',
+          showClose: false
+        }).then(() => {
+          resolve(true);
+        }).catch(() => {
+          resolve(false);
+        });
+      });
+    },
     handleOpenDialog (type) {
       this.currentPackageType = type;
       this.updateDialogVisible = true;
@@ -921,7 +949,14 @@ export default {
       this.info.barkCostCount = parseFloat(this.info.barkCostCount).toFixed(2);
     },
     // 处理维修项目表格删除行
-    handleRemoveItemRow (index) {
+    async handleRemoveItemRow (index, row) {
+      let flag = true;
+      if (row.packageId) {
+        flag = await this.showMsg('本操作视为您取消核销本次权益套餐，请确认');
+      }
+      if (!flag) return;
+      const deleted = this.deleteRights(row);
+      if (!deleted) return;
       const removedRow = this.itemData[index];
       // 从 itemData 中移除该行数据
       this.itemData.splice(index, 1);
@@ -941,16 +976,34 @@ export default {
           this.partData.splice(autoImportedPartIndices[i], 1);
         }
       }
-
       // 更新顶部合计
       this.updateTotals();
     },
     // 处理维修配件表格删除行
-    handleRemovePartRow (index) {
+    async handleRemovePartRow (index, row) {
+      let flag = true;
+      if (row.packageId) {
+        flag = await this.showMsg('本操作视为您取消核销本次权益套餐，请确认');
+      }
+      if (!flag) return;
       // 从 partData 中移除该行数据
+      const deleted = this.deleteRights(row);
+      if (!deleted) return;
       this.partData.splice(index, 1);
       // 更新顶部合计
       this.updateTotals();
+    },
+    deleteRights (row) {
+      if (row.packageId) {
+        const el = this.partData.find(part => part.isOutstock && part.packageId === row.packageId);
+        if (el) {
+          this.$message.error(`权益导入的零件编码：${el.partsCode}已经领料出库，不允许删除对应权益，请全部退料后再操作，谢谢`);
+          return false;
+        }
+        this.partData = this.partData.filter(part => part.packageId !== row.packageId);
+        this.itemData = this.itemData.filter(item => item.packageId !== row.packageId);
+        return true;
+      }
     },
     // ==================== 维修项目表格事件处理 ====================
     // 维修类型变化
@@ -1108,6 +1161,32 @@ export default {
     handleRefresh () {
       this.getRepairItemInfo();
     },
+    // ----------替换件逻辑-----------------
+    handlePartReplaceChange (current, row) {
+      const discountAmount = Number(current.price || 0) * (Number(this.selectedDiscount?.discountPartRate || 0) || 0);
+      Object.assign(row, {
+        partsId: current.partsId,
+        partsCode: current.partsCode,
+        partsName: current.partsName,
+        repairItemTypeId: row.repairItemTypeId,
+        repairItemTypeName: row.repairItemTypeName,
+        checkoutTypeId: row?.checkoutTypeId,
+        checkoutTypeName: row?.checkoutTypeName,
+        warrantyTypeId: row?.warrantyTypeId,
+        warrantyTypeName: row?.warrantyTypeName,
+        isOemPart: parseInt(current.isOemPart) || 0,
+        quantity: 1,
+        price: current.price || 0,
+        discountRate: this.selectedDiscount?.discountPartRate || 0,
+        discountAmount: discountAmount,
+        partsAmount: current.price - discountAmount,
+        repairItemName: current.repairItemName || '',
+        repairItemId: current.repairItemId || '',
+        isBindltem: 0, // 手动添加的零件，标记为非自动导入
+        packageCode: row.packageCode || '',
+        packageId: row.packageId || ''
+      });
+    },
   }
 };
 </script>
@@ -1141,6 +1220,10 @@ export default {
   }
    ::v-deep .el-input__suffix-inner {
     line-height: 32px;
+  }
+  .el-dropdown-link{
+    margin-left: 10px;
+    color: var(--leap-color-link);
   }
   .btn-delete {
     color: var(--leap-color-danger);
