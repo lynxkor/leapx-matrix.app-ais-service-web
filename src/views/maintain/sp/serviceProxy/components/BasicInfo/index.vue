@@ -708,8 +708,8 @@ export default {
             bindingUserId: record.vehicleProfileOwnerResp.bindingUserId, // 绑车人用户ID
             bindingUser: record.vehicleProfileOwnerResp.bindingUser, // 绑车人姓名
             bindingPhone: record.vehicleProfileOwnerResp.bindingPhone, // 绑车人手机号
-            shuttleName: record.bindingPhone,
-            shuttlePhone: record.bindinguser,
+            shuttleName: record.vehicleProfileOwnerResp.ownerName,
+            shuttlePhone: record.vehicleProfileOwnerResp.mobilephone,
           };
           Object.assign(this.form, { ...data });
           this.getNetworkCarInfo();
