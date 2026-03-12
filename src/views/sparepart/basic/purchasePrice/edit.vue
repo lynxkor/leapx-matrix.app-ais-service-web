@@ -142,8 +142,8 @@
             </div>
             <div class="common-section-body">
               <div>
-                <el-form :inline="true" :model="form" ref="ruleForm" label-width="100px" class="form-edit">
-                  <el-form-item label="新增原价券数：" prop="name">
+                <el-form :inline="true" :model="form" ref="couponForm" :rules="rulesCoupon" label-width="100px" class="form-edit">
+                  <el-form-item label="新增原价券数：" prop="count">
                     <el-input
                       type="number"
                       placeholder="请输入"
@@ -151,7 +151,7 @@
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="新增原因：" prop="name">
+                  <el-form-item label="新增原因：" prop="remark">
                     <el-input
                       placeholder="请输入"
                       v-model="couponObj.remark"
@@ -164,38 +164,52 @@
                 </el-form>
               </div>
               <div class="common-section-table">
-                <edit-table
-                  ref="editTable"
-                  :columns="columns"
+                <vxe-table
+                  ref="tableRef"
+                  stripe
                   :data="tableData"
-                  :show-toolbar="false"
-                  :defaultNewRow="defaultNewRow"
-                  :auth="{
-                    add: false,
-                    edit: false,
-                    delete: false,
-                  }"
-                  :current="current"
-                  :pageSize="pageSize"
-                  :total="total"
-                  @page-size-change="pageSizeChange"
-                  @current-page-change="currentPageChange"
+                  show-overflow
+                  resizable
+                  border="inner"
+                  size="medium"
+                  min-height="0"
+                  max-height="400px"
                 >
-                  <template #btn-middle="{ row }">
-                    <el-popconfirm
-                      v-if="row.couponStatus == 10"
-                      title="确定要将此优惠券作废吗？"
-                      @confirm="disableStatus(row)"
-                    >
-                      <span
-                        slot="reference"
-                        class="action-button"
-                      >
-                      失效
-                      </span>
-                    </el-popconfirm>
+                  <vxe-column field="id" title="优惠券ID" min-width="13%" />
+                  <vxe-column field="validStart" title="有效开始日期" min-width="13%" />
+                  <vxe-column field="validEnd" title="有效结束日期" min-width="13%" />
+                  <vxe-column field="couponStatusLabel" title="优惠券状态" min-width="13%" />
+                  <vxe-column field="purchaseCode" title="业务单据" min-width="13%" >
+                    <template #default="{ row }">
+                      <el-link type="success" :href="`/service/sparepart/purchase/purchaseApply/edit'?id=${row.purchaseCode}`">{{ row.purchaseCode }}</el-link>
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="useTime" title="使用时间" min-width="13%" />
+                  <vxe-column field="remark" title="备注" min-width="13%" />
+                  <vxe-column field="createTime" title="创建时间" min-width="13%" />
+                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
+                    <template #default="{ row }">
+                      <el-popconfirm v-if="row.couponStatus == 10" title="确定要将此优惠券作废吗？" confirm-button-text="失效" confirm-button-type="danger" @confirm="disableStatus(row)">
+                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
+                      </el-popconfirm>
+                    </template>
+                  </vxe-column>
+                  <template #empty>
+                    <div class="m-vxe-table-empty-text">暂无数据</div>
                   </template>
-                </edit-table>
+                </vxe-table>
+                <div class="table-pagination">
+                  <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="pageNum"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total"
+                  >
+                  </el-pagination>
+                </div>
               </div>
             </div>
           </section>
@@ -213,7 +227,6 @@
 <script>
 import { getDetail, addOrUpdate, addCoupon, listCoupon, enableOrDisable } from '@/api/sparepart/basic/purchasePrice/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, listOrgStoreInfoByParam } from '@/api/common';
@@ -253,7 +266,6 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    EditTable,
     FetchSelect
   },
   computed: {
@@ -289,8 +301,8 @@ export default {
         remark: ''
       },
       couponId: '',
-      current: 1,
       pageSize: 10,
+      pageNum: 1,
       total: 0,
       defaultNewRow: {
         name: '',
@@ -298,54 +310,6 @@ export default {
       tableData: [
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
-      // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
-      columns: [
-        {
-          field: 'id',
-          title: '优惠券ID',
-          width: '13%',
-        },
-        {
-          field: 'validStart',
-          title: '有效开始日期',
-          width: '13%',
-        },
-        {
-          field: 'validEnd',
-          title: '有效结束日期',
-          width: '13%',
-        },
-        {
-          field: 'couponStatusLabel',
-          title: '优惠券状态',
-          width: '13%',
-        },
-        // path: '/sparepart/purchase/purchaseApply/edit', 跳转 TODO
-        {
-          field: 'purchaseCode',
-          title: '业务单据',
-          width: '13%',
-        },
-        {
-          field: 'useTime',
-          title: '使用时间',
-          width: '13%',
-        },
-        {
-          field: 'remark',
-          title: '备注',
-          width: '13%',
-        },
-        {
-          field: 'createTime',
-          title: '创建时间',
-          width: '13%',
-        },
       ],
       rules: {
         name: [
@@ -372,6 +336,11 @@ export default {
         couponIssueTime: [
           { required: true, message: '请选择优惠券发放时间：', trigger: 'change' }
         ],
+      },
+      rulesCoupon: {
+        remark: [
+          { required: true, message: '请输入优惠券新增原因', trigger: 'blur' }
+        ]
       }
     };
   },
@@ -446,6 +415,15 @@ export default {
     },
     // 新增优惠券信息
     async handleSubmit () {
+      if (this.couponObj.count > 10) {
+        this.$message.warning('优惠券新增数不能大于10');
+        return; // 阻断提交
+      }
+
+      if (this.couponObj.count && !this.couponObj.remark) {
+        this.$message.warning('请填写添加优惠券说明');
+        return;
+      }
       const id = this._id ?? this.couponId;
       const params = {
         purchasePriceId: id,
@@ -460,21 +438,21 @@ export default {
     async getCouponList (val) {
       const params = {
         purchasePriceId: val,
-        pageNum: this.current,
+        pageNum: this.pageNum,
         pageSize: this.pageSize
       };
       const res = await listCoupon(params);
       this.tableData = res.records || [];
       this.total = res.total || 0;
     },
-    pageSizeChange (pageSize) {
-      this.pageSize = pageSize;
-      this.current = 1;
+    handleCurrentChange (pageNum) {
+      this.pageNum = pageNum;
       const id = this._id ?? this.couponId;
       this.getCouponList(id);
     },
-    currentPageChange (current) {
-      this.current = current;
+    handleSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.pageNum = 1;
       const id = this._id ?? this.couponId;
       this.getCouponList(id);
     },
