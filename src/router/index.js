@@ -1311,7 +1311,8 @@ const routes = [
         name: '厅店备件库存',
         keepAlive: true
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/warehouse/inventory/edit',
       name: 'inventoryEdit',
       component: () => import('@/views/sparepart/warehouse/inventory/edit.vue'),
@@ -1348,7 +1349,7 @@ const routes = [
         name: '主机厂仓库设置',
         keepAlive: true
       }
-    }, // 主机厂
+    }, // 门店销毁
     {
       path: '/sparepart/warehouse/oemwarehouse/edit',
       name: 'oemWarehouseEdit',
@@ -1367,8 +1368,7 @@ const routes = [
         name: '门店备件优惠券',
         keepAlive: true
       }
-    }, // 门店销毁
-    {
+    }, {
       path: '/sparepart/basic/purchasepricecoupon/edit',
       name: 'purchasePriceCouponEdit',
       component: () => import('@/views/sparepart/basic/purchasePriceCoupon/edit.vue'),
@@ -2240,7 +2240,26 @@ const routes = [
         name: '商城订单详情',
         noResourceUrl: 'true'
       }
-    }]
+    }, {
+      path: '/maintain/basic/cityLaborLevel',
+      name: 'city',
+      component: () => import('@/views/maintain/basic/cityLaborLevel/index.vue'),
+
+      meta: {
+        name: '城市工时等级配置表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/basic/cityLaborLevel/edit',
+      name: 'cityEdit',
+      component: () => import('@/views/maintain/basic/cityLaborLevel/edit.vue'),
+
+      meta: {
+        name: '城市工时等级配置表管理详情',
+        noResourceUrl: 'true'
+      }
+    }
+    ]
   }
 ];
 
