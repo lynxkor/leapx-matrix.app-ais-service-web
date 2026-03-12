@@ -243,12 +243,12 @@
             </section>
             <section class="common-section">
               <div class="common-section-header">
-                <h2>账户流水 <el-button size="small" @click="handleAddRow">导出账户流水</el-button></h2>
+                <h2>账户流水 <el-button size="small" :loading="exportLoading" @click="handleExport">导出账户流水</el-button></h2>
               </div>
               <div class="common-section-body">
                 <div class="common-section-table">
                   <vxe-table
-                    ref="table"
+                    ref="tableExport"
                     :data="tableData"
                     stripe
                     resizable
@@ -256,23 +256,18 @@
                     border="inner"
                     size="medium"
                   >
-                    <vxe-column field="code" title="交易流水号" width="200" />
-                    <vxe-column field="transactionAmount" title="交易金额" width="100" />
-                    <vxe-column field="transactionTypeLabel" title="交易类型" width="100" />
-                    <vxe-column field="accountBalance" title="账户余额" width="100" />
-                    <vxe-column field="remark" title="备注" width="200" />
-                    <vxe-column field="sapFlowNo" title="SAP流水号" width="200" />
-                    <vxe-column field="dealerCode" title="门店编码" width="150" />
-                    <vxe-column field="dealerName" title="门店名称" width="200" />
-                    <vxe-column field="businessTypeLabel" title="业务类型" width="150" />
-                    <vxe-column field="businessNo" title="业务单号" width="200" >
-                      <template #default="{ row }">
+                    <vxe-column
+                      v-for="col in columnConfigs"
+                      :key="col.field"
+                      :field="col.field"
+                      :title="col.title"
+                      :width="col.width"
+                    >
+                      <!-- 业务单号可跳转 -->
+                      <template v-if="col.field === 'businessNo'" #default="{ row }">
                         <div class="href-link" @click="handleJump(row)">{{ row.businessNo }}</div>
                       </template>
                     </vxe-column>
-                    <vxe-column field="taxInvoiceNo" title="税务发票号" width="200" />
-                    <vxe-column field="invoiceDate" title="开票日期" width="150" />
-                    <vxe-column field="postingTime" title="入账时间" width="180" />
                   </vxe-table>
                   <el-pagination
                     style="float: right; padding-top: 16px;"
@@ -290,7 +285,7 @@
             </section>
             <section class="common-section">
               <div class="common-section-header">
-                <h2>冻结流水 <el-button size="small" @click="handleAddRow">导出冻结流水</el-button></h2>
+                <h2>冻结流水 <el-button size="small" :loading="exportDjLoading" @click="handleDjExport">导出冻结流水</el-button></h2>
               </div>
               <div class="common-section-body">
                 <div class="common-section-table">
@@ -303,7 +298,19 @@
                     border="inner"
                     size="medium"
                   >
-                    <vxe-column field="businessTypeLabel" title="业务类型" width="100" />
+                    <vxe-column
+                      v-for="col in columnConfigsDj"
+                      :key="col.field"
+                      :field="col.field"
+                      :title="col.title"
+                      :width="col.width"
+                    >
+                      <!-- 业务单号可跳转 -->
+                      <template v-if="col.field === 'businessNo'" #default="{ row }">
+                        <div class="href-link" @click="handleJump(row)">{{ row.businessNo }}</div>
+                      </template>
+                    </vxe-column>
+                    <!-- <vxe-column field="businessTypeLabel" title="业务类型" width="100" />
                     <vxe-column field="businessNo" title="业务单号" width="200">
                       <template #default="{ row }">
                         <div class="href-link" @click="handleJump(row)">{{ row.businessNo }}</div>
@@ -315,7 +322,7 @@
                     <vxe-column field="partName" title="零件/商品名称" width="160" />
                     <vxe-column field="frozenQty" title="冻结数量" width="100" />
                     <vxe-column field="cashUnitPrice" title="现金单价" width="100" />
-                    <vxe-column field="frozenAmount" title="冻结金额" width="100" />
+                    <vxe-column field="frozenAmount" title="冻结金额" width="100" /> -->
                   </vxe-table>
                 </div>
               </div>
@@ -340,11 +347,12 @@
 import { getDetail, addOrUpdate, accountFlowPage, frozenPage } from '@/api/sparepart/fund/account/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
-import { getEnum, getSparePartOrderIdByCode } from '@/api/common';
+import { getEnum, getSparePartOrderIdByCode, exportTable } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { handleCommonExport, downloadExcel, generateTitleMap } from '@/libs/utils';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -389,7 +397,13 @@ export default {
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
-    }
+    },
+    titleMap () {
+      return generateTitleMap(this.columnConfigs);
+    },
+    titleMapDj () {
+      return generateTitleMap(this.columnConfigsDj);
+    },
   },
   watch: {
     id: {
@@ -411,6 +425,8 @@ export default {
       isEditing: false,
       loading: false,
       submitLoading: false,
+      exportLoading: false,
+      exportDjLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -426,52 +442,31 @@ export default {
       },
       djTableData: [],
       tableData: [],
-      djColumns: [
-        {
-          field: 'businessTypeLabel',
-          title: '业务类型',
-          width: '12%',
-        },
-        {
-          field: 'businessNo',
-          title: '业务单号',
-          width: '12%',
-        },
-        {
-          field: 'dealerCode',
-          title: '门店编码',
-          width: '12%',
-        },
-        {
-          field: 'dealerName',
-          title: '门店名称',
-          width: '12%',
-        },
-        {
-          field: 'companyCode',
-          title: '零件/商品编码',
-          width: '12%',
-        },
-        {
-          field: 'companyName',
-          title: '零件/商品名称',
-          width: '12%',
-        },
-        {
-          field: 'frozenQty',
-          title: '冻结数量',
-          width: '12%',
-        },
-        {
-          field: 'cashUnitPrice',
-          title: '现金单价',
-          width: '12%',
-        },
-        {
-          field: 'frozenAmount',
-          title: '冻结金额',
-          width: '12%',
-        },
+      columnConfigs: [
+        { field: 'code', title: '交易流水号', width: 200 },
+        { field: 'transactionAmount', title: '交易金额', width: 100 },
+        { field: 'transactionTypeLabel', title: '交易类型', width: 100 },
+        { field: 'accountBalance', title: '账户余额', width: 100 },
+        { field: 'remark', title: '备注', width: 200 },
+        { field: 'sapFlowNo', title: 'SAP流水号', width: 200 },
+        { field: 'dealerCode', title: '门店编码', width: 150 },
+        { field: 'dealerName', title: '门店名称', width: 200 },
+        { field: 'businessTypeLabel', title: '业务类型', width: 150 },
+        { field: 'businessNo', title: '业务单号', width: 200 },
+        { field: 'taxInvoiceNo', title: '税务发票号', width: 200 },
+        { field: 'invoiceDate', title: '开票日期', width: 150 },
+        { field: 'postingTime', title: '入账时间', width: 180 }
+      ],
+      columnConfigsDj: [
+        { field: 'businessTypeLabel', title: '业务类型', width: '11%' },
+        { field: 'businessNo', title: '业务单号', width: '14%' },
+        { field: 'dealerCode', title: '门店编码', width: '11%' },
+        { field: 'dealerName', title: '门店名称', width: '11%' },
+        { field: 'partCode', title: '零件/商品编码', width: '11%' },
+        { field: 'partName', title: '零件/商品名称', width: '11%' },
+        { field: 'frozenQty', title: '冻结数量', width: '10%' },
+        { field: 'cashUnitPrice', title: '现金单价', width: '10%' },
+        { field: 'frozenAmount', title: '冻结金额', width: '10%' }
       ]
     };
   },
@@ -654,7 +649,99 @@ export default {
           id: res
         }
       });
-    }
+    },
+    // 导出账户流水
+    handleExport () {
+      handleCommonExport({
+        // 1. 定义如何获取参数
+        exportApiParamsFn: () => ({
+          pageNum: this.pagination.current,
+          pageSize: this.pagination.pageSize,
+          accountId: this.$route.query.id
+        }),
+
+        // 2. 基础配置
+        apiFunc: exportTable,
+        download: downloadExcel,
+        message: this.$message,
+        fileName: this.$route.query.name || '导出数据',
+        titleMap: this.titleMap,
+        dataFetchPath: 'sparepart/web/fund/accountFlow/page',
+        businessType: this.$route.query.name,
+        httpMethod: 'POST',
+
+        // 3. 生命周期回调
+        onStart: () => {
+          this.exportLoading = true;
+        },
+        onEnd: () => {
+          this.exportLoading = false;
+        }
+      });
+    },
+    // 导出冻结流水
+    handleDjExport () {
+      handleCommonExport({
+        // 1. 定义如何获取参数
+        exportApiParamsFn: () => ({
+          pageNum: this.djPagination.current,
+          pageSize: this.djPagination.pageSize,
+          accountId: this.$route.query.id
+        }),
+
+        // 2. 基础配置
+        apiFunc: exportTable,
+        download: downloadExcel,
+        message: this.$message,
+        fileName: this.$route.query.name || '导出数据',
+        titleMap: this.titleMapDj,
+        dataFetchPath: 'sparepart/web/fund/accountFlow/frozenPage',
+        businessType: this.$route.query.name,
+        httpMethod: 'POST',
+
+        // 3. 生命周期回调
+        onStart: () => {
+          this.exportDjLoading = true;
+        },
+        onEnd: () => {
+          this.exportDjLoading = false;
+        }
+      });
+    },
+    // 导出账户流水
+    // handleExport () {
+    //   this.exportLoading = true;
+    //   const params = {
+    //     pageNum: this.pagination.current,
+    //     pageSize: this.pagination.pageSize,
+    //     accountId: this.$route.query.id
+    //   };
+    //   exportTable({
+    //     businessType: this.$route.query.name,
+    //     dataFetchPath: 'sparepart/web/fund/accountFlow/page',
+    //     reqParams: params,
+    //     titleMap: this.titleMap,
+    //     httpMethod: 'POST'
+    //   }).then(async res => {
+    //     if (res && res.excelUrl) {
+    //       try {
+    //         await downloadExcel(res.excelUrl, this.$route.query.name + '.xlsx');
+    //       } catch (error) {
+    //         this.$message({
+    //           type: 'error',
+    //           message: '文件导出失败'
+    //         });
+    //       }
+    //     } else {
+    //       this.$message({
+    //         type: 'info',
+    //         message: '请前往导出列表中查询导出结果'
+    //       });
+    //     }
+    //   }).finally(() => {
+    //     this.exportLoading = false;
+    //   });
+    // }
   }
 };
 </script>
