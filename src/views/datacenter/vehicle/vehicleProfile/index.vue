@@ -16,60 +16,318 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="车牌号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.vehiclePlateNo"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="销售门店">
-        <dealer-select
-          v-model="form.salesDealerCode"
-          placeholder="请选择"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="交付门店" v-show="this.visibleCount === 3 || show">
-        <dealer-select
-          v-model="form.deliveryDealerCode"
-          placeholder="请选择"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="车主手机号" v-show="this.visibleCount === 3 || show">
+      <el-form-item label="车主手机号">
         <el-input
           placeholder="请输入"
           v-model="form.ownerPhone"
           clearable
         />
       </el-form-item>
-      <el-form-item label="车主姓名" v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.ownerName"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="整车物料编码" v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.vehicleMaterialCode"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="销售日期" v-show="this.visibleCount === 3 || show">
-        <el-date-picker
-         :default-time="['00:00:00', '23:59:59']"
-          v-model="form.salesDate"
-          type="daterange"
-          :picker-options="pickerOptions"
-          range-separator="至"
-          value-format="yyyy-MM-dd HH:mm:ss"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        />
-      </el-form-item>
+      <template v-if="visibleCount === 3 || show">
+        <el-form-item label="车牌号">
+          <el-input
+            placeholder="请输入"
+            v-model="form.vehiclePlateNo"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="销售日期">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.salesDate"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="整车订单">
+          <tag-input v-model="form.vehicleOrderId" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="商城订单">
+          <tag-input v-model="form.shopcode" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="企业整车订单">
+          <tag-input v-model="form.vehicleEnterpriseOrder" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="保修开始日期">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.warrantyStartDate"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="车主姓名">
+          <el-input
+            placeholder="请输入"
+            v-model="form.ownerName"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="车主证件类型">
+          <el-select
+            v-model="form.idcardType"
+            placeholder="请选择"
+            clearable
+            multiple
+            collapse-tags
+          >
+            <el-option
+              v-for="item in []"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="车主证件">
+          <el-input
+            placeholder="请输入"
+            v-model="form.idcardNo"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="绑车人姓名">
+          <el-input
+            placeholder="请输入"
+            v-model="form.bindingUser"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="绑车人ID">
+          <el-input
+            placeholder="请输入"
+            v-model="form.bindingUserid"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="绑车人手机">
+          <el-input
+            placeholder="请输入"
+            v-model="form.bindingPhone"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="绑车时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.bindingOn"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="销售门店编码">
+          <dealer-select v-model="form.salesDealerCode" multiple/>
+        </el-form-item>
+        <el-form-item label="销售门店名称">
+          <el-input
+            placeholder="请输入"
+            v-model="form.salesDealerName"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="交付门店编码">
+          <dealer-select v-model="form.deliveryDealerCode" multiple/>
+        </el-form-item>
+        <el-form-item label="交付门店名称">
+          <el-input
+            placeholder="请输入"
+            v-model="form.deliveryDealerName"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="服务门店编码">
+          <dealer-select v-model="form.serviceDealerCode" multiple/>
+        </el-form-item>
+        <el-form-item label="服务门店名称">
+          <el-input
+            placeholder="请输入"
+            v-model="form.serviceDealerName"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="整车物料">
+          <el-input
+            placeholder="请输入"
+            v-model="form.vehicleMaterialCode"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="物料描述">
+          <el-input
+            placeholder="请输入"
+            v-model="form.vehicleMaterialDesc"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="VDC入库时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.vdcInboundOn"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="车系">
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleSeries/list"
+            placeholder="请选择"
+            v-model="form.seriesIds"
+            query-key="seriesNameLike"
+            clearable
+            collapseTags
+            auto-load-options
+            no-param-load
+            multiple
+            filterable
+            :params="{}" />
+        </el-form-item>
+        <el-form-item label="车型">
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleModel/list"
+            placeholder="请选择"
+            v-model="form.modelIds"
+            query-key="modelNameLike"
+            clearable
+            auto-load-options
+            collapseTags
+            multiple
+            filterable
+            :params="{seriesIdList: form.seriesIds}"
+            />
+        </el-form-item>
+        <el-form-item label="动力">
+          <el-select
+            v-model="form.powerType"
+            placeholder="请选择"
+            clearable
+            multiple
+            collapse-tags
+          >
+            <el-option
+              v-for="item in []"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="续航">
+          <el-select
+            v-model="form.endurance"
+            placeholder="请选择"
+            clearable
+            multiple
+            collapse-tags
+          >
+            <el-option
+              v-for="item in []"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="外饰">
+          <el-select
+            v-model="form.exterior"
+            placeholder="请选择"
+            clearable
+            multiple
+            collapse-tags
+          >
+            <el-option
+              v-for="item in []"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="内饰">
+          <el-select
+            v-model="form.interior"
+            placeholder="请选择"
+            clearable
+            multiple
+            collapse-tags
+          >
+            <el-option
+              v-for="item in []"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="轮毂">
+          <el-select
+            v-model="form.wheelHub"
+            placeholder="请选择"
+            clearable
+            multiple
+            collapse-tags
+          >
+            <el-option
+              v-for="item in []"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="下次保养时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.nextMaintainDate"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="创建时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.createTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="修改时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.updateTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+      </template>
       <page-search-action
         v-if="canList"
         v-model="show"
@@ -122,7 +380,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getDetailDecryptField, getList, deleteItem, enableItem } from '@/api/datacenter/vehicle/vehicleProfile/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listVehicleSeries } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -131,6 +389,8 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select';
+import ListSelect from '@/libs/components/list-select';
+import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -139,9 +399,26 @@ const defaultForm = {
   salesDate: '',
   vehiclePlateNo: '',
   deliveryDealerCode: '',
-  salesDealerCode: '',
+  deliveryDealerName: '',
   ownerName: '',
   ownerPhone: '',
+  idcardType: '',
+  vdcInboundOn: '',
+  seriesIds: [],
+  modelIds: [],
+  nextMaintainDate: '',
+  createTime: '',
+  updateTime: '',
+  bindingOn: '',
+  vehicleOrderId: '',
+  shopcode: '',
+  vehicleEnterpriseOrder: '',
+  serviceDealerName: '',
+  serviceDealerCode: '',
+  salesDealerName: '',
+  salesDealerCode: '',
+  vehicleMaterialDesc: '',
+  warrantyStartDate: '',
 };
 
 const pageSize = 20;
@@ -156,7 +433,9 @@ export default {
     LPVxeTable,
     EditPage,
     Upload,
-    DealerSelect
+    DealerSelect,
+    ListSelect,
+    TagInput,
   },
   data () {
     return {
@@ -174,11 +453,6 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
-      pickerOptions: {
-        disabledDate (time) {
-          return time.getTime() > Date.now();
-        }
-      },
       optionObj: {
         id: 'vehicleProfileTable',
         dataList: [],
@@ -396,13 +670,24 @@ export default {
         }
       });
 
-      if (this.form.salesDate) {
-        delete data.salesDate;
-        if (this.form.salesDate.length > 1) {
-          data.salesDateStart = this.form.salesDate[0];
-          data.salesDateEnd = this.form.salesDate[1];
+      const keys = [
+        'salesDate',
+        'vdcInboundOn',
+        'nextMaintainDate',
+        'createTime',
+        'updateTime',
+        'bindingOn',
+        'warrantyStartDate',
+      ];
+      keys.forEach(key => {
+        if (this.form[key]) {
+          delete data[key];
+          if (this.form[key].length > 1) {
+            data[key + 'Start'] = this.form[key][0];
+            data[key + 'End'] = this.form[key][1];
+          }
         }
-      }
+      });
 
       return data;
     },
@@ -464,7 +749,7 @@ export default {
       //     });
       //   });
       // });
-    }
+    },
   }
 };
 </script>
