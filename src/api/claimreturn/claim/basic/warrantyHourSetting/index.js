@@ -42,3 +42,8 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+// 查询标准工时单价
+export function getValidHourlyPrice (data) {
+  return api.jsonPost(prefix + 'getValidHourlyPrice', data);
+}

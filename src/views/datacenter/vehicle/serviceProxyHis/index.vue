@@ -153,6 +153,7 @@ export default {
             label: '接车施工单',
             visible: true,
             width: 280,
+            fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({

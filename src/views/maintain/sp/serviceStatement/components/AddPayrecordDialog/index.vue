@@ -214,7 +214,7 @@ export default {
       const remainingAmount =
         (this.baseInfo.payableAmount || 0) - this.totalPayAmount;
       if (remainingAmount <= 0) {
-        this.$message.info('收款记录总金额不能超过剩余待收款金额');
+        this.$message.warning('剩余可添加的收款记录金额为0,暂时无法添加新的收款记录');
         return;
       }
       this.tableData.push({

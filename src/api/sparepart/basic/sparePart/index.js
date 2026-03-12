@@ -14,11 +14,19 @@ export function getList (data) {
 };
 
 /**
- * 查询列表
+ * 外购件分页列表
  * @param {Object} data
  */
 export function getDealerList (data) {
   return api.jsonPost(prefix + 'dealerPage', data);
+};
+
+/**
+ * 查询门店备件列表
+ * @param {Object} data
+ */
+export function listDealerPart (data) {
+  return api.jsonPost(prefix + 'listDealerPart', data);
 };
 
 export function getSparePart (data) {

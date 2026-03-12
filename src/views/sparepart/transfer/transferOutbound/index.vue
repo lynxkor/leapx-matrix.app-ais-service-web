@@ -27,22 +27,22 @@
           filterable
             />
       </el-form-item>
+      <el-form-item label="出库门店" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :remote-method="getDealerList"
+          remote
+          v-model="form.outboundDealerCodeList"
+          placeholder="请输入门店编码或名称"
+          labelKey="orgName"
+          valueKey="orgCode"
+          subLabelKey="orgCode"
+          clearable
+          multiple
+          collapseTags
+          filterable
+        />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="出库门店">
-          <fetch-select
-            :remote-method="getDealerList"
-            remote
-            v-model="form.outboundDealerCodeList"
-            placeholder="请输入门店编码或名称"
-            labelKey="orgName"
-            valueKey="orgCode"
-            subLabelKey="orgCode"
-            clearable
-            multiple
-            collapseTags
-            filterable
-              />
-        </el-form-item>
         <el-form-item label="入库方联系人">
           <el-input
             placeholder="请输入"
@@ -145,11 +145,11 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -186,7 +186,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/transfer/transferOutbound/index';
+import { getList, deleteItem, enableItem, getSubmit, getApprove, getReject, getRevoke, getShip, applyCancel, approveCancel, rejectCancel, getInbound } from '@/api/sparepart/transfer/transferOutbound/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getParentCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -296,6 +296,9 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '编辑',
+              show: (row) => {
+                return row.transferStatus === '0';
+              },
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/transfer/transferOutbound/edit',
@@ -306,24 +309,185 @@ export default {
               },
               type: 'info'
             }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
+              name: '提交',
+              show: (row) => {
+                return row.transferStatus === '0' || row.transferStatus === '3';
+              },
+              popconfirmTitle: '此操作将提交, 是否继续?',
               click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
+                getSubmit({ id: row.id }).then(res => {
                   this.$message({
-                    type: 'success',
-                    message: '删除成功!'
+                    message: '提交成功',
+                    type: 'success'
                   });
                   this.getData();
-                }).catch(() => {
+                });
+              },
+              type: 'info'
+            }, {
+              name: '同意',
+              show: (row) => {
+                return row.transferStatus === '1';
+              },
+              popconfirmTitle: '此操作将同意, 是否继续?',
+              click: (rowIndex, row) => {
+                getApprove({ id: row.id }).then(res => {
                   this.$message({
-                    type: 'error',
-                    message: '删除失败!'
+                    message: '同意成功',
+                    type: 'success'
+                  });
+                  this.getData();
+                });
+              },
+              type: 'info'
+            }, {
+              name: '驳回',
+              show: (row) => {
+                return row.transferStatus === '1';
+              },
+              click: (rowIndex, row) => {
+                this.$prompt('请输入驳回原因！', '驳回', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                }).then(({ value }) => {
+                  // 调用驳回接口
+                  getReject({ id: row.id, description: value }).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '驳回成功!'
+                    });
+                    this.getData();
                   });
                 });
               },
-              type: 'danger'
-            }]
+              type: 'info'
+            }, {
+              name: '撤回',
+              show: (row) => {
+                return row.transferStatus === '2' && row.outboundStatus === '0';
+              },
+              popconfirmTitle: '此操作将撤回该出库单, 是否继续?',
+              click: (rowIndex, row) => {
+                getRevoke({ id: row.id }).then(res => {
+                  this.$message({
+                    message: '撤回成功',
+                    type: 'success'
+                  });
+                  this.getData();
+                });
+              },
+              type: 'info'
+            }, {
+              name: '发运',
+              show: (row) => {
+                return row.transferStatus === '2' && row.outboundStatus === '1';
+              },
+              popconfirmTitle: '此操作将发运, 是否继续?',
+              click: (rowIndex, row) => {
+                getShip({ id: row.id }).then(res => {
+                  this.$message({
+                    message: '撤回成功',
+                    type: 'success'
+                  });
+                  this.getData();
+                });
+              },
+              type: 'info'
+            }, {
+              name: '打印',
+              click: (rowIndex, row) => {
+                this.handlePrint(row);
+              },
+              type: 'info'
+            }, {
+              name: '申请撤销',
+              show: (row) => {
+                return row.cancelStatus === '10' || row.outboundStatus === '40';
+              },
+              popconfirmTitle: '此操作将申请撤销, 是否继续?',
+              click: (rowIndex, row) => {
+                applyCancel({ id: row.id }).then(res => {
+                  this.$message({
+                    message: '申请撤销成功',
+                    type: 'success'
+                  });
+                  this.getData();
+                });
+              },
+              type: 'info'
+            }, {
+              name: '同意撤销',
+              show: (row) => {
+                return row.cancelStatus === '20';
+              },
+              popconfirmTitle: '此操作将同意撤销, 是否继续?',
+              click: (rowIndex, row) => {
+                approveCancel({ id: row.id }).then(res => {
+                  this.$message({
+                    message: '同意撤销成功',
+                    type: 'success'
+                  });
+                  this.getData();
+                });
+              },
+              type: 'info'
+            }, {
+              name: '驳回撤销',
+              show: (row) => {
+                return row.cancelStatus === '20';
+              },
+              click: (rowIndex, row) => {
+                this.$prompt('请输入驳回撤销原因！', '驳回撤销', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                }).then(({ value }) => {
+                  rejectCancel({ id: row.id, description: value }).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '驳回撤销成功!'
+                    });
+                    this.getData();
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '入库',
+              show: (row) => {
+                return row.cancelStatus === '30' && row.inboundStatus === '0';
+              },
+              popconfirmTitle: '此操作将入库, 是否继续?',
+              click: (rowIndex, row) => {
+                getInbound({ id: row.id }).then(res => {
+                  this.$message({
+                    message: '入库成功',
+                    type: 'success'
+                  });
+                  this.getData();
+                });
+              },
+              type: 'info'
+            }
+            // {
+            //   name: '删除',
+            //   popconfirmTitle: '此操作将永久删除, 是否继续?',
+            //   click: (rowIndex, row) => {
+            //     deleteItem([row.id]).then(() => {
+            //       this.$message({
+            //         type: 'success',
+            //         message: '删除成功!'
+            //       });
+            //       this.getData();
+            //     }).catch(() => {
+            //       this.$message({
+            //         type: 'error',
+            //         message: '删除失败!'
+            //       });
+            //     });
+            //   },
+            //   type: 'danger'
+            // }
+            ]
           }
         ],
         total: 0
@@ -571,29 +735,15 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
-    }
+    },
+    // 打印调拨出库单
+    handlePrint (val) {
+      this.$print.show({
+        id: val.id, // 必选，对应数据id
+        template: 'TransferOutbound', // 必选，对应 ./template/文件名.vue
+        title: `${val.dealerName}厅店调拨出库单`// 可选，打印标题
+      });
+    },
   }
 };
 </script>

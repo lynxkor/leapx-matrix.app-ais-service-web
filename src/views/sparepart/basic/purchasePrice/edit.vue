@@ -325,8 +325,9 @@ export default {
           title: '优惠券状态',
           width: '13%',
         },
+        // path: '/sparepart/purchase/purchaseApply/edit', 跳转 TODO
         {
-          field: 'purchaseOrderId',
+          field: 'purchaseCode',
           title: '业务单据',
           width: '13%',
         },

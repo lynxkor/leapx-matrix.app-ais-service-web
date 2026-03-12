@@ -8,8 +8,8 @@
       border="inner"
       size="medium"
       height="auto"
-      min-height="200px"
-      max-height="600px"
+      min-height="0px"
+      max-height="400px"
       width="1000px"
       :checkbox-config="{ checkField: 'checked' }"
     >

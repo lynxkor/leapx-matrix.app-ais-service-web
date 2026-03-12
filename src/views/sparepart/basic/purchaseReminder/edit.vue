@@ -26,6 +26,7 @@
                   placeholder="请选择"
                   clearable
                   filterable
+                  disabled
                 />
               </el-form-item>
               <el-form-item label="提醒内容" prop="reminderContent" style="width: 80%; ">
@@ -47,24 +48,20 @@
           </div>
           <div class="common-section-body">
             <div class="ais-select-group" v-if="remindId">
-              <el-select
-                style="width: 305px;"
-                v-model="sparePartCode"
-                filterable
-                clearable
+              <fetch-select
+                  style="width: 305px;"
+                :remote-method="getSparePart"
                 remote
-                placeholder="请选择"
-                :remote-method="getPartByName"
+                v-model="sparePartCode"
+                placeholder="请输入编码或名称"
+                labelKey="name"
+                valueKey="code"
+                subLabelKey="code"
+                clearable
+                collapseTags
+                filterable
                 @change="handleSparePartChange"
-                collapse-tags
-                >
-                  <el-option
-                    v-for="item in partOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-              </el-select>
+                  />
               <el-button
                 type="primary"
                 @click="handleAddPart()"
@@ -141,7 +138,7 @@ const defaultForm = {
   // 多选时字段有变化，自行修复
   reminderCategory: '',
   reminderContent: '',
-  status: '',
+  status: '1',
   createTime: '',
   updateTime: '',
   id: '',
@@ -330,6 +327,21 @@ export default {
           };
         });
       });
+    },
+    async getSparePart (query) {
+      try {
+        const res = await sparePartListShort({ partCodeLikeOrList: query });
+        this.partOptions = res?.map(item => {
+          return {
+            ...item,
+            value: item.code,
+            label: item.name
+          };
+        });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     },
     async handleAddPart (val) {
       await addPart(this.sparePartData);

@@ -317,7 +317,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '门店备件优惠价',
+      pageTitle: '门店备件优惠券',
       pageType: 'edit',
       title: '主键：' + form.id,
       // TIPS: 权限前缀 AISPART，根据实际情况修改

@@ -11,9 +11,6 @@
     size="medium"
     min-height="0"
     max-height="400px"
-    :edit-rules="{
-      quantity: [{ required: true },]
-    }"
     :edit-config="{trigger: 'click', mode: 'cell', showStatus: true}"
     >
     <vxe-column field="partCode" title="零件编码" width="160"></vxe-column>
@@ -22,11 +19,41 @@
       <template #header>
         <span class="ais-required">数量</span>
       </template>
-      <template #default="{ row, column, rowIndex }">
-        <el-input v-if="eidtRowIndex === rowIndex" v-model="row[column.field]" placeholder="请选择"/>
-        <span v-else>{{ row[column.field] }}</span>
+      <template #default="{ row, rowIndex }">
+        <el-input
+          v-if="eidtRowIndex === rowIndex"
+          v-model="row.quantity"
+          placeholder="请输入"
+          @change="handleQuantityChange(row, rowIndex)"
+          />
+        <span v-else>{{ row.quantity }}</span>
       </template>
     </vxe-column>
+    <template v-if="isServiceCareActivity">
+      <vxe-column field="unitPrice" title="单价" width="160"></vxe-column>
+      <vxe-column title="优惠金额" width="160">
+        <template #default="{ row, rowIndex }">
+          <el-input-number
+            v-if="eidtRowIndex === rowIndex"
+            v-model="row.discountAmount"
+            :min="0"
+            :max="row.quantity * row.unitPrice"
+            size="small"
+            placeholder="请输入"
+            @change="handleDiscountAmount(row)"
+            />
+          <span v-else>{{ row.discountAmount }}</span>
+        </template>
+      </vxe-column>
+      <!-- 【金额】=【数量】*【单价】-【优惠金额】（变量发生变化，要实时计算） -->
+      <vxe-column field="amount" title="金额" width="160"></vxe-column>
+      <vxe-column title="门店支持费用" width="160">
+        <template #default="{ row, rowIndex }">
+          <el-input v-if="eidtRowIndex === rowIndex" v-model="row.dealerSupportAmount" placeholder="请输入"/>
+          <span v-else>{{ row.dealerSupportAmount }}</span>
+        </template>
+      </vxe-column>
+    </template>
     <vxe-column field="allowDelete" title="是否允许删除" width="160">
       <template #default="{ row, rowIndex }">
         <el-switch
@@ -39,71 +66,73 @@
         <span v-else>{{ row.allowDeleteLabel }}</span>
       </template>
     </vxe-column>
-    <vxe-column field="mainPart" title="是否主因件" width="160">
-      <template #default="{ row, rowIndex }">
-        <el-switch
-          v-if="eidtRowIndex === rowIndex"
-          v-model="row.mainPart"
-          active-value="1"
-          inactive-value="0">
-        </el-switch>
-        <span v-else>{{ row.mainPartLabel }}</span>
-      </template>
-    </vxe-column>
-    <vxe-column field="oldPartCode" title="旧件编码" width="160">
-      <template #default="{ row, rowIndex }">
-        <fetch-select
-          v-if="eidtRowIndex === rowIndex"
-          filterable
-          clearable
-          remote
-          reserve-keyword
-          v-model="row.oldPartCode"
-          :remote-method="partRemote"
-          :params="row.oldPartCode"
-          @change="(value, option) => onOldPartCodeChange(row, value, option)"
-          placeholder="请输入"
-          value-key="partCode"
-          label-key="partName"
-        />
-        <span v-else>{{ row.oldPartName }}</span>
-      </template>
-    </vxe-column>
-    <vxe-column field="oldSupplierId" title="旧件供应商" width="160">
-      <template #default="{ row, rowIndex }">
-        <el-select
-          v-if="eidtRowIndex === rowIndex"
-          v-model="row.oldSupplierId"
-          placeholder="请选择"
-          @change="(val) => onOldSupplierChange(val, row)"
-          >
-          <el-option
-            v-for="item in row.__options__?.oldSupplierId || []"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+    <template v-if="!isServiceCareActivity">
+      <vxe-column field="mainPart" title="是否主因件" width="160">
+        <template #default="{ row, rowIndex }">
+          <el-switch
+            v-if="eidtRowIndex === rowIndex"
+            v-model="row.mainPart"
+            active-value="1"
+            inactive-value="0">
+          </el-switch>
+          <span v-else>{{ row.mainPartLabel }}</span>
+        </template>
+      </vxe-column>
+      <vxe-column field="oldPartCode" title="旧件编码" width="160">
+        <template #default="{ row, rowIndex }">
+          <fetch-select
+            v-if="eidtRowIndex === rowIndex"
+            filterable
+            clearable
+            remote
+            reserve-keyword
+            v-model="row.oldPartCode"
+            :remote-method="partRemote"
+            :params="row.oldPartCode"
+            @change="(value, option) => onOldPartCodeChange(row, value, option)"
+            placeholder="请输入"
+            value-key="partCode"
+            label-key="partName"
+          />
+          <span v-else>{{ row.oldPartName }}</span>
+        </template>
+      </vxe-column>
+      <vxe-column field="oldSupplierId" title="旧件供应商" width="160">
+        <template #default="{ row, rowIndex }">
+          <el-select
+            v-if="eidtRowIndex === rowIndex"
+            v-model="row.oldSupplierId"
+            placeholder="请选择"
+            @change="(val) => onOldSupplierChange(val, row)"
             >
-          </el-option>
-        </el-select>
-        <span v-else>{{ row.oldSupplierName }}</span>
-      </template>
-    </vxe-column>
-    <vxe-column field="returnType" title="旧件返还类型" width="160">
-      <template #default="{ row, rowIndex }">
-        <el-select v-if="eidtRowIndex === rowIndex" v-model="row.returnType"
-          placeholder="请选择"
-          >
-          <el-option
-            v-for="item in options.returnType"
-            :key="item.returnType"
-            :label="item.returnTypeLabel"
-            :value="item.returnType"
+            <el-option
+              v-for="item in row.__options__?.oldSupplierId || []"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+              >
+            </el-option>
+          </el-select>
+          <span v-else>{{ row.oldSupplierName }}</span>
+        </template>
+      </vxe-column>
+      <vxe-column field="returnType" title="旧件返还类型" width="160">
+        <template #default="{ row, rowIndex }">
+          <el-select v-if="eidtRowIndex === rowIndex" v-model="row.returnType"
+            placeholder="请选择"
             >
-          </el-option>
-        </el-select>
-        <span v-else>{{ row.returnTypeLabel }}</span>
-      </template>
-    </vxe-column>
+            <el-option
+              v-for="item in options.returnType"
+              :key="item.returnType"
+              :label="item.returnTypeLabel"
+              :value="item.returnType"
+              >
+            </el-option>
+          </el-select>
+          <span v-else>{{ row.returnTypeLabel }}</span>
+        </template>
+      </vxe-column>
+    </template>
     <vxe-column field="repairItemTypeId" title="维修类型" width="160">
       <template #default="{ row, rowIndex }">
         <fetch-select
@@ -216,6 +245,9 @@ export default {
     disabled: {
       type: Boolean,
     },
+    isServiceCareActivity: {
+      type: Boolean,
+    }
   },
   components: {
     FetchSelect,
@@ -249,21 +281,31 @@ export default {
         activityId: '',
         schemeId: '',
         serviceActivityItemId: '',
+        // 零件信息
         partId: '',
         partCode: '',
         partName: '',
+        // 维修类型
         repairItemTypeId: '',
         repairItemTypeCode: '',
         repairItemTypeName: '',
+        // 旧件信息
         oldPartId: '',
         oldPartCode: '',
         oldPartName: '',
         oldSupplierId: '',
         oldSupplierCode: '',
         oldSupplierName: '',
+        // 数量金额
         quantity: '',
-        mainPart: '',
-        allowDelete: '',
+        unitPrice: '',
+        discountAmount: '',
+        amount: '',
+        dealerSupportAmount: '',
+        // 开关状态
+        mainPart: '0',
+        allowDelete: '1',
+        // 旧件返还类型
         returnType: '',
         returnTypeLabel: '',
       },
@@ -294,6 +336,20 @@ export default {
   beforeDestroy () {
   },
   methods: {
+    handleQuantityChange (row, rowIndex) {
+      const maxDiscount = row.quantity * row.unitPrice;
+      if (row.discountAmount > maxDiscount) {
+        this.$set(row, 'discountAmount', maxDiscount);
+      }
+      this.$set(row, 'amount', (maxDiscount - row.discountAmount).toFixed(2));
+    },
+    handleDiscountAmount (row) {
+      const maxDiscount = row.quantity * row.unitPrice;
+      this.$set(row, 'amount', (maxDiscount - row.discountAmount).toFixed(2));
+    },
+    getServiceAcitivityItemId () {
+      return this.serviceActivityItemId === '全部备件' ? '' : this.serviceActivityItemId;
+    },
     // 表格数据
     getDetailPageApi () {
       techServiceActivityPartPage({
@@ -301,7 +357,7 @@ export default {
         activityId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,
-        serviceActivityItemId: this.serviceActivityItemId === '全部备件' ? '' : this.serviceActivityItemId,
+        serviceActivityItemId: this.getServiceAcitivityItemId(),
       }).then((res) => {
         this.tableData = res.records;
         this.originTableData = cloneDeep(res.records);
@@ -374,7 +430,7 @@ export default {
       });
       parmas.activityId = this._id;
       parmas.schemeId = this.schemeId;
-      parmas.serviceActivityItemId = this.serviceActivityItemId;
+      parmas.serviceActivityItemId = row.serviceActivityItemId || this.serviceActivityItemId;
       if (!this.validateQuantity(parmas.quantity)) {
         return;
       }
@@ -481,7 +537,6 @@ export default {
       row.oldPartCode = option?.partCode;
       row.oldPartName = option?.partName;
       row.oldPartId = option?.id;
-      console.log(option, row);
       this.sparePartSupplierListApi(option?.id, row);
     },
     // 零部件下拉接口

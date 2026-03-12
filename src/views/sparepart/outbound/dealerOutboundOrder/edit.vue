@@ -256,8 +256,8 @@
                     remote
                     placeholder="请选择"
                     clearable
-                    value-key="id"
-                    label-key="name"
+                    value-key="partCode"
+                    label-key="partName"
                     @change="handleAddTableData"
                   />
                   <el-button type="primary" size="small">添加</el-button>
@@ -275,18 +275,18 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="partCode" title="备件编码" min-width="11%" />
-                  <vxe-column field="partName" title="备件名称" min-width="11%" />
+                  <vxe-column field="sparePartCode" title="备件编码" min-width="11%" />
+                  <vxe-column field="sparePartName" title="备件名称" min-width="11%" />
                   <vxe-column field="locationCode" title="库位编码" min-width="11%" />
                   <vxe-column field="availableQuantity" title="可用库存" min-width="11%" />
                   <vxe-column field="salesUnitPrice" title="销售单价" min-width="11%" />
                   <vxe-column field="costUnitPrice" title="成本单价" min-width="11%" />
                   <vxe-column field="qty" title="数量" min-width="11%">
                     <template #default="{ row }">
-                      <el-input v-model="row.qty" type="number" min="1" />
+                      <el-input v-model="row.qty" type="number" min="1" @blur="handleBlur(row)"/>
                     </template>
                   </vxe-column>
-                  <vxe-column field="inboundAmount" title="创建时间" min-width="11%" />
+                  <vxe-column field="createTime" title="创建时间" min-width="11%" />
                   <vxe-column title="操作" width="100" v-if="canDelete">
                     <template #default="{ rowIndex }">
                       <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
@@ -325,7 +325,8 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, orderDetailPage, orderDetailDelete } from '@/api/sparepart/outbound/dealerOutboundOrder/index';
+import { getDetail, addOrUpdate, orderDetailPage, orderDetailDelete, orderDetailAddOrUpdate } from '@/api/sparepart/outbound/dealerOutboundOrder/index';
+import { listDealerPart } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -443,6 +444,10 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       emptyText: '若要启用此内容，请创建记录',
+      orderStatusType: false,
+      pageNum: 1,
+      pageSize: 10,
+      total: 0,
       tableData: [
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
@@ -528,38 +533,46 @@ export default {
     queryListData (queryString) {
       return new Promise(resolve => {
         // 根据需求调用接口
-        // sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
-        //   const list = res || [];
-        //   resolve(list);
-        // });
-        resolve([
-          { id: 1, name: 'test', age: 25, email: 'test@example.com' }
-        ]);
+        listDealerPart({ dealerCode: this.form.dealerCode, partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
+          const list = res || [];
+          resolve(list);
+        });
       });
     },
-    // 新增子表数据
+    // 新增备件清单
     handleAddTableData (val, record) {
       if (!record) {
         this.$message.warning('请先选择数据');
         return;
       }
       // 检查是否已存在
-      const exists = this.tableData.some(item => item.id === record.id);
+      const exists = this.tableData.some(item => item.partCode === record.partCode);
       if (exists) {
         this.$message.warning('请勿重复添加');
-        return;
       }
-      // 根据需求调用接口
-      this.tableData.push(record);
-      // addPartItem({
-      //   maintenancePartId: this._id,
-      //   partsCode: record.partCode,
-      //   partsName: record.partName,
-      //   partsId: record.id,
-      // }).then(res => {
-      //   this.$message.success('添加成功');
-      //   this.detailRequest();
-      // });
+      const params = {
+        dealerOutboundOrderId: this._id,
+        dealerOutboundOrderCode: this.form.code,
+        sparePartId: record.id,
+        qty: 1,
+      };
+      this.handleAddOrUpdate(params, 'add');
+    },
+    // 修改备件清单
+    handleBlur (val) {
+      const params = {
+        dealerOutboundOrderId: this._id,
+        dealerOutboundOrderCode: this.form.code,
+        sparePartId: val.id,
+        qty: val.qty,
+      };
+      this.handleAddOrUpdate(params, 'update');
+    },
+    // 调取备件接口
+    async handleAddOrUpdate (params) {
+      await orderDetailAddOrUpdate(params);
+      this.$message.success('操作成功');
+      this.getData();
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等

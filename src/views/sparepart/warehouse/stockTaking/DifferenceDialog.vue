@@ -3,17 +3,17 @@
         <!-- 数据表格 -->
         <div class="table-section">
             <vxe-table ref="workTable" :data="tableData" stripe show-overflow resizable border="inner" size="medium">
-                <vxe-column field="partCode" title="备件编码" />
-                <vxe-column field="partName" title="备件名称" />
-                <vxe-column field="locationCode" title="盘点前库存总数" />
-                <vxe-column field="availableStock" title="最新库存总数" />
-                <vxe-column field="returnableQuantity" title="最新冻结库存" />
-                <vxe-column field="inboundPrice" title="最新共享库存" />
-                <vxe-column field="returnQuantity" title="最新可用库存" />
-                <vxe-column field="returnQuantity" title="实盘数量" />
-                <vxe-column field="returnQuantity" title="差异类型" />
-                <vxe-column field="returnQuantity" title="差异数" />
-                <vxe-column field="returnQuantity" title="不可盘点原因">
+                <vxe-column field="sparePartCode" title="备件编码" />
+                <vxe-column field="sparePartName" title="备件名称" />
+                <vxe-column field="beforeTotalQty" title="盘点前库存总数" />
+                <vxe-column field="latestTotalQty" title="最新库存总数" />
+                <vxe-column field="latestFrozenQty" title="最新冻结库存" />
+                <vxe-column field="latestSharedQty" title="最新共享库存" />
+                <vxe-column field="latestAvailableQty" title="最新可用库存" />
+                <vxe-column field="actualQty" title="实盘数量" />
+                <vxe-column field="differencesTypeLabel" title="差异类型" />
+                <vxe-column field="differencesQty" title="差异数" />
+                <vxe-column field="cannotTakeReason" title="不可盘点原因">
                 </vxe-column>
             </vxe-table>
         </div>
@@ -22,7 +22,7 @@
         <template v-slot:footer>
             <div class="dialog-footer">
                 <el-button size="small" type="primary" :loading="submitLoading" @click="submit">清空异常清单&生成差异单</el-button>
-                <el-button size="small" type="primary" :loading="submitLoading" @click="submit">导 出</el-button>
+                <el-button size="small" type="primary" :loading="submitLoading">导 出</el-button>
                 <el-button size="small" @click="close">取 消</el-button>
             </div>
         </template>
@@ -31,6 +31,7 @@
 
 <script>
 import { stockTakingDifferenceApply } from '@/api/sparepart/warehouse/stockTaking/index';
+import { clearAndDifferences } from '@/api/sparepart/warehouse/stockTakingDifferences/index';
 
 export default {
   name: 'DifferenceDialog',
@@ -38,6 +39,14 @@ export default {
     visible: {
       type: Boolean,
       default: false
+    },
+    differenceId: {
+      type: String,
+      default: ''
+    },
+    differenceList: {
+      type: Array,
+      default: () => []
     }
   },
   data () {
@@ -53,6 +62,12 @@ export default {
   watch: {
     visible (val) {
       this.dialogVisible = val;
+    },
+    differenceList: {
+      handler (val) {
+        this.tableData = val;
+      },
+      deep: true
     }
   },
   methods: {
@@ -61,25 +76,10 @@ export default {
     },
     async submit () {
       this.submitLoading = true;
-      if (!this.form.description) {
-        this.$message.error('请填写退货原因！');
-        this.submitLoading = false;
-        return;
-      }
-      if (this.tableData.some(item => item.returnQuantity <= 0)) {
-        this.$message.error('退货数量必须大于0！');
-        this.submitLoading = false;
-        return;
-      }
       const params = {
-        id: this.tableData[0].id,
-        description: this.form.description,
-        list: this.tableData.map(item => ({
-          id: item.id,
-          returnQuantity: item.returnQuantity
-        }))
+        id: this.differenceId,
       };
-      await stockTakingDifferenceApply(params);
+      await clearAndDifferences(params);
       this.$emit('update:visible', false);
       this.$emit('confirm');
       this.$message.success('清空异常清单&生成差异单成功！');

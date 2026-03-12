@@ -1259,6 +1259,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/maintain/sp/preAuthRule',
+      name: 'preAuthRule',
+      component: () => import('@/views/maintain/sp/preAuthRule/index.vue'),
+
+      meta: {
+        name: '预授权申请',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/preAuthRule/edit',
+      name: 'preAuthRuleEdit',
+      component: () => import('@/views/maintain/sp/preAuthRule/edit.vue'),
+
+      meta: {
+        name: '预授权申请详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/sparepart/fund/account',
       name: 'account',
       component: () => import('@/views/sparepart/fund/account/index.vue'),
@@ -1678,6 +1696,15 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/sparepart/return/returnExceptionalOrder',
+      name: 'returnOrder',
+      component: () => import('@/views/sparepart/return/returnException/index.vue'),
+
+      meta: {
+        name: '备件退货异常订单',
+        keepAlive: true
+      }
+    }, {
       path: '/sparepart/inbound/inboundOrder',
       name: 'inboundOrder',
       component: () => import('@/views/sparepart/inbound/inboundOrder/index.vue'),
@@ -1711,24 +1738,6 @@ const routes = [
 
       meta: {
         name: 'OEM出库单回传SAP开关详情',
-        noResourceUrl: 'true'
-      }
-    }, {
-      path: '/sparepart/return/returnExceptionalOrder',
-      name: 'returnExceptionalOrder',
-      component: () => import('@/views/sparepart/return/returnOrder/index.vue'),
-
-      meta: {
-        name: '备件退货异常订单',
-        keepAlive: true
-      }
-    }, {
-      path: '/sparepart/return/returnExceptionalOrder/edit',
-      name: 'returnExceptionalOrderEdit',
-      component: () => import('@/views/sparepart/return/returnOrder/edit.vue'),
-
-      meta: {
-        name: '备件退货异常订单详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -2238,6 +2247,60 @@ const routes = [
 
       meta: {
         name: '商城订单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/sp/vehRetention',
+      name: 'vehRetention',
+      component: () => import('@/views/maintain/sp/vehRetention/index.vue'),
+
+      meta: {
+        name: '留车项配置',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/vehretention/edit',
+      name: 'vehRetentionEdit',
+      component: () => import('@/views/maintain/sp/vehRetention/edit.vue'),
+
+      meta: {
+        name: '留车项配置详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/basic/approvalRejectSetting',
+      name: 'approvalRejectSetting',
+      component: () => import('@/views/claimreturn/claim/basic/approvalRejectSetting/index.vue'),
+
+      meta: {
+        name: '审批驳回配置',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/approvalrejectsetting/edit',
+      name: 'approvalRejectSettingEdit',
+      component: () => import('@/views/claimreturn/claim/basic/approvalRejectSetting/edit.vue'),
+
+      meta: {
+        name: '审批驳回配置详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantySettlementCalendar',
+      name: 'warrantySettlementCalendar',
+      component: () => import('@/views/claimreturn/claim/basic/warrantySettlementCalendar/index.vue'),
+
+      meta: {
+        name: '保修结算日历',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantysettlementcalendar/edit',
+      name: 'warrantySettlementCalendarEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantySettlementCalendar/edit.vue'),
+
+      meta: {
+        name: '保修结算日历详情',
         noResourceUrl: 'true'
       }
     }, {
