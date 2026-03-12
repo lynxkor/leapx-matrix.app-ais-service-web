@@ -319,7 +319,7 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="车联网里程数（纯）：" prop="netMileageElectricity">
+        <!-- <el-form-item label="车联网里程数（纯）：" prop="netMileageElectricity">
           <el-input
             placeholder="请输入"
             v-model="form.netMileageElectricity"
@@ -334,7 +334,7 @@
             clearable
             disabled
           />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="车联网里程数（增）：" prop="netMileageExtend">
           <el-input
             placeholder="请输入"
@@ -493,12 +493,12 @@
         <el-form-item label="绑车人手机号码：" prop="bindingPhone">
           {{ form.bindingPhone }}
         </el-form-item>
-        <el-form-item label="车联网里程数（纯）：" prop="netMileageElectricity">
+        <!-- <el-form-item label="车联网里程数（纯）：" prop="netMileageElectricity">
           {{ form.netMileageElectricity }}
         </el-form-item>
         <el-form-item label="离店车联网里程数（纯）：" prop="departureNetMileageElectricity">
           {{ form.departureNetMileageElectricity }}
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="车联网里程数（增）：" prop="netMileageExtend">
           {{ form.netMileageExtend }}
         </el-form-item>
@@ -741,5 +741,4 @@ export default {
     }
   }
 };
-
 </script>
