@@ -1,10 +1,10 @@
 <template>
-  <edit-page-layout ref="editLayout" title="接车施工单-维修履历详情">
+  <edit-page-layout ref="editLayout" title="维修履历详情">
     <template #left>
       <edit-base-container
         ref="containerRef"
         :id="_id"
-        :title="`接车施工单：${form.serviceProxyCode || '-'}`"
+        :title="`维修履历编号：${form.serviceProxyCode || '-'}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
         :detailRequest="detailRequest"
@@ -234,7 +234,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '接车施工单-维修履历信息管理',
+      pageTitle: '维修履历详情',
       pageType: 'edit',
       moduleKey: 'AISMC-serviceProxyHis',
       loading: false,
