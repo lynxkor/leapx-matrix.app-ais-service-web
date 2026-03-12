@@ -2285,6 +2285,24 @@ const routes = [
         name: '审批驳回配置详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/claim/basic/warrantySettlementCalendar',
+      name: 'warrantySettlementCalendar',
+      component: () => import('@/views/claimreturn/claim/basic/warrantySettlementCalendar/index.vue'),
+
+      meta: {
+        name: '保修结算日历',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantysettlementcalendar/edit',
+      name: 'warrantySettlementCalendarEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantySettlementCalendar/edit.vue'),
+
+      meta: {
+        name: '保修结算日历详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
