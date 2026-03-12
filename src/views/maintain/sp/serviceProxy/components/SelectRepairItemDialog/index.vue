@@ -205,7 +205,7 @@
                 :precision="2"
                 :step="0.1"
                 :min="0"
-                :max="+row.price"
+                :max="+row.workHour*row.price"
                 controls-position="right"
                 @change="handleItemDiscountAmountChange(row)"
               />
@@ -219,9 +219,9 @@
           <vxe-column field="statusLabel" title="维修项目状态" width="120px" />
           <vxe-column field="packageCode" title="套餐代码" width="120px" />
           <vxe-column title="操作" width="100" align="center" fixed="right">
-            <template #default="{ row, rowIndex }">
-              <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleRemoveItemRow(rowIndex)" :disabled="row.workRecordStatus === 40">
-                <span slot="reference" type="text" size="small" :class="['btn-delete', {'disabled': row.workRecordStatus === 40}]">删除</span>
+            <template #default="{ rowIndex }">
+              <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleRemoveItemRow(rowIndex)">
+                <span slot="reference" type="text" size="small" :class="['btn-delete'/*, {'disabled': row.workRecordStatus === 40}*/]">删除</span>
               </el-popconfirm>
             </template>
           </vxe-column>
@@ -304,7 +304,6 @@
                 size="small"
                 placeholder="请选择"
                 filterable
-                :disabled="!!row.repairItemName"
                 @change="handlePartCheckoutTypeChange(row)"
               >
                 <el-option
@@ -368,7 +367,7 @@
                 size="small"
                 :precision="2"
                 :min="0"
-                :max="+row.price"
+                :max="+row.quantity*row.price"
                 :step="0.1"
                 controls-position="right"
                 clearable
