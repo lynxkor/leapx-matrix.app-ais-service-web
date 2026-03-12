@@ -846,11 +846,13 @@ export default {
 
       // 更新维修配件的折扣率
       this.partData.forEach(part => {
-        part.discountRate = discountPartRate || 0;
-        // 重新计算优惠金额和配件金额
-        const originalAmount = part.quantity * part.price;
-        part.discountAmount = originalAmount * part.discountRate;
-        part.partsAmount = originalAmount - part.discountAmount;
+        if (!this.checkoutTypeIncluded(part.checkoutTypeId)) {
+          part.discountRate = discountPartRate || 0;
+          // 重新计算优惠金额和配件金额
+          const originalAmount = part.quantity * part.price;
+          part.discountAmount = originalAmount * part.discountRate;
+          part.partsAmount = originalAmount - part.discountAmount;
+        }
       });
 
       // 更新顶部的合计信息

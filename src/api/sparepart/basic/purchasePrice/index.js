@@ -66,5 +66,5 @@ export function listCoupon (data) {
  * @param {Object} data
  */
 export function enableOrDisable (data) {
-  return api.jsonPost(prefixDetail + 'disable', data);
+  return api.jsonPost(prefixDetail + 'enableOrDisable', data);
 }
