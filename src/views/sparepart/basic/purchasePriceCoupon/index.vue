@@ -243,7 +243,23 @@ export default {
           { props: 'validStart', label: '有效开始日期', visible: true, width: 200 },
           { props: 'validEnd', label: '有效结束日期', visible: true, width: 200 },
           { props: 'couponStatusLabel', label: '优惠券状态', visible: true, width: 120 },
-          { props: 'purchaseCode', label: '业务单据', visible: true, width: 200 },
+          {
+            props: 'purchaseCode',
+            label: '业务单据',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseApply/edit',
+                  query: {
+                    id: row.purchaseOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'useTime', label: '使用时间', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 }
