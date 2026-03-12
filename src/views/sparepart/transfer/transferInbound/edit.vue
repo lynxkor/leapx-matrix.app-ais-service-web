@@ -53,7 +53,7 @@
                 <el-form-item label="签收时间：" prop="signTime">
                   {{ form.signTime }}
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
+                <el-form-item label="备注：" prop="remark" style="width: 100%;">
                   <el-input
                     type="textarea"
                     :rows="3"
@@ -94,7 +94,7 @@
                 <el-form-item label="签收时间：" prop="signTime">
                   {{ form.signTime }}
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
+                <el-form-item label="备注：" prop="remark" style="width: 100%;">
                   {{ form.remark }}
                 </el-form-item>
               </el-form>
@@ -117,13 +117,46 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
+                  <vxe-column field="partName" title="备件名称" min-width="10%" />
+                  <vxe-column field="locationCode" title="库位" min-width="10%" />
+                  <vxe-column field="availableQuantity" title="可用库存" min-width="10%" />
+                  <vxe-column field="purchasePriceTax" title="采购价格(含税)" min-width="10%" />
+                  <vxe-column field="purchasePriceNotax" title="采购价格(不含税)" min-width="10%" />
+                  <vxe-column field="costUnitPriceTax" title="金额(含税)" min-width="10%" />
+                  <vxe-column field="inboundQty" title="调拨数量" min-width="10%">
+                    <template #default="{ row }">
+                      <el-input v-model="row.transferQty" type="number" min="1" @blur="handleBlur(row)"/>
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="inboundQty" title="备注" min-width="10%">
+                    <template #default="{ row }">
+                      <el-input v-model="row.remark" @blur="handleBlur(row)"/>
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="createTime" title="创建时间" min-width="10%" />
+                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
+                    <template #default="{ rowIndex }">
+                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
+                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
+                      </el-popconfirm>
+                    </template>
+                  </vxe-column>
                   <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
+                    <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
                   </template>
                 </vxe-table>
+                <div class="table-pagination">
+                  <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="pageNum"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total"
+                  >
+                  </el-pagination>
+                </div>
               </div>
             </div>
           </section>
@@ -138,7 +171,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/transfer/transferInbound/index';
+import { getDetail, addOrUpdate, transferInboundDetailPage } from '@/api/sparepart/transfer/transferInbound/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -190,6 +223,14 @@ export default {
         }
       },
       immediate: true
+    },
+    'form.code': {
+      handler (val) {
+        if (val) {
+          this.getData();
+        }
+      },
+      immediate: true
     }
   },
   data () {
@@ -200,6 +241,9 @@ export default {
       moduleKey: 'AISPART-transferInbound',
       loading: false,
       submitLoading: false,
+      pageNum: 1,
+      pageSize: 10,
+      total: 0,
       form: { ...form },
       originalForm: { ...form },
       emptyText: '若要启用此内容，请创建记录',
@@ -239,7 +283,27 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    // 获取调拨明细
+    async getData () {
+      const params = {
+        transferInboundId: this._id,
+        pageNum: this.pageNum,
+        pageSize: this.pageSize,
+      };
+      const res = await transferInboundDetailPage(params);
+      this.total = res.total || 0;
+      this.tableData = res.records || [];
+    },
+    handleCurrentChange (pageNum) {
+      this.pageNum = pageNum;
+      this.getData();
+    },
+    handleSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.pageNum = 1;
+      this.getData();
+    },
   }
 };
 </script>
