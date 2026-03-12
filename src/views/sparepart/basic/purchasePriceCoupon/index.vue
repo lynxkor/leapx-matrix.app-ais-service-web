@@ -197,7 +197,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '门店备件优惠价',
+      pageTitle: '门店备件优惠券',
       pageType: 'list',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
       moduleKey: 'AISPART-purchasePriceCoupon',
@@ -300,7 +300,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '门店备件优惠价',
+        businessType: '门店备件优惠券',
         dataFetchPath: 'sparepart/web/basic/purchasePriceCoupon/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -308,7 +308,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '门店备件优惠价.xlsx');
+            await downloadExcel(res.excelUrl, '门店备件优惠券.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
