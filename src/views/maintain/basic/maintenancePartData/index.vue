@@ -19,7 +19,7 @@
       <el-form-item label="里程类型">
         <fetch-select
           :request="fetchOptions"
-          enumCode="xxx"
+          enumCode="MileageTypeEnum"
           v-model="form.mileageTypes"
           placeholder="请选择"
           clearable
