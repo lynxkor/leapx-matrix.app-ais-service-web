@@ -12,7 +12,7 @@
       <el-form-item label="提醒类别">
         <el-input
           placeholder="请输入"
-          v-model="form.reminderCategory"
+          v-model="form.reminderCategoryLike"
           clearable
         />
       </el-form-item>
@@ -117,7 +117,7 @@ import EditPage from './edit.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  reminderCategory: '',
+  reminderCategoryLike: '',
   status: '',
   createTime: '',
   updateTime: '',

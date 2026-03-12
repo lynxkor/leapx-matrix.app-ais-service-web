@@ -3,6 +3,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/basic/purchasePrice/';
+const prefixDetail = SPARE_PREFIX + '/web/basic/purchasePriceCoupon/';
 
 /**
  * 查询列表
@@ -49,7 +50,7 @@ export function enableItem (data) {
  * @param {Object} data
  */
 export function addCoupon (data) {
-  return api.jsonPost('sp/web/basic/purchasePriceCoupon/addOrUpdate', data);
+  return api.jsonPost(prefixDetail + 'addOrUpdate', data);
 }
 
 /**
@@ -57,7 +58,7 @@ export function addCoupon (data) {
  * @param {Object} data
  */
 export function listCoupon (data) {
-  return api.jsonPost('sp/web/basic/purchasePriceCoupon/page', data);
+  return api.jsonPost(prefixDetail + 'page', data);
 }
 
 /**
@@ -65,5 +66,5 @@ export function listCoupon (data) {
  * @param {Object} data
  */
 export function enableOrDisable (data) {
-  return api.jsonPost('sp/web/basic/purchasePriceCoupon/disable', data);
+  return api.jsonPost(prefixDetail + 'disable', data);
 }
