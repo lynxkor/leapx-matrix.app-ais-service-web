@@ -253,3 +253,11 @@ export function getMaintenanceItemEnum (data) {
 export function getSparePartOrderIdByCode (data) {
   return api.jsonPost('/sp/web/base/common/getIdByCode', data);
 }
+
+/**
+ * 物流 跟踪
+ * @param {*} data
+ */
+export function getLogistics (data) {
+  return api.jsonPost('/sp/web/base/common/getLogistics', data);
+}

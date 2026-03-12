@@ -75,6 +75,7 @@
                   placeholder="请选择"
                   clearable
                   filterable
+                  disabled
                 />
               </el-form-item>
               <el-form-item label="备注" prop="remark">
@@ -114,7 +115,7 @@ const defaultForm = {
   dealerName: '',
   minimumAmount: '',
   effectiveStartDate: '',
-  status: '',
+  status: '1',
   remark: '',
   createTime: '',
   updateTime: '',

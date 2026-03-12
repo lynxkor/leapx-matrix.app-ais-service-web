@@ -431,6 +431,13 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = this.form.updateTime[1];
+        }
+      }
 
       return data;
     },

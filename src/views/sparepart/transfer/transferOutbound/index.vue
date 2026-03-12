@@ -395,8 +395,8 @@ export default {
               type: 'info'
             }, {
               name: '打印',
-              show: (row) => {
-                return row.transferStatus === '2' && row.outboundStatus === '1';
+              click: (rowIndex, row) => {
+                this.handlePrint(row);
               },
               type: 'info'
             }, {
@@ -735,29 +735,15 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
-    }
+    },
+    // 打印调拨出库单
+    handlePrint (val) {
+      this.$print.show({
+        id: val.id, // 必选，对应数据id
+        template: 'TransferOutbound', // 必选，对应 ./template/文件名.vue
+        title: `${val.dealerName}厅店调拨出库单`// 可选，打印标题
+      });
+    },
   }
 };
 </script>

@@ -1696,6 +1696,15 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/sparepart/return/returnExceptionalOrder',
+      name: 'returnOrder',
+      component: () => import('@/views/sparepart/return/returnException/index.vue'),
+
+      meta: {
+        name: '备件退货异常订单',
+        keepAlive: true
+      }
+    }, {
       path: '/sparepart/inbound/inboundOrder',
       name: 'inboundOrder',
       component: () => import('@/views/sparepart/inbound/inboundOrder/index.vue'),
@@ -1729,24 +1738,6 @@ const routes = [
 
       meta: {
         name: 'OEM出库单回传SAP开关详情',
-        noResourceUrl: 'true'
-      }
-    }, {
-      path: '/sparepart/return/returnExceptionalOrder',
-      name: 'returnExceptionalOrder',
-      component: () => import('@/views/sparepart/return/returnOrder/index.vue'),
-
-      meta: {
-        name: '备件退货异常订单',
-        keepAlive: true
-      }
-    }, {
-      path: '/sparepart/return/returnExceptionalOrder/edit',
-      name: 'returnExceptionalOrderEdit',
-      component: () => import('@/views/sparepart/return/returnOrder/edit.vue'),
-
-      meta: {
-        name: '备件退货异常订单详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -2292,6 +2283,24 @@ const routes = [
 
       meta: {
         name: '审批驳回配置详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantySettlementCalendar',
+      name: 'warrantySettlementCalendar',
+      component: () => import('@/views/claimreturn/claim/basic/warrantySettlementCalendar/index.vue'),
+
+      meta: {
+        name: '保修结算日历',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantysettlementcalendar/edit',
+      name: 'warrantySettlementCalendarEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantySettlementCalendar/edit.vue'),
+
+      meta: {
+        name: '保修结算日历详情',
         noResourceUrl: 'true'
       }
     }]
