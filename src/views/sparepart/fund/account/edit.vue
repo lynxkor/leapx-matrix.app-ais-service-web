@@ -650,64 +650,65 @@ export default {
         }
       });
     },
+    // 带出方法
+    _executeExport (config) {
+      const {
+        paginationKey, // 分页数据所在的 key
+        loadingKey, // loading 状态所在的 key
+        path, // 接口路径
+        titleMap, // 表头映射
+        fileNameSuffix = '' // 文件名后缀（可选）
+      } = config;
+
+      handleCommonExport({
+      // 1. 动态获取参数 (使用 this[paginationKey] 访问)
+        exportApiParamsFn: () => ({
+          pageNum: this[paginationKey].current,
+          pageSize: this[paginationKey].pageSize,
+          accountId: this.$route.query.id
+        }),
+
+        // 2. 基础配置 (固定部分)
+        apiFunc: exportTable,
+        download: downloadExcel,
+        message: this.$message,
+        // 动态生成文件名：原名 + 后缀
+        fileName: `${this.$route.query.name || '导出数据'}${fileNameSuffix}`,
+        titleMap: titleMap,
+        dataFetchPath: path,
+        businessType: this.$route.query.name,
+        httpMethod: 'POST',
+
+        // 3. 动态控制 Loading (使用 this[loadingKey] 访问)
+        onStart: () => {
+          this[loadingKey] = true;
+        },
+        onEnd: () => {
+          this[loadingKey] = false;
+        }
+      });
+    },
     // 导出账户流水
     handleExport () {
-      handleCommonExport({
-        // 1. 定义如何获取参数
-        exportApiParamsFn: () => ({
-          pageNum: this.pagination.current,
-          pageSize: this.pagination.pageSize,
-          accountId: this.$route.query.id
-        }),
-
-        // 2. 基础配置
-        apiFunc: exportTable,
-        download: downloadExcel,
-        message: this.$message,
-        fileName: this.$route.query.name || '导出数据',
-        titleMap: this.titleMap,
-        dataFetchPath: 'sparepart/web/fund/accountFlow/page',
-        businessType: this.$route.query.name,
-        httpMethod: 'POST',
-
-        // 3. 生命周期回调
-        onStart: () => {
-          this.exportLoading = true;
-        },
-        onEnd: () => {
-          this.exportLoading = false;
-        }
+      this._executeExport({
+        paginationKey: 'pagination',
+        loadingKey: 'exportLoading',
+        path: 'sparepart/web/fund/accountFlow/page',
+        titleMap: this.titleMap
+      // fileNameSuffix 默认为空，即 "导出数据.xlsx"
       });
     },
+
     // 导出冻结流水
     handleDjExport () {
-      handleCommonExport({
-        // 1. 定义如何获取参数
-        exportApiParamsFn: () => ({
-          pageNum: this.djPagination.current,
-          pageSize: this.djPagination.pageSize,
-          accountId: this.$route.query.id
-        }),
-
-        // 2. 基础配置
-        apiFunc: exportTable,
-        download: downloadExcel,
-        message: this.$message,
-        fileName: this.$route.query.name || '导出数据',
+      this._executeExport({
+        paginationKey: 'djPagination',
+        loadingKey: 'exportDjLoading',
+        path: 'sparepart/web/fund/accountFlow/frozenPage',
         titleMap: this.titleMapDj,
-        dataFetchPath: 'sparepart/web/fund/accountFlow/frozenPage',
-        businessType: this.$route.query.name,
-        httpMethod: 'POST',
-
-        // 3. 生命周期回调
-        onStart: () => {
-          this.exportDjLoading = true;
-        },
-        onEnd: () => {
-          this.exportDjLoading = false;
-        }
+        fileNameSuffix: '_冻结' // 可选：区分文件名，如 "导出数据_冻结.xlsx"
       });
-    },
+    }
     // 导出账户流水
     // handleExport () {
     //   this.exportLoading = true;
