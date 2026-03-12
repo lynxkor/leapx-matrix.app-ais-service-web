@@ -53,12 +53,12 @@
             min-height="0"
             max-height="180px"
           >
-            <vxe-column field="code" title="维修项目代码" width="120" />
-            <vxe-column field="name" title="维修项目名称" width="180" />
+            <vxe-column field="repairItemCode" title="维修项目代码" width="120" />
+            <vxe-column field="repairItemName" title="维修项目名称" width="180" />
             <vxe-column field="repairItemTypeName" title="维修类型" width="120" />
-            <vxe-column field="settlementTypeName" title="结算类型" width="120" />
+            <vxe-column field="checkoutTypeName" title="结算类型" width="120" />
             <vxe-column field="warrantyTypeName" title="保修类型" width="120" />
-            <vxe-column field="workhour" title="工时" width="100" />
+            <vxe-column field="workHour" title="工时" width="100" />
           </vxe-table>
         </div>
 
@@ -77,12 +77,12 @@
             min-height="0"
             max-height="180px"
           >
-            <vxe-column field="code" title="零件代码" width="120" />
-            <vxe-column field="serviceName" title="零件名称" width="180" />
-            <vxe-column field="repairType" title="维修类型" width="120" />
-            <vxe-column field="settlementType" title="结算类型" width="120" />
-            <vxe-column field="warrantyType" title="保修类型" width="120" />
-            <vxe-column field="workHours" title="工时" width="100" />
+            <vxe-column field="partsCode" title="零件代码" width="120" />
+            <vxe-column field="partsName" title="零件名称" width="180" />
+            <vxe-column field="repairItemTypeName" title="维修类型" width="120" />
+            <vxe-column field="checkoutTypeName" title="结算类型" width="120" />
+            <vxe-column field="warrantyTypeName" title="保修类型" width="120" />
+            <vxe-column field="workHour" title="工时" width="100" />
           </vxe-table>
         </div>
 
@@ -183,7 +183,7 @@ export default {
           equityName: this.selectedItem.rightsName,
           suggestedSpreadPrice: this.selectedItem.suggestedSpreadPrice,
           repairItemList: this.selectedItem.repairItemList,
-          repairPartList: this.selectedItem.repairPartList
+          repairPartList: this.selectedItem.repairPartList,
         });
         this.$message.success('核销成功');
         this.$emit('refresh');
