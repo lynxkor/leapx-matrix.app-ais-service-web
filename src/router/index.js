@@ -1320,7 +1320,8 @@ const routes = [
         name: '备件返利账户详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/warehouse/inventory',
       name: 'inventory',
       component: () => import('@/views/sparepart/warehouse/inventory/index.vue'),
@@ -1329,8 +1330,7 @@ const routes = [
         name: '厅店备件库存',
         keepAlive: true
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/sparepart/warehouse/inventory/edit',
       name: 'inventoryEdit',
       component: () => import('@/views/sparepart/warehouse/inventory/edit.vue'),
@@ -1339,7 +1339,8 @@ const routes = [
         name: '厅店备件库存详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/basic/purchasePrice',
       name: 'purchasePrice',
       component: () => import('@/views/sparepart/basic/purchasePrice/index.vue'),
@@ -1348,8 +1349,7 @@ const routes = [
         name: '备件采购价格',
         keepAlive: true
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/sparepart/basic/purchaseprice/edit',
       name: 'purchasePriceEdit',
       component: () => import('@/views/sparepart/basic/purchasePrice/edit.vue'),
@@ -1358,7 +1358,8 @@ const routes = [
         name: '备件采购价格详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 门店销毁
+    {
       path: '/sparepart/warehouse/oemWarehouse',
       name: 'oemWarehouse',
       component: () => import('@/views/sparepart/warehouse/oemWarehouse/index.vue'),
@@ -1367,8 +1368,7 @@ const routes = [
         name: '主机厂仓库设置',
         keepAlive: true
       }
-    }, // 门店销毁
-    {
+    }, {
       path: '/sparepart/warehouse/oemwarehouse/edit',
       name: 'oemWarehouseEdit',
       component: () => import('@/views/sparepart/warehouse/oemWarehouse/edit.vue'),
@@ -2321,8 +2321,25 @@ const routes = [
         name: '城市工时等级配置表管理详情',
         noResourceUrl: 'true'
       }
-    }
-    ]
+    }, {
+      path: '/maintain/sp/restatement/index',
+      name: 'restatement',
+      component: () => import('@/views/maintain/sp/restatement/index.vue'),
+
+      meta: {
+        name: '反结算申请单管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/restatement/edit',
+      name: 'restatementEdit',
+      component: () => import('@/views/maintain/sp/restatement/edit.vue'),
+
+      meta: {
+        name: '反结算申请单管理详情',
+        noResourceUrl: 'true'
+      }
+    }]
   }
 ];
 
