@@ -320,13 +320,13 @@ export default {
           { required: false, message: '请选择审批状态:草稿,待审批,审批通过,已驳回', trigger: 'change' }
         ],
         expenseCategory: [
-          { required: true, message: '请输入费用类别', trigger: 'change' }
+          { required: false, message: '请输入费用类别', trigger: 'change' }
         ],
         budgetCenter: [
-          { required: true, message: '请输入预算归口', trigger: 'change' }
+          { required: false, message: '请输入预算归口', trigger: 'change' }
         ],
         approvalProcessNo: [
-          { required: true, message: '请输入流程审批号', trigger: 'change' }
+          { required: false, message: '请输入流程审批号', trigger: 'change' }
         ],
         submitter: [
           { required: false, message: '请输入提交人', trigger: 'change' }

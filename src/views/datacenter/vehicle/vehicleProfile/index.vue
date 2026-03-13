@@ -19,7 +19,7 @@
       <el-form-item label="车主手机号">
         <el-input
           placeholder="请输入"
-          v-model="form.ownerPhone"
+          v-model="form.ownerMobilephone"
           clearable
         />
       </el-form-item>
@@ -27,7 +27,7 @@
         <el-form-item label="车牌号">
           <el-input
             placeholder="请输入"
-            v-model="form.vehiclePlateNo"
+            v-model="form.vehiclePlateNoLike"
             clearable
           />
         </el-form-item>
@@ -127,31 +127,14 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="销售门店编码">
-          <dealer-select v-model="form.salesDealerCode" multiple/>
+        <el-form-item label="销售门店">
+          <dealer-select v-model="form.salesDealerCodeList" multiple/>
         </el-form-item>
-        <el-form-item label="销售门店名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.salesDealerName"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="交付门店编码">
+        <el-form-item label="交付门店">
           <dealer-select v-model="form.deliveryDealerCodeList" multiple/>
         </el-form-item>
-        <el-form-item label="交付门店名称">
-          <dealer-select v-model="form.deliveryDealerNameList" multiple/>
-        </el-form-item>
-        <el-form-item label="服务门店编码">
-          <dealer-select v-model="form.serviceDealerCode" multiple/>
-        </el-form-item>
-        <el-form-item label="服务门店名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.serviceDealerName"
-            clearable
-          />
+        <el-form-item label="服务门店">
+          <dealer-select v-model="form.serviceDealerCodeList" multiple/>
         </el-form-item>
         <el-form-item label="整车物料">
           <el-input
@@ -384,11 +367,12 @@ const defaultForm = {
   vin: '',
   vehicleMaterialCode: '',
   salesDate: '',
-  vehiclePlateNo: '',
+  vehiclePlateNoLike: '',
   deliveryDealerCodeList: [],
-  deliveryDealerNameList: '',
+  serviceDealerCodeList: [],
+  salesDealerCodeList: [],
   ownerName: '',
-  ownerPhone: '',
+  ownerMobilephone: '',
   idcardType: '',
   vdcInboundOn: '',
   vehicleSeriesIdList: [],

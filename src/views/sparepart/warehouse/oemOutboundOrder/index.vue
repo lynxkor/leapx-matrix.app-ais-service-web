@@ -287,7 +287,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'deliveryWarehouse', label: '发货仓库', visible: true, width: 180 },
+          { props: 'deliveryWarehouseName', label: '发货仓库', visible: true, width: 180 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 180 },
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },

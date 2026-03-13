@@ -296,7 +296,7 @@
                   {{ form.purchaseApplyCode }}
                 </el-form-item>
                 <el-form-item label="发货仓库：" prop="deliveryWarehouse">
-                  {{ form.deliveryWarehouse }}
+                  {{ form.deliveryWarehouseName }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
                   {{ form.dealerCode }}

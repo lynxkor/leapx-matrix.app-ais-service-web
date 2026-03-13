@@ -143,6 +143,9 @@ export default {
     disabled: {
       type: Boolean,
     },
+    isServiceCareActivity: {
+      type: Boolean,
+    }
   },
   components: {
     FetchSelect,
@@ -184,6 +187,7 @@ export default {
         activityId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,
+        isServiceCareActivity: this.isServiceCareActivity,
       }).then((res) => {
         this.tableData = res.records;
         this.originTableData = cloneDeep(res.records);
