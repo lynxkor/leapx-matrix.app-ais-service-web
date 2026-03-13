@@ -47,7 +47,7 @@
                 <span>开单时间：{{ form.createTime || '-' }}</span>
               </h5>
             </section>
-            <BasicInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="basicInfoRef"/>
+            <BasicInfo :formData.sync="form" :isEditing="isEditing" :_id="_id" ref="basicInfoRef"/>
             <EntrustInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="entrustInfoRef" @change="submitForm"/>
             <BatteryInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="batteryInfoRef"/>
             <!-- <InquiryInfo :formData="form"/> -->
@@ -327,6 +327,21 @@ export const RepairOrderStatusEnum = {
   CANCEL: 210
 };
 
+export const BusinessTypeEnum = {
+  /** 自然到店 */
+  NATURAL_ARRIVAL: 10,
+  /** 取送车到店 */
+  PICKUP_DELIVERY: 20,
+  /** 上门服务 */
+  DOOR_SERVICE: 30,
+  /** 外出驻点服务 */
+  ONSITE_SERVICE: 40,
+  /** 预约到店 */
+  APPOINTMENT_ARRIVAL: 50,
+  /** 反结算审批 */
+  ANTI_SETTLEMENT_APPROVAL: 60
+};
+
 export default {
   name: 'serviceProxyEdit',
   // 集中视图预留
@@ -550,7 +565,8 @@ export default {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
       // const userInfo = this.$store.state.user.userInfo;
       return {
-        ...defaultForm
+        ...defaultForm,
+        businessType: BusinessTypeEnum.NATURAL_ARRIVAL // 默认自然到店
         // ownerId: userInfo.userId,
         // ownerName: userInfo.userName,
       };

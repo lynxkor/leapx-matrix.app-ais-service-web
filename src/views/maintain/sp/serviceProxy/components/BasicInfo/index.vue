@@ -59,6 +59,7 @@
             placeholder="请选择"
             clearable
             filterable
+            @change="handleCustomTypeChange"
           />
         </el-form-item>
         <el-form-item label="建议保养里程：" prop="maintenanceMileage">
@@ -318,7 +319,7 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="车联网里程数（纯）：" prop="netMileageElectricity">
+        <!-- <el-form-item label="车联网里程数（纯）：" prop="netMileageElectricity">
           <el-input
             placeholder="请输入"
             v-model="form.netMileageElectricity"
@@ -333,7 +334,7 @@
             clearable
             disabled
           />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="车联网里程数（增）：" prop="netMileageExtend">
           <el-input
             placeholder="请输入"
@@ -492,12 +493,12 @@
         <el-form-item label="绑车人手机号码：" prop="bindingPhone">
           {{ form.bindingPhone }}
         </el-form-item>
-        <el-form-item label="车联网里程数（纯）：" prop="netMileageElectricity">
+        <!-- <el-form-item label="车联网里程数（纯）：" prop="netMileageElectricity">
           {{ form.netMileageElectricity }}
         </el-form-item>
         <el-form-item label="离店车联网里程数（纯）：" prop="departureNetMileageElectricity">
           {{ form.departureNetMileageElectricity }}
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="车联网里程数（增）：" prop="netMileageExtend">
           {{ form.netMileageExtend }}
         </el-form-item>
@@ -523,7 +524,14 @@
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getVehicleProfile, getCarInfo, checkVinTag, getEnum } from '@/api/maintain/sp/serviceProxy/index';
-import { RepairOrderStatusEnum } from '../../edit.vue';
+import { RepairOrderStatusEnum, BusinessTypeEnum } from '../../edit.vue';
+
+export const CustomTypeEnum = {
+  /** 预约客户 */
+  APPOINTMENT_CUSTOMER: '10',
+  /** 自然到店 */
+  CUSTOMER: '20',
+};
 
 export default {
   props: {
@@ -700,6 +708,8 @@ export default {
             bindingUserId: record.vehicleProfileOwnerResp.bindingUserId, // 绑车人用户ID
             bindingUser: record.vehicleProfileOwnerResp.bindingUser, // 绑车人姓名
             bindingPhone: record.vehicleProfileOwnerResp.bindingPhone, // 绑车人手机号
+            shuttleName: record.vehicleProfileOwnerResp.ownerName,
+            shuttlePhone: record.vehicleProfileOwnerResp.mobilephone,
           };
           Object.assign(this.form, { ...data });
           this.getNetworkCarInfo();
@@ -721,8 +731,14 @@ export default {
         // if (!this.form.netMileage) this.form.netMileage = res.mileage;
         // if (!this.form.inPower) this.form.inPower = res.electricity;
       });
+    },
+    handleCustomTypeChange (value) {
+      this.$emit('update:formData', {
+        ...this.formData,
+        customType: value,
+        businessType: value === CustomTypeEnum.APPOINTMENT_CUSTOMER ? BusinessTypeEnum.APPOINTMENT_ARRIVAL : BusinessTypeEnum.NATURAL_ARRIVAL
+      });
     }
   }
 };
-
 </script>

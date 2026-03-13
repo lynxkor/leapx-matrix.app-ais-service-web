@@ -20,15 +20,20 @@
           filterable
         />
       </el-form-item>
-      <el-form-item label="备件编码">
-        <tag-input v-model="form.partCodeList" placeholder="请输入" />
-      </el-form-item>
-      <el-form-item label="备件名称"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.partName"
-          clearable
-        />
+      <el-form-item label="备件">
+        <fetch-select
+            :remote-method="getSparePart"
+            remote
+            v-model="form.sparePartIdList"
+            placeholder="请输入编码或名称"
+            labelKey="code"
+            valueKey="id"
+            subLabelKey="name"
+            clearable
+            multiple
+            collapseTags
+            filterable
+              />
       </el-form-item>
       <template v-if="show">
         <el-form-item label="是否可售">
@@ -118,19 +123,18 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, addOrUpdate } from '@/api/sparepart/basic/purchasePartSaleable/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, sparePartListShort } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
-import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
-import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
+  sparePartIdList: [],
   orderTypeList: [],
   partCode: '',
   partName: '',
@@ -150,9 +154,7 @@ export default {
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
-    EditPage,
-    Upload,
-    TagInput
+    EditPage
   },
   data () {
     return {
@@ -293,6 +295,18 @@ export default {
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
+    },
+    async getSparePart (query) {
+      try {
+        const res = await sparePartListShort({ partCodeLikeOrList: query });
+        // res.records = res.records?.map(item => ({
+        //   ...item,
+        //   displayName: item.companyName + `(${item.companyCode})`
+        // }));
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     },
     handleAdd () {
       this.$router.push({

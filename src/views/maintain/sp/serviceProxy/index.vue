@@ -235,7 +235,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'warrantyTypeCollect', label: '保修类型汇总', visible: true, width: 200 },
+          { props: 'warrantyTypeCollect', label: '维修类型（汇总）', visible: true, width: 200 },
           { props: 'customerName', label: '车主姓名', visible: true, width: 200 },
           { props: 'custTypeLabel', label: '客户类型', visible: true, width: 200 },
           {

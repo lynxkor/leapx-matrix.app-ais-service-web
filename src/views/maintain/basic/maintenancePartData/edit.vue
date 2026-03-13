@@ -341,6 +341,13 @@ export default {
         partsList: this.tableDataPj
       }).then(result => {
         this.$message.success('保存成功');
+        console.log(result);
+        this.$router.push({
+          path: '/maintain/basic/maintenancePartData/edit',
+          query: {
+            id: result
+          }
+        });
       }).catch(() => {});
     },
     // 添加零件

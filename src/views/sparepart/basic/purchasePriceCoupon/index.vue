@@ -197,7 +197,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '门店备件优惠价',
+      pageTitle: '门店备件优惠券',
       pageType: 'list',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
       moduleKey: 'AISPART-purchasePriceCoupon',
@@ -243,7 +243,23 @@ export default {
           { props: 'validStart', label: '有效开始日期', visible: true, width: 200 },
           { props: 'validEnd', label: '有效结束日期', visible: true, width: 200 },
           { props: 'couponStatusLabel', label: '优惠券状态', visible: true, width: 120 },
-          { props: 'purchaseCode', label: '业务单据', visible: true, width: 200 },
+          {
+            props: 'purchaseCode',
+            label: '业务单据',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseApply/edit',
+                  query: {
+                    id: row.purchaseOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'useTime', label: '使用时间', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 }
@@ -284,7 +300,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '门店备件优惠价',
+        businessType: '门店备件优惠券',
         dataFetchPath: 'sparepart/web/basic/purchasePriceCoupon/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -292,7 +308,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '门店备件优惠价.xlsx');
+            await downloadExcel(res.excelUrl, '门店备件优惠券.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
@@ -369,7 +385,7 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+        if (data[key] === '' || data[key] === null || data[key].length === 0) {
           delete data[key];
         }
       });

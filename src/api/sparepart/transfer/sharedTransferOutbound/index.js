@@ -43,3 +43,19 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 发运共享调拨出库单
+ * @param {Object} data
+ */
+export function getShip (data) {
+  return api.jsonPost(prefix + 'ship', data);
+}
+
+/**
+ * 共享备件调拨出库明细表分页查询
+ * @param {Object} data
+ */
+export function sharedTransferOutboundDetailPage (data) {
+  return api.jsonPost('/sp/web/dealer/sharedTransferOutboundDetail/page', data);
+}

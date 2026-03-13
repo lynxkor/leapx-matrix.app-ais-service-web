@@ -43,3 +43,19 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 签收调拨入库单
+ * @param {Object} data
+ */
+export function getSign (data) {
+  return api.jsonPost(prefix + 'sign', data);
+}
+
+/**
+ * 签收调拨入库单
+ * @param {Object} data
+ */
+export function transferInboundDetailPage (data) {
+  return api.jsonPost('/sp/web/dealer/transferInboundDetail/page', data);
+}
