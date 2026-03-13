@@ -197,6 +197,9 @@ export function getParentCompany (data) {
 export function listWarehouse (data) {
   return api.jsonPost('/sp/web/warehouse/warehouse/list', data);
 }
+export function listOemWarehouse (data) {
+  return api.jsonPost('/sp/web/warehouse/warehouse/listOem', data);
+}
 
 /**
  * 备件门店详情查询

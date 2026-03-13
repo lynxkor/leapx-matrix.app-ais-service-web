@@ -498,6 +498,7 @@ export default {
       if (val) {
         this.getEnumData();
         this.getRepairItemInfo();
+        this.discountMode = this.vehicleInfo.discountId;
       }
     },
     dialogVisible (val) {

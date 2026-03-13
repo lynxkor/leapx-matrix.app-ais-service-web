@@ -261,9 +261,9 @@
                     <td>{{ item.repairItemName }}</td>
                     <td>{{ item.checkoutTypeName }}</td>
                     <td>{{ item.workHour }}</td>
-                    <td>{{ item.price }}</td>
-                    <td>{{ item.discountAmount }}</td>
-                    <td>{{ item.repairAmount }}</td>
+                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: item.price }}</td>
+                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: item.discountAmount }}</td>
+                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: item.repairAmount }}</td>
                     <td>{{ item.isAddItems === 1 ? '是' : '否' }}</td>
                   </tr>
                 </tbody>
@@ -315,9 +315,9 @@
                     <td>{{ item.partsName }}</td>
                     <td>{{ item.checkoutTypeName }}</td>
                     <td>{{ item.quantity }}</td>
-                    <td>{{ item.price }}</td>
-                    <td>{{ item.discountAmount }}</td>
-                    <td>{{ item.partsAmount }}</td>
+                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: item.price }}</td>
+                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: item.discountAmount }}</td>
+                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: item.partsAmount }}</td>
                     <td>{{ item.isAddItems === 1 ? '是' : '否' }}</td>
                     <td>{{ item.isOemPart === 1 ? '是' : '否' }}</td>
                   </tr>
@@ -500,7 +500,15 @@ export default {
           });
         }
       });
-    }
+    },
+    checkoutTypeIncluded (type) {
+      // SELF_PAY("352BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "自费"),
+      // INSURANCE("372BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "保险"),
+      // WARRANTY("392BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "保修"),
+      // CONTRACT("3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "合同"),
+      // INTERNAL_SETTLEMENT("3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "内部结算");
+      return type === '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF' || type === '3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF' || type === '3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF';
+    },
   },
 };
 </script>
