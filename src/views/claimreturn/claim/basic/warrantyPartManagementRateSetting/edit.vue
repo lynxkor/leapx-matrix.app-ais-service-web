@@ -100,7 +100,7 @@
                   <el-form-item label="保修类型：" prop="warrantyTypeId">
                     <list-select
                     listUrl="/maintain/web/basic/repairItemType/list"
-                    placeholder="请选择"
+                    placeholder="请输入保修类型编码/名称"
                     v-model="form.warrantyTypeId"
                     :disabled="Boolean(_id)"
                     query-key="codeOrNameLike"
