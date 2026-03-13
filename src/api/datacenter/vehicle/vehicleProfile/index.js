@@ -70,3 +70,11 @@ export function getDetailDecryptField (id, field) {
 export function updateFlat (data) {
   return api.jsonPost(prefix + 'updateFlat', data);
 }
+
+/**
+ * 退车
+ * @param {Object} data
+ */
+export function vehicleReturn (data) {
+  return api.jsonPost(prefix + 'return', data);
+}
