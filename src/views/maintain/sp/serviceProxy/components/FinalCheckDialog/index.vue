@@ -175,10 +175,10 @@
                 <el-popconfirm
                   title="确定返修吗？"
                   @confirm="handleRepair(row)"
-                  :disabled="row.orderStatus !== 150 "
+
                 >
                   <span
-                    :class="['action-button', 'btn-back', {  :disabled="row.orderStatus !== 150 " }]"
+                    :class="['action-button', 'btn-back']"
                     slot="reference"
                     type="text">
                     返修
