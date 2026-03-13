@@ -280,7 +280,7 @@ export default {
       if (!this.form.checkoutTypeId) {
         return []; // 如果没有结算类型，直接返回空数组，不请求接口
       }
-      return listItem({ checkoutTypeId: this.form.checkoutTypeId, category: 20 });
+      return listItem({ checkoutTypeId: this.form.checkoutTypeId});
     },
     async fetchOptions (code) {
       if (code) {
