@@ -12,6 +12,7 @@
         direction="horizontal"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :showEditBtn="(!isDealer || form.returnStatus !== '40')"
       >
         <template #status>
           <!-- 草稿、待回运、已回运、已签收 -->

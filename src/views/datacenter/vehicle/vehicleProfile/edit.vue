@@ -11,189 +11,227 @@
         :detailRequest="detailRequest"
       >
         <el-main>
-          <!-- 第一段：基础信息 -->
           <section class="common-section">
             <div class="common-section-header">
-              <h2>基础信息</h2>
+              <h2>常规信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
-
-                <el-form-item label="VIN码：">
-                  <LPEncrypted
-                    :value.sync="form.vin"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
-                  >
-                    {{ form.vin }}
-                  </LPEncrypted>
+              <div class="common-section-sub-header">
+                <h3>归属信息</h3>
+                <el-button size="small">查看终身保养</el-button>
+                <el-button size="small">重新预测质保期</el-button>
+              </div>
+              <!-- <el-form :inline="true" :model="form" label-width="150px" class="form-detail"> -->
+              <el-form label-width="150px" :inline="true" :model="form" :rules="rules" ref="ruleForm1" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="整车订单：">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.vehicleOrder"
+                    disabled
+                    maxLength="50"
+                  />
                 </el-form-item>
-
-                <el-form-item label="车牌号：">
-                  <LPEncrypted
-                    :value.sync="form.vehiclePlateNo"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
-                  >
-                    {{ form.vehiclePlateNo }}
-                  </LPEncrypted>
-                </el-form-item>
-
-                <el-form-item label="整车物料编码：">
-                  {{ form.vehicleMaterialCode }}
-                </el-form-item>
-                <el-form-item label="整车物料描述：">
-                  {{ form.vehicleMaterialDesc }}
-                </el-form-item>
-                <el-form-item label="VDC入库日期：">
-                  {{ form.vdcInboundOn }}
-                </el-form-item>
-                <el-form-item label="电池型号：">
-                  {{ form.batteryModel }}
-                </el-form-item>
-                <el-form-item label="电池序列号：">
-                  {{ form.batterySerialNumber }}
-                </el-form-item>
-                <el-form-item label="发动机号：">
-                  {{ form.enginenNumber }}
-                </el-form-item>
-                <el-form-item label="变速箱号：">
-                  {{ form.gearboxCode }}
-                </el-form-item>
-                <el-form-item label="制造日期：">
-                  {{ form.manufacturingDate }}
-                </el-form-item>
-                <el-form-item label="电机型号：">
-                  {{ form.motorModel }}
-                </el-form-item>
-                <el-form-item label="电机序列号：">
-                  {{ form.motorSerialNumber }}
-                </el-form-item>
-                <el-form-item label="销售公告车型名称：">
-                  {{ form.carSalesVersionName }}
-                </el-form-item>
-                <el-form-item label="合格证号：">
-                  {{ form.certNumber }}
-                </el-form-item>
-                <el-form-item label="电驱序列号(后)：">
-                  {{ form.electricnumberAfter }}
-                </el-form-item>
-                <el-form-item label="电驱序列号(前)：">
-                  {{ form.electricnumberBefore }}
-                </el-form-item>
-                <el-form-item label="发动机型号：">
-                  {{ form.enginenModel }}
-                </el-form-item>
-                <el-form-item label="制造工厂名称：">
-                  {{ form.factoryinfoName }}
-                </el-form-item>
-                <el-form-item label="车身颜色：">
-                  {{ form.vehicleColor }}
-                </el-form-item>
-                <el-form-item label="车辆品牌：">
-                  {{ form.vehicleDepartment }}
-                </el-form-item>
-                <el-form-item label="车辆出厂时间：">
-                  {{ form.vehicleDepartureTime }}
-                </el-form-item>
-                <el-form-item label="车辆生产企业名称：">
-                  {{ form.vehicleEnterpriseName }}
-                </el-form-item>
-                <el-form-item label="车型通用名称：">
-                  {{ form.vehicleModel }}
-                </el-form-item>
-                <el-form-item label="车辆名称：">
-                  {{ form.vehicleName }}
-                </el-form-item>
-                <el-form-item label="基本车型：">
-                  {{ form.vehicleModelName }}
-                </el-form-item>
-                <el-form-item label="年型：">
-                  {{ form.vehicleYearName }}
-                </el-form-item>
-                <el-form-item label="销售日期：">
-                  {{ form.salesDate }}
-                </el-form-item>
-                <el-form-item label="销售门店名称：">
-                  {{ form.salesDealerName }}
-                </el-form-item>
-                <el-form-item label="销售顾问名称：">
-                  {{ form.salesUserName }}
-                </el-form-item>
-                <el-form-item label="交付门店名称：">
-                  {{ form.deliveryDealerName }}
-                </el-form-item>
-                <el-form-item label="交付顾问名称：">
-                  {{ form.deliveryUserName }}
+                <el-form-item label="企业客户整车订单：">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.vehicleEnterpriseOrder"
+                    disabled
+                    maxLength="50"
+                  />
                 </el-form-item>
                 <el-form-item label="商城订单号：">
-                  {{ form.shopcode }}
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.shopcode"
+                    disabled
+                    maxLength="50"
+                  />
                 </el-form-item>
+                <el-form-item label="销售门店：">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.salesDealerName"
+                    disabled
+                    maxLength="50"
+                  />
+                </el-form-item>
+                <el-form-item label="销售顾问：">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.salesUserName"
+                    disabled
+                    maxLength="50"
+                  />
+                </el-form-item>
+                <el-form-item label="交付门店：">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.deliveryDealerName"
+                    disabled
+                    maxLength="50"
+                  />
+                </el-form-item>
+                <el-form-item label="交付顾问：">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.deliveryUserName"
+                    disabled
+                    maxLength="50"
+                  />
+                </el-form-item>
+                <!-- TODO -->
+                <el-form-item label="服务门店：">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.serviceDealerName"
+                    disabled
+                    maxLength="50"
+                  />
+                </el-form-item>
+                <el-form-item label="服务顾问：">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.serviceUserName"
+                    disabled
+                    maxLength="50"
+                  />
+                </el-form-item>
+                <el-form-item label="是否用户修改服务门店：">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.isUserChangeDealerLabel"
+                    disabled
+                    maxLength="50"
+                  />
+                </el-form-item>
+                <el-form-item label="特殊备注：" prop="remark">
+                  <el-input v-model="form.remark" placeholder="请输入内容"></el-input>
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="整车订单：">
                   {{ form.vehicleOrder }}
                 </el-form-item>
                 <el-form-item label="企业客户整车订单：">
                   {{ form.vehicleEnterpriseOrder }}
                 </el-form-item>
-                <el-form-item label="车辆类型：">
-                  {{ form.vehicleType }}
+                <el-form-item label="商城订单号：">
+                  {{ form.shopcode }}
                 </el-form-item>
-                <el-form-item label="基本车系名称：">
+                <el-form-item label="销售门店：">
+                  {{ form.salesDealerName }}
+                </el-form-item>
+                <el-form-item label="销售顾问：">
+                  {{ form.salesUserName }}
+                </el-form-item>
+                <el-form-item label="交付门店：">
+                  {{ form.deliveryDealerName }}
+                </el-form-item>
+                <el-form-item label="交付顾问：">
+                  {{ form.deliveryUserName }}
+                </el-form-item>
+                <!-- TODO -->
+                <el-form-item label="服务门店：">
+                  {{ form.serviceDealerName }}
+                </el-form-item>
+                <el-form-item label="服务顾问：">
+                  {{ form.serviceUserName }}
+                </el-form-item>
+                <el-form-item label="是否用户修改服务门店：">
+                  {{ form.isUserChangeDealerLabel }}
+                </el-form-item>
+                <el-form-item label="特殊备注：" prop="remark">
+                  {{ form.remark }}
+                </el-form-item>
+              </el-form>
+              <div class="common-section-sub-header">
+                <h3>保修信息</h3>
+              </div>
+              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+                <el-form-item label="保修开始日期：">
+                  {{ form.warrantyStartdate }}
+                </el-form-item>
+                <el-form-item label="整车是否在保(预测)：">
+                  {{ form.isLifetimeWarrantyForecastLabel }}
+                </el-form-item>
+                <el-form-item label="保修结束日期：">
+                  {{ form.warrantyEnddate }}
+                </el-form-item>
+              </el-form>
+              <div class="common-section-sub-header">
+                <h3>保养信息</h3>
+              </div>
+              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+                <el-form-item v-show="isEditing || !_id" label="下次保养时间：" prop="remark">
+                  <el-date-picker
+                    v-model="form.nextMaintainDate"
+                    type="date"
+                    style="max-width: 200px"
+                    value-format="yyyy-MM-dd"
+                    placeholder="选择日期"
+                  />
+                </el-form-item>
+                <el-form-item v-show="!(isEditing || !_id)" label="下次保养时间：" prop="remark">
+                  {{ form.nextMaintainDate }}
+                </el-form-item>
+                <el-form-item v-show="isEditing || !_id" label="下次保养里程：" prop="remark">
+                  <el-input-number
+                    v-model="form.nextMaintainMileages"
+                    placeholder="请输入"
+                    :controls="false"
+                    :precision="0"
+                  />
+                </el-form-item>
+                <el-form-item v-show="!(isEditing || !_id)" label="下次保养里程：" prop="remark">
+                  {{ form.nextMaintainMileages }}
+                </el-form-item>
+              </el-form>
+              <div class="common-section-sub-header">
+                <h3>物料信息</h3>
+              </div>
+              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+                <el-form-item label="整车物料：">
+                  {{ form.vehicleMaterialName }}
+                </el-form-item>
+                <el-form-item label="物料描述：">
+                  {{ form.vehicleMaterialDescribe }}
+                </el-form-item>
+                <el-form-item label="基本车系：">
                   {{ form.vehicleSeriesName }}
                 </el-form-item>
-
-                <el-form-item label="是否通知进入激活模式：" prop="isNoticeActivateLabel">
-                  {{ form.isNoticeActivateLabel }}
+                <el-form-item label="基本车型：">
+                  {{ form.vehicleModelName }}
                 </el-form-item>
-                <el-form-item label="通知进入激活模式时间：" prop="noticeActivateTime">
-                  {{ form.noticeActivateTime }}
+                <el-form-item label="选配续航：">
+                  {{ form.vehicleNedcName }}
                 </el-form-item>
-                <el-form-item label="通知失败原因：" prop="noticeFailReason">
-                  {{ form.noticeFailReason }}
+                <el-form-item label="选配动力：">
+                  {{ form.vehiclePowerVersionName }}
                 </el-form-item>
-                <el-form-item label="通知失败原因：" prop="noticeFailReason">
-                  {{ form.noticeFailReason }}
+                <el-form-item label="外饰风格：">
+                  {{ form.vehicleExteriorstyleName }}
                 </el-form-item>
-                <el-form-item label="全国交付顺序：" prop="countryDeliveryNo">
-                  {{ form.countryDeliveryNo }}
+                <el-form-item label="内饰风格：">
+                  {{ form.vehicleInteriorstyleName }}
                 </el-form-item>
-                <el-form-item label="城市交付顺序：" prop="cityDeliveryNo">
-                  {{ form.cityDeliveryNo }}
+                <el-form-item label="选配轮毂：">
+                  {{ form.vehicleWheelhubName }}
+                </el-form-item>
+                <el-form-item label="电池电芯：">
+                  {{ form.vehicleBatteriesName }}
                 </el-form-item>
               </el-form>
             </div>
           </section>
-
-          <!-- 第二段：车主信息 -->
           <section class="common-section">
             <div class="common-section-header">
-              <h2>车主信息</h2>
+              <h2>车主信息<el-button style="margin-left: 6px;" size="small">查看关键信息变更日志</el-button></h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" label-width="150px" class="form-detail">
-                <el-form-item label="车主姓名：">
-                  <LPEncrypted
-                    :value.sync="form.ownerName"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'ownerName')"
-                  >
-                    {{ form.ownerName }}
-                  </LPEncrypted>
-                </el-form-item>
-                <el-form-item label="证件号码：">
-                  <LPEncrypted
-                    :value.sync="form.idcardNo"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'idcardNo')"
-                  >
-                    {{ form.idcardNo }}
-                  </LPEncrypted>
-                </el-form-item>
-
-                <el-form-item label="车主手机号码：">
-                  <LPEncrypted
-                    :value.sync="form.mobilephone"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'mobilephone')"
-                  >
-                    {{ form.mobilephone }}
-                  </LPEncrypted>
-                </el-form-item>
+              <div class="common-section-sub-header">
+                <h3>车主信息</h3>
+              </div>
+              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
                 <el-form-item v-show="isEditing || !_id" label="称呼：" prop="gender">
                   <fetch-select
                     :request="fetchOptions"
@@ -206,16 +244,114 @@
                 <el-form-item v-show="!(isEditing || !_id)" label="称呼：" prop="gender">
                   {{ form.genderLabel }}
                 </el-form-item>
-
+                <el-form-item label="车主姓名：">
+                  <LPEncrypted
+                    :value.sync="form.ownerName"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'ownerName')"
+                  >
+                    {{ form.ownerName }}
+                  </LPEncrypted>
+                </el-form-item>
+                <el-form-item label="车主手机号码：">
+                  <LPEncrypted
+                    :value.sync="form.mobilephone"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'mobilephone')"
+                  >
+                    {{ form.mobilephone }}
+                  </LPEncrypted>
+                </el-form-item>
+                <el-form-item label="证件类型：">
+                  {{ form.idcardType }}
+                </el-form-item>
+                <el-form-item label="证件号码：">
+                  <LPEncrypted
+                    :value.sync="form.idcardNo"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'idcardNo')"
+                  >
+                    {{ form.idcardNo }}
+                  </LPEncrypted>
+                </el-form-item>
+              </el-form>
+              <div class="common-section-sub-header">
+                <h3>绑车人信息</h3>
+              </div>
+              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+                <el-form-item label="绑车人用户ID号：">
+                  {{form.bindingUserid}}
+                </el-form-item>
+                <el-form-item label="绑车人姓名：">
+                  <LPEncrypted
+                    :value.sync="form.bindingUser"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'bindingUser')"
+                  >
+                    {{ form.bindingUser }}
+                  </LPEncrypted>
+                </el-form-item>
+                <el-form-item label="绑车人手机：">
+                  <LPEncrypted
+                    :value.sync="form.bindingPhone"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'bindingPhone')"
+                  >
+                    {{ form.bindingPhone }}
+                  </LPEncrypted>
+                </el-form-item>
+                <el-form-item label="绑车人证件类型：">
+                  {{ form.bindingIdtypeLabel }}
+                </el-form-item>
+                <el-form-item label="绑车人证件号码：">
+                  {{ form.bindingIdno }}
+                </el-form-item>
+                <el-form-item label="绑车时间：">
+                  {{ form.bindingOn }}
+                </el-form-item>
+              </el-form>
+              <div class="common-section-sub-header">
+                <h3>实名认证信息</h3>
+              </div>
+              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+                <el-form-item label="实名状态：">
+                  {{ form.realnameStatusLabel }}
+                </el-form-item>
+                <el-form-item label="卡ICCID：">
+                  {{ form.iccid }}
+                </el-form-item>
+                <!-- TODO -->
+                <el-form-item label="受理时间：">
+                  {{ form.xxx }}
+                </el-form-item>
+                <el-form-item label="实名驳回原因：">
+                  {{ form.xxx }}
+                </el-form-item>
+              </el-form>
+              <div class="common-section-sub-header">
+                <h3>其他信息</h3>
+              </div>
+              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+                <!-- TODO -->
+                <el-form-item label="住宅电话：">
+                  {{ form.xxx }}
+                </el-form-item>
+                <el-form-item label="办公电话：">
+                  {{ form.xxx }}
+                </el-form-item>
+                <el-form-item label="身份证所在地：">
+                  {{ form.xxx }}
+                </el-form-item>
                 <el-form-item v-show="isEditing || !_id" label="生日：" prop="birthdate">
                   <el-date-picker v-model="form.birthdate" type="date" value-format="yyyy-MM-dd"  placeholder="请选择">
-
                   </el-date-picker>
                 </el-form-item>
                 <el-form-item v-show="!(isEditing || !_id)" label="生日：" prop="birthdate">
                   {{ form.birthdate }}
                 </el-form-item>
-
+                <el-form-item label="邮箱：">
+                  {{ form.xxx }}
+                </el-form-item>
+              </el-form>
+              <div class="common-section-sub-header">
+                <h3>地址信息</h3>
+              </div>
+              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
                 <el-form-item  v-show="(isEditing || !_id)"  label="省市区：" prop="provinceCode">
                   <el-cascader
                     placeholder="请选择省市区"
@@ -244,128 +380,11 @@
                 <el-form-item v-show="!(isEditing || !_id)" label="工作地址：" prop="workAddress">
                   {{ form.workAddress }}
                 </el-form-item>
-                <el-form-item v-show="isEditing || !_id" label="特殊备注：" prop="remark">
-                  <el-input v-model="form.remark" placeholder="请输入内容"></el-input>
-                </el-form-item>
-                <el-form-item v-show="!(isEditing || !_id)" label="特殊备注：" prop="remark">
-                  {{ form.remark }}
-                </el-form-item>
-                <el-form-item label="实名状态：">
-                  {{ form.realnameStatusLabel }}
-                </el-form-item>
-
-                <el-form-item label="绑车人姓名：">
-                  <LPEncrypted
-                    :value.sync="form.bindingUser"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'bindingUser')"
-                  >
-                    {{ form.bindingUser }}
-                  </LPEncrypted>
-                </el-form-item>
-
-                <el-form-item label="绑车人手机号码：">
-                  <LPEncrypted
-                    :value.sync="form.bindingPhone"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'bindingPhone')"
-                  >
-                    {{ form.bindingPhone }}
-                  </LPEncrypted>
-                </el-form-item>
-                <el-form-item label="绑车人证件类型：">
-                  {{ form.bindingIdtypeLabel }}
-                </el-form-item>
-
-                <el-form-item label="绑车人证件号码：">
-                  {{ form.bindingIdno }}
-                </el-form-item>
-
-                <el-form-item label="绑车时间：">
-                  {{ form.bindingOn }}
-                </el-form-item>
-                <el-form-item label="是否做过绑车：">
-                  {{ form.isBindingLabel }}
-                </el-form-item>
-                <el-form-item label="APP用户ID：">
-                  {{ form.userId }}
-                </el-form-item>
               </el-form>
-            </div>
-          </section>
-
-          <!-- 第三段：服务信息 -->
-          <section class="common-section">
-            <div class="common-section-header">
-              <h2>服务信息</h2>
-            </div>
-            <div class="common-section-body">
-              <el-form :inline="true" label-width="180px" class="form-detail">
-                <el-form-item label="是否终身免保：">
-                  {{ form.isLifetimeFreeMaintainLabel }}
-                </el-form-item>
-                <el-form-item label="是否终身质保：">
-                  {{ form.isLifetimeWarrantyLabel }}
-                </el-form-item>
-                <el-form-item label="保修开始日期：">
-                  {{ form.warrantyStartdate }}
-                </el-form-item>
-                <el-form-item label="保修结束日期：">
-                  {{ form.warrantyEnddate }}
-                </el-form-item>
-                <el-form-item label="保修期(月)：">
-                  {{ form.warrantyperiod }}
-                </el-form-item>
-                <el-form-item label="终身质保描述：">
-                  {{ form.lifetimeWarrantyinfo }}
-                </el-form-item>
-                <el-form-item label="专属服务门店名称：">
-                  {{ form.serviceDealerName }}
-                </el-form-item>
-                <el-form-item label="专属客户经理名称：">
-                  {{ form.serviceUserName }}
-                </el-form-item>
-                <el-form-item label="是否用户修改专属服务信息：">
-                  {{ form.isUserChangeDealerLabel }}
-                </el-form-item>
-                <el-form-item label="保养次数：">
-                  {{ form.maintainNum }}
-                </el-form-item>
-                <el-form-item label="上次进店里程数(KM)：">
-                  {{ form.lastMileage }}
-                </el-form-item>
-                <el-form-item label="车联网里程数(KM)：">
-                  {{ form.lastNetMileage }}
-                </el-form-item>
-                <el-form-item label="最近保养时间：">
-                  {{ form.lastMaintainDate }}
-                </el-form-item>
-                <el-form-item label="最近保养里程：">
-                  {{ form.lastMaintainMileages }}
-                </el-form-item>
-                <el-form-item v-show="isEditing || !_id" label="下次保养时间：" prop="remark">
-                  <el-date-picker
-                    v-model="form.nextMaintainDate"
-                    type="date"
-                    style="max-width: 200px"
-                    value-format="yyyy-MM-dd"
-                    placeholder="选择日期"
-                  />
-                </el-form-item>
-                <el-form-item v-show="!(isEditing || !_id)" label="下次保养时间：" prop="remark">
-                  {{ form.nextMaintainDate }}
-                </el-form-item>
-
-                <el-form-item v-show="isEditing || !_id" label="下次保养里程：" prop="remark">
-                  <el-input-number
-                    v-model="form.nextMaintainMileages"
-                    placeholder="请输入"
-                    :controls="false"
-                    :precision="0"
-                  />
-                </el-form-item>
-                <el-form-item v-show="!(isEditing || !_id)" label="下次保养里程：" prop="remark">
-                  {{ form.nextMaintainMileages }}
-                </el-form-item>
-
+              <div class="common-section-sub-header">
+                <h3>送修人信息</h3>
+              </div>
+              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
                 <el-form-item v-show="isEditing || !_id" label="送修人：" prop="shuttleName">
                   <el-input
                     v-model="form.shuttleName"
@@ -385,15 +404,111 @@
                 <el-form-item v-show="!(isEditing || !_id)"  label="送修人手机：" prop="shuttlePhone">
                     {{ form.shuttlePhone }}
                 </el-form-item>
-
-                <el-form-item label="整车保修结束日期(预测)：">
-                  {{ form.warrantyEnddateForecast }}
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>车辆信息<el-button style="margin-left: 6px;" size="small">查看维修履历</el-button></h2>
+            </div>
+            <div class="common-section-body">
+              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+                <el-form-item label="VIN：">
+                  <LPEncrypted
+                    :value.sync="form.vin"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
+                  >
+                    {{ form.vin }}
+                  </LPEncrypted>
                 </el-form-item>
-                <el-form-item label="整车是否在保(预测)：">
-                  {{ form.isLifetimeWarrantyForecastLabel }}
+                <el-form-item label="车牌号：">
+                  <LPEncrypted
+                    :value.sync="form.vehiclePlateNo"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
+                  >
+                    {{ form.vehiclePlateNo }}
+                  </LPEncrypted>
                 </el-form-item>
-                <el-form-item label="车辆状态：">
-                  {{ form.vehicleStatusLabel }}
+                <el-form-item label="合格证号：">
+                  {{ form.certNumber }}
+                </el-form-item>
+                <!-- TODO -->
+                <el-form-item label="公告车型：">
+                  {{ form.carSalesVersionName }}
+                </el-form-item>
+                <el-form-item label="车辆属性：">
+                  {{ form.xxx }}
+                </el-form-item>
+                <el-form-item label="车辆类型：">
+                  {{ form.vehicleType }}
+                </el-form-item>
+                <el-form-item label="车辆名称：">
+                  {{ form.vehicleName }}
+                </el-form-item>
+                <el-form-item label="车型通用名称：">
+                  {{ form.vehicleModel }}
+                </el-form-item>
+                <el-form-item label="车身颜色：">
+                  {{ form.vehicleColor }}
+                </el-form-item>
+                <!-- TODO -->
+                <el-form-item label="燃料种类：">
+                  {{ form.xxxx }}
+                </el-form-item>
+                <el-form-item label="车型：">
+                  {{ form.xxxx }}
+                </el-form-item>
+                <el-form-item label="年款：">
+                  {{ form.vehicleYearName }}
+                </el-form-item>
+                <el-form-item label="发动机型号：">
+                  {{ form.enginenModel }}
+                </el-form-item>
+                <el-form-item label="发动机号：">
+                  {{ form.enginenNumber }}
+                </el-form-item>
+                <el-form-item label="电池型号：">
+                  {{ form.batteryModel }}
+                </el-form-item>
+                <el-form-item label="电池序列号：">
+                  {{ form.batterySerialNumber }}
+                </el-form-item>
+                <el-form-item label="电机型号：">
+                  {{ form.motorModel }}
+                </el-form-item>
+                <el-form-item label="电机序列号：">
+                  {{ form.motorSerialNumber }}
+                </el-form-item>
+                <el-form-item label="电驱序列号(前)：">
+                  {{ form.electricnumberBefore }}
+                </el-form-item>
+                <el-form-item label="电驱序列号(后)：">
+                  {{ form.electricnumberAfter }}
+                </el-form-item>
+                <el-form-item label="车辆品牌：">
+                  {{ form.vehicleDepartment }}
+                </el-form-item>
+                <el-form-item label="车辆生产企业名称：">
+                  {{ form.vehicleEnterpriseName }}
+                </el-form-item>
+                <!-- TODO -->
+                <el-form-item label="车辆产地：">
+                  {{ form.xxx }}
+                </el-form-item>
+                <el-form-item label="制造工厂：">
+                  {{ form.factoryinfoName }}
+                </el-form-item>
+                <el-form-item label="制造日期：">
+                  {{ form.manufacturingDate }}
+                </el-form-item>
+                <el-form-item label="VDC入库日期：">
+                  {{ form.vdcInboundOn }}
+                </el-form-item>
+                <el-form-item label="车辆出厂时间：">
+                  {{ form.vehicleDepartureTime }}
+                </el-form-item>
+                <el-form-item label="销售日期：">
+                  {{ form.salesDate }}
                 </el-form-item>
                 <el-form-item v-show="isEditing || !_id" label="车辆销售变更时间：" prop="vehicleStaffupDatetime">
                   <el-date-picker v-model="form.vehicleStaffupDatetime" type="date" value-format="yyyy-MM-dd" placeholder="请选择">
@@ -401,6 +516,9 @@
                 </el-form-item>
                 <el-form-item v-show="!(isEditing || !_id)" label="车辆销售变更时间：" prop="vehicleStaffupDatetime">
                   {{ form.vehicleStaffupDatetime }}
+                </el-form-item>
+                <el-form-item label="车辆状态：">
+                  {{ form.vehicleStatusLabel }}
                 </el-form-item>
               </el-form>
             </div>
@@ -666,3 +784,17 @@ export default {
   }
 };
 </script>
+<style lang="scss" scoped>
+.common-section-sub-header{
+  display: flex;
+  margin-bottom: 8px;
+  h3 {
+    color: #0A0E0A;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 30px;
+    margin-right: 15px;
+  }
+}
+
+</style>

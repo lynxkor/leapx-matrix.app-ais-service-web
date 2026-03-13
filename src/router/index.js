@@ -1441,6 +1441,15 @@ const routes = [
         keepAlive: true
       }
     }, {
+      path: '/datacenter/vehicle/serviceProxyHis/edit',
+      name: 'serviceProxyHisEdit',
+      component: () => import('@/views/datacenter/vehicle/serviceProxyHis/edit.vue'),
+
+      meta: {
+        name: '接车施工单-维修履历信息管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/sparepart/basic/purchasePartSaleable',
       name: 'purchasePartSaleable',
       component: () => import('@/views/sparepart/basic/purchasePartSaleable/index.vue'),
@@ -2301,6 +2310,24 @@ const routes = [
 
       meta: {
         name: '保修结算日历详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyAttachmentSetting',
+      name: 'warrantyAttachmentSetting',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyAttachmentSetting/index.vue'),
+
+      meta: {
+        name: '保修附件设置',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyattachmentsetting/edit',
+      name: 'warrantyAttachmentSettingEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyAttachmentSetting/edit.vue'),
+
+      meta: {
+        name: '保修附件设置详情',
         noResourceUrl: 'true'
       }
     }]

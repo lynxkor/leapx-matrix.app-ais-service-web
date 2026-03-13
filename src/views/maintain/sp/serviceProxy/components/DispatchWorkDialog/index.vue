@@ -208,7 +208,9 @@ export default {
       workstationOptions: [],
       teamOptions: [],
       technicianOptions: [],
-      deleteIds: []
+      deleteIds: [],
+      // 是否正在初始化选项（避免watch重复触发）
+      isInitializingOptions: false
     };
   },
   computed: {
@@ -223,7 +225,6 @@ export default {
     visible (val) {
       this.dialogVisible = val;
       if (val) {
-        this.loadOptions();
         this.initData();
       }
     },
@@ -236,6 +237,8 @@ export default {
     },
     'filterForm.team': {
       handler (val) {
+        // 初始化选项时跳过watch，避免重复调用
+        if (this.isInitializingOptions) return;
         // 班组变化时清空技师并重新加载
         this.filterForm.technician = '';
         this.updateUndispatchedRows('dealerWorkTeamId', val);
@@ -312,6 +315,10 @@ export default {
             row.startAt = this.filterForm.qualityCheckAt;
           }
         });
+        // 先加载选项数据，再设置表格默认值
+        await this.loadOptions();
+        // 设置表格中未派工行的默认值
+        this.setTableDefaultValues();
         if (this.mode === 'add') {
           this.$nextTick(() => {
             this.tableData.forEach(row => {
@@ -338,11 +345,46 @@ export default {
         this.tableLoading = false;
       }
     },
+    // 设置表格中未派工行的默认值
+    setTableDefaultValues () {
+      const station = this.workstationOptions[0];
+      const team = this.teamOptions[0];
+      const technician = this.technicianOptions[0];
+
+      this.tableData.forEach(row => {
+        if (row.isDispatch !== 1) {
+          // 设置工位默认值
+          if (station) {
+            this.$set(row, 'dealerStationId', station.id);
+            this.$set(row, 'dealerStationName', station.name);
+          }
+          // 设置班组默认值
+          if (team) {
+            this.$set(row, 'dealerWorkTeamId', team.id);
+            this.$set(row, 'dealerWorkTeamName', team.name);
+          }
+          // 设置技师默认值
+          if (technician) {
+            this.$set(row, 'repairTechnicianId', technician.userId);
+            this.$set(row, 'repairTechnicianName', technician.userName);
+            this.$set(row, 'technicianOptions', this.technicianOptions);
+          }
+          // 设置计划作业时间默认值
+          if (this.filterForm.plannedTime) {
+            this.$set(row, 'startAt', this.filterForm.plannedTime);
+          }
+        }
+      });
+    },
     // 获取工位选项
     async getWorkstationOptions () {
       try {
         const res = await getDealerStation();
         this.workstationOptions = res || [];
+        // 设置第一项为初始值
+        if (this.workstationOptions.length > 0) {
+          this.filterForm.workstation = this.workstationOptions[0].id;
+        }
       } catch (error) {
         console.error('获取工位数据失败', error);
       }
@@ -352,6 +394,10 @@ export default {
       try {
         const res = await getDealerWorkTeam();
         this.teamOptions = res || [];
+        // 设置第一项为初始值
+        if (this.teamOptions.length > 0) {
+          this.filterForm.team = this.teamOptions[0].id;
+        }
       } catch (error) {
         console.error('获取班组数据失败', error);
       }
@@ -363,6 +409,10 @@ export default {
           teamId: this.filterForm.team
         });
         this.technicianOptions = res || [];
+        // 设置第一项为初始值
+        if (this.technicianOptions.length > 0) {
+          this.filterForm.technician = this.technicianOptions[0].userId;
+        }
         this.tableData.forEach(row => {
           if (row.isDispatch !== 1) {
             this.$set(row, 'technicianOptions', res || []);
@@ -374,11 +424,20 @@ export default {
     },
     // 加载所有选项数据
     async loadOptions () {
-      await Promise.all([
-        this.getWorkstationOptions(),
-        this.getTeamOptions(),
-        this.getTechnicianOptions()
-      ]);
+      this.isInitializingOptions = true;
+      try {
+        // 先获取工位和班组
+        await Promise.all([
+          this.getWorkstationOptions(),
+          this.getTeamOptions()
+        ]);
+        // 班组加载完成后获取技师
+        if (this.filterForm.team) {
+          await this.getTechnicianOptions();
+        }
+      } finally {
+        this.isInitializingOptions = false;
+      }
     },
     close () {
       this.$emit('update:visible', false);
