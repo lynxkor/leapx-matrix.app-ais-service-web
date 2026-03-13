@@ -177,7 +177,7 @@ import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  partCodeList: '',
+  partCodeList: [],
   partNameLike: '',
   minOrderQuantity: '',
   salePrice: '',
@@ -437,7 +437,17 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null || data[key].length === 0) {
+        const val = data[key];
+
+        // 情况 A: 值为 null, undefined, 或 空字符串 ''
+        if (!val && val !== 0 && val !== false) {
+          delete data[key];
+          return;
+        }
+
+        // 情况 B: 值为空数组 [] 或 空字符串 '' (再次确认 length)
+        // 注意：上面 !val 已经处理了 ''，这里主要处理 []
+        if (Array.isArray(val) && val.length === 0) {
           delete data[key];
         }
       });

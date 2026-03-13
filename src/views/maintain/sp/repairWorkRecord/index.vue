@@ -28,8 +28,8 @@
         :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
     <div class="ais-table-c">
-      <LPVxeTable ref="tableRef" v-loading="loading" is-page :option-obj="optionObj" :get-config="getConfig"
-        :save-or-update="saveOrUpdate" @paginationChange="paginationChange" @listSelect="handleListSelect">
+      <LPVxeTable ref="tableRef" v-loading="loading" is-page :option-obj="optionObj" :get-config="getConfig" @sortChange="handleSortChange"
+        :save-or-update="saveOrUpdate" @paginationChange="paginationChange" @listSelect="handleListSelect" >
         <EditPage slot="centralizedViewSlot" :id="clickItemId" />
       </LPVxeTable>
     </div>
@@ -68,7 +68,6 @@ export default {
     Upload,
     DealerSelect
   },
-
   data () {
     return {
       pageTitle: '质检记录',
@@ -141,10 +140,16 @@ export default {
           { props: 'qualityCheckAt', label: '质检时间', visible: true, width: 200 },
           { props: 'qualityCheckStatusLabel', label: '质检状态', visible: true, width: 200 },
           { props: 'hasRepairedLabel', label: '是否已返修', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200, sortable: true },
         ],
         total: 0
-      }
+      },
+      sortColumns: [
+        {
+          column: 'create_time',
+          sort: 'DESC'
+        }
+      ]
     };
   },
   created () {
@@ -152,6 +157,16 @@ export default {
     this.getData();
   },
   methods: {
+    // 排序
+    handleSortChange (value) {
+      this.sortColumns = (value || []).map(item => {
+        return {
+          column: (item.field || '').replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, ''),
+          sort: (item.order || '').toUpperCase()
+        };
+      });
+      this.getData();
+    },
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
@@ -270,7 +285,7 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
-
+      data.sortColumns = this.sortColumns;
       return data;
     },
     async fetchOptions (code) {

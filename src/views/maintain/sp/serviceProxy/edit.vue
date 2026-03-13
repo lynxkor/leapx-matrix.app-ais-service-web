@@ -530,7 +530,12 @@ export default {
         const entrustInfo = await this.$refs.entrustInfoRef.getFormData();
         const batteryInfo = await this.$refs.batteryInfoRef.getFormData();
         this.submitLoading = true;
-        addOrUpdate({ ...this.form, ...basicInfo, ...entrustInfo, ...batteryInfo }).then(res => {
+        const data = { ...this.form, ...basicInfo, ...entrustInfo, ...batteryInfo };
+        // 后端要求新开单增加isAddItems字段
+        if (!this._id) {
+          data.isAddItems = 0;
+        }
+        addOrUpdate(data).then(res => {
           this.$message({
             message: '保存成功',
             type: 'success'

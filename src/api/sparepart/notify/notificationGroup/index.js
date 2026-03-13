@@ -43,3 +43,27 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 通知组对象表分页查询
+ * @param {Object} data
+ */
+export function notificationGroupPage (data) {
+  return api.jsonPost('/sp/web/other/notificationGroupDetail/page', data);
+}
+
+/**
+ * 通知组对象表删除
+ * @param {Object} data
+ */
+export function notificationGroupDelete (data) {
+  return api.jsonPost('/sp/web/other/notificationGroupDetail/delete', data);
+}
+
+/**
+ * 通知组对象表新增/编辑
+ * @param {Object} data
+ */
+export function notificationGroupAdd (data) {
+  return api.jsonPost('/sp/web/other/notificationGroupDetail/addOrUpdate', data);
+}
