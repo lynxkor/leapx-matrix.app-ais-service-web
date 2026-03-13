@@ -527,6 +527,7 @@ export default {
       this.selectedRepairItem = null;
       this.selectedRepairPart = null;
       this.selectedDiscount = {};
+      this.checkoutTypeMap = {};
     },
     addItem () {
       // 验证是否选择了维修项目

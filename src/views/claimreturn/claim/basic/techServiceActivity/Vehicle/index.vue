@@ -26,6 +26,7 @@
           :moduleKey="moduleKey"
           ref="vehicleTable"
           :id="id"
+          :isServiceCareActivity="isServiceCareActivity"
           />
       </section>
     </div>
@@ -64,6 +65,9 @@ export default {
     moduleKey: {
       type: String,
       required: true,
+    },
+    isServiceCareActivity: {
+      type: Boolean,
     }
   },
   mixins: [permissions],

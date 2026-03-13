@@ -19,7 +19,7 @@
                     <el-button size="small" @click="handleImport" v-if="!isCanceled">上传附件</el-button>
                     <el-button size="small" @click="handleShowLog">审核日志</el-button>
                     <!-- 流程操作按钮 -->
-                    <el-button size="small" @click="discardDialogVisible = true" v-if="!isCompleted">作废</el-button>
+                    <el-button size="small" @click="discardDialogVisible = true" v-if="!isCompleted && !form.isCreateStatementInfo">作废</el-button>
                     <el-button size="small" @click="materialReturnDialogVisible = true" v-if="!isCompleted && hasRepairItems">退料</el-button>
                     <el-button size="small" @click="handlePreCheck" v-if="orderStatus === RepairOrderStatusEnum.RECEPTION_INSPECTION">预检确认</el-button>
                     <el-button size="small" @click="handleCreatingOrder" v-if="orderStatus === RepairOrderStatusEnum.CREATING_ORDER && hasItems">制单确认并签字</el-button>
@@ -396,6 +396,7 @@ export default {
         RepairOrderStatusEnum.CANCEL
       ].includes(this.orderStatus);
     },
+
     // 是否在施工中(待派工或施工中)
     isInConstruction () {
       return [
@@ -529,7 +530,12 @@ export default {
         const entrustInfo = await this.$refs.entrustInfoRef.getFormData();
         const batteryInfo = await this.$refs.batteryInfoRef.getFormData();
         this.submitLoading = true;
-        addOrUpdate({ ...this.form, ...basicInfo, ...entrustInfo, ...batteryInfo }).then(res => {
+        const data = { ...this.form, ...basicInfo, ...entrustInfo, ...batteryInfo };
+        // 后端要求新开单增加isAddItems字段
+        if (!this._id) {
+          data.isAddItems = 0;
+        }
+        addOrUpdate(data).then(res => {
           this.$message({
             message: '保存成功',
             type: 'success'
