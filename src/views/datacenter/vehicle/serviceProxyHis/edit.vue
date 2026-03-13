@@ -1,10 +1,10 @@
 <template>
-  <edit-page-layout ref="editLayout" title="接车施工单-维修履历详情">
+  <edit-page-layout ref="editLayout" title="维修履历详情">
     <template #left>
       <edit-base-container
         ref="containerRef"
         :id="_id"
-        :title="`接车施工单：${form.serviceProxyCode || '-'}`"
+        :title="`维修履历编号：${form.serviceProxyCode || '-'}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
         :detailRequest="detailRequest"
@@ -103,7 +103,7 @@
                   <vxe-column field="discountAmount" title="优惠金额" min-width="120" />
                   <vxe-column field="discountRate" title="折扣率" min-width="100" />
                   <vxe-column field="repairAmount" title="项目金额" min-width="120" />
-                  <vxe-column field="activityNo" title="活动编号" min-width="150" />
+                  <vxe-column field="packageCode" title="活动编号" min-width="150" />
                   <template #empty>
                     <div class="m-vxe-table-empty-text">暂无维修项目数据</div>
                   </template>
@@ -149,7 +149,7 @@
                   <vxe-column field="discountAmount" title="优惠金额" min-width="120" />
                   <vxe-column field="discountRate" title="折扣率" min-width="100" />
                   <vxe-column field="partsAmount" title="配件金额" min-width="120" />
-                  <vxe-column field="activityNo" title="活动编号" min-width="150" />
+                  <vxe-column field="packageCode" title="活动编号" min-width="150" />
                   <template #empty>
                     <div class="m-vxe-table-empty-text">暂无维修配件数据</div>
                   </template>
@@ -234,7 +234,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '接车施工单-维修履历信息管理',
+      pageTitle: '维修履历详情',
       pageType: 'edit',
       moduleKey: 'AISMC-serviceProxyHis',
       loading: false,
@@ -251,8 +251,8 @@ export default {
         const res = await getDetail(id);
         // 处理子表数据
         if (res) {
-          this.repairItemRespList = res.repairItemRespList || [];
-          this.sparePartRespList = res.sparePartRespList || [];
+          this.repairItemRespList = res.costCountResp?.repairItemRespList || [];
+          this.sparePartRespList = res.costCountResp?.sparePartRespList || [];
         } else {
           this.repairItemRespList = [];
           this.sparePartRespList = [];

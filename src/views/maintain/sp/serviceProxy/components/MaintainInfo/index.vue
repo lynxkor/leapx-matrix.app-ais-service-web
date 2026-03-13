@@ -17,7 +17,11 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="serviceProxyCode" title="接车施工单号" min-width="200"/>
+          <vxe-column field="serviceProxyCode" title="接车施工单号" min-width="200" >
+            <template #default="{ row }">
+              <el-link type="success" :href="`/service/datacenter/vehicle/serviceProxyHis/edit?id=${row.id}`" target="_blank">{{ row.serviceProxyCode }}</el-link>
+            </template>
+          </vxe-column>
           <vxe-column field="dealerName" title="维修门店名称" min-width="200"/>
           <vxe-column field="orderTime" title="开单时间" width="160"/>
           <vxe-column field="repairFinishTime" title="维修完工时间" width="160"/>

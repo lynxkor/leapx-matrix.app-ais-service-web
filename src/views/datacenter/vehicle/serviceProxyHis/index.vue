@@ -257,7 +257,7 @@ export default {
       }
       exportTable({
         businessType: '接车施工单-维修履历信息管理',
-        dataFetchPath: 'datacenter/web/vehicle/serviceProxyHis/page',
+        dataFetchPath: 'maintain/web/sp/serviceProxyHis/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
