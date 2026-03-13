@@ -88,3 +88,35 @@ export function addOrUpdateVehicleModel (data) {
 export function deleteVehicleModel (data) {
   return api.jsonPost(modelPrefix + 'delete', data);
 }
+
+/**
+ * 允许 BO 调拨
+ * @param {Object} data
+ */
+export function allowBoTransfer (data) {
+  return api.jsonPost(prefix + 'allowBoTransfer', data);
+}
+
+/**
+ * 禁止 BO 调拨
+ * @param {Object} data
+ */
+export function forbidBoTransfer (data) {
+  return api.jsonPost(prefix + 'forbidBoTransfer', data);
+}
+
+/**
+ * 允许备附件销售
+ * @param {Object} data
+ */
+export function allowPartsAttachmentSales (data) {
+  return api.jsonPost(prefix + 'allowPartsAttachmentSales', data);
+}
+
+/**
+ * 禁止备附件销售
+ * @param {Object} data
+ */
+export function forbidPartsAttachmentSales (data) {
+  return api.jsonPost(prefix + 'forbidPartsAttachmentSales', data);
+}
