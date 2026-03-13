@@ -33,8 +33,8 @@
                 <vxe-column type="checkbox" width="60" align="center" />
                 <vxe-column field="partCode" title="备件编码" />
                 <vxe-column field="partName" title="备件名称" />
-                <vxe-column field="inboundOrderId" title="入库单号" />
-                <vxe-column field="purchaseOrderId" title="采购单号" />
+                <vxe-column field="inboundOrderCode" title="入库单号" />
+                <vxe-column field="purchaseOrderCode" title="采购单号" />
                 <vxe-column field="purchaseDate" title="采购日期" />
                 <vxe-column field="availableQty" title="可用库存" />
                 <vxe-column field="inboundQty" title="入库数量" />

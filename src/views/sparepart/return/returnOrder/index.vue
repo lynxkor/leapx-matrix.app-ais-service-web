@@ -154,7 +154,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, returnOrderCancel, returnOrderAgree, returnOrderRevoke, returnOrderReject } from '@/api/sparepart/return/returnOrder/index';
+import { getList, deleteItem, enableItem, returnOrderCancel, returnOrderAgree, returnOrderRevoke, returnOrderCommit, returnOrderReject } from '@/api/sparepart/return/returnOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -350,8 +350,20 @@ export default {
               show: (row) => {
                 return row.returnStatus === '10' || row.returnStatus === '30';
               },
+              popconfirmTitle: '是否提交退货申请?',
               click: (rowIndex, row) => {
-                this.handleSubmit(row);
+                returnOrderCommit({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '提交成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '提交失败!'
+                  });
+                });
               },
               type: 'info'
             }, {
