@@ -152,7 +152,6 @@ export default {
   },
   computed: {
     optionObj () {
-      const isDealer = this.isDealer;
       return {
         id: this.moduleKey,
         dataList: this.tableDataList,
@@ -167,7 +166,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 let path = '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit';
-                if (isDealer) {
+                if (this.isDealer) {
                   path = '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder/edit';
                 }
                 this.$router.push({
@@ -217,7 +216,7 @@ export default {
               },
               click: (rowIndex, row) => {
                 let path = '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit';
-                if (isDealer) {
+                if (this.isDealer) {
                   path = '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder/edit';
                 }
                 this.$router.push({

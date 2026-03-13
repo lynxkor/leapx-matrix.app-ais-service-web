@@ -260,6 +260,7 @@
             <vehicle
               :id="_id"
               :moduleKey="moduleKey"
+              :isServiceCareActivity="isServiceCareActivity"
             />
             <file-config
               :id="_id"

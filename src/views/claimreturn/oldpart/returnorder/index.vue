@@ -206,7 +206,6 @@ export default {
       return this.permissions.has(`${this.moduleKey}-sign`);
     },
     optionObj () {
-      const isDealer = this.isDealer;
       return {
         id: this.$route.meta.moduleKey,
         dataList: this.tableDataList,
@@ -271,7 +270,7 @@ export default {
               name: '编辑',
               show: (row) => {
                 // 门店不展示编辑
-                if (isDealer) {
+                if (this.isDealer) {
                   return false;
                 }
                 return true;
