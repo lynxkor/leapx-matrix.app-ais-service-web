@@ -26,24 +26,29 @@
           @input="handleSearch"
         />
       </div>
-      <div class="list-wrapper">
-         <div
-          v-for="item in packageList"
-          :key="item.id"
-          :class="['list-item', { 'is-selected': selectedPackage?.id === item.id }]"
-          @click="handleSelectPackage(item)"
-        >
-          <div class="list-item__content">
-            <div class="list-item__name">{{ item.packageName }}</div>
-            <div class="list-item__code">{{ item.spellCode }}</div>
-          </div>
-          <i v-if="item.used" class="el-icon-success selected-icon"></i>
+      <div class="list-wrapper" v-loading="listLoading">
+        <template v-if="packageList.length">
+          <div
+           v-for="item in packageList"
+           :key="item.id"
+           :class="['list-item', { 'is-selected': selectedPackage?.id === item.id, 'is-disabled': detailLoading }]"
+           @click="handleSelectPackage(item)"
+         >
+           <div class="list-item__content">
+             <div class="list-item__name">{{ item.packageName }}</div>
+             <div class="list-item__code">{{ item.spellCode }}</div>
+           </div>
+           <i v-if="item.used" class="el-icon-success selected-icon"></i>
+         </div>
+        </template>
+        <div v-else class="list-empty">
+          <div class="empty-text">没有找到相关内容</div>
         </div>
       </div>
     </div>
 
     <!-- 右侧详情 -->
-    <div class="right-panel">
+    <div class="right-panel" v-loading="detailLoading">
       <div v-if="selectedPackage" class="detail-content">
         <!-- 套餐标题 -->
         <div class="detail-header">{{ selectedPackage.packageName }}</div>
@@ -161,7 +166,8 @@ export default {
       packageTypeList: [],
       selectedType: '',
       projectList: [],
-      loading: false,
+      listLoading: false,
+      detailLoading: false,
       searchTimer: null
     };
   },
@@ -201,7 +207,11 @@ export default {
     async loadPackageType () {
       try {
         const res = await getRpListType({ id: this.vehicleInfo.id });
-        this.packageTypeList = res || [];
+        const list = [{
+          id: '',
+          name: '全部套餐'
+        }].concat(res || []);
+        this.packageTypeList = list;
       } catch (error) {
         console.error('获取套餐类型失败', error);
       }
@@ -209,7 +219,7 @@ export default {
     // 获取套餐列表
     async loadPackageList () {
       try {
-        this.loading = true;
+        this.listLoading = true;
         const params = {
           id: this.vehicleInfo.id
         };
@@ -235,10 +245,11 @@ export default {
         console.error('获取套餐列表失败', error);
         this.packageList = [];
       } finally {
-        this.loading = false;
+        this.listLoading = false;
       }
     },
     handleSelectPackage (item) {
+      if (this.detailLoading) return;
       this.selectedPackage = item;
       this.loadProjectDetail(item);
     },
@@ -246,6 +257,7 @@ export default {
     async loadProjectDetail (pkg) {
       if (!pkg?.id) return;
       try {
+        this.detailLoading = true;
         const params = {
           packageId: pkg.id,
           id: this.vehicleInfo.id
@@ -259,6 +271,8 @@ export default {
       } catch (error) {
         console.error('获取套餐详情失败', error);
         this.projectList = [];
+      } finally {
+        this.detailLoading = false;
       }
     },
     toggleProject (project) {
@@ -336,6 +350,19 @@ export default {
     width: 100%;
     padding: 0 16px;
     text-align: left;
+  }
+
+  .list-empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 150px;
+
+    .empty-text {
+      color: var(--leap-color-default-light-1);
+      font-size: 14px;
+    }
   }
 
   // 左侧面板

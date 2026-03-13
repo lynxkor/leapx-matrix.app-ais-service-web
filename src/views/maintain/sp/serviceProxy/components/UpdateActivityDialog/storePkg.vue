@@ -9,10 +9,10 @@
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item
             v-for="item in packageTypeList"
-            :key="item.id"
-            :command="item.id"
+            :key="item.code"
+            :command="item.code"
           >
-            {{ item.name }}
+            {{ item.message }}
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -26,24 +26,27 @@
           @input="handleSearch"
         />
       </div>
-      <div class="list-wrapper">
-         <div
-          v-for="item in packageList"
-          :key="item.id"
-          :class="['list-item', { 'is-selected': selectedPackage?.id === item.id }]"
-          @click="handleSelectPackage(item)"
-        >
-          <div class="list-item__content">
-            <div class="list-item__name">{{ item.packageName }}</div>
-            <div class="list-item__code">{{ item.spellCode }}</div>
+      <div class="list-wrapper" v-loading="listLoading">
+        <template v-if="packageList.length > 0">
+          <div
+            v-for="item in packageList"
+            :key="item.id"
+            :class="['list-item', { 'is-selected': selectedPackage?.id === item.id, 'is-disabled': detailLoading }]"
+            @click="handleSelectPackage(item)"
+          >
+            <div class="list-item__content">
+              <div class="list-item__name">{{ item.interestsGoodsName }}</div>
+              <div class="list-item__code">{{ item.interestsGoodsCode }}</div>
+            </div>
+            <i v-if="item.used" class="el-icon-success selected-icon"></i>
           </div>
-          <i v-if="item.used" class="el-icon-success selected-icon"></i>
-        </div>
+        </template>
+        <div v-else class="list-empty">暂无数据</div>
       </div>
     </div>
 
     <!-- 右侧详情 -->
-    <div class="right-panel">
+    <div class="right-panel" v-loading="detailLoading">
       <div v-if="selectedPackage" class="detail-content">
         <!-- 套餐标题 -->
         <div class="detail-header">商品明细</div>
@@ -78,11 +81,11 @@
               <div class="info-row">
                 <div class="info-item">
 									<span class="label">工时单价：</span>
-									<span class="value">{{ project.price }}</span>
+									<span class="value">{{ project.unitPrice }}</span>
                 </div>
                 <div class="info-item">
 									<span class="label">工时数：</span>
-									<span class="value">{{ project.workHour }}</span>
+									<span class="value">{{ project.workingHours }}</span>
                 </div>
               </div>
               <div class="info-row">
@@ -92,34 +95,36 @@
                 </div>
                 <div class="info-item">
                   <span class="label">项目金额：</span>
-                  <span class="value">{{ project.actualAmount }}</span>
+                  <span class="value">{{ project.receivableAmount }}</span>
                 </div>
               </div>
               <div class="info-row remark-row">
                 <span class="label">索赔金额：</span>
-                <span class="value">{{ project.remark }}</span>
+                <span class="value">{{ project.claimPrice }}</span>
               </div>
 
               <!-- 维修零件表格 -->
               <div class="parts-section">
                 <div class="section-title">维修零件</div>
                 <vxe-table
-                  :data="project.partRespList"
+                  :data="project.goodsPartsList"
                   stripe
+                  resizable
                   border="inner"
                   size="small"
                   min-height="0"
-                  max-height="200px"
+                  max-height="300px"
+                  show-overflow
                 >
-									<vxe-column field="partsName" title="零件名称" min-width="140" />
+									<vxe-column field="partsName" title="零件名称" min-width="200" />
                   <vxe-column field="partsCode" title="零件代码" min-width="140" />
                   <vxe-column field="repairItemTypeName" title="维修类型" min-width="100" />
                   <vxe-column field="checkoutTypeName" title="结算类型" min-width="100" />
-                  <vxe-column field="warrantyTypeName" title="数量" min-width="100" />
-                  <vxe-column field="warrantyTypeName" title="单价" min-width="100" />
-                  <vxe-column field="warrantyTypeName" title="优惠金额" min-width="100" />
-                  <vxe-column field="warrantyTypeName" title="零件金额" min-width="100" />
-                  <vxe-column field="warrantyTypeName" title="索赔金额" min-width="100" />
+                  <vxe-column field="totalAmount" title="数量" min-width="100" />
+                  <vxe-column field="unitPrice" title="单价" min-width="100" />
+                  <vxe-column field="discountAmount" title="优惠金额" min-width="100" />
+                  <vxe-column field="receivableAmount" title="零件金额" min-width="100" />
+                  <vxe-column field="claimPrice" title="索赔金额" min-width="100" />
                 </vxe-table>
               </div>
             </div>
@@ -129,10 +134,10 @@
         <!-- 底部操作栏 -->
         <div class="footer-bar">
           <el-popconfirm
-            :title="!selectedPackage?.used ? '确定取消使用该维修套餐？' : '确定选择使用该维修套餐？'"
+            :title="!selectedPackage?.used ? '确定取消使用该商城订单？' : '确定选择使用该商城订单？'"
             @confirm="handleConfirm"
           >
-            <el-button :type="!selectedPackage?.used ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
+            <el-button :type="selectedPackage?.used ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
           </el-popconfirm>
         </div>
       </div>
@@ -146,7 +151,7 @@
 </template>
 
 <script>
-import { getRpList, getRpListType, getRpDetail, useRp, cancel } from '@/api/maintain/sp/serviceProxy/special';
+import { getEoList, getEoListType, getEoDetail, useEo, cancel, getEnum } from '@/api/maintain/sp/serviceProxy/special';
 
 export default {
   name: 'MaintainPkg',
@@ -164,17 +169,18 @@ export default {
       packageTypeList: [],
       selectedType: '',
       projectList: [],
-      loading: false,
+      listLoading: false,
+      detailLoading: false,
       searchTimer: null
     };
   },
   computed: {
     selectedTypeName () {
       if (!this.selectedType) {
-        return '全部套餐';
+        return '全部订单';
       }
-      const type = this.packageTypeList.find(item => item.id === this.selectedType);
-      return type?.name || '全部套餐';
+      const type = this.packageTypeList.find(item => item.code === this.selectedType);
+      return type?.message || '全部订单';
     },
     confirmBtnText () {
       return this.selectedPackage?.used ? '取消选择' : '核销使用';
@@ -203,8 +209,11 @@ export default {
     // 获取套餐类型
     async loadPackageType () {
       try {
-        const res = await getRpListType({ id: this.vehicleInfo.id });
-        this.packageTypeList = res || [];
+        const res = await getEnum('InterestsTypeEnum');
+        this.packageTypeList = [{
+          code: '',
+          message: '全部订单'
+        }].concat(res || []);
       } catch (error) {
         console.error('获取套餐类型失败', error);
       }
@@ -212,7 +221,7 @@ export default {
     // 获取套餐列表
     async loadPackageList () {
       try {
-        this.loading = true;
+        this.listLoading = true;
         const params = {
           id: this.vehicleInfo.id
         };
@@ -222,7 +231,7 @@ export default {
         if (this.searchKey) {
           params.searchKey = this.searchKey;
         }
-        const res = await getRpList(params);
+        const res = await getEoList(params);
         this.packageList = (res || []).map(item => ({
           ...item,
           selected: item.selected || false
@@ -238,10 +247,11 @@ export default {
         console.error('获取套餐列表失败', error);
         this.packageList = [];
       } finally {
-        this.loading = false;
+        this.listLoading = false;
       }
     },
     handleSelectPackage (item) {
+      if (this.detailLoading) return;
       this.selectedPackage = item;
       this.loadProjectDetail(item);
     },
@@ -249,19 +259,21 @@ export default {
     async loadProjectDetail (pkg) {
       if (!pkg?.id) return;
       try {
+        this.detailLoading = true;
         const params = {
           packageId: pkg.id,
           id: this.vehicleInfo.id
         };
-        const res = await getRpDetail(params);
-        this.projectList = (res || []).itemRespList?.map(item => ({
+        const res = await getEoDetail(params);
+        this.projectList = res?.interestsGoodsResp?.goodsRepairItemList?.map(item => ({
           ...item,
           expanded: true,
-          partsList: item.partsList || []
         }));
       } catch (error) {
         console.error('获取套餐详情失败', error);
         this.projectList = [];
+      } finally {
+        this.detailLoading = false;
       }
     },
     toggleProject (project) {
@@ -313,7 +325,7 @@ export default {
           packageId: this.selectedPackage.id,
           id: this.vehicleInfo.id,
         };
-        await useRp(params);
+        await useEo(params);
         this.selectedPackage.used = true;
         this.$message.success('使用成功');
         return true;
@@ -359,6 +371,13 @@ export default {
       overflow-y: auto;
       padding: 0 12px;
       max-height: 620px;
+
+      .list-empty {
+        text-align: center;
+        color: var(--leap-color-default-light-2);
+        font-size: 14px;
+        padding: 40px 0;
+      }
     }
 
     .list-item {

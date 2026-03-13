@@ -122,3 +122,35 @@ export function getFpDetail (data) {
 export function useFp (data) {
   return api.jsonPost(prefix + 'fp/use', data);
 };
+
+/**
+ * 特殊开单--商品订单--列表查询
+ * @param {Object} data
+ */
+export function getEoList (data) {
+  return api.jsonPost(prefix + 'eo/list', data);
+};
+
+/**
+ * 特殊开单--商品订单--套餐类型
+ * @param {Object} data
+ */
+export function getEoListType (data) {
+  return api.jsonPost(prefix + 'eo/list/class', data);
+};
+
+/**
+ * 特殊开单--商品订单--详情
+ * @param {Object} data
+ */
+export function getEoDetail (data) {
+  return api.jsonPost(prefix + 'eo/detail', data);
+};
+
+/**
+ * 特殊开单--商品订单--使用
+ * @param {Object} data
+ */
+export function useEo (data) {
+  return api.jsonPost(prefix + 'eo/use', data);
+};
