@@ -204,7 +204,7 @@ export default {
       ],
       rules: {
         code: [
-          { required: true, message: '请输入通知组编码', trigger: 'change' }
+          { required: false, message: '请输入通知组编码', trigger: 'change' }
         ],
         groupName: [
           { required: true, message: '请输入通知组名称', trigger: 'change' }
