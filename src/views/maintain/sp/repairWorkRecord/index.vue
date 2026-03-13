@@ -68,7 +68,8 @@ export default {
     Upload,
     DealerSelect
   },
-  data() {
+
+  data () {
     return {
       pageTitle: '质检记录',
       pageType: 'list',
@@ -146,36 +147,36 @@ export default {
       }
     };
   },
-  created() {
+  created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },
   methods: {
-    handleListSelect(row) {
+    handleListSelect (row) {
       this.clickItemId = row.id;
     },
-    handleImport() {
+    handleImport () {
       this.uploadDialogVisible = true;
     },
-    handleUploadDialogClose() {
+    handleUploadDialogClose () {
       this.uploadDialogVisible = false;
     },
-    handleAdd() {
+    handleAdd () {
       this.$router.push({
         path: '/maintain/sp/spRepairWorkRecord/edit'
       });
     },
-    onSubmit() {
+    onSubmit () {
       this.optionObj.form.page = 1;
       this.getData();
     },
-    onReset() {
+    onReset () {
       this.form = { ...defaultForm };
       this.optionObj.form.page = 1;
       this.optionObj.form.pageSize = pageSize;
       this.getData();
     },
-    exportExcel() {
+    exportExcel () {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
       if (this.selectionList.length > 0) {
@@ -208,7 +209,7 @@ export default {
         this.exportLoading = false;
       });
     },
-    getData() {
+    getData () {
       this.loading = true;
       this.selectionList = [];
 
@@ -230,7 +231,7 @@ export default {
     debouncedGetData: debounce(function () {
       this.getData();
     }, 300),
-    getConfig() {
+    getConfig () {
       return new Promise((resolve, reject) => {
         getTableConfig(this.optionObj.id).then(data => {
           resolve({ data });
@@ -241,10 +242,10 @@ export default {
         });
       });
     },
-    saveOrUpdate(data) {
+    saveOrUpdate (data) {
       return tableAddOrUpdate(data);
     },
-    paginationChange(type, num) {
+    paginationChange (type, num) {
       if (type === 'page') {
         this.optionObj.form.page = num;
       } else {
@@ -253,7 +254,7 @@ export default {
       this.debouncedGetData();
     },
 
-    getFormData() {
+    getFormData () {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
@@ -272,14 +273,14 @@ export default {
 
       return data;
     },
-    async fetchOptions(code) {
+    async fetchOptions (code) {
       if (code) {
         return getEnum(code);
       }
       return [];
     },
     // 批量删除
-    handleBatchDelete() {
+    handleBatchDelete () {
       const ids = this.selectionList.map(item => item.id) || [];
       this.$confirm('此操作将永久删除, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -301,7 +302,7 @@ export default {
       }).catch(() => { });
     },
     // 批量启用停用
-    handleBatchEnable(status) {
+    handleBatchEnable (status) {
       handleBatchStatusChange.call(this, {
         selectionList: this.selectionList,
         targetStatus: status,
