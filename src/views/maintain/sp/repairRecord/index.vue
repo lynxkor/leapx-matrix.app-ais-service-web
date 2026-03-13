@@ -1,95 +1,42 @@
 <template>
   <div class="page-common m-sp-repair-work-record-list">
     <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
-    <el-form
-      :inline="true"
-      :model="form"
-      size="small"
-      label-position="right"
-      label-width="150px"
-      class="ais-search-form"
-    >
+    <el-form :inline="true" :model="form" size="small" label-position="right" label-width="150px"
+      class="ais-search-form">
       <template>
         <el-form-item label="作业编码" prop="code">
           <el-input v-model="form.code" placeholder="请输入编号" clearable />
         </el-form-item>
         <el-form-item label="施工单号" prop="serviceProxyCode">
-          <el-input
-            v-model="form.serviceProxyCode"
-            placeholder="请输入编号"
-            clearable
-          />
+          <el-input v-model="form.serviceProxyCode" placeholder="请输入编号" clearable />
         </el-form-item>
         <el-form-item label="门店" v-show="this.visibleCount === 3 || show">
           <dealer-select v-model="form.dealerCodes" multiple />
         </el-form-item>
       </template>
-      <page-search-action
-        v-model="show"
-        is-expandable
-        :loading="loading"
-        @submit="onSubmit"
-        @reset="onReset"
-      />
+      <page-search-action v-model="show" is-expandable :loading="loading" @submit="onSubmit" @reset="onReset" />
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button
-        v-if="canAddOrUpdate"
-        size="small"
-        type="primary"
-        @click="handleAdd"
-        ><i class="iconfont icon-lxppc-plus"></i>新增</el-button
-      >
-      <el-button v-if="canImport" size="small" @click="handleImport"
-        >导入</el-button
-      >
-      <el-button :loading="exportLoading" size="small" @click="exportExcel"
-        >导出</el-button
-      >
-      <el-button
-        v-if="canDelete"
-        size="small"
-        @click="handleBatchDelete"
-        :disabled="selectionList.length === 0"
-        >批量删除</el-button
-      >
-      <el-button
-        v-if="canEnableOrDisable"
-        size="small"
-        @click="handleBatchEnable(1)"
-        :disabled="selectionList.length === 0"
-        >批量启用</el-button
-      >
-      <el-button
-        v-if="canEnableOrDisable"
-        size="small"
-        @click="handleBatchEnable(0)"
-        :disabled="selectionList.length === 0"
-        >批量停用</el-button
-      >
+      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i
+          class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button v-if="canDelete" size="small" @click="handleBatchDelete"
+        :disabled="selectionList.length === 0">批量删除</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)"
+        :disabled="selectionList.length === 0">批量启用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)"
+        :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
     <div class="ais-table-c">
-      <LPVxeTable
-        ref="tableRef"
-        v-loading="loading"
-        is-page
-        :option-obj="optionObj"
-        :get-config="getConfig"
-        :save-or-update="saveOrUpdate"
-        @paginationChange="paginationChange"
-        @listSelect="handleListSelect"
-        showIndex
-      >
+      <LPVxeTable ref="tableRef" v-loading="loading" is-page :option-obj="optionObj" :get-config="getConfig"
+        :save-or-update="saveOrUpdate" @paginationChange="paginationChange" @listSelect="handleListSelect">
         <EditPage slot="centralizedViewSlot" :id="clickItemId" />
       </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
-    <Upload
-      :visible="uploadDialogVisible"
-      :id="'1'"
-      @close="handleUploadDialogClose"
-    />
+    <Upload :visible="uploadDialogVisible" :id="'1'" @close="handleUploadDialogClose" />
   </div>
 </template>
 
@@ -131,7 +78,7 @@ export default {
     Upload,
     DealerSelect,
   },
-  data () {
+  data() {
     return {
       pageTitle: '维修作业记录',
       pageType: 'list',
@@ -158,6 +105,12 @@ export default {
         dataProp: [
           {
             props: 'code',
+            label: '编号',
+            visible: true,
+            width: 200,
+          },
+          {
+            props: 'serviceProxyCode',
             label: '施工单号',
             visible: true,
             width: 200,
@@ -295,36 +248,36 @@ export default {
       },
     };
   },
-  created () {
+  created() {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },
   methods: {
-    handleListSelect (row) {
+    handleListSelect(row) {
       this.clickItemId = row.id;
     },
-    handleImport () {
+    handleImport() {
       this.uploadDialogVisible = true;
     },
-    handleUploadDialogClose () {
+    handleUploadDialogClose() {
       this.uploadDialogVisible = false;
     },
-    handleAdd () {
+    handleAdd() {
       this.$router.push({
         path: '/maintain/sp/spRepairWorkRecord/edit',
       });
     },
-    onSubmit () {
+    onSubmit() {
       this.optionObj.form.page = 1;
       this.getData();
     },
-    onReset () {
+    onReset() {
       this.form = { ...defaultForm };
       this.optionObj.form.page = 1;
       this.optionObj.form.pageSize = pageSize;
       this.getData();
     },
-    exportExcel () {
+    exportExcel() {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
       if (this.selectionList.length > 0) {
@@ -362,7 +315,7 @@ export default {
           this.exportLoading = false;
         });
     },
-    getData () {
+    getData() {
       this.loading = true;
       this.selectionList = [];
 
@@ -389,7 +342,7 @@ export default {
     debouncedGetData: debounce(function () {
       this.getData();
     }, 300),
-    getConfig () {
+    getConfig() {
       return new Promise((resolve, reject) => {
         getTableConfig(this.optionObj.id)
           .then((data) => {
@@ -402,10 +355,10 @@ export default {
           });
       });
     },
-    saveOrUpdate (data) {
+    saveOrUpdate(data) {
       return tableAddOrUpdate(data);
     },
-    paginationChange (type, num) {
+    paginationChange(type, num) {
       if (type === 'page') {
         this.optionObj.form.page = num;
       } else {
@@ -414,7 +367,7 @@ export default {
       this.debouncedGetData();
     },
 
-    getFormData () {
+    getFormData() {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach((key) => {
@@ -433,14 +386,14 @@ export default {
 
       return data;
     },
-    async fetchOptions (code) {
+    async fetchOptions(code) {
       if (code) {
         return getEnum(code);
       }
       return [];
     },
     // 批量删除
-    handleBatchDelete () {
+    handleBatchDelete() {
       const ids = this.selectionList.map((item) => item.id) || [];
       this.$confirm('此操作将永久删除, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -463,10 +416,10 @@ export default {
               });
             });
         })
-        .catch(() => {});
+        .catch(() => { });
     },
     // 批量启用停用
-    handleBatchEnable (status) {
+    handleBatchEnable(status) {
       handleBatchStatusChange.call(this, {
         selectionList: this.selectionList,
         targetStatus: status,
@@ -501,6 +454,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.m-sp-repair-work-record-list {
-}
+.m-sp-repair-work-record-list {}
 </style>
