@@ -2330,6 +2330,22 @@ const routes = [
         name: '保修附件设置详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/file/attachmentConfig',
+      name: 'attachmentConfig',
+      component: () => import('@/views/file/attachmentConfig/index.vue'),
+      meta: {
+        name: '附件配置管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/file/attachmentConfig/edit',
+      name: 'attachmentConfigEdit',
+      component: () => import('@/views/file/attachmentConfig/edit.vue'),
+      meta: {
+        name: '附件配置详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
