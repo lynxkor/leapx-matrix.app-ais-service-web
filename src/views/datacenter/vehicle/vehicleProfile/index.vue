@@ -44,13 +44,13 @@
           />
         </el-form-item>
         <el-form-item label="整车订单">
-          <tag-input v-model="form.vehicleOrderId" placeholder="请输入" />
+          <tag-input v-model="form.vehicleOrderList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="商城订单">
-          <tag-input v-model="form.shopcode" placeholder="请输入" />
+          <tag-input v-model="form.shopcodeList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="企业整车订单">
-          <tag-input v-model="form.vehicleEnterpriseOrder" placeholder="请输入" />
+          <tag-input v-model="form.vehicleEnterpriseOrderList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="保修开始日期">
           <el-date-picker
@@ -138,14 +138,10 @@
           />
         </el-form-item>
         <el-form-item label="交付门店编码">
-          <dealer-select v-model="form.deliveryDealerCode" multiple/>
+          <dealer-select v-model="form.deliveryDealerCodeList" multiple/>
         </el-form-item>
         <el-form-item label="交付门店名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.deliveryDealerName"
-            clearable
-          />
+          <dealer-select v-model="form.deliveryDealerNameList" multiple/>
         </el-form-item>
         <el-form-item label="服务门店编码">
           <dealer-select v-model="form.serviceDealerCode" multiple/>
@@ -187,7 +183,7 @@
           <list-select
             listUrl="/datacenter/web/materials/vehicleSeries/list"
             placeholder="请选择"
-            v-model="form.seriesIds"
+            v-model="form.vehicleSeriesIdList"
             query-key="seriesNameLike"
             clearable
             collapseTags
@@ -201,95 +197,85 @@
           <list-select
             listUrl="/datacenter/web/materials/vehicleModel/list"
             placeholder="请选择"
-            v-model="form.modelIds"
+            v-model="form.vehicleModelIdList"
             query-key="modelNameLike"
             clearable
             auto-load-options
             collapseTags
             multiple
             filterable
-            :params="{seriesIdList: form.seriesIds}"
+            :params="{seriesIdList: form.vehicleSeriesIdList}"
             />
         </el-form-item>
         <el-form-item label="动力">
-          <el-select
-            v-model="form.powerType"
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleRangePower/list"
             placeholder="请选择"
+            v-model="form.rangePowerIdList"
+            query-key="rangePowerNameLike"
             clearable
+            auto-load-options
+            collapseTags
             multiple
-            collapse-tags
-          >
-            <el-option
-              v-for="item in []"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+            filterable
+            :params="{}"
             />
-          </el-select>
         </el-form-item>
         <el-form-item label="续航">
-          <el-select
-            v-model="form.endurance"
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleDrivingRange/list"
             placeholder="请选择"
+            v-model="form.drivingRangeIdList"
+            query-key="drivingRangeNameLike"
             clearable
+            auto-load-options
+            collapseTags
             multiple
-            collapse-tags
-          >
-            <el-option
-              v-for="item in []"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+            filterable
+            :params="{}"
             />
-          </el-select>
         </el-form-item>
         <el-form-item label="外饰">
-          <el-select
-            v-model="form.exterior"
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleExterior/list"
             placeholder="请选择"
+            v-model="form.exteriorIdList"
+            query-key="exteriorNameLike"
             clearable
+            auto-load-options
+            collapseTags
             multiple
-            collapse-tags
-          >
-            <el-option
-              v-for="item in []"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+            filterable
+            :params="{}"
             />
-          </el-select>
         </el-form-item>
         <el-form-item label="内饰">
-          <el-select
-            v-model="form.interior"
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleInterior/list"
             placeholder="请选择"
+            v-model="form.interiorIdList"
+            query-key="interiorNameLike"
             clearable
+            auto-load-options
+            collapseTags
             multiple
-            collapse-tags
-          >
-            <el-option
-              v-for="item in []"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+            filterable
+            :params="{}"
             />
-          </el-select>
         </el-form-item>
         <el-form-item label="轮毂">
-          <el-select
-            v-model="form.wheelHub"
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleWheelHub/list"
             placeholder="请选择"
+            v-model="form.wheelHubIdList"
+            query-key="wheelHubNameLike"
             clearable
+            auto-load-options
+            collapseTags
             multiple
-            collapse-tags
-          >
-            <el-option
-              v-for="item in []"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+            filterable
+            :params="{}"
             />
-          </el-select>
         </el-form-item>
         <el-form-item label="下次保养时间">
           <el-date-picker
@@ -391,6 +377,7 @@ import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select';
 import ListSelect from '@/libs/components/list-select';
 import TagInput from '@/libs/components/TagInput';
+import { vehicleRangePower } from '@/libs/api/common';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -398,21 +385,30 @@ const defaultForm = {
   vehicleMaterialCode: '',
   salesDate: '',
   vehiclePlateNo: '',
-  deliveryDealerCode: '',
-  deliveryDealerName: '',
+  deliveryDealerCodeList: [],
+  deliveryDealerNameList: '',
   ownerName: '',
   ownerPhone: '',
   idcardType: '',
   vdcInboundOn: '',
-  seriesIds: [],
-  modelIds: [],
+  vehicleSeriesIdList: [],
+  vehicleModelIdList: [],
+  rangePowerIdList: [],
+  drivingRangeIdList: [],
+  exteriorIdList: [],
+  interiorIdList: [],
+  wheelHubIdList: [],
   nextMaintainDate: '',
   createTime: '',
   updateTime: '',
   bindingOn: '',
   vehicleOrderId: '',
+  vehicleOrder: '',
+  vehicleOrderList: [],
   shopcode: '',
+  shopcodeList: [],
   vehicleEnterpriseOrder: '',
+  vehicleEnterpriseOrderList: [],
   serviceDealerName: '',
   serviceDealerCode: '',
   salesDealerName: '',
@@ -491,20 +487,18 @@ export default {
           },
           { props: 'salesDate', label: '销售日期', visible: true, width: 160 },
           {
-            props: 'vehicleOrderId',
+            props: 'vehicleOrder',
             label: '整车订单',
             visible: true,
             width: 180,
             buttons: [{
               click: (rowIndex, row) => {
-                if (row.vehicleOrderId) {
-                  this.$router.push({
-                    path: '/order/vehicle/detail',
-                    query: {
-                      id: row.vehicleOrderId
-                    }
-                  });
-                }
+                this.navigateToRoute({
+                  path: '/sales/vehretail/orderManager/retailOrderInfo/edit',
+                  query: {
+                    id: row.vehicleOrderId
+                  }
+                });
               },
               type: 'primary'
             }]
@@ -517,10 +511,10 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 if (row.shopcode) {
-                  this.$router.push({
-                    path: '/order/shop/detail',
+                  this.navigateToRoute({
+                    path: '/sales/vehretail/productManager/productCenter/edit',
                     query: {
-                      id: row.shopcode
+                      code: row.shopcode
                     }
                   });
                 }
@@ -535,14 +529,12 @@ export default {
             width: 180,
             buttons: [{
               click: (rowIndex, row) => {
-                if (row.vehicleEnterpriseOrder) {
-                  this.$router.push({
-                    path: '/order/enterprise/detail',
-                    query: {
-                      id: row.vehicleEnterpriseOrder
-                    }
-                  });
-                }
+                this.navigateToRoute({
+                  path: '/sales/vehwholesale/entorder/entVehicleOrder/edit',
+                  query: {
+                    id: row.vehicleEnterpriseOrderId
+                  }
+                });
               },
               type: 'primary'
             }]
@@ -557,12 +549,12 @@ export default {
             getValue: (row) => getDetailDecryptField(row.id, 'ownerName')
           },
           {
-            props: 'ownerPhone',
+            props: 'mobilephone',
             label: '车主手机',
             visible: true,
             width: 150,
             mask: true,
-            getValue: (row) => getDetailDecryptField(row.id, 'ownerPhone')
+            getValue: (row) => getDetailDecryptField(row.id, 'mobilephone')
           },
           { props: 'idcardTypeLabel', label: '车主证件类型', visible: true, width: 120 },
           {
@@ -604,11 +596,11 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                if (row.vehicleMaterialCode) {
+                if (row.vehicleMaterialId) {
                   this.navigateToRoute({
                     path: '/sales/vehretail/basicConfig/deliveryInfoConfig/edit',
                     query: {
-                      id: row.dealerCode,
+                      id: row.vehicleMaterialId,
                     },
                   });
                 }
@@ -618,7 +610,7 @@ export default {
           },
           { props: 'vehicleMaterialDesc', label: '物料描述', visible: true, width: 250 },
           { props: 'vdcInboundOn', label: 'VDC入库时间', visible: true, width: 180 },
-          { props: 'seriesName', label: '车系', visible: true, width: 150 },
+          { props: 'vehicleSeriesName', label: '车系', visible: true, width: 150 },
           { props: 'modelName', label: '车型', visible: true, width: 150 },
           { props: 'powerTypeLabel', label: '动力', visible: true, width: 100 },
           { props: 'enduranceLabel', label: '续航', visible: true, width: 100 },
@@ -670,6 +662,7 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    console.log(this.form);
   },
   methods: {
     handleListSelect (row) {
@@ -829,6 +822,11 @@ export default {
           });
         });
       }).catch(() => {});
+    },
+    vehicleRangePower (query) {
+      return vehicleRangePower({
+        rangePowerNameLike: query,
+      });
     },
     // 批量启用停用
     handleBatchEnable (status) {

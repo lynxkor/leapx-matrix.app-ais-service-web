@@ -22,7 +22,6 @@
                   {{ getServiceTypeText(row.relatedRepairTypeList) }}
                 </template>
               </vxe-column> -->
-              <vxe-column field="cardDiscount" title="卡券折扣" width="100" align="right" />
               <vxe-column field="paymentAmount" title="满减金额" width="100" align="right">
               </vxe-column>
               <vxe-column field="createDate" title="领券时间" width="160" align="center" />
