@@ -29,10 +29,8 @@
                 <fetch-select
                   filterable
                   clearable
-                  remote
                   v-model="form.checkoutTypeId"
-                  :remote-method="settlementSearch"
-                  :params="form.checkoutTypeName"
+                  :options="settlementOptions"
                   @change="handleSettlementChange"
                   value-key="id"
                   label-key="nameAndCategory"
@@ -50,10 +48,8 @@
                 <fetch-select
                   filterable
                   clearable
-                  remote
                   v-model="form.repairItemTypeId"
-                  :remote-method="repairItemSearch"
-                  :params="form.repairItemTypeName"
+                  :options="repairItemOptions"
                   @change="handleRepairItemChange"
                   value-key="id"
                   label-key="name"
@@ -127,6 +123,8 @@ export default {
       form: { ...defaultForm },
       originalForm: { ...defaultForm },
       storeTypeOptions: [], // 建店类型选项
+      settlementOptions: [], // 结算类型选项
+      repairItemOptions: [], // 保修类型选项
       rules: {
         code: [
           { required: false, message: '请输入建店类型代码', trigger: 'blur' }
@@ -178,6 +176,7 @@ export default {
   },
   mounted () {
     this.getStore();
+    this.loadSettlementOptions();
     this.getDetailData();
   },
   methods: {
@@ -263,24 +262,28 @@ export default {
       }
       this.form.repairItemTypeId = null; // 清空 ID
       this.form.repairItemTypeName = ''; // 如果有对应的名称字段，也一并清空
-      this.repairItemSearch();
+      // 根据结算类型加载保修类型
+      this.loadRepairItemOptions();
     },
-    // 结算类型模糊搜索方法
-    async settlementSearch (query) {
-      return listSettlementType({ nameLike: query });
+    // 加载结算类型选项
+    async loadSettlementOptions () {
+      const res = await listSettlementType({});
+      this.settlementOptions = res || [];
+    },
+    // 加载保修类型选项（根据结算类型加载）
+    async loadRepairItemOptions () {
+      if (this.form.checkoutTypeId) {
+        const res = await listItem({ checkoutTypeId: this.form.checkoutTypeId });
+        this.repairItemOptions = res || [];
+      } else {
+        this.repairItemOptions = [];
+      }
     },
     // 处理维修类型选择变更事件
     handleRepairItemChange (val, record) {
       if (record) {
         this.form.repairItemTypeName = record.name;
       }
-    },
-    // 维修类型模糊搜索方法
-    async repairItemSearch () {
-      if (!this.form.checkoutTypeId) {
-        return []; // 如果没有结算类型，直接返回空数组，不请求接口
-      }
-      return listItem({ checkoutTypeId: this.form.checkoutTypeId});
     },
     async fetchOptions (code) {
       if (code) {
