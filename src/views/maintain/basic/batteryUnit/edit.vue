@@ -30,10 +30,10 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="负责人" prop="ownerName">
+              <el-form-item label="负责人" prop="ownerUserName">
                 <el-input
                   placeholder="请输入"
-                  v-model="form.ownerName"
+                  v-model="form.ownerUserName"
                   clearable
                   disabled
                 />

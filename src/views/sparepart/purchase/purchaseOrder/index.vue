@@ -30,10 +30,17 @@
           />
         </el-form-item>
         <el-form-item label="发货仓库" v-if="activeName === 'homePage'">
-          <el-input
-            placeholder="请输入"
-            v-model="form.deliveryWarehouseLike"
+          <fetch-select
+            :remote-method="getWarehouse"
+            remote
+            v-model="form.deliveryWarehouse"
+            placeholder="请选择"
+            labelKey="name"
+            valueKey="id"
+            subLabelKey="code"
             clearable
+            collapseTags
+            filterable
           />
         </el-form-item>
         <el-form-item label="门店">
@@ -233,7 +240,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, pageAll, pageWaitSign } from '@/api/sparepart/purchase/purchaseOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listOemWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -355,7 +362,7 @@ export default {
           },
           { props: 'backOrderCode', label: '缺货单号', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'deliveryWarehouse', label: '发货仓库', visible: true, width: 200 },
+          { props: 'deliveryWarehouseName', label: '发货仓库', visible: true, width: 200 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
@@ -405,7 +412,7 @@ export default {
                 this.$router.push({
                   path: '/sparepart/purchase/purchaseOrder/edit',
                   query: {
-                    id: row.id
+                    id: row.purchaseOrderId
                   }
                 });
               },
@@ -489,7 +496,7 @@ export default {
                 this.$router.push({
                   path: '/sparepart/purchase/purchaseOrder/edit',
                   query: {
-                    id: row.id
+                    id: row.purchaseOrderId
                   }
                 });
               },
@@ -536,13 +543,13 @@ export default {
             buttons: [{
               name: '签收',
               click: (rowIndex, row) => {
-                this.handleSignFor(row, false);
+                this.handleSignFor(row, false, true);
               },
               type: 'info'
             }, {
               name: '签收并入库',
               click: (rowIndex, row) => {
-                this.handleSignFor(row, true);
+                this.handleSignFor(row, true, true);
               },
               type: 'info'
             }]
@@ -669,7 +676,7 @@ export default {
 
     async getWarehouse (query) {
       try {
-        const res = await listWarehouse({ codeOrName: query });
+        const res = await listOemWarehouse({ codeOrName: query });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
@@ -790,10 +797,11 @@ export default {
       this.getData();
     },
     // 签收  签收并入库
-    handleSignFor (val, type) {
+    handleSignFor (val, type, returnError) {
       this.signForm = {
         purchaseOrderDetailId: val.id,
-        inbound: type
+        inbound: type,
+        returnError: returnError
       };
       this.signDialogVisible = true;
     },

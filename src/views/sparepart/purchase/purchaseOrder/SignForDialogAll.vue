@@ -64,7 +64,8 @@ export default {
             qty: this.formData.qty
           }
         ],
-        inbound: this.signForForm?.inbound
+        inbound: this.signForForm?.inbound,
+        returnError: this.signForForm?.returnError,
       };
       await batchSign(params);
       this.formData.qty = '';
