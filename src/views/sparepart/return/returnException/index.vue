@@ -150,7 +150,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, returnOrderCancel, returnOrderAgree, returnOrderRevoke, returnOrderReject } from '@/api/sparepart/return/returnOrder/index';
+import { getList, deleteItem, enableItem, returnOrderCancel, returnOrderAgree, returnOrderRevoke, returnOrderReject, returnExceptionInbound } from '@/api/sparepart/return/returnOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -248,127 +248,12 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
-              name: '同意',
+              name: '入库',
               show: (row) => {
-                return row.returnStatus === '20';
-              },
-              popconfirmTitle: '是否同意退货申请?',
-              click: (rowIndex, row) => {
-                returnOrderAgree({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '同意成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '同意失败!'
-                  });
-                });
-              },
-              type: 'info'
-            }, {
-              name: '撤回',
-              show: (row) => {
-                return row.returnStatus === '40';
-              },
-              popconfirmTitle: '是否撤回退货申请?',
-              click: (rowIndex, row) => {
-                returnOrderRevoke({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '撤回成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '撤回失败!'
-                  });
-                });
-              },
-              type: 'info'
-            }, {
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/return/returnOrder/edit',
-                  query: {
-                    id: row.id,
-                  }
-                });
-              },
-              type: 'info'
-            },
-            // {
-            //   name: '删除',
-            //   show: (row) => {
-            //     return row.returnStatus === '90';
-            //   },
-            //   popconfirmTitle: '此操作将永久删除, 是否继续?',
-            //   click: (rowIndex, row) => {
-            //     deleteItem([row.id]).then(() => {
-            //       this.$message({
-            //         type: 'success',
-            //         message: '删除成功!'
-            //       });
-            //       this.getData();
-            //     }).catch(() => {
-            //       this.$message({
-            //         type: 'error',
-            //         message: '删除失败!'
-            //       });
-            //     });
-            //   },
-            //   type: 'danger'
-            // },
-            {
-              name: '打印退货单',
-              click: (rowIndex, row) => {
-                this.handlePrint(row);
-              },
-              type: 'info'
-            }, {
-              name: '打印退货标签',
-              click: (rowIndex, row) => {
-                this.handlePrintLabel(row);
-              },
-              type: 'info'
-            }, {
-              name: '提交',
-              show: (row) => {
-                return row.returnStatus === '10' || row.returnStatus === '30';
+                return row.warehousingStatus === '20';
               },
               click: (rowIndex, row) => {
                 this.handleSubmit(row);
-              },
-              type: 'info'
-            }, {
-              name: '作废',
-              show: (row) => {
-                return row.returnStatus === '10' || row.returnStatus === '30';
-              },
-              click: (rowIndex, row) => {
-                this.handleVoid(row);
-              },
-              type: 'info'
-            }, {
-              name: '驳回',
-              show: (row) => {
-                return row.returnStatus === '20';
-              },
-              click: (rowIndex, row) => {
-                this.handleReject(row);
-              },
-              type: 'info'
-            }, {
-              name: '发运',
-              show: (row) => {
-                return row.returnStatus === '40';
-              },
-              click: (rowIndex, row) => {
-                this.handleShipment(row);
               },
               type: 'info'
             }]
@@ -383,6 +268,18 @@ export default {
     this.getData();
   },
   methods: {
+    // 提交
+    async handleSubmit (val) {
+      this.$confirm('确认提交吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        await returnExceptionInbound({ id: val.id });
+        this.$message.success('提交成功!');
+        this.getData();
+      }).catch(() => {});
+    },
     async getDealerList (query) {
       try {
         const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
@@ -461,7 +358,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getList({ ...this.getFormData(), exceptionDetail: true, pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {

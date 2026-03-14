@@ -126,13 +126,13 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="提交人：" prop="submitter">
-                  {{ form.submitter }}
+                  {{ form.submitterName }}
                 </el-form-item>
                 <el-form-item label="提交时间：" prop="submitTime">
                   {{ form.submitTime }}
                 </el-form-item>
                 <el-form-item label="审核人：" prop="reviewer">
-                  {{ form.reviewer }}
+                  {{ form.reviewerName }}
                 </el-form-item>
                 <el-form-item label="审核时间：" prop="reviewTime">
                   {{ form.reviewTime }}
@@ -141,7 +141,7 @@
                   {{ form.reviewDescription }}
                 </el-form-item>
                 <el-form-item label="作废人：" prop="cancelOperator">
-                  {{ form.cancelOperator }}
+                  {{ form.cancelOperatorName }}
                 </el-form-item>
                 <el-form-item label="作废时间：" prop="cancelTime">
                   {{ form.cancelTime }}
@@ -258,13 +258,13 @@
             <div class="common-section-body">
               <el-form :inline="true" class="form-detail">
                 <el-form-item label="提交人：" prop="submitter">
-                  {{ form.submitter }}
+                  {{ form.submitterName }}
                 </el-form-item>
                 <el-form-item label="提交时间：" prop="submitTime">
                   {{ form.submitTime }}
                 </el-form-item>
                 <el-form-item label="审核人：" prop="reviewer">
-                  {{ form.reviewer }}
+                  {{ form.reviewerName }}
                 </el-form-item>
                 <el-form-item label="审核时间：" prop="reviewTime">
                   {{ form.reviewTime }}
@@ -273,7 +273,7 @@
                   {{ form.reviewDescription }}
                 </el-form-item>
                 <el-form-item label="作废人：" prop="cancelOperator">
-                  {{ form.cancelOperator }}
+                  {{ form.cancelOperatorName }}
                 </el-form-item>
                 <el-form-item label="作废时间：" prop="cancelTime">
                   {{ form.cancelTime }}
