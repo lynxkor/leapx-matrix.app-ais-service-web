@@ -10,7 +10,7 @@
       <div class="table-section">
         <vxe-table ref="rightsTable" :data="tableData" stripe :row-config="{ isHover: true }" resizable max-height="500"
           border="inner" size="medium" :checkbox-config="{ checkField: 'checked', checkMethod: checkMethod }"
-          @checkbox-change="handleSelectionChange" @checkbox-all="handleSelectionChange"
+          @checkbox-change="handleSelectionChange" @checkbox-all="handleSelectAll"
           :row-class-name="tableRowClassName">
           <vxe-column type="checkbox" width="60" align="center" />
           <vxe-column field="rightsCode" title="权益ID" width="250" show-overflow="tooltip" />
@@ -38,7 +38,7 @@
     <template v-slot:footer>
       <div class="dialog-footer">
         <el-button size="small" @click="close">取 消</el-button>
-        <el-button size="small" :loading="submitLoading" type="primary" @click="submit">核销选中权益</el-button>
+        <el-button size="small" :loading="submitLoading" :disabled="!hasSelectedItems" type="primary" @click="submit">核销选中权益</el-button>
       </div>
     </template>
   </el-dialog>
@@ -74,6 +74,12 @@ export default {
       tableData: [],
     };
   },
+  computed: {
+    // 是否有选中的项目
+    hasSelectedItems () {
+      return this.tableData.some(row => row.checked);
+    },
+  },
   watch: {
     visible (val) {
       this.dialogVisible = val;
@@ -97,11 +103,107 @@ export default {
           });
         }
       }
+    },
 
-      // 更新所有行的选择状态
-      // this.tableData.forEach((r) => {
-      //   r.checked = this.tableData.some(item => item.checked && item.useId === r.useId);
-      // });
+    // 处理全选事件
+    handleSelectAll ({ checked, records }) {
+      if (checked) {
+        // 全选时，找出最优的优惠券组合
+        const optimalCombination = this.findOptimalCouponCombination(records);
+
+        if (!optimalCombination.success) {
+          // 如果无法全选，给出提示并阻止
+          this.$nextTick(() => {
+            this.$message.warning(optimalCombination.message || '部分优惠券无法同时使用');
+          });
+          return;
+        }
+
+        // 按照最优组合设置选中状态
+        this.$nextTick(() => {
+          this.tableData.forEach(row => {
+            row.checked = optimalCombination.selectedIds.includes(row.useId);
+          });
+
+          // 打印最优组合信息
+          console.group('🎯 全选最优组合');
+          console.log('可选优惠券总数：', records.length);
+          console.log('实际选中数量：', optimalCombination.selectedIds.length);
+          console.table(
+            optimalCombination.allocationDetails.map(detail => ({
+              维修类型: detail.type,
+              总金额: detail.total,
+              已抵扣: detail.deducted,
+              剩余金额: detail.remaining,
+              使用率: detail.usageRate
+            }))
+          );
+          console.groupEnd();
+        });
+      }
+    },
+
+    // 找出最优的优惠券组合（贪心算法）
+    findOptimalCouponCombination (allCoupons) {
+      // 1. 过滤出基础可用的优惠券
+      const availableCoupons = allCoupons.filter(coupon => {
+        const validation = this.validateCoupon(coupon);
+        return validation.valid;
+      });
+
+      if (availableCoupons.length === 0) {
+        return {
+          success: false,
+          message: '没有可用的优惠券'
+        };
+      }
+
+      // 2. 初始化各维修类型的可用金额
+      const typeAmounts = this.initTypeAmounts();
+
+      // 3. 按优先级排序：专用券 > 通用券
+      const sortedCoupons = [...availableCoupons].sort((a, b) => {
+        const aTypes = (a.relatedRepairTypeList || []).length;
+        const bTypes = (b.relatedRepairTypeList || []).length;
+        return aTypes - bTypes;
+      });
+
+      // 4. 贪心算法：依次尝试选择每张券
+      const allocation = {};
+      const selectedIds = [];
+
+      for (const coupon of sortedCoupons) {
+        // 尝试分配当前优惠券
+        const testAllocation = { ...allocation };
+        const success = this.tryAllocateCoupon(coupon, typeAmounts, testAllocation);
+
+        if (success) {
+          // 可以选择，更新分配结果
+          Object.assign(allocation, testAllocation);
+          selectedIds.push(coupon.useId);
+        }
+        // 如果无法分配，跳过这张券
+      }
+
+      // 5. 构建分配详情
+      const allocationDetails = Object.keys(allocation).map(typeName => {
+        const total = typeAmounts[typeName] || 0;
+        const deducted = allocation[typeName] || 0;
+        const remaining = total - deducted;
+        return {
+          type: typeName,
+          total: total.toFixed(2),
+          deducted: deducted.toFixed(2),
+          remaining: remaining.toFixed(2),
+          usageRate: total > 0 ? ((deducted / total) * 100).toFixed(1) : '0.0'
+        };
+      });
+
+      return {
+        success: true,
+        selectedIds: selectedIds,
+        allocationDetails: allocationDetails
+      };
     },
 
     // 获取权益列表
