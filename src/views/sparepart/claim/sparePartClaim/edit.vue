@@ -156,13 +156,13 @@
                   {{ form.purchaseOrderCode }}
                 </el-form-item>
                 <el-form-item label="提交人：" prop="submitter">
-                  {{ form.submitter }}
+                  {{ form.submitterName }}
                 </el-form-item>
                 <el-form-item label="提交时间：" prop="submitTime">
                   {{ form.submitTime }}
                 </el-form-item>
                 <el-form-item label="确认人：" prop="confirmer">
-                  {{ form.confirmer }}
+                  {{ form.confirmerName }}
                 </el-form-item>
                 <el-form-item label="确认时间：" prop="confirmTime">
                   {{ form.confirmTime }}
@@ -501,32 +501,32 @@ export default {
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       detailColumns: [
         { field: 'sparePartCode', title: '备件编码', width: '15%' },
-        { field: '', title: '备件名称', width: '15%' }, // yapi没找到
+        { field: 'sparePartName', title: '备件名称', width: '15%' }, // yapi没找到
         { field: '', title: '已入库数', width: '15%' }, // yapi没找到
         { field: 'claimQty', title: '索赔数量', width: '15%' },
         { field: 'claimDescription', title: '索赔说明', width: '25%' },
         { field: 'createTime', title: '创建时间', width: '15%' },
       ],
       outboundColumns: [
-        { field: '', title: '备件名称', width: '15%' }, // yapi没找到
-        { field: '', title: '出库数量', width: '15%' },
+        { field: 'sparePartName', title: '备件名称', width: '15%' }, // yapi没找到
+        { field: 'outboundQty', title: '出库数量', width: '15%' },
         { field: 'outboundOrderNo', title: '出库单号', width: '15%' },
         { field: 'outboundDate', title: '出库日期', width: '25%' }, // yapi没找到
         { field: '', title: '发货仓库', width: '15%' },
         { field: 'createTime', title: '创建时间', width: '15%' },
       ],
       backColumns: [
-        { field: '', title: '备件编码', width: '15%' }, // yapi没找到
-        { field: '', title: '备件名称', width: '15%' }, // yapi没找到
+        { field: 'sparePartCode', title: '备件编码', width: '15%' }, // yapi没找到
+        { field: 'sparePartName', title: '备件名称', width: '15%' }, // yapi没找到
         { field: 'backQty', title: '缺货数量', width: '15%' },
         { field: 'resolvedQty', title: '已解欠数量', width: '15%' },
         { field: 'createTime', title: '创建时间', width: '15%' },
       ],
       historyColumns: [
         { field: 'sparePartCode', title: '备件编码', width: '15%' },
-        { field: '', title: '备件名称', width: '15%' }, // yapi没找到
-        { field: 'claimOrderId', title: '备件索赔单', width: '15%' },
-        { field: '', title: '索赔类型', width: '15%' }, // yapi没找到
+        { field: 'sparePartName', title: '备件名称', width: '15%' }, // yapi没找到
+        { field: 'claimOrderCode', title: '备件索赔单', width: '15%' },
+        { field: 'claimTypeLabel', title: '索赔类型', width: '15%' }, // yapi没找到
         { field: 'claimQty', title: '索赔数量', width: '25%' },
         { field: 'updateTime', title: '提交时间', width: '15%' }, // 确认下是否是修改时间
       ],
