@@ -138,6 +138,8 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button size="small" @click="handleTransfer">转移库位</el-button>
+      <el-button v-if="canDelete" size="small" @click="handleBatchLaunch" :disabled="selectionList.length === 0">上架共享</el-button>
+      <el-button v-if="canDelete" size="small" @click="handleBatchShelves" :disabled="selectionList.length === 0">下架共享</el-button>
       <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
@@ -176,6 +178,20 @@
       :warehouseIds="warehouseIds"
       @close="handleTransferDialogClose"
     />
+    <!-- 共享上架 -->
+    <LaunchDialog
+      :visible.sync="launchDialog"
+      :selectionList="launchList"
+      @update:visible="val => launchDialog = val"
+      @submit="getData"
+    />
+    <!-- 共享下架 -->
+    <ShelvesDialog
+      :visible.sync="shelvesDialog"
+      :selectionList="shelvesList"
+      @update:visible="val => shelvesDialog = val"
+      @submit="getData"
+    />
   </div>
 </template>
 
@@ -196,6 +212,8 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
 import TransferDialog from './TransferDialog.vue';
+import LaunchDialog from './LaunchDialog.vue';
+import ShelvesDialog from './ShelvesDialog.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -224,7 +242,9 @@ export default {
     EditPage,
     Upload,
     TagInput,
-    TransferDialog
+    TransferDialog,
+    LaunchDialog,
+    ShelvesDialog
   },
   data () {
     return {
@@ -244,6 +264,10 @@ export default {
       warehouseIds: '', // 转移库位 仓库ID
       transferDialog: false, // 转移库位弹窗
       clickItemId: '',
+      launchDialog: false, // 共享上架弹窗
+      launchList: [], // 待共享上架列表
+      shelvesDialog: false, // 共享下架弹窗
+      shelvesList: [], // 待共享下架列表
       optionObj: {
         id: 'inventoryTable',
         dataList: [],
@@ -325,6 +349,26 @@ export default {
                     id: row.id
                   }
                 });
+              },
+              type: 'info'
+            }, {
+              name: '上架共享',
+              show: (row) => {
+                return row.availableQty > 0;
+              },
+              click: (rowIndex, row) => {
+                this.launchDialog = true;
+                this.launchList = [row];
+              },
+              type: 'info'
+            }, {
+              name: '下架共享',
+              show: (row) => {
+                return row.sharedQty > 0;
+              },
+              click: (rowIndex, row) => {
+                this.shelvesDialog = true;
+                this.shelvesList = [row];
               },
               type: 'info'
             }]
@@ -584,6 +628,24 @@ export default {
     handleTransferDialogClose () {
       this.transferDialog = false;
       this.getData();
+    },
+    // 批量上架共享
+    handleBatchLaunch () {
+      if (this.selectionList.some(item => item.availableQty <= 0)) {
+        this.$message.warning('请选择可用库存大于0的商品');
+        return;
+      }
+      this.launchList = this.selectionList;
+      this.launchDialog = true;
+    },
+    // 批量下架共享
+    handleBatchShelves () {
+      if (this.selectionList.some(item => item.sharedQty <= 0)) {
+        this.$message.warning('请选择共享库存大于0的商品');
+        return;
+      }
+      this.shelvesList = this.selectionList;
+      this.shelvesDialog = true;
     }
   }
 };

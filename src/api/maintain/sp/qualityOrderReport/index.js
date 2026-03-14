@@ -42,3 +42,11 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 查询两个月内施工单
+ * @param {Object} data
+ */
+export function getServiceProxyList (data) {
+  return api.jsonPost(prefix + 'serviceProxyList', data);
+}

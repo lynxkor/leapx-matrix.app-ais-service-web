@@ -154,10 +154,11 @@
             </vxe-column>
             <vxe-column field="repairItemCode" title="维修项目代码" width="150" />
             <vxe-column field="repairItemName" title="维修项目名称" min-width="150" show-overflow />
-              <vxe-column field="statusLabel" title="作业状态" min-width="150" show-overflow />
             <vxe-column field="dealerStationName" title="工位" width="120" />
             <vxe-column field="dealerWorkTeamName" title="班组" width="140" />
             <vxe-column field="repairTechnicianName" title="维修技师" width="120" />
+            <vxe-column field="statusLabel" title="作业状态" min-width="150" show-overflow />
+            <vxe-column field="qualityCheckStatusLabel" title="质检状态" min-width="150" show-overflow />
             <vxe-column title="操作" width="120" align="center" fixed="right" :resizable="false">
               <template #default="{ row }">
                 <el-popconfirm
@@ -175,7 +176,6 @@
                 <el-popconfirm
                   title="确定返修吗？"
                   @confirm="handleRepair(row)"
-
                 >
                   <span
                     :class="['action-button', 'btn-back']"

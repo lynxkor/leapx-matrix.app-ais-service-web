@@ -1,5 +1,5 @@
 <template>
-  <edit-page-layout ref="editLayout" title="车辆档案明细">
+  <edit-page-layout ref="editLayout" title="查看关键信息变更日志">
     <template #left>
       <edit-base-container
         ref="containerRef"
@@ -225,7 +225,7 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>车主信息<el-button style="margin-left: 6px;" size="small">查看关键信息变更日志</el-button></h2>
+              <h2>车主信息<el-button style="margin-left: 6px;" size="small" @click="onHistory">查看关键信息变更日志</el-button></h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-sub-header">
@@ -528,7 +528,8 @@
     </template>
     <template #right>
       <div class="page-common-edit">
-        <!-- 右侧栏组件，自行开发 -->
+        <change-history
+        />
       </div>
     </template>
   </edit-page-layout>
@@ -545,6 +546,7 @@ import LPEncrypted from '@/libs/components/LPEncrypted/index.vue';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum } from '@/api/common';
 import { getAreaInfo } from '@/utils';
+import ChangeHistory from './ChangeHistory';
 
 const defaultForm = {
   // 基础信息
@@ -697,7 +699,8 @@ export default {
     FetchSelect,
     LPEncrypted,
     EditPageLayout,
-    EditBaseContainer
+    EditBaseContainer,
+    ChangeHistory,
   },
   computed: {
     _id () {
@@ -737,11 +740,15 @@ export default {
         value: 'code',
         children: 'child'
       },
+      rules: {},
     };
   },
   mounted () {
   },
   methods: {
+    onHistory () {
+      this.$refs.editLayout.openPane();
+    },
     detailRequest () {
       const id = this._id;
       const vin = this._vin;
