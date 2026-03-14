@@ -2364,6 +2364,24 @@ const routes = [
         name: '附件配置详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyOrderWarningRule',
+      name: 'warrantyOrderWarningRule',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyOrderWarningRule/index.vue'),
+
+      meta: {
+        name: '保修单预警规则',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyorderwarningrule/edit',
+      name: 'warrantyOrderWarningRuleEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyOrderWarningRule/edit.vue'),
+
+      meta: {
+        name: '保修单预警规则详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
