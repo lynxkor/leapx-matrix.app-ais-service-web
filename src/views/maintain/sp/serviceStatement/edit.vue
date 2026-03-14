@@ -243,14 +243,14 @@
           </section>
           <section class="common-section">
             <PayRecord :formData="form" />
-            <IghtsRecord :formData="form" />
+            <RightsRecord :formData="form" />
             <RepaireRecord :formData="form" />
             <PartsRecodr :formData="form" />
             <MaintenanceRecord :formData="form" />
           </section>
         </el-main>
       </edit-base-container>
-      <SelectRightsDialog :visible.sync="rightsDialogVisible" :statementId="_id" @refresh="handleRefresh" />
+      <SelectRightsDialog :visible.sync="rightsDialogVisible" :statementId="_id" @refresh="handleRefresh" :formData="form"/>
       <SubmitSettlemenDialog ref="settlemenDialogRef" :visible.sync="submitSettlemenDialogVisible" :serviceProxyId="_id"
         :info="form" @refresh="handleRefresh" />
       <AddPayrecordDialog :visible.sync="addPayrecordDialogVisible" :serviceProxyId="_id" :info="form"
@@ -275,7 +275,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import RepaireRecord from '@/views/maintain/sp/serviceStatement/components/RepaireRecord/index.vue';
-import IghtsRecord from '@/views/maintain/sp/serviceStatement/components/IghtsUsageRecord/index.vue';
+import RightsRecord from '@/views/maintain/sp/serviceStatement/components/RightsUsageRecord/index.vue';
 import MaintenanceRecord from '@/views/maintain/sp/serviceStatement/components/PartMaintenanceRecord/index.vue';
 import PartsRecodr from '@/views/maintain/sp/serviceStatement/components/PartsRecord/index.vue';
 import PayRecord from '@/views/maintain/sp/serviceStatement/components/PayRecord/index.vue';
@@ -367,7 +367,7 @@ export default {
     // EditTable,
     // FetchSelect,
     RepaireRecord,
-    IghtsRecord,
+    RightsRecord,
     MaintenanceRecord,
     PartsRecodr,
     PayRecord,
