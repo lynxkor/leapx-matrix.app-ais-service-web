@@ -2330,6 +2330,24 @@ const routes = [
         name: '保修附件设置详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyGradeApprovalSetting',
+      name: 'warrantyGradeApprovalSetting',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyGradeApprovalSetting/index.vue'),
+
+      meta: {
+        name: '保修分级审批设置',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantygradeapprovalsetting/edit',
+      name: 'warrantyGradeApprovalSettingEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyGradeApprovalSetting/edit.vue'),
+
+      meta: {
+        name: '保修分级审批设置',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
