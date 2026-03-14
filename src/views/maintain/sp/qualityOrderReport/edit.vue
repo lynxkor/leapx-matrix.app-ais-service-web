@@ -646,12 +646,14 @@
               </el-form>
             </div>
           </section>
-          <section class="common-section">
+          <section class="common-section" v-if="_id">
             <div class="common-section-header">
               <h2>故障代码</h2>
-              <el-button v-if="isEditing || !_id" size="small" icon="el-icon-plus" @click="handleAddRow()">添加</el-button>
             </div>
             <div class="common-section-body">
+              <div class="common-section-header">
+                <el-button size="small" type="primary" @click="handleAddRow()">添加</el-button>
+              </div>
               <div class="common-section-table">
                 <edit-table
                   ref="editTableFault"
@@ -666,55 +668,7 @@
               </div>
             </div>
           </section>
-          <section class="common-section" v-if="_id">
-            <div class="common-section-header">
-              <h2>子表标题</h2>
-            </div>
-            <div class="common-section-body">
-              <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
-                  <el-button type="primary" size="small">添加</el-button>
-                </div>
-              </div>
-              <div class="common-section-table">
-                <vxe-table
-                  ref="tableRef"
-                  stripe
-                  :data="tableData"
-                  show-overflow
-                  resizable
-                  border="inner"
-                  size="medium"
-                  min-height="0"
-                  max-height="400px"
-                >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
-                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                      </el-popconfirm>
-                    </template>
-                  </vxe-column>
-                  <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
-                  </template>
-                </vxe-table>
-              </div>
-            </div>
-          </section>
+          <Attachment v-if="_id" :_id="_id" :show-upload="true" ref="attachmentRef"/>
         </el-main>
       </edit-base-container>
     </template>
@@ -741,6 +695,7 @@ import { getVehicleProfile, checkVinTag, getCarInfo } from '@/api/maintain/sp/se
 import { vfglist } from '@/api/claimreturn/claim/basic/vfg';
 import { vrtlist } from '@/api/claimreturn/claim/basic/vrt';
 import { getList as ccclist } from '@/api/claimreturn/claim/basic/ccc';
+import Attachment from '@/views/maintain/sp/serviceProxy/components/Attachment/index.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -836,7 +791,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    EditTable
+    EditTable,
+    Attachment
   },
   computed: {
     _id () {
@@ -878,10 +834,6 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       emptyText: '若要启用此内容，请创建记录',
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
       delTitleFault: '此操作将删除此 故障代码信息，您无法撤消此操作，是否继续？',
       tableDataFault: [],
       columnsFault: [
@@ -1187,53 +1139,6 @@ export default {
     openPane () {
       this.$refs.editLayout.openPane();
     },
-    // 删除子表数据
-    handleDeleteRow (index) {
-      const item = this.tableData[index];
-      this.tableData.splice(index, 1);
-      // 根据需求调用接口
-      // deletePartVehModel([item.id]).then(res => {
-      //   this.$message.success('删除成功');
-      //   this.tableData.splice(index, 1);
-      // });
-    },
-    // 查询新增项的列表
-    queryListData (queryString) {
-      return new Promise(resolve => {
-        // 根据需求调用接口
-        // sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
-        //   const list = res || [];
-        //   resolve(list);
-        // });
-        resolve([
-          { id: 1, name: 'test', age: 25, email: 'test@example.com' }
-        ]);
-      });
-    },
-    // 新增子表数据
-    handleAddTableData (val, record) {
-      if (!record) {
-        this.$message.warning('请先选择数据');
-        return;
-      }
-      // 检查是否已存在
-      const exists = this.tableData.some(item => item.id === record.id);
-      if (exists) {
-        this.$message.warning('请勿重复添加');
-        return;
-      }
-      // 根据需求调用接口
-      this.tableData.push(record);
-      // addPartItem({
-      //   maintenancePartId: this._id,
-      //   partsCode: record.partCode,
-      //   partsName: record.partName,
-      //   partsId: record.id,
-      // }).then(res => {
-      //   this.$message.success('添加成功');
-      //   this.detailRequest();
-      // });
-    },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
       const userInfo = this.$store.state.user.userInfo;
@@ -1354,6 +1259,36 @@ export default {
         });
       });
     },
+    // 打开上传附件对话框
+    // 上传成功后刷新列表
+    handleUploadRefresh () {
+      this.$refs.attachmentRef?.loadAttachmentList();
+    }
   }
 };
 </script>
+<style scoped lang="scss">
+.common-section-header h3 {
+  font-size: 14px;
+}
+.btn-delete {
+  color: var(--leap-color-danger);
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+    color: var(--leap-color-danger-dark-1);
+  }
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+.m-vxe-table-empty-text {
+  text-align: left;
+}
+::v-deep .vxe-table--empty-content {
+  color: var(--leap-color-default-light-2);
+  width: 100%;
+  padding: 0 16px;
+}
+</style>
