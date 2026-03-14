@@ -61,6 +61,10 @@ export default {
       type: String,
       default: '',
     },
+    formData: {
+      type: Object,
+      default: () => {},
+    },
   },
   data () {
     return {
@@ -124,39 +128,11 @@ export default {
       return typeNames.join(',') || '-';
     },
 
-    // 格式化金额
-    formatAmount (amount) {
-      if (!amount) return '-';
-      return parseFloat(amount).toFixed(2);
-    },
-
     // 获取有效期文本
     getValidityPeriodText (row) {
       const effectDate = row.effectDate || '';
       const expiryDate = row.expiryDate || '';
       return `${effectDate} ~ ${expiryDate}`;
-    },
-
-    // 获取状态文本
-    getStatusText (status) {
-      const statusMap = {
-        1: '未使用',
-        2: '已使用',
-        3: '已过期',
-        4: '已冻结',
-      };
-      return statusMap[status] || '未知';
-    },
-
-    // 获取状态标签类型
-    getStatusType (status) {
-      const typeMap = {
-        1: 'success',
-        2: 'info',
-        3: 'warning',
-        4: 'danger',
-      };
-      return typeMap[status] || 'info';
     },
 
     // 提交核销
