@@ -61,6 +61,10 @@ export default {
       type: String,
       default: '',
     },
+    formData: {
+      type: Object,
+      default: () => {},
+    },
   },
   data () {
     return {
@@ -79,11 +83,25 @@ export default {
     },
   },
   methods: {
-    handleSelectionChange ({ records }) {
-      this.tableData.forEach((row) => {
-        // 否则正常处理选择状态
-        row.checked = records.some((item) => item.useId === row.useId);
-      });
+    handleSelectionChange ({ checked, row }) {
+      // 如果是选中操作，先进行校验
+      if (checked) {
+        const selectedRows = this.tableData.filter(r => r.checked && r.useId !== row.useId);
+        const validationResult = this.canSelectCoupon(row, selectedRows);
+
+        if (!validationResult.valid) {
+          // 阻止选中，恢复复选框状态
+          this.$nextTick(() => {
+            row.checked = false;
+            this.$message.warning(validationResult.message || '该优惠券不可用');
+          });
+        }
+      }
+
+      // 更新所有行的选择状态
+      // this.tableData.forEach((r) => {
+      //   r.checked = this.tableData.some(item => item.checked && item.useId === r.useId);
+      // });
     },
 
     // 获取权益列表
@@ -99,6 +117,8 @@ export default {
         this.tableData = (res || []).map((item) => ({
           ...item,
           checked: false,
+          // 设置初始是否可用状态
+          isChange: item.isChange && this.validateCoupon(item).valid,
         }));
       } catch (error) {
         console.error('获取权益列表异常:', error);
@@ -106,6 +126,112 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+
+    // 解析满减金额 "(0,150)" -> { threshold: 0, discount: 150 }
+    parsePaymentAmount (paymentAmount) {
+      if (!paymentAmount) return { threshold: 0, discount: 0 };
+      const match = paymentAmount.match(/\((\d+),(\d+)\)/);
+      // 格式为 "(0,150)" 表示满0减150
+      // 第一位是最小消费金额（满减门槛），第二位是减免金额
+      if (match) {
+        return {
+          threshold: parseFloat(match[1]), // 满减门槛
+          discount: parseFloat(match[2]), // 减免金额
+        };
+      }
+      return { threshold: 0, discount: 0 };
+    },
+
+    // 计算指定维修类型的项目+零件总金额
+    calculateRepairTypeAmount (repairTypeNames) {
+      if (!repairTypeNames || repairTypeNames.length === 0) return 0;
+
+      const repairItemAmount = (this.formData.repairItemResps || [])
+        .filter(item => repairTypeNames.includes(item.repairItemTypeName))
+        .reduce((sum, item) => sum + parseFloat(item.repairAmount || 0), 0);
+
+      const partAmount = (this.formData.partResps || [])
+        .filter(part => repairTypeNames.includes(part.repairItemTypeName))
+        .reduce((sum, part) => sum + parseFloat(part.partsAmount || 0), 0);
+
+      // 减去已核销的券
+      const usedCoupons = (this.formData?.rightsUsageRecordResps || [])
+        .filter(item => repairTypeNames.includes(item.applicableMaintenanceType))
+        .reduce((sum, item) => sum + parseFloat(item.deductibleAmount || 0), 0);
+
+      const res = {
+        total: repairItemAmount + partAmount,
+        remain: repairItemAmount + partAmount - usedCoupons
+      };
+      console.log(repairTypeNames, res);
+      return res;
+    },
+
+    // 校验优惠券基础可用性（不考虑累计使用）
+    validateCoupon (coupon) {
+      const repairTypeNames = coupon.relatedRepairTypeList?.map(t => t.repairTypeName) || [];
+
+      // 校验1: 检查是否有对应维修类型的项目或零件
+      const hasMatchingItems = (this.formData.repairItemResps || []).some(item =>
+        repairTypeNames.includes(item.repairItemTypeName)
+      ) || (this.formData.partResps || []).some(part =>
+        repairTypeNames.includes(part.repairItemTypeName)
+      );
+
+      if (!hasMatchingItems) {
+        const typeNames = coupon.relatedRepairTypeList?.map(t => t.repairTypeName).join('、') || '';
+        return {
+          valid: false,
+          reason: 'no_matching_type',
+          message: `该优惠券适用的维修类型（${typeNames}）在当前单据中不存在`
+        };
+      }
+
+      // 校验2: 满减金额校验（基础校验，检查单次使用是否满足门槛）
+      const amountInfo = this.parsePaymentAmount(coupon.paymentAmount);
+      const totalAmount = this.calculateRepairTypeAmount(repairTypeNames);
+
+      if (amountInfo.threshold > 0 && amountInfo.threshold > totalAmount.total) {
+        return {
+          valid: false,
+          reason: 'amount_not_enough',
+          message: `维修类型${repairTypeNames}可用金额为 ${totalAmount.remain} 元，不满满减门槛 ${amountInfo.threshold} 元`
+        };
+      }
+
+      return { valid: true, amountInfo, totalAmount: totalAmount.remain, repairTypeNames };
+    },
+
+    // 校验优惠券是否可以被选中（考虑同类优惠券的重复使用）
+    canSelectCoupon (coupon, selectedRows) {
+      // 基础校验
+      const baseValidation = this.validateCoupon(coupon);
+      if (!baseValidation.valid) {
+        return baseValidation;
+      }
+
+      // 计算已选同类优惠券（rightsCode相同）的累计减免金额
+      const sameTypeCoupons = selectedRows.filter(row => row.rightsCode === coupon.rightsCode);
+      const usedDiscountAmount = sameTypeCoupons.reduce((sum, row) => {
+        const rowAmountInfo = this.parsePaymentAmount(row.paymentAmount);
+        return sum + rowAmountInfo.discount;
+      }, 0);
+
+      const availableAmount = baseValidation.totalAmount; // 可用金额
+      console.log('availableAmount', availableAmount, usedDiscountAmount);
+
+      // 校验：只有当累计减免金额已经超过可用金额，且再选一张还会增加时才阻止
+      // 也就是说，如果当前累计已经超过可用金额，就不再允许选更多
+      if (usedDiscountAmount > availableAmount) {
+        return {
+          valid: false,
+          reason: 'exceed_available_amount',
+          message: `维修类型:${baseValidation.repairTypeNames}总金额为 ${availableAmount} 元，已使用优惠券减免 ${usedDiscountAmount} 元，已超出可用金额`
+        };
+      }
+
+      return { valid: true };
     },
 
     // 获取维修类型文本
@@ -124,39 +250,11 @@ export default {
       return typeNames.join(',') || '-';
     },
 
-    // 格式化金额
-    formatAmount (amount) {
-      if (!amount) return '-';
-      return parseFloat(amount).toFixed(2);
-    },
-
     // 获取有效期文本
     getValidityPeriodText (row) {
       const effectDate = row.effectDate || '';
       const expiryDate = row.expiryDate || '';
       return `${effectDate} ~ ${expiryDate}`;
-    },
-
-    // 获取状态文本
-    getStatusText (status) {
-      const statusMap = {
-        1: '未使用',
-        2: '已使用',
-        3: '已过期',
-        4: '已冻结',
-      };
-      return statusMap[status] || '未知';
-    },
-
-    // 获取状态标签类型
-    getStatusType (status) {
-      const typeMap = {
-        1: 'success',
-        2: 'info',
-        3: 'warning',
-        4: 'danger',
-      };
-      return typeMap[status] || 'info';
     },
 
     // 提交核销

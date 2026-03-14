@@ -30,11 +30,11 @@
           <vxe-column field="discountAmount" title="优惠金额" min-width="120"  />
           <vxe-column field="discountRate" title="折扣率" min-width="120"  />
           <vxe-column field="partsAmount" title="配件金额" min-width="120"  />
-          <vxe-column field="totalAmount" title="总金额" min-width="120" >
+          <!-- <vxe-column field="totalAmount" title="总金额" min-width="120" >
             <template v-slot:default="{ row }">
               {{ totalAmount(row) }}
             </template>
-            </vxe-column>
+            </vxe-column> -->
           <vxe-column field="packageTypeLabel" title="套餐类型" min-width="150"/>
           <vxe-column field="packageName" title="套餐名称" min-width="150" />
 
