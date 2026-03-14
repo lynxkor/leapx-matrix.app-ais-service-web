@@ -53,14 +53,14 @@
             <!-- <InquiryInfo :formData="form"/> -->
             <RepairInfo :formData="form"/>
             <SparepartsInfo :formData="form"/>
-            <Attachment :formData="fileList" @refresh="handleRefresh"/>
+            <Attachment :_id="_id" :show-upload="false" ref="attachmentRef"/>
             <MaintainInfo :formData="form"/>
             <!-- TIPS: 填入项目id即可 -->
             <Upload
               :visible="uploadDialogVisible"
               :businessId="_id"
               @close="handleUploadDialogClose"
-              @refresh="handleRefresh"
+              @refresh="handleAttachmentRefresh"
             />
           </el-main>
           <el-footer height="60px" v-if="!_id">
@@ -168,7 +168,6 @@ import SelectRepairItemDialog from './components/SelectRepairItemDialog';
 import StartWorkDialog from './components/StartWorkDialog';
 import DispatchWorkDialog from './components/DispatchWorkDialog';
 import Upload from './components/UploadDialog';
-import { getFileList } from '@/libs/api/attachment';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -475,23 +474,13 @@ export default {
       RepairOrderStatusEnum,
       uploadDialogVisible: false,
       form: { ...form },
-      originalForm: { ...form },
-      fileList: []
+      originalForm: { ...form }
     };
   },
   mounted () {
     this.getDetailData();
   },
   methods: {
-    getFileList () {
-      getFileList({
-        businessId: this._id
-      }).then(res => {
-        if (res.code === 200) {
-          this.fileList = res.data || [];
-        }
-      });
-    },
     // 打开侧边栏
     openPane () {
       this.$refs.editLayout.openPane();
@@ -521,7 +510,6 @@ export default {
           this.form = res;
           this.originalForm = res;
         });
-        this.getFileList();
       }
     },
     async submitForm (formName, rest = false) {
@@ -604,6 +592,10 @@ export default {
     },
     handleRefresh () {
       this.getDetailData();
+    },
+    // 附件上传成功后刷新
+    handleAttachmentRefresh () {
+      this.$refs.attachmentRef?.loadAttachmentList();
     },
     // 预检确认
     handlePreCheck () {

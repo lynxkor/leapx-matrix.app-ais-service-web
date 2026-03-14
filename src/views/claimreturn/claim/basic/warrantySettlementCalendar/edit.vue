@@ -80,6 +80,7 @@
                     enumCode="StatusEnum"
                     v-model="form.status"
                     placeholder="请选择"
+                    :disabled="true"
                     clearable
                     filterable
                   />
@@ -122,6 +123,7 @@
                     enumCode="StatusEnum"
                     v-model="form.status"
                     placeholder="请选择"
+                    :disabled="true"
                     clearable
                     filterable
                   />
@@ -149,6 +151,9 @@
                 </el-form-item>
                 <el-form-item label="是否启用：" prop="status">
                   {{ statusLabel }}
+                </el-form-item>
+                <el-form-item label="说明：" prop="statusDesc">
+                  {{ form.statusDesc }}
                 </el-form-item>
                 <el-form-item label="创建时间：" prop="createTime">
                   {{ form.createTime }}

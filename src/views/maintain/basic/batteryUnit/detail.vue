@@ -21,8 +21,8 @@
             <el-form-item label="统一社会信用代码：" prop="buinessLicense">
               {{ info.buinessLicense  }}
             </el-form-item>
-            <el-form-item label="负责人姓名：" prop="ownerName">
-              {{ info.ownerName  }}
+            <el-form-item label="负责人姓名：" prop="ownerUserName">
+              {{ info.ownerUserName  }}
             </el-form-item>
           </el-form>
         </div>

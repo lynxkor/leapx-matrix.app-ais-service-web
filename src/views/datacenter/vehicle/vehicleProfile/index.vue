@@ -55,7 +55,7 @@
         <el-form-item label="保修开始日期">
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
-            v-model="form.warrantyStartDate"
+            v-model="form.warrantyStartdate"
             type="daterange"
             :picker-options="pickerOptions"
             range-separator="至"
@@ -67,25 +67,20 @@
         <el-form-item label="车主姓名">
           <el-input
             placeholder="请输入"
-            v-model="form.ownerName"
+            v-model="form.ownerNameLike"
             clearable
           />
         </el-form-item>
         <el-form-item label="车主证件类型">
-          <el-select
-            v-model="form.idcardType"
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="vehretail_id_card_type"
+            v-model="form.idcardTypeList"
             placeholder="请选择"
             clearable
             multiple
-            collapse-tags
-          >
-            <el-option
-              v-for="item in []"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
+            filterable
+          />
         </el-form-item>
         <el-form-item label="车主证件">
           <el-input
@@ -97,7 +92,7 @@
         <el-form-item label="绑车人姓名">
           <el-input
             placeholder="请输入"
-            v-model="form.bindingUser"
+            v-model="form.bindingUserLike"
             clearable
           />
         </el-form-item>
@@ -146,7 +141,7 @@
         <el-form-item label="物料描述">
           <el-input
             placeholder="请输入"
-            v-model="form.vehicleMaterialDesc"
+            v-model="form.vehicleMaterialDescLike"
             clearable
           />
         </el-form-item>
@@ -341,6 +336,9 @@
       :id="'1'"
       @close="handleUploadDialogClose"
     />
+    <return-dialog
+      :visible.sync="visible"
+    />
   </div>
 </template>
 
@@ -360,7 +358,9 @@ import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select';
 import ListSelect from '@/libs/components/list-select';
 import TagInput from '@/libs/components/TagInput';
+import FetchSelect from '@/libs/components/FetchSelect';
 import { vehicleRangePower } from '@/libs/api/common';
+import ReturnDialog from './ReturnDialog';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -371,9 +371,10 @@ const defaultForm = {
   deliveryDealerCodeList: [],
   serviceDealerCodeList: [],
   salesDealerCodeList: [],
-  ownerName: '',
+  ownerNameLike: '',
   ownerMobilephone: '',
-  idcardType: '',
+  idcardTypeList: [],
+  bindingUserLike: '',
   vdcInboundOn: '',
   vehicleSeriesIdList: [],
   vehicleModelIdList: [],
@@ -397,8 +398,8 @@ const defaultForm = {
   serviceDealerCode: '',
   salesDealerName: '',
   salesDealerCode: '',
-  vehicleMaterialDesc: '',
-  warrantyStartDate: '',
+  vehicleMaterialDescLike: '',
+  warrantyStartdate: '',
 };
 
 const pageSize = 20;
@@ -416,6 +417,8 @@ export default {
     DealerSelect,
     ListSelect,
     TagInput,
+    FetchSelect,
+    ReturnDialog,
   },
   data () {
     return {
@@ -523,7 +526,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'warrantyStartDate', label: '保修开始日期', visible: true, width: 160 },
+          { props: 'warrantyStartdate', label: '保修开始日期', visible: true, width: 160 },
           {
             props: 'ownerName',
             label: '车主姓名',
@@ -595,12 +598,12 @@ export default {
           { props: 'vehicleMaterialDesc', label: '物料描述', visible: true, width: 250 },
           { props: 'vdcInboundOn', label: 'VDC入库时间', visible: true, width: 180 },
           { props: 'vehicleSeriesName', label: '车系', visible: true, width: 150 },
-          { props: 'modelName', label: '车型', visible: true, width: 150 },
-          { props: 'powerTypeLabel', label: '动力', visible: true, width: 100 },
-          { props: 'enduranceLabel', label: '续航', visible: true, width: 100 },
-          { props: 'exteriorLabel', label: '外饰', visible: true, width: 100 },
-          { props: 'interiorLabel', label: '内饰', visible: true, width: 100 },
-          { props: 'wheelHubLabel', label: '轮毂', visible: true, width: 100 },
+          { props: 'vehicleModelName', label: '车型', visible: true, width: 150 },
+          { props: 'rangePowerName', label: '动力', visible: true, width: 100 },
+          { props: 'drivingRangeName', label: '续航', visible: true, width: 100 },
+          { props: 'exteriorName', label: '外饰', visible: true, width: 100 },
+          { props: 'interiorName', label: '内饰', visible: true, width: 100 },
+          { props: 'wheelHubName', label: '轮毂', visible: true, width: 100 },
           { props: 'nextMaintainDate', label: '下次保养时间', visible: true, width: 160 },
           { props: 'nextMaintainMileage', label: '下次保养里程', visible: true, width: 150 },
           { props: 'createTime', label: '创建时间', visible: true, width: 180 },
@@ -610,11 +613,13 @@ export default {
             label: '操作',
             type: 'operate',
             visible: true,
+            width: 200,
             fixed: 'right',
             buttons: [
               {
                 name: '退车',
                 click: (rowIndex, row) => {
+                  this.visible = true;
                 },
                 type: 'info'
               },
@@ -640,13 +645,15 @@ export default {
           }
         ],
         total: 0
-      }
+      },
+      // 退车
+      visible: false,
+      //
     };
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
-    console.log(this.form);
   },
   methods: {
     handleListSelect (row) {
@@ -753,6 +760,9 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
+        if (Array.isArray(data[key]) && !data[key].length) {
+          delete data[key];
+        }
         if (data[key] === '' || data[key] === null) {
           delete data[key];
         }
@@ -765,7 +775,7 @@ export default {
         'createTime',
         'updateTime',
         'bindingOn',
-        'warrantyStartDate',
+        'warrantyStartdate',
       ];
       keys.forEach(key => {
         if (this.form[key]) {

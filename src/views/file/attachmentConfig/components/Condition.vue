@@ -1,0 +1,329 @@
+<template>
+  <div class="outer-container">
+    <div class="and-label" v-show="conditions.length > 1">or</div>
+    <div
+      class="conditions-wrapper"
+      :class="{ 'has-multiple-conditions': conditions.length > 1 }"
+    >
+      <div
+        v-for="(condition, conditionIndex) in conditions"
+        :key="conditionIndex"
+        class="main-content"
+        :class="{
+          'first-condition': conditionIndex === 0,
+          'last-condition': conditionIndex === conditions.length - 1 && conditions.length > 1
+        }"
+      >
+        <div class="condition">
+          <div class="interior-container">
+            <div class="and-label" v-show="condition.dataList.length > 1">and</div>
+            <div
+              class="content-container"
+              :class="{ 'has-multiple-items': condition.dataList.length >= 2 }"
+            >
+              <div
+                v-for="(item, itemIndex) in condition.dataList"
+                :key="itemIndex"
+                class="data-item"
+                :class="{ 'first-item': itemIndex === 0, 'last-item': itemIndex === condition.dataList.length - 1 }"
+              >
+                <!-- 字段选择 -->
+                <el-select
+                  v-model="item.field"
+                  placeholder="请选择条件项"
+                  style="margin-right: 10px;"
+                >
+                  <el-option
+                    v-for="option in fieldOptions"
+                    :key="option.value"
+                    :label="option.label"
+                    :value="option.value"
+                  />
+                </el-select>
+
+                <!-- 逻辑判断 -->
+                <el-select
+                  v-model="item.operator"
+                  placeholder="请选择逻辑判断"
+                  style="margin-right: 10px;"
+                >
+                  <el-option
+                    v-for="option in operatorOptions"
+                    :key="option.value"
+                    :label="option.label"
+                    :value="option.value"
+                  />
+                </el-select>
+
+                <!-- 条件值 -->
+                <el-select
+                  v-model="item.value"
+                  placeholder="请选择条件值"
+                  style="margin-right: 10px;"
+                >
+                  <el-option label="B10" value="B10" />
+                  <el-option label="2026" value="2026" />
+                  <el-option label="直营店" value="直营店" />
+                </el-select>
+
+                <!-- 操作按钮 -->
+                <div class="button-group">
+                  <i @click="removeData(conditionIndex, itemIndex)" v-if="condition.dataList.length > 1" class="el-icon-minus" />
+                  <i @click="addData(conditionIndex)" class="el-icon-plus" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="button-group outer-button-group">
+          <i @click="removeOuterCondition(conditionIndex)" class="el-icon-minus" />
+          <i @click="addOuterCondition" class="el-icon-plus" />
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Condition',
+  data () {
+    return {
+      fieldOptions: [
+        { label: '车系', value: 'carSeries' },
+        { label: '车型', value: 'carModle' },
+        { label: '年款', value: 'yearType' },
+        { label: '合作类型', value: 'cooperationType' },
+        { label: '所属区域', value: 'region' }
+      ],
+      operatorOptions: [
+        { label: '等于', value: '=' },
+        { label: '不等于', value: '!=' },
+        { label: '大于', value: '>' },
+        { label: '小于', value: '<' },
+        { label: '大于等于', value: '>=' },
+        { label: '小于等于', value: '<=' },
+        { label: '包含', value: 'contains' },
+        { label: '不包含', value: 'not_contains' }
+      ],
+      conditions: [
+        {
+          dataList: [
+            { field: 'carSeries', operator: '=', value: 'B10' },
+            { field: 'yearType', operator: '=', value: '2026' }
+          ]
+        }
+      ]
+    };
+  },
+  methods: {
+    addData (conditionIndex) {
+      this.conditions[conditionIndex].dataList.push({
+        field: '',
+        operator: '',
+        value: ''
+      });
+    },
+    removeData (conditionIndex, itemIndex) {
+      this.conditions[conditionIndex].dataList.splice(itemIndex, 1);
+    },
+    addOuterCondition () {
+      this.conditions.push({
+        dataList: [{ field: '', operator: '', value: '' }]
+      });
+    },
+    removeOuterCondition (conditionIndex) {
+      if (this.conditions.length > 1) {
+        this.conditions.splice(conditionIndex, 1);
+      }
+    },
+    // 获取条件数据（供父组件调用）
+    getConditions () {
+      return this.conditions;
+    },
+    // 设置条件数据（供父组件回显）
+    setConditions (conditions) {
+      if (conditions && Array.isArray(conditions)) {
+        this.conditions = JSON.parse(JSON.stringify(conditions));
+      }
+    },
+    // 重置条件（供父组件调用）
+    resetConditions () {
+      this.conditions = [
+        {
+          dataList: [
+            { field: 'carSeries', operator: '=', value: 'B10' },
+            { field: 'yearType', operator: '=', value: '2026' }
+          ]
+        }
+      ];
+    }
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+.condition {
+  width: 100%;
+  border-radius: 5px;
+  padding: 20px 10px 20px 30px;
+}
+.outer-container-borde {
+  border: 1px solid #ddd;
+
+}
+.condition-group {
+  padding: 20px;
+}
+.outer-container {
+  padding: 20px 10px 20px 50px;
+  margin-left: 20px;
+  position: relative;
+  min-height: 80px;
+}
+
+.outer-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 10%;
+  height: 100%;
+  border: 1px solid #ddd;
+  border-right: none;
+  border-radius: 12px 0 0 12px;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+.interior-container {
+  // 确保没有完整的边框
+  border: none;
+  border-radius: 12px;
+  padding: 20px 30px;
+  padding-right: 0;
+  position: relative;
+  min-height: 80px;
+}
+
+.interior-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 10%;
+  height: 100%;
+  border: 1px solid #ddd;
+  border-right: none; // 明确取消右边框
+  border-radius: 12px 0 0 12px;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.and-label {
+  position: absolute;
+  top: 50%;
+  left: -20px;
+  transform: translateY(-50%);
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: white;
+  padding: 5px 10px;
+  // font-size: 14px;
+  color: #666;
+  font-weight: bold;
+}
+
+.conditions-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.main-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  // 调整对齐方式
+  align-items: center;
+}
+
+// 修改 main-content 的条件样式逻辑
+// 只有当 conditions 长度大于 1 时才应用特殊样式
+.main-content {
+  &.first-condition {
+    margin-top: 0;
+  }
+
+  &.last-condition {
+    margin-bottom: -0;
+  }
+}
+
+// 新增：当有多个条件时的特殊处理
+.conditions-wrapper.has-multiple-conditions {
+  .main-content.first-condition {
+    margin-top: -20px;
+  }
+
+  .main-content.last-condition {
+    margin-bottom: -20px;
+  }
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 60px;
+  position: relative;
+}
+
+.data-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-left: 20px;
+  background-color: white;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  // box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+// 修改 first-item 和 last-item 的样式
+.data-item.first-item {
+  margin-top: 0; // 移除负边距
+}
+
+.data-item.last-item {
+  margin-bottom: 0; // 移除负边距
+}
+
+// 如果 dataList 长度大于等于 2，才应用特殊样式
+.content-container.has-multiple-items {
+  .data-item:first-child {
+    margin-top: -20px; // 适度的向上偏移
+  }
+  .data-item:last-child {
+    margin-bottom: -20px; // 适度的向下偏移
+  }
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+  i {
+    border: 0.9px solid #D8D8D8;
+    border-radius: 4px;
+    padding: 5px;
+    cursor: pointer;
+    color: var(--leap-color-defaul);
+    font-size: 700;
+  }
+}
+
+.outer-button-group {
+  align-self: center;
+  margin-left: 10px;
+}
+</style>

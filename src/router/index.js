@@ -2331,6 +2331,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/claimreturn/claim/basic/warrantyGradeApprovalSetting',
+      name: 'warrantyGradeApprovalSetting',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyGradeApprovalSetting/index.vue'),
+
+      meta: {
+        name: '保修分级审批设置',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantygradeapprovalsetting/edit',
+      name: 'warrantyGradeApprovalSettingEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyGradeApprovalSetting/edit.vue'),
+
+      meta: {
+        name: '保修分级审批设置',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/file/attachmentConfig',
       name: 'attachmentConfig',
       component: () => import('@/views/file/attachmentConfig/index.vue'),
@@ -2344,6 +2362,24 @@ const routes = [
       component: () => import('@/views/file/attachmentConfig/edit.vue'),
       meta: {
         name: '附件配置详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyOrderWarningRule',
+      name: 'warrantyOrderWarningRule',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyOrderWarningRule/index.vue'),
+
+      meta: {
+        name: '保修单预警规则',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyorderwarningrule/edit',
+      name: 'warrantyOrderWarningRuleEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyOrderWarningRule/edit.vue'),
+
+      meta: {
+        name: '保修单预警规则详情',
         noResourceUrl: 'true'
       }
     }]
