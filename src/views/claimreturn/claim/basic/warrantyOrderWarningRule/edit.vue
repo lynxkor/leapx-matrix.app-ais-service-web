@@ -117,7 +117,7 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '重复维修信息提醒';
+      return '保修单预警规则';
     }
   },
   watch: {
@@ -133,7 +133,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '重复维修信息提醒',
+      pageTitle: '保修单预警规则',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-warrantyOrderWarningRule',

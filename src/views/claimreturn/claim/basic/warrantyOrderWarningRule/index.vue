@@ -131,7 +131,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '重复维修信息提醒',
+      pageTitle: '保修单预警规则',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-warrantyOrderWarningRule',
