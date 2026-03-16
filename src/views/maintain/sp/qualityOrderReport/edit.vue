@@ -669,7 +669,14 @@
               </div>
             </div>
           </section>
-          <Attachment v-if="_id" :_id="_id" :show-upload="true" ref="attachmentRef"/>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>附件材料</h2>
+            </div>
+            <div class="common-section-body">
+              <Attachment v-if="_id" :_id="_id" :show-upload="true" ref="attachmentRef"/>
+            </div>
+          </section>
         </el-main>
       </edit-base-container>
     </template>
