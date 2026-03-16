@@ -86,7 +86,7 @@
                 >
                   <vxe-column field="userId" title="用户编码" min-width="20%" />
                   <vxe-column field="userName" title="用户名称" min-width="20%" />
-                  <vxe-column field="email" title="邮箱" min-width="20%" />
+                  <vxe-column field="userEmail" title="邮箱" min-width="20%" />
                   <vxe-column field="provinceName" title="省" min-width="20%" />
                   <vxe-column field="cityName" title="市" min-width="20%" />
                   <vxe-column title="操作" width="100" v-if="canDelete">
