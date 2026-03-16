@@ -8,6 +8,7 @@
         :title="title"
         :isEditing.sync="isEditing"
         :form.sync="form"
+        direction="vertical"
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
@@ -27,7 +28,7 @@
             </div>
             <div class="common-section-body">
               <!-- TIPS: 自行调整 label-width="150px"，使得 label 不换行 -->
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="160px" class="form-edit" v-show="isEditing || !_id">
                 <!-- 序号 - 新增时置灰，后端自动生成；编辑时不可修改 -->
                 <el-form-item label="序号：" prop="serialNo">
                   <el-input
@@ -53,13 +54,13 @@
                 <template v-if="form.calendarMode === '10'">
                   <el-form-item label="每月第几日保修结算：" prop="settlementDay">
                     <el-input-number
+                      size="small"
                       v-model="form.settlementDay"
                       :min="1"
                       :max="28"
                       :precision="0"
                       :controls="true"
                       placeholder="请输入 1-28 的整数"
-                      style="width: px;"
                       @change="validateStandardCalendarDuplicate"
                     />
                   </el-form-item>
@@ -95,13 +96,13 @@
                   </el-form-item>
                   <el-form-item label="每月第几日保修结算：" prop="settlementDay">
                     <el-input-number
+                      size="small"
                       v-model="form.settlementDay"
                       :min="1"
                       :max="28"
                       :precision="0"
                       :controls="true"
                       placeholder="请输入 1-28 的整数"
-                      style="width: 200px;"
                       @change="validateStoreCalendarDuplicate"
                     />
                   </el-form-item>

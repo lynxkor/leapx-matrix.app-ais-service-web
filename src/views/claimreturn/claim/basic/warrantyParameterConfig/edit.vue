@@ -7,12 +7,12 @@
       <div class="common-section-body">
         <div style="font-size: 14px; margin-bottom: 8px;">基础信息</div>
         <el-form :model="form" ref="ruleForm" :rules="rules" class="form-edit">
-          <el-form-item label="首次提交：" prop="warrantyApplicationFormSubmissionDaysConfig">
+          <el-form-item class="form-item-full" label="首次提交：" prop="warrantyApplicationFormSubmissionDaysConfig">
             <span>首次提交保修日期 - 结算单创建日期超过</span>
             <el-input v-model="form.warrantyApplicationFormSubmissionDaysConfig" autocomplete="off" style="width: 100px; display: inline-block;"></el-input>
             <span>天，不允许提报，并提醒：您的结算单创建日期距离当天已经超过{{ form.warrantyApplicationFormSubmissionDaysConfig }}天，不允许提报</span>
           </el-form-item>
-          <el-form-item label="再次提交：" prop="warrantyReSubmissionDaysConfig">
+          <el-form-item class="form-item-full" label="再次提交：" prop="warrantyReSubmissionDaysConfig">
             <span>再次提交保修日期 - 保修单审批日期超过</span>
             <el-input v-model="form.warrantyReSubmissionDaysConfig" autocomplete="off" style="width: 100px; display: inline-block;"></el-input>
             <span>天，不允许提报，并提醒：您的保修单驳回日期距离当天已经超过{{ form.warrantyReSubmissionDaysConfig }}天，不允许提报</span>

@@ -85,11 +85,11 @@
                 </template>
                 <!-- 门店限时政策价模式字段 -->
                 <template v-if="form.pricingMode === '2'">
-                  <el-form-item label="门店编码：" prop="dealerCode">
+                  <el-form-item label="门店名称：" prop="dealerCode">
                     <dealer-select v-model="form.dealerCode" :disabled="isEditMode" />
                   </el-form-item>
-                  <el-form-item label="门店名称：" prop="dealerName">
-                    <el-input v-model="form.dealerName" disabled placeholder="由门店编码自动带出" />
+                  <el-form-item label="门店编码：" prop="dealerCode">
+                    <el-input v-model="form.dealerCode" disabled placeholder="由门店编码自动带出" />
                   </el-form-item>
                   <el-form-item label="工时单价：" prop="hourlyPrice">
                     <el-input-number

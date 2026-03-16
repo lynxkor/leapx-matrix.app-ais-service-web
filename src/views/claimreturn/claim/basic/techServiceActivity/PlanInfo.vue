@@ -162,9 +162,9 @@
 </template>
 <script>
 import {
-  techServiceActivitySchemeCopy,
-  techServiceActivitySchemeDelete,
-  techServiceActivitySchemeGet, techServiceActivitySchemeList, techServiceActivitySchemeUpdate
+  serviceActivitySchemeCopy,
+  serviceActivitySchemeDelete,
+  serviceActivitySchemeGet, serviceActivitySchemeList, serviceActivitySchemeUpdate
 } from '../../../../../api/claimreturn/claim/basic/serviceActivity';
 import { getList as partList } from '../../../../../api/sparepart/basic/sparePart';
 import { getList as sparePartList } from '../../../../../api/sparepart/basic/sparePartSupplier';
@@ -276,7 +276,7 @@ export default {
     },
     // 更新方案
     updatePlan (data) {
-      return techServiceActivitySchemeUpdate({
+      return serviceActivitySchemeUpdate({
         ...data,
         allowModifyOldPart: data.allowModifyOldPart ? '1' : '0',
         status: data.status ? 1 : 0,
@@ -284,10 +284,10 @@ export default {
       });
     },
     loadData (params) {
-      return techServiceActivitySchemeList(params);
+      return serviceActivitySchemeList(params);
     },
     getDetail (id) {
-      techServiceActivitySchemeGet(id).then(data => {
+      serviceActivitySchemeGet(id).then(data => {
         Object.keys(this.form).forEach(key => {
           if (key === 'allowModifyOldPart') {
             if (data[key] === '1') {
@@ -311,7 +311,7 @@ export default {
       });
     },
     onRemove (item, index, defer) {
-      techServiceActivitySchemeDelete([item.value]).then(() => {
+      serviceActivitySchemeDelete([item.value]).then(() => {
         this.$message.success('操作成功');
       });
     },
@@ -394,7 +394,7 @@ export default {
       console.log(command, item, index);
       switch (command) {
         case 'copy':
-          techServiceActivitySchemeCopy({
+          serviceActivitySchemeCopy({
             id: item.id,
             activityId: this.id,
           }).then(() => {
