@@ -204,20 +204,12 @@
           <vxe-column field="startAt" title="计划作业时间" width="160px" />
           <vxe-column field="timeSpend" title="实际作业时间" width="160px" />
           <vxe-column field="finishAt" title="作业结束时间" width="160px" />
-          <vxe-column field="rework" title="是否内返" width="120px" align="center">
-            <template #default="{ row }">
-              <span>{{ row.rework === 1 ? '是' : '否' }}</span>
-            </template>
-          </vxe-column>
+
           <vxe-column field="reworkTypeLabel" title="返修类型" width="120px" />
           <vxe-column field="qualityCheckerName" title="质检人" width="150px" />
           <vxe-column field="qualityCheckAt" title="质检时间" width="160px" />
           <vxe-column field="qualityCheckStatusLabel" title="质检状态" width="120px" />
-          <vxe-column field="hasRepaired" title="是否已返修" width="120px" align="center">
-            <template #default="{ row }">
-              <span>{{ row.hasRepaired === 1 ? '是' : '否' }}</span>
-            </template>
-          </vxe-column>
+
           <vxe-column field="createTime" title="创建时间" width="160px" />
           <template #empty>
             <div class="m-vxe-table-empty-text">若要启用此内容，请创建记录</div>
