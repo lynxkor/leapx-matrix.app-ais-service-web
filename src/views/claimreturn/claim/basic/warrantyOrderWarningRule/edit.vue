@@ -28,17 +28,17 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整 label-width="150px"，使得 label 不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="auto" class="form-edit" v-show="isEditing || !_id">
-                除当前保修申请单外，创建日期大于等于当前日期-
-                <el-form-item  prop="judgeDays">
+                <el-form-item class="form-item-full" prop="judgeDays">
+                  <span>除当前保修申请单外，创建日期大于等于当前日期- </span>
                   <el-input
                     placeholder="请输入天数"
                     v-model="form.judgeDays"
                     clearable
                     style="width: 150px;"
                   />
-                  的其他保修单，若【VIN】【主因故障零件】等于当前保修申请单且是已提交、审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款的记录数大于
+                  <span> 的其他保修单，若【VIN】【主因故障零件】等于当前保修申请单且是已提交、审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款的记录数大于</span>
                 </el-form-item>
-                <el-form-item prop="judgeTimes">
+                <el-form-item class="form-item-full" prop="judgeTimes">
                   <el-input
                     placeholder="请输入次数"
                     v-model="form.judgeTimes"
@@ -47,8 +47,7 @@
                   />
                   笔记录
                 </el-form-item>
-                则提醒：
-                <el-form-item  prop="remindContent">
+                <el-form-item label="则提醒：" class="form-item-full" prop="remindContent">
                   <el-input
                     type="textarea"
                     :rows="4"
@@ -117,7 +116,7 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '保修单预警规则';
+      return this.form.ruleName || '保修单预警规则';
     }
   },
   watch: {
