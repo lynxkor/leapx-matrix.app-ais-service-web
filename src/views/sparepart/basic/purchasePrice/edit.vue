@@ -8,7 +8,6 @@
         :title="title"
         :isEditing.sync="isEditing"
         :form.sync="form"
-        :showBackBtn="showBackBtn"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
@@ -58,6 +57,7 @@
                     placeholder="请选择"
                     clearable
                     filterable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="调价比例%：" prop="percent">
@@ -256,11 +256,7 @@ export default {
     id: {
       type: [String, Number],
       default: null
-    },
-    showBackBtn: {
-      type: Boolean,
-      default: true,
-    },
+    }
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
@@ -339,7 +335,7 @@ export default {
       },
       rulesCoupon: {
         remark: [
-          { required: true, message: '请输入优惠券新增原因', trigger: 'blur' }
+          { required: false, message: '请输入优惠券新增原因', trigger: 'blur' }
         ]
       }
     };
@@ -359,6 +355,7 @@ export default {
     submitRequest () {
       addOrUpdate({ ...this.form }).then((res) => {
         this.couponId = res || '';
+        this.detailRequest();
         this.getCouponList(this.couponId);
       });
     },
@@ -433,6 +430,7 @@ export default {
       await addCoupon(params);
       this.couponObj = {};
       this.getCouponList(id);
+      this.detailRequest();
     },
     // 请求优惠券信息
     async getCouponList (val) {

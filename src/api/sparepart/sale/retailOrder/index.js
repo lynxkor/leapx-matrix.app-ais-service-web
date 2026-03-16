@@ -43,3 +43,131 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 获取备件清单
+ * @param {Object} data
+ */
+export function getSpareParkList (data) {
+  return api.jsonPost(prefix + 'spareParkList', data);
+}
+
+/**
+ * 确认订单
+ * @param {Object} data
+ */
+export function confirmOrder (data) {
+  return api.jsonPost(prefix + 'confirm', data);
+}
+
+/**
+ * 作废订单
+ * @param {Object} data
+ */
+export function cancelOrder (data) {
+  return api.jsonPost(prefix + 'cancel', data);
+}
+
+/**
+ * 订单出库
+ * @param {Object} data
+ */
+export function shipOrder (data) {
+  return api.jsonPost(prefix + 'ship', data);
+}
+
+/**
+ * 签收
+ * @param {Object} data
+ */
+export function signOrder (data) {
+  return api.jsonPost(prefix + 'sign', data);
+}
+
+/**
+ * 取消签收
+ * @param {Object} data
+ */
+export function cancelSignOrder (data) {
+  return api.jsonPost(prefix + 'cancelSign', data);
+}
+
+/**
+ * 退料申请
+ * @param {Object} data
+ */
+export function applyReturnMaterial (data) {
+  return api.jsonPost(prefix + 'applyReturnMaterial', data);
+}
+
+/**
+ * 退料入库
+ * @param {Object} data
+ */
+export function returnMaterialInbound (data) {
+  return api.jsonPost(prefix + 'returnMaterialInbound', data);
+}
+
+/**
+ * 结算
+ * @param {Object} data
+ */
+export function settleOrder (data) {
+  return api.jsonPost(prefix + 'settle', data);
+}
+
+/**
+ * 取消结算
+ * @param {Object} data
+ */
+export function cancelSettleOrder (data) {
+  return api.jsonPost(prefix + 'cancelSettle', data);
+}
+
+/**
+ * 收款
+ * @param {Object} data
+ */
+export function collectPayment (data) {
+  return api.jsonPost(prefix + 'collectPayment', data);
+}
+
+/**
+ * 反结算
+ * @param {Object} data
+ */
+export function reverseSettleOrder (data) {
+  return api.jsonPost(prefix + 'reverseSettle', data);
+}
+
+/**
+ * 退订入库
+ * @param {Object} data
+ */
+export function cancelOrderInbound (data) {
+  return api.jsonPost(prefix + 'cancelOrderInbound', data);
+}
+
+/**
+ * 退款
+ * @param {Object} data
+ */
+export function refundOrder (data) {
+  return api.jsonPost(prefix + 'refund', data);
+}
+
+/**
+ * 备附件销售单明细表分页查询
+ * @param {Object} data
+ */
+export function retailOrderDetailPage (data) {
+  return api.jsonPost('sp/web/dealer/retailOrderDetail/page', data);
+}
+
+/**
+ * 备附件销售单明细表新增/编辑
+ * @param {Object} data
+ */
+export function addOrUpdateRetailOrderDetail (data) {
+  return api.jsonPost('sp/web/dealer/retailOrderDetail/addOrUpdate', data);
+}
