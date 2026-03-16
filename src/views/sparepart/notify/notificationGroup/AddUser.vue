@@ -55,6 +55,10 @@ export default {
     notificationGroupId: { // 采购申请单ID
       type: [String, Number],
       default: ''
+    },
+    notificationForm: { // 通知对象列表
+      type: Array,
+      default: () => {}
     }
   },
   components: { FetchSelect },
@@ -63,15 +67,17 @@ export default {
       formData: {},
     };
   },
-  // watch: {
-  //   purchaseApplyId: {
-  //     async handler (val) {
-  //       await this.getDetailData();
-  //     },
-  //     immediate: true,
-  //     deep: true
-  //   }
-  // },
+  watch: {
+    notificationForm: {
+      handler (val) {
+        if (val) {
+          this.formData = { ...val };
+        }
+      },
+      immediate: true,
+      deep: true
+    }
+  },
   methods: {
     async getCityList (params) {
       return cityListByName({ cityName: params });
