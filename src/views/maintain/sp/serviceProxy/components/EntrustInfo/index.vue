@@ -48,6 +48,7 @@
             end-placeholder="结束日期"
             @focus="handleExpectFinishFocus"
             :readonly="!isExpectFinishEditable"
+            :disabled="!_id"
           />
         </el-form-item>
         <el-form-item label="是否直播：" prop="isLive">
