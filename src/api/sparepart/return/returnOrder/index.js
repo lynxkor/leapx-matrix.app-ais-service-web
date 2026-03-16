@@ -123,3 +123,11 @@ export function returnOrderRevoke (data) {
 export function returnOrderShipping (data) {
   return api.jsonPost(prefix + 'shipping', data);
 }
+
+/**
+ * 退货异常入库
+ * @param {Object} data
+ */
+export function returnExceptionInbound (data) {
+  return api.jsonPost(prefix + 'returnExceptionInbound', data);
+}

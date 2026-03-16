@@ -1,5 +1,6 @@
 <template>
-  <edit-page-layout ref="editLayout" title="附件配置明细" showPaneFooter>
+  <div>
+    <edit-page-layout ref="editLayout" title="附件配置明细" showPaneFooter>
     <template #left>
       <edit-base-container
         ref="containerRef"
@@ -19,61 +20,74 @@
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>基础信息</h2>
+              <h2>实体信息</h2>
             </div>
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="120px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="配置名称" prop="configName">
+                <el-form-item label="实体显示名称：" prop="configName">
                   <el-input
                     placeholder="请输入"
                     v-model="form.configName"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="配置编码" prop="configCode">
+                <el-form-item label="实体名称：" prop="configCode">
                   <el-input
                     placeholder="请输入"
                     v-model="form.configCode"
                     clearable
+                    :disabled="!!_id"
                   />
                 </el-form-item>
-                <el-form-item label="备注" prop="remark">
+                <el-form-item label="创建人：" prop="modifierName">
                   <el-input
                     placeholder="请输入"
-                    v-model="form.remark"
+                    v-model="form.modifierName"
                     clearable
+                    :disabled="!!_id"
+                  />
+                </el-form-item>
+                <el-form-item label="创建时间：" prop="createTime">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.createTime"
+                    clearable
+                    :disabled="!!_id"
                   />
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="配置名称：">
+                <el-form-item label="实体显示名称：">
                   {{ form.configName }}
                 </el-form-item>
-                <el-form-item label="配置编码：">
+                <el-form-item label="实体名称：">
                   {{ form.configCode }}
                 </el-form-item>
-                <el-form-item label="备注：">
-                  {{ form.remark }}
+                <el-form-item label="创建人：">
+                  {{ form.modifierName }}
+                </el-form-item>
+                <el-form-item label="创建时间：">
+                  {{ form.createTime }}
                 </el-form-item>
               </el-form>
             </div>
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>附件配置明细</h2>
+              <h2>附件分类明细</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-header" v-if="isEditing || !_id">
                 <div class="ais-select-group">
-                  <el-button type="primary" size="small" @click="handleAddRow">添加</el-button>
+                  <el-button size="small" @click="handleAddRow">新增</el-button>
                 </div>
               </div>
               <div class="common-section-table">
                 <vxe-table
                   ref="tableRef"
                   stripe
-                  :data="form.detailList"
+                  :data="detailList"
                   show-overflow
                   resizable
                   border="inner"
@@ -81,23 +95,24 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="attachmentCategoryName" title="附件分类名称" min-width="15%" />
-                  <vxe-column field="isRequired" title="是否必传" min-width="10%">
+                  <vxe-column field="attachType" title="附件分类名称" min-width="15%" />
+                  <vxe-column field="needOcr" title="是否OCR识别" min-width="10%">
                     <template #default="{ row }">
-                      {{ row.isRequired === 1 ? '是' : '否' }}
+                      {{ row.needOcr === '1' ? '是' : '否' }}
                     </template>
                   </vxe-column>
-                  <vxe-column field="maxCount" title="至多数量" min-width="10%" />
-                  <vxe-column field="minCount" title="至少数量" min-width="10%" />
-                  <vxe-column field="sizeLimit" title="附件大小限制(M)" min-width="12%" />
-                  <vxe-column field="fileSuffix" title="文件后缀(带点，逗号隔开)" min-width="18%" />
-                  <vxe-column field="isDefault" title="是否默认" min-width="10%">
+                  <vxe-column field="required" title="是否必传" min-width="10%">
                     <template #default="{ row }">
-                      {{ row.isDefault === 1 ? '是' : '否' }}
+                      {{ row.required === '1' ? '是' : '否' }}
                     </template>
                   </vxe-column>
-                  <vxe-column title="操作" width="80" v-if="isEditing || !_id">
+                  <vxe-column field="maxNum" title="至多数量" min-width="10%" />
+                  <vxe-column field="minNum" title="至少数量" min-width="10%" />
+                  <vxe-column field="maxSize" title="附件大小限制(M)" min-width="12%" />
+                  <vxe-column field="acceptSuffix" title="文件后缀" min-width="15%" />
+                  <vxe-column title="操作" width="180" v-if="isEditing || !_id">
                     <template #default="{ rowIndex }">
+                      <span class="btn-edit" @click="handleEditRow(rowIndex)">编辑</span>
                       <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
@@ -119,11 +134,18 @@
       </div>
     </template>
   </edit-page-layout>
+
+  <!-- 附件分类明细对话框 -->
+  <attached-files-dialog
+    ref="attachedFilesDialog"
+    :attachment-config-id="form.id"
+    @confirm="handleAttachedFilesConfirm"
+  />
+  </div>
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/file/attachmentConfig/index';
-import FetchSelect from '@/libs/components/FetchSelect';
+import { getConfigDetail, addOrUpdateConfig, geConfigDetailList, deleteConfigDetail } from '@/libs/api/attachment';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -131,6 +153,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import AttachedFilesDialog from './components/attachedFilesDialog.vue';
 
 const defaultForm = {
   configName: '',
@@ -151,14 +174,15 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     EditPageLayout,
-    EditBaseContainer
+    EditBaseContainer,
+    AttachedFilesDialog
   },
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '配置名称：' + (this.form.configName || '');
+      return '实体显示名称：' + (this.form.configName || '');
     }
   },
   watch: {
@@ -173,6 +197,22 @@ export default {
   },
   data () {
     const form = this.getDefautlForm();
+    // 校验只能输入中文
+    const validateChinese = (_, value, callback) => {
+      if (value && !/^[\u4e00-\u9fa5]+$/.test(value)) {
+        callback(new Error('只能输入中文'));
+      } else {
+        callback();
+      }
+    };
+    // 校验只能输入非中文（英文、数字、下划线等）
+    const validateNonChinese = (_, value, callback) => {
+      if (value && /[\u4e00-\u9fa5]/.test(value)) {
+        callback(new Error('不能输入中文'));
+      } else {
+        callback();
+      }
+    };
     return {
       pageTitle: '附件配置管理',
       pageType: 'edit',
@@ -183,12 +223,17 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
+      detailList: [],
+      // 对话框数据
+      currentEditIndex: null,
       rules: {
         configName: [
-          { required: true, message: '请输入配置名称', trigger: 'change' }
+          { required: true, message: '请输入实体显示名称', trigger: 'change' },
+          { validator: validateChinese, trigger: 'blur' }
         ],
         configCode: [
-          { required: true, message: '请输入配置编码', trigger: 'change' }
+          { required: true, message: '请输入实体名称', trigger: 'change' },
+          { validator: validateNonChinese, trigger: 'blur' }
         ]
       }
     };
@@ -198,30 +243,70 @@ export default {
     detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id);
+        return getConfigDetail(id).then(res => {
+          const formData = res.data;
+          this.$nextTick(() => {
+            this.loadConfigDetailList(formData);
+          });
+          return formData;
+        });
       }
     },
+    // 加载附件配置明细分页数据
+    loadConfigDetailList (formData) {
+      const configId = formData.id || this.form.id;
+      if (!configId) return;
+      geConfigDetailList({ attachmentConfigId: configId }).then(res => {
+        const records = res.data;
+        console.log('附件配置明细列表:', records);
+        this.detailList = records.records || [];
+      });
+    },
     submitRequest () {
-      return addOrUpdate({ ...this.form });
+      const params = this._id ? { ...this.form } : {
+        configName: this.form.configName,
+        configCode: this.form.configCode,
+        dataSource: 150 // 数据来源，150:新销服; 老销服:10
+      };
+      return addOrUpdateConfig(params);
     },
     // 打开侧边栏
     openPane () {
       this.$refs.editLayout.openPane();
     },
-    // 删除子表数据
-    handleDeleteRow (index) {
-      this.form.detailList.splice(index, 1);
-    },
     // 新增子表数据
     handleAddRow () {
-      this.form.detailList.push({
-        attachmentCategoryName: '',
-        isRequired: 0,
-        maxCount: null,
-        minCount: null,
-        sizeLimit: null,
-        fileSuffix: '',
-        isDefault: 0
+      this.currentEditIndex = null;
+      this.$refs.attachedFilesDialog && this.$refs.attachedFilesDialog.show(false);
+    },
+    // 编辑子表数据
+    handleEditRow (rowIndex) {
+      this.currentEditIndex = rowIndex;
+      const row = this.detailList[rowIndex];
+      this.$refs.attachedFilesDialog && this.$refs.attachedFilesDialog.show(true, row.id);
+    },
+    // 处理对话框确认（新增/编辑）
+    handleAttachedFilesConfirm () {
+      // 子组件已经调用了保存接口，这里只需要刷新列表即可
+      this.loadConfigDetailList(this.form);
+    },
+    // 删除子表数据
+    handleDeleteRow (rowIndex) {
+      const row = this.detailList[rowIndex];
+      if (!row || !row.id) {
+        // 如果是新增的数据，直接删除
+        this.detailList.splice(rowIndex, 1);
+        return;
+      }
+      // 调用删除接口
+      deleteConfigDetail([row.id]).then(() => {
+        this.$message({
+          type: 'success',
+          message: '删除成功'
+        });
+        this.detailList.splice(rowIndex, 1);
+      }).catch(err => {
+        console.error('删除失败', err);
       });
     },
     getDefautlForm () {
@@ -242,3 +327,15 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.btn-edit {
+  color: var(--leap-color-primary);
+  cursor: pointer;
+  margin-right: 10px;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+</style>

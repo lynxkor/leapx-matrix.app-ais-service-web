@@ -3,7 +3,9 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/claim/claimOrder/';
-
+const prefixDetail = SPARE_PREFIX + '/web/claim/claimOrderDetail/';
+const prefixOutbound = SPARE_PREFIX + '/web/claim/claimOutboundDetail/';
+const prefixBack = SPARE_PREFIX + '/web/claim/claimBackDetail/';
 /**
  * 查询列表
  * @param {Object} data
@@ -49,7 +51,7 @@ export function enableItem (data) {
  * @param {Object} data
  */
 export function getDetailList (data) {
-  return api.jsonPost('sp/web/claim/claimOrderDetail/page', data);
+  return api.jsonPost(prefixDetail + 'page', data);
 }
 
 /**
@@ -57,7 +59,7 @@ export function getDetailList (data) {
  * @param {Object} data
  */
 export function getOutboundDetailList (data) {
-  return api.jsonPost('sp/web/claim/claimOutboundDetail/page', data);
+  return api.jsonPost(prefixOutbound + 'page', data);
 }
 
 /**
@@ -65,14 +67,14 @@ export function getOutboundDetailList (data) {
  * @param {Object} data
  */
 export function getBackDetailList (data) {
-  return api.jsonPost('sp/web/claim/claimBackDetail/page', data);
+  return api.jsonPost(prefixBack + 'page', data);
 }
 
 /**
  * 备件索赔历史
  */
 export function historyPage (data) {
-  return api.jsonPost('sp/web/claim/claimOrderDetail/historyPage', data);
+  return api.jsonPost(prefixDetail + 'historyPage', data);
 }
 
 /**

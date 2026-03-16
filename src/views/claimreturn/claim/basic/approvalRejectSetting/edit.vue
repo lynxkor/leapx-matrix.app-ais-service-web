@@ -60,6 +60,7 @@
                     v-model="form.status"
                     placeholder="请选择"
                     clearable
+                    disabled="true"
                     filterable
                   />
                 </el-form-item>
@@ -74,8 +75,11 @@
                 <el-form-item label="类型：" prop="rejectConfigType">
                   {{ form.rejectConfigTypeLabel }}
                 </el-form-item>
-                <el-form-item label="状态：" prop="status">
+                <el-form-item label="是否启用：" prop="status">
                   {{ form.statusLabel }}
+                </el-form-item>
+                <el-form-item label="说明：" prop="statusDesc">
+                  {{ form.statusDesc }}
                 </el-form-item>
                 <el-form-item label="创建时间：" prop="createTime">
                   {{ form.createTime }}
@@ -118,7 +122,7 @@ const defaultForm = {
   modifierName: '',
   updateTime: '',
   remark: '',
-  status: '',
+  status: '1',
   statusDesc: '',
   dataSource: '',
   code: '',

@@ -9,37 +9,34 @@
       label-width="100px"
       class="ais-search-form"
     >
-      <el-form-item label="配置名称">
-        <el-input
-          placeholder="请输入"
-          v-model="form.configNameLike"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="配置编码">
+      <el-form-item label="实体名称">
         <el-input
           placeholder="请输入"
           v-model="form.configCodeLike"
           clearable
         />
       </el-form-item>
-      <el-form-item label="创建时间" v-show="this.visibleCount === 3 || show">
-        <el-date-picker
-          :default-time="['00:00:00', '23:59:59']"
-          v-model="form.createTime"
-          type="daterange"
-          :picker-options="pickerOptions"
-          range-separator="至"
-          value-format="yyyy-MM-dd HH:mm:ss"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
+      <el-form-item label="实体显示名称">
+        <el-input
+          placeholder="请输入"
+          v-model="form.configNameLike"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="状态" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="StatusEnum"
+          v-model="form.status"
+          placeholder="请选择"
+          clearable
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="修改时间">
+        <el-form-item label="创建时间">
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
-            v-model="form.updateTime"
+            v-model="form.createTime"
             type="daterange"
             :picker-options="pickerOptions"
             range-separator="至"
@@ -90,7 +87,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem } from '@/api/file/attachmentConfig/index';
+import { getConfigList } from '@/libs/api/attachment';
 import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -115,6 +112,7 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
+    FetchSelect,
     PageSearchAction,
     LPVxeTable,
     EditPage
@@ -143,23 +141,25 @@ export default {
         dataProp: [
           {
             props: 'configName',
-            label: '配置名称',
+            label: '实体显示名称',
             visible: true,
-            width: 200,
+            width: 500,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
-                this.clickItemId = row.id;
+                this.$router.push({
+                  path: '/file/attachmentConfig/edit',
+                  query: {
+                    id: row.id
+                  }
+                });
               },
               type: 'primary'
             }]
           },
-          { props: 'configCode', label: '配置编码', visible: true, width: 200 },
-          { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 180 },
-          { props: 'creatorName', label: '创建者名称', visible: true, width: 120 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
-          { props: 'modifierName', label: '修改者名称', visible: true, width: 120 },
+          { props: 'configCode', label: '实体名称', visible: true, width: 360 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 220 },
+          { props: 'createTime', label: '创建时间', visible: true },
           {
             props: 'operate',
             label: '操作',
@@ -172,31 +172,12 @@ export default {
                 this.$router.push({
                   path: '/file/attachmentConfig/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true,
                   }
                 });
               },
               type: 'info'
-            }, {
-              name: '删除',
-              popconfirmConfirmButtonType: 'danger',
-              popconfirmConfirmButtonText: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
             }]
           }
         ],
@@ -242,16 +223,17 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getConfigList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          const records = res.data?.records || [];
+          this.optionObj.dataList = records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res.data?.totals;
         }).finally(() => {
           this.loading = false;
         });
