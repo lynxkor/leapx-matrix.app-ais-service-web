@@ -27,7 +27,7 @@
             </div>
             <div class="common-section-body">
               <!-- TIPS: 自行调整 label-width="150px"，使得 label 不换行 -->
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="160px" class="form-edit" v-show="isEditing || !_id">
                 <!-- 序号 - 新增时置灰，后端自动生成；编辑时不可修改 -->
                 <el-form-item label="序号：" prop="serialNo">
                   <el-input
@@ -53,13 +53,13 @@
                 <template v-if="form.calendarMode === '10'">
                   <el-form-item label="每月第几日保修结算：" prop="settlementDay">
                     <el-input-number
+                      size="small"
                       v-model="form.settlementDay"
                       :min="1"
                       :max="28"
                       :precision="0"
                       :controls="true"
                       placeholder="请输入 1-28 的整数"
-                      style="width: px;"
                       @change="validateStandardCalendarDuplicate"
                     />
                   </el-form-item>
@@ -88,21 +88,21 @@
                 </template>
                 <!-- 门店日历模式字段 -->
                 <template v-if="form.calendarMode === '20'">
-                  <el-form-item label="门店编码：" prop="dealerCode">
+                  <el-form-item label="门店名称：" prop="dealerCode">
                     <dealer-select v-model="form.dealerCode" :disabled="isEditMode" />
                   </el-form-item>
-                  <el-form-item label="门店名称：" prop="dealerName">
-                    <el-input v-model="form.dealerName" disabled placeholder="由门店编码自动带出" />
+                  <el-form-item label="门店编码：" prop="dealerCode">
+                    <el-input v-model="form.dealerCode" disabled/>
                   </el-form-item>
                   <el-form-item label="每月第几日保修结算：" prop="settlementDay">
                     <el-input-number
+                      size="small"
                       v-model="form.settlementDay"
                       :min="1"
                       :max="28"
                       :precision="0"
                       :controls="true"
                       placeholder="请输入 1-28 的整数"
-                      style="width: 200px;"
                       @change="validateStoreCalendarDuplicate"
                     />
                   </el-form-item>
@@ -294,7 +294,7 @@ export default {
           { required: true, message: '请选择月度', trigger: 'change' }
         ],
         dealerCode: [
-          { required: true, message: '请选择门店编码', trigger: 'change', validator: this.validateDealerCode }
+          { required: true, message: '请选择门店编码或名称', trigger: 'change', validator: this.validateDealerCode }
         ],
         status: [
           { required: true, message: '请选择是否启用', trigger: 'change' }

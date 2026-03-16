@@ -60,7 +60,6 @@
                       :precision="2"
                       :controls="false"
                       placeholder="请输入"
-                      style="width: 200px;"
                     />
                   </el-form-item>
                   <el-form-item label="生效开始日期：" prop="effectiveStartTime">
@@ -85,11 +84,11 @@
                 </template>
                 <!-- 门店限时政策价模式字段 -->
                 <template v-if="form.pricingMode === '2'">
-                  <el-form-item label="门店编码：" prop="dealerCode">
+                  <el-form-item label="门店名称：" prop="dealerCode">
                     <dealer-select v-model="form.dealerCode" :disabled="isEditMode" />
                   </el-form-item>
-                  <el-form-item label="门店名称：" prop="dealerName">
-                    <el-input v-model="form.dealerName" disabled placeholder="由门店编码自动带出" />
+                  <el-form-item label="门店编码：" prop="dealerCode">
+                    <el-input v-model="form.dealerCode" disabled />
                   </el-form-item>
                   <el-form-item label="工时单价：" prop="hourlyPrice">
                     <el-input-number
@@ -201,6 +200,12 @@
                   </el-form-item>
                   <el-form-item label="生效结束日期：" prop="effectiveEndTime">
                     {{ form.effectiveEndTime }}
+                  </el-form-item>
+                  <el-form-item label="创建时间：" prop="createTime">
+                    {{ form.createTime }}
+                  </el-form-item>
+                  <el-form-item label="修改时间：" prop="updateTime">
+                    {{ form.updateTime }}
                   </el-form-item>
                   <el-form-item label="备注：" prop="remark">
                     {{ form.remark }}
@@ -477,7 +482,7 @@ export default {
           { validator: this.validatePositiveNumber, trigger: 'change' }
         ],
         dealerCode: [
-          { required: true, message: '请选择门店编码', trigger: 'change' }
+          { required: true, message: '请选择门店编码或名称', trigger: 'change' }
         ],
         effectiveStartTime: [
           { required: true, message: '请选择生效开始日期', trigger: 'change' }

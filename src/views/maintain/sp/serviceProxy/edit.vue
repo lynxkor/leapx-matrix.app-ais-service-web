@@ -53,7 +53,14 @@
             <!-- <InquiryInfo :formData="form"/> -->
             <RepairInfo :formData="form"/>
             <SparepartsInfo :formData="form"/>
-            <Attachment :_id="_id" :show-upload="false" ref="attachmentRef"/>
+            <section class="common-section">
+              <div class="common-section-header">
+                <h2>资料附件</h2>
+              </div>
+              <div class="common-section-body">
+                <Attachment :_id="_id" :show-upload="false" ref="attachmentRef"/>
+              </div>
+            </section>
             <MaintainInfo :formData="form"/>
           </el-main>
           <el-footer height="60px" v-if="!_id">

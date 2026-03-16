@@ -175,6 +175,7 @@
                   :key="item.warrantyTypeId"
                   :label="item.warrantyTypeName"
                   :value="item.warrantyTypeName"
+                  :disabled="!checkIfWarrantyTypeEditable(row, item.warrantyTypeId)"
                 />
               </el-select>
             </template>
@@ -330,6 +331,7 @@
                   :key="item.warrantyTypeId"
                   :label="item.warrantyTypeName"
                   :value="item.warrantyTypeName"
+                  :disabled="!checkIfWarrantyTypeEditable(row, item.warrantyTypeId)"
                 />
               </el-select>
             </template>
@@ -1017,6 +1019,23 @@ export default {
       // CONTRACT("3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "合同"),
       // INTERNAL_SETTLEMENT("3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "内部结算");
       return type === '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF' || type === '3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF';
+    },
+
+    // 【结算类型】为保修，【保修类型】为：技术服务活动 选不到
+    // 【结算类型】为合同，【保修类型】为：免费保养、终身保养、保养套餐 选不到
+    checkIfWarrantyTypeEditable (row, id) {
+      if (row.checkoutTypeId === '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF' && id === '64A3066F-82AC-E911-B0BB-FC82BA5F9EDF') {
+        return false;
+      }
+      const warrantyTypes = [
+        '60A3066F-82AC-E911-B0BB-FC82BA5F9EDF', // 免费保养
+        '4EC01DDD-DD79-EC11-B0F9-9216EACB73F2', // 终身保养
+        'BA408917-12AE-EF11-B1BC-B6F71A4539C1' // 保养套餐
+      ];
+      if (row.checkoutTypeId === '3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF' && warrantyTypes.includes(id)) {
+        return false;
+      }
+      return true;
     },
     // 获取维修项目表格行样式类名
     getItemRowClassName ({ row }) {

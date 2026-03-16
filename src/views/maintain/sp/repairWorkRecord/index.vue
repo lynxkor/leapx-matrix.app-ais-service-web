@@ -134,12 +134,12 @@ export default {
           { props: 'startAt', label: '计划作业时间', visible: true, width: 200 },
           { props: 'timeSpend', label: '实际作业时间', visible: true, width: 200 },
           { props: 'finishAt', label: '作业结束时间', visible: true, width: 200 },
-          { props: 'reworkLabel', label: '是否内返', visible: true, width: 200 },
+
           { props: 'reworkTypeLabel', label: '返修类型', visible: true, width: 200 },
           { props: 'qualityCheckerName', label: '质检人', visible: true, width: 200 },
           { props: 'qualityCheckAt', label: '质检时间', visible: true, width: 200 },
           { props: 'qualityCheckStatusLabel', label: '质检状态', visible: true, width: 200 },
-          { props: 'hasRepairedLabel', label: '是否已返修', visible: true, width: 200 },
+
           { props: 'createTime', label: '创建时间', visible: true, width: 200, sortable: true },
         ],
         total: 0

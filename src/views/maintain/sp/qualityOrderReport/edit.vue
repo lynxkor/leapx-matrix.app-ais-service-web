@@ -661,14 +661,22 @@
                   :data="tableDataFault"
                   :defaultNewRow="defaultNewRowFault"
                   :show-toolbar="false"
-                  :options="options"
                   :delTitle="delTitleFault"
                   :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                  :enableSingleRowSave="true"
+                  @save-row-edit="saveRowEdit"
                 />
               </div>
             </div>
           </section>
-          <Attachment v-if="_id" :_id="_id" :show-upload="true" ref="attachmentRef"/>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>附件材料</h2>
+            </div>
+            <div class="common-section-body">
+              <Attachment v-if="_id" :_id="_id" :show-upload="true" ref="attachmentRef"/>
+            </div>
+          </section>
         </el-main>
       </edit-base-container>
     </template>
@@ -840,7 +848,7 @@ export default {
         {
           field: 'controller',
           title: '控制器',
-          width: '20%',
+          width: '30%',
           editable: this.isEditing || !this.id,
           editRender: { name: 'ElInput' },
           rules: [
@@ -850,14 +858,14 @@ export default {
         {
           field: 'code',
           title: 'DTC代码',
-          width: '20%',
+          width: '30%',
           editable: this.isEditing || !this.id,
           editRender: { name: 'ElInput' },
         },
         {
           field: 'description',
           title: 'DTC描述',
-          width: '20%',
+          width: '30%',
           editable: this.isEditing || !this.id,
           editRender: { name: 'ElInput' }
         }
@@ -1126,14 +1134,27 @@ export default {
     detailRequest () {
       const id = this._id;
       if (id) {
-        const data = getDetail(id);
-        this.tableDataFault = data.qualityOrderReportFaultRespList;
-        return data;
+        return new Promise(resolve => {
+          getDetail(id).then(res => {
+            this.tableDataFault = res.qualityOrderReportFaultRespList || [];
+            resolve(res);
+          });
+        });
       }
     },
     async submitRequest () {
       const tableDataFault = await this.handleSaveTableFault();
       return addOrUpdate({ ...this.form, qualityOrderReportFaultList: tableDataFault });
+    },
+    // 行保存
+    async saveRowEdit (row, defer) {
+      const tableDataFault = await this.handleSaveTableFault();
+      addOrUpdate({ ...this.form, qualityOrderReportFaultList: tableDataFault }).then(res => {
+        defer.resolve(res);
+        this.$message.success('更新成功');
+      }).catch(e => {
+        defer.reject();
+      });
     },
     // 打开侧边栏
     openPane () {
