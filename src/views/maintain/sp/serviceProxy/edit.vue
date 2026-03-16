@@ -55,13 +55,6 @@
             <SparepartsInfo :formData="form"/>
             <Attachment :_id="_id" :show-upload="false" ref="attachmentRef"/>
             <MaintainInfo :formData="form"/>
-            <!-- TIPS: 填入项目id即可 -->
-            <Upload
-              :visible="uploadDialogVisible"
-              :businessId="_id"
-              @close="handleUploadDialogClose"
-              @refresh="handleAttachmentRefresh"
-            />
           </el-main>
           <el-footer height="60px" v-if="!_id">
             <el-button size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
@@ -167,7 +160,6 @@ import MaterialReturnDialog from './components/MaterialReturnDialog';
 import SelectRepairItemDialog from './components/SelectRepairItemDialog';
 import StartWorkDialog from './components/StartWorkDialog';
 import DispatchWorkDialog from './components/DispatchWorkDialog';
-import Upload from './components/UploadDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -372,8 +364,7 @@ export default {
     MaterialReturnDialog,
     SelectRepairItemDialog,
     StartWorkDialog,
-    DispatchWorkDialog,
-    Upload
+    DispatchWorkDialog
   },
   computed: {
     _id () {
@@ -472,7 +463,6 @@ export default {
       couponsDialogVisible: false,
       yes_no_enum: YES_NO_ENUM,
       RepairOrderStatusEnum,
-      uploadDialogVisible: false,
       form: { ...form },
       originalForm: { ...form }
     };
@@ -622,10 +612,7 @@ export default {
       });
     },
     handleImport () {
-      this.uploadDialogVisible = true;
-    },
-    handleUploadDialogClose () {
-      this.uploadDialogVisible = false;
+      this.$refs.attachmentRef?.openUploadDialog();
     },
     async handleCreatingOrder () {
       try {

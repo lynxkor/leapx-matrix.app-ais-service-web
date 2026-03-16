@@ -126,7 +126,6 @@ export default {
         }
         return;
       }
-      console.log(file, fileList);
       this.fileList = fileList;
     },
 
@@ -218,7 +217,6 @@ export default {
     checkAllCompleted () {
       const totalFiles = this.fileList.length;
       const completedCount = this.successCount + this.failCount;
-      console.log(this.successCount, this.failCount, totalFiles);
       if (completedCount >= totalFiles && this.isUploading) {
         this.isUploading = false;
 
