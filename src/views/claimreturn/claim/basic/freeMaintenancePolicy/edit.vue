@@ -373,15 +373,19 @@ export default {
     // 项目维修代码
     handleRepairItemChange (val, record) {
       if (record) {
-        const regex = /(\d+(?:\.\d+)?)\s*公里/;
+        const regex = /(\d+(?:\.\d+)?)\s*公里.*/;
         const match = record.name.match(regex);
         if (match) {
           this.form.mileage = parseFloat(match[1]);
+        } else {
+          this.form.mileage = '';
         }
-        const regex2 = /(\d+(?:\.\d+)?)\s*个月/;
+        const regex2 = /(\d+(?:\.\d+)?)\s*个月.*/;
         const match2 = record.name.match(regex2);
-        if (match) {
+        if (match2) {
           this.form.freePeriod = parseFloat(match2[1]);
+        } else {
+          this.form.freePeriod = '';
         }
 
         this.form.repairItemId = record.id;
