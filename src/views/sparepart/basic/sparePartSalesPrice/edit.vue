@@ -11,9 +11,8 @@
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="备件编码">
+              <el-form-item label="备件编码" prop="sparePartCode">
                 <fetch-select
-                  prop="sparePartCode"
                   filterable
                   clearable
                   remote
