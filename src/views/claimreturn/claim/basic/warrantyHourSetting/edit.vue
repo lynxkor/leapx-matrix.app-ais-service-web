@@ -202,6 +202,12 @@
                   <el-form-item label="生效结束日期：" prop="effectiveEndTime">
                     {{ form.effectiveEndTime }}
                   </el-form-item>
+                  <el-form-item label="创建时间：" prop="createTime">
+                    {{ form.createTime }}
+                  </el-form-item>
+                  <el-form-item label="修改时间：" prop="updateTime">
+                    {{ form.updateTime }}
+                  </el-form-item>
                   <el-form-item label="备注：" prop="remark">
                     {{ form.remark }}
                   </el-form-item>
