@@ -2322,7 +2322,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/sp/restatement/index',
+      path: '/maintain/sp/restatement',
       name: 'restatement',
       component: () => import('@/views/maintain/sp/restatement/index.vue'),
 
