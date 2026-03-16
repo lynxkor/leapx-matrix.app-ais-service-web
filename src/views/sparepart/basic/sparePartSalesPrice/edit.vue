@@ -21,8 +21,9 @@
                   v-model="form.sparePartCode"
                   :remote-method="listSparePart"
                   :disabled="this.$route.query.id"
-                  value-key="id"
-                  label-key="name"
+                  labelKey="code"
+                  valueKey="id"
+                  subLabelKey="name"
                   @change="listSparePartChange"
                 />
               </el-form-item>
@@ -41,7 +42,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="生效开始日期">
+              <el-form-item label="生效开始日期" prop="effectiveStartDate">
                 <el-date-picker
                   v-model="form.effectiveStartDate"
                   :picker-options="effectiveStartDate"
