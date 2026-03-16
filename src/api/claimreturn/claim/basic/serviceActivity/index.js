@@ -61,23 +61,23 @@ export function partsPreparationCompleted (data) {
 
 const prefixScheme = 'claimreturn/claim/web/basic/serviceActivityScheme/';
 // 服务活动方案列表查询
-export function techServiceActivitySchemeList (data) {
+export function serviceActivitySchemeList (data) {
   return api.jsonPost(prefixScheme + 'list', data);
 }
 // 服务活动方案列表查询
-export function techServiceActivitySchemeDelete (data) {
+export function serviceActivitySchemeDelete (data) {
   return api.jsonPost(prefixScheme + 'delete', data);
 }
 // 服务活动方案详情信息
-export function techServiceActivitySchemeGet (data) {
+export function serviceActivitySchemeGet (data) {
   return api.jsonPost(prefixScheme + 'get', data);
 }
 // 服务活动方案新增/编辑
-export function techServiceActivitySchemeUpdate (data) {
+export function serviceActivitySchemeUpdate (data) {
   return api.jsonPost(prefixScheme + 'addOrUpdate', data);
 }
 // 拷贝方案
-export function techServiceActivitySchemeCopy (data) {
+export function serviceActivitySchemeCopy (data) {
   return api.jsonPost(prefixScheme + 'copy', data);
 }
 
