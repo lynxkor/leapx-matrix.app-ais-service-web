@@ -16,7 +16,7 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="保修类型"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="保修类型">
         <list-select
           listUrl="/maintain/web/basic/repairItemType/list"
           placeholder="请选择"
