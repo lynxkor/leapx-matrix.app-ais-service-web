@@ -78,10 +78,20 @@ export default {
       return this.useInternalData ? this.internalTableData : this.tableData;
     }
   },
+  watch: {
+    // 监听外部数据源变化
+    apiMethod: {
+      handler (newValue) {
+        this.loadData();
+      },
+      deep: true,
+      immediate: true
+    }
+  },
   mounted () {
     // 如果有API方法且启用分页，则初始化加载数据
     // if (this.apiMethod && this.pagination) {
-    this.loadData();
+    // this.loadData();
     // }
   },
   methods: {

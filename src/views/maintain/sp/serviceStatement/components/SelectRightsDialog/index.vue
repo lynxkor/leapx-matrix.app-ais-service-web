@@ -246,7 +246,7 @@ export default {
     },
 
     // 计算指定维修类型的项目+零件总金额
-    calculateRepairTypeAmount (repairTypeNames) {
+    calculateRepairTypeAmount (repairTypeNames, repairTypeIds = '') {
       if (!repairTypeNames || repairTypeNames.length === 0) return 0;
 
       const repairItemAmount = (this.formData.repairItemResps || [])
@@ -258,8 +258,8 @@ export default {
         .reduce((sum, part) => sum + parseFloat(part.partsAmount || 0), 0);
 
       // 减去已核销的券
-      const usedCoupons = (this.formData?.rightsUsageRecordResps || [])
-        .filter(item => repairTypeNames.includes(item.applicableMaintenanceType))
+      const usedCoupons = (this.formData?.typeDeductibleResps || [])
+        .filter(item => repairTypeIds.includes(item.repairTypeId))
         .reduce((sum, item) => sum + parseFloat(item.deductibleAmount || 0), 0);
 
       const res = {
@@ -272,6 +272,7 @@ export default {
     // 校验优惠券基础可用性（不考虑累计使用）
     validateCoupon (coupon) {
       const repairTypeNames = coupon.relatedRepairTypeList?.map(t => t.repairTypeName) || [];
+      const repairTypeIds = coupon.relatedRepairTypeList?.map(t => t.repairTypeId) || [];
 
       // 校验1: 检查是否有对应维修类型的项目或零件
       const hasMatchingItems = (this.formData.repairItemResps || []).some(item =>
@@ -291,7 +292,7 @@ export default {
 
       // 校验2: 满减金额校验（基础校验，检查单次使用是否满足门槛）
       const amountInfo = this.parsePaymentAmount(coupon.paymentAmount);
-      const totalAmount = this.calculateRepairTypeAmount(repairTypeNames);
+      const totalAmount = this.calculateRepairTypeAmount(repairTypeNames, repairTypeIds);
 
       if (amountInfo.threshold > 0 && amountInfo.threshold > totalAmount.total) {
         return {
@@ -311,16 +312,16 @@ export default {
       // 收集所有维修类型
       const allTypes = new Set();
       (this.formData.repairItemResps || []).forEach(item => {
-        allTypes.add(item.repairItemTypeName);
+        allTypes.add(item);
       });
       (this.formData.partResps || []).forEach(part => {
-        allTypes.add(part.repairItemTypeName);
+        allTypes.add(part);
       });
 
       // 计算每个类型的总金额
-      allTypes.forEach(typeName => {
-        const amountInfo = this.calculateRepairTypeAmount([typeName]);
-        typeAmounts[typeName] = amountInfo.remain;
+      allTypes.forEach(el => {
+        const amountInfo = this.calculateRepairTypeAmount([el.repairItemTypeName], [el.repairItemTypeId]);
+        typeAmounts[el.repairItemTypeName] = amountInfo.remain;
       });
 
       return typeAmounts;
