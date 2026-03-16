@@ -8,7 +8,6 @@
         :title="title"
         :isEditing.sync="isEditing"
         :form.sync="form"
-        direction="vertical"
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
@@ -89,11 +88,11 @@
                 </template>
                 <!-- 门店日历模式字段 -->
                 <template v-if="form.calendarMode === '20'">
-                  <el-form-item label="门店编码：" prop="dealerCode">
+                  <el-form-item label="门店名称：" prop="dealerCode">
                     <dealer-select v-model="form.dealerCode" :disabled="isEditMode" />
                   </el-form-item>
-                  <el-form-item label="门店名称：" prop="dealerName">
-                    <el-input v-model="form.dealerName" disabled placeholder="由门店编码自动带出" />
+                  <el-form-item label="门店编码：" prop="dealerCode">
+                    <el-input v-model="form.dealerCode" disabled/>
                   </el-form-item>
                   <el-form-item label="每月第几日保修结算：" prop="settlementDay">
                     <el-input-number
@@ -295,7 +294,7 @@ export default {
           { required: true, message: '请选择月度', trigger: 'change' }
         ],
         dealerCode: [
-          { required: true, message: '请选择门店编码', trigger: 'change', validator: this.validateDealerCode }
+          { required: true, message: '请选择门店编码或名称', trigger: 'change', validator: this.validateDealerCode }
         ],
         status: [
           { required: true, message: '请选择是否启用', trigger: 'change' }

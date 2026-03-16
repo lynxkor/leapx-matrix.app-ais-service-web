@@ -1,86 +1,81 @@
 <template>
-	<section class="common-section">
-		<div class="common-section-header">
-			<h2>{{title}}</h2>
-		</div>
-		<div class="common-section-body">
-			<div v-if="showUpload" class="ais-actions">
-				<el-button type="primary" size="small" @click="openUploadDialog">
-					<!-- <i class="el-icon-upload"></i> -->
-					上传附件
-				</el-button>
-			</div>
-			<div class="common-section-table table-section">
-				<vxe-table
-          ref="attachmentTable"
-          :data="attachmentData"
-          :loading="loading"
-          stripe
-          show-overflow
-          resizable
-          border="inner"
-          size="medium"
-          min-height="0"
-          max-height="500px"
-        >
-          <vxe-column field="fileName" title="附件名称" min-width="250">
-            <template #default="{ row }">
-              <div v-if="!row.isEditing" class="file-name-cell">
-                <img
-                  :src="getFileIconPath(row)"
-                  class="file-icon"
-                  :class="{ 'thumbnail': row.isImage }"
-                  alt=""
-                />
-                <el-link :href="row.fileUrl" target="_blank" type="success">{{ row.fileName }}</el-link>
-              </div>
-              <div v-else class="file-name-edit-cell">
-                <img
-                  :src="getFileIconPath(row)"
-                  class="file-icon"
-                  :class="{ 'thumbnail': row.isImage }"
-                  alt=""
-                />
-                <el-input
-                  v-model="row.editingFileName"
-                  size="small"
-                  @keyup.enter.native="saveEdit(row)"
-                  ref="editInput"
-                />
-              </div>
-            </template>
-          </vxe-column>
-          <vxe-column field="creatorName" title="操作人" width="120" />
-          <vxe-column field="fileSize" title="附件大小" width="120" :formatter="({ cellValue }) => formatFileSize(cellValue)" />
-          <vxe-column field="createTime" title="创建时间" width="180" />
-          <vxe-column title="操作" width="200" fixed="right">
-            <template #default="{ row }">
-              <span v-if="!row.isEditing" class="action-button btn-edit" @click="startEdit(row)">编辑</span>
-              <span v-else class="action-button btn-edit" @click="saveEdit(row)">保存</span>
-              <span v-if="!row.isEditing" class="action-button btn-download" @click="handleDownload(row)">下载</span>
-              <el-popconfirm
-                title="确定删除此文件吗？"
-                @confirm="deleteFile(row)"
-              >
-                <span class="action-button btn-delete" slot="reference">删除</span>
-              </el-popconfirm>
-            </template>
-          </vxe-column>
-          <template #empty>
-            <div class="m-vxe-table-empty-text">暂无附件数据</div>
+  <div>
+    <div v-if="showUpload" class="ais-actions">
+      <el-button type="primary" size="small" @click="openUploadDialog">
+        <!-- <i class="el-icon-upload"></i> -->
+        上传附件
+      </el-button>
+    </div>
+    <div class="table-section">
+      <vxe-table
+        ref="attachmentTable"
+        :data="attachmentData"
+        :loading="loading"
+        stripe
+        show-overflow
+        resizable
+        border="inner"
+        size="medium"
+        min-height="0"
+        max-height="500px"
+      >
+        <vxe-column field="fileName" title="附件名称" min-width="250">
+          <template #default="{ row }">
+            <div v-if="!row.isEditing" class="file-name-cell">
+              <img
+                :src="getFileIconPath(row)"
+                class="file-icon"
+                :class="{ 'thumbnail': row.isImage }"
+                alt=""
+              />
+              <el-link :href="row.fileUrl" target="_blank" type="success">{{ row.fileName }}</el-link>
+            </div>
+            <div v-else class="file-name-edit-cell">
+              <img
+                :src="getFileIconPath(row)"
+                class="file-icon"
+                :class="{ 'thumbnail': row.isImage }"
+                alt=""
+              />
+              <el-input
+                v-model="row.editingFileName"
+                size="small"
+                @keyup.enter.native="saveEdit(row)"
+                ref="editInput"
+              />
+            </div>
           </template>
-        </vxe-table>
-			</div>
-		</div>
-		<upload-dialog
+        </vxe-column>
+        <vxe-column field="creatorName" title="操作人" width="120" />
+        <vxe-column field="fileSize" title="附件大小" width="120" :formatter="({ cellValue }) => formatFileSize(cellValue)" />
+        <vxe-column field="createTime" title="创建时间" width="180" />
+        <vxe-column title="操作" width="200" fixed="right">
+          <template #default="{ row }">
+            <span v-if="!row.isEditing" class="action-button btn-edit" @click="startEdit(row)">编辑</span>
+            <span v-else class="action-button btn-edit" @click="saveEdit(row)">保存</span>
+            <span v-if="!row.isEditing" class="action-button btn-download" @click="handleDownload(row)">下载</span>
+            <el-popconfirm
+              title="确定删除此文件吗？"
+              @confirm="deleteFile(row)"
+            >
+              <span class="action-button btn-delete" slot="reference">删除</span>
+            </el-popconfirm>
+          </template>
+        </vxe-column>
+        <template #empty>
+          <div class="m-vxe-table-empty-text">暂无附件数据</div>
+        </template>
+      </vxe-table>
+    </div>
+    <upload-dialog
       :visible.sync="uploadDialogVisible"
       :business-id="_id"
       :attach-type="attachType"
-      title="上传附件"
+      :title="title"
       @refresh="handleUploadSuccess"
       @close="handleUploadClose"
     />
-	</section>
+  </div>
 </template>
 <script>
 import { deleteFile, getFileList, addOrUpdateFile } from '@/libs/api/attachment';
@@ -95,7 +90,7 @@ export default {
     },
     title: {
       type: String,
-      default: '资料附件'
+      default: '上传附件'
     },
     attachType: {
       type: String,

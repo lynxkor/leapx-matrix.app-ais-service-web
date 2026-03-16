@@ -77,8 +77,6 @@
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
         @handleSelect="handleSelectionChange"
-        :popconfirmConfirmButtonType="danger"
-        :popconfirmConfirmButtonText="'test'"
       />
     </div>
   </div>

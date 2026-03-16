@@ -35,8 +35,7 @@
           filterable
         />
       </el-form-item>
-      <template v-if="show">
-        <el-form-item label="是否启用"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="是否启用"  v-show="this.visibleCount === 3 || show">
         <fetch-select
           :request="fetchOptions"
           enumCode="BooleanEnum"
@@ -46,6 +45,7 @@
           filterable
         />
       </el-form-item>
+      <template v-if="show">
         <el-form-item label="优惠券有效期">
           <fetch-select
             :request="fetchOptions"

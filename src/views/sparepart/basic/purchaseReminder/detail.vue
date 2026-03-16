@@ -25,12 +25,36 @@
           </el-form>
         </div>
       </section>
+      <section class="common-section">
+        <div class="common-section-header">
+          <h2>备件清单</h2>
+        </div>
+        <div class="common-section-body">
+          <div class="common-section-table">
+              <el-table
+                :data="tableData"
+                style="width: 100%"
+                fit
+                stripe
+                highlight-current-row
+              >
+                <el-table-column prop="sparePartCode" label="零件编码" width="280">
+                  <template #default="{ row }">
+                    <el-link type="success" :href="'/service/sparepart/basic/sparePart/detail?id=' + row.sparePartId" target="_blank">{{ row.sparePartCode }}</el-link>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="sparePartName" label="零件名称" width="280"></el-table-column>
+                <el-table-column prop="createTime" label="创建时间" width="280"></el-table-column>
+              </el-table>
+            </div>
+        </div>
+      </section>
     </template>
   </div>
 </template>
 
 <script>
-import { getDetail } from '@/api/sparepart/basic/purchaseReminder/index';
+import { getDetail, getPartDetailPage } from '@/api/sparepart/basic/purchaseReminder/index';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -48,12 +72,14 @@ export default {
       moduleKey: 'AISPART-purchaseReminder',
       loading: true,
       info: {},
+      tableData: [],
       yes_no_enum_map: YES_NO_ENUM_MAP
     };
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['备件采购提醒设置', '详情']);
     this.getData();
+    this.partDetailPage();
   },
   methods: {
     handleEdit () {
@@ -71,7 +97,13 @@ export default {
       }).catch(() => {
         this.loading = false;
       });
-    }
+    },
+    async partDetailPage () {
+      const partRes = await getPartDetailPage({
+        purchaseReminderId: this.$route.query.id
+      });
+      this.tableData = partRes?.records || [];
+    },
   }
 };
 </script>

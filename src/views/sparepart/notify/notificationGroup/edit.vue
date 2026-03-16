@@ -84,14 +84,15 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="userId" title="用户编码" min-width="20%" />
-                  <vxe-column field="userName" title="用户名称" min-width="20%" />
-                  <vxe-column field="email" title="邮箱" min-width="20%" />
-                  <vxe-column field="provinceName" title="省" min-width="20%" />
-                  <vxe-column field="cityName" title="市" min-width="20%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
+                  <vxe-column field="userId" title="用户编码" min-width="18%" />
+                  <vxe-column field="userName" title="用户名称" min-width="18%" />
+                  <vxe-column field="userEmail" title="邮箱" min-width="18%" />
+                  <vxe-column field="provinceName" title="省" min-width="18%" />
+                  <vxe-column field="cityName" title="市" min-width="18%" />
+                  <vxe-column title="操作" width="160" v-if="canDelete">
+                    <template #default="{ rowIndex, row }">
+                      <span class="btn-edit" @click="handleEdit(row)">编辑</span>
+                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger"  @confirm="handleDeleteRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
@@ -124,6 +125,7 @@
          <add-user
           ref="addUserRef"
           :notificationGroupId="_id"
+          :notificationForm="notificationForm"
           @submit="getData"
          />
       </div>
@@ -217,6 +219,7 @@ export default {
       pageSize: 10,
       pageNum: 1,
       total: 0,
+      notificationForm: {}, // 通知对象列表
       tableData: [
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
@@ -249,6 +252,11 @@ export default {
     // 打开侧边栏
     openPane () {
       this.$refs.editLayout.openPane();
+    },
+    // 编辑子表数据
+    handleEdit (row) {
+      this.notificationForm = row;
+      this.openPane();
     },
     // 删除子表数据
     handleDeleteRow (index) {
@@ -347,3 +355,11 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.btn-edit {
+  cursor: pointer;
+  color: #4C4CD6;
+  margin-right: 10px;
+}
+</style>

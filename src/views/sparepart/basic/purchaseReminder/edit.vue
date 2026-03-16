@@ -85,7 +85,11 @@
                 stripe
                 highlight-current-row
               >
-                <el-table-column prop="sparePartCode" label="零件编码" width="280"></el-table-column>
+                <el-table-column prop="sparePartCode" label="零件编码" width="280">
+                  <template #default="{ row }">
+                    <el-link type="success" :href="'/service/sparepart/basic/sparePart/detail?id=' + row.sparePartId" target="_blank">{{ row.sparePartCode }}</el-link>
+                  </template>
+                </el-table-column>
                 <el-table-column prop="sparePartName" label="零件名称" width="280"></el-table-column>
                 <el-table-column prop="createTime" label="创建时间" width="280"></el-table-column>
                 <el-table-column label="操作" width="100" fixed="right">

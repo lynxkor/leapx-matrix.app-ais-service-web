@@ -8,12 +8,12 @@
           <div class="info-group">
             <div class="info-item">
               <span class="label">结算单号：</span>
-              <span class="value">{{ baseInfo.code }}</span>
+              <span class="value">{{ info.code }}</span>
             </div>
             <div class="info-item">
               <span class="label">实际应付总金额：</span>
               <span class="value">{{
-                formatAmount(baseInfo.payableAmount)
+                formatAmount(info.payableAmount)
               }}</span>
             </div>
             <div class="info-item">
@@ -35,31 +35,31 @@
             <vxe-column field="payType" title="支付方式" width="150">
               <template #default="{ row }">
                 <fetch-select v-model="row.payType" :options="payTypeOptions" placeholder="请选择"
-                  :disabled="row.payType === 50" size="small" clearable />
+                  :disabled="isRowDisabled(row)" size="small" clearable />
               </template>
             </vxe-column>
             <vxe-column field="payAmount" title="实际付款总额" width="150">
               <template #default="{ row }">
                 <el-input-number v-model="row.payAmount" size="small" :precision="2" :min="0" controls-position="right"
-                  :disabled="row.payType === 50" @change="handlePayAmountChange" style="width: 100%"></el-input-number>
+                  :disabled="isRowDisabled(row)" @change="handlePayAmountChange" style="width: 100%"></el-input-number>
               </template>
             </vxe-column>
             <vxe-column field="invoiceType" title="发票类型" width="150">
               <template #default="{ row }">
-                <fetch-select v-model="row.invoiceType" :options="invoiceTypeOptions" :disabled="row.payType === 50"
+                <fetch-select v-model="row.invoiceType" :options="invoiceTypeOptions" :disabled="isRowDisabled(row)"
                   placeholder="请选择" size="small" clearable />
               </template>
             </vxe-column>
             <vxe-column field="invoiceNumber" title="发票号码" width="150">
               <template #default="{ row }">
-                <el-input v-model="row.invoiceNumber" size="small" :disabled="row.payType === 50"
+                <el-input v-model="row.invoiceNumber" size="small" :disabled="isRowDisabled(row)"
                   placeholder="请输入"></el-input>
               </template>
             </vxe-column>
             <vxe-column field="rightsCode" title="权益代码" min-width="150">
               <template #default="{ row }">
                 <el-input v-model="row.rightsCode" size="small" placeholder="请输入"
-                  :disabled="row.payType === 50"></el-input>
+                  :disabled="isRowDisabled(row)"></el-input>
               </template>
             </vxe-column>
             <vxe-column title="操作" width="80" fixed="right">
@@ -162,6 +162,11 @@ export default {
     },
   },
   methods: {
+    // 判断行是否禁用
+    isRowDisabled (row) {
+      // 已经添加的不能修改，支付方式为权益也不支持修改
+      return !!row.id || row.payType === 50;
+    },
     initData () {
       // this.handleAdd();
       this.fetchOptions();
@@ -169,12 +174,11 @@ export default {
     },
     getPayList () {
       getStatementPayRecord({
-        statementId: this.baseInfo.id || '',
+        statementId: this.info.id || '',
         page: 1,
         pageSize: 500,
       }).then((res) => {
         this.tableData = res.records || [];
-        console.log(this.tableData);
       });
     },
     async fetchOptions (code) {
@@ -189,8 +193,8 @@ export default {
       this.$emit('update:visible', false);
     },
     closed () {
-      // this.tableData = [];
-      // this.baseInfo = {};
+      this.tableData = [];
+      this.baseInfo = {};
     },
     // 确认提交
     handleConfirm () {
@@ -206,7 +210,6 @@ export default {
     // 关闭弹窗
     handleClose () {
       this.close();
-      this.clearFormData();
     },
     // 新增收款记录
     handleAdd () {

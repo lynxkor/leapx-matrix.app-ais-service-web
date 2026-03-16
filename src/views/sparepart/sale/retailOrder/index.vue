@@ -19,8 +19,7 @@
           clearable
         />
       </el-form-item>
-      <template v-if="show">
-      <el-form-item label="门店">
+      <el-form-item label="门店" v-show="this.visibleCount === 3 || show">
         <fetch-select
           :remote-method="getDealerList"
           remote
@@ -35,6 +34,7 @@
           filterable
             />
       </el-form-item>
+      <template v-if="show">
         <el-form-item label="门店合作类型">
           <fetch-select
             :request="fetchOptions"
@@ -114,12 +114,12 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
+      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增（车主）</el-button>
+      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新建（对公）</el-button>
+      <el-button size="small" @click="excelSetting">出库单打印设置</el-button>
+      <!-- <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -149,6 +149,38 @@
       @close="handleUploadDialogClose"
       @getData="getData"
     />
+    <!-- 打印设置 -->
+    <PrintSettings
+      ref="printSettingsRef"
+      :visible="printSettingsVisible"
+      @success="getData"
+    />
+    <!-- 销售出库, 退料入库, 退订入库 -->
+    <OutboundDialog
+      ref="outboundDialogRef"
+      :id="outboundId"
+      :titleDialog="titleDialog"
+      :visible.sync="outboundDialogVisible"
+      @update:visible="val => outboundDialogVisible = val"
+      @success="getData"
+    />
+    <!-- 退料申请 -->
+     <ReturnMateriaDialog
+      ref="returnDialogRef"
+      :id="returnMaterialId"
+      :visible.sync="returnMaterialDialogVisible"
+      @update:visible="val => returnMaterialDialogVisible = val"
+      @success="getData"
+    />
+    <!-- 收款 -->
+    <HarvestDialog
+     ref="harvestDialogRef"
+     :form="harvestForm"
+     :visible.sync="harvestDialogVisible"
+     @update:visible="val => harvestDialogVisible = val"
+     @success="getData"
+
+    />
   </div>
 </template>
 
@@ -156,7 +188,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/sale/retailOrder/index';
+import { getList, deleteItem, enableItem, confirmOrder, cancelOrder, signOrder, cancelSignOrder, settleOrder, cancelSettleOrder, reverseSettleOrder, refundOrder } from '@/api/sparepart/sale/retailOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getParentCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -167,20 +199,24 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import PrintSettings from './PrintSettings.vue';
+import OutboundDialog from './OutboundDialog.vue';
+import ReturnMateriaDialog from './ReturnMateriaDialog.vue';
+import HarvestDialog from './HarvestDialog.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   createTime: '',
-  codeList: '',
-  dealerCodeList: '',
+  codeList: [],
+  dealerCodeList: [],
   dealerName: '',
-  cooperationTypeList: '',
+  cooperationTypeList: [],
   warehouseId: '',
-  customerTypeList: '',
+  customerTypeList: [],
   vinLike: '',
   customerCodeLike: '',
   customerNameLike: '',
-  orderStatusList: '',
+  orderStatusList: [],
   customerContactInfo: '',
   remark: '',
   updateTime: '',
@@ -199,7 +235,11 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    TagInput
+    TagInput,
+    PrintSettings,
+    OutboundDialog,
+    ReturnMateriaDialog,
+    HarvestDialog
   },
   data () {
     return {
@@ -216,6 +256,14 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      printSettingsVisible: false, // 打印设置
+      outboundDialogVisible: false, // 销售出库单
+      titleDialog: '1',
+      outboundId: '', // 销售出库单id 备附件销售单ID
+      returnMaterialDialogVisible: false, // 退料申请
+      returnMaterialId: '', // 退料申请id 备附件销售单ID
+      harvestDialogVisible: false, // 收款
+      harvestForm: {}, // 收款表单
       clickItemId: '',
       optionObj: {
         id: 'retailOrderTable',
@@ -243,8 +291,6 @@ export default {
               type: 'primary'
             }]
           },
-
-          { props: 'code', label: '备附件销售单号', visible: true, width: 200 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'cooperationType', label: '门店合作类型', visible: true, width: 200 },
@@ -282,6 +328,8 @@ export default {
             }, {
               name: '删除',
               popconfirmTitle: '此操作将永久删除, 是否继续?',
+              popconfirmConfirmButtonText: '删除',
+              popconfirmConfirmButtonType: 'danger',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
                   this.$message({
@@ -297,6 +345,234 @@ export default {
                 });
               },
               type: 'danger'
+            }, {
+              name: '确认',
+              popconfirmTitle: '是否确认该订单?',
+              show: (row) => {
+                return row.orderStatus === '10';
+              },
+              click: (rowIndex, row) => {
+                confirmOrder({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '确认成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '确认失败!'
+                  });
+                });
+              },
+              type: 'info',
+            }, {
+              name: '作废',
+              popconfirmTitle: '是否作废该订单?',
+              show: (row) => {
+                return row.orderStatus === '10' || row.orderStatus === '20';
+              },
+              click: (rowIndex, row) => {
+                cancelOrder({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '作废成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '作废失败!'
+                  });
+                });
+              },
+              type: 'info',
+            }, {
+              name: '出库',
+              show: (row) => {
+                return row.orderStatus === '20';
+              },
+              click: (rowIndex, row) => {
+                this.handleOutbound(row, '1');
+              },
+              type: 'info',
+            }, {
+              name: '打印出库单',
+              show: (row) => {
+                // 定义允许显示的状态码列表
+                const validStatuses = ['20', '30', '40', '50', '60', '100'];
+
+                // 安全处理：防止 row.orderStatus 为 null/undefined 导致报错
+                if (!row.orderStatus) return false;
+
+                // 判断 orderStatus 是否包含列表中的任意一个值
+                return validStatuses.some(status => row.orderStatus.includes(status));
+              },
+              type: 'info',
+            }, {
+              name: '签收',
+              popconfirmTitle: '是否签收该订单?',
+              show: (row) => {
+                return row.orderStatus === '30';
+              },
+              click: (rowIndex, row) => {
+                signOrder({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '签收成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '签收失败!'
+                  });
+                });
+              },
+              type: 'info',
+            }, {
+              name: '取消签收',
+              popconfirmTitle: '是否取消签收该订单?',
+              show: (row) => {
+                return row.orderStatus === '40';
+              },
+              click: (rowIndex, row) => {
+                cancelSignOrder({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '取消签收成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '取消签收失败!'
+                  });
+                });
+              },
+              type: 'info',
+            }, {
+              name: '退料申请',
+              show: (row) => {
+                return row.orderStatus === '30';
+              },
+              click: (rowIndex, row) => {
+                this.handleReturnMaterial(row);
+              },
+              type: 'info',
+            }, {
+              name: '退料入库',
+              show: (row) => {
+                return row.orderStatus === '30' && row.applyReturnMaterialIs === '1';
+              },
+              click: (rowIndex, row) => {
+                this.handleOutbound(row, '2');
+              },
+              type: 'info',
+            }, {
+              name: '结算',
+              show: (row) => {
+                return row.orderStatus === '40';
+              },
+              click: (rowIndex, row) => {
+                settleOrder({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '结算成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '结算失败!'
+                  });
+                });
+              },
+              type: 'info',
+            }, {
+              name: '取消结算',
+              show: (row) => {
+                return row.orderStatus === '50';
+              },
+              click: (rowIndex, row) => {
+                cancelSettleOrder({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '取消结算成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '取消结算失败!'
+                  });
+                });
+              },
+              type: 'info',
+            }, {
+              name: '收款',
+              show: (row) => {
+                return row.orderStatus === '50';
+              },
+              click: (rowIndex, row) => {
+                this.handleHarvest(row);
+              },
+              type: 'info',
+            }, {
+              name: '打印结算单',
+              show: (row) => {
+                return row.orderStatus === '50' || row.orderStatus === '60';
+              },
+              type: 'info',
+            }, {
+              name: '反结算',
+              show: (row) => {
+                return row.orderStatus === '60';
+              },
+              click: (rowIndex, row) => {
+                reverseSettleOrder({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '反结算成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '反结算失败!'
+                  });
+                });
+              },
+              type: 'info',
+            }, {
+              name: '退订入库',
+              show: (row) => {
+                return row.orderStatus === '100';
+              },
+              click: (rowIndex, row) => {
+                this.handleOutbound(row, '3');
+              },
+              type: 'info',
+            }, {
+              name: '退款',
+              show: (row) => {
+                return row.orderStatus === '70';
+              },
+              click: (rowIndex, row) => {
+                this.$prompt('请输入退款备注', '退款', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                }).then(({ value }) => {
+                  refundOrder({ id: row.id, description: value }).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '退款成功!'
+                    });
+                    this.getData();
+                  });
+                });
+              },
+              type: 'info',
             }]
           }
         ],
@@ -485,7 +761,17 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null || data[key].length === 0) {
+        const val = data[key];
+
+        // 情况 A: 值为 null, undefined, 或 空字符串 ''
+        if (val === '' || val === null || val === undefined) {
+          delete data[key];
+          return;
+        }
+
+        // 情况 B: 值为空数组 [] 或 空字符串 '' (再次确认 length)
+        // 注意：上面 !val 已经处理了 ''，这里主要处理 []
+        if (Array.isArray(val) && val.length === 0) {
           delete data[key];
         }
       });
@@ -545,28 +831,24 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
+    },
+    // 打印设置
+    excelSetting () {},
+    // 出库
+    handleOutbound (row, ele) {
+      this.outboundId = row.id;
+      this.titleDialog = ele;
+      this.outboundDialogVisible = true;
+    },
+    // 退料申请
+    handleReturnMaterial (row) {
+      this.returnMaterialId = row.id;
+      this.returnMaterialDialogVisible = true;
+    },
+    // 收款
+    handleHarvest (row) {
+      this.harvestForm = row;
+      this.harvestDialogVisible = true;
     }
   }
 };
