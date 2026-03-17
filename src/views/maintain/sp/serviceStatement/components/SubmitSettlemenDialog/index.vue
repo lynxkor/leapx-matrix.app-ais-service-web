@@ -15,7 +15,7 @@
           <div class="info-group">
             <div class="info-item">
               <span class="label">委托工单号：</span>
-              <span class="value">{{ baseInfo.code }}</span>
+              <span class="value" :title="baseInfo.serviceProxyCode">{{ baseInfo.serviceProxyCode }}</span>
             </div>
             <div class="info-item">
               <span class="label">VIN：</span>
@@ -62,6 +62,7 @@
                   style="width: 150px"
                   :precision="2"
                   :min="0"
+                  :max="baseInfo.repairItemPayableAmount"
                   size="small"
                   v-model="roundAmount"
                   @change="handleRoundAmountChange"
@@ -692,6 +693,7 @@ export default {
             color: var(--leap-color-default-dark-1);
             font-weight: 500;
             font-size: 14px;
+            white-space: nowrap;
 
             &.highlight {
               color: var(--leap-color-primary);
