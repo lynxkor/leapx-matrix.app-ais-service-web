@@ -241,7 +241,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, purchaseApplyReject, purchaseApplyBatchReject, purchaseApplyListUnPurchaseDetail, purchaseApplySubmit, purchaseApplyCopy, batchAgree, purchaseApplyGetCoupon } from '@/api/sparepart/purchase/purchaseApply/index';
-import { getUserByNameOrNo, getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getParentCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
+import { getUserByNameOrNo, getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -484,7 +484,7 @@ export default {
     },
     async getParentCompany (query) {
       try {
-        const res = await getParentCompany({ parentCompanyName: query });
+        const res = await getSparePartCompany({ parentCompanyName: query });
         res.records = res.records?.map(item => ({
           ...item,
           displayName: item.companyName + `(${item.companyCode})`
