@@ -18,6 +18,9 @@
             <el-form-item label="维修项目名称：" prop="name">
               {{ info.name  }}
             </el-form-item>
+            <el-form-item label="维修项目类型：" prop="repairItemTypeName">
+              {{ info.repairItemTypeName  }}
+            </el-form-item>
             <el-form-item label="拼音简码：" prop="pinyinCode">
               {{ info.pinyinCode  }}
             </el-form-item>
@@ -62,12 +65,6 @@
             </el-form-item>
             <el-form-item label="创建时间：" prop="createTime">
               {{ info.createTime  }}
-            </el-form-item>
-            <el-form-item label="维修项目类型：" prop="repairItemTypeId">
-              {{ info.repairItemTypeId  }}
-            </el-form-item>
-            <el-form-item label="维修项目类型名称：" prop="repairItemTypeName">
-              {{ info.repairItemTypeName  }}
             </el-form-item>
             <el-form-item label="里程间隔计算标准：" prop="mileageInterval">
               {{ info.mileageInterval  }}

@@ -28,11 +28,12 @@
             label-key="vin"
           />
         </el-form-item>
-        <el-form-item label="车牌号：" prop="carPlate">
+        <el-form-item label="车牌号：" prop="carPlate" :required="carPlateRequired">
           <el-input
             placeholder="请输入"
             v-model="form.carPlate"
             clearable
+            :disabled="carPlateDisabled"
           />
         </el-form-item>
         <el-form-item label="数据来源：" prop="dataSourceLabel">
@@ -59,6 +60,7 @@
             placeholder="请选择"
             clearable
             filterable
+            @change="handleCustomTypeChange"
           />
         </el-form-item>
         <el-form-item label="建议保养里程：" prop="maintenanceMileage">
@@ -318,7 +320,7 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="车联网里程数（纯）：" prop="netMileageElectricity">
+        <!-- <el-form-item label="车联网里程数（纯）：" prop="netMileageElectricity">
           <el-input
             placeholder="请输入"
             v-model="form.netMileageElectricity"
@@ -333,7 +335,7 @@
             clearable
             disabled
           />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="车联网里程数（增）：" prop="netMileageExtend">
           <el-input
             placeholder="请输入"
@@ -492,12 +494,12 @@
         <el-form-item label="绑车人手机号码：" prop="bindingPhone">
           {{ form.bindingPhone }}
         </el-form-item>
-        <el-form-item label="车联网里程数（纯）：" prop="netMileageElectricity">
+        <!-- <el-form-item label="车联网里程数（纯）：" prop="netMileageElectricity">
           {{ form.netMileageElectricity }}
         </el-form-item>
         <el-form-item label="离店车联网里程数（纯）：" prop="departureNetMileageElectricity">
           {{ form.departureNetMileageElectricity }}
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="车联网里程数（增）：" prop="netMileageExtend">
           {{ form.netMileageExtend }}
         </el-form-item>
@@ -523,7 +525,14 @@
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getVehicleProfile, getCarInfo, checkVinTag, getEnum } from '@/api/maintain/sp/serviceProxy/index';
-import { RepairOrderStatusEnum } from '../../edit.vue';
+import { RepairOrderStatusEnum, BusinessTypeEnum } from '../../edit.vue';
+
+export const CustomTypeEnum = {
+  /** 预约客户 */
+  APPOINTMENT_CUSTOMER: '10',
+  /** 自然到店 */
+  CUSTOMER: '20',
+};
 
 export default {
   props: {
@@ -550,6 +559,13 @@ export default {
     },
     formDisabled () {
       return this.formData.orderStatus === RepairOrderStatusEnum.CANCEL || this.formData.orderStatus === RepairOrderStatusEnum.DELIVERED;
+    },
+    carPlateDisabled () {
+      // 除已作废、已交车，则可编辑车牌号
+      return this.form.orderStatus === RepairOrderStatusEnum.CANCEL || this.form.orderStatus === RepairOrderStatusEnum.DELIVERED;
+    },
+    carPlateRequired () {
+      return this.checkCarPlateRequired();
     }
   },
   components: {
@@ -585,11 +601,41 @@ export default {
           { required: true, message: '请输入送修人手机', trigger: 'blur' },
           { pattern: /^1\d{10}$/, message: '请输入正确的手机号码', trigger: 'blur' }
         ],
+        carPlate: [
+          { validator: this.validateCarPlate, trigger: ['blur', 'change'] }
+        ],
       },
       popconfirmTitle: ''
     };
   },
   methods: {
+    checkCarPlateRequired () {
+      // 如果开单时间 >= 销售日期 + 60天 且 销售日期有数据，则车牌号必填
+      if (!this.form.saleDate) {
+        return false;
+      }
+      const saleDate = new Date(this.form.saleDate);
+      // 如果是新增,取当前时间,否则取开单时间
+      const createTime = this.form.createTime ? new Date(this.form.createTime) : new Date();
+      // 计算销售日期 + 60天
+      const saleDatePlus60Days = new Date(saleDate);
+      saleDatePlus60Days.setDate(saleDatePlus60Days.getDate() + 60);
+      // 如果开单时间 >= 销售日期 + 60天，则车牌号必填
+      return createTime >= saleDatePlus60Days;
+    },
+    validateCarPlate (_rule, value, callback) {
+      // 如果开单时间 >= 销售日期 + 60天 且 销售日期有数据，则车牌号必填
+      if (this.checkCarPlateRequired()) {
+        if (!value || value.trim() === '') {
+          callback(new Error('请输入车牌号'));
+        } else {
+          callback();
+        }
+        return;
+      }
+      // 其他情况非必填
+      callback();
+    },
     scrollToError (invalidFields) {
       if (!invalidFields || !Object.keys(invalidFields).length) return;
       // 查找包含错误信息的表单项
@@ -700,6 +746,8 @@ export default {
             bindingUserId: record.vehicleProfileOwnerResp.bindingUserId, // 绑车人用户ID
             bindingUser: record.vehicleProfileOwnerResp.bindingUser, // 绑车人姓名
             bindingPhone: record.vehicleProfileOwnerResp.bindingPhone, // 绑车人手机号
+            shuttleName: record.vehicleProfileOwnerResp.ownerName,
+            shuttlePhone: record.vehicleProfileOwnerResp.mobilephone,
           };
           Object.assign(this.form, { ...data });
           this.getNetworkCarInfo();
@@ -721,8 +769,14 @@ export default {
         // if (!this.form.netMileage) this.form.netMileage = res.mileage;
         // if (!this.form.inPower) this.form.inPower = res.electricity;
       });
+    },
+    handleCustomTypeChange (value) {
+      this.$emit('update:formData', {
+        ...this.formData,
+        customType: value,
+        businessType: value === CustomTypeEnum.APPOINTMENT_CUSTOMER ? BusinessTypeEnum.APPOINTMENT_ARRIVAL : BusinessTypeEnum.NATURAL_ARRIVAL
+      });
     }
   }
 };
-
 </script>

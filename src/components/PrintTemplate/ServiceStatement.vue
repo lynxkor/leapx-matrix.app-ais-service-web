@@ -50,7 +50,7 @@
                     <td style="width:100px">VIN码</td>
                     <td style="width:100px;">{{ info.vehProfileVin }}</td>
                     <td style="width:100px">结算类型</td>
-                    <td style="width:100px;">{{ formatStatementType(info.statementType) }}</td>
+                    <td style="width:100px;">{{ info.statementTypeLabel }}</td>
                   </tr>
                   <tr>
                     <td>车主</td>
@@ -82,10 +82,10 @@
                     <td>客户经理</td>
                     <td>{{ info.serviceProxyResp?.dedicatedServiceManager }}</td>
                   </tr>
-                  <tr>
+                  <!-- <tr>
                     <td>客户地址</td>
                     <td colspan="7" style="text-align:left"></td>
-                  </tr>
+                  </tr> -->
                   <tr>
                     <td style="border-bottom-width:0px">下次保养时间</td>
                     <td style="border-bottom-width:0px; text-align:left" colspan="3">{{ formatDate(info.serviceProxyResp?.maintenanceTime) }}</td>
@@ -131,9 +131,9 @@
                     <td>{{ item.repairItemCode }}</td>
                     <td>{{ item.repairItemName }}</td>
                     <td>{{ item.workHour }}</td>
-                    <td>{{ formatAmount(item.price) }}</td>
-                    <td>{{ formatAmount(item.discountAmount) }}</td>
-                    <td>{{ formatAmount(item.repairAmount) }}</td>
+                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: formatAmount(item.price) }}</td>
+                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: formatAmount(item.discountAmount) }}</td>
+                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: formatAmount(item.repairAmount) }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -174,9 +174,9 @@
                     <td>{{ item.partsCode }}</td>
                     <td>{{ item.partsName }}</td>
                     <td>{{ item.quantity }}</td>
-                    <td>{{ formatAmount(item.price) }}</td>
-                    <td>{{ formatAmount(item.discountAmount) }}</td>
-                    <td>{{ formatAmount(item.partsAmount) }}</td>
+                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: formatAmount(item.price) }}</td>
+                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: formatAmount(item.discountAmount) }}</td>
+                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: formatAmount(item.partsAmount) }}</td>
                     <td>{{ item.isOemPart === 1 ? '是' : '否' }}</td>
                   </tr>
                 </tbody>
@@ -384,7 +384,15 @@ export default {
         3: '索赔结算'
       };
       return typeMap[value] || value || '';
-    }
+    },
+    checkoutTypeIncluded (type) {
+      // SELF_PAY("352BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "自费"),
+      // INSURANCE("372BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "保险"),
+      // WARRANTY("392BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "保修"),
+      // CONTRACT("3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "合同"),
+      // INTERNAL_SETTLEMENT("3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "内部结算");
+      return type === '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF' || type === '3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF' || type === '3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF';
+    },
   }
 };
 </script>

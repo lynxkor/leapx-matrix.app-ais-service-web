@@ -15,7 +15,7 @@
           <div class="info-group">
             <div class="info-item">
               <span class="label">委托工单号：</span>
-              <span class="value">{{ baseInfo.code }}</span>
+              <span class="value" :title="baseInfo.serviceProxyCode">{{ baseInfo.serviceProxyCode }}</span>
             </div>
             <div class="info-item">
               <span class="label">VIN：</span>
@@ -62,6 +62,7 @@
                   style="width: 150px"
                   :precision="2"
                   :min="0"
+                  :max="baseInfo.repairItemPayableAmount"
                   size="small"
                   v-model="roundAmount"
                   @change="handleRoundAmountChange"
@@ -530,7 +531,6 @@ export default {
       } else {
         const { discountWorkhourRate, discountPartRate } =
           this.currentDiscountMode;
-        // 维修项目折扣率（1代表不打折，0表示打折100%）
         const workhourRate =
           discountWorkhourRate !== undefined ? +discountWorkhourRate : 1;
         // 备件折扣率
@@ -542,8 +542,7 @@ export default {
             const price = +row.price || 0;
             const workHour = +row.workHour || 0;
             const totalAmount = price * workHour;
-            // 折扣金额 = 总金额 * (1 - 折扣率)
-            const discountAmount = totalAmount * (1 - workhourRate);
+            const discountAmount = totalAmount * workhourRate;
             row.discountAmount = parseFloat(discountAmount.toFixed(2));
             row.repairAmount = parseFloat(
               (totalAmount - row.discountAmount).toFixed(2)
@@ -560,8 +559,7 @@ export default {
             const price = +row.price || 0;
             const quantity = +row.quantity || 0;
             const totalAmount = price * quantity;
-            // 折扣金额 = 总金额 * (1 - 折扣率)
-            const discountAmount = totalAmount * (1 - partRate);
+            const discountAmount = totalAmount * partRate;
             row.discountAmount = parseFloat(discountAmount.toFixed(2));
             row.partsAmount = parseFloat(
               (totalAmount - row.discountAmount).toFixed(2)
@@ -695,6 +693,7 @@ export default {
             color: var(--leap-color-default-dark-1);
             font-weight: 500;
             font-size: 14px;
+            white-space: nowrap;
 
             &.highlight {
               color: var(--leap-color-primary);

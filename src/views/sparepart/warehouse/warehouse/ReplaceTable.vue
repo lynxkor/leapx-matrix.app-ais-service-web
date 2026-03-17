@@ -18,21 +18,45 @@
       </div>
       <div class="common-section-body">
         <div class="common-section-table">
-          <edit-table
-            ref="editTable"
-            :columns="columns"
+          <vxe-table
+            ref="tableRef"
+            stripe
             :data="tableData"
-            :show-toolbar="false"
-            :isFocusNewRow="false"
-            :enableSingleRowSave="true"
-            :showPagination="true"
-            :current="current"
-            :pageSize="pageSize"
-            :total="total"
-            @page-size-change="pageSizeChange"
-            @current-page-change="currentPageChange"
+            show-overflow
+            resizable
+            border="inner"
+            size="medium"
+            min-height="0"
+            max-height="400px"
           >
-          </edit-table>
+            <vxe-column field="code" title="库存单号" min-width="25%">
+              <template #default="{ row }">
+                <el-link type="success" :href="`/service/sparepart/warehouse/warehouse/edit?id=${row.code}`" target="_blank">{{ row.code }}</el-link>
+              </template>
+            </vxe-column>
+            <vxe-column field="partCode" title="备件编码" min-width="25%">
+              <template #default="{ row }">
+                <el-link type="success" :href="`/service/sparepart/basic/sparePart/detail?id=${row.partCode}`" target="_blank">{{ row.partCode }}</el-link>
+              </template>
+            </vxe-column>
+            <vxe-column field="partName" title="备件名称" min-width="25%" />
+            <vxe-column field="locationName" title="库位名称" min-width="25%" />
+            <template #empty>
+              <div class="m-vxe-table-empty-text">{{emptyText}}</div>
+            </template>
+          </vxe-table>
+          <div class="table-pagination">
+            <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="current"
+              :page-sizes="[10, 20, 50, 100]"
+              :page-size="pageSize"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="total"
+            >
+            </el-pagination>
+          </div>
         </div>
       </div>
     </section>
@@ -41,7 +65,6 @@
 import { uIntRule } from '@/validation/rule';
 import { locationOrUpdate } from '@/api/sparepart/warehouse/warehouse/index';
 import { getList } from '@/api/sparepart/warehouse/inventory/index';
-import EditTable from '@/libs/components/EditTable';
 import permissions from '@/libs/mixins/permissions';
 
 export default {
@@ -59,9 +82,6 @@ export default {
       default: null,
     }
   },
-  components: {
-    EditTable,
-  },
   mixins: [permissions],
   data () {
     return {
@@ -70,28 +90,6 @@ export default {
       pageSize: 10,
       total: 0,
       tableData: [],
-      columns: [
-        {
-          field: 'code',
-          title: '库存单号',
-          width: '25%',
-        },
-        {
-          field: 'partCode',
-          title: '备件编码',
-          width: '25%',
-        },
-        {
-          field: 'partName',
-          title: '备件名称',
-          width: '25%',
-        },
-        {
-          field: 'locationName',
-          title: '库位名称',
-          width: '25%',
-        },
-      ],
       rules: {
         locationName: [
           { required: true, message: '请填写库位名称', trigger: 'blur' }
@@ -140,12 +138,12 @@ export default {
         this.$message.success('编辑成功');
       });
     },
-    pageSizeChange (pageSize) {
+    handleSizeChange (pageSize) {
       this.pageSize = pageSize;
       this.current = 1;
       this.getDetailPageApi();
     },
-    currentPageChange (current) {
+    handleCurrentChange (current) {
       this.current = current;
       this.getDetailPageApi();
     },

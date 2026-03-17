@@ -17,23 +17,6 @@
           <!-- <span class="status primary">状态</span> -->
         </template>
         <template #extraButtons>
-          <!-- 启用/停用按钮 -->
-          <el-button
-            v-if="_id && form.status === '0'"
-            size="small"
-            type="success"
-            @click="handleEnable"
-          >
-            启用
-          </el-button>
-          <el-button
-            v-if="_id && form.status === '1'"
-            size="small"
-            type="warning"
-            @click="handleDisable"
-          >
-            停用
-          </el-button>
           <!-- <el-button size="small">按钮 1</el-button>
           <el-button size="small">按钮 2</el-button> -->
         </template>
@@ -44,7 +27,7 @@
             </div>
             <div class="common-section-body">
               <!-- TIPS: 自行调整 label-width="150px"，使得 label 不换行 -->
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="160px" class="form-edit" v-show="isEditing || !_id">
                 <!-- 序号 - 新增时置灰，后端自动生成；编辑时不可修改 -->
                 <el-form-item label="序号：" prop="serialNo">
                   <el-input
@@ -70,13 +53,13 @@
                 <template v-if="form.calendarMode === '10'">
                   <el-form-item label="每月第几日保修结算：" prop="settlementDay">
                     <el-input-number
+                      size="small"
                       v-model="form.settlementDay"
                       :min="1"
                       :max="28"
                       :precision="0"
                       :controls="true"
                       placeholder="请输入 1-28 的整数"
-                      style="width: 200px;"
                       @change="validateStandardCalendarDuplicate"
                     />
                   </el-form-item>
@@ -90,24 +73,36 @@
                       filterable
                     />
                   </el-form-item>
+                <!-- 是否启用 - 新增和编辑时都显示 -->
+                <el-form-item label="是否启用：" prop="status">
+                  <fetch-select
+                    :request="fetchOptions"
+                    enumCode="StatusEnum"
+                    v-model="form.status"
+                    placeholder="请选择"
+                    :disabled="true"
+                    clearable
+                    filterable
+                  />
+                </el-form-item>
                 </template>
                 <!-- 门店日历模式字段 -->
                 <template v-if="form.calendarMode === '20'">
-                  <el-form-item label="门店编码：" prop="dealerCode">
+                  <el-form-item label="门店名称：" prop="dealerCode">
                     <dealer-select v-model="form.dealerCode" :disabled="isEditMode" />
                   </el-form-item>
-                  <el-form-item label="门店名称：" prop="dealerName">
-                    <el-input v-model="form.dealerName" disabled placeholder="由门店编码自动带出" />
+                  <el-form-item label="门店编码：" prop="dealerCode">
+                    <el-input v-model="form.dealerCode" disabled/>
                   </el-form-item>
                   <el-form-item label="每月第几日保修结算：" prop="settlementDay">
                     <el-input-number
+                      size="small"
                       v-model="form.settlementDay"
                       :min="1"
                       :max="28"
                       :precision="0"
                       :controls="true"
                       placeholder="请输入 1-28 的整数"
-                      style="width: 200px;"
                       @change="validateStoreCalendarDuplicate"
                     />
                   </el-form-item>
@@ -121,6 +116,18 @@
                       filterable
                     />
                   </el-form-item>
+                <!-- 是否启用 - 新增和编辑时都显示 -->
+                <el-form-item label="是否启用：" prop="status">
+                  <fetch-select
+                    :request="fetchOptions"
+                    enumCode="StatusEnum"
+                    v-model="form.status"
+                    placeholder="请选择"
+                    :disabled="true"
+                    clearable
+                    filterable
+                  />
+                </el-form-item>
                 </template>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
@@ -145,6 +152,9 @@
                 <el-form-item label="是否启用：" prop="status">
                   {{ statusLabel }}
                 </el-form-item>
+                <el-form-item label="说明：" prop="statusDesc">
+                  {{ form.statusDesc }}
+                </el-form-item>
                 <el-form-item label="创建时间：" prop="createTime">
                   {{ form.createTime }}
                 </el-form-item>
@@ -168,7 +178,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, enableItem, checkStandardCalendarDuplicate, checkStoreCalendarDuplicate, getEnabledStandardCalendarCount } from '@/api/claimreturn/claim/basic/warrantySettlementCalendar/index';
+import { getDetail, addOrUpdate, checkStandardCalendarDuplicate, checkStoreCalendarDuplicate, getEnabledStandardCalendarCount } from '@/api/claimreturn/claim/basic/warrantySettlementCalendar/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -284,7 +294,10 @@ export default {
           { required: true, message: '请选择月度', trigger: 'change' }
         ],
         dealerCode: [
-          { required: true, message: '请选择门店编码', trigger: 'change', validator: this.validateDealerCode }
+          { required: true, message: '请选择门店编码或名称', trigger: 'change', validator: this.validateDealerCode }
+        ],
+        status: [
+          { required: true, message: '请选择是否启用', trigger: 'change' }
         ],
       }
     };
@@ -377,10 +390,7 @@ export default {
     async checkStandardDuplicate () {
       if (!this.form.settlementDay) return false;
       try {
-        const res = await checkStandardCalendarDuplicate({
-          settlementDay: this.form.settlementDay,
-          excludeId: this._id
-        });
+        const res = await checkStandardCalendarDuplicate(this.form.settlementDay);
         if (res) {
           this.$message.warning(`${this.form.settlementDay}号保修结算日期已存在标准结算日历，不允许重复添加`);
           return true;
@@ -394,13 +404,9 @@ export default {
     async checkStoreDuplicate () {
       if (!this.form.dealerCode || !this.form.settlementDay) return false;
       try {
-        const res = await checkStoreCalendarDuplicate({
-          dealerCode: this.form.dealerCode,
-          settlementDay: this.form.settlementDay,
-          excludeId: this._id
-        });
+        const res = await checkStoreCalendarDuplicate(this.form.dealerCode, this.form.settlementDay);
         if (res) {
-          this.$message.warning(`门店：${this.form.dealerName || this.form.dealerCode}，在${this.form.settlementDay}号保修结算日期已存在门店结算日历，不允许重复添加`);
+          this.$message.warning(`门店：${this.form.dealerCode}，在${this.form.settlementDay}号保修结算日期已存在门店结算日历，不允许重复添加`);
           return true;
         }
         return false;
@@ -426,70 +432,7 @@ export default {
         callback();
       }
     },
-    // 启用
-    handleEnable () {
-      this.$confirm('确认启用该记录吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(async () => {
-        try {
-          await enableItem({
-            id: this._id,
-            status: '1'
-          });
-          this.$message.success('启用成功');
-          // 更新本地状态
-          this.form.status = '1';
-          this.originalForm.status = '1';
-          // 重新加载详情
-          if (this.$refs.containerRef) {
-            this.$refs.containerRef.loadDetail();
-          }
-        } catch (error) {
-          this.$message.error('启用失败');
-        }
-      }).catch(() => {});
-    },
-    // 停用
-    async handleDisable () {
-      // 如果是标准日历，需要检查是否是最后一条启用的标准日历
-      if (this.form.calendarMode === '10') {
-        try {
-          const count = await getEnabledStandardCalendarCount();
-          if (count <= 1) {
-            this.$message.warning('标准日历不允许全部停用');
-            return;
-          }
-        } catch (e) {
-          this.$message.error('获取标准日历数量失败');
-          return;
-        }
-      }
 
-      this.$confirm('确认停用该记录吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(async () => {
-        try {
-          await enableItem({
-            id: this._id,
-            status: '0'
-          });
-          this.$message.success('停用成功');
-          // 更新本地状态
-          this.form.status = '0';
-          this.originalForm.status = '0';
-          // 重新加载详情
-          if (this.$refs.containerRef) {
-            this.$refs.containerRef.loadDetail();
-          }
-        } catch (error) {
-          this.$message.error('停用失败');
-        }
-      }).catch(() => {});
-    },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);

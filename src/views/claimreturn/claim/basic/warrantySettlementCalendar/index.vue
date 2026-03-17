@@ -181,7 +181,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '保修结算日历',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-warrantySettlementCalendar',
@@ -229,6 +229,7 @@ export default {
           { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'statusDesc', label: '说明', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',
@@ -326,7 +327,7 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '新页面',
+        businessType: '保修结算日历',
         dataFetchPath: 'claimreturn/web/claim/basic/warrantySettlementCalendar/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -334,7 +335,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '保修结算日历.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',

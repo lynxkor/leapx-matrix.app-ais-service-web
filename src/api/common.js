@@ -148,14 +148,6 @@ export function repairItemType (data) {
 }
 
 /**
- * 城市模糊搜索
- * @param {*} data
- */
-export function cityPage (data) {
-  return api.jsonPost('/area/findPage/city', data);
-}
-
-/**
  * 销售公告车型模糊搜索
  * @param {*} data
  */
@@ -204,6 +196,9 @@ export function getParentCompany (data) {
  */
 export function listWarehouse (data) {
   return api.jsonPost('/sp/web/warehouse/warehouse/list', data);
+}
+export function listOemWarehouse (data) {
+  return api.jsonPost('/sp/web/warehouse/warehouse/listOem', data);
 }
 
 /**
@@ -260,4 +255,28 @@ export function getSparePartOrderIdByCode (data) {
  */
 export function getLogistics (data) {
   return api.jsonPost('/sp/web/base/common/getLogistics', data);
+}
+
+/**
+ * 省模糊搜索
+ * @param {*}
+ */
+export function getProvinceTree () {
+  return api.get('/area/tree');
+}
+
+/**
+ * 城市分页搜索
+ * @param {*} data
+ */
+export function cityPage (data) {
+  return api.jsonPost('/area/findPage/city', data);
+}
+
+/**
+ * 城市模糊搜索
+ * @param {*} data
+ */
+export function cityListByName (data) {
+  return api.post('/area/search/city', data);
 }

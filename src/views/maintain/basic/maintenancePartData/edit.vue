@@ -87,8 +87,8 @@
                 <el-form-item label="保养零件名称：" prop="name">
                   {{ form.name }}
                 </el-form-item>
-                <el-form-item label="里程类型：" prop="mileageType">
-                  {{ form.mileageType }}
+                <el-form-item label="里程类型：" prop="mileageTypeLabel">
+                  {{ form.mileageTypeLabel }}
                 </el-form-item>
                 <el-form-item label="首次保养里程(KM)：" prop="firstServiceMileage">
                   {{ form.firstServiceMileage }}
@@ -341,6 +341,13 @@ export default {
         partsList: this.tableDataPj
       }).then(result => {
         this.$message.success('保存成功');
+        console.log(result);
+        this.$router.push({
+          path: '/maintain/basic/maintenancePartData/edit',
+          query: {
+            id: result
+          }
+        });
       }).catch(() => {});
     },
     // 添加零件

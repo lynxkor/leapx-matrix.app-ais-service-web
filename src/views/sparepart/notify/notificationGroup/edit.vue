@@ -1,5 +1,5 @@
 <template>
-  <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
+  <edit-page-layout ref="editLayout" title="添加用户" showPaneFooter @save="handleSave">
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container
@@ -66,23 +66,11 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>子表标题</h2>
+              <h2>通知对象</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
-                  <el-button type="primary" size="small">添加</el-button>
-                </div>
+                <el-button type="primary" size="small" @click="addUser">添加用户</el-button>
               </div>
               <div class="common-section-table">
                 <vxe-table
@@ -96,12 +84,15 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
+                  <vxe-column field="userId" title="用户编码" min-width="18%" />
+                  <vxe-column field="userName" title="用户名称" min-width="18%" />
+                  <vxe-column field="userEmail" title="邮箱" min-width="18%" />
+                  <vxe-column field="provinceName" title="省" min-width="18%" />
+                  <vxe-column field="cityName" title="市" min-width="18%" />
+                  <vxe-column title="操作" width="160" v-if="canDelete">
+                    <template #default="{ rowIndex, row }">
+                      <span class="btn-edit" @click="handleEdit(row)">编辑</span>
+                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger"  @confirm="handleDeleteRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
@@ -110,6 +101,18 @@
                     <div class="m-vxe-table-empty-text">{{emptyText}}</div>
                   </template>
                 </vxe-table>
+                <div class="table-pagination">
+                  <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="pageNum"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total"
+                  >
+                  </el-pagination>
+                </div>
               </div>
             </div>
           </section>
@@ -119,14 +122,19 @@
     <template #right>
       <div class="page-common-edit">
         <!-- 右侧栏组件，自行开发 -->
+         <add-user
+          ref="addUserRef"
+          :notificationGroupId="_id"
+          :notificationForm="notificationForm"
+          @submit="getData"
+         />
       </div>
     </template>
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/notify/notificationGroup/index';
-import FetchSelect from '@/libs/components/FetchSelect';
+import { getDetail, addOrUpdate, notificationGroupPage, notificationGroupDelete } from '@/api/sparepart/notify/notificationGroup/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -134,6 +142,8 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import AddUser from './AddUser.vue';
+import { get } from 'lodash';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -165,7 +175,7 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect
+    AddUser
   },
   computed: {
     _id () {
@@ -180,6 +190,14 @@ export default {
       handler (val) {
         if (val && this.$refs.containerRef) {
           this.$refs.containerRef.loadDetail();
+        }
+      },
+      immediate: true
+    },
+    'form.id': {
+      handler (val) {
+        if (val) {
+          this.getData();
         }
       },
       immediate: true
@@ -198,49 +216,23 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       emptyText: '若要启用此内容，请创建记录',
+      pageSize: 10,
+      pageNum: 1,
+      total: 0,
+      notificationForm: {}, // 通知对象列表
       tableData: [
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
       rules: {
         code: [
-          { required: true, message: '请输入通知组编码', trigger: 'change' }
+          { required: false, message: '请输入通知组编码', trigger: 'change' }
         ],
         groupName: [
           { required: true, message: '请输入通知组名称', trigger: 'change' }
         ],
         remark: [
           { required: false, message: '请输入备注', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，150:新销服; 老销服:10', trigger: 'change' }
         ],
       }
     };
@@ -260,6 +252,11 @@ export default {
     // 打开侧边栏
     openPane () {
       this.$refs.editLayout.openPane();
+    },
+    // 编辑子表数据
+    handleEdit (row) {
+      this.notificationForm = row;
+      this.openPane();
     },
     // 删除子表数据
     handleDeleteRow (index) {
@@ -326,7 +323,43 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    // 请求通知对象列表
+    async getData () {
+      const params = {
+        notificationGroupId: this._id,
+        pageNum: this.pageNum,
+        pageSize: this.pageSize,
+      };
+      const res = await notificationGroupPage(params);
+      this.total = res.total || 0;
+      this.tableData = res.records || [];
+    },
+    handleCurrentChange (pageNum) {
+      this.pageNum = pageNum;
+      this.getData();
+    },
+    handleSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.pageNum = 1;
+      this.getData();
+    },
+    // 打开侧边栏  添加用户
+    addUser () {
+      this.openPane();
+    },
+    // 保存侧边栏数据
+    handleSave () {
+      this.$refs.addUserRef.handleSave();
     }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.btn-edit {
+  cursor: pointer;
+  color: #4C4CD6;
+  margin-right: 10px;
+}
+</style>

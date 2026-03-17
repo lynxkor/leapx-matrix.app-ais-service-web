@@ -100,7 +100,7 @@
                   <el-form-item label="保修类型：" prop="warrantyTypeId">
                     <list-select
                     listUrl="/maintain/web/basic/repairItemType/list"
-                    placeholder="请选择"
+                    placeholder="请输入保修类型编码/名称"
                     v-model="form.warrantyTypeId"
                     :disabled="Boolean(_id)"
                     query-key="codeOrNameLike"
@@ -158,11 +158,11 @@
                 </template>
                 <!-- 门店费率模式字段 -->
                 <template v-if="form.rateMode === '20'">
-                  <el-form-item label="门店编码：" prop="dealerCode">
+                  <el-form-item label="门店名称：" prop="dealerCode">
                     <dealer-select v-model="form.dealerCode" :disabled="isEditMode" />
                   </el-form-item>
-                  <el-form-item label="门店名称：" prop="dealerName">
-                    <el-input v-model="form.dealerName" disabled placeholder="由门店编码自动带出" />
+                  <el-form-item label="门店编码：" prop="dealerCode">
+                    <el-input v-model="form.dealerCode" disabled />
                   </el-form-item>
                   <el-form-item label="管理费率（%）：" prop="managementRate">
                     <el-input-number
@@ -568,7 +568,7 @@ export default {
           { required: true, message: '请选择保修类型', trigger: 'change' }
         ],
         dealerCode: [
-          { required: true, message: '请选择门店编码', trigger: 'change' }
+          { required: true, message: '请选择门店编码或名称', trigger: 'change' }
         ],
         effectiveStartTime: [
           { required: true, message: '请选择生效开始日期', trigger: 'change' }

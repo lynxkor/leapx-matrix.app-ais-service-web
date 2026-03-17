@@ -19,17 +19,17 @@
           clearable
         />
       </el-form-item>
+      <el-form-item label="是否可销售" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="BooleanEnum"
+          v-model="form.saleableIs"
+          placeholder="请选择"
+          clearable
+          filterable
+        />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="是否可销售">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="BooleanEnum"
-            v-model="form.saleableIs"
-            placeholder="请选择"
-            clearable
-            filterable
-          />
-        </el-form-item>
         <el-form-item label="是否常备库存件">
           <fetch-select
             :request="fetchOptions"
@@ -131,6 +131,10 @@
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchAllowTransfer" :disabled="selectionList.length === 0">允许BO调拨</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchForbidTransfer" :disabled="selectionList.length === 0">禁止BO调拨</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchAllowSales" :disabled="selectionList.length === 0">允许备附件销售</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchForbidSales" :disabled="selectionList.length === 0">禁止备附件销售</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -162,7 +166,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/sparePart';
+import { getList, deleteItem, enableItem, allowBoTransfer, forbidBoTransfer, allowPartsAttachmentSales, forbidPartsAttachmentSales } from '@/api/sparepart/basic/sparePart';
 import { vfglist } from '@/api/claimreturn/claim/basic/vfg';
 import { vrtlist } from '@/api/claimreturn/claim/basic/vrt';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -177,7 +181,7 @@ import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  partCodeList: '',
+  partCodeList: [],
   partNameLike: '',
   minOrderQuantity: '',
   salePrice: '',
@@ -262,6 +266,8 @@ export default {
           { props: 'partsEngineer', label: '备件工程师', visible: true, width: 200 },
           { props: 'vfgName', label: 'VFG名称', visible: true, width: 200 },
           { props: 'vrtName', label: 'VRT名称', visible: true, width: 200 },
+          { props: 'boTransferIsLabel', label: 'BO调拨', visible: true, width: 200 },
+          { props: 'retailIsLabel', label: '备附件销售', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 120 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
@@ -284,6 +290,70 @@ export default {
                   query: {
                     id: row.id
                   }
+                });
+              },
+              type: 'info'
+            }, {
+              name: '允许BO调拨',
+              show: (row) => {
+                return row.boTransferIs === '0' && row.oemPart === '1';
+              },
+              popconfirmTitle: '此操作将允许BO调拨, 是否继续?',
+              click: (rowIndex, row) => {
+                if (!row.domesticPrePackageWeightKg || row.domesticPrePackageWeightKg === '0' || !row.domesticPostPackageVolumeCm3 || row.domesticPostPackageVolumeCm3 === '0') {
+                  this.$message.error('备件编码: ' + row.partCode + '的信息为准确维护，请维护后再操作，谢谢！');
+                  return;
+                }
+                allowBoTransfer({
+                  id: row.id
+                }).then(() => {
+                  this.$message.success('操作成功');
+                  this.getData();
+                });
+              },
+              type: 'info'
+            }, {
+              name: '禁止BO调拨',
+              show: (row) => {
+                return row.boTransferIs === '1' && row.oemPart === '1';
+              },
+              popconfirmTitle: '此操作将禁止BO调拨, 是否继续?',
+              click: (rowIndex, row) => {
+                forbidBoTransfer({
+                  id: row.id
+                }).then(() => {
+                  this.$message.success('操作成功');
+                  this.getData();
+                });
+              },
+              type: 'info'
+            }, {
+              name: '允许备附件销售',
+              show: (row) => {
+                return row.retailIs === '0' && row.oemPart === '1';
+              },
+              popconfirmTitle: '此操作将允许备附件销售, 是否继续?',
+              click: (rowIndex, row) => {
+                allowPartsAttachmentSales({
+                  id: row.id
+                }).then(() => {
+                  this.$message.success('操作成功');
+                  this.getData();
+                });
+              },
+              type: 'info'
+            }, {
+              name: '禁止备附件销售',
+              show: (row) => {
+                return row.retailIs === '1' && row.oemPart === '1';
+              },
+              popconfirmTitle: '此操作将禁止备附件销售, 是否继续?',
+              click: (rowIndex, row) => {
+                forbidPartsAttachmentSales({
+                  id: row.id
+                }).then(() => {
+                  this.$message.success('操作成功');
+                  this.getData();
                 });
               },
               type: 'info'
@@ -437,7 +507,17 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null || data[key].length === 0) {
+        const val = data[key];
+
+        // 情况 A: 值为 null, undefined, 或 空字符串 ''
+        if (!val && val !== 0 && val !== false) {
+          delete data[key];
+          return;
+        }
+
+        // 情况 B: 值为空数组 [] 或 空字符串 '' (再次确认 length)
+        // 注意：上面 !val 已经处理了 ''，这里主要处理 []
+        if (Array.isArray(val) && val.length === 0) {
           delete data[key];
         }
       });
@@ -502,6 +582,104 @@ export default {
         refreshFunc: this.getData
       });
     },
+    /**
+   * 通用批量操作执行器
+   * @param {Object} options
+   * @param {String} options.actionName - 操作名称 (用于弹窗和提示)
+   * @param {Function} options.apiFn - 调用的 API 函数
+   * @param {Array} options.rules - 校验规则数组 [{ field, validValue, message }]
+   */
+    async executeBatchAction ({ actionName, apiFn, rules }) {
+      if (!this.selectionList || this.selectionList.length === 0) {
+        this.$message.warning('请至少选择一条数据');
+        return;
+      }
+
+      // 1. 执行所有校验规则
+      for (const rule of rules) {
+        const { field, validValue, message } = rule;
+        // 筛选出【不满足】条件的数据 (即 field !== validValue)
+        const invalidItems = this.selectionList.filter(item => item[field] !== validValue);
+
+        if (invalidItems.length > 0) {
+          const firstCode = invalidItems[0].partCode;
+          const countMsg = invalidItems.length > 1 ? `等 ${invalidItems.length} 个` : '';
+          this.$message.error(`备件编码: ${firstCode}${countMsg}${message}`);
+          return; // 拦截
+        }
+      }
+
+      // 2. 提取 ID 列表
+      const ids = this.selectionList.map(item => item.id);
+
+      // 3. 二次确认
+      try {
+        await this.$confirm(`此操作将${actionName}, 是否继续?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        });
+      } catch {
+        return; // 用户取消
+      }
+
+      // 4. 执行请求
+      try {
+        await apiFn({ idList: ids });
+        this.$message.success(`${actionName}成功!`);
+        this.getData(); // 刷新列表
+      } catch (error) {
+        console.error(error);
+        this.$message.error(`${actionName}失败!`);
+      }
+    },
+
+    // 批量允许 BO 调拨
+    handleBatchAllowTransfer () {
+      this.executeBatchAction({
+        actionName: '批量允许 BO 调拨',
+        apiFn: allowBoTransfer,
+        rules: [
+          { field: 'boTransferIs', validValue: '0', message: '不是禁止调拨状态，不允许执行当前操作!' },
+          { field: 'oemPart', validValue: '1', message: '为非 OEM 件，不允许执行当前操作!' }
+        ]
+      });
+    },
+
+    // 批量禁止 BO 调拨
+    handleBatchForbidTransfer () {
+      this.executeBatchAction({
+        actionName: '批量禁止 BO 调拨',
+        rules: [
+          { field: 'boTransferIs', validValue: '1', message: '不是允许调拨状态，不允许执行当前操作!' },
+          { field: 'oemPart', validValue: '1', message: '为非 OEM 件，不允许执行当前操作!' }
+        ]
+      });
+    },
+
+    // 批量允许备附件销售
+    handleBatchAllowSales () {
+      this.executeBatchAction({
+        actionName: '批量允许备附件销售',
+        apiFn: allowPartsAttachmentSales,
+        rules: [
+          { field: 'retailIs', validValue: '0', message: '不是禁止销售状态，不允许执行当前操作!' },
+          { field: 'oemPart', validValue: '1', message: '为非 OEM 件，不允许执行当前操作!' }
+        ]
+      });
+    },
+
+    // 批量禁止备附件销售
+    handleBatchForbidSales () {
+      this.executeBatchAction({
+        actionName: '批量禁止备附件销售', // 修正了提示语
+        apiFn: forbidPartsAttachmentSales,
+        rules: [
+          { field: 'retailIs', validValue: '1', message: '不是允许销售状态，不允许执行当前操作!' },
+          { field: 'oemPart', validValue: '1', message: '为非 OEM 件，不允许执行当前操作!' }
+        ]
+      });
+    }
   }
 };
 </script>

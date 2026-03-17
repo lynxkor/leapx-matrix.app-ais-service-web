@@ -45,7 +45,7 @@
               <el-form-item label="负责人" prop="ownerUserName">
                 <InputLink
                   v-model="form.ownerUserName"
-                  :link="`/partner/user/list/detail?&userId=${form.ownerId}`"
+                  :link="`/partner/user/list/detail?&userId=${form.ownerUserId}`"
                   placeholder="请输入"
                   readonly
                 />
@@ -225,7 +225,7 @@ export default {
         ownerId: [
           { required: true, message: '请输入负责人ID', trigger: 'blur' }
         ],
-        ownerName: [
+        ownerUserName: [
           { required: true, message: '请输入负责人姓名', trigger: 'blur' }
         ],
         userRelations: [
@@ -315,8 +315,8 @@ export default {
       const userInfo = this.$store.state.user.userInfo;
       return {
         ...defaultForm,
-        ownerId: userInfo.userId,
-        ownerName: userInfo.userName,
+        ownerUserId: userInfo.userId,
+        ownerUserName: userInfo.userName,
         dealerName: userInfo.orgPostUserList.find(item => item.position === '1')?.orgName,
       };
     },

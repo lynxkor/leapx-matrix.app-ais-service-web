@@ -19,7 +19,7 @@
                     <el-button size="small" @click="handleImport" v-if="!isCanceled">上传附件</el-button>
                     <el-button size="small" @click="handleShowLog">审核日志</el-button>
                     <!-- 流程操作按钮 -->
-                    <el-button size="small" @click="discardDialogVisible = true" v-if="!isCompleted">作废</el-button>
+                    <el-button size="small" @click="discardDialogVisible = true" v-if="!isCompleted && !form.isCreateStatementInfo">作废</el-button>
                     <el-button size="small" @click="materialReturnDialogVisible = true" v-if="!isCompleted && hasRepairItems">退料</el-button>
                     <el-button size="small" @click="handlePreCheck" v-if="orderStatus === RepairOrderStatusEnum.RECEPTION_INSPECTION">预检确认</el-button>
                     <el-button size="small" @click="handleCreatingOrder" v-if="orderStatus === RepairOrderStatusEnum.CREATING_ORDER && hasItems">制单确认并签字</el-button>
@@ -47,21 +47,21 @@
                 <span>开单时间：{{ form.createTime || '-' }}</span>
               </h5>
             </section>
-            <BasicInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="basicInfoRef"/>
+            <BasicInfo :formData.sync="form" :isEditing="isEditing" :_id="_id" ref="basicInfoRef"/>
             <EntrustInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="entrustInfoRef" @change="submitForm"/>
             <BatteryInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="batteryInfoRef"/>
             <!-- <InquiryInfo :formData="form"/> -->
             <RepairInfo :formData="form"/>
             <SparepartsInfo :formData="form"/>
-            <Attachment :formData="fileList" @refresh="handleRefresh"/>
+            <section class="common-section">
+              <div class="common-section-header">
+                <h2>资料附件</h2>
+              </div>
+              <div class="common-section-body">
+                <Attachment :_id="_id" :show-upload="false" ref="attachmentRef"/>
+              </div>
+            </section>
             <MaintainInfo :formData="form"/>
-            <!-- TIPS: 填入项目id即可 -->
-            <Upload
-              :visible="uploadDialogVisible"
-              :businessId="_id"
-              @close="handleUploadDialogClose"
-              @refresh="handleRefresh"
-            />
           </el-main>
           <el-footer height="60px" v-if="!_id">
             <el-button size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
@@ -167,8 +167,6 @@ import MaterialReturnDialog from './components/MaterialReturnDialog';
 import SelectRepairItemDialog from './components/SelectRepairItemDialog';
 import StartWorkDialog from './components/StartWorkDialog';
 import DispatchWorkDialog from './components/DispatchWorkDialog';
-import Upload from './components/UploadDialog';
-import { getFileList } from '@/libs/api/attachment';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -327,6 +325,21 @@ export const RepairOrderStatusEnum = {
   CANCEL: 210
 };
 
+export const BusinessTypeEnum = {
+  /** 自然到店 */
+  NATURAL_ARRIVAL: 10,
+  /** 取送车到店 */
+  PICKUP_DELIVERY: 20,
+  /** 上门服务 */
+  DOOR_SERVICE: 30,
+  /** 外出驻点服务 */
+  ONSITE_SERVICE: 40,
+  /** 预约到店 */
+  APPOINTMENT_ARRIVAL: 50,
+  /** 反结算审批 */
+  ANTI_SETTLEMENT_APPROVAL: 60
+};
+
 export default {
   name: 'serviceProxyEdit',
   // 集中视图预留
@@ -358,8 +371,7 @@ export default {
     MaterialReturnDialog,
     SelectRepairItemDialog,
     StartWorkDialog,
-    DispatchWorkDialog,
-    Upload,
+    DispatchWorkDialog
   },
   computed: {
     _id () {
@@ -381,6 +393,7 @@ export default {
         RepairOrderStatusEnum.CANCEL
       ].includes(this.orderStatus);
     },
+
     // 是否在施工中(待派工或施工中)
     isInConstruction () {
       return [
@@ -457,25 +470,14 @@ export default {
       couponsDialogVisible: false,
       yes_no_enum: YES_NO_ENUM,
       RepairOrderStatusEnum,
-      uploadDialogVisible: false,
       form: { ...form },
-      originalForm: { ...form },
-      fileList: []
+      originalForm: { ...form }
     };
   },
   mounted () {
     this.getDetailData();
   },
   methods: {
-    getFileList () {
-      getFileList({
-        businessId: this._id
-      }).then(res => {
-        if (res.code === 200) {
-          this.fileList = res.data || [];
-        }
-      });
-    },
     // 打开侧边栏
     openPane () {
       this.$refs.editLayout.openPane();
@@ -505,7 +507,6 @@ export default {
           this.form = res;
           this.originalForm = res;
         });
-        this.getFileList();
       }
     },
     async submitForm (formName, rest = false) {
@@ -514,7 +515,12 @@ export default {
         const entrustInfo = await this.$refs.entrustInfoRef.getFormData();
         const batteryInfo = await this.$refs.batteryInfoRef.getFormData();
         this.submitLoading = true;
-        addOrUpdate({ ...this.form, ...basicInfo, ...entrustInfo, ...batteryInfo }).then(res => {
+        const data = { ...this.form, ...basicInfo, ...entrustInfo, ...batteryInfo };
+        // 后端要求新开单增加isAddItems字段
+        if (!this._id) {
+          data.isAddItems = 0;
+        }
+        addOrUpdate(data).then(res => {
           this.$message({
             message: '保存成功',
             type: 'success'
@@ -550,7 +556,8 @@ export default {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
       // const userInfo = this.$store.state.user.userInfo;
       return {
-        ...defaultForm
+        ...defaultForm,
+        businessType: BusinessTypeEnum.NATURAL_ARRIVAL // 默认自然到店
         // ownerId: userInfo.userId,
         // ownerName: userInfo.userName,
       };
@@ -583,6 +590,10 @@ export default {
     handleRefresh () {
       this.getDetailData();
     },
+    // 附件上传成功后刷新
+    handleAttachmentRefresh () {
+      this.$refs.attachmentRef?.loadAttachmentList();
+    },
     // 预检确认
     handlePreCheck () {
       const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>此操作将完成预检，工单进入制单环节，是否继续？</div>';
@@ -608,10 +619,7 @@ export default {
       });
     },
     handleImport () {
-      this.uploadDialogVisible = true;
-    },
-    handleUploadDialogClose () {
-      this.uploadDialogVisible = false;
+      this.$refs.attachmentRef?.openUploadDialog();
     },
     async handleCreatingOrder () {
       try {

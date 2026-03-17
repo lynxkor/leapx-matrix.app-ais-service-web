@@ -275,7 +275,7 @@
                   {{ '没有字段' }}
                 </el-form-item>
                 <el-form-item label="发货仓库：" prop="deliveryWarehouse">
-                  {{ form.deliveryWarehouse }}
+                  {{ form.deliveryWarehouseName }}
                 </el-form-item>
                 <el-form-item label="收货人姓名：" prop="recipientName">
                   {{ form.recipientName }}

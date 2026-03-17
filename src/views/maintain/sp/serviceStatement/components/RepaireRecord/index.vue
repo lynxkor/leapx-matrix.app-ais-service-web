@@ -30,7 +30,7 @@
           />
           <vxe-column
             field="repairItemTypeName"
-            title="维修项目类型"
+            title="维修类型"
             min-width="150"
           />
           <vxe-column

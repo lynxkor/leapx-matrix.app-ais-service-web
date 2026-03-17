@@ -126,7 +126,6 @@ export default {
         }
         return;
       }
-      console.log(file, fileList);
       this.fileList = fileList;
     },
 
@@ -183,6 +182,7 @@ export default {
         }
       } catch (error) {
         console.error('处理上传文件失败:', error);
+        this.isUploading = false;
         this.failCount++;
         this.checkAllCompleted();
       }
@@ -191,6 +191,7 @@ export default {
     handleError (error, file) {
       this.failCount++;
       console.error('上传失败:', error);
+      this.isUploading = false;
       this.checkAllCompleted();
     },
 
@@ -216,7 +217,6 @@ export default {
     checkAllCompleted () {
       const totalFiles = this.fileList.length;
       const completedCount = this.successCount + this.failCount;
-      console.log(this.successCount, this.failCount, totalFiles);
       if (completedCount >= totalFiles && this.isUploading) {
         this.isUploading = false;
 

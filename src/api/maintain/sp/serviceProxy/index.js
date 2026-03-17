@@ -167,6 +167,14 @@ export function cancelItem (data) {
 }
 
 /**
+ * 搜索施工单
+ * @param {Object} data
+ */
+export function selectServiceProxy (data) {
+  return api.jsonPost(prefix + 'selectServiceProxy', data);
+}
+
+/**
  * 打印详情
  * @param {Object} data
  */
@@ -319,4 +327,11 @@ export function deleteSpFaultAlertRecord (data) {
  */
 export function getStoreDetailByCode (data) {
   return api.jsonPost(prefix + 'getStoreDetailByCode', data);
+}
+/**
+ * 查询用户功能权限
+ * @param data
+ */
+export function getDealerPermission (data) {
+  return api.jsonPost('maintain/web/basic/dealerPermission/list', data);
 }

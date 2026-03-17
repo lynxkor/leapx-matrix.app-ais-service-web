@@ -39,12 +39,16 @@
         </el-form-item>
         <el-form-item label="预计交车时间：" prop="expectFinishAt">
           <el-date-picker
+            ref="expectFinishDatePicker"
             type="datetime"
             placeholder="请选择时间"
             v-model="form.expectFinishAt"
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
+            @focus="handleExpectFinishFocus"
+            :readonly="!isExpectFinishEditable"
+            :disabled="!_id"
           />
         </el-form-item>
         <el-form-item label="是否直播：" prop="isLive">
@@ -481,16 +485,10 @@ export default {
     'form.currentFault': {
       handler (val) {
         if (val) {
-          this.rules.anomalyDescription = [
-            { required: false, message: '请输入异常描述', trigger: 'change' }
-          ];
           this.rules.customerContent = [
             { required: true, message: '请输入故障描述', trigger: 'change' }
           ];
         } else {
-          this.rules.anomalyDescription = [
-            { required: true, message: '请输入异常描述', trigger: 'change' }
-          ];
           this.rules.customerContent = [
             { required: false, message: '请输入故障描述', trigger: 'change' }
           ];
@@ -524,10 +522,37 @@ export default {
           { required: false, message: '请输入故障描述', trigger: 'change' }
         ]
       },
-      RepairOrderStatusEnum
+      RepairOrderStatusEnum,
+      isExpectFinishEditable: true
     };
   },
   methods: {
+    validateForm () {
+      if (this.formData?.costCountResp?.repairItemRespList?.length === 0 && this.formData?.costCountResp?.sparePartRespList?.length === 0) {
+        this.$message.warning('请添加维修项目或配件');
+        return false;
+      } else {
+        return true;
+      }
+    },
+    handleExpectFinishFocus () {
+      // 校验维修项目和配件是否存在
+      const isValid = this.validateForm();
+      if (!isValid) {
+        // 校验不通过,暂时设置为只读
+        this.isExpectFinishEditable = false;
+        // 让日期选择器失去焦点
+        this.$nextTick(() => {
+          if (this.$refs.expectFinishDatePicker) {
+            this.$refs.expectFinishDatePicker.blur();
+            // 恢复可编辑状态
+            setTimeout(() => {
+              this.isExpectFinishEditable = true;
+            }, 100);
+          }
+        });
+      }
+    },
     scrollToError (invalidFields) {
       if (!invalidFields || !Object.keys(invalidFields).length) return;
       // 查找包含错误信息的表单项

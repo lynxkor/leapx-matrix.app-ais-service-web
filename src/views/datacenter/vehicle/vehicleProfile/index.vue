@@ -19,7 +19,7 @@
       <el-form-item label="车主手机号">
         <el-input
           placeholder="请输入"
-          v-model="form.ownerPhone"
+          v-model="form.ownerMobilephone"
           clearable
         />
       </el-form-item>
@@ -27,7 +27,7 @@
         <el-form-item label="车牌号">
           <el-input
             placeholder="请输入"
-            v-model="form.vehiclePlateNo"
+            v-model="form.vehiclePlateNoLike"
             clearable
           />
         </el-form-item>
@@ -44,18 +44,18 @@
           />
         </el-form-item>
         <el-form-item label="整车订单">
-          <tag-input v-model="form.vehicleOrderId" placeholder="请输入" />
+          <tag-input v-model="form.vehicleOrderList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="商城订单">
-          <tag-input v-model="form.shopcode" placeholder="请输入" />
+          <tag-input v-model="form.shopcodeList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="企业整车订单">
-          <tag-input v-model="form.vehicleEnterpriseOrder" placeholder="请输入" />
+          <tag-input v-model="form.vehicleEnterpriseOrderList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="保修开始日期">
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
-            v-model="form.warrantyStartDate"
+            v-model="form.warrantyStartdate"
             type="daterange"
             :picker-options="pickerOptions"
             range-separator="至"
@@ -67,25 +67,20 @@
         <el-form-item label="车主姓名">
           <el-input
             placeholder="请输入"
-            v-model="form.ownerName"
+            v-model="form.ownerNameLike"
             clearable
           />
         </el-form-item>
         <el-form-item label="车主证件类型">
-          <el-select
-            v-model="form.idcardType"
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="vehretail_id_card_type"
+            v-model="form.idcardTypeList"
             placeholder="请选择"
             clearable
             multiple
-            collapse-tags
-          >
-            <el-option
-              v-for="item in []"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
+            filterable
+          />
         </el-form-item>
         <el-form-item label="车主证件">
           <el-input
@@ -97,7 +92,7 @@
         <el-form-item label="绑车人姓名">
           <el-input
             placeholder="请输入"
-            v-model="form.bindingUser"
+            v-model="form.bindingUserLike"
             clearable
           />
         </el-form-item>
@@ -127,35 +122,14 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="销售门店编码">
-          <dealer-select v-model="form.salesDealerCode" multiple/>
+        <el-form-item label="销售门店">
+          <dealer-select v-model="form.salesDealerCodeList" multiple/>
         </el-form-item>
-        <el-form-item label="销售门店名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.salesDealerName"
-            clearable
-          />
+        <el-form-item label="交付门店">
+          <dealer-select v-model="form.deliveryDealerCodeList" multiple/>
         </el-form-item>
-        <el-form-item label="交付门店编码">
-          <dealer-select v-model="form.deliveryDealerCode" multiple/>
-        </el-form-item>
-        <el-form-item label="交付门店名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.deliveryDealerName"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="服务门店编码">
-          <dealer-select v-model="form.serviceDealerCode" multiple/>
-        </el-form-item>
-        <el-form-item label="服务门店名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.serviceDealerName"
-            clearable
-          />
+        <el-form-item label="服务门店">
+          <dealer-select v-model="form.serviceDealerCodeList" multiple/>
         </el-form-item>
         <el-form-item label="整车物料">
           <el-input
@@ -167,7 +141,7 @@
         <el-form-item label="物料描述">
           <el-input
             placeholder="请输入"
-            v-model="form.vehicleMaterialDesc"
+            v-model="form.vehicleMaterialDescLike"
             clearable
           />
         </el-form-item>
@@ -187,7 +161,7 @@
           <list-select
             listUrl="/datacenter/web/materials/vehicleSeries/list"
             placeholder="请选择"
-            v-model="form.seriesIds"
+            v-model="form.vehicleSeriesIdList"
             query-key="seriesNameLike"
             clearable
             collapseTags
@@ -201,95 +175,85 @@
           <list-select
             listUrl="/datacenter/web/materials/vehicleModel/list"
             placeholder="请选择"
-            v-model="form.modelIds"
+            v-model="form.vehicleModelIdList"
             query-key="modelNameLike"
             clearable
             auto-load-options
             collapseTags
             multiple
             filterable
-            :params="{seriesIdList: form.seriesIds}"
+            :params="{seriesIdList: form.vehicleSeriesIdList}"
             />
         </el-form-item>
         <el-form-item label="动力">
-          <el-select
-            v-model="form.powerType"
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleRangePower/list"
             placeholder="请选择"
+            v-model="form.rangePowerIdList"
+            query-key="rangePowerNameLike"
             clearable
+            auto-load-options
+            collapseTags
             multiple
-            collapse-tags
-          >
-            <el-option
-              v-for="item in []"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+            filterable
+            :params="{}"
             />
-          </el-select>
         </el-form-item>
         <el-form-item label="续航">
-          <el-select
-            v-model="form.endurance"
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleDrivingRange/list"
             placeholder="请选择"
+            v-model="form.drivingRangeIdList"
+            query-key="drivingRangeNameLike"
             clearable
+            auto-load-options
+            collapseTags
             multiple
-            collapse-tags
-          >
-            <el-option
-              v-for="item in []"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+            filterable
+            :params="{}"
             />
-          </el-select>
         </el-form-item>
         <el-form-item label="外饰">
-          <el-select
-            v-model="form.exterior"
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleExterior/list"
             placeholder="请选择"
+            v-model="form.exteriorIdList"
+            query-key="exteriorNameLike"
             clearable
+            auto-load-options
+            collapseTags
             multiple
-            collapse-tags
-          >
-            <el-option
-              v-for="item in []"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+            filterable
+            :params="{}"
             />
-          </el-select>
         </el-form-item>
         <el-form-item label="内饰">
-          <el-select
-            v-model="form.interior"
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleInterior/list"
             placeholder="请选择"
+            v-model="form.interiorIdList"
+            query-key="interiorNameLike"
             clearable
+            auto-load-options
+            collapseTags
             multiple
-            collapse-tags
-          >
-            <el-option
-              v-for="item in []"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+            filterable
+            :params="{}"
             />
-          </el-select>
         </el-form-item>
         <el-form-item label="轮毂">
-          <el-select
-            v-model="form.wheelHub"
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleWheelHub/list"
             placeholder="请选择"
+            v-model="form.wheelHubIdList"
+            query-key="wheelHubNameLike"
             clearable
+            auto-load-options
+            collapseTags
             multiple
-            collapse-tags
-          >
-            <el-option
-              v-for="item in []"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+            filterable
+            :params="{}"
             />
-          </el-select>
         </el-form-item>
         <el-form-item label="下次保养时间">
           <el-date-picker
@@ -372,6 +336,9 @@
       :id="'1'"
       @close="handleUploadDialogClose"
     />
+    <return-dialog
+      :visible.sync="visible"
+    />
   </div>
 </template>
 
@@ -380,7 +347,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getDetailDecryptField, getList, deleteItem, enableItem } from '@/api/datacenter/vehicle/vehicleProfile/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listVehicleSeries } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -391,34 +358,48 @@ import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select';
 import ListSelect from '@/libs/components/list-select';
 import TagInput from '@/libs/components/TagInput';
+import FetchSelect from '@/libs/components/FetchSelect';
+import { vehicleRangePower } from '@/libs/api/common';
+import ReturnDialog from './ReturnDialog';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   vin: '',
   vehicleMaterialCode: '',
   salesDate: '',
-  vehiclePlateNo: '',
-  deliveryDealerCode: '',
-  deliveryDealerName: '',
-  ownerName: '',
-  ownerPhone: '',
-  idcardType: '',
+  vehiclePlateNoLike: '',
+  deliveryDealerCodeList: [],
+  serviceDealerCodeList: [],
+  salesDealerCodeList: [],
+  ownerNameLike: '',
+  ownerMobilephone: '',
+  idcardTypeList: [],
+  bindingUserLike: '',
   vdcInboundOn: '',
-  seriesIds: [],
-  modelIds: [],
+  vehicleSeriesIdList: [],
+  vehicleModelIdList: [],
+  rangePowerIdList: [],
+  drivingRangeIdList: [],
+  exteriorIdList: [],
+  interiorIdList: [],
+  wheelHubIdList: [],
   nextMaintainDate: '',
   createTime: '',
   updateTime: '',
   bindingOn: '',
   vehicleOrderId: '',
+  vehicleOrder: '',
+  vehicleOrderList: [],
   shopcode: '',
+  shopcodeList: [],
   vehicleEnterpriseOrder: '',
+  vehicleEnterpriseOrderList: [],
   serviceDealerName: '',
   serviceDealerCode: '',
   salesDealerName: '',
   salesDealerCode: '',
-  vehicleMaterialDesc: '',
-  warrantyStartDate: '',
+  vehicleMaterialDescLike: '',
+  warrantyStartdate: '',
 };
 
 const pageSize = 20;
@@ -436,6 +417,8 @@ export default {
     DealerSelect,
     ListSelect,
     TagInput,
+    FetchSelect,
+    ReturnDialog,
   },
   data () {
     return {
@@ -463,7 +446,7 @@ export default {
         dataProp: [
           {
             props: 'vin',
-            label: 'VIN码',
+            label: 'VIN',
             visible: true,
             mask: true,
             getValue: (row) => getDetailDecryptField(row.id, 'vin'),
@@ -481,14 +464,69 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'isLifetimeFreeMaintainLabel', label: '是否终身免保', visible: true, width: 150 },
-          { props: 'vehicleMaterialCode', label: '整车物料编码', visible: true, width: 200 },
-          { props: 'vehicleMaterialDesc', label: '整车物料描述', visible: true, width: 250 },
+          {
+            props: 'vehiclePlateNo',
+            label: '车牌号',
+            visible: true,
+            width: 150,
+            mask: true,
+            getValue: (row) => getDetailDecryptField(row.id, 'vehiclePlateNo')
+          },
           { props: 'salesDate', label: '销售日期', visible: true, width: 160 },
-          { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 150 },
-          { props: 'deliveryDealerName', label: '订单交付门店', visible: true, width: 200 },
-          { props: 'serviceDealerName', label: '专属服务门店', visible: true, width: 200 },
-          { props: 'mallOrderNo', label: '商城订单号', visible: true, width: 180 },
+          {
+            props: 'vehicleOrder',
+            label: '整车订单',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.navigateToRoute({
+                  path: '/sales/vehretail/orderManager/retailOrderInfo/edit',
+                  query: {
+                    id: row.vehicleOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'shopcode',
+            label: '商城订单',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.shopcode) {
+                  this.navigateToRoute({
+                    path: '/sales/vehretail/productManager/productCenter/edit',
+                    query: {
+                      code: row.shopcode
+                    }
+                  });
+                }
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'vehicleEnterpriseOrder',
+            label: '企业整车订单',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.navigateToRoute({
+                  path: '/sales/vehwholesale/entorder/entVehicleOrder/edit',
+                  query: {
+                    id: row.vehicleEnterpriseOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'warrantyStartdate', label: '保修开始日期', visible: true, width: 160 },
           {
             props: 'ownerName',
             label: '车主姓名',
@@ -498,17 +536,17 @@ export default {
             getValue: (row) => getDetailDecryptField(row.id, 'ownerName')
           },
           {
-            props: 'ownerPhone',
-            label: '手机号码',
+            props: 'mobilephone',
+            label: '车主手机',
             visible: true,
             width: 150,
             mask: true,
-            getValue: (row) => getDetailDecryptField(row.id, 'ownerPhone')
+            getValue: (row) => getDetailDecryptField(row.id, 'mobilephone')
           },
-          { props: 'idcardTypeLabel', label: '证件类型', visible: true, width: 120 },
+          { props: 'idcardTypeLabel', label: '车主证件类型', visible: true, width: 120 },
           {
             props: 'idcardNo',
-            label: '证件号码',
+            label: '车主证件',
             visible: true,
             width: 200,
             mask: true,
@@ -522,38 +560,95 @@ export default {
             mask: true,
             getValue: (row) => getDetailDecryptField(row.id, 'bindingUser')
           },
+          { props: 'bindingUserid', label: '绑车人ID', visible: true, width: 180 },
           {
             props: 'bindingPhone',
-            label: '绑车人手机号',
+            label: '绑车人手机',
             visible: true,
             width: 150,
             mask: true,
             getValue: (row) => getDetailDecryptField(row.id, 'bindingPhone')
           },
-          { props: 'bindingUserid', label: '绑车人用户ID', visible: true, width: 180 },
+          { props: 'bindingOn', label: '绑车时间', visible: true, width: 180 },
+          { props: 'salesDealerCode', label: '销售门店编码', visible: true, width: 150 },
+          { props: 'salesDealerName', label: '销售门店名称', visible: true, width: 200 },
+          { props: 'deliveryDealerCode', label: '交付门店编码', visible: true, width: 150 },
+          { props: 'deliveryDealerName', label: '交付门店名称', visible: true, width: 200 },
+          { props: 'serviceDealerCode', label: '服务门店编码', visible: true, width: 150 },
+          { props: 'serviceDealerName', label: '服务门店名称', visible: true, width: 200 },
+          {
+            props: 'vehicleMaterialCode',
+            label: '整车物料',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.vehicleMaterialId) {
+                  this.navigateToRoute({
+                    path: '/sales/datacenter/materials/vehicleMaterials/detail',
+                    query: {
+                      id: row.vehicleMaterialId,
+                    },
+                  });
+                }
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'vehicleMaterialDesc', label: '物料描述', visible: true, width: 250 },
+          { props: 'vdcInboundOn', label: 'VDC入库时间', visible: true, width: 180 },
+          { props: 'vehicleSeriesName', label: '车系', visible: true, width: 150 },
+          { props: 'vehicleModelName', label: '车型', visible: true, width: 150 },
+          { props: 'rangePowerName', label: '动力', visible: true, width: 100 },
+          { props: 'drivingRangeName', label: '续航', visible: true, width: 100 },
+          { props: 'exteriorName', label: '外饰', visible: true, width: 100 },
+          { props: 'interiorName', label: '内饰', visible: true, width: 100 },
+          { props: 'wheelHubName', label: '轮毂', visible: true, width: 100 },
+          { props: 'nextMaintainDate', label: '下次保养时间', visible: true, width: 160 },
+          { props: 'nextMaintainMileage', label: '下次保养里程', visible: true, width: 150 },
           { props: 'createTime', label: '创建时间', visible: true, width: 180 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
           {
             props: 'operate',
             label: '操作',
             type: 'operate',
             visible: true,
+            width: 200,
             fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/datacenter/vehicle/vehicleProfile/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
+            buttons: [
+              {
+                name: '退车',
+                click: (rowIndex, row) => {
+                  this.visible = true;
+                },
+                type: 'info'
               },
-              type: 'info'
-            }]
+              {
+                name: '关键日志',
+                click: (rowIndex, row) => {
+                },
+                type: 'info'
+              },
+              {
+                name: '维修履历',
+                click: (rowIndex, row) => {
+                },
+                type: 'info'
+              },
+              {
+                name: '终身权益',
+                click: (rowIndex, row) => {
+                },
+                type: 'info'
+              }
+            ]
           }
         ],
         total: 0
-      }
+      },
+      // 退车
+      visible: false,
+      //
     };
   },
   created () {
@@ -665,6 +760,9 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
+        if (Array.isArray(data[key]) && !data[key].length) {
+          delete data[key];
+        }
         if (data[key] === '' || data[key] === null) {
           delete data[key];
         }
@@ -677,7 +775,7 @@ export default {
         'createTime',
         'updateTime',
         'bindingOn',
-        'warrantyStartDate',
+        'warrantyStartdate',
       ];
       keys.forEach(key => {
         if (this.form[key]) {
@@ -718,6 +816,11 @@ export default {
           });
         });
       }).catch(() => {});
+    },
+    vehicleRangePower (query) {
+      return vehicleRangePower({
+        rangePowerNameLike: query,
+      });
     },
     // 批量启用停用
     handleBatchEnable (status) {

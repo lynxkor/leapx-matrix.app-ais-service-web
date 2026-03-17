@@ -67,6 +67,39 @@
                     show-word-limit
                   />
                 </el-form-item>
+              </el-form>
+              <!-- 详情模式 -->
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="申请单号：">
+                  <span>{{ form.applyNo || '-' }}</span>
+                </el-form-item>
+                <el-form-item label="施工单号：">
+                  <span>{{ form.serviceProxyCode || '-' }}</span>
+                </el-form-item>
+                <el-form-item label="预授权类型：">
+                  <span>{{ form.preAuthTypeLabel || '-' }}</span>
+                </el-form-item>
+                <el-form-item label="门店名称：">
+                  <span>{{ form.dealerName || '-' }}</span>
+                </el-form-item>
+                <el-form-item label="门店编码：">
+                  <span>{{ form.dealerCode || '-' }}</span>
+                </el-form-item>
+                <el-form-item label="门店所属区域：">
+                  <span>{{ form.regionName || '-' }}</span>
+                </el-form-item>
+                <el-form-item label="申请原因：">
+                  <span>{{ form.applyReason || '-' }}</span>
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>车辆信息</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="车主姓名：">
                   <span>{{ form.ownerName || '-' }}</span>
                 </el-form-item>
@@ -116,76 +149,55 @@
                   <span>{{ form.warningInfo || '-' }}</span>
                 </el-form-item>
               </el-form>
+            </div>
+          </section>
+          <!-- 质量反馈信息 -->
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>质量反馈信息</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="质量反馈单号：" prop="a">
+                  <fetch-select
+                    :remote-method="queryServiceProxy"
+                    remote
+                    v-model="form.a"
+                    value-key="id"
+                    label-key="code"
+                    placeholder="请选择施工单"
+                    clearable
+                    filterable
+                    @change="handleServiceProxyChange"
+                  />
+                </el-form-item>
+                <el-form-item label="故障现象描述：" prop="b">
+                  <el-input
+                    type="text"
+                    placeholder="请输入申请原因，限200字符"
+                    v-model="form.b"
+                    maxlength="200"
+                  />
+                </el-form-item>
+                <el-form-item label="故障排查流程：" prop="c">
+                  <el-input
+                    type="text"
+                    placeholder="请输入申请原因，限200字符"
+                    v-model="form.c"
+                    maxlength="200"
+                  />
+                </el-form-item>
+              </el-form>
               <!-- 详情模式 -->
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="申请单号：">
-                  <span>{{ form.applyNo || '-' }}</span>
+                <el-form-item label="质量反馈单号：">
+                  <span>{{ form.a || '-' }}</span>
                 </el-form-item>
-                <el-form-item label="施工单号：">
-                  <span>{{ form.serviceProxyCode || '-' }}</span>
+                <el-form-item label="故障现象描述：">
+                  <span>{{ form.b || '-' }}</span>
                 </el-form-item>
-                <el-form-item label="预授权类型：">
-                  <span>{{ form.preAuthTypeLabel || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="门店名称：">
-                  <span>{{ form.dealerName || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="门店编码：">
-                  <span>{{ form.dealerCode || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="门店所属区域：">
-                  <span>{{ form.regionName || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="申请原因：">
-                  <span>{{ form.applyReason || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="车主姓名：">
-                  <span>{{ form.ownerName || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="送修人：">
-                  <span>{{ form.senderName || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="送修人手机：">
-                  <span>{{ form.senderPhone || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="VIN：">
-                  <span>{{ form.vin || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="车型：">
-                  <span>{{ form.vehicleModel || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="车牌号：">
-                  <span>{{ form.plateNo || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="车辆用途：">
-                  <span>{{ form.vehicleUseLabel || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="进店里程数：">
-                  <span>{{ form.mileage || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="生产日期：">
-                  <span>{{ form.productionDate || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="终身免保：">
-                  <span>{{ form.isLifetimeFreeLabel || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="终身质保：">
-                  <span>{{ form.isLifetimeWarrantyLabel || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="保修开始日期：">
-                  <span>{{ form.warrantyStartDate || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="保修结束日期：">
-                  <span>{{ form.warrantyEndDate || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="服务月份：">
-                  <span>{{ form.serviceMonth || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="三包预警：">
-                  <span>{{ form.threePackWarning || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="预警信息：">
-                  <span>{{ form.warningInfo || '-' }}</span>
+                <el-form-item label="故障排查流程：">
+                  <span>{{ form.c || '-' }}</span>
                 </el-form-item>
               </el-form>
             </div>
@@ -363,7 +375,7 @@ export default {
         return;
       }
       // 选择施工单后进行查重
-      this.checkServiceProxy(record.id);
+      // this.checkServiceProxy(record.id);
       // 填充关联信息
       this.form.serviceProxyCode = record.code;
       this.form.dealerName = record.dealerName;

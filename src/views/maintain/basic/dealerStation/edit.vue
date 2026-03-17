@@ -94,7 +94,7 @@ const defaultForm = {
   dealerCode: '',
   dealerName: '',
   ownerId: '',
-  ownerName: '',
+  ownerUserName: '',
 };
 
 export default {
@@ -125,7 +125,7 @@ export default {
         dealerName: [
           { required: true, message: '', trigger: 'blur' }
         ],
-        ownerName: [
+        ownerUserName: [
           { required: true, message: '', trigger: 'blur' }
         ],
         remark: [
@@ -209,8 +209,8 @@ export default {
       const userInfo = this.$store.state.user.userInfo;
       return {
         ...defaultForm,
-        ownerId: userInfo.userId,
-        ownerName: userInfo.userName,
+        ownerUserId: userInfo.userId,
+        ownerUserName: userInfo.userName,
         dealerName: userInfo.orgPostUserList.find(item => item.position === '1')?.orgName,
       };
     },

@@ -29,7 +29,7 @@
         </vxe-column>
         <vxe-column title="操作" width="120">
           <template #default="{ row, index }">
-            <div class="action-button btn-edit" @click="handleCopy(row)">复制</div>
+            <div class="action-button btn-edit" v-if="Number(row.inboundQty) > 1" @click="handleCopy(row)">复制</div>
             <el-popconfirm title="确定删除吗？" v-if="tableData.length > 1" @confirm="handleDel(index)">
               <span class="action-button btn-delete" slot="reference" type="text">删除</span>
             </el-popconfirm>

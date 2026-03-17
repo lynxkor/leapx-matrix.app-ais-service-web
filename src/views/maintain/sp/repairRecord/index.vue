@@ -1,95 +1,43 @@
 <template>
   <div class="page-common m-sp-repair-work-record-list">
     <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
-    <el-form
-      :inline="true"
-      :model="form"
-      size="small"
-      label-position="right"
-      label-width="150px"
-      class="ais-search-form"
-    >
+    <el-form :inline="true" :model="form" size="small" label-position="right" label-width="150px"
+      class="ais-search-form">
       <template>
         <el-form-item label="作业编码" prop="code">
           <el-input v-model="form.code" placeholder="请输入编号" clearable />
         </el-form-item>
         <el-form-item label="施工单号" prop="serviceProxyCode">
-          <el-input
-            v-model="form.serviceProxyCode"
-            placeholder="请输入编号"
-            clearable
-          />
+          <el-input v-model="form.serviceProxyCode" placeholder="请输入编号" clearable />
         </el-form-item>
         <el-form-item label="门店" v-show="this.visibleCount === 3 || show">
           <dealer-select v-model="form.dealerCodes" multiple />
         </el-form-item>
       </template>
-      <page-search-action
-        v-model="show"
-        is-expandable
-        :loading="loading"
-        @submit="onSubmit"
-        @reset="onReset"
-      />
+      <page-search-action v-model="show" is-expandable :loading="loading" @submit="onSubmit" @reset="onReset" />
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button
-        v-if="canAddOrUpdate"
-        size="small"
-        type="primary"
-        @click="handleAdd"
-        ><i class="iconfont icon-lxppc-plus"></i>新增</el-button
-      >
-      <el-button v-if="canImport" size="small" @click="handleImport"
-        >导入</el-button
-      >
-      <el-button :loading="exportLoading" size="small" @click="exportExcel"
-        >导出</el-button
-      >
-      <el-button
-        v-if="canDelete"
-        size="small"
-        @click="handleBatchDelete"
-        :disabled="selectionList.length === 0"
-        >批量删除</el-button
-      >
-      <el-button
-        v-if="canEnableOrDisable"
-        size="small"
-        @click="handleBatchEnable(1)"
-        :disabled="selectionList.length === 0"
-        >批量启用</el-button
-      >
-      <el-button
-        v-if="canEnableOrDisable"
-        size="small"
-        @click="handleBatchEnable(0)"
-        :disabled="selectionList.length === 0"
-        >批量停用</el-button
-      >
+      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i
+          class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button v-if="canDelete" size="small" @click="handleBatchDelete"
+        :disabled="selectionList.length === 0">批量删除</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)"
+        :disabled="selectionList.length === 0">批量启用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)"
+        :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
     <div class="ais-table-c">
-      <LPVxeTable
-        ref="tableRef"
-        v-loading="loading"
-        is-page
-        :option-obj="optionObj"
-        :get-config="getConfig"
-        :save-or-update="saveOrUpdate"
-        @paginationChange="paginationChange"
-        @listSelect="handleListSelect"
-        showIndex
-      >
+      <LPVxeTable ref="tableRef" v-loading="loading" is-page :option-obj="optionObj" :get-config="getConfig"
+        @sortChange="handleSortChange" :save-or-update="saveOrUpdate" @paginationChange="paginationChange"
+        @listSelect="handleListSelect">
         <EditPage slot="centralizedViewSlot" :id="clickItemId" />
       </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
-    <Upload
-      :visible="uploadDialogVisible"
-      :id="'1'"
-      @close="handleUploadDialogClose"
-    />
+    <Upload :visible="uploadDialogVisible" :id="'1'" @close="handleUploadDialogClose" />
   </div>
 </template>
 
@@ -133,7 +81,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '维修作业记录',
+      pageTitle: '返修记录',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-spRepairWorkRecord',
@@ -158,6 +106,12 @@ export default {
         dataProp: [
           {
             props: 'code',
+            label: '编号',
+            visible: true,
+            width: 200,
+          },
+          {
+            props: 'serviceProxyCode',
             label: '施工单号',
             visible: true,
             width: 200,
@@ -253,12 +207,7 @@ export default {
             visible: true,
             width: 200,
           },
-          {
-            props: 'reworkLabel',
-            label: '是否内返',
-            visible: true,
-            width: 200,
-          },
+
           {
             props: 'reworkTypeLabel',
             label: '返修类型',
@@ -283,16 +232,17 @@ export default {
             visible: true,
             width: 200,
           },
-          {
-            props: 'hasRepairedLabel',
-            label: '是否已返修',
-            visible: true,
-            width: 200,
-          },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+
+          { props: 'createTime', label: '创建时间', visible: true, width: 200, sortable: true },
         ],
         total: 0,
       },
+      sortColumns: [
+        {
+          column: 'create_time',
+          sort: 'DESC'
+        }
+      ]
     };
   },
   created () {
@@ -300,6 +250,16 @@ export default {
     this.getData();
   },
   methods: {
+    // 排序
+    handleSortChange (value) {
+      this.sortColumns = (value || []).map(item => {
+        return {
+          column: (item.field || '').replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, ''),
+          sort: (item.order || '').toUpperCase()
+        };
+      });
+      this.getData();
+    },
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
@@ -430,7 +390,7 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
-
+      data.sortColumns = this.sortColumns;
       return data;
     },
     async fetchOptions (code) {
@@ -463,7 +423,7 @@ export default {
               });
             });
         })
-        .catch(() => {});
+        .catch(() => { });
     },
     // 批量启用停用
     handleBatchEnable (status) {
@@ -501,6 +461,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.m-sp-repair-work-record-list {
-}
+.m-sp-repair-work-record-list {}
 </style>

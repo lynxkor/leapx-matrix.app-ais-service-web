@@ -3,7 +3,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/other/notificationGroup/';
-
+const prefixDetail = SPARE_PREFIX + '/web/other/notificationGroupDetail/';
 /**
  * 查询列表
  * @param {Object} data
@@ -42,4 +42,28 @@ export function getDetail (data) {
  */
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
+}
+
+/**
+ * 通知组对象表分页查询
+ * @param {Object} data
+ */
+export function notificationGroupPage (data) {
+  return api.jsonPost(prefixDetail + 'page', data);
+}
+
+/**
+ * 通知组对象表删除
+ * @param {Object} data
+ */
+export function notificationGroupDelete (data) {
+  return api.jsonPost(prefixDetail + 'delete', data);
+}
+
+/**
+ * 通知组对象表新增/编辑
+ * @param {Object} data
+ */
+export function notificationGroupAdd (data) {
+  return api.jsonPost(prefixDetail + 'addOrUpdate', data);
 }

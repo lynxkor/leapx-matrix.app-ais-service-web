@@ -11,14 +11,21 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :showEditBtn = "canEdit"
       >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
-          <!-- <span class="status primary">状态</span> -->
         </template>
         <template #extraButtons>
-          <!-- <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button> -->
+          <el-button size="small" v-if="canSubmitApproval" @click="handleSubmitApproval()">提交审批</el-button>
+          <el-button size="small" v-if="canApproval" @click="clickApproval()">审批</el-button>
+        </template>
+        <template v-if="_id">
+          <h5>
+          <span>状态：{{ form.orderStatusLabel || '-' }}</span>
+          <i> | </i>
+          <span>报告创建时间：{{ form.createTime || '-' }}</span>
+        </h5>
         </template>
         <el-main>
           <section class="common-section">
@@ -26,322 +33,556 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <section class="common-section">
+                <div class="common-section-header">
+                  <h3>报告主题</h3>
+                </div>
+                <div class="common-section-body">
+                  <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                    <el-form-item label="报告类型：" prop="reportType">
+                      <fetch-select
+                        :request="fetchOptions"
+                        enumCode="QualityReportTypeEnum"
+                        v-model="form.reportType"
+                        placeholder="请选择"
+                        clearable
+                        filterable
+                      />
+                    </el-form-item>
+                    <el-form-item label="故障主题：" prop="title">
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.title"
+                        clearable
+                      />
+                    </el-form-item>
+                    <el-form-item label="问题重要度：" prop="problemImportance">
+                      <fetch-select
+                        :request="fetchOptions"
+                        enumCode="QualityReportImportanceEnum"
+                        v-model="form.problemImportance"
+                        placeholder="请选择"
+                        clearable
+                        filterable
+                      />
+                    </el-form-item>
+                    <el-form-item label="车辆是否修复：" prop="carIsVehicle">
+                      <fetch-select
+                        :request="fetchOptions"
+                        enumCode="BooleanEnum"
+                        v-model="form.carIsVehicle"
+                        placeholder="请选择"
+                        clearable
+                        filterable
+                      />
+                    </el-form-item>
+                    <el-form-item label="问题是否解决：" prop="isQuestionOk">
+                      <fetch-select
+                        :request="fetchOptions"
+                        enumCode="BooleanEnum"
+                        v-model="form.isQuestionOk"
+                        placeholder="请选择"
+                        clearable
+                        filterable
+                      />
+                    </el-form-item>
+                  </el-form>
+                  <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                    <el-form-item label="质量反馈单号：" prop="code">
+                      {{ form.code }}
+                    </el-form-item>
+                    <el-form-item label="报告类型：" prop="reportType">
+                      {{ form.reportTypeLabel }}
+                    </el-form-item>
+                    <el-form-item label="问题重要度：" prop="problemImportance">
+                      {{ form.problemImportanceLabel }}
+                    </el-form-item>
+                    <el-form-item label="故障主题：" prop="title">
+                      {{ form.title }}
+                    </el-form-item>
+                    <el-form-item label="车辆是否修复：" prop="carIsVehicle">
+                      {{ form.carIsVehicleLabel }}
+                    </el-form-item>
+                    <el-form-item label="问题是否解决：" prop="isQuestionOk">
+                      {{ form.isQuestionOkLabel }}
+                    </el-form-item>
+                    <el-form-item label="创建时间：" prop="createTime">
+                      {{ form.createTime }}
+                    </el-form-item>
+                  </el-form>
+                </div>
+                <div class="common-section-header">
+                  <h3>质量反馈</h3>
+                </div>
+                <div class="common-section-body">
+                  <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                    <el-form-item label="接车施工单：" prop="serviceProxyCode">
+                      <fetch-select
+                        filterable
+                        clearable
+                        remote
+                        reserve-keyword
+                        v-model="form.serviceProxyCode"
+                        :remote-method="serviceProxySearch"
+                        :params="form.serviceProxyCode"
+                        @change="handleServiceProxyChange"
+                        value-key="id"
+                        label-key="code"
+                        placeholder="请输入施工单号"
+                      />
+                    </el-form-item>
+                    <el-form-item label="VIN码：" prop="vehProfileVin">
+                      <fetch-select
+                        filterable
+                        clearable
+                        remote
+                        reserve-keyword
+                        v-model="form.vehProfileVin"
+                        :remote-method="searchVehicle"
+                        @change="handleVinChange"
+                        :disabled="vinDisabled"
+                        value-key="vin"
+                        label-key="vin"
+                      />
+                    </el-form-item>
+                    <el-form-item label="基本车型：" prop="vehModelName">
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.vehModelName"
+                        clearable
+                        disabled
+                      />
+                    </el-form-item>
+                    <el-form-item label="里程数（KM)：" prop="mileage">
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.mileage"
+                        clearable
+                        disabled
+                      />
+                    </el-form-item>
+                    <el-form-item label="动力电池号：" prop="powerBatteryNumber">
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.powerBatteryNumber"
+                        clearable
+                        disabled
+                      />
+                    </el-form-item>
+                    <el-form-item label="驱动电机号：" prop="motorSerialNumber">
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.motorSerialNumber"
+                        clearable
+                        disabled
+                      />
+                    </el-form-item>
+                    <el-form-item label="VRT名称：" prop="vrtName">
+                      <fetch-select
+                        filterable
+                        clearable
+                        remote
+                        reserve-keyword
+                        v-model="form.vrtName"
+                        :remote-method="listVrt"
+                        @change="handleVrtChange"
+                        value-key="id"
+                        label-key="name"
+                      />
+                    </el-form-item>
+                    <el-form-item label="VFG名称：" prop="vfgName">
+                      <fetch-select
+                        filterable
+                        clearable
+                        remote
+                        reserve-keyword
+                        v-model="form.vfgName"
+                        :remote-method="listVfg"
+                        @change="handleVfgChange"
+                        value-key="id"
+                        label-key="name"
+                        :disabled="vfgDisabled"
+                      />
+                    </el-form-item>
+                    <el-form-item label="CCC名称：" prop="cccName">
+                      <fetch-select
+                        filterable
+                        clearable
+                        remote
+                        reserve-keyword
+                        v-model="form.cccName"
+                        :remote-method="listCcc"
+                        @change="handleCccChange"
+                        value-key="id"
+                        label-key="cccName"
+                        :disabled="cccDisabled"
+                      />
+                    </el-form-item>
+                    <el-form-item label="主因零部件：" prop="causePartId">
+                      <fetch-select
+                        placeholder="搜索维修零件代码、名称"
+                        remote
+                        reserve-keyword
+                        v-model="form.causePartName"
+                        :remote-method="listSparePart"
+                        @change="handleSparePartChange"
+                        value-key="partCode"
+                        label-key="partName"
+                      />
+                    </el-form-item>
+                    <el-form-item label="供应商：" prop="supplierName">
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.supplierName"
+                        clearable
+                        disabled
+                      />
+                    </el-form-item>
+                    <el-form-item label="销售日期：" prop="salesDate">
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.salesDate"
+                        clearable
+                        disabled
+                      />
+                    </el-form-item>
+                    <el-form-item label="维修时间：" prop="repairDate">
+                      <el-date-picker
+                        v-model="form.repairDate"
+                        range-separator="至"
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        align="right"
+                      />
+                    </el-form-item>
+                  </el-form>
+                  <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                    <el-form-item label="接车施工单：" prop="serviceProxyCode">
+                      {{ form.serviceProxyCode }}
+                    </el-form-item>
+                    <el-form-item label="VIN码：" prop="vehProfileVin">
+                      {{ form.vehProfileVin }}
+                    </el-form-item>
+                    <el-form-item label="基本车型：" prop="vehModelName">
+                      {{ form.vehModelName }}
+                    </el-form-item>
+                    <el-form-item label="里程数（KM)：" prop="mileage">
+                      {{ form.mileage }}
+                    </el-form-item>
+                    <el-form-item label="动力电池号：" prop="powerBatteryNumber">
+                      {{ form.powerBatteryNumber }}
+                    </el-form-item>
+                    <el-form-item label="驱动电机号：" prop="motorSerialNumber">
+                      {{ form.motorSerialNumber }}
+                    </el-form-item>
+                    <el-form-item label="VFG名称：" prop="vrtName">
+                      {{ form.vrtName }}
+                    </el-form-item>
+                    <el-form-item label="VFG名称：" prop="vfgName">
+                      {{ form.vfgName }}
+                    </el-form-item>
+                    <el-form-item label="CCC名称：" prop="cccName">
+                      {{ form.cccName }}
+                    </el-form-item>
+                    <el-form-item label="主因零部件：" prop="causePartName">
+                      {{ form.causePartName }}
+                    </el-form-item>
+                    <el-form-item label="供应商：" prop="supplierName">
+                      {{ form.supplierName }}
+                    </el-form-item>
+                    <el-form-item label="销售日期：" prop="salesDate">
+                      {{ form.salesDate }}
+                    </el-form-item>
+                    <el-form-item label="维修时间：" prop="repairDate">
+                      {{ form.repairDate }}
+                    </el-form-item>
+                  </el-form>
+                </div>
+                <div class="common-section-header">
+                  <h3>主因零部件</h3>
+                </div>
+                <div class="common-section-body">
+                  <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                    <el-form-item label="零件编码：" prop="causePartCode">
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.causePartCode"
+                        clearable
+                        disabled
+                      />
+                    </el-form-item>
+                    <el-form-item label="零件编码：" prop="causePartName">
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.causePartName"
+                        clearable
+                        disabled
+                      />
+                    </el-form-item>
+                  </el-form>
+                  <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                    <el-form-item label="零件编码：" prop="causePartCode">
+                      {{ form.causePartCode }}
+                    </el-form-item>
+                    <el-form-item label="零件名称：" prop="causePartName">
+                      {{ form.causePartName }}
+                    </el-form-item>
+                  </el-form>
+                </div>
+                <div class="common-section-header">
+                  <h3>服务中心</h3>
+                </div>
+                <div class="common-section-body">
+                  <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                    <el-form-item label="服务中心代码：" prop="serviceCenterCode">
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.serviceCenterCode"
+                        clearable
+                        disabled
+                      />
+                    </el-form-item>
+                    <el-form-item label="服务中心名称：" prop="serviceCenterName">
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.serviceCenterName"
+                        clearable
+                        disabled
+                      />
+                    </el-form-item>
+                    <el-form-item label="报告人：" prop="applicantName">
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.applicantName"
+                        clearable
+                      />
+                    </el-form-item>
+                    <el-form-item label="报告人职位：" prop="applicantPosition">
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.applicantPosition"
+                        clearable
+                      />
+                    </el-form-item>
+                    <el-form-item label="报告人电话：" prop="applicantTel">
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.applicantTel"
+                        clearable
+                      />
+                    </el-form-item>
+                  </el-form>
+                  <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                    <el-form-item label="服务中心名称：" prop="serviceCenterName">
+                      {{ form.serviceCenterName }}
+                    </el-form-item>
+                    <el-form-item label="服务中心代码：" prop="serviceCenterCode">
+                      {{ form.serviceCenterCode }}
+                    </el-form-item>
+                    <el-form-item label="报告人：" prop="applicantName">
+                      {{ form.applicantName }}
+                    </el-form-item>
+                    <el-form-item label="报告人职位：" prop="applicantPosition">
+                      {{ form.applicantPosition }}
+                    </el-form-item>
+                    <el-form-item label="报告人电话：" prop="applicantTel">
+                      {{ form.applicantTel }}
+                    </el-form-item>
+                  </el-form>
+                </div>
+                <div class="common-section-header">
+                  <h3>参数选择</h3>
+                </div>
+                <div class="common-section-body">
+                  <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                    <el-form-item label="温度（℃）：" prop="malfunctions">
+                      <fetch-select
+                        :request="fetchOptions"
+                        enumCode="QualityReportTemperatureEnum"
+                        v-model="form.malfunctions"
+                        placeholder="请选择"
+                        clearable
+                        filterable
+                      />
+                    </el-form-item>
+                    <el-form-item label="车速（km/h)：" prop="vehicleSpeeds">
+                      <fetch-select
+                        :request="fetchOptions"
+                        enumCode="QualityReportSpeedEnum"
+                        v-model="form.vehicleSpeeds"
+                        placeholder="请选择"
+                        clearable
+                        filterable
+                      />
+                    </el-form-item>
+                    <el-form-item label="频次：" prop="malfunctionFrequency">
+                      <fetch-select
+                        :request="fetchOptions"
+                        enumCode="QualityReportMalfunctionFrequencyEnum"
+                        v-model="form.malfunctionFrequency"
+                        placeholder="请选择"
+                        clearable
+                        filterable
+                      />
+                    </el-form-item>
+                    <el-form-item label="能否行驶：" prop="ifDrive">
+                      <fetch-select
+                        :request="fetchOptions"
+                        enumCode="BooleanEnum"
+                        v-model="form.ifDrive"
+                        placeholder="请选择"
+                        clearable
+                        filterable
+                      />
+                    </el-form-item>
+                    <el-form-item label="是否再现：" prop="isPresent">
+                      <fetch-select
+                        :request="fetchOptions"
+                        enumCode="BooleanEnum"
+                        v-model="form.isPresent"
+                        placeholder="请选择"
+                        clearable
+                        filterable
+                      />
+                    </el-form-item>
+                    <el-form-item label="运行模式：" prop="operatingModes">
+                      <fetch-select
+                        :request="fetchOptions"
+                        enumCode="QualityReportOperatingModesEnum"
+                        v-model="form.operatingModes"
+                        placeholder="请选择"
+                        clearable
+                        filterable
+                      />
+                    </el-form-item>
+                    <el-form-item label="车辆工况：" prop="vehicleConditions">
+                      <fetch-select
+                        :request="fetchOptions"
+                        enumCode="QualityReportVehicleConditionEnum"
+                        v-model="form.vehicleConditions"
+                        placeholder="请选择"
+                        clearable
+                        filterable
+                      />
+                    </el-form-item>
+                    <el-form-item label="环境：" prop="malfunctionLocations">
+                      <fetch-select
+                        :request="fetchOptions"
+                        enumCode="QualityReportMalfunctionLocationsEnum"
+                        v-model="form.malfunctionLocations"
+                        placeholder="请选择"
+                        clearable
+                        filterable
+                      />
+                    </el-form-item>
+                    <el-form-item label="是否改装：" prop="isModifiedParts">
+                      <fetch-select
+                        :request="fetchOptions"
+                        enumCode="BooleanEnum"
+                        v-model="form.isModifiedParts"
+                        placeholder="请选择"
+                        clearable
+                        filterable
+                      />
+                    </el-form-item>
+                    <el-form-item label="说明：" prop="replacedParts">
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.replacedParts"
+                        clearable
+                      />
+                    </el-form-item>
+                    <el-form-item label="是否有DTC：" prop="ifHaveDtc">
+                      <fetch-select
+                        :request="fetchOptions"
+                        enumCode="BooleanEnum"
+                        v-model="form.ifHaveDtc"
+                        placeholder="请选择"
+                        clearable
+                        filterable
+                      />
+                    </el-form-item>
+                    <el-form-item label="加装描述：" prop="modifiedPartsContent">
+                      <el-input
+                        placeholder="请输入"
+                        v-model="form.modifiedPartsContent"
+                        clearable
+                      />
+                    </el-form-item>
+                  </el-form>
+                  <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                    <el-form-item label="温度（℃）：" prop="malfunctions">
+                      {{ form.malfunctionsLabel }}
+                    </el-form-item>
+                    <el-form-item label="车速（km/h)：" prop="vehicleSpeeds">
+                      {{ form.vehicleSpeedsLabel }}
+                    </el-form-item>
+                    <el-form-item label="频次：" prop="malfunctionFrequency">
+                      {{ form.malfunctionFrequencyLabel }}
+                    </el-form-item>
+                    <el-form-item label="能否行驶：" prop="ifDrive">
+                      {{ form.ifDriveLabel }}
+                    </el-form-item>
+                    <el-form-item label="是否再现：" prop="isPresent">
+                      {{ form.isPresentLabel }}
+                    </el-form-item>
+                    <el-form-item label="运行模式：" prop="operatingModes">
+                      {{ form.operatingModesLabel }}
+                    </el-form-item>
+                    <el-form-item label="车辆工况：" prop="vehicleConditions">
+                      {{ form.vehicleConditionsLabel }}
+                    </el-form-item>
+                    <el-form-item label="环境：" prop="malfunctionLocations">
+                      {{ form.malfunctionLocationsLabel }}
+                    </el-form-item>
+                    <el-form-item label="是否改装：" prop="isModifiedParts">
+                      {{ form.isModifiedPartsLabel }}
+                    </el-form-item>
+                    <el-form-item label="说明：" prop="replacedParts">
+                      {{ form.replacedParts }}
+                    </el-form-item>
+                    <el-form-item label="加装描述：" prop="modifiedPartsContent">
+                      {{ form.modifiedPartsContent }}
+                    </el-form-item>
+                    <el-form-item label="是否有DTC：" prop="ifHaveDtc">
+                      {{ form.ifHaveDtcLabel }}
+                    </el-form-item>
+                  </el-form>
+                </div>
+                <div class="common-section-header" v-show="!(isEditing || !_id)">
+                  <h3>审核信息</h3>
+                </div>
+                <div class="common-section-body">
+                  <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                    <el-form-item label="提交审核时间：" prop="applicationTime">
+                      {{ form.applicationTime }}
+                    </el-form-item>
+                    <el-form-item label="首次提交审核时间：" prop="firstApplicationTime">
+                      {{ form.firstApplicationTime }}
+                    </el-form-item>
+                    <el-form-item label="首次审核人员名称：" prop="firstApproveName">
+                      {{ form.firstApproveName }}
+                    </el-form-item>
+                    <el-form-item label="首次审核结果：" prop="firstAuditResults">
+                      {{ form.firstAuditResultsLabel }}
+                    </el-form-item>
+                    <el-form-item label="首次审核说明：" prop="firstAudit">
+                      {{ form.firstAudit }}
+                    </el-form-item>
+                  </el-form>
+                </div>
+              </section>
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>问题详细描述</h2>
+            </div>
+            <div class="common-section-body">
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="质量反馈单号：" prop="code">
+                <el-form-item label="故障现象：" prop="faultPhenomena">
                   <el-input
                     placeholder="请输入"
-                    v-model="form.code"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="接车施工单：" prop="serviceProxyCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.serviceProxyCode"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="报告类型：" prop="reportType">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.reportType"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="故障主题：" prop="title">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.title"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="状态：" prop="orderStatus">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.orderStatus"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="服务中心名称：" prop="serviceCenterName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.serviceCenterName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="服务中心代码：" prop="serviceCenterCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.serviceCenterCode"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="报告人：" prop="applicantId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.applicantId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="报告人：" prop="applicantName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.applicantName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="报告人职位：" prop="applicantPosition">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.applicantPosition"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="报告人电话：" prop="applicantTel">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.applicantTel"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="VIN码：" prop="vehProfileVin">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vehProfileVin"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="基本车型：" prop="vehModelName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vehModelName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="动力电池号：" prop="powerBatteryNumber">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.powerBatteryNumber"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="驱动电机号：" prop="motorSerialNumber">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.motorSerialNumber"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="里程数（KM)：" prop="mileage">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.mileage"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="销售日期：" prop="salesDate">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.salesDate"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="维修时间：" prop="repairDate">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.repairDate"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="主因零部件id：" prop="causePartId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.causePartId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="主因零部件：" prop="causePartName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.causePartName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="供应商：" prop="supplierId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.supplierId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="供应商：" prop="supplierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.supplierName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="VFG名称：" prop="vrtName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vrtName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="VFG名称：" prop="vfgName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vfgName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="CCC名称：" prop="cccName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.cccName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="首次提交审核时间：" prop="firstApplicationTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.firstApplicationTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="首次审核结果：" prop="firstAuditResults">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.firstAuditResults"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.createTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="提交审核时间：" prop="applicationTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.applicationTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.id"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creator"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creatorName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifier"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifierName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.updateTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.status"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statusDesc"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="车辆是否修复：" prop="carIsVehicle">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.carIsVehicle"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="基本车型id：" prop="vehModelId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vehModelId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="备注：" prop="comments">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.comments"
+                    v-model="form.faultPhenomena"
                     clearable
                   />
                 </el-form-item>
@@ -352,178 +593,10 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="制造日期：" prop="dateOfManufactures">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dateOfManufactures"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="归属门店ID（组织ID），当数据权限归属到本组织以及本下级：" prop="ownerOrgId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.ownerOrgId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="门店编码：" prop="dealerCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dealerCode"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dealerName"
-                    clearable
-                  />
-                </el-form-item>
                 <el-form-item label="故障检查过程：" prop="diagnosisContent">
                   <el-input
                     placeholder="请输入"
                     v-model="form.diagnosisContent"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="故障现象：" prop="faultPhenomena">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.faultPhenomena"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="反馈日期：" prop="feedbackDate">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.feedbackDate"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="能否行驶：" prop="ifDrive">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.ifDrive"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="有无DTC：" prop="ifHaveDtc">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.ifHaveDtc"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="是否改装：" prop="isModifiedParts">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.isModifiedParts"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="是否再现：" prop="isPresent">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.isPresent"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="问题是否解决：" prop="isQuestionOk">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.isQuestionOk"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="频次：" prop="malfunctionFrequency">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.malfunctionFrequency"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="环境：" prop="malfunctionLocations">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.malfunctionLocations"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="温度（℃）：" prop="malfunctions">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.malfunctions"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="加装描述：" prop="modifiedPartsContent">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifiedPartsContent"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="电池容量：" prop="motorModel">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.motorModel"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="电机转速：" prop="motorSpeed">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.motorSpeed"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="运行模式：" prop="operatingModes">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.operatingModes"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="问题重要度：" prop="problemImportance">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.problemImportance"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="说明：" prop="replacedParts">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.replacedParts"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="主机厂工程师回复：" prop="replyFromEngineer">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.replyFromEngineer"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="服务中心id：" prop="serviceCenterId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.serviceCenterId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="接车施工单id：" prop="serviceProxyId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.serviceProxyId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="技术经理回复：" prop="technicalManagerResponse">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.technicalManagerResponse"
                     clearable
                   />
                 </el-form-item>
@@ -534,320 +607,70 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="车辆工况：" prop="vehicleConditions">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vehicleConditions"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="车速（km&#x2F;h)：" prop="vehicleSpeeds">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vehicleSpeeds"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="整车档案id：" prop="vehProfileId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vehProfileId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="CCC主键：" prop="cccId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.cccId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="VFG主键：" prop="vfgId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vfgId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="VRT主键：" prop="vrtId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vrtId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="首次审核说明：" prop="firstAudit">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.firstAudit"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="首次审核人员名称：" prop="firstApproveName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.firstApproveName"
-                    clearable
-                  />
-                </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="质量反馈单号：" prop="code">
-                  {{ form.code }}
-                </el-form-item>
-                <el-form-item label="接车施工单：" prop="serviceProxyCode">
-                  {{ form.serviceProxyCode }}
-                </el-form-item>
-                <el-form-item label="报告类型：" prop="reportType">
-                  {{ form.reportType }}
-                </el-form-item>
-                <el-form-item label="故障主题：" prop="title">
-                  {{ form.title }}
-                </el-form-item>
-                <el-form-item label="状态：" prop="orderStatus">
-                  {{ form.orderStatus }}
-                </el-form-item>
-                <el-form-item label="服务中心名称：" prop="serviceCenterName">
-                  {{ form.serviceCenterName }}
-                </el-form-item>
-                <el-form-item label="服务中心代码：" prop="serviceCenterCode">
-                  {{ form.serviceCenterCode }}
-                </el-form-item>
-                <el-form-item label="报告人：" prop="applicantId">
-                  {{ form.applicantId }}
-                </el-form-item>
-                <el-form-item label="报告人：" prop="applicantName">
-                  {{ form.applicantName }}
-                </el-form-item>
-                <el-form-item label="报告人职位：" prop="applicantPosition">
-                  {{ form.applicantPosition }}
-                </el-form-item>
-                <el-form-item label="报告人电话：" prop="applicantTel">
-                  {{ form.applicantTel }}
-                </el-form-item>
-                <el-form-item label="VIN码：" prop="vehProfileVin">
-                  {{ form.vehProfileVin }}
-                </el-form-item>
-                <el-form-item label="基本车型：" prop="vehModelName">
-                  {{ form.vehModelName }}
-                </el-form-item>
-                <el-form-item label="动力电池号：" prop="powerBatteryNumber">
-                  {{ form.powerBatteryNumber }}
-                </el-form-item>
-                <el-form-item label="驱动电机号：" prop="motorSerialNumber">
-                  {{ form.motorSerialNumber }}
-                </el-form-item>
-                <el-form-item label="里程数（KM)：" prop="mileage">
-                  {{ form.mileage }}
-                </el-form-item>
-                <el-form-item label="销售日期：" prop="salesDate">
-                  {{ form.salesDate }}
-                </el-form-item>
-                <el-form-item label="维修时间：" prop="repairDate">
-                  {{ form.repairDate }}
-                </el-form-item>
-                <el-form-item label="主因零部件id：" prop="causePartId">
-                  {{ form.causePartId }}
-                </el-form-item>
-                <el-form-item label="主因零部件：" prop="causePartName">
-                  {{ form.causePartName }}
-                </el-form-item>
-                <el-form-item label="供应商：" prop="supplierId">
-                  {{ form.supplierId }}
-                </el-form-item>
-                <el-form-item label="供应商：" prop="supplierName">
-                  {{ form.supplierName }}
-                </el-form-item>
-                <el-form-item label="VFG名称：" prop="vrtName">
-                  {{ form.vrtName }}
-                </el-form-item>
-                <el-form-item label="VFG名称：" prop="vfgName">
-                  {{ form.vfgName }}
-                </el-form-item>
-                <el-form-item label="CCC名称：" prop="cccName">
-                  {{ form.cccName }}
-                </el-form-item>
-                <el-form-item label="首次提交审核时间：" prop="firstApplicationTime">
-                  {{ form.firstApplicationTime }}
-                </el-form-item>
-                <el-form-item label="首次审核结果：" prop="firstAuditResults">
-                  {{ form.firstAuditResults }}
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  {{ form.createTime }}
-                </el-form-item>
-                <el-form-item label="提交审核时间：" prop="applicationTime">
-                  {{ form.applicationTime }}
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  {{ form.modifierName }}
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  {{ form.updateTime }}
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  {{ form.status }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  {{ form.statusDesc }}
-                </el-form-item>
-                <el-form-item label="车辆是否修复：" prop="carIsVehicle">
-                  {{ form.carIsVehicle }}
-                </el-form-item>
-                <el-form-item label="基本车型id：" prop="vehModelId">
-                  {{ form.vehModelId }}
-                </el-form-item>
-                <el-form-item label="备注：" prop="comments">
-                  {{ form.comments }}
+                <el-form-item label="故障现象：" prop="faultPhenomena">
+                  {{ form.faultPhenomena }}
                 </el-form-item>
                 <el-form-item label="故障现象描述：" prop="customerContent">
                   {{ form.customerContent }}
                 </el-form-item>
-                <el-form-item label="制造日期：" prop="dateOfManufactures">
-                  {{ form.dateOfManufactures }}
-                </el-form-item>
-                <el-form-item label="归属门店ID（组织ID），当数据权限归属到本组织以及本下级：" prop="ownerOrgId">
-                  {{ form.ownerOrgId }}
-                </el-form-item>
-                <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode }}
-                </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
-                </el-form-item>
                 <el-form-item label="故障检查过程：" prop="diagnosisContent">
                   {{ form.diagnosisContent }}
-                </el-form-item>
-                <el-form-item label="故障现象：" prop="faultPhenomena">
-                  {{ form.faultPhenomena }}
-                </el-form-item>
-                <el-form-item label="反馈日期：" prop="feedbackDate">
-                  {{ form.feedbackDate }}
-                </el-form-item>
-                <el-form-item label="能否行驶：" prop="ifDrive">
-                  {{ form.ifDrive }}
-                </el-form-item>
-                <el-form-item label="有无DTC：" prop="ifHaveDtc">
-                  {{ form.ifHaveDtc }}
-                </el-form-item>
-                <el-form-item label="是否改装：" prop="isModifiedParts">
-                  {{ form.isModifiedParts }}
-                </el-form-item>
-                <el-form-item label="是否再现：" prop="isPresent">
-                  {{ form.isPresent }}
-                </el-form-item>
-                <el-form-item label="问题是否解决：" prop="isQuestionOk">
-                  {{ form.isQuestionOk }}
-                </el-form-item>
-                <el-form-item label="频次：" prop="malfunctionFrequency">
-                  {{ form.malfunctionFrequency }}
-                </el-form-item>
-                <el-form-item label="环境：" prop="malfunctionLocations">
-                  {{ form.malfunctionLocations }}
-                </el-form-item>
-                <el-form-item label="温度（℃）：" prop="malfunctions">
-                  {{ form.malfunctions }}
-                </el-form-item>
-                <el-form-item label="加装描述：" prop="modifiedPartsContent">
-                  {{ form.modifiedPartsContent }}
-                </el-form-item>
-                <el-form-item label="电池容量：" prop="motorModel">
-                  {{ form.motorModel }}
-                </el-form-item>
-                <el-form-item label="电机转速：" prop="motorSpeed">
-                  {{ form.motorSpeed }}
-                </el-form-item>
-                <el-form-item label="运行模式：" prop="operatingModes">
-                  {{ form.operatingModes }}
-                </el-form-item>
-                <el-form-item label="问题重要度：" prop="problemImportance">
-                  {{ form.problemImportance }}
-                </el-form-item>
-                <el-form-item label="说明：" prop="replacedParts">
-                  {{ form.replacedParts }}
-                </el-form-item>
-                <el-form-item label="主机厂工程师回复：" prop="replyFromEngineer">
-                  {{ form.replyFromEngineer }}
-                </el-form-item>
-                <el-form-item label="服务中心id：" prop="serviceCenterId">
-                  {{ form.serviceCenterId }}
-                </el-form-item>
-                <el-form-item label="接车施工单id：" prop="serviceProxyId">
-                  {{ form.serviceProxyId }}
-                </el-form-item>
-                <el-form-item label="技术经理回复：" prop="technicalManagerResponse">
-                  {{ form.technicalManagerResponse }}
                 </el-form-item>
                 <el-form-item label="故障排查流程：" prop="troubleshootingProcess">
                   {{ form.troubleshootingProcess }}
                 </el-form-item>
-                <el-form-item label="车辆工况：" prop="vehicleConditions">
-                  {{ form.vehicleConditions }}
+                <el-form-item label="技术经理回复：" prop="technicalManagerResponse">
+                  {{ form.technicalManagerResponse }}
                 </el-form-item>
-                <el-form-item label="车速（km&#x2F;h)：" prop="vehicleSpeeds">
-                  {{ form.vehicleSpeeds }}
-                </el-form-item>
-                <el-form-item label="整车档案id：" prop="vehProfileId">
-                  {{ form.vehProfileId }}
-                </el-form-item>
-                <el-form-item label="CCC主键：" prop="cccId">
-                  {{ form.cccId }}
-                </el-form-item>
-                <el-form-item label="VFG主键：" prop="vfgId">
-                  {{ form.vfgId }}
-                </el-form-item>
-                <el-form-item label="VRT主键：" prop="vrtId">
-                  {{ form.vrtId }}
-                </el-form-item>
-                <el-form-item label="首次审核说明：" prop="firstAudit">
-                  {{ form.firstAudit }}
-                </el-form-item>
-                <el-form-item label="首次审核人员名称：" prop="firstApproveName">
-                  {{ form.firstApproveName }}
+                <el-form-item label="主机厂工程师回复：" prop="replyFromEngineer">
+                  {{ form.replyFromEngineer }}
                 </el-form-item>
               </el-form>
             </div>
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>子表标题</h2>
+              <h2>故障代码</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
-                  <el-button type="primary" size="small">添加</el-button>
-                </div>
+                <el-button size="small" type="primary" @click="handleAddRow()">添加</el-button>
               </div>
+              <div class="common-section-table">
+                <edit-table
+                  ref="editTableFault"
+                  :columns="columnsFault"
+                  :data="tableDataFault"
+                  :defaultNewRow="defaultNewRowFault"
+                  :show-toolbar="false"
+                  :delTitle="delTitleFault"
+                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                  :enableSingleRowSave="true"
+                  @save-row-edit="saveRowEdit"
+                />
+              </div>
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>附件材料</h2>
+            </div>
+            <div class="common-section-body">
+              <Attachment v-if="_id" :_id="_id" :show-upload="true" ref="attachmentRef"/>
+            </div>
+          </section>
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>审批记录</h2>
+            </div>
+            <div class="common-section-body">
               <div class="common-section-table">
                 <vxe-table
                   ref="tableRef"
                   stripe
-                  :data="tableData"
+                  :data="supportApprovalTableData"
                   show-overflow
                   resizable
                   border="inner"
@@ -855,18 +678,12 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
-                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                      </el-popconfirm>
-                    </template>
-                  </vxe-column>
+                  <vxe-column field="statusLabel" title="审批状态" width="200" />
+                  <vxe-column field="content" title="审批意见" width="200" />
+                  <vxe-column field="approver" title="操作人" width="150" />
+                  <vxe-column field="createTime" title="创建时间" width="150" />
                   <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
+                    <div class="m-vxe-table-empty-text">{{ supportApprovalEmptyText }}</div>
                   </template>
                 </vxe-table>
               </div>
@@ -880,19 +697,79 @@
         <!-- 右侧栏组件，自行开发 -->
       </div>
     </template>
+      <!-- 审批弹窗 -->
+    <el-dialog
+      title="质量反馈报告审批"
+      :visible.sync="approvalDialogVisible"
+      width="600px"
+      @close="resetApprovalForm"
+    >
+      <el-form :model="approvalForm" :rules="approvalRules" ref="approvalForm" label-width="150px">
+        <el-form-item label="审批结果：" prop="approvalResult">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="QualityReportApprovalResultEnum"
+            v-model="approvalForm.approvalResult"
+            placeholder="请选择"
+            clearable
+            filterable
+          />
+        </el-form-item>
+
+        <el-form-item label="审批意见：" prop="approvalOpinion">
+          <el-input
+            type="textarea"
+            :rows="3"
+            placeholder="请输入审批意见"
+            v-model="approvalForm.approvalOpinion"
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item label="技术经理回复：" prop="technicalManagerResponse">
+          <el-input
+            type="textarea"
+            :rows="3"
+            placeholder="请输入技术经理回复"
+            v-model="approvalForm.technicalManagerResponse"
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item label="主机厂工程师回复：" prop="replyFromEngineer">
+          <el-input
+            type="textarea"
+            :rows="3"
+            placeholder="请输入主机厂工程师回复"
+            v-model="approvalForm.replyFromEngineer"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="approvalDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleApproval">保 存</el-button>
+      </div>
+    </el-dialog>
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/maintain/sp/qualityOrderReport/index';
+import { getDetail, addOrUpdate, getServiceProxyList, submitApproval, approval } from '@/api/maintain/sp/qualityOrderReport/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
+import EditTable from '@/libs/components/EditTable';
+import { getEnum, sparePartList } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { getVehicleProfile, checkVinTag, getCarInfo } from '@/api/maintain/sp/serviceProxy/index';
+import { vfglist } from '@/api/claimreturn/claim/basic/vfg';
+import { vrtlist } from '@/api/claimreturn/claim/basic/vrt';
+import { getList as ccclist } from '@/api/claimreturn/claim/basic/ccc';
+import Attachment from '@/views/maintain/sp/serviceProxy/components/Attachment/index.vue';
+import { loginUserGet } from '@/libs/api/common';
+import api from '@/axios';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -972,6 +849,7 @@ const defaultForm = {
   vrtId: '',
   firstAudit: '',
   firstApproveName: '',
+  accountFlag: '',
 };
 
 export default {
@@ -987,7 +865,9 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect
+    FetchSelect,
+    EditTable,
+    Attachment
   },
   computed: {
     _id () {
@@ -995,7 +875,25 @@ export default {
     },
     title () {
       return '质量反馈单号：' + this.form.code;
-    }
+    },
+    vinDisabled () {
+      return !!this.form.serviceProxyCode;
+    },
+    vfgDisabled () {
+      return !this.form.vrtId;
+    },
+    cccDisabled () {
+      return !this.form.vfgId;
+    },
+    canEdit () {
+      return this.accountFlag && (this.form.orderStatus === 10 || this.form.orderStatus === 40);
+    },
+    canSubmitApproval () {
+      return this.accountFlag && (this.form.orderStatus === 10 || this.form.orderStatus === 40);
+    },
+    canApproval () {
+      return !this.accountFlag && this.form.orderStatus === 20;
+    },
   },
   watch: {
     id: {
@@ -1020,17 +918,42 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       emptyText: '若要启用此内容，请创建记录',
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
+      supportApprovalEmptyText: '暂无审批记录',
+      delTitleFault: '此操作将删除此 故障代码信息，您无法撤消此操作，是否继续？',
+      tableDataFault: [],
+      supportApprovalTableData: [],
+      columnsFault: [
+        {
+          field: 'controller',
+          title: '控制器',
+          width: '30%',
+          editable: this.isEditing || !this.id,
+          editRender: { name: 'ElInput' },
+          rules: [
+            { required: true, message: '车型不能为空', trigger: 'blur' }
+          ]
+        },
+        {
+          field: 'code',
+          title: 'DTC代码',
+          width: '30%',
+          editable: this.isEditing || !this.id,
+          editRender: { name: 'ElInput' },
+        },
+        {
+          field: 'description',
+          title: 'DTC描述',
+          width: '30%',
+          editable: this.isEditing || !this.id,
+          editRender: { name: 'ElInput' }
+        }
       ],
+      defaultNewRowFault: {
+        controller: '',
+        code: '',
+        description: '',
+      },
       rules: {
-        code: [
-          { required: true, message: '请输入质量反馈单号', trigger: 'change' }
-        ],
-        serviceProxyCode: [
-          { required: true, message: '请输入接车施工单', trigger: 'change' }
-        ],
         reportType: [
           { required: true, message: '请选择报告类型', trigger: 'change' }
         ],
@@ -1064,12 +987,6 @@ export default {
         vehModelName: [
           { required: true, message: '请输入基本车型', trigger: 'change' }
         ],
-        powerBatteryNumber: [
-          { required: true, message: '请输入动力电池号', trigger: 'change' }
-        ],
-        motorSerialNumber: [
-          { required: true, message: '请输入驱动电机号', trigger: 'change' }
-        ],
         mileage: [
           { required: true, message: '请输入里程数（KM)', trigger: 'change' }
         ],
@@ -1085,9 +1002,6 @@ export default {
         causePartName: [
           { required: true, message: '请输入主因零部件', trigger: 'change' }
         ],
-        supplierId: [
-          { required: true, message: '请输入供应商', trigger: 'change' }
-        ],
         supplierName: [
           { required: true, message: '请输入供应商', trigger: 'change' }
         ],
@@ -1100,41 +1014,8 @@ export default {
         cccName: [
           { required: true, message: '请输入CCC名称', trigger: 'change' }
         ],
-        firstApplicationTime: [
-          { required: true, message: '请选择首次提交审核时间', trigger: 'change' }
-        ],
-        firstAuditResults: [
-          { required: true, message: '请输入首次审核结果', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        applicationTime: [
-          { required: true, message: '请选择提交审核时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
         remark: [
           { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
         ],
         statusDesc: [
           { required: true, message: '请选择状态变更描述', trigger: 'change' }
@@ -1172,47 +1053,17 @@ export default {
         feedbackDate: [
           { required: true, message: '请输入反馈日期', trigger: 'change' }
         ],
-        ifDrive: [
-          { required: true, message: '请输入能否行驶', trigger: 'change' }
-        ],
-        ifHaveDtc: [
-          { required: true, message: '请输入有无DTC', trigger: 'change' }
-        ],
-        isModifiedParts: [
-          { required: true, message: '请输入是否改装', trigger: 'change' }
-        ],
-        isPresent: [
-          { required: true, message: '请输入是否再现', trigger: 'change' }
-        ],
         isQuestionOk: [
           { required: true, message: '请输入问题是否解决', trigger: 'change' }
         ],
-        malfunctionFrequency: [
-          { required: true, message: '请输入频次', trigger: 'change' }
-        ],
-        malfunctionLocations: [
-          { required: true, message: '请输入环境', trigger: 'change' }
-        ],
-        malfunctions: [
-          { required: true, message: '请输入温度（℃）', trigger: 'change' }
-        ],
-        modifiedPartsContent: [
-          { required: true, message: '请输入加装描述', trigger: 'change' }
-        ],
-        motorModel: [
-          { required: true, message: '请输入电池容量', trigger: 'change' }
+        replacedParts: [
+          { required: true, message: '请输入说明', trigger: 'change' }
         ],
         motorSpeed: [
           { required: true, message: '请输入电机转速', trigger: 'change' }
         ],
-        operatingModes: [
-          { required: true, message: '请输入运行模式', trigger: 'change' }
-        ],
         problemImportance: [
           { required: true, message: '请输入问题重要度', trigger: 'change' }
-        ],
-        replacedParts: [
-          { required: true, message: '请输入说明', trigger: 'change' }
         ],
         replyFromEngineer: [
           { required: true, message: '请输入主机厂工程师回复', trigger: 'change' }
@@ -1228,12 +1079,6 @@ export default {
         ],
         troubleshootingProcess: [
           { required: true, message: '请输入故障排查流程', trigger: 'change' }
-        ],
-        vehicleConditions: [
-          { required: true, message: '请输入车辆工况', trigger: 'change' }
-        ],
-        vehicleSpeeds: [
-          { required: true, message: '请输入车速（km&#x2F;h)', trigger: 'change' }
         ],
         vehProfileId: [
           { required: true, message: '请输入整车档案id', trigger: 'change' }
@@ -1253,79 +1098,101 @@ export default {
         firstApproveName: [
           { required: true, message: '请输入首次审核人员名称', trigger: 'change' }
         ],
+      },
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick (picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近一个月',
+          onClick (picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近三个月',
+          onClick (picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            picker.$emit('pick', [start, end]);
+          }
+        }]
+      },
+      accountFlag: false,
+      approvalDialogVisible: false,
+      approvalForm: {
+        approvalResult: '',
+        approvalOpinion: '',
+        technicalManagerResponse: '',
+        replyFromEngineer: ''
+      },
+      approvalRules: {
+        approvalResult: [
+          { required: true, message: '请选择审批结果', trigger: 'change' }
+        ],
+        approvalOpinion: [
+          { required: true, message: '请输入审批意见', trigger: 'blur' }
+        ]
       }
     };
   },
   mounted () {
+    loginUserGet().then(res => {
+      this.accountFlag = res.accountFlag;
+    });
   },
   methods: {
     detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id);
+        return new Promise(resolve => {
+          getDetail(id).then(res => {
+            this.tableDataFault = res.qualityOrderReportFaultRespList || [];
+            this.supportApprovalTableData = res.supportApprovalRespList || [];
+            resolve(res);
+          });
+        });
       }
     },
-    submitRequest () {
-      return addOrUpdate({ ...this.form });
+    async submitRequest () {
+      const tableDataFault = await this.handleSaveTableFault();
+      return addOrUpdate({ ...this.form, qualityOrderReportFaultList: tableDataFault });
+    },
+    // 行保存
+    async saveRowEdit (row, defer) {
+      const tableDataFault = await this.handleSaveTableFault();
+      addOrUpdate({ ...this.form, qualityOrderReportFaultList: tableDataFault }).then(res => {
+        defer.resolve(res);
+        this.$message.success('更新成功');
+      }).catch(e => {
+        defer.reject();
+      });
     },
     // 打开侧边栏
     openPane () {
       this.$refs.editLayout.openPane();
     },
-    // 删除子表数据
-    handleDeleteRow (index) {
-      const item = this.tableData[index];
-      this.tableData.splice(index, 1);
-      // 根据需求调用接口
-      // deletePartVehModel([item.id]).then(res => {
-      //   this.$message.success('删除成功');
-      //   this.tableData.splice(index, 1);
-      // });
-    },
-    // 查询新增项的列表
-    queryListData (queryString) {
-      return new Promise(resolve => {
-        // 根据需求调用接口
-        // sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
-        //   const list = res || [];
-        //   resolve(list);
-        // });
-        resolve([
-          { id: 1, name: 'test', age: 25, email: 'test@example.com' }
-        ]);
-      });
-    },
-    // 新增子表数据
-    handleAddTableData (val, record) {
-      if (!record) {
-        this.$message.warning('请先选择数据');
-        return;
-      }
-      // 检查是否已存在
-      const exists = this.tableData.some(item => item.id === record.id);
-      if (exists) {
-        this.$message.warning('请勿重复添加');
-        return;
-      }
-      // 根据需求调用接口
-      this.tableData.push(record);
-      // addPartItem({
-      //   maintenancePartId: this._id,
-      //   partsCode: record.partCode,
-      //   partsName: record.partName,
-      //   partsId: record.id,
-      // }).then(res => {
-      //   this.$message.success('添加成功');
-      //   this.detailRequest();
-      // });
-    },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
-      // const userInfo = this.$store.state.user.userInfo;
+      const userInfo = this.$store.state.user.userInfo;
       return {
-        ...defaultForm
+        ...defaultForm,
         // ownerId: userInfo.userId,
         // ownerName: userInfo.userName,
+        serviceCenterId: userInfo.orgPostUserList.find(item => item.position === '1')?.orgId,
+        serviceCenterCode: userInfo.orgPostUserList.find(item => item.position === '1')?.orgCode,
+        serviceCenterName: userInfo.orgPostUserList.find(item => item.position === '1')?.orgName,
+        ownerOrgId: userInfo.orgPostUserList.find(item => item.position === '1')?.orgId,
+        dealerCode: userInfo.orgPostUserList.find(item => item.position === '1')?.orgCode,
+        dealerName: userInfo.orgPostUserList.find(item => item.position === '1')?.orgName,
       };
     },
     // 审核日志
@@ -1337,7 +1204,218 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    async serviceProxySearch (query) {
+      if (!query) {
+        return [];
+      }
+      const res = await getServiceProxyList(query);
+      return res || [];
+    },
+    // 项目维修代码
+    handleServiceProxyChange (val, record) {
+      console.log(record);
+      if (record) {
+        this.form.serviceProxyId = record.id;
+        this.form.serviceProxyCode = record.code;
+        this.form.vehProfileVin = record.vehProfileVin;
+        this.form.vehProfileId = record.vehProfileId;
+        this.form.vehModelName = record.vehModelName;
+        this.form.vehModelId = record.vehModelId;
+        this.form.mileage = record.mileage;
+        this.form.powerBatteryNumber = record.batterySerialNumber;
+        this.form.motorSerialNumber = record.motorSerialNumber;
+        this.form.salesDate = record.saleDate;
+      }
+    },
+    searchVehicle (query) {
+      if (!query) {
+        return Promise.resolve([]);
+      }
+      return getVehicleProfile({ searchVin: query });
+    },
+    handleVinChange (val, record) {
+      if (record.vin) {
+        this.form.vehProfileVin = record.vin;
+        this.form.vehProfileId = record.id;
+        this.form.vehModelName = record.vehicleModelName;
+        this.form.vehModelId = record.vehicleModelId;
+        this.form.mileage = record.mileage;
+        this.form.powerBatteryNumber = record.batterySerialNumber;
+        this.form.motorSerialNumber = record.motorSerialNumber;
+        this.form.salesDate = record.salesDate;
+        this.getNetworkCarInfo();
+      }
+    },
+    getNetworkCarInfo () {
+      getCarInfo(this.form.vehProfileVin).then(res => {
+        this.form.mileage = res.mileage;
+      });
+    },
+    listVrt (query) {
+      return vrtlist({ vrtNameLike: query });
+    },
+    handleVrtChange (val, record) {
+      if (record) {
+        this.form.vrtId = record.id;
+        this.form.vrtName = record.name;
+      }
+    },
+    listVfg (query) {
+      return vfglist({ vfgNameLike: query, vrtId: this.form.vrtId });
+    },
+    handleVfgChange (val, record) {
+      if (record) {
+        this.form.vfgId = record.id;
+        this.form.vfgName = record.name;
+      }
+    },
+    listCcc (query) {
+      return ccclist({ cccNameLike: query, vfgId: this.form.vfgId });
+    },
+    handleCccChange (val, record) {
+      if (record) {
+        this.form.cccId = record.id;
+        this.form.cccName = record.cccName;
+      }
+    },
+    // 零件信息模糊搜索方法
+    async listSparePart (queryString) {
+      return sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 50 });
+    },
+    handleSparePartChange (val, record) {
+      if (record) {
+        this.form.causePartId = record.id;
+        this.form.causePartName = record.partName;
+        this.form.causePartCode = record.partCode;
+        this.getSparePartSupplier({ sparePartId: record.id }).then(res => {
+          console.log(res.records);
+          if (res.records && Array.isArray(res.records) && res.records.length > 0) {
+            const sortedList = res.records.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
+            console.log(sortedList[0]);
+            this.form.supplierId = sortedList[0].supplierInfoId;
+            this.form.supplierName = sortedList[0].supplierName;
+          }
+        });
+      }
+    },
+    getSparePartSupplier (data) {
+      return api.jsonPost('/sp/web/basic/sparePartSupplier/page', data);
+    },
+    handleAddRow (val) {
+      // 通过引用直接调用子组件方法
+      this.$refs.editTableFault.addRow();
+    },
+    handleSaveTableFault (data) {
+      if (!this._id) {
+        return [];
+      }
+      // 调用保存方法并处理结果
+      return new Promise((resolve, reject) => {
+        this.$refs.editTableFault.saveAll().then(data => {
+          resolve(data);
+        }).catch(error => {
+          reject(error);
+        });
+      });
+    },
+    // 打开上传附件对话框
+    // 上传成功后刷新列表
+    handleUploadRefresh () {
+      this.$refs.attachmentRef?.loadAttachmentList();
+    },
+    handleSubmitApproval () {
+      this.$confirm('确定提交审批?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        submitApproval(this._id).then(() => {
+          this.$message({
+            type: 'success',
+            message: '提交成功!'
+          });
+          this.$refs.containerRef?.loadDetail();
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: '提交失败!'
+          });
+        });
+      }).catch(() => {});
+    },
+    clickApproval () {
+      this.approvalDialogVisible = true;
+      // 可选：初始化表单数据
+      this.resetApprovalForm();
+    },
+    resetApprovalForm () {
+      this.approvalForm = {
+        approvalResult: '',
+        approvalOpinion: '',
+        technicalManagerResponse: '',
+        replyFromEngineer: ''
+      };
+    },
+
+    handleApproval () {
+      this.$refs.approvalForm.validate(valid => {
+        if (valid) {
+          const params = {
+            id: this._id,
+            approvalResult: this.approvalForm.approvalResult,
+            approvalOpinion: this.approvalForm.approvalOpinion,
+            technicalManagerResponse: this.approvalForm.technicalManagerResponse,
+            replyFromEngineer: this.approvalForm.replyFromEngineer
+          };
+
+          approval(params).then(res => {
+            this.$message.success('审批成功！');
+            this.approvalDialogVisible = false;
+            // this.detailRequest(); // 刷新详情页数据
+            this.$refs.containerRef?.loadDetail();
+          }).catch(() => {
+            this.$message.error('审批失败！');
+          });
+        }
+      });
     }
   }
 };
 </script>
+<style scoped lang="scss">
+.common-section-header h3 {
+  font-size: 14px;
+}
+.btn-delete {
+  color: var(--leap-color-danger);
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+    color: var(--leap-color-danger-dark-1);
+  }
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+.m-vxe-table-empty-text {
+  text-align: left;
+}
+::v-deep .vxe-table--empty-content {
+  color: var(--leap-color-default-light-2);
+  width: 100%;
+  padding: 0 16px;
+}
+h5 {
+  color: var(--leap-color-default-light-1);
+  font-size: 12px;
+  font-weight: normal;
+  margin-top: 8px;
+  padding-left: 16px;
+}
+h5 i {
+    margin: 0 5px;
+    font-style: normal;
+}
+</style>

@@ -14,7 +14,7 @@
     >
     <vxe-column field="vin" title="VIN" width="160">
       <template #default="{row}">
-        {{ row.vin }}
+        <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehicleProfileId}`" target="_blank">{{ row.vin }}</el-link>
         <span v-if="row.vin !== row.vinAll" @click="() => onVin(row)" class="eye-icon iconfont icon-lxppc-eye"></span>
         <span v-else @click="() => onVin(row)" class="eye-icon iconfont icon-lxppc-eye-off"></span>
       </template>
@@ -22,7 +22,7 @@
     <vxe-column title="计划实施门店名称" width="180">
       <template #default="{ row, rowIndex }">
         <fetch-select
-          v-if="eidtRowIndex === rowIndex"
+          v-if="eidtRowIndex === rowIndex && row.finished==='0'"
           filterable
           clearable
           remote
@@ -79,14 +79,14 @@
           <span
             class="action-button btn-edit"
             @click="editRow(row, rowIndex)"
-            v-if="canAddOrUpdate"
+            v-if="canAddOrUpdate && row.finished==='0'"
           >
             编辑
           </span>
           <el-popconfirm
             title="确定要删除这条记录吗？"
             @confirm="handleRemoveRow(row, rowIndex)"
-            v-if="canAddOrUpdate"
+            v-if="canAddOrUpdate && row.finished==='0'"
           >
             <el-button
               class="action-button btn-delete"
@@ -143,6 +143,9 @@ export default {
     disabled: {
       type: Boolean,
     },
+    isServiceCareActivity: {
+      type: Boolean,
+    }
   },
   components: {
     FetchSelect,
@@ -184,6 +187,7 @@ export default {
         activityId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,
+        isServiceCareActivity: this.isServiceCareActivity,
       }).then((res) => {
         this.tableData = res.records;
         this.originTableData = cloneDeep(res.records);

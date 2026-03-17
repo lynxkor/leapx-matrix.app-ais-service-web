@@ -12,13 +12,7 @@
       <el-form-item label="门店" v-show="this.visibleCount === 3 || show">
         <dealer-select v-model="form.dealerCodes" multiple />
       </el-form-item>
-      <page-search-action
-        v-model="show"
-        is-expandable
-        :loading="loading"
-        @submit="onSubmit"
-        @reset="onReset"
-      />
+      <page-search-action v-model="show" is-expandable :loading="loading" @submit="onSubmit" @reset="onReset" />
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
@@ -34,8 +28,8 @@
         :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
     <div class="ais-table-c">
-      <LPVxeTable ref="tableRef" v-loading="loading" is-page :option-obj="optionObj" :get-config="getConfig" showIndex
-        :save-or-update="saveOrUpdate" @paginationChange="paginationChange" @listSelect="handleListSelect">
+      <LPVxeTable ref="tableRef" v-loading="loading" is-page :option-obj="optionObj" :get-config="getConfig" @sortChange="handleSortChange"
+        :save-or-update="saveOrUpdate" @paginationChange="paginationChange" @listSelect="handleListSelect" >
         <EditPage slot="centralizedViewSlot" :id="clickItemId" />
       </LPVxeTable>
     </div>
@@ -99,8 +93,9 @@ export default {
           size: pageSize
         },
         dataProp: [
+          { props: 'code', label: '编号', visible: true, width: 200 },
           {
-            props: 'code',
+            props: 'serviceProxyCode',
             label: '施工单号',
             visible: true,
             width: 200,
@@ -139,16 +134,22 @@ export default {
           { props: 'startAt', label: '计划作业时间', visible: true, width: 200 },
           { props: 'timeSpend', label: '实际作业时间', visible: true, width: 200 },
           { props: 'finishAt', label: '作业结束时间', visible: true, width: 200 },
-          { props: 'reworkLabel', label: '是否内返', visible: true, width: 200 },
+
           { props: 'reworkTypeLabel', label: '返修类型', visible: true, width: 200 },
           { props: 'qualityCheckerName', label: '质检人', visible: true, width: 200 },
           { props: 'qualityCheckAt', label: '质检时间', visible: true, width: 200 },
           { props: 'qualityCheckStatusLabel', label: '质检状态', visible: true, width: 200 },
-          { props: 'hasRepairedLabel', label: '是否已返修', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+
+          { props: 'createTime', label: '创建时间', visible: true, width: 200, sortable: true },
         ],
         total: 0
-      }
+      },
+      sortColumns: [
+        {
+          column: 'create_time',
+          sort: 'DESC'
+        }
+      ]
     };
   },
   created () {
@@ -156,6 +157,16 @@ export default {
     this.getData();
   },
   methods: {
+    // 排序
+    handleSortChange (value) {
+      this.sortColumns = (value || []).map(item => {
+        return {
+          column: (item.field || '').replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, ''),
+          sort: (item.order || '').toUpperCase()
+        };
+      });
+      this.getData();
+    },
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
@@ -274,7 +285,7 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
-
+      data.sortColumns = this.sortColumns;
       return data;
     },
     async fetchOptions (code) {

@@ -91,3 +91,19 @@ export function listAll (data) {
 export function getBizType (data) {
   return api.jsonPost(prefix + 'getBizType', data);
 }
+
+/**
+ * 共享上架
+ * @param {Object} data
+ */
+export function sharedShelves (data) {
+  return api.jsonPost(prefix + 'sharedShelves', data);
+}
+
+/**
+ * 共享下架
+ * @param {Object} data
+ */
+export function sharedRemoveShelves (data) {
+  return api.jsonPost(prefix + 'sharedRemoveShelves', data);
+}
