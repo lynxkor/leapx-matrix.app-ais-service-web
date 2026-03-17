@@ -171,3 +171,27 @@ export function retailOrderDetailPage (data) {
 export function addOrUpdateRetailOrderDetail (data) {
   return api.jsonPost('sp/web/dealer/retailOrderDetail/addOrUpdate', data);
 }
+
+/**
+ * 备附件销售单明细表详情信息
+ * @param {Object} data
+ */
+export function getRetailOrderDetail (data) {
+  return api.jsonPost('sp/web/dealer/retailOrderDetail/get', data);
+}
+
+/**
+ * 备附件销售单明细表删除
+ * @param {Object} data
+ */
+export function deleteRetailOrderDetail (data) {
+  return api.jsonPost('sp/web/dealer/retailOrderDetail/delete', data);
+}
+
+/**
+ * 备附件销售收款记录表分页查询
+ * @param {Object} data
+ */
+export function retailPaymentRecordPage (data) {
+  return api.jsonPost('sp/web/dealer/retailPaymentRecord/page', data);
+}

@@ -1,182 +1,182 @@
 <template>
-  <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
+  <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter @save="handleSave">
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
-      <edit-base-container
-        ref="containerRef"
-        :id="_id"
-        :title="title"
-        :isEditing.sync="isEditing"
-        :form.sync="form"
-        :originalForm.sync="originalForm"
-        :submitRequest="submitRequest"
-        :detailRequest="detailRequest"
-      >
-        <template #status>
-          <!-- 支持primary,warning,success,danger等状态 -->
-          <!-- <span class="status primary">状态</span> -->
-        </template>
+      <edit-base-container ref="containerRef" :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form"
+        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest">
         <template #extraButtons>
           <!-- <el-button size="small">按钮1</el-button>
           <el-button size="small">按钮2</el-button> -->
         </template>
         <el-main>
-          <section class="common-section">
+          <section class="common-section" v-show="isEditing || !_id">
             <div class="common-section-header">
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="备附件销售单：" prop="code">
-                  {{ form.code }}
+                  <el-input placeholder="请输入" v-model="form.code" disabled />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
+                  <el-input placeholder="请输入" v-model="form.dealerName" disabled />
                 </el-form-item>
                 <el-form-item label="订单状态：" prop="orderStatus">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="RetailOrderStatusEnum"
-                    v-model="form.orderStatus"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                    disabled
-                  />
+                  <fetch-select :request="fetchOptions" enumCode="RetailOrderStatusEnum" v-model="form.orderStatus"
+                    placeholder="请选择" clearable filterable disabled />
                 </el-form-item>
                 <el-form-item label="仓库名称：" prop="warehouseName">
-                  {{ form.warehouseName }}
+                  <el-input placeholder="请输入" v-model="form.warehouseName" disabled />
                 </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vin"
-                    clearable
-                  />
+                  <el-input placeholder="请输入后6位VIN" v-model="form.vin" clearable />
                 </el-form-item>
                 <el-form-item label="客户名称：" prop="customerName">
-                  {{ form.customerName }}
+                  <el-input placeholder="请输入" v-model="form.customerName" disabled />
                 </el-form-item>
                 <el-form-item label="客户类型：" prop="customerType">
-                  {{ form.customerTypeLabel }}
-                </el-form-item>
-                <el-form-item label="客户联系方式：" prop="customerContactInfo">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.customerContactInfo"
-                    clearable
-                  />
+                  <el-input placeholder="请输入" v-model="form.customerTypeLabel" disabled />
                 </el-form-item>
                 <el-form-item label="订单总金额：" prop="totalAmount">
-                  {{ form.totalAmount }}
+                  <el-input placeholder="请输入" v-model="form.totalAmount" disabled />
+                </el-form-item>
+                <el-form-item label="客户联系方式：" prop="customerContactInfo">
+                  <el-input placeholder="请输入" v-model="form.customerContactInfo" clearable />
                 </el-form-item>
                 <el-form-item label="优惠总金额：" prop="discountTotalAmount">
-                  {{ form.discountTotalAmount }}
+                  <el-input placeholder="请输入" v-model="form.discountTotalAmount" disabled />
                 </el-form-item>
                 <el-form-item label="应付总金额：" prop="payableTotalAmount">
-                  {{ form.payableTotalAmount }}
+                  <el-input placeholder="请输入" v-model="form.payableTotalAmount" disabled />
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
-                </el-form-item>
-
-                <el-form-item label="当前里程：" prop="currentMileage">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.currentMileage"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="车联网里程(KM)：" prop="iotMileage">
-                  {{ form.iotMileage }}
-                </el-form-item>
-                <el-form-item label="车牌号：" prop="plateNumber">
-                  {{ form.plateNumber }}
-                </el-form-item>
-                <el-form-item label="最近进店里程：" prop="latestVisitMileage">
-                  {{ form.latestVisitMileage }}
-                </el-form-item>
-                <el-form-item label="车型名称：" prop="vehicleModelName">
-                  {{ form.vehicleModelName }}
-                </el-form-item>
-                <el-form-item label="销售日期：" prop="saleDate">
-                  {{ form.saleDate }}
-                </el-form-item>
-
-                <el-form-item label="开单人：" prop="orderCreatorName">
-                  {{ form.orderCreatorName }}
-                </el-form-item>
-                <el-form-item label="开单时间：" prop="orderCreationTime">
-                  {{ form.orderCreationTime }}
-                </el-form-item>
-                <el-form-item label="确认人：" prop="confirmerName">
-                  {{ form.confirmerName }}
-                </el-form-item>
-                <el-form-item label="确认时间：" prop="confirmationTime">
-                  {{ form.confirmationTime }}
-                </el-form-item>
-                <el-form-item label="签收人：" prop="signUserName">
-                  {{ form.signUserName }}
-                </el-form-item>
-                <el-form-item label="签收时间：" prop="signTime">
-                  {{ form.signTime }}
-                </el-form-item>
-                <el-form-item label="取消签收人：" prop="cancelSignUserName">
-                  {{ form.cancelSignUserName }}
-                </el-form-item>
-                <el-form-item label="取消签收时间：" prop="cancelSignTime">
-                  {{ form.cancelSignTime }}
-                </el-form-item>
-                <el-form-item label="作废人：" prop="cancellerName">
-                  {{ form.cancellerName }}
-                </el-form-item>
-                <el-form-item label="作废时间：" prop="cancelTime">
-                  {{ form.cancelTime }}
-                </el-form-item>
-                <el-form-item label="作废备注：" prop="cancelRemark">
-                  {{ form.cancelRemark }}
-                </el-form-item>
-
-                <el-form-item label="剩余应付金额：" prop="remainingPayableAmount">
-                  {{ form.remainingPayableAmount }}
-                </el-form-item>
-                <el-form-item label="结算操作人：" prop="settlerName">
-                  {{ form.settlerName }}
-                </el-form-item>
-                <el-form-item label="结算时间：" prop="settlementTime">
-                  {{ form.settlementTime }}
-                </el-form-item>
-                <el-form-item label="收款人：" prop="collectorName">
-                  {{ form.collectorName }}
-                </el-form-item>
-                <el-form-item label="收款时间：" prop="collectionTime">
-                  {{ form.collectionTime }}
-                </el-form-item>
-                <el-form-item label="取消结算人：" prop="cancelSettlerName">
-                  {{ form.cancelSettlerName }}
-                </el-form-item>
-                <el-form-item label="取消结算时间：" prop="cancelSettlementTime">
-                  {{ form.cancelSettlementTime }}
-                </el-form-item>
-                <el-form-item label="取消结算备注：" prop="cancelSettlementRemark">
-                  {{ form.cancelSettlementRemark }}
-                </el-form-item>
-                <el-form-item label="退款操作人：" prop="refundOperatorName">
-                  {{ form.refundOperatorName }}
-                </el-form-item>
-                <el-form-item label="退款操作时间：" prop="refundTime">
-                  {{ form.refundTime }}
-                </el-form-item>
-                <el-form-item label="退款备注：" prop="refundRemark">
-                  {{ form.refundRemark }}
+                <el-form-item label="备注：" prop="remark" style="width: 100%;">
+                  <el-input placeholder="请输入" type="textarea" maxlength="500" show-word-limit v-model="form.remark" clearable />
                 </el-form-item>
               </el-form>
-              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+            </div>
+          </section>
+          <section class="common-section" v-show="routeCustomerType === '10' && (isEditing || !_id)">
+            <div class="common-section-header">
+              <h2>车辆信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
+                <el-form-item label="当前里程：" prop="currentMileage">
+                  <el-input placeholder="请输入" v-model="form.currentMileage" type="number" clearable />
+                </el-form-item>
+                <el-form-item label="车联网里程(KM)：" prop="iotMileage">
+                  <el-input placeholder="请输入" v-model="form.iotMileage" disabled />
+                </el-form-item>
+                <el-form-item label="车牌号：" prop="plateNumber">
+                  <el-input placeholder="请输入" v-model="form.plateNumber" disabled />
+                </el-form-item>
+                <el-form-item label="最近进店里程：" prop="latestVisitMileage">
+                  <el-input placeholder="请输入" v-model="form.latestVisitMileage" disabled />
+                </el-form-item>
+                <el-form-item label="车型名称：" prop="vehicleModelName">
+                  <el-input placeholder="请输入" v-model="form.vehicleModelName" disabled />
+                </el-form-item>
+                <el-form-item label="销售日期：" prop="saleDate">
+                  <el-input placeholder="请输入" v-model="form.saleDate" disabled />
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="isEditing || !_id">
+            <div class="common-section-header">
+              <h2>开单签收信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
+                <el-form-item label="开单人：" prop="orderCreatorName">
+                  <el-input placeholder="请输入" v-model="form.orderCreatorName" disabled />
+                </el-form-item>
+                <el-form-item label="开单时间：" prop="orderCreationTime">
+                  <el-input placeholder="请输入" v-model="form.orderCreationTime" disabled />
+                </el-form-item>
+                <el-form-item label="确认人：" prop="confirmerName">
+                  <el-input placeholder="请输入" v-model="form.confirmerName" disabled />
+                </el-form-item>
+                <el-form-item label="确认时间：" prop="confirmationTime">
+                  <el-input placeholder="请输入" v-model="form.confirmationTime" disabled />
+                </el-form-item>
+                <el-form-item label="签收人：" prop="signUserName">
+                  <el-input placeholder="请输入" v-model="form.signUserName" disabled />
+                </el-form-item>
+                <el-form-item label="签收时间：" prop="signTime">
+                  <el-input placeholder="请输入" v-model="form.signTime" disabled />
+                </el-form-item>
+                <el-form-item label="取消签收人：" prop="cancelSignUserName">
+                  <el-input placeholder="请输入" v-model="form.cancelSignUserName" disabled />
+                </el-form-item>
+                <el-form-item label="取消签收时间：" prop="cancelSignTime">
+                  <el-input placeholder="请输入" v-model="form.cancelSignTime" disabled />
+                </el-form-item>
+                <el-form-item label="作废人：" prop="cancellerName">
+                  <el-input placeholder="请输入" v-model="form.cancellerName" disabled />
+                </el-form-item>
+                <el-form-item label="作废时间：" prop="cancelTime">
+                  <el-input placeholder="请输入" v-model="form.cancelTime" disabled />
+                </el-form-item>
+                <el-form-item label="作废备注：" prop="cancelRemark">
+                  <el-input placeholder="请输入" v-model="form.cancelRemark" disabled />
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="isEditing || !_id">
+            <div class="common-section-header">
+              <h2>结算收款信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
+                <el-form-item label="剩余应付金额：" prop="remainingPayableAmount">
+                  <el-input placeholder="请输入" v-model="form.remainingPayableAmount" disabled />
+                </el-form-item>
+                <el-form-item label="结算操作人：" prop="settlerName">
+                  <el-input placeholder="请输入" v-model="form.settlerName" disabled />
+                </el-form-item>
+                <el-form-item label="结算时间：" prop="settlementTime">
+                  <el-input placeholder="请输入" v-model="form.settlementTime" disabled />
+                </el-form-item>
+                <el-form-item label="收款人：" prop="collectorName">
+                  <el-input placeholder="请输入" v-model="form.collectorName" disabled />
+                </el-form-item>
+                <el-form-item label="收款时间：" prop="collectionTime">
+                  <el-input placeholder="请输入" v-model="form.collectionTime" disabled />
+                </el-form-item>
+                <el-form-item label="取消结算人：" prop="cancelSettlerName">
+                  <el-input placeholder="请输入" v-model="form.cancelSettlerName" disabled />
+                </el-form-item>
+                <el-form-item label="取消结算时间：" prop="cancelSettlementTime">
+                  <el-input placeholder="请输入" v-model="form.cancelSettlementTime" disabled />
+                </el-form-item>
+                <el-form-item label="取消结算备注：" prop="cancelSettlementRemark">
+                  <el-input placeholder="请输入" v-model="form.cancelSettlementRemark" disabled />
+                </el-form-item>
+                <el-form-item label="退款操作人：" prop="refundOperatorName">
+                  <el-input placeholder="请输入" v-model="form.refundOperatorName" disabled />
+                </el-form-item>
+                <el-form-item label="退款操作时间：" prop="refundTime">
+                  <el-input placeholder="请输入" v-model="form.refundTime" disabled />
+                </el-form-item>
+                <el-form-item label="退款备注：" prop="refundRemark">
+                  <el-input placeholder="请输入" v-model="form.refundRemark" disabled />
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="!(isEditing || !_id)">
+            <div class="common-section-header">
+              <h2>基础信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="备附件销售单：" prop="code">
                   {{ form.code }}
                 </el-form-item>
@@ -213,7 +213,16 @@
                 <el-form-item label="备注：" prop="remark">
                   {{ form.remark }}
                 </el-form-item>
-
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="routeCustomerType === '10' && !(isEditing || !_id)">
+            <div class="common-section-header">
+              <h2>车辆信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="当前里程：" prop="currentMileage">
                   {{ form.currentMileage }}
                 </el-form-item>
@@ -232,7 +241,16 @@
                 <el-form-item label="销售日期：" prop="saleDate">
                   {{ form.saleDate }}
                 </el-form-item>
-
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="!(isEditing || !_id)">
+            <div class="common-section-header">
+              <h2>开单签收信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="开单人：" prop="orderCreatorName">
                   {{ form.orderCreatorName }}
                 </el-form-item>
@@ -266,7 +284,16 @@
                 <el-form-item label="作废备注：" prop="cancelRemark">
                   {{ form.cancelRemark }}
                 </el-form-item>
-
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="!(isEditing || !_id)">
+            <div class="common-section-header">
+              <h2>结算收款信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="剩余应付金额：" prop="remainingPayableAmount">
                   {{ form.remainingPayableAmount }}
                 </el-form-item>
@@ -318,50 +345,76 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>子表标题</h2>
+              <h2>收款明细</h2>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-table">
+                <vxe-table ref="tableRef" stripe :data="paymentData" show-overflow resizable border="inner" size="medium"
+                  min-height="0" max-height="400px">
+                  <vxe-column field="actualPaymentAmount" title="实付总额" min-width="20%" />
+                  <vxe-column field="paymentMethodLabel" title="支付方式" min-width="20%" />
+                  <vxe-column field="invoiceTypeLabel" title="发票类型" min-width="20%" />
+                  <vxe-column field="invoiceNumber" title="发票号码" min-width="20%" />
+                  <vxe-column field="createTime" title="创建时间" min-width="20%" />
+                  <template #empty>
+                    <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
+                  </template>
+                </vxe-table>
+              </div>
+            </div>
+          </section>
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>备附件明细</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
                 <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
+                  <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请输入编码或名称" clearable
+                    value-key="id" label-key="name" subLabelKey="code" @change="handleAddTableData" filterable />
                   <el-button type="primary" size="small">添加</el-button>
                 </div>
               </div>
               <div class="common-section-table">
-                <vxe-table
-                  ref="tableRef"
-                  stripe
-                  :data="tableData"
-                  show-overflow
-                  resizable
-                  border="inner"
-                  size="medium"
-                  min-height="0"
-                  max-height="400px"
-                >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
+                <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
+                  min-height="0" max-height="400px">
+                  <vxe-column field="sparePartCode" title="备件编码" width="200" />
+                  <vxe-column field="sparePartName" title="备件名称" width="160" />
+                  <vxe-column field="locationName" title="库位" width="120" />
+                  <vxe-column field="availableQty" title="可用库存" width="100" />
+                  <vxe-column field="priceTypeLabel" title="价格类型" width="100" />
+                  <vxe-column field="unitPrice" title="单价" width="100" />
+                  <vxe-column field="discountAmount" title="优惠金额" width="100" />
+                  <vxe-column field="payableAmount" title="应付金额" width="100" />
+                  <vxe-column field="qty" title="数量" width="100" />
+                  <vxe-column field="outboundIsLabel" title="是否出库" width="100" />
+                  <vxe-column field="operationOperator" title="出入库操作人" width="160" />
+                  <vxe-column field="operationTime" title="出入库操作时间" width="160" />
+                  <vxe-column field="createTime" title="创建时间" width="160" />
+                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
+                    <template #default="{ row }">
+                      <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
+                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(row)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
                   </vxe-column>
                   <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
+                    <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
                   </template>
                 </vxe-table>
+                <div class="table-pagination">
+                  <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="pageNum"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total"
+                  >
+                  </el-pagination>
+                </div>
               </div>
             </div>
           </section>
@@ -371,21 +424,27 @@
     <template #right>
       <div class="page-common-edit">
         <!-- 右侧栏组件，自行开发 -->
+        <SparePartsDetail
+          ref="detailRef"
+          :prepareAttachmentsId="_id"
+          :sparePartId="sparePartId"
+        />
       </div>
     </template>
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/sale/retailOrder/index';
+import { getDetail, addOrUpdate, retailPaymentRecordPage, retailOrderDetailPage, addOrUpdateRetailOrderDetail, deleteRetailOrderDetail } from '@/api/sparepart/sale/retailOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, getPartDealer, getLoginUser } from '@/api/common';
+import { getEnum, getPartDealer, getLoginUser, sparePartListShort } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import SparePartsDetail from './SparePartsDetail';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -472,7 +531,8 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect
+    FetchSelect,
+    SparePartsDetail
   },
   computed: {
     _id () {
@@ -490,6 +550,26 @@ export default {
         }
       },
       immediate: true
+    },
+    $route: {
+      handler (newRoute) { // 直接监听整个路由 去获取 路由值 判断是对公还是对车主
+        const newType = newRoute.query.customerType;
+        if (newType) {
+          this.routeCustomerType = newRoute.query.customerType;
+          this.form.customerType = newType;
+          this.form.customerTypeLabel = newType === '10' ? '车主' : '对公';
+        }
+      },
+      immediate: true
+    },
+    'form.code': {
+      handler (val) {
+        if (val) {
+          this.routeCustomerType = this.form.customerType;
+        }
+      },
+      immediate: false,
+      deep: false
     }
   },
   data () {
@@ -505,213 +585,27 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       emptyText: '若要启用此内容，请创建记录',
+      routeCustomerType: '',
       tableData: [
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
       rules: {
-        payableTotalAmount: [
-          { required: false, message: '请输入应付总金额', trigger: 'change' }
-        ],
-        createTime: [
-          { required: false, message: '请选择创建时间', trigger: 'change' }
-        ],
-        id: [
-          { required: false, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: false, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: false, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: false, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: false, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        status: [
-          { required: false, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: false, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: false, message: '请输入数据来源，150:新销服; 老销服:10', trigger: 'change' }
-        ],
-        ownerOrgId: [
-          { required: false, message: '请输入门店组织id', trigger: 'change' }
+        vin: [
+          { required: true, message: '请输入后6位VIN', trigger: 'blur' }
         ],
         currentMileage: [
-          { required: true, message: '请输入当前里程', trigger: 'change' }
-        ],
-        iotMileage: [
-          { required: false, message: '请输入车联网里程', trigger: 'change' }
-        ],
-        plateNumber: [
-          { required: false, message: '请输入车牌号', trigger: 'change' }
-        ],
-        latestVisitMileage: [
-          { required: false, message: '请输入最近进店里程', trigger: 'change' }
-        ],
-        vehicleModelId: [
-          { required: false, message: '请输入车型ID', trigger: 'change' }
-        ],
-        saleDate: [
-          { required: false, message: '请输入销售日期', trigger: 'change' }
-        ],
-        orderCreator: [
-          { required: false, message: '请输入开单人', trigger: 'change' }
-        ],
-        orderCreatorName: [
-          { required: false, message: '请输入开单人名称', trigger: 'change' }
-        ],
-        orderCreationTime: [
-          { required: false, message: '请选择开单时间', trigger: 'change' }
-        ],
-        confirmer: [
-          { required: false, message: '请输入确认人', trigger: 'change' }
-        ],
-        confirmerName: [
-          { required: false, message: '请输入确认人名称', trigger: 'change' }
-        ],
-        confirmationTime: [
-          { required: false, message: '请选择确认时间', trigger: 'change' }
-        ],
-        signUser: [
-          { required: false, message: '请输入签收人', trigger: 'change' }
-        ],
-        signUserName: [
-          { required: false, message: '请输入签收人名称', trigger: 'change' }
-        ],
-        signTime: [
-          { required: false, message: '请选择签收时间', trigger: 'change' }
-        ],
-        cancelSignUser: [
-          { required: false, message: '请输入取消签收人', trigger: 'change' }
-        ],
-        cancelSignUserName: [
-          { required: false, message: '请输入取消签收人名称', trigger: 'change' }
-        ],
-        cancelSignTime: [
-          { required: false, message: '请选择取消签收时间', trigger: 'change' }
-        ],
-        canceller: [
-          { required: false, message: '请输入作废人', trigger: 'change' }
-        ],
-        cancellerName: [
-          { required: false, message: '请输入作废人名称', trigger: 'change' }
-        ],
-        cancelTime: [
-          { required: false, message: '请选择作废时间', trigger: 'change' }
-        ],
-        cancelRemark: [
-          { required: false, message: '请输入作废备注', trigger: 'change' }
-        ],
-        settler: [
-          { required: false, message: '请输入结算人', trigger: 'change' }
-        ],
-        settlerName: [
-          { required: false, message: '请输入结算人名称', trigger: 'change' }
-        ],
-        settlementTime: [
-          { required: false, message: '请选择结算时间', trigger: 'change' }
-        ],
-        collector: [
-          { required: false, message: '请输入收款人', trigger: 'change' }
-        ],
-        collectorName: [
-          { required: false, message: '请输入收款人名称', trigger: 'change' }
-        ],
-        collectionTime: [
-          { required: false, message: '请选择收款时间', trigger: 'change' }
-        ],
-        cancelSettler: [
-          { required: false, message: '请输入取消结算人', trigger: 'change' }
-        ],
-        cancelSettlerName: [
-          { required: false, message: '请输入取消结算人名称', trigger: 'change' }
-        ],
-        cancelSettlementTime: [
-          { required: false, message: '请选择取消结算时间', trigger: 'change' }
-        ],
-        cancelSettlementRemark: [
-          { required: false, message: '请输入取消结算备注', trigger: 'change' }
-        ],
-        refundOperator: [
-          { required: false, message: '请输入退款人', trigger: 'change' }
-        ],
-        refundOperatorName: [
-          { required: false, message: '请输入退款人名称', trigger: 'change' }
-        ],
-        refundTime: [
-          { required: false, message: '请选择退款时间', trigger: 'change' }
-        ],
-        refundRemark: [
-          { required: false, message: '请输入退款备注', trigger: 'change' }
-        ],
-        reverseSettlementOperator: [
-          { required: false, message: '请输入反结算操作人', trigger: 'change' }
-        ],
-        reverseSettlementOperatorName: [
-          { required: false, message: '请输入反结算操作人名称', trigger: 'change' }
-        ],
-        reverseSettlementTime: [
-          { required: false, message: '请选择反结算操作时间', trigger: 'change' }
-        ],
-        reverseSettlementRemark: [
-          { required: false, message: '请输入反结算备注', trigger: 'change' }
-        ],
-        code: [
-          { required: false, message: '请输入备附件销售单号', trigger: 'change' }
-        ],
-        dealerCode: [
-          { required: false, message: '请输入门店编码', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称', trigger: 'change' }
-        ],
-        cooperationType: [
-          { required: false, message: '请选择门店合作类型', trigger: 'change' }
-        ],
-        warehouseName: [
-          { required: true, message: '请输入仓库名称', trigger: 'change' }
-        ],
-        customerType: [
-          { required: false, message: '请选择客户类型', trigger: 'change' }
-        ],
-        vin: [
-          { required: true, message: '请输入VIN', trigger: 'change' }
-        ],
-        customerCode: [
-          { required: false, message: '请输入客户编码', trigger: 'change' }
-        ],
-        customerName: [
-          { required: false, message: '请输入客户名称', trigger: 'change' }
-        ],
-        orderStatus: [
-          { required: false, message: '请选择订单状态:待确认，待出库，待签收，待结算，待收款，已收款，待退料，待退款，已退款，已作废', trigger: 'change' }
-        ],
-        totalAmount: [
-          { required: false, message: '请输入订单总金额', trigger: 'change' }
+          { required: true, message: '请输入当前里程', trigger: 'blur' }
         ],
         customerContactInfo: [
-          { required: false, message: '请输入客户联系方式', trigger: 'change' }
+          { required: true, message: '请输入客户联系信息', trigger: 'blur' }
         ],
-        discountTotalAmount: [
-          { required: false, message: '请输入优惠总金额', trigger: 'change' }
-        ],
-        remark: [
-          { required: false, message: '请输入备注', trigger: 'change' }
-        ],
-        remainingPayableAmount: [
-          { required: false, message: '请输入剩余应付金额', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: false, message: '请选择修改时间', trigger: 'change' }
-        ],
-      }
+      },
+      pageNum: 1,
+      pageSize: 10,
+      total: 0,
+      paymentData: [], // 收款明细
+      sparePartId: '', // 备件详情ID
     };
   },
   mounted () {
@@ -733,13 +627,26 @@ export default {
       this.form.warehouseName = resDealer.warehouseName;
       this.form.warehouseId = resDealer.warehouseId;// 当前门店code
       this.form.warehouseCode = resDealer.warehouseCode;// 当前门店名称
-      console.log('resDealer', this.form.warehouseName);
     },
-    detailRequest () {
+    async detailRequest () {
       const id = this._id;
-      if (id) {
-        return getDetail(id);
+
+      if (!id) return;
+
+      try {
+        const res = await getDetail(id);
+        this.form = res;
+        this.routeCustomerType = res.customerType;
+        this.getPayment();
+        this.getData();
+      } catch (error) {
+        console.log('error', error);
       }
+    },
+    // 请求收款明细接口
+    async getPayment () {
+      const res = await retailPaymentRecordPage({ retailOrderId: this._id });
+      this.paymentData = res || [];
     },
     submitRequest () {
       return addOrUpdate({ ...this.form });
@@ -748,28 +655,27 @@ export default {
     openPane () {
       this.$refs.editLayout.openPane();
     },
-    // 删除子表数据
-    handleDeleteRow (index) {
-      const item = this.tableData[index];
-      this.tableData.splice(index, 1);
-      // 根据需求调用接口
-      // deletePartVehModel([item.id]).then(res => {
-      //   this.$message.success('删除成功');
-      //   this.tableData.splice(index, 1);
-      // });
+    // 编辑详情
+    handleEdit (row) {
+      this.sparePartId = row.id;
+      this.openPane();
     },
-    // 查询新增项的列表
-    queryListData (queryString) {
-      return new Promise(resolve => {
-        // 根据需求调用接口
-        // sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
-        //   const list = res || [];
-        //   resolve(list);
-        // });
-        resolve([
-          { id: 1, name: 'test', age: 25, email: 'test@example.com' }
-        ]);
+    // 删除子表数据
+    handleDeleteRow (val) {
+      // 根据需求调用接口
+      deleteRetailOrderDetail([val.id]).then(res => {
+        this.$message.success('删除成功');
+        this.getData();
       });
+    },
+    // 备件远程搜索
+    async queryListData (query) {
+      try {
+        const res = await sparePartListShort({ partCodeLikeOrList: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     },
     // 新增子表数据
     handleAddTableData (val, record) {
@@ -784,16 +690,14 @@ export default {
         return;
       }
       // 根据需求调用接口
-      this.tableData.push(record);
-      // addPartItem({
-      //   maintenancePartId: this._id,
-      //   partsCode: record.partCode,
-      //   partsName: record.partName,
-      //   partsId: record.id,
-      // }).then(res => {
-      //   this.$message.success('添加成功');
-      //   this.detailRequest();
-      // });
+      this.sparePartId = val;
+      const params = {
+        retailOrderId: this._id,
+        sparePartId: val
+      };
+      addOrUpdateRetailOrderDetail(params).then(res => {
+        this.getData();
+      });
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
@@ -813,6 +717,32 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    // 获取调拨明细
+    async getData () {
+      const params = {
+        retailOrderId: this._id,
+        pageNum: this.pageNum,
+        pageSize: this.pageSize,
+      };
+      const res = await retailOrderDetailPage(params);
+      this.total = res.total || 0;
+      this.tableData = res.records || [];
+    },
+    handleCurrentChange (pageNum) {
+      this.pageNum = pageNum;
+      this.getData();
+    },
+    handleSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.pageNum = 1;
+      this.getData();
+    },
+    // 保存侧边栏数据
+    handleSave () {
+      this.$refs.detailRef.handleSave();
+      this.detailRequest();
+      this.$refs.editLayout.closePane();
     }
   }
 };
