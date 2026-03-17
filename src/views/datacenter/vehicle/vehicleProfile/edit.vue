@@ -18,7 +18,7 @@
             <div class="common-section-body">
               <div class="common-section-sub-header">
                 <h3>归属信息</h3>
-                <el-button size="small">查看终身保养</el-button>
+                <el-button size="small">查看终身权益</el-button>
                 <el-button size="small">重新预测质保期</el-button>
               </div>
               <!-- <el-form :inline="true" :model="form" label-width="150px" class="form-detail"> -->
@@ -174,6 +174,7 @@
               <el-form label-width="150px" :inline="true" :model="form" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="下次保养时间：" prop="nextMaintainDate">
                   <el-date-picker
+                    disabled
                     v-model="form.nextMaintainDate"
                     type="date"
                     style="max-width: 200px"
@@ -182,11 +183,19 @@
                   />
                 </el-form-item>
                 <el-form-item label="下次保养里程：" prop="nextMaintainMileages">
-                  <el-input clearable-number
+                  <el-input
+                    disabled
+                    clearable
                     v-model="form.nextMaintainMileages"
                     placeholder="请输入"
                     :controls="false"
                     :precision="0"
+                  />
+                </el-form-item>
+                <el-form-item class="form-item-full">
+                  <next-table
+                    :id="form.id"
+                    :isEdit="true"
                   />
                 </el-form-item>
               </el-form>
@@ -196,6 +205,11 @@
                 </el-form-item>
                 <el-form-item label="下次保养里程：" prop="nextMaintainMileages">
                   {{ form.nextMaintainMileages }}
+                </el-form-item>
+                <el-form-item class="form-item-full">
+                  <next-table
+                    :id="form.id"
+                  />
                 </el-form-item>
               </el-form>
               <div class="common-section-sub-header">
@@ -229,9 +243,8 @@
                 <el-form-item label="选配轮毂：">
                   <el-input clearable v-model="form.wheelHubName" placeholder="请输入" disabled />
                 </el-form-item>
-                <!-- TODO -->
                 <el-form-item label="电池电芯：">
-                  <el-input clearable v-model="form.vehicleBatteriesName" placeholder="请输入" disabled />
+                  <el-input clearable v-model="form.batteryCellName" placeholder="请输入" disabled />
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
@@ -262,9 +275,8 @@
                 <el-form-item label="选配轮毂：">
                   {{ form.wheelHubName }}
                 </el-form-item>
-                <!-- TODO -->
                 <el-form-item label="电池电芯：">
-                  {{ form.vehicleBatteriesName }}
+                  {{ form.batteryCellName }}
                 </el-form-item>
               </el-form>
             </div>
@@ -280,6 +292,7 @@
               <el-form label-width="150px" :inline="true" :model="form" :rules="rules" ref="ruleForm2" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="称呼：" prop="gender">
                   <fetch-select
+                    disabled
                     :request="fetchOptions"
                     enumCode="vehicle_profile_gender"
                     v-model="form.gender"
@@ -304,7 +317,7 @@
                   </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="证件类型：">
-                  <el-input clearable v-model="form.idcardType" placeholder="请输入" disabled />
+                  <el-input clearable v-model="form.idcardTypeLabel" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="证件号码：">
                   <LPEncrypted
@@ -336,7 +349,7 @@
                   </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="证件类型：">
-                  {{ form.idcardType }}
+                  {{ form.idcardTypeLabel }}
                 </el-form-item>
                 <el-form-item label="证件号码：">
                   <LPEncrypted
@@ -370,12 +383,16 @@
                     {{ form.bindingPhone }}
                   </LPEncrypted>
                 </el-form-item>
-                <!-- TODO -->
                 <el-form-item label="绑车人证件类型：">
-                  <el-input clearable v-model="form.bindingIdtype" placeholder="请输入" disabled />
+                  <el-input clearable v-model="form.bindingIdtypeLabel" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="绑车人证件号码：">
-                  <el-input clearable v-model="form.bindingIdno" placeholder="请输入" disabled />
+                  <LPEncrypted
+                    :value.sync="form.bindingIdno"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'bindingIdno')"
+                  >
+                    {{ form.bindingIdno }}
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="绑车时间：">
                   <el-input clearable v-model="form.bindingOn" placeholder="请输入" disabled />
@@ -401,12 +418,16 @@
                     {{ form.bindingPhone }}
                   </LPEncrypted>
                 </el-form-item>
-                <!-- TODO -->
                 <el-form-item label="绑车人证件类型：">
                   {{ form.bindingIdtypeLabel }}
                 </el-form-item>
                 <el-form-item label="绑车人证件号码：">
-                  {{ form.bindingIdno }}
+                  <LPEncrypted
+                    :value.sync="form.bindingIdno"
+                    :decryptMethod="() => getDetailDecryptField(form.id, 'bindingIdno')"
+                  >
+                    {{ form.bindingIdno }}
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="绑车时间：">
                   {{ form.bindingOn }}
@@ -423,10 +444,10 @@
                   <el-input clearable v-model="form.iccid" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="受理时间：">
-                  <el-input clearable v-model="form.xxx" placeholder="请输入" disabled />
+                  <el-input clearable v-model="form.acceptTime" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="实名驳回原因：">
-                  <el-input clearable v-model="form.xxx" placeholder="请输入" disabled />
+                  <el-input clearable v-model="form.realnameRejectreason" placeholder="请输入" disabled />
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
@@ -437,10 +458,10 @@
                   {{ form.iccid }}
                 </el-form-item>
                 <el-form-item label="受理时间：">
-                  {{ form.xxx }}
+                  {{ form.acceptTime }}
                 </el-form-item>
                 <el-form-item label="实名驳回原因：">
-                  {{ form.xxx }}
+                  {{ form.realnameRejectreason }}
                 </el-form-item>
               </el-form>
               <div class="common-section-sub-header">
@@ -448,45 +469,51 @@
               </div>
               <el-form label-width="150px" :inline="true" :model="form" :rules="rules" ref="ruleForm3" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="住宅电话：">
-                  <el-input clearable v-model="form.xxx" placeholder="请输入" disabled />
+                  <el-input clearable v-model="form.telephone2" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="办公电话：">
-                  <el-input clearable v-model="form.xxx" placeholder="请输入" disabled />
+                  <el-input clearable v-model="form.telephone1" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="身份证所在地：">
-                  <el-input clearable v-model="form.xxx" placeholder="请输入" disabled />
+                  <el-input clearable v-model="form.address" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="生日：" prop="birthdate">
-                  <el-date-picker v-model="form.birthdate" type="date" value-format="yyyy-MM-dd" placeholder="请选择">
+                  <el-date-picker
+                    disabled
+                    v-model="form.birthdate"
+                    type="date"
+                    value-format="yyyy-MM-dd"
+                    placeholder="请选择">
                   </el-date-picker>
                 </el-form-item>
                 <el-form-item label="邮箱：">
-                  <el-input clearable v-model="form.xxx" placeholder="请输入" disabled />
+                  <el-input clearable v-model="form.email1" placeholder="请输入" disabled />
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="住宅电话：">
-                  {{ form.xxx }}
+                  {{ form.telephone2 }}
                 </el-form-item>
                 <el-form-item label="办公电话：">
-                  {{ form.xxx }}
+                  {{ form.telephone1 }}
                 </el-form-item>
                 <el-form-item label="身份证所在地：">
-                  {{ form.xxx }}
+                  {{ form.address }}
                 </el-form-item>
                 <el-form-item label="生日：" prop="birthdate">
                   {{ form.birthdate }}
                 </el-form-item>
                 <el-form-item label="邮箱：">
-                  {{ form.xxx }}
+                  {{ form.email1 }}
                 </el-form-item>
               </el-form>
               <div class="common-section-sub-header">
                 <h3>地址信息</h3>
               </div>
               <el-form label-width="150px" :inline="true" :model="form" :rules="rules" ref="ruleForm4" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="省市区：" prop="provinceCode">
+                <el-form-item label="省市区：" prop="districtCode">
                   <el-cascader
+                    disabled
                     placeholder="请选择省市区"
                     v-model="form.districtCode"
                     :props="orgProps"
@@ -497,15 +524,15 @@
                   </el-cascader>
                 </el-form-item>
                 <el-form-item label="家庭地址：" prop="homeAddress">
-                  <el-input clearable v-model="form.homeAddress" placeholder="请输入内容"></el-input>
+                  <el-input disabled clearable v-model="form.homeAddress" placeholder="请输入内容"></el-input>
                 </el-form-item>
                 <el-form-item label="工作地址：" prop="workAddress">
-                  <el-input clearable v-model="form.workAddress" placeholder="请输入内容"></el-input>
+                  <el-input disabled clearable v-model="form.workAddress" placeholder="请输入内容"></el-input>
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="省市区：">
-                  {{ form.provinceName + form.cityName+ form.districtName }}
+                  {{ (form.provinceName || '') + (form.cityName || '') + (form.districtName || '') }}
                 </el-form-item>
                 <el-form-item label="家庭地址：" prop="homeAddress">
                   {{ form.homeAddress }}
@@ -519,10 +546,10 @@
               </div>
               <el-form label-width="150px" :inline="true" :model="form" :rules="rules" ref="ruleForm5" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="送修人：" prop="shuttleName">
-                  <el-input clearable v-model="form.shuttleName" placeholder="请输入" />
+                  <el-input disabled clearable v-model="form.shuttleName" placeholder="请输入" />
                 </el-form-item>
                 <el-form-item label="送修人手机：" prop="shuttlePhone">
-                  <el-input clearable v-model="form.shuttlePhone" placeholder="请输入" />
+                  <el-input disabled clearable v-model="form.shuttlePhone" placeholder="请输入" />
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
@@ -553,12 +580,13 @@
                   </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="车牌号：">
-                  <LPEncrypted
+                  <el-input clearable v-model="form.vehiclePlateNo" placeholder="请输入" disabled />
+                  <!-- <LPEncrypted
                     :value.sync="form.vehiclePlateNo"
                     :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
                   >
                     {{ form.vehiclePlateNo }}
-                  </LPEncrypted>
+                  </LPEncrypted> -->
                 </el-form-item>
                 <el-form-item label="合格证号：">
                   <el-input clearable v-model="form.certNumber" placeholder="请输入" disabled />
@@ -567,10 +595,10 @@
                   <el-input clearable v-model="form.carSalesVersionName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="车辆属性：">
-                  <el-input clearable v-model="form.xxx" placeholder="请输入" disabled />
+                  <el-input clearable v-model="form.usageTypeLabel" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="车辆类型：">
-                  <el-input clearable v-model="form.vehicleType" placeholder="请输入" disabled />
+                  <el-input clearable v-model="form.vehicleTypeLabel" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="车辆名称：">
                   <el-input clearable v-model="form.vehicleName" placeholder="请输入" disabled />
@@ -582,10 +610,10 @@
                   <el-input clearable v-model="form.vehicleColor" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="燃料种类：">
-                  <el-input clearable v-model="form.xxxx" placeholder="请输入" disabled />
+                  <el-input clearable v-model="form.vehicleFuelTypeLabel" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="车型：">
-                  <el-input clearable v-model="form.xxxx" placeholder="请输入" disabled />
+                  <el-input clearable v-model="form.vehicleModelName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="年款：">
                   <el-input clearable v-model="form.vehicleYearName" placeholder="请输入" disabled />
@@ -621,7 +649,7 @@
                   <el-input clearable v-model="form.vehicleEnterpriseName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="车辆产地：">
-                  <el-input clearable v-model="form.xxx" placeholder="请输入" disabled />
+                  <el-input clearable v-model="form.vehiclePlaceOrigin" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="制造工厂：">
                   <el-input clearable v-model="form.factoryinfoName" placeholder="请输入" disabled />
@@ -639,7 +667,7 @@
                   <el-input clearable v-model="form.salesDate" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="车辆销售变更时间：" prop="vehicleStaffupDatetime">
-                  <el-date-picker v-model="form.vehicleStaffupDatetime" type="date" value-format="yyyy-MM-dd" placeholder="请选择">
+                  <el-date-picker disabled v-model="form.vehicleStaffupDatetime" type="date" value-format="yyyy-MM-dd" placeholder="请选择">
                   </el-date-picker>
                 </el-form-item>
                 <el-form-item label="车辆状态：">
@@ -656,12 +684,13 @@
                   </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="车牌号：">
-                  <LPEncrypted
+                  {{ form.vehiclePlateNo }}
+                  <!-- <LPEncrypted
                     :value.sync="form.vehiclePlateNo"
                     :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
                   >
                     {{ form.vehiclePlateNo }}
-                  </LPEncrypted>
+                  </LPEncrypted> -->
                 </el-form-item>
                 <el-form-item label="合格证号：">
                   {{ form.certNumber }}
@@ -670,10 +699,10 @@
                   {{ form.carSalesVersionName }}
                 </el-form-item>
                 <el-form-item label="车辆属性：">
-                  {{ form.xxx }}
+                  {{ form.usageTypeLabel }}
                 </el-form-item>
                 <el-form-item label="车辆类型：">
-                  {{ form.vehicleType }}
+                  {{ form.vehicleTypeLabel }}
                 </el-form-item>
                 <el-form-item label="车辆名称：">
                   {{ form.vehicleName }}
@@ -685,10 +714,10 @@
                   {{ form.vehicleColor }}
                 </el-form-item>
                 <el-form-item label="燃料种类：">
-                  {{ form.xxxx }}
+                  {{ form.vehicleFuelTypeLabel }}
                 </el-form-item>
                 <el-form-item label="车型：">
-                  {{ form.xxxx }}
+                  {{ form.vehicleModelName }}
                 </el-form-item>
                 <el-form-item label="年款：">
                   {{ form.vehicleYearName }}
@@ -724,7 +753,7 @@
                   {{ form.vehicleEnterpriseName }}
                 </el-form-item>
                 <el-form-item label="车辆产地：">
-                  {{ form.xxx }}
+                  {{ form.vehiclePlaceOrigin }}
                 </el-form-item>
                 <el-form-item label="制造工厂：">
                   {{ form.factoryinfoName }}
@@ -756,6 +785,7 @@
     <template #right>
       <div class="page-common-edit">
         <change-history
+          :id="form.id"
         />
       </div>
     </template>
@@ -774,6 +804,7 @@ import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum } from '@/api/common';
 import { getAreaInfo } from '@/utils';
 import ChangeHistory from './ChangeHistory';
+import NextTable from './NextTable.vue';
 
 const defaultForm = {
   // 基础信息
@@ -804,6 +835,7 @@ const defaultForm = {
   vehicleDepartureTime: '',
   vehicleEnterpriseName: '',
   vehicleFuelType: '',
+  vehicleFuelTypeLabel: '',
   vehicleModel: '',
   vehicleName: '',
   vehiclePlaceOrigin: '',
@@ -866,6 +898,7 @@ const defaultForm = {
   zipCode: '',
   bindingIdno: '',
   bindingIdtype: '',
+  bindingIdtypeLabel: '',
   bindingOn: '',
   bindingPhone: '',
   bindingUser: '',
@@ -928,6 +961,7 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     ChangeHistory,
+    NextTable,
   },
   computed: {
     _id () {

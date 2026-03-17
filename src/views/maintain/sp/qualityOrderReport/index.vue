@@ -26,7 +26,7 @@
       <el-form-item label="报告类型"  v-show="this.visibleCount === 3 || show">
         <fetch-select
           :request="fetchOptions"
-          enumCode="xxx"
+          enumCode="QualityReportTypeEnum"
           v-model="form.reportType"
           placeholder="请选择"
           clearable
@@ -45,7 +45,7 @@
         <el-form-item label="状态">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
+            enumCode="QualityReportOrderStatusEnum"
             v-model="form.orderStatus"
             placeholder="请选择"
             clearable
@@ -60,11 +60,18 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="服务中心代码">
-          <el-input
-            placeholder="请输入"
+        <el-form-item label="服务中心">
+          <fetch-select
+            :remote-method="getDealerList"
+            remote
             v-model="form.serviceCenterCode"
+            placeholder="请输入门店编码或名称"
+            labelKey="orgName"
+            valueKey="orgCode"
+            subLabelKey="orgCode"
             clearable
+            collapseTags
+            filterable
           />
         </el-form-item>
         <el-form-item label="VIN码">
@@ -129,7 +136,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/sp/qualityOrderReport/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -208,9 +215,9 @@ export default {
             }]
           },
           { props: 'serviceProxyCode', label: '接车施工单', visible: true, width: 200 },
-          { props: 'reportType', label: '报告类型', visible: true, width: 200 },
+          { props: 'reportTypeLabel', label: '报告类型', visible: true, width: 200 },
           { props: 'title', label: '故障主题', visible: true, width: 200 },
-          { props: 'orderStatus', label: '状态', visible: true, width: 200 },
+          { props: 'orderStatusLabel', label: '状态', visible: true, width: 200 },
           { props: 'serviceCenterName', label: '服务中心名称', visible: true, width: 200 },
           { props: 'serviceCenterCode', label: '服务中心代码', visible: true, width: 200 },
           { props: 'applicantName', label: '报告人', visible: true, width: 200 },
@@ -223,7 +230,7 @@ export default {
           { props: 'mileage', label: '里程数（KM)', visible: true, width: 200 },
           { props: 'salesDate', label: '销售日期', visible: true, width: 200 },
           { props: 'repairDate', label: '维修时间', visible: true, width: 200 },
-          { props: 'causePartId', label: '主因零部件id', visible: true, width: 200 },
+          // { props: 'causePartCode', label: '主因零部件', visible: true, width: 200 },
           { props: 'causePartName', label: '主因零部件', visible: true, width: 200 },
           { props: 'supplierName', label: '供应商', visible: true, width: 200 },
           { props: 'vrtName', label: 'VFG名称', visible: true, width: 200 },
@@ -481,7 +488,15 @@ export default {
       //     });
       //   });
       // });
-    }
+    },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
   }
 };
 </script>

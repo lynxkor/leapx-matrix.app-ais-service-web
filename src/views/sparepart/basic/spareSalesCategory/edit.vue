@@ -58,7 +58,7 @@
                 placeholder="请选择"
                 labelKey="orgName"
                 valueKey="orgCode"
-                subLabelKey="orgName"
+                subLabelKey="orgCode"
                 clearable
                 filterable
                 @change="handleStoreChange"
@@ -108,7 +108,7 @@
                 placeholder="请选择"
                 labelKey="orgName"
                 valueKey="orgCode"
-                subLabelKey="orgName"
+                subLabelKey="orgCode"
                 clearable
                 filterable
                 @change="handleStoreChange"
