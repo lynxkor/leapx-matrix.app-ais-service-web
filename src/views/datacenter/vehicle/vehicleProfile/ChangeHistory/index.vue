@@ -76,7 +76,7 @@
         :current-page="current"
         :page-sizes="[10, 20, 50, 100]"
         :page-size="pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
+        layout="total, sizes, prev, next, jumper"
         :total="total"
       >
       </el-pagination>
@@ -143,6 +143,7 @@ export default {
   methods: {
     getDetailPageApi () {
       keyInfoChangeLogPage({
+        // vin: 'LFZ63AV56SD020798',
         vehicleProfileId: this.id,
         pageSize: this.pageSize,
         pageNum: this.current,
@@ -256,5 +257,9 @@ export default {
 }
 ::v-deep .el-timeline .el-timeline-item:last-child .el-timeline-item__tail {
   display: block !important;
+}
+::v-deep .el-pagination{
+  display: flex;
+  flex-wrap: wrap;
 }
 </style>

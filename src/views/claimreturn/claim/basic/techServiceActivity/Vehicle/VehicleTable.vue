@@ -44,7 +44,7 @@
     <vxe-column field="actualDealerName" title="实际施工门店名称" width="160"></vxe-column>
     <vxe-column field="workOrderNo" title="施工单号" width="160">
       <template #default="{row}">
-        <el-link type="success" :href="`/service/maintain/sp/serviceProxy/edit?id=${row.workOrderId}`" target="_blank">{{ row.workOrderNo }}</el-link>
+        <div class="href-link" style="padding:6px 12px;" @click="handleJump(row)">{{ row.workOrderNo }}</div>
       </template>
     </vxe-column>
     <vxe-column title="车主手机" width="160">
@@ -130,6 +130,7 @@ import { listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { cloneDeep } from 'lodash';
 import { getDetailDecryptField } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
+import { getList } from '@/api/datacenter/vehicle/serviceProxyHis/index';
 
 export default {
   props: {
@@ -296,6 +297,26 @@ export default {
         row.ownerPhoneAll = data;
         row.ownerPhoneMask = row.ownerPhone;
         row.ownerPhone = row.ownerPhoneAll;
+      });
+    },
+    handleJump (row) {
+      getList({
+        pageNum: 1,
+        pageSize: 20,
+        serviceProxyId: row.workOrderId,
+        // serviceProxyId: '019CF984-E27E-7B48-BCFD-7C735ACAC69C',
+      }).then(res => {
+        if (res?.records?.length) {
+          const item = res.records[0];
+          this.$router.push({
+            path: '/datacenter/vehicle/serviceProxyHis/edit',
+            query: {
+              id: item.id,
+            }
+          });
+        } else {
+          this.$message.info('暂无维修履历');
+        }
       });
     }
   },

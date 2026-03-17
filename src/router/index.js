@@ -861,7 +861,7 @@ const routes = [
       }
     }, {
       path: '/claimreturn/claim/basic/serviceCareActivityVehicle',
-      name: 'serviceActivityVehicle',
+      name: 'serviceCareActivityVehicle',
       component: () => import('@/views/claimreturn/claim/basic/serviceActivityVehicle/index.vue'),
 
       meta: {
@@ -872,7 +872,7 @@ const routes = [
       }
     }, {
       path: '/claimreturn/claim/basic/serviceCareActivityVehicle/edit',
-      name: 'serviceActivityVehicleEdit',
+      name: 'serviceCareActivityVehicleEdit',
       component: () => import('@/views/claimreturn/claim/basic/serviceActivityVehicle/edit.vue'),
 
       meta: {
@@ -905,7 +905,7 @@ const routes = [
       }
     }, {
       path: '/claimreturn/claim/basic/serviceCareActivity',
-      name: 'serviceActivity',
+      name: 'serviceCareActivity',
       component: () => import('@/views/claimreturn/claim/basic/techServiceActivity/index.vue'),
       meta: {
         keepAlive: true,
@@ -915,7 +915,7 @@ const routes = [
       }
     }, {
       path: '/claimreturn/claim/basic/serviceCareActivity/edit',
-      name: 'serviceActivityEdit',
+      name: 'serviceCareActivityEdit',
       component: () => import('@/views/claimreturn/claim/basic/techServiceActivity/edit.vue'),
       meta: {
         noResourceUrl: 'true',
@@ -952,7 +952,7 @@ const routes = [
       }
     }, {
       path: '/claimreturn/claim/basic/freeMaintenancePolicy',
-      name: 'freeMaintenancePolicy',
+      name: 'freeMaintenancePolicy2',
       component: () => import('@/views/claimreturn/claim/basic/freeMaintenancePolicy/index.vue'),
 
       meta: {
@@ -961,7 +961,7 @@ const routes = [
       }
     }, {
       path: '/claimreturn/claim/basic/freemaintenancepolicy/detail',
-      name: 'freeMaintenancePolicyDetail',
+      name: 'freeMaintenancePolicyDetail2',
       component: () => import('@/views/claimreturn/claim/basic/freeMaintenancePolicy/detail.vue'),
 
       meta: {
@@ -970,7 +970,7 @@ const routes = [
       }
     }, {
       path: '/claimreturn/claim/basic/freemaintenancepolicy/edit',
-      name: 'freeMaintenancePolicyEdit',
+      name: 'freeMaintenancePolicyEdit2',
       component: () => import('@/views/claimreturn/claim/basic/freeMaintenancePolicy/edit.vue'),
 
       meta: {
