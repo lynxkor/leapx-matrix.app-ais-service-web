@@ -50,7 +50,7 @@
                     <td style="width:100px">VIN码</td>
                     <td style="width:100px;">{{ info.vehProfileVin }}</td>
                     <td style="width:100px">结算类型</td>
-                    <td style="width:100px;">{{ formatStatementType(info.statementType) }}</td>
+                    <td style="width:100px;">{{ info.statementTypeLabel }}</td>
                   </tr>
                   <tr>
                     <td>车主</td>
@@ -82,10 +82,10 @@
                     <td>客户经理</td>
                     <td>{{ info.serviceProxyResp?.dedicatedServiceManager }}</td>
                   </tr>
-                  <tr>
+                  <!-- <tr>
                     <td>客户地址</td>
                     <td colspan="7" style="text-align:left"></td>
-                  </tr>
+                  </tr> -->
                   <tr>
                     <td style="border-bottom-width:0px">下次保养时间</td>
                     <td style="border-bottom-width:0px; text-align:left" colspan="3">{{ formatDate(info.serviceProxyResp?.maintenanceTime) }}</td>

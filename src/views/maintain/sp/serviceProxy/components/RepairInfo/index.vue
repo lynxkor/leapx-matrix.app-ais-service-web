@@ -187,7 +187,7 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="code" title="施工单号" width="180px" />
+          <vxe-column field="code" title="编号" width="180px" />
           <vxe-column field="dealerName" title="厅店名称" width="180px" />
           <vxe-column field="repairItemName" title="维修项目名称" width="200px" />
           <vxe-column field="repairItemCode" title="维修项目代码" width="180px" />

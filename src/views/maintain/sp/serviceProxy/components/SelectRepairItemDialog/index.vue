@@ -124,7 +124,7 @@
           </vxe-column>
           <vxe-column field="repairItemTypeName" title="维修类型" width="150px">
             <template #default="{ row }">
-              <template v-if="row.id">{{ row?.repairItemTypeName }}</template>
+              <template v-if="row.id || row.repairItemDisabled">{{ row?.repairItemTypeName }}</template>
               <el-select
                 v-else
                 v-model="row.repairItemTypeName"
@@ -152,7 +152,7 @@
                 @change="handleCheckoutTypeChange(row)"
               >
                 <el-option
-                  v-for="item in itemOptions.checkoutTypeName"
+                  v-for="item in filteredRepairItemCheckoutTypes"
                   :key="item.checkoutTypeId"
                   :label="item.checkoutTypeName"
                   :value="item.checkoutTypeName"
@@ -171,7 +171,7 @@
                 @change="handleWarrantyTypeChange(row)"
               >
                 <el-option
-                  v-for="item in (checkoutTypeMap[row.checkoutTypeName] || itemOptions.warrantyTypeName)"
+                  v-for="item in getFilteredWarrantyTypesForRow(row, 'repairItem')"
                   :key="item.warrantyTypeId"
                   :label="item.warrantyTypeName"
                   :value="item.warrantyTypeName"
@@ -286,7 +286,7 @@
                 size="small"
                 placeholder="请选择"
                 filterable
-                :disabled="!!row.repairItemName"
+                :disabled="row.repairItemDisabled"
                 @change="handlePartRepairItemTypeChange(row)"
               >
                 <el-option
@@ -308,7 +308,7 @@
                 @change="handlePartCheckoutTypeChange(row)"
               >
                 <el-option
-                  v-for="item in itemOptions.checkoutTypeName"
+                  v-for="item in filteredPartCheckoutTypes"
                   :key="item.checkoutTypeId"
                   :label="item.checkoutTypeName"
                   :value="item.checkoutTypeName"
@@ -327,7 +327,7 @@
                 @change="handlePartWarrantyTypeChange(row)"
               >
                 <el-option
-                  v-for="item in (checkoutTypeMap[row.checkoutTypeName] || itemOptions.warrantyTypeName)"
+                  v-for="item in getFilteredWarrantyTypesForRow(row, 'part')"
                   :key="item.warrantyTypeId"
                   :label="item.warrantyTypeName"
                   :value="item.warrantyTypeName"
@@ -405,7 +405,7 @@
           <vxe-column field="packageCode" title="套餐代码" width="120px" />
           <vxe-column title="操作" width="100" align="center" fixed="right">
             <template #default="{ row, rowIndex }">
-              <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleRemovePartRow(rowIndex)" :disabled="row.isOutstock">
+              <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleRemovePartRow(rowIndex)" :disabled="!!row.isOutstock">
                 <span slot="reference" type="text" size="small" :class="['btn-delete', {'disabled': row.isOutstock}]">删除</span>
               </el-popconfirm>
             </template>
@@ -428,7 +428,7 @@
 
 <script>
 // import EditTable from '@/libs/components/EditTable';
-import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList } from '@/api/maintain/sp/serviceProxy/index';
+import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getDealerPermission } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   name: 'SelectRepairItemDialog',
@@ -482,7 +482,14 @@ export default {
       // 结算类型和保修类型映射关系
       checkoutTypeMap: {},
       // 原始数据
-      originalDataJson: null
+      originalDataJson: null,
+      // 经销商权限配置
+      dealerPermission: {
+        repairItemHasPermission: false,
+        partHasPermission: false,
+        repairItem: { checkoutTypeIds: [], warrantyTypeIds: [] },
+        part: { checkoutTypeIds: [], warrantyTypeIds: [] }
+      }
     };
   },
   computed: {
@@ -492,6 +499,52 @@ export default {
         label: item.repairItemName,
         value: item.repairItemName
       }));
+    },
+    // 维修项目的结算类型过滤选项
+    filteredRepairItemCheckoutTypes () {
+      // 如果维修项目没有权限限制，显示所有选项
+      if (!this.dealerPermission.repairItemHasPermission) {
+        return this.itemOptions.checkoutTypeName;
+      }
+      const allowedIds = this.dealerPermission.repairItem.checkoutTypeIds;
+      return this.itemOptions.checkoutTypeName.filter(item =>
+        allowedIds.includes(item.checkoutTypeId)
+      );
+    },
+    // 维修项目的保修类型过滤选项
+    filteredRepairItemWarrantyTypes () {
+      // 如果维修项目没有权限限制，显示所有选项
+      if (!this.dealerPermission.repairItemHasPermission) {
+        return this.itemOptions.warrantyTypeName;
+      }
+      // API的repairItemTypeId映射到选项的warrantyTypeId
+      const allowedIds = this.dealerPermission.repairItem.warrantyTypeIds;
+      return this.itemOptions.warrantyTypeName.filter(item =>
+        allowedIds.includes(item.warrantyTypeId)
+      );
+    },
+    // 零件的结算类型过滤选项
+    filteredPartCheckoutTypes () {
+      // 如果零件没有权限限制，显示所有选项
+      if (!this.dealerPermission.partHasPermission) {
+        return this.itemOptions.checkoutTypeName;
+      }
+      const allowedIds = this.dealerPermission.part.checkoutTypeIds;
+      return this.itemOptions.checkoutTypeName.filter(item =>
+        allowedIds.includes(item.checkoutTypeId)
+      );
+    },
+    // 零件的保修类型过滤选项
+    filteredPartWarrantyTypes () {
+      // 如果零件没有权限限制，显示所有选项
+      if (!this.dealerPermission.partHasPermission) {
+        return this.itemOptions.warrantyTypeName;
+      }
+      // API的repairItemTypeId映射到选项的warrantyTypeId
+      const allowedIds = this.dealerPermission.part.warrantyTypeIds;
+      return this.itemOptions.warrantyTypeName.filter(item =>
+        allowedIds.includes(item.warrantyTypeId)
+      );
     }
   },
   watch: {
@@ -516,6 +569,26 @@ export default {
     }
   },
   methods: {
+    /**
+     * 根据结算类型获取可用的保修类型选项
+     * @param {Object} checkoutTypeObj - 结算类型对象
+     * @param {String} itemType - 项目类型 'repairItem' | 'part'
+     * @returns {Array} 过滤后的保修类型选项
+     */
+    getWarrantyTypeOptions (checkoutTypeObj, itemType = 'part') {
+      let warrantyTypeNameOption = this.checkoutTypeMap[checkoutTypeObj?.checkoutTypeName];
+      let finalWarrantyOptions;
+      if (warrantyTypeNameOption) {
+        // 如果有checkoutTypeMap映射，应用权限过滤
+        const filteredTypes = itemType === 'repairItem' ? this.filteredRepairItemWarrantyTypes : this.filteredPartWarrantyTypes;
+        const allowedIds = new Set(filteredTypes.map(item => item.warrantyTypeId));
+        finalWarrantyOptions = warrantyTypeNameOption.filter(item => allowedIds.has(item.warrantyTypeId));
+      } else {
+        finalWarrantyOptions = this.filteredPartWarrantyTypes;
+      }
+
+      return finalWarrantyOptions;
+    },
     close () {
       this.dialogVisible = false;
     },
@@ -552,22 +625,23 @@ export default {
         item => item.repairItemTypeId === this.repairType
       );
 
-      // 查找结算类型的默认值（取第一个）
-      let checkoutTypeObj = this.itemOptions.checkoutTypeName?.[0];
+      // 查找结算类型的默认值（取第一个，考虑权限过滤）
+      let checkoutTypeObj = this.filteredRepairItemCheckoutTypes?.[0];
       if (selectedItem.id === '999999') {
-        checkoutTypeObj = this.itemOptions.checkoutTypeName?.filter(item => !this.checkoutTypeIncluded(item.checkoutTypeId))?.[0];
+        checkoutTypeObj = this.filteredRepairItemCheckoutTypes?.filter(item => !this.checkoutTypeIncluded(item.checkoutTypeId))?.[0];
       }
 
-      const warrantyTypeNameOption = this.checkoutTypeMap[checkoutTypeObj?.checkoutTypeName] || this.itemOptions.warrantyTypeName;
-      // 查找保修类型的默认值（取第一个）
-      const warrantyTypeObj = warrantyTypeNameOption?.[0];
+      // 获取保修类型选项（维修项目）
+      const finalWarrantyOptions = this.getWarrantyTypeOptions(checkoutTypeObj, 'repairItem');
+      const warrantyTypeObj = finalWarrantyOptions?.[0];
 
       const newItem = {
         repairItemCode: selectedItem.code || '',
         repairItemName: selectedItem.name || '',
         repairItemId: selectedItem.id,
-        repairItemTypeId: this.repairType,
-        repairItemTypeName: repairTypeObj?.repairItemTypeName || repairTypeObj?.label || '',
+        repairItemTypeId: selectedItem.repairItemTypeId || this.repairType,
+        repairItemTypeName: selectedItem.repairItemTypeName || repairTypeObj?.repairItemTypeName || repairTypeObj?.label || '',
+        repairItemDisabled: !!selectedItem.repairItemTypeId,
         checkoutTypeId: checkoutTypeObj?.checkoutTypeId || '',
         checkoutTypeName: checkoutTypeObj?.checkoutTypeName || checkoutTypeObj?.label || '',
         warrantyTypeId: warrantyTypeObj?.warrantyTypeId || '',
@@ -587,18 +661,22 @@ export default {
 
       // 如果维修项目带有关联零件列表，自动添加这些零件
       if (selectedItem.partsRespList && selectedItem.partsRespList.length > 0) {
+        // 获取保修类型选项（配件）
+        const finalWarrantyOptions = this.getWarrantyTypeOptions(checkoutTypeObj, 'part');
+        const warrantyTypeObj2 = finalWarrantyOptions?.[0];
         selectedItem.partsRespList.forEach(part => {
           const discountAmount = Number(part.price || 0) * (Number(this.selectedDiscount?.discountPartRate || 0) || 0);
           const newPart = {
             partsId: part.id,
             partsCode: part.partsCode || '',
             partsName: part.partsName || '',
-            repairItemTypeId: this.repairType,
-            repairItemTypeName: repairTypeObj?.repairItemTypeName || repairTypeObj?.label || '',
+            repairItemTypeId: selectedItem.repairItemTypeId || this.repairType,
+            repairItemTypeName: selectedItem.repairItemTypeName || repairTypeObj?.repairItemTypeName || repairTypeObj?.label || '',
+            repairItemDisabled: !!selectedItem.repairItemTypeId,
             checkoutTypeId: checkoutTypeObj?.checkoutTypeId || '',
             checkoutTypeName: checkoutTypeObj?.checkoutTypeName || checkoutTypeObj?.label || '',
-            warrantyTypeId: warrantyTypeObj?.warrantyTypeId || '',
-            warrantyTypeName: warrantyTypeObj?.warrantyTypeName || warrantyTypeObj?.label || '',
+            warrantyTypeId: warrantyTypeObj2?.warrantyTypeId || '',
+            warrantyTypeName: warrantyTypeObj2?.warrantyTypeName || warrantyTypeObj2?.label || '',
             isOemPart: part.isOemPart || 0,
             quantity: part.quantity || 1,
             price: part.price || 0,
@@ -643,12 +721,12 @@ export default {
         item => item.repairItemTypeId === this.partRepairType
       );
 
-      // 查找结算类型的默认值（取第一个）
-      const checkoutTypeObj = this.itemOptions.checkoutTypeName?.[0];
+      // 查找结算类型的默认值（取第一个，考虑权限过滤）
+      const checkoutTypeObj = this.filteredPartCheckoutTypes?.[0];
 
-      // 查找保修类型的默认值（取第一个）
-      const warrantyTypeNameOption = this.checkoutTypeMap[checkoutTypeObj?.checkoutTypeName] || this.itemOptions.warrantyTypeName;
-      const warrantyTypeObj = warrantyTypeNameOption?.[0];
+      // 查找保修类型的默认值（取第一个，考虑权限过滤和checkoutTypeMap）
+      const finalWarrantyOptions = this.getWarrantyTypeOptions(checkoutTypeObj, 'part');
+      const warrantyTypeObj = finalWarrantyOptions?.[0];
 
       const discountAmount = Number(selectedPart.salePrice) * (1 - (Number(this.selectedDiscount?.discountPartRate) || 1));
       const newPart = {
@@ -747,7 +825,7 @@ export default {
           value: item.code
         }));
       });
-      this.getRepairItemTypeList();
+      this.getPermissions();
     },
     getRepairItemInfo () {
       getRepairItemInfo(this.vehicleInfo.id).then(res => {
@@ -926,7 +1004,9 @@ export default {
       const selected = this.itemOptions.checkoutTypeName.find(item => item.checkoutTypeName === row.checkoutTypeName);
       if (selected) {
         row.checkoutTypeId = selected.checkoutTypeId;
-        const warrantyTypes = this.checkoutTypeMap[row.checkoutTypeName] || this.itemOptions.warrantyTypeName;
+        // 使用提取的方法获取过滤后的保修类型选项
+        const checkoutTypeObj = this.filteredRepairItemCheckoutTypes.find(item => item.checkoutTypeName === row.checkoutTypeName) || selected;
+        const warrantyTypes = this.getWarrantyTypeOptions(checkoutTypeObj, 'repairItem');
         row.warrantyTypeId = warrantyTypes?.[0]?.warrantyTypeId;
         row.warrantyTypeName = warrantyTypes?.[0]?.warrantyTypeName;
       }
@@ -968,7 +1048,9 @@ export default {
       const selected = this.itemOptions.checkoutTypeName.find(item => item.checkoutTypeName === row.checkoutTypeName);
       if (selected) {
         row.checkoutTypeId = selected.checkoutTypeId;
-        const warrantyTypes = this.checkoutTypeMap[row.checkoutTypeName] || this.itemOptions.warrantyTypeName;
+        // 使用提取的方法获取过滤后的保修类型选项
+        const checkoutTypeObj = this.filteredPartCheckoutTypes.find(item => item.checkoutTypeName === row.checkoutTypeName) || selected;
+        const warrantyTypes = this.getWarrantyTypeOptions(checkoutTypeObj, 'part');
         row.warrantyTypeId = warrantyTypes?.[0]?.warrantyTypeId;
         row.warrantyTypeName = warrantyTypes?.[0]?.warrantyTypeName;
       }
@@ -1037,6 +1119,23 @@ export default {
       }
       return true;
     },
+    // 根据权限获取保修类型过滤选项
+    getFilteredWarrantyTypesForRow (row, type) {
+      // 获取基础选项：优先使用checkoutTypeMap映射
+      const baseOptions = this.checkoutTypeMap[row.checkoutTypeName];
+      if (baseOptions) {
+        // 如果有checkoutTypeMap映射，需要再应用权限过滤
+        const filteredOptions = type === 'repairItem'
+          ? this.filteredRepairItemWarrantyTypes
+          : this.filteredPartWarrantyTypes;
+        const allowedIds = new Set(filteredOptions.map(item => item.warrantyTypeId));
+        return baseOptions.filter(item => allowedIds.has(item.warrantyTypeId));
+      }
+      // 如果没有checkoutTypeMap映射，直接使用权限过滤后的选项
+      return type === 'repairItem'
+        ? this.filteredRepairItemWarrantyTypes
+        : this.filteredPartWarrantyTypes;
+    },
     // 获取维修项目表格行样式类名
     getItemRowClassName ({ row }) {
       if (row.status === 0) {
@@ -1077,6 +1176,29 @@ export default {
           return p;
         }, {});
         this.checkoutTypeMap = d;
+      });
+    },
+    getPermissions () {
+      getDealerPermission({}).then(res => {
+        const list = res || [];
+        // Process permissions by permissionType
+        const repairItemPerms = list.filter(item => item.permissionType === 10);
+        const partPerms = list.filter(item => item.permissionType === 20);
+
+        this.dealerPermission = {
+          // 分别判断维修项目和零件是否有权限限制
+          repairItemHasPermission: repairItemPerms.length > 0,
+          partHasPermission: partPerms.length > 0,
+          repairItem: {
+            checkoutTypeIds: [...new Set(repairItemPerms.map(p => p.checkoutTypeId))],
+            warrantyTypeIds: [...new Set(repairItemPerms.map(p => p.repairItemTypeId))]
+          },
+          part: {
+            checkoutTypeIds: [...new Set(partPerms.map(p => p.checkoutTypeId))],
+            warrantyTypeIds: [...new Set(partPerms.map(p => p.repairItemTypeId))]
+          }
+        };
+        this.getRepairItemTypeList();
       });
     }
   }

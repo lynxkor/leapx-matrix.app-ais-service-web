@@ -19,7 +19,7 @@
         >
           <vxe-column field="partsCode" title="零件代码" min-width="150" />
           <vxe-column field="partsName" title="零件名称" min-width="150" />
-          <vxe-column field="repairItemTypeName" title="维修项目类型" min-width="150" />
+          <vxe-column field="repairItemTypeName" title="维修类型" min-width="150" />
           <vxe-column field="checkoutTypeName" title="结算类型" min-width="150" />
 
           <vxe-column field="warrantyTypeName" title="保修类型" min-width="150" />

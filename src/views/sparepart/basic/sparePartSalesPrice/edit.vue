@@ -11,9 +11,8 @@
             <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
             <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
             <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="备件编码">
+              <el-form-item label="备件编码" prop="sparePartCode">
                 <fetch-select
-                  prop="sparePartCode"
                   filterable
                   clearable
                   remote
@@ -21,8 +20,9 @@
                   v-model="form.sparePartCode"
                   :remote-method="listSparePart"
                   :disabled="this.$route.query.id"
-                  value-key="id"
-                  label-key="name"
+                  labelKey="code"
+                  valueKey="id"
+                  subLabelKey="name"
                   @change="listSparePartChange"
                 />
               </el-form-item>
@@ -41,7 +41,7 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item label="生效开始日期">
+              <el-form-item label="生效开始日期" prop="effectiveStartDate">
                 <el-date-picker
                   v-model="form.effectiveStartDate"
                   :picker-options="effectiveStartDate"
