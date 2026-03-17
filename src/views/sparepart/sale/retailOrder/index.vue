@@ -114,8 +114,8 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增（车主）</el-button>
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新建（对公）</el-button>
+      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd('10')"><i class="iconfont icon-lxppc-plus"></i>新增（车主）</el-button>
+      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd('20')"><i class="iconfont icon-lxppc-plus"></i>新建（对公）</el-button>
       <el-button size="small" @click="excelSetting">出库单打印设置</el-button>
       <!-- <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
@@ -316,6 +316,16 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '编辑',
+              show: (row) => {
+                // 定义允许显示的状态码列表
+                const validStatuses = ['20', '30', '40', '50', '10'];
+
+                // 安全处理：防止 row.orderStatus 为 null/undefined 导致报错
+                if (!row.orderStatus) return false;
+
+                // 判断 orderStatus 是否包含列表中的任意一个值
+                return validStatuses.some(status => row.orderStatus.includes(status));
+              },
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/sale/retailOrder/edit',
@@ -661,9 +671,12 @@ export default {
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
     },
-    handleAdd () {
+    handleAdd (val) {
       this.$router.push({
-        path: '/sparepart/sale/retailOrder/edit'
+        path: '/sparepart/sale/retailOrder/edit',
+        query: {
+          customerType: val
+        }
       });
     },
     onSubmit () {
