@@ -100,14 +100,6 @@ export function listOrgStoreInfo (data) {
 }
 
 /**
- * 门店搜索加强：code或name 模糊搜索
- * @param {*} data
- */
-export function listOrgStoreInfoByParam (data) {
-  return api.jsonPost('/accountService/orgInfo/listOrgStoreInfoByParam', data);
-}
-
-/**
  * 车型统一 id  name 搜索
  * @param {*} data
  */
@@ -199,6 +191,22 @@ export function listWarehouse (data) {
 }
 export function listOemWarehouse (data) {
   return api.jsonPost('/sp/web/warehouse/warehouse/listOem', data);
+}
+
+/**
+ * 备件母公司下拉框查询
+ * @param {*} data
+ */
+export function getSparePartCompany (data) {
+  return api.jsonPost('/sp/web/base/common/listCompany', data);
+}
+
+/**
+ * 备件门店下拉框搜索
+ * @param {*} data
+ */
+export function listOrgStoreInfoByParam (data) {
+  return api.jsonPost('/sp/web/base/common/listDealer', data);
 }
 
 /**
