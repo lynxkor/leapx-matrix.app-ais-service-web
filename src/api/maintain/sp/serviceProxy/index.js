@@ -167,6 +167,14 @@ export function cancelItem (data) {
 }
 
 /**
+ * 搜索施工单
+ * @param {Object} data
+ */
+export function selectServiceProxy (data) {
+  return api.jsonPost(prefix + 'selectServiceProxy', data);
+}
+
+/**
  * 打印详情
  * @param {Object} data
  */
