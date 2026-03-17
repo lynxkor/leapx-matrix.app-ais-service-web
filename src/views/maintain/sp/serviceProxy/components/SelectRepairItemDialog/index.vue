@@ -261,7 +261,7 @@
               <vxe-column field="statusLabel" title="维修项目状态" width="120px" />
               <vxe-column field="packageCode" title="套餐代码" width="120px" />
               <vxe-column title="操作" width="100" align="center" fixed="right">
-                <template #default="{ rowIndex }">
+                <template #default="{ row, rowIndex }">
                   <span v-if="row.packageId" :class="['btn-delete', {'disabled': row.workRecordStatus === 40}]" @click="handleRemoveItemRow(rowIndex, row)">删除</span>
                   <el-popconfirm v-else title="确定要删除这条记录吗？" @confirm="handleRemoveItemRow(rowIndex, row)">
                     <span slot="reference" :class="['btn-delete'/*, {'disabled': row.workRecordStatus === 40}*/]">删除</span>
