@@ -78,3 +78,22 @@ export function updateFlat (data) {
 export function vehicleReturn (data) {
   return api.jsonPost(prefix + 'return', data);
 }
+
+const vePrefix = 'datacenter/web/vehicle/vehicleProfileMaintenanceRecord/';
+/**
+ * 车辆档案-零件保养信息表分页查询
+ * @param {*} data
+ * @returns
+ */
+export function vehicleProfileMaintenanceRecordPage (data) {
+  return api.jsonPost(vePrefix + 'page', data);
+}
+
+/**
+ * 分页查询车辆关键信息变更日志
+ * @param {*} data
+ * @returns
+ */
+export function keyInfoChangeLogPage (data) {
+  return api.jsonPost('/datacenter/web/vehicle/keyInfoChangeLog/page', data);
+}

@@ -585,7 +585,7 @@ export default {
               click: (rowIndex, row) => {
                 if (row.vehicleMaterialId) {
                   this.navigateToRoute({
-                    path: '/sales/vehretail/basicConfig/deliveryInfoConfig/edit',
+                    path: '/sales/datacenter/materials/vehicleMaterials/detail',
                     query: {
                       id: row.vehicleMaterialId,
                     },
