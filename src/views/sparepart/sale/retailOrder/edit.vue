@@ -393,7 +393,12 @@
                   <vxe-column field="createTime" title="创建时间" width="160" />
                   <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
                     <template #default="{ row }">
-                      <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
+                      <span
+                        class="btn-edit"
+                        @click="handleEdit(row)"
+                      >
+                        编辑
+                      </span>
                       <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(row)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
@@ -426,7 +431,6 @@
         <!-- 右侧栏组件，自行开发 -->
         <SparePartsDetail
           ref="detailRef"
-          :prepareAttachmentsId="_id"
           :sparePartId="sparePartId"
         />
       </div>
@@ -747,3 +751,10 @@ export default {
   }
 };
 </script>
+<style lang="scss" scoped>
+.btn-edit{
+  margin: 0 5px;
+  cursor: pointer;
+  color:#4C4CD6;
+}
+</style>
