@@ -124,7 +124,7 @@
           </vxe-column>
           <vxe-column field="repairItemTypeName" title="维修类型" width="150px">
             <template #default="{ row }">
-              <template v-if="row.id">{{ row?.repairItemTypeName }}</template>
+              <template v-if="row.id || row.repairItemDisabled">{{ row?.repairItemTypeName }}</template>
               <el-select
                 v-else
                 v-model="row.repairItemTypeName"
@@ -286,7 +286,7 @@
                 size="small"
                 placeholder="请选择"
                 filterable
-                :disabled="!!row.repairItemName"
+                :disabled="row.repairItemDisabled"
                 @change="handlePartRepairItemTypeChange(row)"
               >
                 <el-option
@@ -428,7 +428,7 @@
 
 <script>
 // import EditTable from '@/libs/components/EditTable';
-import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList } from '@/api/maintain/sp/serviceProxy/index';
+import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getDealerPermission } from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   name: 'SelectRepairItemDialog',
@@ -482,7 +482,8 @@ export default {
       // 结算类型和保修类型映射关系
       checkoutTypeMap: {},
       // 原始数据
-      originalDataJson: null
+      originalDataJson: null,
+      dealerPermission: {}
     };
   },
   computed: {
@@ -492,7 +493,7 @@ export default {
         label: item.repairItemName,
         value: item.repairItemName
       }));
-    }
+    },
   },
   watch: {
     visible (val) {
@@ -566,8 +567,9 @@ export default {
         repairItemCode: selectedItem.code || '',
         repairItemName: selectedItem.name || '',
         repairItemId: selectedItem.id,
-        repairItemTypeId: this.repairType,
-        repairItemTypeName: repairTypeObj?.repairItemTypeName || repairTypeObj?.label || '',
+        repairItemTypeId: selectedItem.repairItemTypeId || this.repairType,
+        repairItemTypeName: selectedItem.repairItemTypeName || repairTypeObj?.repairItemTypeName || repairTypeObj?.label || '',
+        repairItemDisabled: !!selectedItem.repairItemTypeId,
         checkoutTypeId: checkoutTypeObj?.checkoutTypeId || '',
         checkoutTypeName: checkoutTypeObj?.checkoutTypeName || checkoutTypeObj?.label || '',
         warrantyTypeId: warrantyTypeObj?.warrantyTypeId || '',
@@ -593,8 +595,9 @@ export default {
             partsId: part.id,
             partsCode: part.partsCode || '',
             partsName: part.partsName || '',
-            repairItemTypeId: this.repairType,
-            repairItemTypeName: repairTypeObj?.repairItemTypeName || repairTypeObj?.label || '',
+            repairItemTypeId: selectedItem.repairItemTypeId || this.repairType,
+            repairItemTypeName: selectedItem.repairItemTypeName || repairTypeObj?.repairItemTypeName || repairTypeObj?.label || '',
+            repairItemDisabled: !!selectedItem.repairItemTypeId,
             checkoutTypeId: checkoutTypeObj?.checkoutTypeId || '',
             checkoutTypeName: checkoutTypeObj?.checkoutTypeName || checkoutTypeObj?.label || '',
             warrantyTypeId: warrantyTypeObj?.warrantyTypeId || '',
@@ -747,7 +750,7 @@ export default {
           value: item.code
         }));
       });
-      this.getRepairItemTypeList();
+      this.getPermissions();
     },
     getRepairItemInfo () {
       getRepairItemInfo(this.vehicleInfo.id).then(res => {
@@ -1077,6 +1080,16 @@ export default {
           return p;
         }, {});
         this.checkoutTypeMap = d;
+      });
+    },
+    getPermissions () {
+      getDealerPermission({}).then(res => {
+        const list = res || [];
+        if (list.length === 0) {
+          this.getRepairItemTypeList();
+        } else {
+          // todo
+        }
       });
     }
   }
