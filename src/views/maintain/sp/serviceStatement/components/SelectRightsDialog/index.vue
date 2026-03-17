@@ -271,6 +271,14 @@ export default {
 
     // 校验优惠券基础可用性（不考虑累计使用）
     validateCoupon (coupon) {
+      const amountInfo = this.parsePaymentAmount(coupon.paymentAmount);
+
+      // 特殊处理：减免金额为0的优惠券无条件通过基础校验
+      if (amountInfo.discount === 0) {
+        console.log('减免金额为0的优惠券通过基础校验:', coupon.rightsName);
+        return { valid: true, amountInfo, totalAmount: 0, repairTypeNames: [], isZeroDiscount: true };
+      }
+
       const repairTypeNames = coupon.relatedRepairTypeList?.map(t => t.repairTypeName) || [];
       const repairTypeIds = coupon.relatedRepairTypeList?.map(t => t.repairTypeId) || [];
 
@@ -291,7 +299,6 @@ export default {
       }
 
       // 校验2: 满减金额校验（基础校验，检查单次使用是否满足门槛）
-      const amountInfo = this.parsePaymentAmount(coupon.paymentAmount);
       const totalAmount = this.calculateRepairTypeAmount(repairTypeNames, repairTypeIds);
 
       if (amountInfo.threshold > 0 && amountInfo.threshold > totalAmount.total) {
@@ -329,8 +336,15 @@ export default {
 
     // 尝试分配单张优惠券
     tryAllocateCoupon (coupon, typeAmounts, allocation) {
-      const discount = this.parsePaymentAmount(coupon.paymentAmount).discount;
+      const amountInfo = this.parsePaymentAmount(coupon.paymentAmount);
+      const discount = amountInfo.discount;
       const repairTypes = coupon.relatedRepairTypeList || [];
+
+      // 特殊处理：减免金额为0的优惠券无条件通过
+      if (discount === 0) {
+        console.log('减免金额为0的优惠券无条件通过:', coupon.rightsName);
+        return true;
+      }
 
       let remaining = discount;
 

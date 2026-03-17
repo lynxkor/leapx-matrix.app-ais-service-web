@@ -50,3 +50,19 @@ export function enableItem (data) {
 export function getServiceProxyList (data) {
   return api.jsonPost(prefix + 'serviceProxyList', data);
 }
+
+/**
+ * 提交审批
+ * @param {Object} data
+ */
+export function submitApproval (data) {
+  return api.jsonPost(prefix + 'submit', data);
+}
+
+/**
+ * 审批
+ * @param {Object} data
+ */
+export function approval (data) {
+  return api.jsonPost(prefix + 'approval', data);
+}

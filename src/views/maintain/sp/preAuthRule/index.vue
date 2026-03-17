@@ -68,7 +68,6 @@
     <div class="ais-actions">
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button size="small" @click="handleErrorCodeMaintain">错误代码维护</el-button>
     </div>
     <div class="ais-table-c">
       <LPVxeTable
@@ -108,7 +107,6 @@ import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
-import ErrorCodeDialog from './components/ErrorCodeDialog.vue';
 
 const defaultForm = {
   applyNo: '',
@@ -130,8 +128,7 @@ export default {
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
-    EditPage,
-    ErrorCodeDialog
+    EditPage
   },
   data () {
     return {
