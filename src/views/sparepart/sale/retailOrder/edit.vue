@@ -646,7 +646,7 @@ export default {
     // 请求收款明细接口
     async getPayment () {
       const res = await retailPaymentRecordPage({ retailOrderId: this._id });
-      this.paymentData = res || [];
+      this.paymentData = res.records || [];
     },
     submitRequest () {
       return addOrUpdate({ ...this.form });
