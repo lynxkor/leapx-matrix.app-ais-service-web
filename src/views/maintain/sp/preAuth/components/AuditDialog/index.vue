@@ -42,7 +42,7 @@
         <AisAttachment
           ref="attachment"
           :business-id="businessId"
-          config-code="preAuth-audit"
+          config-code="mcs_preauth"
           attach-type="审批附件"
           :upload-config="uploadConfig"
         />

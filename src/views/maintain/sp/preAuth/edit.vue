@@ -15,7 +15,7 @@
           <span class="status primary" v-if="form.statusDesc">{{ form.statusDesc }}</span>
         </template>
         <template #extraButtons>
-          <el-button size="small" @click="handleShowLog" v-if="_id">审核日志</el-button>
+          <!-- <el-button size="small" @click="handleShowLog" v-if="_id">审核日志</el-button> -->
         </template>
         <template #footer>
           <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitRequest(0)" :loading="loading">保存</el-button>
@@ -133,7 +133,7 @@
                   <span>{{ serviceProxyDetail?.carPlate || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="车辆用途：">
-                  <span>{{ serviceProxyDetail?.carPropertyLabel || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.carPropertyLabel || (serviceProxyDetail?.carProperty === 1 ? '是' : serviceProxyDetail?.carProperty === 0 ? '否' : '-') }}</span>
                 </el-form-item>
                 <el-form-item label="进店里程数：">
                   <span>{{ serviceProxyDetail?.mileage || '-' }}</span>
@@ -142,7 +142,7 @@
                   <span>{{ serviceProxyDetail?.productionTime || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="终身免保：">
-                  <span>{{ serviceProxyDetail?.warrantyLifeLabel || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.warrantyLifeLabel || (serviceProxyDetail?.warrantyLife === 1 ? '是' : serviceProxyDetail?.warrantyLife === 0 ? '否' : '-') }}</span>
                 </el-form-item>
                 <el-form-item label="终身质保：">
                   <span>{{ serviceProxyDetail?.isLifetimeLabel || '-' }}</span>
@@ -151,13 +151,13 @@
                   <span>{{ serviceProxyDetail?.startWarrantyDate || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="保修结束日期：">
-                  <span>{{ serviceProxyDetail?.endWarrantyDate || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.warrantyEndTime || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="服务月份：">
                   <span>{{ serviceProxyDetail?.serviceMonth || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="三包预警：">
-                  <span>{{ serviceProxyDetail?.alarmLevelLabel || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.alarmLevelLabel || serviceProxyDetail?.alarmLevel || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="预警信息：">
                   <span>{{ serviceProxyDetail?.alarmInfo || '-' }}</span>
