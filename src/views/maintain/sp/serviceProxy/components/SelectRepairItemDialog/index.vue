@@ -612,6 +612,26 @@ export default {
     }
   },
   methods: {
+    /**
+     * 根据结算类型获取可用的保修类型选项
+     * @param {Object} checkoutTypeObj - 结算类型对象
+     * @param {String} itemType - 项目类型 'repairItem' | 'part'
+     * @returns {Array} 过滤后的保修类型选项
+     */
+    getWarrantyTypeOptions (checkoutTypeObj, itemType = 'part') {
+      let warrantyTypeNameOption = this.checkoutTypeMap[checkoutTypeObj?.checkoutTypeName];
+      let finalWarrantyOptions;
+      if (warrantyTypeNameOption) {
+        // 如果有checkoutTypeMap映射，应用权限过滤
+        const filteredTypes = itemType === 'repairItem' ? this.filteredRepairItemWarrantyTypes : this.filteredPartWarrantyTypes;
+        const allowedIds = new Set(filteredTypes.map(item => item.warrantyTypeId));
+        finalWarrantyOptions = warrantyTypeNameOption.filter(item => allowedIds.has(item.warrantyTypeId));
+      } else {
+        finalWarrantyOptions = this.filteredPartWarrantyTypes;
+      }
+
+      return finalWarrantyOptions;
+    },
     showMsg (msg) {
       return new Promise((resolve) => {
         const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>提醒</div><div class="ais-leave-tips-sub">${msg}</div>`;
@@ -673,10 +693,9 @@ export default {
         checkoutTypeObj = this.filteredRepairItemCheckoutTypes?.filter(item => !this.checkoutTypeIncluded(item.checkoutTypeId))?.[0];
       }
 
-      const warrantyTypeNameOption = this.dealerPermission.repairItemHasPermission ? this.filteredRepairItemWarrantyTypes
-        : (this.checkoutTypeMap[checkoutTypeObj?.checkoutTypeName] || this.itemOptions.warrantyTypeName);
-      // 查找保修类型的默认值（取第一个）
-      const warrantyTypeObj = warrantyTypeNameOption?.[0];
+      // 获取保修类型选项（维修项目）
+      const finalWarrantyOptions = this.getWarrantyTypeOptions(checkoutTypeObj, 'repairItem');
+      const warrantyTypeObj = finalWarrantyOptions?.[0];
 
       const newItem = {
         repairItemCode: selectedItem.code || '',
@@ -704,10 +723,9 @@ export default {
 
       // 如果维修项目带有关联零件列表，自动添加这些零件
       if (selectedItem.partsRespList && selectedItem.partsRespList.length > 0) {
-        const warrantyTypeNameOption2 = this.dealerPermission.partHasPermission ? this.filteredPartWarrantyTypes
-          : (this.checkoutTypeMap[checkoutTypeObj?.checkoutTypeName] || this.itemOptions.warrantyTypeName);
-        // 查找保修类型的默认值（取第一个）
-        const warrantyTypeObj2 = warrantyTypeNameOption2?.[0];
+        // 获取保修类型选项（配件）
+        const finalWarrantyOptions = this.getWarrantyTypeOptions(checkoutTypeObj, 'part');
+        const warrantyTypeObj2 = finalWarrantyOptions?.[0];
         selectedItem.partsRespList.forEach(part => {
           const discountAmount = Number(part.price || 0) * (Number(this.selectedDiscount?.discountPartRate || 0) || 0);
           const newPart = {
@@ -769,10 +787,8 @@ export default {
       const checkoutTypeObj = this.filteredPartCheckoutTypes?.[0];
 
       // 查找保修类型的默认值（取第一个，考虑权限过滤和checkoutTypeMap）
-      const warrantyTypeNameOption = this.dealerPermission.partHasPermission ? this.filteredPartWarrantyTypes
-        : (this.checkoutTypeMap[checkoutTypeObj?.checkoutTypeName] || this.itemOptions.warrantyTypeName);
-        // 查找保修类型的默认值（取第一个）
-      const warrantyTypeObj = warrantyTypeNameOption?.[0];
+      const finalWarrantyOptions = this.getWarrantyTypeOptions(checkoutTypeObj, 'part');
+      const warrantyTypeObj = finalWarrantyOptions?.[0];
 
       const discountAmount = Number(selectedPart.salePrice) * (1 - (Number(this.selectedDiscount?.discountPartRate) || 1));
       const newPart = {
@@ -1085,7 +1101,9 @@ export default {
       const selected = this.itemOptions.checkoutTypeName.find(item => item.checkoutTypeName === row.checkoutTypeName);
       if (selected) {
         row.checkoutTypeId = selected.checkoutTypeId;
-        const warrantyTypes = this.checkoutTypeMap[row.checkoutTypeName] || this.itemOptions.warrantyTypeName;
+        // 使用提取的方法获取过滤后的保修类型选项
+        const checkoutTypeObj = this.filteredRepairItemCheckoutTypes.find(item => item.checkoutTypeName === row.checkoutTypeName) || selected;
+        const warrantyTypes = this.getWarrantyTypeOptions(checkoutTypeObj, 'repairItem');
         row.warrantyTypeId = warrantyTypes?.[0]?.warrantyTypeId;
         row.warrantyTypeName = warrantyTypes?.[0]?.warrantyTypeName;
       }
@@ -1127,7 +1145,9 @@ export default {
       const selected = this.itemOptions.checkoutTypeName.find(item => item.checkoutTypeName === row.checkoutTypeName);
       if (selected) {
         row.checkoutTypeId = selected.checkoutTypeId;
-        const warrantyTypes = this.checkoutTypeMap[row.checkoutTypeName] || this.itemOptions.warrantyTypeName;
+        // 使用提取的方法获取过滤后的保修类型选项
+        const checkoutTypeObj = this.filteredPartCheckoutTypes.find(item => item.checkoutTypeName === row.checkoutTypeName) || selected;
+        const warrantyTypes = this.getWarrantyTypeOptions(checkoutTypeObj, 'part');
         row.warrantyTypeId = warrantyTypes?.[0]?.warrantyTypeId;
         row.warrantyTypeName = warrantyTypes?.[0]?.warrantyTypeName;
       }
@@ -1198,17 +1218,20 @@ export default {
     },
     // 根据权限获取保修类型过滤选项
     getFilteredWarrantyTypesForRow (row, type) {
+      // 获取基础选项：优先使用checkoutTypeMap映射
       const baseOptions = this.checkoutTypeMap[row.checkoutTypeName];
-      const filteredOptions = type === 'repairItem'
+      if (baseOptions) {
+        // 如果有checkoutTypeMap映射，需要再应用权限过滤
+        const filteredOptions = type === 'repairItem'
+          ? this.filteredRepairItemWarrantyTypes
+          : this.filteredPartWarrantyTypes;
+        const allowedIds = new Set(filteredOptions.map(item => item.warrantyTypeId));
+        return baseOptions.filter(item => allowedIds.has(item.warrantyTypeId));
+      }
+      // 如果没有checkoutTypeMap映射，直接使用权限过滤后的选项
+      return type === 'repairItem'
         ? this.filteredRepairItemWarrantyTypes
         : this.filteredPartWarrantyTypes;
-
-      const hasPermission = type === 'repairItem'
-        ? this.dealerPermission.repairItemHasPermission
-        : this.dealerPermission.partHasPermission;
-
-      // 统一逻辑：有权限用 filtered，否则用 checkoutTypeMap 或 all
-      return hasPermission ? filteredOptions : (baseOptions || this.itemOptions.warrantyTypeName);
     },
     // 获取维修项目表格行样式类名
     getItemRowClassName ({ row }) {

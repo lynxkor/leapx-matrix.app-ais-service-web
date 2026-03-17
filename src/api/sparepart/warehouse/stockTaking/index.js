@@ -3,7 +3,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/dealer/stockTaking/';
-
+const prefixDetail = SPARE_PREFIX + '/web/dealer/stockTakingDetail/';
 /**
  * 查询列表
  * @param {Object} data
@@ -81,7 +81,7 @@ export function generateDifferences (data) {
  * @param {Object} data
  */
 export function stockTakingDetailPage (data) {
-  return api.jsonPost('/sp/web/dealer/stockTakingDetail/page', data);
+  return api.jsonPost(prefixDetail + 'page', data);
 }
 
 /**
@@ -89,5 +89,5 @@ export function stockTakingDetailPage (data) {
  * @param {Object} data
  */
 export function stockTakingDetailDelete (data) {
-  return api.jsonPost('/sp/web/dealer/stockTakingDetail/delete', data);
+  return api.jsonPost(prefixDetail + 'delete', data);
 }

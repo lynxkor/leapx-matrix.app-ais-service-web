@@ -109,7 +109,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/fund/account/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getParentCompany } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getSparePartCompany } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -264,7 +264,7 @@ export default {
   methods: {
     async getParentCompany (query) {
       try {
-        const res = await getParentCompany({ parentCompanyName: query });
+        const res = await getSparePartCompany({ parentCompanyName: query });
         res.records = res.records?.map(item => ({
           ...item,
           displayName: item.companyName + `(${item.companyCode})`
