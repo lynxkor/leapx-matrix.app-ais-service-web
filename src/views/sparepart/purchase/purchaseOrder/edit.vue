@@ -284,7 +284,7 @@
                   {{ form.cashAmount }}
                 </el-form-item>
                 <el-form-item label="发运单：" prop="shippingOrder">
-                  {{ form.shippingOrder }}
+                  <div class="shipping-order" @click="handleLogisticsClick">{{ form.shippingOrder }}</div>
                 </el-form-item>
                 <el-form-item label="收货人电话：" prop="recipientPhone">
                   {{ form.recipientPhone }}
@@ -357,6 +357,13 @@
         <!-- 右侧栏组件，自行开发 -->
       </div>
     </template>
+     <!-- 物流信息抽屉 -->
+    <LogisticsDrawer
+      ref="logisticsDrawerRef"
+      :visible.sync="logisticsDrawerVisible"
+      :drawerData="logisticsData"
+      @update:visible="val => logisticsDrawerVisible = val"
+    />
   </edit-page-layout>
 </template>
 
@@ -372,6 +379,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { getPurchaseApplyPage } from '@/api/sparepart/purchase/purchaseApply/index';
+import LogisticsDrawer from '@/libs/components/LogisticsDrawer';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -419,7 +427,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     EditTable,
-    FetchSelect
+    FetchSelect,
+    LogisticsDrawer
   },
   computed: {
     _id () {
@@ -458,6 +467,8 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
+      logisticsData: {}, // 物流信息
+      logisticsDrawerVisible: false, // 物流信息抽屉
       sales: {
         current: 1,
         pageSize: 10,
@@ -694,6 +705,18 @@ export default {
       this.procurement.current = current;
       this.getList();
     },
+    // 打开物流信息抽屉
+    handleLogisticsClick () {
+      this.logisticsData = this.form;
+      this.logisticsDrawerVisible = true;
+    }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.shipping-order {
+  cursor: pointer;
+  color: #009100;
+}
+</style>

@@ -232,6 +232,13 @@
       @close="handleSubmitClaimDialogClose"
       @submit="handleSubmitClaimSubmit"
     />
+    <!-- 物流信息抽屉 -->
+    <LogisticsDrawer
+      ref="logisticsDrawerRef"
+      :visible.sync="logisticsDrawerVisible"
+      :drawerData="logisticsData"
+      @update:visible="val => logisticsDrawerVisible = val"
+    />
   </div>
 </template>
 
@@ -253,6 +260,7 @@ import TagInput from '@/libs/components/TagInput';
 import SignForDialog from './SignForDialogAll.vue';
 import BatchSignForDialogAll from './BatchSignForDialogAll.vue';
 import SubmitClaimDialog from './SubmitClaimDialog.vue';
+import LogisticsDrawer from '@/libs/components/LogisticsDrawer';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -289,7 +297,8 @@ export default {
     EditPage,
     SignForDialog,
     BatchSignForDialogAll,
-    SubmitClaimDialog
+    SubmitClaimDialog,
+    LogisticsDrawer
   },
   data () {
     return {
@@ -316,6 +325,8 @@ export default {
       submitClaimDialogVisible: false, // 提交索赔弹窗
       selectionClaim: [], // 选中的采购订单
       clickItemId: '',
+      logisticsData: {}, // 物流信息
+      logisticsDrawerVisible: false, // 物流信息抽屉
       optionObj: {
         id: 'purchaseOrderTable',
         dataList: [],
@@ -367,7 +378,18 @@ export default {
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
-          { props: 'shippingOrder', label: '发运单', visible: true, width: 200 },
+          {
+            props: 'shippingOrder',
+            label: '发运单',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.getLogisticsInfo(row);
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
           { props: 'cashAmount', label: '使用现金', visible: true, align: 'right', width: 120 },
           { props: 'rebateAmount', label: '使用返利', visible: true, align: 'right', width: 120 },
@@ -858,6 +880,11 @@ export default {
       this.submitClaimDialogVisible = false;
       this.selectionList = [];
       this.getData();
+    },
+    // 打开物流信息抽屉
+    getLogisticsInfo (row) {
+      this.logisticsData = row || {};
+      this.logisticsDrawerVisible = true;
     }
   }
 };
