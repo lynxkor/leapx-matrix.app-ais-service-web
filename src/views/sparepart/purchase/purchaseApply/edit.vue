@@ -220,7 +220,7 @@
               <div class="common-title" v-show="!(isEditing || !_id)">其他信息</div>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="缺货单号：" prop="backOrderCode">
-                  <el-link type="success" v-if="form.backOrderCode" :href="`/service/sparepart/purchase/backOrder/edit?id=${form.backOrderCode}`" target="_blank">{{ form.backOrderCode }}</el-link>
+                  <el-link type="success" v-if="form.backOrderCode" :href="`/service/sparepart/purchase/backOrder/edit?id=${form.backOrderId}`" target="_blank">{{ form.backOrderCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="原价券：" prop="originalPriceCouponId">
                   {{ form.originalPriceCouponId }}
