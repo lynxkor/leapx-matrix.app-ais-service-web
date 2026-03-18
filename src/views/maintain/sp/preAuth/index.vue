@@ -283,7 +283,7 @@ export default {
             }, {
               name: '激活',
               click: (rowIndex, row) => {
-                this.handleRegenerate(row);
+                this.handleApprove(row, 'pass');
               },
               type: 'info',
               show: (row) => row.approvalStatus === AUDIT_STATUS.REFUSED // 已拒绝
