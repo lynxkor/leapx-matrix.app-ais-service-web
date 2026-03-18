@@ -2417,6 +2417,24 @@ const routes = [
         name: '索赔追溯单详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/maintain/sp/vehRetentionList',
+      name: 'vehRetentionList',
+      component: () => import('@/views/maintain/sp/vehRetentionList/index.vue'),
+
+      meta: {
+        name: '留车清单表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/vehretentionlist/edit',
+      name: 'vehRetentionListEdit',
+      component: () => import('@/views/maintain/sp/vehRetentionList/edit.vue'),
+
+      meta: {
+        name: '留车清单表管理详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
