@@ -310,7 +310,7 @@
                         disabled
                       />
                     </el-form-item>
-                    <el-form-item label="零件编码：" prop="causePartName">
+                    <el-form-item label="零件名称：" prop="causePartName">
                       <el-input
                         placeholder="请输入"
                         v-model="form.causePartName"
@@ -368,6 +368,7 @@
                         placeholder="请输入"
                         v-model="form.applicantTel"
                         clearable
+                        maxlength="11"
                       />
                     </el-form-item>
                   </el-form>
@@ -979,7 +980,12 @@ export default {
           { required: true, message: '请输入报告人职位', trigger: 'change' }
         ],
         applicantTel: [
-          { required: true, message: '请输入报告人电话', trigger: 'change' }
+          { required: true, message: '请输入报告人电话', trigger: 'change' },
+          {
+            pattern: /^1[3-9]\d{9}$/,
+            message: '请输入正确的手机号码',
+            trigger: 'blur'
+          }
         ],
         vehProfileVin: [
           { required: true, message: '请输入VIN码', trigger: 'change' }
@@ -1214,7 +1220,6 @@ export default {
     },
     // 项目维修代码
     handleServiceProxyChange (val, record) {
-      console.log(record);
       if (record) {
         this.form.serviceProxyId = record.id;
         this.form.serviceProxyCode = record.code;
@@ -1226,6 +1231,7 @@ export default {
         this.form.powerBatteryNumber = record.batterySerialNumber;
         this.form.motorSerialNumber = record.motorSerialNumber;
         this.form.salesDate = record.saleDate;
+        this.form.repairDate = record.finishAt;
       }
     },
     searchVehicle (query) {
