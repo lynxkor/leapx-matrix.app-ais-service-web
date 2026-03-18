@@ -12,14 +12,6 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
-        <template #status>
-          <!-- 支持 primary,warning,success,danger 等状态 -->
-          <!-- <span class="status primary">状态</span> -->
-        </template>
-        <template #extraButtons>
-          <!-- <el-button size="small">按钮 1</el-button>
-          <el-button size="small">按钮 2</el-button> -->
-        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
@@ -28,7 +20,36 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整 label-width="150px"，使得 label 不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-
+                <el-form-item label="共享调拨入库单号：" prop="code">
+                  <el-input v-model="form.code" placeholder="请输入共享调拨入库单号" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="入库门店编码：" prop="inboundDealerCode">
+                  <el-input v-model="form.inboundDealerCode" placeholder="请输入入库门店编码" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="入库门店名称：" prop="inboundDealerName">
+                  <el-input v-model="form.inboundDealerName" placeholder="请输入入库门店名称" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="入库仓库：" prop="inboundWarehouseName">
+                  <el-input v-model="form.inboundWarehouseName" placeholder="请输入入库仓库" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="出库门店编码：" prop="outboundDealerCode">
+                  <el-input v-model="form.outboundDealerCode" placeholder="请输入出库门店编码" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="出库门店名称：" prop="outboundDealerName">
+                  <el-input v-model="form.outboundDealerName" placeholder="请输入出库门店名称" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="签收状态：" prop="signStatus">
+                  <el-input v-model="form.signStatusLabel" placeholder="请输入签收状态" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="签收人：" prop="signUserName">
+                  <el-input v-model="form.signUserName" placeholder="请输入签收人" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="签收时间：" prop="signTime">
+                  <el-input v-model="form.signTime" placeholder="请输入签收时间" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="备注：" prop="remark" style="width: 100%">
+                  <el-input v-model="form.remark" placeholder="请输入备注" type="textarea" :rows="3" maxlength="500" show-word-limit></el-input>
+                </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="共享调拨入库单号：" prop="code">
@@ -52,65 +73,16 @@
                 <el-form-item label="签收状态：" prop="signStatus">
                   {{ form.signStatusLabel }}
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
-                </el-form-item>
                 <el-form-item label="签收人：" prop="signUserName">
                   {{ form.signUserName }}
                 </el-form-item>
                 <el-form-item label="签收时间：" prop="signTime">
                   {{ form.signTime }}
                 </el-form-item>
+                <el-form-item label="备注：" prop="remark" style="width: 100%">
+                  {{ form.remark }}
+                </el-form-item>
               </el-form>
-            </div>
-          </section>
-          <section class="common-section" v-if="_id">
-            <div class="common-section-header">
-              <h2>子表标题</h2>
-            </div>
-            <div class="common-section-body">
-              <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
-                  <el-button type="primary" size="small">添加</el-button>
-                </div>
-              </div>
-              <div class="common-section-table">
-                <vxe-table
-                  ref="tableRef"
-                  stripe
-                  :data="tableData"
-                  show-overflow
-                  resizable
-                  border="inner"
-                  size="medium"
-                  min-height="0"
-                  max-height="400px"
-                >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
-                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                      </el-popconfirm>
-                    </template>
-                  </vxe-column>
-                  <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
-                  </template>
-                </vxe-table>
-              </div>
             </div>
           </section>
         </el-main>
@@ -126,7 +98,6 @@
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/sparepart/transfer/sharedTransferInbound/index';
-import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -177,8 +148,7 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     EditPageLayout,
-    EditBaseContainer,
-    FetchSelect
+    EditBaseContainer
   },
   computed: {
     _id () {
