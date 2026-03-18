@@ -114,3 +114,16 @@ export function rightsQuery (data) {
 export function warrantyForecast (data) {
   return api.jsonPost('/datacenter/web/vehicle/vehicleProfile/warrantyForecast', data);
 }
+
+// 同步车机
+export function syncMaintenance (data) {
+  return api.jsonPost('/datacenter/web/vehicle/vehicleProfile/syncMaintenance', data);
+}
+
+/**
+ * 编辑保养信息
+ * @param {Object} data
+ */
+export function editMaintenanceRecord (data) {
+  return api.jsonPost(vePrefix + 'edit', data);
+}
