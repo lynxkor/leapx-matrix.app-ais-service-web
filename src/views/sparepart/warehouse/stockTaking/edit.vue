@@ -136,8 +136,8 @@
                     remote
                     placeholder="请选择"
                     clearable
-                    value-key="id"
-                    label-key="name"
+                    value-key="partCode"
+                    label-key="partName"
                     :disabled="form.stockStatus !== '0'"
                     @change="handleAddTableData"
                   />
@@ -213,7 +213,8 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, stockTakingDetailPage } from '@/api/sparepart/warehouse/stockTaking/index';
+import { getDetail, addOrUpdate, stockTakingDetailPage, stockTakingDetailAddOrUpdate } from '@/api/sparepart/warehouse/stockTaking/index';
+import { listDealerPart } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -342,9 +343,14 @@ export default {
     handleDeleteRow (index) {
       this.tableData.splice(index, 1);
     },
-    queryListData (queryString) {
+    async queryListData (queryString) {
+      // 查询当前门店备件列表
       return new Promise(resolve => {
-        resolve([]);
+        // 根据需求调用接口
+        listDealerPart({ dealerCode: this.form.dealerCode, partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
+          const list = res || [];
+          resolve(list);
+        });
       });
     },
     handleAddTableData (val, record) {
@@ -357,7 +363,27 @@ export default {
         this.$message.warning('请勿重复添加');
         return;
       }
-      this.tableData.push(record);
+      const params = {
+        stockTakingId: this._id,
+        stockTakingCode: this.form.code,
+        sparePartId: record.id,
+      };
+      this.handleAddOrUpdate(params, 'add');
+    },
+    // 修改备件清单
+    handleBlur (val) {
+      const params = {
+        stockTakingId: this._id,
+        stockTakingCode: this.form.code,
+        sparePartId: val.id,
+      };
+      this.handleAddOrUpdate(params, 'update');
+    },
+    // 调取备件接口
+    async handleAddOrUpdate (params) {
+      await stockTakingDetailAddOrUpdate(params);
+      this.$message.success('操作成功');
+      this.getData();
     },
     getDefautlForm () {
       return {
