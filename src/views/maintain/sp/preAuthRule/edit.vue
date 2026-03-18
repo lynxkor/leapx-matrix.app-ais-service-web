@@ -16,15 +16,16 @@
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>基础信息</h2>
+              <h2>基础信息222</h2>
             </div>
             <div class="common-section-body">
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="180px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="预授权规则编号：" prop="code">
                   <el-input
-                    placeholder="请输入"
+                    placeholder="自动生成"
                     v-model="form.code"
                     clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="有效日期：" prop="endTime">
@@ -320,16 +321,7 @@ export default {
         ...this.form,
         vehicleModels: this.tableDataModel,
         partsResps: this.tableDataPart
-      }).then(result => {
-        this.$message.success('保存成功');
-        console.log(result);
-        this.$router.push({
-          path: '/maintain/sp/preAuthRule/edit',
-          query: {
-            id: result
-          }
-        });
-      }).catch(() => {});
+      });
     },
     // 删除单个车型
     async handleDeleteModelRow (index) {
