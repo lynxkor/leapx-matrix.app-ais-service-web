@@ -16,7 +16,7 @@
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>基础信息222</h2>
+              <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="180px" class="form-edit" v-show="isEditing || !_id">
@@ -184,7 +184,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, addPartItem, deletePartItem, addPartVehModel, deletePartVehModel } from '@/api/maintain/sp/preAuthRule/index';
+import { getDetail, addOrUpdate, addPartItem, deletePartItem } from '@/api/maintain/sp/preAuthRule/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -325,9 +325,13 @@ export default {
     },
     // 删除单个车型
     async handleDeleteModelRow (index) {
-      const item = this.tableDataModel[index];
-      await deletePartVehModel([item.id]);
       this.tableDataModel.splice(index, 1);
+      await addOrUpdate({
+        ...this.form,
+        authRuleModelParamList: [
+          ...this.tableDataModel,
+        ]
+      });
       this.$message.success('删除成功');
     },
     // 添加零件
@@ -370,7 +374,7 @@ export default {
     // 处理车型提交
     handleVehicleModelSubmit (data) {
       const submitData = data.addOrUpdateReqList || [];
-      addPartVehModel({
+      addOrUpdate({
         ...this.form,
         authRuleModelParamList: [
           ...this.form.vehicleModels,

@@ -58,19 +58,3 @@ export function deletePartItem (data) {
 export function addPartItem (data) {
   return api.jsonPost('maintain/web/sp/preAuthRuleParts/addOrUpdate', data);
 }
-
-/**
- * 新增车型
- * @param {Object} data
- */
-export function addPartVehModel (data) {
-  return api.jsonPost('maintain/web/sp/preAuthRuleVehModel/addOrUpdate', data);
-}
-
-/**
- * 删除车型
- * @param {Object} data
- */
-export function deletePartVehModel (data) {
-  return api.jsonPost('maintain/web/sp/preAuthRuleVehModel/delete', data);
-}
