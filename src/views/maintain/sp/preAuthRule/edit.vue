@@ -85,9 +85,9 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="vehModelName" title="车型" min-width="30%" />
-                  <vxe-column field="vehYearTypeName" title="年款" min-width="30%" />
-                  <vxe-column field="createTime" title="创建时间" min-width="30%" />
+                  <vxe-column field="vehicleSeriesName" title="车系" min-width="30%" />
+                  <vxe-column field="vehicleModelName" title="车型" min-width="30%" />
+                  <vxe-column field="vehicleYearType" title="年款" min-width="30%" />
                   <vxe-column title="操作" width="100" v-if="canDelete">
                     <template #default="{rowIndex}">
                       <el-popconfirm title="确定要删除该适配车型吗？" @confirm="handleDeleteModelRow(rowIndex)">
@@ -127,6 +127,7 @@
                   >
                     添加
                   </el-button>
+                  <el-button type="plain" size="small" @click="handleImport">零件导入</el-button>
                 </div>
               </div>
               <div class="common-section-table">
@@ -141,9 +142,11 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="partsName" title="零件名称" min-width="30%" />
-                  <vxe-column field="partsCode" title="零件代码" min-width="30%" />
-                  <vxe-column field="createTime" title="创建时间" min-width="30%" />
+                  <vxe-column field="partsCode" title="零件代码" min-width="200" />
+                  <vxe-column field="partsName" title="零件名称" min-width="200" />
+                  <vxe-column field="remark" title="备注" min-width="200" />
+                  <vxe-column field="creatorName" title="创建人" min-width="200" />
+                  <vxe-column field="createTime" title="创建时间" min-width="200" />
                   <vxe-column title="操作" width="100" v-if="canDelete">
                     <template #default="{ rowIndex }">
                       <el-popconfirm title="确定要删除该零件吗？" @confirm="handleDeletePartRow(rowIndex)">
@@ -160,6 +163,15 @@
           </section>
         </el-main>
         <ModelDialog :visible="modelDialogVisible" :info="form" @submit="handleVehicleModelSubmit" @close="handleCloseModel" />
+        <!-- TIPS: 填入项目id即可 -->
+        <Upload
+          :visible="uploadDialogVisible"
+          :id="'maintenancePartData-importExcel'"
+          downloadTitle="批量导入零件模版.xlsx"
+          @close="handleUploadDialogClose"
+          @getData="detailRequest"
+          :businessParams="_id"
+        />
       </edit-base-container>
     </template>
     <template #right>
@@ -181,6 +193,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import ModelDialog from '@/views/maintain/basic/maintenancePartData/components/AddVehicleDialog/index.vue';
+import Upload from '@/libs/components/UploadDialog';
 
 const defaultForm = {
   code: '',
@@ -216,7 +229,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    ModelDialog
+    ModelDialog,
+    Upload
   },
   computed: {
     _id () {
@@ -255,6 +269,7 @@ export default {
       // 适配零件
       tableDataPart: [],
       modelDialogVisible: false, // 适配车型弹窗
+      uploadDialogVisible: false,
       pickerOptions: {
         disabledDate (time) {
           return time.getTime() < Date.now() - 8.64e7;
@@ -283,6 +298,12 @@ export default {
     }
   },
   methods: {
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -356,17 +377,14 @@ export default {
     },
     // 处理车型提交
     handleVehicleModelSubmit (data) {
-      console.log(data);
-      const submitData = data.addOrUpdateReqList.map(item => {
-        return {
-          preAuthRuleId: this._id,
-          vehModelId: item.vehicleModelId,
-          vehModelName: item.vehicleModelName,
-          vehYearTypeId: item.vehicleYearTypeId,
-          vehYearTypeName: item.vehicleYearTypeName,
-        };
-      });
-      addPartVehModel(submitData).then(res => {
+      const submitData = data.addOrUpdateReqList || [];
+      addPartVehModel({
+        ...this.form,
+        authRuleModelParamList: [
+          ...this.form.vehicleModels,
+          ...submitData
+        ]
+      }).then(res => {
         this.$message.success('保存成功');
         this.detailRequest();
       });

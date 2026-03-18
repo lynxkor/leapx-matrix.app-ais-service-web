@@ -9,11 +9,11 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="车系：" prop="seriesId">
+      <el-form-item label="车系：" prop="vehicleSeriesId">
         <list-select
           listUrl="/datacenter/web/materials/vehicleSeries/list"
           placeholder="请选择"
-          v-model="form.seriesId"
+          v-model="form.vehicleSeriesId"
           query-key="seriesNameLike"
           auto-load-options
           no-param-load
@@ -21,17 +21,17 @@
           filterable
           :params="{}" />
       </el-form-item>
-      <el-form-item label="车型：" prop="modelId">
+      <el-form-item label="车型：" prop="vehicleModelId">
         <list-select
           listUrl="/datacenter/web/materials/vehicleModel/list"
           placeholder="请选择"
-          v-model="form.modelId"
+          v-model="form.vehicleModelId"
           query-key="modelNameLike"
           auto-load-options
           collapseTags
           clearable
           filterable
-          :params="{seriesIdList: form.seriesId?[form.seriesId]:[]}" />
+          :params="{seriesIdList: form.vehicleSeriesId?[form.vehicleSeriesId]:[]}" />
       </el-form-item>
       <el-form-item label="启用状态"  v-show="this.visibleCount === 3 || show">
        <fetch-select
@@ -97,7 +97,8 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 
 const defaultForm = {
-  vehicleModelIds: [],
+  vehicleSeriesId: [],
+  vehicleModelId: [],
   status: ''
 };
 
@@ -163,13 +164,10 @@ export default {
           { props: 'vehicleModelNames', label: '车型', visible: true, width: 200 },
           { props: 'authAmount', label: '预售授权金额', visible: true, width: 150 },
           {
-            props: 'status',
+            props: 'statusLabel',
             label: '启用状态',
             visible: true,
-            width: 120,
-            formatter: ({ cellValue }) => {
-              return cellValue === 1 ? '启用' : '停用';
-            }
+            width: 120
           },
           { props: 'endTime', label: '有效日期', visible: true, width: 180 },
           { props: 'modifierName', label: '更新人', visible: true, width: 150 },
@@ -201,8 +199,8 @@ export default {
                 click: (rowIndex, row) => {
                   this.handleEnable(row, 1);
                 },
+                show: (row) => row.status === 0,
                 type: 'info',
-                // show: ({ row }) => row.status === 0
               },
               {
                 name: '停用',
@@ -210,7 +208,7 @@ export default {
                   this.handleEnable(row, 0);
                 },
                 type: 'info',
-                // show: ({ row }) => row.status === 1
+                show: (row) => row.status === 1
               },
               {
                 name: '删除',
@@ -430,20 +428,15 @@ export default {
     // 单个启用停用
     handleEnable (row, status) {
       enableItem({
-        id: row.id,
+        idSet: [row.id],
         status: status
       }).then(() => {
         this.$message({
           type: 'success',
-          message: status === 1 ? '启用成功!' : '停用成功!'
+          message: status === 1 ? '启用成功' : '停用成功'
         });
         this.getData();
-      }).catch(() => {
-        this.$message({
-          type: 'error',
-          message: status === 1 ? '启用失败!' : '停用失败!'
-        });
-      });
+      }).catch(() => {});
     },
     async fetchOptions (code) {
       if (code) {
