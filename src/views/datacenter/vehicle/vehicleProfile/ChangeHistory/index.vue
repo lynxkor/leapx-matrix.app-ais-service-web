@@ -205,6 +205,7 @@ export default {
     .el-form-item.form-item-action{
       width: 150px;
       text-align: right;
+      padding-left: 0px;
       ::v-deep .el-form-item__content{
         top: -1px;
       }
@@ -255,11 +256,14 @@ export default {
     }
   }
 }
-::v-deep .el-timeline .el-timeline-item:last-child .el-timeline-item__tail {
-  display: block !important;
+.change-history{
+  ::v-deep .el-timeline .el-timeline-item:last-child .el-timeline-item__tail {
+    display: block !important;
+  }
+  ::v-deep .el-pagination{
+    display: flex;
+    flex-wrap: wrap;
+  }
 }
-::v-deep .el-pagination{
-  display: flex;
-  flex-wrap: wrap;
-}
+
 </style>
