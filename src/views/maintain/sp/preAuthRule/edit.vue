@@ -166,7 +166,7 @@
         <!-- TIPS: 填入项目id即可 -->
         <Upload
           :visible="uploadDialogVisible"
-          :id="'maintenancePartData-importExcel'"
+          :id="'importpreauthpart'"
           downloadTitle="批量导入零件模版.xlsx"
           @close="handleUploadDialogClose"
           @getData="detailRequest"

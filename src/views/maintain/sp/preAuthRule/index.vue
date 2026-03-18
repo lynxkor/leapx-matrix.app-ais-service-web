@@ -19,7 +19,8 @@
           no-param-load
           clearable
           filterable
-          :params="{}" />
+          :params="{}"
+        />
       </el-form-item>
       <el-form-item label="车型：" prop="vehicleModelId">
         <list-select
@@ -31,7 +32,8 @@
           collapseTags
           clearable
           filterable
-          :params="{seriesIdList: form.vehicleSeriesId?[form.vehicleSeriesId]:[]}" />
+          :params="{seriesIdList: form.vehicleSeriesId?[form.vehicleSeriesId]:[]}"
+        />
       </el-form-item>
       <el-form-item label="启用状态"  v-show="this.visibleCount === 3 || show">
        <fetch-select

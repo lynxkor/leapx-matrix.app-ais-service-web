@@ -43,7 +43,7 @@
                     placeholder="请选择施工单"
                     clearable
                     filterable
-                    :disabled="_id"
+                    :disabled="!!_id"
                     @change="handleServiceProxyChange"
                   />
                 </el-form-item>
