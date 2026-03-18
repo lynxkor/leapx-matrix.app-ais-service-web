@@ -370,7 +370,7 @@
               <h2>附件信息</h2>
             </div>
             <div class="common-section-body">
-              <Attachment :_id="_id" :attachType="'PRE_AUTH'" ref="attachmentRef"/>
+              <Attachment :_id="_id" :attachType="'mcs_preauth'" ref="attachmentRef"/>
             </div>
           </section>
         </el-main>
@@ -389,7 +389,7 @@ import { selectServiceProxy as selectServiceProxyApi, getEnum } from '@/api/main
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import FetchSelect from '@/libs/components/FetchSelect';
-import Attachment from '@/views/maintain/sp/serviceProxy/components/Attachment/index.vue';
+import Attachment from './components/FileUploadGrid';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
