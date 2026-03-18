@@ -41,3 +41,11 @@ export function deleteErrorCode (data) {
 export function enableErrorCode (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 更新排序
+ * @param {Object} data
+ */
+export function updateSort (data) {
+  return api.jsonPost(prefix + 'updateSort', data);
+}

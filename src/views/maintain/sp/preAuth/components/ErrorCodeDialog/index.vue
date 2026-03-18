@@ -36,20 +36,23 @@
         </vxe-column>
         <vxe-column field="status" title="启用状态" width="120">
           <template #default="{ row }">
-            <el-select v-if="row.editing" v-model="row.status" size="small" placeholder="请选择">
+            <!-- <el-select v-if="row.editing" v-model="row.status" size="small" placeholder="请选择">
               <el-option label="启用" :value="1" />
               <el-option label="禁用" :value="0" />
-            </el-select>
+            </el-select> -->
+            <el-switch v-if="row.editing" v-model="row.status" :active-value="1" :inactive-value="0" />
             <el-switch v-else v-model="row.status" :active-value="1" :inactive-value="0" @change="handleStatusChange(row)" />
           </template>
         </vxe-column>
         <vxe-column title="操作" width="180">
-          <template #default="{ row }">
+          <template #default="{ row, $rowIndex }">
             <template v-if="row.editing">
               <span class="btn" @click="handleSave(row)">保存</span>
               <span class="btn" @click="handleCancel(row)">取消</span>
             </template>
             <template v-else>
+              <span class="btn" :disabled="$rowIndex === 0" @click="handleMoveUp(row, $rowIndex)">上移</span>
+              <span class="btn" :disabled="$rowIndex === tableData.length - 1" @click="handleMoveDown(row, $rowIndex)">下移</span>
               <span class="btn" @click="handleEdit(row)">编辑</span>
               <el-popconfirm title="确定要删除吗？" @confirm="handleDelete(row)" confirm-button-type="danger">
                 <span slot="reference" class="btn btn-delete">删除</span>
@@ -61,7 +64,8 @@
           <div class="m-vxe-table-empty-text">暂无数据</div>
         </template>
       </vxe-table>
-      <div class="pagination-container">
+      <!-- 注释分页 -->
+      <!-- <div class="pagination-container">
         <el-pagination
           :current-page="pagination.pageNum"
           :page-size="pagination.pageSize"
@@ -71,7 +75,7 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
-      </div>
+      </div> -->
     </div>
     <template #footer>
       <el-button size="small" @click="dialogVisible = false">关闭</el-button>
@@ -80,7 +84,7 @@
 </template>
 
 <script>
-import { getErrorCodeList, addErrorCode, updateErrorCode, deleteErrorCode, enableErrorCode } from '@/api/maintain/sp/preAuth/errorCode';
+import { getErrorCodeList, addErrorCode, updateErrorCode, deleteErrorCode, enableErrorCode, updateSort } from '@/api/maintain/sp/preAuth/errorCode';
 
 export default {
   name: 'ErrorCodeDialog',
@@ -97,7 +101,7 @@ export default {
       tableData: [],
       pagination: {
         pageNum: 1,
-        pageSize: 10,
+        pageSize: 500,
         total: 0
       },
       editingRow: null
@@ -146,10 +150,18 @@ export default {
         content: '',
         status: 1,
         editing: true,
-        isNew: true
+        isNew: true,
+        sort: this.pagination.total,
       };
-      this.tableData.unshift(newRow);
+      this.tableData.push(newRow);
       this.editingRow = newRow;
+      // 滚动到底部
+      this.$nextTick(() => {
+        const tableRef = this.$refs.tableRef;
+        if (tableRef && tableRef.scrollTable) {
+          tableRef.scrollTable();
+        }
+      });
     },
     handleEdit (row) {
       if (this.editingRow) {
@@ -174,7 +186,8 @@ export default {
         const params = {
           code: row.code,
           content: row.content,
-          status: row.status
+          status: row.status,
+          sort: row.sort
         };
         if (row.isNew) {
           await addErrorCode(params);
@@ -244,6 +257,68 @@ export default {
     handleCurrentChange (val) {
       this.pagination.pageNum = val;
       this.getData();
+    },
+    async handleMoveUp (row, index) {
+      if (index === 0) return;
+      try {
+        this.loading = true;
+        const targetRow = this.tableData[index - 1];
+
+        // 调用updateSort接口
+        await updateSort({
+          fixedId: targetRow.id,
+          moveId: row.id,
+          moveFlag: 1
+        });
+
+        // 交换本地数据
+        const temp = this.tableData[index - 1];
+        this.$set(this.tableData, index - 1, row);
+        this.$set(this.tableData, index, temp);
+
+        // 交换sort值
+        const currentSort = row.sort;
+        row.sort = targetRow.sort;
+        targetRow.sort = currentSort;
+
+        this.$message.success('上移成功');
+      } catch (error) {
+        console.error('上移失败:', error);
+        this.$message.error('上移失败');
+      } finally {
+        this.loading = false;
+      }
+    },
+    async handleMoveDown (row, index) {
+      if (index === this.tableData.length - 1) return;
+      try {
+        this.loading = true;
+        const targetRow = this.tableData[index + 1];
+
+        // 调用updateSort接口
+        await updateSort({
+          fixedId: targetRow.id,
+          moveId: row.id,
+          moveFlag: 0
+        });
+
+        // 交换本地数据
+        const temp = this.tableData[index + 1];
+        this.$set(this.tableData, index + 1, row);
+        this.$set(this.tableData, index, temp);
+
+        // 交换sort值
+        const currentSort = row.sort;
+        row.sort = targetRow.sort;
+        targetRow.sort = currentSort;
+
+        this.$message.success('下移成功');
+      } catch (error) {
+        console.error('下移失败:', error);
+        this.$message.error('下移失败');
+      } finally {
+        this.loading = false;
+      }
     }
   }
 };
