@@ -6,8 +6,8 @@
     :before-close="handleClose"
     custom-class="anti-settlement-dialog"
   >
-    <el-form size="small" ref="ruleForm" :model="form" :rules="rules" label-width="100px" label-position="right">
-      <el-form-item label="审核操作" prop="auditAction" required>
+    <el-form size="small" ref="ruleForm" :model="form" :rules="rules" label-width="120px" label-position="right">
+      <el-form-item label="审核操作" prop="auditAction">
         <el-radio-group v-model="form.auditAction">
           <el-radio label="pass">审批通过</el-radio>
           <el-radio label="reject">审批驳回</el-radio>
@@ -28,7 +28,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="审核意见" prop="auditOpinion" required>
+      <el-form-item label="审核意见" prop="auditOpinion">
         <el-input
           v-model="form.auditOpinion"
           type="textarea"
@@ -57,6 +57,7 @@
 
 <script>
 import AisAttachment from '@/libs/components/AisAttachment';
+import { auditItem } from '@/api/maintain/sp/preAuth/index';
 
 export default {
   name: 'AuditDialog',
@@ -69,6 +70,10 @@ export default {
       default: false
     },
     businessId: {
+      type: [String, Number],
+      default: ''
+    },
+    rowId: {
       type: [String, Number],
       default: ''
     }
@@ -92,10 +97,11 @@ export default {
         auditAction: [
           { required: true, message: '请选择审核操作', trigger: 'change' }
         ],
-        auditOpinion: [
-          { required: true, message: '请输入审核意见', trigger: 'blur' }
+        errorCode: [
+          { required: true, message: '请选择错误代码', trigger: 'change' }
         ]
-      }
+      },
+      submitting: false
     };
   },
   watch: {
@@ -104,7 +110,7 @@ export default {
     },
     dialogVisible (val) {
       this.$emit('update:visible', val);
-      if (val) {
+      if (!val) {
         this.resetForm();
       }
     }
@@ -113,19 +119,38 @@ export default {
     handleClose () {
       this.dialogVisible = false;
     },
-    handleConfirm () {
-      this.$refs.ruleForm.validate((valid) => {
+    async handleConfirm () {
+      if (this.submitting) {
+        return;
+      }
+
+      this.$refs.ruleForm.validate(async (valid) => {
         if (valid) {
           // 获取附件信息
           const attachments = this.$refs.attachment ? this.$refs.attachment.getAttachment() : [];
 
-          this.$emit('confirm', {
-            auditAction: this.form.auditAction,
+          const auditResult = this.form.auditAction === 'pass' ? 1 : 0;
+
+          // 准备提交数据
+          const submitData = {
+            id: this.rowId,
+            auditResult,
             auditOpinion: this.form.auditOpinion,
             errorCode: this.form.errorCode,
-            attachments: attachments
-          });
-          this.dialogVisible = false;
+            attachments
+          };
+
+          this.submitting = true;
+          try {
+            await auditItem(submitData);
+            this.$message.success(this.form.auditAction === 'pass' ? '审批通过' : '审批驳回');
+            this.dialogVisible = false;
+            this.$emit('success');
+          } catch (error) {
+            this.$message.error('操作失败');
+          } finally {
+            this.submitting = false;
+          }
         }
       });
     },
@@ -136,10 +161,12 @@ export default {
         errorCode: ''
       };
       this.$nextTick(() => {
-        this.$refs.ruleForm && this.$refs.ruleForm.clearValidate();
+        if (this.$refs.ruleForm) {
+          this.$refs.ruleForm.clearValidate();
+        }
         // 重置附件组件
         if (this.$refs.attachment) {
-          this.$refs.attachment.update(); // 如果有需要可以重新初始化附件组件
+          this.$refs.attachment.update();
         }
       });
     },
