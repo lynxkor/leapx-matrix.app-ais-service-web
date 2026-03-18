@@ -52,7 +52,7 @@
         <el-form-item label="状态">
           <fetch-select
             :request="fetchOptions"
-            enumCode="StatusEnum"
+            enumCode="AuditStatusEnum"
             v-model="form.status"
             placeholder="请选择"
             clearable
@@ -102,7 +102,8 @@
       ref="auditDialog"
       :visible.sync="auditDialogVisible"
       :business-id="currentApprovalRow ? currentApprovalRow.id : ''"
-      @confirm="handleAuditSubmit"
+      :row-id="currentApprovalRow ? currentApprovalRow.id : ''"
+      @success="getData"
     />
     <ErrorCodeDialog
       ref="errorCodeDialog"
@@ -115,8 +116,8 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, cancelItem, auditItem, regenerate } from '@/api/maintain/sp/preAuth/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getPartDealer } from '@/api/common';
+import { getList, deleteItem, enableItem, cancelItem, auditItem, regenerate, getEnum } from '@/api/maintain/sp/preAuth/index';
+import { getTableConfig, tableAddOrUpdate, exportTable, getPartDealer } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -140,6 +141,19 @@ const defaultForm = {
 const pageSize = 20;
 const mockConfig = {
   data: null
+};
+
+/**
+ * 审批状态枚举
+ */
+export const AUDIT_STATUS = {
+  TODO: 10, // 待提交
+  IN_PROGRESS: 20, // 审批中
+  APPROVED: 30, // 审批通过
+  REJECTED: 40, // 审批驳回
+  CANCELLED: 50, // 已作废
+  EXPIRED: 60, // 已过期
+  REFUSED: 70 // 已拒绝
 };
 
 export default {
@@ -215,30 +229,25 @@ export default {
             fixed: 'right',
             width: 350,
             buttons: [{
-              name: '审批通过',
+              name: '审批',
               click: (rowIndex, row) => {
                 this.handleApprove(row, 'pass');
               },
               type: 'info',
-              visible: (row) => row.status === 1 // 待审批状态
-            }, {
-              name: '审批驳回',
-              click: (rowIndex, row) => {
-                this.handleApprove(row, 'reject');
-              },
-              type: 'danger',
-              visible: (row) => row.status === 1 // 待审批状态
+              show: (row) => row.approvalStatus === AUDIT_STATUS.IN_PROGRESS // 审批中
             }, {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/maintain/sp/preAuth/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
-              type: 'info'
+              type: 'info',
+              show: (row) => row.approvalStatus === AUDIT_STATUS.TODO || row.approvalStatus === AUDIT_STATUS.REJECTED // 待提交或审批驳回
             }, {
               name: '作废',
               popconfirmConfirmButtonType: 'danger',
@@ -248,7 +257,7 @@ export default {
                 this.handleCancel(row);
               },
               type: 'info',
-              visible: (row) => row.status !== 0 // 非已作废状态
+              show: (row) => row.approvalStatus === AUDIT_STATUS.REJECTED // 审批驳回
             }, {
               name: '删除',
               popconfirmConfirmButtonType: 'danger',
@@ -268,14 +277,22 @@ export default {
                   });
                 });
               },
-              type: 'danger'
+              type: 'danger',
+              show: (row) => row.approvalStatus === AUDIT_STATUS.TODO // 待提交
             }, {
-              name: '重新生成申请',
+              name: '重新申请',
               click: (rowIndex, row) => {
                 this.handleRegenerate(row);
               },
               type: 'info',
-              visible: (row) => row.status === 3 // 已驳回状态
+              show: (row) => row.approvalStatus === AUDIT_STATUS.EXPIRED // 已过期
+            }, {
+              name: '激活',
+              click: (rowIndex, row) => {
+                this.handleRegenerate(row);
+              },
+              type: 'info',
+              show: (row) => row.approvalStatus === AUDIT_STATUS.REFUSED // 已拒绝
             }]
           }
         ],
@@ -333,7 +350,7 @@ export default {
       });
     },
     handleCancel (row) {
-      cancelItem({ id: row.id }).then(() => {
+      cancelItem(row.id).then(() => {
         this.$message.success('作废成功');
         this.getData();
       });
@@ -342,29 +359,7 @@ export default {
       // 打开审核对话框
       this.currentApprovalRow = row;
       this.$nextTick(() => {
-        this.$refs.auditDialog.dialogVisible = true;
-        // 如果有错误代码选项，可以设置给对话框
-        // this.$refs.auditDialog.setErrorCodeOptions(this.errorCodeOptions);
-      });
-    },
-    handleAuditSubmit (auditData) {
-      const { auditAction, auditOpinion, errorCode, attachments } = auditData;
-      const auditResult = auditAction === 'pass' ? 1 : 0; // 假设1为通过，0为驳回
-
-      // 准备提交数据
-      const submitData = {
-        id: this.currentApprovalRow.id,
-        auditResult,
-        auditOpinion,
-        errorCode,
-        attachments
-      };
-
-      auditItem(submitData).then(() => {
-        this.$message.success(auditAction === 'pass' ? '审批通过' : '审批驳回');
-        this.getData();
-      }).catch(() => {
-        this.$message.error('操作失败');
+        this.auditDialogVisible = true;
       });
     },
     handleErrorCodeMaintain () {
