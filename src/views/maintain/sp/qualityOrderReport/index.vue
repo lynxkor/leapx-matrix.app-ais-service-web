@@ -46,7 +46,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="QualityReportOrderStatusEnum"
-            v-model="form.orderStatus"
+            v-model="form.orderStatusList"
             placeholder="请选择"
             clearable
             multiple
@@ -237,7 +237,7 @@ export default {
           { props: 'vfgName', label: 'VFG名称', visible: true, width: 200 },
           { props: 'cccName', label: 'CCC名称', visible: true, width: 200 },
           { props: 'firstApplicationTime', label: '首次提交审核时间', visible: true, width: 200 },
-          { props: 'firstAuditResults', label: '首次审核结果', visible: true, width: 200 },
+          { props: 'firstAuditResultsLabel', label: '首次审核结果', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'applicationTime', label: '提交审核时间', visible: true, width: 200 },
           {

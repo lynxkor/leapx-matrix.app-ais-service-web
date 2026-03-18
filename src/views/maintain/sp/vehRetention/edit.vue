@@ -33,9 +33,10 @@
                     placeholder="请输入"
                     v-model="form.code"
                     clearable
+                    disabled
                   />
                 </el-form-item>
-                <el-form-item label="年型：" prop="vehYearTypeName">
+                <el-form-item label="年款：" prop="vehYearTypeName">
                   <fetch-select
                     filterable
                     clearable
@@ -74,14 +75,7 @@
                     label-key="cccName"
                   />
                 </el-form-item>
-                <el-form-item label="留车范围：" prop="retainedScope">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.retainedScope"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="省市区：" prop="provinceCode">
+                <el-form-item label="留车范围：" prop="provinceCodeList">
                   <fetch-select
                     filterable
                     clearable
@@ -144,10 +138,10 @@
                 <el-form-item label="编码：" prop="code">
                   {{ form.code }}
                 </el-form-item>
-                <el-form-item label="年型：" prop="vehYearTypeName">
+                <el-form-item label="年款：" prop="vehYearTypeName">
                   {{ form.vehYearTypeName }}
                 </el-form-item>
-                <el-form-item label="基本车型：" prop="vehModelName">
+                <el-form-item label="车型：" prop="vehModelName">
                   {{ form.vehModelName }}
                 </el-form-item>
                 <el-form-item label="故障名称：" prop="cccName">
@@ -249,6 +243,7 @@ const defaultForm = {
   cccId: '',
   partsId: '',
   retainedScopeList: [],
+  provinceCodeList: []
 };
 
 export default {
@@ -302,9 +297,6 @@ export default {
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
       rules: {
-        code: [
-          { required: true, message: '请输入编码', trigger: 'change' }
-        ],
         vehYearTypeName: [
           { required: true, message: '请选择年型', trigger: 'change' }
         ],
