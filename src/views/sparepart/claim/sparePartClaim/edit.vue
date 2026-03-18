@@ -329,14 +329,7 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>物流信息</h2>
-            </div>
-            <div class="common-section-body">
-            </div>
-          </section>
-          <section class="common-section">
-            <div class="common-section-header">
-              <h2>物流信息</h2>
+              <h2>索赔物流跟踪</h2>
             </div>
             <div class="common-section-body">
               <div v-if="loadingLogistics" class="loading">
@@ -350,25 +343,60 @@
                 <!-- 运单号和预计送达时间 -->
                 <div class="logistics-header">
                   <span class="label">运单号：</span>
-                  <span class="value">{{ logisticsData.waybillNo }}</span>
+                  <span class="value">{{ logisticsData.waybillCode }}</span>
                   <span class="label">预计送达日期：</span>
-                  <span class="value">{{ logisticsData.estimatedArrivalTime }}</span>
+                  <span class="value">{{ logisticsData.promiseAgingDate }}</span>
                 </div>
 
                 <!-- 物流节点 -->
                 <el-timeline>
                   <el-timeline-item
-                    v-for="(item, index) in logisticsData.trackingList"
+                    v-for="(item, index) in logisticsData.traceDetails"
                     :key="index"
                     :timestamp="item.time"
-                    :color="item.status === 'completed' ? '#007fff' : '#999'"
-                    :type="item.status === 'completed' ? 'primary' : 'info'"
-                    :size="item.status === 'completed' ? 'large' : 'normal'"
+                    :color="'#007fff'"
+                    :type="'info'"
                   >
                     <div class="timeline-content">
-                      <strong>{{ item.description }}</strong>
-                      <p v-if="item.phone">{{ item.phone }}</p>
-                      <p v-if="item.plateNumber">{{ item.plateNumber }}</p>
+                      <strong>{{ item.context }}</strong>
+                    </div>
+                  </el-timeline-item>
+                </el-timeline>
+              </div>
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>采购物流跟踪</h2>
+            </div>
+            <div class="common-section-body">
+              <div v-if="loadingLogistics" class="loading">
+                <el-loading-spinner></el-loading-spinner>
+                正在加载物流信息...
+              </div>
+              <div v-else-if="!logisticsData" class="no-data">
+                暂无物流信息
+              </div>
+              <div v-else class="logistics-container">
+                <!-- 运单号和预计送达时间 -->
+                <div class="logistics-header">
+                  <span class="label">运单号：</span>
+                  <span class="value">{{ logisticsData.waybillCode }}</span>
+                  <span class="label">预计送达日期：</span>
+                  <span class="value">{{ logisticsData.promiseAgingDate }}</span>
+                </div>
+
+                <!-- 物流节点 -->
+                <el-timeline>
+                  <el-timeline-item
+                    v-for="(item, index) in logisticsData.traceDetails"
+                    :key="index"
+                    :timestamp="item.time"
+                    :color="'#007fff'"
+                    :type="'info'"
+                  >
+                    <div class="timeline-content">
+                      <strong>{{ item.context }}</strong>
                     </div>
                   </el-timeline-item>
                 </el-timeline>
@@ -399,7 +427,7 @@ import {
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
+import { getEnum, getLogistics } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -470,6 +498,13 @@ export default {
         }
       },
       immediate: true
+    },
+    'form.code': {
+      handler (val) {
+        if (val) {
+          this.getLogisticsInfo();
+        }
+      }
     }
   },
   data () {
@@ -586,12 +621,6 @@ export default {
         ],
         submitter: [
           { required: false, message: '请输入提交人', trigger: 'change' }
-        ],
-        claimType: [
-          { required: false, message: '请选择索赔类型:10货损,20货差（少）,30状态不符,40质量问题', trigger: 'change' }
-        ],
-        claimStatus: [
-          { required: false, message: '请选择索赔状态:10草稿,20待确认,30已驳回,40审批中,50已完结', trigger: 'change' }
         ],
         rejectionDescription: [
           { required: false, message: '请输入驳回说明', trigger: 'change' }
@@ -761,37 +790,16 @@ export default {
       const res = await getOutboundDetailList(data);
       this.claimTableData = res.records;
     },
+    // 物流信息接口
     async getLogisticsInfo () {
       this.loadingLogistics = true;
+      const params = {
+        waybillCode: this.form.logisticsOrderNo,
+        logisticsType: this.form.logisticsProvider,
+      };
       try {
-        // const res = await getLogisticsInfo(this._id); // 假设接口为 getLogisticsInfo
-        // this.logisticsData = res.data;
-        this.logisticsData = {
-          waybillNo: 'JDV23178368877',
-          estimatedArrivalTime: '2025-09-30 23:59:59',
-          trackingList: [
-            {
-              time: '2025-09-30 17:46:54',
-              description: '您的快件已送达，感谢您使用京东物流，期待再次为您服务。',
-              status: 'completed'
-            },
-            {
-              time: '2025-09-30 17:46:30',
-              description: '司机已到达目的城市-天津 西青区，请您准备签收，司机电话：15957537605，车牌号：浙G98571',
-              status: 'completed'
-            },
-            {
-              time: '2025-09-27 21:19:14',
-              description: '司机正在装车中，请耐心等待',
-              status: 'pending'
-            },
-            {
-              time: '2025-09-27 21:14:13',
-              description: '京东快递已收取快件',
-              status: 'completed'
-            }
-          ]
-        };
+        const res = await getLogistics(params);
+        this.logisticsData = res;
       } catch (error) {
         console.error('获取物流信息失败:', error);
       } finally {

@@ -115,7 +115,6 @@ export default {
   data () {
     return {
       tableData: [],
-      baseInfo: {},
       // 支付方式选项
       payTypeOptions: [
         // { id: 1, name: '现金' },
@@ -149,17 +148,7 @@ export default {
         }
       },
       immediate: true,
-    },
-    info: {
-      handler (val) {
-        if (val && Object.keys(val).length > 0) {
-          const { invoiceRecordResps, ...rest } = val;
-          this.baseInfo = rest || {};
-        }
-      },
-      deep: true,
-      immediate: true,
-    },
+    }
   },
   methods: {
     // 判断行是否禁用
@@ -194,7 +183,6 @@ export default {
     },
     closed () {
       this.tableData = [];
-      this.baseInfo = {};
     },
     // 确认提交
     handleConfirm () {
@@ -215,15 +203,15 @@ export default {
     handleAdd () {
       // 计算剩余需付款金额
       const remainingAmount =
-        (this.baseInfo.payableAmount || 0) - this.totalPayAmount;
+        (this.info.payableAmount || 0) - this.totalPayAmount;
       if (remainingAmount <= 0) {
         this.$message.warning('剩余可添加的收款记录金额为0,暂时无法添加新的收款记录');
         return;
       }
       this.tableData.push({
         code: '',
-        statementId: this.baseInfo.id || '',
-        statementCode: this.baseInfo.code || '',
+        statementId: this.info.id || '',
+        statementCode: this.info.code || '',
         payAmount: remainingAmount > 0 ? remainingAmount : 0,
         payType: null,
         rightsCode: '',
@@ -262,10 +250,10 @@ export default {
       }, 0);
 
       // 检查总收款金额是否超过实际应付金额
-      if (payAmount > this.baseInfo.payableAmount) {
+      if (payAmount > this.info.payableAmount) {
         this.$message.warning(
           `收款总金额不能超过实际应付总金额 ${this.formatAmount(
-            this.baseInfo.payableAmount
+            this.info.payableAmount
           )}`
         );
         return false;
@@ -275,7 +263,7 @@ export default {
     // 获取提交数据
     getSubmitData () {
       const data = {
-        statementId: this.baseInfo.id || '',
+        statementId: this.info.id || '',
         invoiceRecordList: this.tableData,
       };
       addReceiptRecord(data).then((res) => {

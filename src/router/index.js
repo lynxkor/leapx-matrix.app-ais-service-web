@@ -1365,8 +1365,7 @@ const routes = [
         name: '备件采购价格',
         keepAlive: true
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/sparepart/basic/purchaseprice/edit',
       name: 'purchasePriceEdit',
       component: () => import('@/views/sparepart/basic/purchasePrice/edit.vue'),
@@ -1375,7 +1374,8 @@ const routes = [
         name: '备件采购价格详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/warehouse/oemWarehouse',
       name: 'oemWarehouse',
       component: () => import('@/views/sparepart/warehouse/oemWarehouse/index.vue'),
@@ -1384,8 +1384,7 @@ const routes = [
         name: '主机厂仓库设置',
         keepAlive: true
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/sparepart/warehouse/oemwarehouse/edit',
       name: 'oemWarehouseEdit',
       component: () => import('@/views/sparepart/warehouse/oemWarehouse/edit.vue'),
@@ -1394,7 +1393,8 @@ const routes = [
         name: '主机厂仓库设置详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 门店销毁
+    {
       path: '/sparepart/basic/purchasePriceCoupon',
       name: 'purchasePriceCoupon',
       component: () => import('@/views/sparepart/basic/purchasePriceCoupon/index.vue'),
@@ -1403,8 +1403,7 @@ const routes = [
         name: '门店备件优惠券',
         keepAlive: true
       }
-    }, // 门店销毁
-    {
+    }, {
       path: '/sparepart/basic/purchasepricecoupon/edit',
       name: 'purchasePriceCouponEdit',
       component: () => import('@/views/sparepart/basic/purchasePriceCoupon/edit.vue'),
@@ -2398,6 +2397,42 @@ const routes = [
 
       meta: {
         name: '保修单预警规则详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/claimtrace/claimTraceOrder',
+      name: 'claimTraceOrder',
+      component: () => import('@/views/claimreturn/claim/claimtrace/claimTraceOrder/index.vue'),
+
+      meta: {
+        name: '索赔追溯单',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/claimtrace/claimtraceorder/edit',
+      name: 'claimTraceOrderEdit',
+      component: () => import('@/views/claimreturn/claim/claimtrace/claimTraceOrder/edit.vue'),
+
+      meta: {
+        name: '索赔追溯单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/sp/vehRetentionList',
+      name: 'vehRetentionList',
+      component: () => import('@/views/maintain/sp/vehRetentionList/index.vue'),
+
+      meta: {
+        name: '留车清单表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/vehretentionlist/edit',
+      name: 'vehRetentionListEdit',
+      component: () => import('@/views/maintain/sp/vehRetentionList/edit.vue'),
+
+      meta: {
+        name: '留车清单表管理详情',
         noResourceUrl: 'true'
       }
     }]
