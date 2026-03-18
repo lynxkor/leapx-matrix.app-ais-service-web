@@ -43,6 +43,7 @@
                     placeholder="请选择施工单"
                     clearable
                     filterable
+                    :disabled="_id"
                     @change="handleServiceProxyChange"
                   />
                 </el-form-item>
@@ -226,6 +227,17 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
+                <el-form :inline="true" class="form-detail">
+                  <el-form-item label="工时索赔合计：">
+                    <span>{{ form.approvedLaborClaimTotal || '-' }}</span>
+                  </el-form-item>
+                  <el-form-item label="零件索赔合计：">
+                    <span>{{ form.approvedPartsClaimTotal || '-' }}</span>
+                  </el-form-item>
+                  <el-form-item label="其他索赔费用：">
+                    <span>{{ form.approvedOtherClaimTotal || '-' }}</span>
+                  </el-form-item>
+                </el-form>
                 <vxe-table
                   ref="repairTableRef"
                   stripe
