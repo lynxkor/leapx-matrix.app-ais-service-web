@@ -12,7 +12,7 @@
         :detailRequest="detailRequest"
       >
         <template #status>
-          <span class="status primary" v-if="form.statusDesc">{{ form.statusDesc }}</span>
+          <!-- <span class="status primary" v-if="form.statusDesc">{{ form.statusDesc }}</span> -->
         </template>
         <template #extraButtons>
           <el-button size="small" type="primary" @click="submitRequest(1)" v-if="_id">提交审批</el-button>
@@ -503,7 +503,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '预授权申请表管理',
+      pageTitle: '预授权申请',
       pageType: 'edit',
       moduleKey: 'AISMC-preAuth',
       loading: false,
@@ -543,16 +543,19 @@ export default {
       // 表单校验
       return this.$refs.ruleForm.validate().then(() => {
         addOrUpdate({
+          id: this._id,
           saveOrSubmit: v,
           reason: this.form.reason,
           serviceProxyId: this.form.serviceProxyId,
           serviceProxyCode: this.form.serviceProxyCode,
           preAuthType: this.form.preAuthType,
-          qualityOrderReportId: this.form.qualityOrderReportId || '019CFA53-2731-7B3B-9D95-F7F541872B46',
-          qualityOrderReport: this.form.qualityOrderReport || 'ZLR-202603171344380001',
+          qualityOrderReportId: this.form.qualityOrderReportId,
+          qualityOrderReport: this.form.qualityOrderReport,
         }).then(res => {
-          this.$message.success('保存成功');
-          this.$router.replace({ path: '/maintain/sp/preAuth/edit', query: { id: res } });
+          this.$message.success(v === 1 ? '提交审批成功' : '保存成功');
+          if (!this._id) {
+            this.$router.replace({ path: '/maintain/sp/preAuth/edit', query: { id: res } });
+          }
         });
       });
     },
