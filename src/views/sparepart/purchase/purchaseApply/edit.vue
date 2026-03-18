@@ -145,7 +145,7 @@
                   {{ form.companyName }}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
+                  <el-link type="success" :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`" target="_blank">{{ form.dealerName }}</el-link>
                 </el-form-item>
                 <el-form-item label="仓库名称：" prop="warehouseName">
                   {{ form.warehouseName }}
@@ -219,8 +219,8 @@
 
               <div class="common-title" v-show="!(isEditing || !_id)">其他信息</div>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="缺货单号：" prop="backOrderId">
-                  {{ form.backOrderCode }}
+                <el-form-item label="缺货单号：" prop="backOrderCode">
+                  <el-link type="success" v-if="form.backOrderCode" :href="`/service/sparepart/purchase/backOrder/edit?id=${form.backOrderCode}`" target="_blank">{{ form.backOrderCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="原价券：" prop="originalPriceCouponId">
                   {{ form.originalPriceCouponId }}
@@ -234,7 +234,7 @@
               </el-form>
             </div>
           </section>
-          <section class="common-section">
+          <section class="common-section" v-show="!(isEditing || !_id)">
             <div class="common-section-header">
               <h2>备件信息</h2>
             </div>
@@ -265,7 +265,11 @@
                       <vxe-column field="cashAmount" title="现金金额" />
                       <vxe-column field="purchaseQty" title="采购数" />
                       <vxe-column field="remark" title="备注" />
-                      <vxe-column field="originalPriceSource" title="原价来源" />
+                      <vxe-column field="originalPriceSource" title="原价来源">
+                        <template v-slot="{ row }">
+                          <el-link type="success" target="_blank" :href="`/service/sparepart/basic/sparePartPurchasePrice/detail?id=${row.originalPriceSource}`">{{ row.originalPriceSource }}</el-link>
+                        </template>
+                      </vxe-column>
                       <vxe-column title="操作" >
                           <template #default="{ row }">
                               <el-popconfirm
@@ -341,7 +345,7 @@ const defaultForm = {
   companyName: '',
   warehouseName: '',
   warehouseId: '',
-  purchaseOrderType: '',
+  purchaseOrderType: '0',
   purchaseAmount: '',
   orderStatus: '0',
   submitTime: '',
@@ -412,14 +416,15 @@ export default {
       immediate: true
     },
     // 监听路由变化
-    '$route.query.orderType': {
+    form: {
       handler (newVal) {
-        if (newVal === '1') {
+        if (newVal.orderStatus === '0' || newVal.orderStatus === '3') {
           this.routeQueryType = true;
-        }
+        } else {
+          this.routeQueryType = false; // 重置为 false
+        };
       },
-      immediate: true,
-      deep: true
+      immediate: true
     },
     // 监听 订单类型为 铺货订单或定制订单时 做的一系列操作逻辑
     'form.purchaseOrderType': {
@@ -440,7 +445,18 @@ export default {
       },
       immediate: true,
       deep: true
-    }
+    },
+    accountPermissions: {
+      handler (val) {
+        if (val) { // 门店账号，只可以选择普通订单和紧急订单；同时非这两类订单类型以及【缺货单号】非空的单据，门店账号只能查看，所有编辑提交等动作都不允许，主机厂账号不受限，按正常逻辑
+          if ((this.form.purchaseOrderType !== '0' || this.form.purchaseOrderType !== '1') && this.form.backOrderCode) {
+            this.routeQueryType = false;
+          } else {
+            this.routeQueryType = true;
+          }
+        }
+      }
+    },
   },
   data () {
     const form = this.getDefautlForm();
@@ -468,7 +484,7 @@ export default {
       detailTitle: '添加备件',
       uploadDialogVisible: false,
       purchaseOrderTypeOptions: [], // 采购申请单 订单类型
-      accountPermissions: false,
+      accountPermissions: false, // 账号权限控制 判断为主机厂还是门店账号
       orderTypeDisabled: true,
       pageSize: 10,
       current: 1,
@@ -518,15 +534,28 @@ export default {
     },
     // 点击带出门店名称
     handleDealerChange (val, ele) {
-      this.form.dealerName = ele.orgName;
-      this.getPartDealer(ele.orgCode);
+      this.$confirm('是否切换门店, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.form.dealerName = ele.orgName;
+        this.getPartDealer(ele.orgCode);
+      }).catch(() => {
+        this.getLoginUser();
+      });
     },
 
     async getPartDealer (query) {
       try {
         const res = await getPartDealer({ code: query });
-        this.form.companyCode = res.parentCompanyCode;
-        this.form.companyName = res.parentCompanyName;
+        if (this.accountFlag) { // 主机厂账号 默认为空  门店账号 带出
+          this.form.companyCode = res.parentCompanyCode;
+          this.form.companyName = res.parentCompanyName;
+        } else {
+          this.form.companyCode = '';
+          this.form.companyName = '';
+        }
         this.form.warehouseId = res.warehouseId;
         this.form.warehouseCode = res.warehouseCode;
         this.form.warehouseName = res.warehouseName;
@@ -538,9 +567,15 @@ export default {
     async getLoginUser () {
       try {
         const res = await getLoginUser();
-        this.form.dealerCode = res.currentDealerCode;
-        this.form.dealerName = res.currentDealerName;
         this.accountPermissions = res.accountFlag;
+        if (res.accountFlag) {
+          this.form.dealerCode = res.currentDealerCode;
+          this.form.dealerName = res.currentDealerName;
+        } else {
+          this.form.dealerCode = '';
+          this.form.dealerName = '';
+          this.accountPermissions = '';
+        }
         if (this.form.dealerCode) {
           this.getPartDealer(this.form.dealerCode);
         }

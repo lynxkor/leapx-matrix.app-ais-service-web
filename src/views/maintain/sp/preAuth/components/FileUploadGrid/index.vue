@@ -1,10 +1,10 @@
 <template>
   <div class="attachment-grid">
     <div class="attachment-item" v-for="(item, index) in attachmentList" :key="index">
-      <div class="attachment-label">
+      <!-- <div class="attachment-label">
         {{ item.label }}
         <em v-if="item.required">*</em>
-      </div>
+      </div> -->
       <div class="attachment-upload">
         <AisAttachment
           :businessId="_id"

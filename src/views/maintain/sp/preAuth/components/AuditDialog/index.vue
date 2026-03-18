@@ -6,16 +6,16 @@
     :before-close="handleClose"
     custom-class="anti-settlement-dialog"
   >
-    <el-form size="small" ref="ruleForm" :model="form" :rules="rules" label-width="100px" label-position="right">
-      <el-form-item label="审核操作" prop="auditAction" required>
-        <el-radio-group v-model="form.auditAction">
+    <el-form size="small" ref="ruleForm" :model="form" :rules="rules" label-width="120px" label-position="right">
+      <el-form-item label="审核操作" prop="auditStaus">
+        <el-radio-group v-model="form.auditStaus">
           <el-radio label="pass">审批通过</el-radio>
           <el-radio label="reject">审批驳回</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="错误代码及内容" prop="errorCode">
+      <el-form-item label="错误代码及内容" prop="preAuthRuleCodeId">
         <el-select
-          v-model="form.errorCode"
+          v-model="form.preAuthRuleCodeId"
           placeholder="请选择错误代码"
           filterable
           clearable
@@ -28,9 +28,9 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="审核意见" prop="auditOpinion" required>
+      <el-form-item label="审核意见" prop="auditContent">
         <el-input
-          v-model="form.auditOpinion"
+          v-model="form.auditContent"
           type="textarea"
           :rows="3"
           placeholder="请输入"
@@ -50,13 +50,15 @@
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button size="small" @click="handleClose">取消</el-button>
-      <el-button size="small" type="primary" @click="handleConfirm">确定</el-button>
+      <el-button size="small" type="primary" @click="handleConfirm" :loading="submitting">确定</el-button>
     </span>
   </el-dialog>
 </template>
 
 <script>
 import AisAttachment from '@/libs/components/AisAttachment';
+import { auditItem } from '@/api/maintain/sp/preAuth/index';
+import { getErrorCodeList } from '@/api/maintain/sp/preAuth/errorCode';
 
 export default {
   name: 'AuditDialog',
@@ -71,17 +73,21 @@ export default {
     businessId: {
       type: [String, Number],
       default: ''
+    },
+    rowId: {
+      type: [String, Number],
+      default: ''
     }
   },
   data () {
     return {
       dialogVisible: false,
       form: {
-        auditAction: 'reject',
-        auditOpinion: '',
-        errorCode: ''
+        auditStaus: 'reject',
+        auditContent: '',
+        preAuthRuleCodeId: ''
       },
-      errorCodeOptions: [], // 错误代码选项，可通过props传入或通过API获取
+      errorCodeOptions: [], // 错误代码选项
       uploadConfig: {
         acceptSuffix: '.png,.jpg,.jpeg,.gif,.pdf,.doc,.docx,.xls,.xlsx',
         maxSize: 10, // 10MB
@@ -89,22 +95,26 @@ export default {
         required: '0'
       },
       rules: {
-        auditAction: [
+        auditStaus: [
           { required: true, message: '请选择审核操作', trigger: 'change' }
         ],
-        auditOpinion: [
-          { required: true, message: '请输入审核意见', trigger: 'blur' }
+        preAuthRuleCodeId: [
+          { required: true, message: '请选择错误代码', trigger: 'change' }
         ]
-      }
+      },
+      submitting: false
     };
   },
   watch: {
     visible (val) {
       this.dialogVisible = val;
+      if (val) {
+        this.getErrorCodeData();
+      }
     },
     dialogVisible (val) {
       this.$emit('update:visible', val);
-      if (val) {
+      if (!val) {
         this.resetForm();
       }
     }
@@ -113,39 +123,75 @@ export default {
     handleClose () {
       this.dialogVisible = false;
     },
-    handleConfirm () {
-      this.$refs.ruleForm.validate((valid) => {
+    // 获取错误代码列表
+    async getErrorCodeData () {
+      try {
+        const params = {
+          pageNum: 1,
+          pageSize: 500
+        };
+        const res = await getErrorCodeList(params);
+        // 只显示启用状态的错误代码
+        const enabledList = (res.records || []).filter(item => item.status === 1);
+        this.errorCodeOptions = enabledList.map(item => ({
+          value: item.code,
+          label: item.code,
+          desc: item.content
+        }));
+      } catch (error) {
+        console.error('获取错误代码列表失败:', error);
+        this.$message.error('获取错误代码列表失败');
+      }
+    },
+    async handleConfirm () {
+      if (this.submitting) {
+        return;
+      }
+
+      this.$refs.ruleForm.validate(async (valid) => {
         if (valid) {
           // 获取附件信息
           const attachments = this.$refs.attachment ? this.$refs.attachment.getAttachment() : [];
 
-          this.$emit('confirm', {
-            auditAction: this.form.auditAction,
-            auditOpinion: this.form.auditOpinion,
-            errorCode: this.form.errorCode,
-            attachments: attachments
-          });
-          this.dialogVisible = false;
+          const auditResult = this.form.auditStaus === 'pass' ? 1 : 0;
+
+          // 准备提交数据
+          const submitData = {
+            id: this.rowId,
+            auditResult,
+            auditContent: this.form.auditContent,
+            preAuthRuleCodeId: this.form.preAuthRuleCodeId,
+            attachments
+          };
+
+          this.submitting = true;
+          try {
+            await auditItem(submitData);
+            this.$message.success(this.form.auditStaus === 'pass' ? '审批通过' : '审批驳回');
+            this.dialogVisible = false;
+            this.$emit('success');
+          } catch (error) {
+          } finally {
+            this.submitting = false;
+          }
         }
       });
     },
     resetForm () {
       this.form = {
-        auditAction: 'reject',
-        auditOpinion: '',
-        errorCode: ''
+        auditStaus: 'reject',
+        auditContent: '',
+        preAuthRuleCodeId: ''
       };
       this.$nextTick(() => {
-        this.$refs.ruleForm && this.$refs.ruleForm.clearValidate();
+        if (this.$refs.ruleForm) {
+          this.$refs.ruleForm.clearValidate();
+        }
         // 重置附件组件
         if (this.$refs.attachment) {
-          this.$refs.attachment.update(); // 如果有需要可以重新初始化附件组件
+          this.$refs.attachment.update();
         }
       });
-    },
-    // 设置错误代码选项
-    setErrorCodeOptions (options) {
-      this.errorCodeOptions = options || [];
     }
   }
 };

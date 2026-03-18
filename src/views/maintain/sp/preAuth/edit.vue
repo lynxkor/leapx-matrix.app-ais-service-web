@@ -8,14 +8,14 @@
         :isEditing.sync="isEditing"
         :form.sync="form"
         :originalForm.sync="originalForm"
-        :submitRequest="submitRequest"
+        :submitRequest="() => submitRequest(1)"
         :detailRequest="detailRequest"
       >
         <template #status>
           <span class="status primary" v-if="form.statusDesc">{{ form.statusDesc }}</span>
         </template>
         <template #extraButtons>
-          <!-- <el-button size="small" @click="handleShowLog" v-if="_id">审核日志</el-button> -->
+          <el-button size="small" type="primary" @click="submitRequest(1)" v-if="_id">提交审批</el-button>
         </template>
         <template #footer>
           <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitRequest(0)" :loading="loading">保存</el-button>
@@ -43,6 +43,7 @@
                     placeholder="请选择施工单"
                     clearable
                     filterable
+                    :disabled="_id"
                     @change="handleServiceProxyChange"
                   />
                 </el-form-item>
@@ -178,6 +179,7 @@
                     :remote-method="queryQualityReport"
                     remote
                     v-model="form.qualityOrderReportId"
+                    :params="form.qualityOrderReport"
                     value-key="id"
                     label-key="code"
                     placeholder="请选择质量反馈单"
@@ -225,6 +227,17 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
+                <el-form :inline="true" class="form-detail">
+                  <el-form-item label="工时索赔合计：">
+                    <span>{{ form.approvedLaborClaimTotal || '-' }}</span>
+                  </el-form-item>
+                  <el-form-item label="零件索赔合计：">
+                    <span>{{ form.approvedPartsClaimTotal || '-' }}</span>
+                  </el-form-item>
+                  <el-form-item label="其他索赔费用：">
+                    <span>{{ form.approvedOtherClaimTotal || '-' }}</span>
+                  </el-form-item>
+                </el-form>
                 <vxe-table
                   ref="repairTableRef"
                   stripe
@@ -526,7 +539,7 @@ export default {
         });
       }
     },
-    submitRequest (v) {
+    submitRequest (v = 0) {
       // 表单校验
       return this.$refs.ruleForm.validate().then(() => {
         addOrUpdate({
@@ -593,7 +606,7 @@ export default {
           if (detailRes) {
             // 直接保存接口返回的数据，用于展示
             this.serviceProxyDetail = detailRes;
-
+            Object.assign(this.form, detailRes);
             // 设置预授权类型（如果有）
             if (detailRes.preAuthType) {
               this.form.preAuthType = detailRes.preAuthType;
