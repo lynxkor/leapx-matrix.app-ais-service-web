@@ -256,7 +256,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '预授权参数设置表管理',
+      pageTitle: '预授权参数设置',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-preAuthRule',

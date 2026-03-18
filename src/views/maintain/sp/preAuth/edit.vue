@@ -503,7 +503,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '预授权申请表管理',
+      pageTitle: '预授权申请',
       pageType: 'edit',
       moduleKey: 'AISMC-preAuth',
       loading: false,
