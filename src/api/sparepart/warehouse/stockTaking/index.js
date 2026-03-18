@@ -97,5 +97,5 @@ export function stockTakingDetailDelete (data) {
  * @param {Object} data
  */
 export function stockTakingDetailAddOrUpdate (data) {
-  return api.jsonPost('/sp/web/dealer/stockTakingDetail/addOrUpdate', data);
+  return api.jsonPost(prefixDetail + 'addOrUpdate', data);
 }
