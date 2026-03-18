@@ -194,8 +194,9 @@
                 </el-form-item>
                 <el-form-item class="form-item-full">
                   <next-table
+                    v-if="isEditing || !_id"
+                    ref="nextTable"
                     :id="form.id"
-                    :isEdit="true"
                   />
                 </el-form-item>
               </el-form>
@@ -208,6 +209,8 @@
                 </el-form-item>
                 <el-form-item class="form-item-full">
                   <next-table
+                    v-if="!(isEditing || !_id)"
+                    ref="nextTable"
                     :id="form.id"
                   />
                 </el-form-item>
@@ -790,7 +793,7 @@
           :visible.sync="infoDialogVisible"
           :vehicleProfileId="form.id"
           :data="infoDialogData"
-          @success="onInfoSuccess"
+          @update="onInfoSuccess"
         />
       </edit-base-container>
     </template>
@@ -1130,8 +1133,8 @@ export default {
       this.infoDialogVisible = true;
     },
     onInfoSuccess () {
-      this.$refs.containerRef.loadDetail();
-    }
+      this.$refs?.nextTable?.getDetailPageApi();
+    },
   }
 };
 </script>

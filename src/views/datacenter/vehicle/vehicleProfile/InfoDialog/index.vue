@@ -9,6 +9,7 @@
     <next-table
       :id="vehicleProfileId"
       :isEdit="true"
+      @update="$emit('update')"
     />
   </el-dialog>
 </template>

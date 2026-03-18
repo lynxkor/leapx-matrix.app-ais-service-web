@@ -187,6 +187,7 @@ export default {
         this.$message.success('保存成功');
         this.originTableData = cloneDeep(this.tableData);
         this.eidtRowIndex = -1;
+        this.$emit('update');
       });
     },
     pageSizeChange (pageSize) {

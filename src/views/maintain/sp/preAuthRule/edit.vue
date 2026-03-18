@@ -1,5 +1,5 @@
 <template>
-  <edit-page-layout ref="editLayout" title="预授权申请" showPaneFooter>
+  <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
       <edit-base-container
         ref="containerRef"
@@ -7,212 +7,77 @@
         :title="title"
         :isEditing.sync="isEditing"
         :form.sync="form"
-        :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
         <template #status>
-          <span class="status primary" v-if="form.statusLabel">{{ form.statusLabel }}</span>
-        </template>
-        <template #extraButtons>
-          <el-button size="small" @click="handleShowLog" v-if="_id">审核日志</el-button>
+          <!-- <span class="status" :class="form.status === 1 ? 'primary' : 'danger'">{{ form.status === 1 ? '启用' : '停用' }}</span> -->
         </template>
         <el-main>
-          <!-- 基础信息 -->
           <section class="common-section">
             <div class="common-section-header">
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <!-- 编辑模式 -->
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="申请单号：">
-                  <span>{{ form.applyNo || '保存后自动生成' }}</span>
-                </el-form-item>
-                <el-form-item label="施工单号：" prop="serviceProxyId">
-                  <fetch-select
-                    :remote-method="queryServiceProxy"
-                    remote
-                    v-model="form.serviceProxyId"
-                    value-key="id"
-                    label-key="code"
-                    placeholder="请选择施工单"
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="180px" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="预授权规则编号：" prop="code">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.code"
                     clearable
-                    filterable
-                    @change="handleServiceProxyChange"
                   />
                 </el-form-item>
-                <el-form-item label="预授权类型：" prop="preAuthType">
-                  <el-radio-group v-model="form.preAuthType">
-                    <el-radio label="1">技术预授权</el-radio>
-                    <el-radio label="2">保修预授权</el-radio>
+                <el-form-item label="有效日期：" prop="endTime">
+                  <el-date-picker
+                    v-model="form.endTime"
+                    :picker-options="pickerOptions"
+                    value-format="yyyy-MM-dd HH:mm:ss"
+                    placeholder="请选择有效日期"
+                  />
+                </el-form-item>
+                <el-form-item label="预授权额度(元)：" prop="authAmount">
+                  <el-input-number
+                    v-model="form.authAmount"
+                    size="small"
+                    :min="0"
+                    :precision="2"
+                    :step="100"
+                    placeholder="请输入预授权额度"
+                  />
+                </el-form-item>
+                <el-form-item label="启用状态：" prop="status">
+                  <el-radio-group v-model="form.status">
+                    <el-radio :label="1">启用</el-radio>
+                    <el-radio :label="0">停用</el-radio>
                   </el-radio-group>
                 </el-form-item>
-                <el-form-item label="门店名称：">
-                  <span>{{ form.dealerName || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="门店编码：">
-                  <span>{{ form.dealerCode || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="门店所属区域：">
-                  <span>{{ form.regionName || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="申请原因：" prop="applyReason">
-                  <el-input
-                    type="textarea"
-                    :rows="2"
-                    placeholder="请输入申请原因，限200字符"
-                    v-model="form.applyReason"
-                    maxlength="200"
-                    show-word-limit
-                  />
-                </el-form-item>
               </el-form>
-              <!-- 详情模式 -->
-              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="申请单号：">
-                  <span>{{ form.applyNo || '-' }}</span>
+              <el-form label-width="180px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="预授权规则编号：" prop="code">
+                  {{ form.code }}
                 </el-form-item>
-                <el-form-item label="施工单号：">
-                  <span>{{ form.serviceProxyCode || '-' }}</span>
+                <el-form-item label="有效日期：" prop="endTime">
+                  {{ form.endTime }}
                 </el-form-item>
-                <el-form-item label="预授权类型：">
-                  <span>{{ form.preAuthTypeLabel || '-' }}</span>
+                <el-form-item label="预授权额度(元)：" prop="authAmount">
+                  {{ form.authAmount }}
                 </el-form-item>
-                <el-form-item label="门店名称：">
-                  <span>{{ form.dealerName || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="门店编码：">
-                  <span>{{ form.dealerCode || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="门店所属区域：">
-                  <span>{{ form.regionName || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="申请原因：">
-                  <span>{{ form.applyReason || '-' }}</span>
+                <el-form-item label="启用状态：" prop="status">
+                  {{ form.status === 1 ? '启用' : '停用' }}
                 </el-form-item>
               </el-form>
             </div>
           </section>
-          <section class="common-section">
-            <div class="common-section-header">
-              <h2>车辆信息</h2>
-            </div>
-            <div class="common-section-body">
-              <el-form :inline="true" class="form-detail">
-                <el-form-item label="车主姓名：">
-                  <span>{{ form.ownerName || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="送修人：">
-                  <span>{{ form.senderName || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="送修人手机：">
-                  <span>{{ form.senderPhone || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="VIN：">
-                  <span>{{ form.vin || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="车型：">
-                  <span>{{ form.vehicleModel || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="车牌号：">
-                  <span>{{ form.plateNo || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="车辆用途：">
-                  <span>{{ form.vehicleUseLabel || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="进店里程数：">
-                  <span>{{ form.mileage || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="生产日期：">
-                  <span>{{ form.productionDate || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="终身免保：">
-                  <span>{{ form.isLifetimeFreeLabel || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="终身质保：">
-                  <span>{{ form.isLifetimeWarrantyLabel || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="保修开始日期：">
-                  <span>{{ form.warrantyStartDate || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="保修结束日期：">
-                  <span>{{ form.warrantyEndDate || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="服务月份：">
-                  <span>{{ form.serviceMonth || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="三包预警：">
-                  <span>{{ form.threePackWarning || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="预警信息：">
-                  <span>{{ form.warningInfo || '-' }}</span>
-                </el-form-item>
-              </el-form>
-            </div>
-          </section>
-          <!-- 质量反馈信息 -->
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>质量反馈信息</h2>
-            </div>
-            <div class="common-section-body">
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="质量反馈单号：" prop="a">
-                  <fetch-select
-                    :remote-method="queryServiceProxy"
-                    remote
-                    v-model="form.a"
-                    value-key="id"
-                    label-key="code"
-                    placeholder="请选择施工单"
-                    clearable
-                    filterable
-                    @change="handleServiceProxyChange"
-                  />
-                </el-form-item>
-                <el-form-item label="故障现象描述：" prop="b">
-                  <el-input
-                    type="text"
-                    placeholder="请输入申请原因，限200字符"
-                    v-model="form.b"
-                    maxlength="200"
-                  />
-                </el-form-item>
-                <el-form-item label="故障排查流程：" prop="c">
-                  <el-input
-                    type="text"
-                    placeholder="请输入申请原因，限200字符"
-                    v-model="form.c"
-                    maxlength="200"
-                  />
-                </el-form-item>
-              </el-form>
-              <!-- 详情模式 -->
-              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="质量反馈单号：">
-                  <span>{{ form.a || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="故障现象描述：">
-                  <span>{{ form.b || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="故障排查流程：">
-                  <span>{{ form.c || '-' }}</span>
-                </el-form-item>
-              </el-form>
-            </div>
-          </section>
-          <!-- 费用信息 -->
-          <section class="common-section" v-if="_id">
-            <div class="common-section-header">
-              <h2>费用信息</h2>
+              <h2>适配车型&nbsp;<el-button type="primary" size="small" @click="modelDialogVisible = true">添加</el-button></h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
                 <vxe-table
-                  ref="tableRef"
+                  ref="tableModel"
                   stripe
-                  :data="costTableData"
+                  :data="tableDataModel"
                   show-overflow
                   resizable
                   border="inner"
@@ -220,71 +85,135 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="repairItemCode" title="维修项目代码" min-width="120" />
-                  <vxe-column field="repairItemName" title="维修项目名称" min-width="150" />
-                  <vxe-column field="warrantyType" title="保修类型" min-width="100" />
-                  <vxe-column field="activityCode" title="活动编号" min-width="120" />
-                  <vxe-column field="isAddItemLabel" title="是否增项" min-width="80" />
-                  <vxe-column field="laborPrice" title="工时单价" min-width="100" />
-                  <vxe-column field="laborCount" title="工时数" min-width="80" />
-                  <vxe-column field="discountAmount" title="优惠金额" min-width="100" />
-                  <vxe-column field="discountRate" title="折扣率" min-width="80" />
-                  <vxe-column field="repairCost" title="维修费用" min-width="100" />
-                  <vxe-column field="packageName" title="套餐名称" min-width="150" />
-                  <vxe-column field="packageCode" title="套餐代码" min-width="120" />
-                  <vxe-column field="serviceRightsCode" title="服务权益代码" min-width="120" />
+                  <vxe-column field="vehicleSeriesName" title="车系" min-width="30%" />
+                  <vxe-column field="vehicleModelName" title="车型" min-width="30%" />
+                  <vxe-column field="vehicleYearType" title="年款" min-width="30%" />
+                  <vxe-column title="操作" width="100" v-if="canDelete">
+                    <template #default="{rowIndex}">
+                      <el-popconfirm title="确定要删除该适配车型吗？" @confirm="handleDeleteModelRow(rowIndex)">
+                        <span slot="reference" type="text" size="small" :class="['btn-delete']">删除</span>
+                      </el-popconfirm>
+                    </template>
+                  </vxe-column>
                   <template #empty>
-                    <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
+                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
+                  </template>
+                </vxe-table>
+              </div>
+            </div>
+          </section>
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>适配零件</h2>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-header">
+                <div class="ais-select-group">
+                  <fetch-select
+                    ref="partSelectRef"
+                    style="width: 300px;"
+                    :remote-method="querySpareParts"
+                    remote
+                    placeholder="请选择零件"
+                    clearable
+                    filterable
+                    value-key="id"
+                    label-key="partName"
+                    @change="handlePartSelect"
+                  />
+                  <el-button
+                    type="primary"
+                    size="small"
+                  >
+                    添加
+                  </el-button>
+                  <el-button type="plain" size="small" @click="handleImport">零件导入</el-button>
+                </div>
+              </div>
+              <div class="common-section-table">
+                <vxe-table
+                  ref="tablePart"
+                  stripe
+                  :data="tableDataPart"
+                  show-overflow
+                  resizable
+                  border="inner"
+                  size="medium"
+                  min-height="0"
+                  max-height="400px"
+                >
+                  <vxe-column field="partsCode" title="零件代码" min-width="200" />
+                  <vxe-column field="partsName" title="零件名称" min-width="200" />
+                  <vxe-column field="remark" title="备注" min-width="200" />
+                  <vxe-column field="creatorName" title="创建人" min-width="200" />
+                  <vxe-column field="createTime" title="创建时间" min-width="200" />
+                  <vxe-column title="操作" width="100" v-if="canDelete">
+                    <template #default="{ rowIndex }">
+                      <el-popconfirm title="确定要删除该零件吗？" @confirm="handleDeletePartRow(rowIndex)">
+                        <span slot="reference" type="text" size="small" :class="['btn-delete']">删除</span>
+                      </el-popconfirm>
+                    </template>
+                  </vxe-column>
+                  <template #empty>
+                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
                   </template>
                 </vxe-table>
               </div>
             </div>
           </section>
         </el-main>
+        <ModelDialog :visible="modelDialogVisible" :info="form" @submit="handleVehicleModelSubmit" @close="handleCloseModel" />
+        <!-- TIPS: 填入项目id即可 -->
+        <Upload
+          :visible="uploadDialogVisible"
+          :id="'importpreauthpart'"
+          downloadTitle="批量导入零件模版.xlsx"
+          @close="handleUploadDialogClose"
+          @getData="detailRequest"
+          :businessParams="_id"
+        />
       </edit-base-container>
     </template>
     <template #right>
-      <!-- 右侧栏组件，自行开发 -->
+      <div class="page-common-edit">
+        <!-- 右侧栏组件，自行开发 -->
+      </div>
     </template>
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getServiceProxyList, checkServiceProxy } from '@/api/maintain/sp/preAuthRule/index';
+import { getDetail, addOrUpdate, addPartItem, deletePartItem, addPartVehModel, deletePartVehModel } from '@/api/maintain/sp/preAuthRule/index';
+import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import FetchSelect from '@/libs/components/FetchSelect';
+import { getEnum, sparePartList } from '@/api/common';
+import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import ModelDialog from '@/views/maintain/basic/maintenancePartData/components/AddVehicleDialog/index.vue';
+import Upload from '@/libs/components/UploadDialog';
 
 const defaultForm = {
-  applyNo: '',
-  serviceProxyId: '',
-  serviceProxyCode: '',
-  preAuthType: '',
-  preAuthTypeLabel: '',
-  dealerName: '',
-  dealerCode: '',
-  regionName: '',
-  applyReason: '',
-  ownerName: '',
-  senderName: '',
-  senderPhone: '',
-  vin: '',
-  vehicleModel: '',
-  plateNo: '',
-  vehicleUseLabel: '',
-  mileage: '',
-  productionDate: '',
-  isLifetimeFreeLabel: '',
-  isLifetimeWarrantyLabel: '',
-  warrantyStartDate: '',
-  warrantyEndDate: '',
-  serviceMonth: '',
-  threePackWarning: '',
-  warningInfo: '',
-  statusLabel: ''
+  code: '',
+  endTime: '',
+  authAmount: null,
+  status: 1,
+  id: '',
+  creator: '',
+  creatorName: '',
+  createTime: '',
+  modifier: '',
+  modifierName: '',
+  updateTime: '',
+  remark: '',
+  statusDesc: '',
+  vehicleSeriesIds: '',
+  vehicleModelNames: '',
+  vehicleSeriesNames: '',
+  vehicleModels: [],
+  partsResps: []
 };
 
 export default {
@@ -299,14 +228,19 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect
+    FetchSelect,
+    ModelDialog,
+    Upload
   },
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
     },
+    isReadonly () {
+      return this.$route.query.readonly === 'true';
+    },
     title () {
-      return '申请单号：' + (this.form.applyNo || '新增');
+      return '预授权规则编号：' + (this.form.code || '新增');
     }
   },
   watch: {
@@ -320,93 +254,187 @@ export default {
     }
   },
   data () {
+    const form = this.getDefautlForm();
     return {
-      pageTitle: '预授权申请',
+      pageTitle: '预授权参数设置表管理',
       pageType: 'edit',
+      // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-preAuthRule',
-      loading: false,
-      submitLoading: false,
-      form: { ...defaultForm },
-      originalForm: { ...defaultForm },
-      emptyText: '暂无费用信息',
-      costTableData: [],
+      yes_no_enum: YES_NO_ENUM,
+      form: { ...form },
+      originalForm: { ...form },
+      emptyText: '若要启用此内容，请创建记录',
+      // 适配车型
+      tableDataModel: [],
+      // 适配零件
+      tableDataPart: [],
+      modelDialogVisible: false, // 适配车型弹窗
+      uploadDialogVisible: false,
+      pickerOptions: {
+        disabledDate (time) {
+          return time.getTime() < Date.now() - 8.64e7;
+        }
+      },
       rules: {
-        serviceProxyId: [
-          { required: true, message: '请选择施工单', trigger: 'change' }
+        code: [
+          { required: false, message: '请输入预授权规则编号', trigger: 'change' }
         ],
-        preAuthType: [
-          { required: true, message: '请选择预授权类型', trigger: 'change' }
+        endTime: [
+          { required: true, message: '请选择有效日期', trigger: 'change' }
         ],
-        applyReason: [
-          { required: true, message: '请输入申请原因', trigger: 'blur' },
-          { max: 200, message: '申请原因不能超过200字符', trigger: 'blur' }
+        authAmount: [
+          { required: true, message: '请输入预授权额度', trigger: 'change' }
+        ],
+        status: [
+          { required: true, message: '请选择启用状态', trigger: 'change' }
         ]
       }
     };
   },
+  mounted () {
+    // 如果是只读模式，禁止编辑
+    if (this.isReadonly) {
+      this.isEditing = false;
+    }
+  },
   methods: {
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
         return getDetail(id).then(res => {
-          this.costTableData = res.costList || [];
+          // 加载适配车型和零件数据
+          this.tableDataModel = res.vehicleModels || [];
+          this.tableDataPart = res.partsResps || [];
           return res;
         });
       }
     },
     submitRequest () {
-      return addOrUpdate({ ...this.form });
-    },
-    handleShowLog () {
-      this.$auditLog.show({ id: this._id });
-    },
-    async queryServiceProxy (queryString) {
-      return new Promise(resolve => {
-        getServiceProxyList({ code: queryString, status: 1, limitSize: 20 }).then(res => {
-          const list = res.records || [];
-          resolve(list);
-        }).catch(() => {
-          resolve([]);
+      return addOrUpdate({
+        ...this.form,
+        vehicleModels: this.tableDataModel,
+        partsResps: this.tableDataPart
+      }).then(result => {
+        this.$message.success('保存成功');
+        console.log(result);
+        this.$router.push({
+          path: '/maintain/sp/preAuthRule/edit',
+          query: {
+            id: result
+          }
         });
-      });
+      }).catch(() => {});
     },
-    handleServiceProxyChange (val, record) {
+    // 删除单个车型
+    async handleDeleteModelRow (index) {
+      const item = this.tableDataModel[index];
+      await deletePartVehModel([item.id]);
+      this.tableDataModel.splice(index, 1);
+      this.$message.success('删除成功');
+    },
+    // 添加零件
+    handleAddPart (record) {
       if (!record) {
+        this.$message.warning('请先选择零件');
         return;
       }
-      // 选择施工单后进行查重
-      // this.checkServiceProxy(record.id);
-      // 填充关联信息
-      this.form.serviceProxyCode = record.code;
-      this.form.dealerName = record.dealerName;
-      this.form.dealerCode = record.dealerCode;
-      this.form.regionName = record.regionName;
-      this.form.ownerName = record.ownerName;
-      this.form.senderName = record.senderName;
-      this.form.senderPhone = record.senderPhone;
-      this.form.vin = record.vin;
-      this.form.vehicleModel = record.vehicleModel;
-      this.form.plateNo = record.plateNo;
-      this.form.mileage = record.mileage;
-      // 根据预授权提醒逻辑设置默认预授权类型
-      if (record.preAuthType) {
-        this.form.preAuthType = record.preAuthType;
+      // 检查是否已存在
+      const exists = this.tableDataPart.some(item => item.partCode === record.partCode);
+      if (exists) {
+        this.$message.warning('该零件已添加');
+        return;
       }
+      addPartItem({
+        preAuthRuleId: this._id,
+        partsCode: record.partCode,
+        partsName: record.partName,
+        partsId: record.id,
+      }).then(res => {
+        this.$message.success('添加成功');
+        this.detailRequest();
+      });
     },
-    checkServiceProxy (serviceProxyId) {
-      // 检查该施工单是否已存在生效的预授权申请单
-      checkServiceProxy({ serviceProxyId }).then(res => {
-        if (res && res.exists) {
-          this.$message.warning('该施工单已存在生效的预授权申请单，不可以重复创建预授权申请，请检查确认');
-          this.form.serviceProxyId = '';
-        }
+    // 零件选择变更
+    handlePartSelect (val, record) {
+      this.handleAddPart(record);
+    },
+    // 删除单个零件
+    async handleDeletePartRow (index) {
+      const item = this.tableDataPart[index];
+      await deletePartItem([item.id]);
+      this.tableDataPart.splice(index, 1);
+      this.$message.success('删除成功');
+    },
+    // 处理关闭弹窗事件
+    handleCloseModel () {
+      this.modelDialogVisible = false;
+    },
+    // 处理车型提交
+    handleVehicleModelSubmit (data) {
+      const submitData = data.addOrUpdateReqList || [];
+      addPartVehModel({
+        ...this.form,
+        authRuleModelParamList: [
+          ...this.form.vehicleModels,
+          ...submitData
+        ]
+      }).then(res => {
+        this.$message.success('保存成功');
+        this.detailRequest();
+      });
+    },
+    getDefautlForm () {
+      // TIPS: 此处可添加表单默认值，如当前用户信息等
+      // const userInfo = this.$store.state.user.userInfo;
+      return {
+        ...defaultForm
+        // ownerId: userInfo.userId,
+        // ownerName: userInfo.userName,
+      };
+    },
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
+    },
+    // 备件主数据表列表查询
+    querySpareParts (queryString) {
+      return new Promise(resolve => {
+        sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
+          const list = res || [];
+          resolve(list);
+        });
       });
     }
   }
 };
 </script>
-
 <style lang="scss" scoped>
-.m-pre-auth-rule-edit {
+.m-vxe-table-empty-text {
+  text-align: left;
+}
+::v-deep .vxe-table--empty-content {
+  color: var(--leap-color-default-light-2);
+  width: 100%;
+  padding: 0 16px;
+}
+.btn-delete {
+  color: var(--leap-color-danger);
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+    color: var(--leap-color-danger-dark-1);
+  }
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 }
 </style>
