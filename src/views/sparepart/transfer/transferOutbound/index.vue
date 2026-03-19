@@ -402,7 +402,7 @@ export default {
             }, {
               name: '申请撤销',
               show: (row) => {
-                return row.cancelStatus === '10' || row.outboundStatus === '40';
+                return (row.cancelStatus === '10' || row.cancelStatus === '40') && row.outboundStatus === '1';
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入申请撤销原因！', '申请撤销', {
@@ -458,7 +458,7 @@ export default {
             }, {
               name: '入库',
               show: (row) => {
-                return row.cancelStatus === '30' && row.inboundStatus === '1';
+                return row.cancelStatus === '30' && row.inboundStatus === '0';
               },
               popconfirmTitle: '此操作将入库, 是否继续?',
               click: (rowIndex, row) => {
