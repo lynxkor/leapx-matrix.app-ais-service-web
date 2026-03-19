@@ -402,7 +402,7 @@ export default {
             }, {
               name: '申请撤销',
               show: (row) => {
-                return row.cancelStatus === '10' || row.outboundStatus === '40';
+                return (row.cancelStatus === '10' || row.cancelStatus === '40') && row.outboundStatus === '1';
               },
               popconfirmTitle: '此操作将申请撤销, 是否继续?',
               click: (rowIndex, row) => {
