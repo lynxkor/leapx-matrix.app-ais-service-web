@@ -177,6 +177,12 @@ export default {
     },
     'form.attachFileList' () {
       console.log('附件列表变化：', this.form.attachFileList);
+    },
+    'form.acceptanceResult' (val) {
+      // 验收通过时清空不合格代码
+      if (val === '0') {
+        this.form.unqualifiedCode = '';
+      }
     }
   },
   methods: {
