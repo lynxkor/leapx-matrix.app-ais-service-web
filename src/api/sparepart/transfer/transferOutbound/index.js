@@ -131,3 +131,11 @@ export function transferOutboundPage (data) {
 export function transferOutboundDelete (data) {
   return api.jsonPost('/sp/web/dealer/transferOutboundDetail/delete', data);
 }
+
+/**
+ * 备件调拨出库明细表新增/编辑
+ * @param {Object} data
+ */
+export function transferOutboundAddOrUpdate (data) {
+  return api.jsonPost('/sp/web/dealer/transferOutboundDetail/addOrUpdate', data);
+}

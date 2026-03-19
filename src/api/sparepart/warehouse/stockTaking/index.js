@@ -85,7 +85,7 @@ export function stockTakingDetailPage (data) {
 }
 
 /**
- * 备件库存盘点明细表分页查询
+ * 备件库存盘点明细表删除
  * @param {Object} data
  */
 export function stockTakingDetailDelete (data) {

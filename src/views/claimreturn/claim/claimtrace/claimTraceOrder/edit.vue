@@ -47,7 +47,7 @@
                   />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerCode">
-                    <dealer-select v-model="form.dealerCode" :disabled="isEditMode" />
+                    <dealer-select v-model="form.dealerCode" :disabled="!canEditOtherFields" />
                   </el-form-item>
                   <el-form-item label="门店编码：" prop="dealerCode">
                     <el-input v-model="form.dealerCode" disabled />
@@ -73,6 +73,7 @@
                     clearable
                     type="textarea"
                     :rows="2"
+                    :disabled="!canEditOtherFields"
                   />
                 </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
@@ -80,6 +81,7 @@
                     placeholder="请输入"
                     v-model="form.vin"
                     clearable
+                    :disabled="!canEditOtherFields"
                   />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
@@ -89,6 +91,7 @@
                     clearable
                     type="textarea"
                     :rows="2"
+                    :disabled="!canEditRemark"
                   />
                 </el-form-item>
               </el-form>
@@ -308,6 +311,20 @@ export default {
     },
     title () {
       return '索赔追溯单号：' + this.form.claimTraceCode;
+    },
+    // 其他字段是否可编辑：仅新增时可编辑
+    canEditOtherFields () {
+      return !this._id;
+    },
+    // 备注是否可编辑：草稿、审核中、已驳回可以修改
+    canEditRemark () {
+      // 编辑模式下且有 ID 时，根据追溯状态判断
+      if (this._id && this.isEditing) {
+        const editableStatus = ['10', '20', '30']; // 10=草稿，20=审核中，30=已驳回
+        return editableStatus.includes(this.form.traceStatus);
+      }
+      // 新增模式或查看模式，保持可编辑或只读
+      return !this._id;
     }
   },
   watch: {
@@ -342,15 +359,6 @@ export default {
         ],
         warrantyCode: [
           { required: true, message: '请输入保修申请单', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称', trigger: 'change' }
-        ],
-        traceDesc: [
-          { required: true, message: '请输入追溯说明', trigger: 'change' }
-        ],
-        vin: [
-          { required: true, message: '请输入 VIN', trigger: 'change' }
         ],
       }
     };
