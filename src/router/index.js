@@ -2435,6 +2435,24 @@ const routes = [
         name: '留车清单表管理详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/maintain/sp/restatement',
+      name: 'restatement',
+      component: () => import('@/views/maintain/sp/restatement/index.vue'),
+
+      meta: {
+        name: '反结算申请单管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/restatement/edit',
+      name: 'restatementEdit',
+      component: () => import('@/views/maintain/sp/restatement/edit.vue'),
+
+      meta: {
+        name: '反结算申请单管理详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
