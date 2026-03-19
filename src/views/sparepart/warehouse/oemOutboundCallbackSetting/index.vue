@@ -83,8 +83,7 @@ export default {
   components: {
     LPVxeTable,
     EditPage,
-    Upload,
-    TagInput
+    Upload
   },
   data () {
     return {
