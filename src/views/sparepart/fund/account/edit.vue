@@ -255,6 +255,8 @@
                     show-overflow
                     border="inner"
                     size="medium"
+                    min-height="0"
+                    max-height="400px"
                   >
                     <vxe-column
                       v-for="col in columnConfigs"
@@ -276,7 +278,7 @@
                     :page-sizes="[10, 20, 50, 100]"
                     background
                     layout="total, prev, pager, next, sizes, jumper"
-                    :total="pagination.pageSize"
+                    :total="pagination.total"
                     @size-change="pageSizeChange"
                     @current-change="currentPageChange"
                   />
@@ -297,6 +299,8 @@
                     show-overflow
                     border="inner"
                     size="medium"
+                    min-height="0"
+                    max-height="400px"
                   >
                     <vxe-column
                       v-for="col in columnConfigsDj"
@@ -324,6 +328,17 @@
                     <vxe-column field="cashUnitPrice" title="现金单价" width="100" />
                     <vxe-column field="frozenAmount" title="冻结金额" width="100" /> -->
                   </vxe-table>
+                  <el-pagination
+                    style="float: right; padding-top: 16px;"
+                    :current-page.sync="djPagination.current"
+                    :page-size="djPagination.pageSize"
+                    :page-sizes="[10, 20, 50, 100]"
+                    background
+                    layout="total, prev, pager, next, sizes, jumper"
+                    :total="djPagination.total"
+                    @size-change="djPageSizeChange"
+                    @current-change="djCurrentPageChange"
+                  />
                 </div>
               </div>
             </section>
