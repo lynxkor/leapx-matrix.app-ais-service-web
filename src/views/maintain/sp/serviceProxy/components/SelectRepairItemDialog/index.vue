@@ -1295,6 +1295,7 @@ export default {
             warrantyTypeIds: [...new Set(partPerms.map(p => p.repairItemTypeId))]
           }
         };
+      }).finally(() => {
         this.getRepairItemTypeList();
       });
     },

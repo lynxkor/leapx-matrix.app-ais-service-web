@@ -129,7 +129,7 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="'1'"
+      id="vehRetentionConfigImport"
       @close="handleUploadDialogClose"
       @getData="getData"
     />
@@ -180,7 +180,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '留车项配置',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-vehRetentionConfig',
@@ -204,7 +204,7 @@ export default {
         dataProp: [
           {
             props: 'code',
-            label: '编码',
+            label: '留车项配置代码',
             visible: true,
             width: 200,
             fixed: 'left',
@@ -220,13 +220,13 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'vehYearTypeName', label: '年型', visible: true, width: 200 },
-          { props: 'vehModelName', label: '基本车型', visible: true, width: 200 },
+          { props: 'vehYearTypeName', label: '年款', visible: true, width: 200 },
+          { props: 'vehModelName', label: '车型', visible: true, width: 200 },
           { props: 'cccName', label: '故障名称', visible: true, width: 200 },
-          { props: 'partsCode', label: '零件代码', visible: true, width: 200 },
-          { props: 'partsName', label: '零件名称', visible: true, width: 200 },
+          { props: 'partsCode', label: '涉及零件代码', visible: true, width: 200 },
+          { props: 'partsName', label: '涉及零件名称', visible: true, width: 200 },
           { props: 'retainedScope', label: '留车范围', visible: true, width: 200 },
-          { props: 'status', label: '状态', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
           { props: 'manufactureStartOn', label: '制造开始日期', visible: true, width: 200 },
           { props: 'manufactureEndOn', label: '制造结束日期', visible: true, width: 200 },
           { props: 'effectiveOn', label: '配置有效开始日期', visible: true, width: 200 },

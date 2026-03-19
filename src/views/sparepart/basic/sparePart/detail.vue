@@ -14,7 +14,11 @@
           <el-form :inline="true" ref="ruleForm" label-width="180px">
             <!-- TIPS: 根据实际情况调整展示字段 -->
             <el-form-item label="备件编码：" prop="partCode">
-              {{ info.partCode  }}
+              <!-- {{ info.partCode  }} -->
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span>{{ info.partCode }}</span>
+                <el-button size="mini" @click="handleDigitalModel">数模</el-button>
+              </div>
             </el-form-item>
             <el-form-item label="备件名称：" prop="partName">
               {{ info.partName  }}
@@ -302,6 +306,10 @@ export default {
       }).catch(() => {
         this.loading = false;
       });
+    },
+    // 跳转数模
+    handleDigitalModel () {
+      window.open(`https://usercenter-uat.leapmotor.com/auth/oauth/authorize?response_type=code&client_id=ITP&redirect_uri=https://itpuat.leapmotor.com/#/detailsPart?detailsPartCode=${this.info.partCode}`, '_blank');
     }
   }
 };

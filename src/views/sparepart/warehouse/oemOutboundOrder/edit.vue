@@ -290,10 +290,10 @@
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="采购订单号：" prop="purchaseOrderCode">
-                  {{ form.purchaseOrderCode }}
+                  <el-link type="success" :href="`/service/sparepart/purchase/purchaseOrder/edit?id=${form.purchaseOrderCode}`" target="_blank">{{ form.purchaseOrderCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="采购申请单：" prop="purchaseApplyCode">
-                  {{ form.purchaseApplyCode }}
+                  <el-link type="success" :href="`/service/sparepart/purchase/purchaseApply/edit?id=${form.purchaseApplyCode}`" target="_blank">{{ form.purchaseApplyCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="发货仓库：" prop="deliveryWarehouse">
                   {{ form.deliveryWarehouseName }}
@@ -309,6 +309,9 @@
                 </el-form-item>
                 <el-form-item label="物流单号：" prop="logisticsOrderNo">
                   {{ form.logisticsOrderNo }}
+                </el-form-item>
+                <el-form-item label="发运单：" prop="logisticsOrderNo">
+                  <div class="shipping-order" @click="handleLogisticsClick">{{ form.logisticsOrderNo }}</div>
                 </el-form-item>
                 <el-form-item label="订单同步是否成功：" prop="orderSyncSuccessIs">
                   {{ form.orderSyncSuccessIsLabel }}
@@ -387,6 +390,13 @@
         <!-- 右侧栏组件，自行开发 -->
       </div>
     </template>
+    <!-- 物流信息抽屉 -->
+    <LogisticsDrawer
+      ref="logisticsDrawerRef"
+      :visible.sync="logisticsDrawerVisible"
+      :drawerData="logisticsData"
+      @update:visible="val => logisticsDrawerVisible = val"
+    />
   </edit-page-layout>
 </template>
 
@@ -401,6 +411,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import LogisticsDrawer from '@/libs/components/LogisticsDrawer';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -450,7 +461,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     EditTable,
-    FetchSelect
+    FetchSelect,
+    LogisticsDrawer
   },
   computed: {
     _id () {
@@ -477,6 +489,8 @@ export default {
       moduleKey: 'AISPART-oemOutboundOrder',
       loading: false,
       submitLoading: false,
+      logisticsData: {}, // 物流信息
+      logisticsDrawerVisible: false, // 物流信息抽屉
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -703,6 +717,18 @@ export default {
       this.current = current;
       this.getData();
     },
+    // 打开物流信息抽屉
+    handleLogisticsClick () {
+      this.logisticsData = this.form;
+      this.logisticsDrawerVisible = true;
+    }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.shipping-order {
+  cursor: pointer;
+  color: #009100;
+}
+</style>

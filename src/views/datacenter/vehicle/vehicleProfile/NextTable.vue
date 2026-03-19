@@ -4,6 +4,7 @@
     ref="editTable"
     :data="tableData"
     :class="{isEdit: isEdit}"
+    v-loading="isEdit && loading"
     stripe
     show-overflow
     resizable
@@ -15,8 +16,59 @@
     >
     <vxe-column field="name" title="备件名称" ></vxe-column>
     <vxe-column field="mileageTypeLabel" title="里程类型" ></vxe-column>
-    <vxe-column field="nextMaintenanceDate" title="下次保养日期" ></vxe-column>
-    <vxe-column field="nextMileage" title="下次保养里程" ></vxe-column>
+    <vxe-column field="nextMaintenanceDate" title="下次保养日期" >
+      <template #default="{ row, rowIndex }">
+        <el-date-picker
+          v-if="isEdit && eidtRowIndex === rowIndex"
+          v-model="row.nextMaintenanceDate"
+          type="date"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          placeholder="选择日期"
+          size="small"
+        />
+        <span v-else>{{ row.nextMaintenanceDate }}</span>
+      </template>
+    </vxe-column>
+    <vxe-column field="nextMileage" title="下次保养里程" >
+      <template #default="{ row, rowIndex }">
+        <el-input-number
+          v-if="isEdit && eidtRowIndex === rowIndex"
+          v-model="row.nextMileage"
+          placeholder="请输入"
+          :controls="false"
+          :precision="2"
+          size="small"
+          style="width: 100%;"
+        />
+        <span v-else>{{ row.nextMileage }}</span>
+      </template>
+    </vxe-column>
+    <vxe-column title="操作" width="150" align="center" fixed="right" :resizable="false" v-if="isEdit">
+      <template #default="{ row, rowIndex }">
+        <template v-if="eidtRowIndex === rowIndex">
+          <span
+            class="action-button btn-edit"
+            @click="saveRowEdit(row, rowIndex)"
+          >
+            保存
+          </span>
+          <span
+            class="action-button btn-delete"
+            @click="cancelEdit(row, rowIndex)"
+          >
+            取消
+          </span>
+        </template>
+        <template v-else>
+          <span
+            class="action-button btn-edit"
+            @click="editRow(row, rowIndex)"
+          >
+            编辑
+          </span>
+        </template>
+      </template>
+    </vxe-column>
     <template #empty>
       <div class="m-vxe-table-empty-text">
         暂无数据
@@ -38,8 +90,9 @@
 </div>
 </template>
 <script>
-import { vehicleProfileMaintenanceRecordPage } from '@/api/datacenter/vehicle/vehicleProfile';
+import { vehicleProfileMaintenanceRecordPage, editMaintenanceRecord } from '@/api/datacenter/vehicle/vehicleProfile';
 import permissions from '@/libs/mixins/permissions';
+import { cloneDeep } from 'lodash';
 
 export default {
   props: {
@@ -64,10 +117,15 @@ export default {
   },
   data () {
     return {
+      // 正在编辑的行
+      eidtRowIndex: -1,
+      originTableData: [],
+      //
       current: 1,
       pageSize: 10,
       total: 0,
       tableData: [],
+      loading: false,
     };
   },
   watch: {
@@ -85,17 +143,52 @@ export default {
   methods: {
     // 表格数据
     getDetailPageApi () {
+      this.loading = true;
       vehicleProfileMaintenanceRecordPage({
         vehicleProfileId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {
         this.tableData = res.records;
+        this.originTableData = cloneDeep(res.records);
         this.total = res.total;
+      }).finally(() => {
+        this.loading = false;
       });
     },
     getTableData () {
       return this.$refs.editTable.getData();
+    },
+    getOriginRow (id) {
+      return this.originTableData.find(row => row.id === id);
+    },
+    editRow (row, rowIndex) {
+      if (this.eidtRowIndex !== -1) {
+        this.$message.info('请先保存当前编辑的数据');
+        return;
+      }
+      this.eidtRowIndex = rowIndex;
+    },
+    cancelEdit (row, rowIndex) {
+      const originRow = this.getOriginRow(row.id);
+      if (originRow) {
+        this.tableData.splice(rowIndex, 1, cloneDeep(originRow));
+      }
+      if (rowIndex === this.eidtRowIndex) {
+        this.eidtRowIndex = -1;
+      }
+    },
+    saveRowEdit (row, rowIndex) {
+      editMaintenanceRecord({
+        id: row.id,
+        nextMaintenanceDate: row.nextMaintenanceDate,
+        nextMileage: row.nextMileage,
+      }).then(() => {
+        this.$message.success('保存成功');
+        this.originTableData = cloneDeep(this.tableData);
+        this.eidtRowIndex = -1;
+        this.$emit('update');
+      });
     },
     pageSizeChange (pageSize) {
       this.pageSize = pageSize;
@@ -117,7 +210,14 @@ export default {
   justify-content: flex-end;
 }
 
-.isEdit{
-  margin-left: 54px;
+.action-button {
+  margin: 0 5px;
+  cursor: pointer;
+  &.btn-edit {
+    color: #4C4CD6;
+  }
+  &.btn-delete {
+    color: #b91919;
+  }
 }
 </style>

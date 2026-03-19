@@ -157,6 +157,13 @@
       :id="'1'"
       @close="handleUploadDialogClose"
     />
+    <!-- 物流信息抽屉 -->
+    <LogisticsDrawer
+      ref="logisticsDrawerRef"
+      :visible.sync="logisticsDrawerVisible"
+      :drawerData="logisticsData"
+      @update:visible="val => logisticsDrawerVisible = val"
+    />
   </div>
 </template>
 
@@ -175,6 +182,7 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
+import LogisticsDrawer from '@/libs/components/LogisticsDrawer';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
@@ -207,7 +215,8 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    TagInput
+    TagInput,
+    LogisticsDrawer
   },
   data () {
     return {
@@ -224,6 +233,8 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      logisticsData: {}, // 物流信息
+      logisticsDrawerVisible: false, // 物流信息抽屉
       clickItemId: '',
       optionObj: {
         id: 'oemOutboundOrderTable',
@@ -291,7 +302,18 @@ export default {
           { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 180 },
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
-          { props: 'logisticsOrderNo', label: '发运单', visible: true, width: 200 },
+          {
+            props: 'logisticsOrderNo',
+            label: '发运单',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.getLogisticsInfo(row);
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'orderSyncSuccessIsLabel', label: '订单同步是否成功', visible: true, width: 160 },
           { props: 'sapReturnInfo', label: 'SAP返回信息', visible: true, width: 200 },
           { props: 'salesVoucher', label: '销售凭证', visible: true, width: 160 },
@@ -585,6 +607,11 @@ export default {
       // 2. 提取 ID 并调用
       const ids = this.selectionList.map(item => item.id);
       this._doSync({ idList: ids }, `成功同步 ${ids.length} 项`);
+    },
+    // 打开物流信息抽屉
+    getLogisticsInfo (row) {
+      this.logisticsData = row || {};
+      this.logisticsDrawerVisible = true;
     }
   }
 };

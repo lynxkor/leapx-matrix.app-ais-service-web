@@ -1,5 +1,6 @@
 import api from '@/axios';
 
+// 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = 'maintain/web/sp/preAuthRule/';
 
 /**
@@ -8,7 +9,7 @@ const prefix = 'maintain/web/sp/preAuthRule/';
  */
 export function getList (data) {
   return api.jsonPost(prefix + 'page', data);
-}
+};
 
 /**
  * 新增或修改
@@ -27,7 +28,7 @@ export function deleteItem (data) {
 }
 
 /**
- * 查询详情
+ * 查询
  * @param {Object} data
  */
 export function getDetail (data) {
@@ -35,41 +36,25 @@ export function getDetail (data) {
 }
 
 /**
- * 作废
+ * 启用停用
  * @param {Object} data
  */
-export function cancelItem (data) {
-  return api.jsonPost(prefix + 'cancel', data);
+export function enableItem (data) {
+  return api.jsonPost(prefix + 'enableOrDisable', data);
 }
 
 /**
- * 审批
+ * 删除零件
  * @param {Object} data
  */
-export function auditItem (data) {
-  return api.jsonPost(prefix + 'audit', data);
+export function deletePartItem (data) {
+  return api.jsonPost('maintain/web/sp/preAuthRuleParts/delete', data);
 }
 
 /**
- * 重新生成
+ * 新增零件
  * @param {Object} data
  */
-export function regenerate (data) {
-  return api.jsonPost(prefix + 'regenerate', data);
-}
-
-/**
- * 查询施工单列表
- * @param {Object} data
- */
-export function getServiceProxyList (data) {
-  return api.jsonPost('maintain/web/sp/serviceProxy/page', data);
-}
-
-/**
- * 校验施工单是否可创建预授权
- * @param {Object} data
- */
-export function checkServiceProxy (data) {
-  return api.jsonPost(prefix + 'checkServiceProxy', data);
+export function addPartItem (data) {
+  return api.jsonPost('maintain/web/sp/preAuthRuleParts/addOrUpdate', data);
 }

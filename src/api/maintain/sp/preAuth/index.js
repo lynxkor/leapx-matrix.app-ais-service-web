@@ -89,3 +89,11 @@ export function getServiceProxyList (data) {
 export function checkServiceProxy (data) {
   return api.jsonPost(prefix + 'checkServiceProxy', data);
 }
+
+/**
+ * 获取字典
+ * @param {Object} data
+ */
+export function getEnum (code) {
+  return api.jsonPost(`maintain/web/common/enum/${code}`);
+}

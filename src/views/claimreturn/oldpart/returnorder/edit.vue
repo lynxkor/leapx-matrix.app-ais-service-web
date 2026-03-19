@@ -629,6 +629,7 @@ export default {
             message: '回运出库成功'
           });
           this.$refs.containerRef.loadDetail();
+          this.refreshTable();
         }).catch(() => {
 
         });

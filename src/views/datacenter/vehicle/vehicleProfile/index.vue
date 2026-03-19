@@ -306,9 +306,6 @@
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -333,11 +330,38 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="'1'"
+      id="vehicle_profile"
       @close="handleUploadDialogClose"
     />
     <return-dialog
       :visible.sync="visible"
+    />
+    <el-drawer
+      title="查看关键信息变更日志"
+      :visible.sync="drawerVisible"
+      size="40%"
+    >
+      <div class="page-common-edit">
+        <change-history
+          :id="clickItemId"
+        />
+      </div>
+    </el-drawer>
+    <el-drawer
+      title="查看维修履历"
+      :visible.sync="drawerVisible2"
+      size="40%"
+    >
+      <div class="page-common-edit">
+        <service-history
+          :id="clickItemId"
+        />
+      </div>
+    </el-drawer>
+    <benefit-dialog
+      v-if="benefitVisible"
+      :visible.sync="benefitVisible"
+      :id="benefitId"
     />
   </div>
 </template>
@@ -361,6 +385,9 @@ import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { vehicleRangePower } from '@/libs/api/common';
 import ReturnDialog from './ReturnDialog';
+import ChangeHistory from './ChangeHistory';
+import ServiceHistory from './ServiceHistory';
+import BenefitDialog from './BenefitDialog';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -419,6 +446,9 @@ export default {
     TagInput,
     FetchSelect,
     ReturnDialog,
+    ChangeHistory,
+    BenefitDialog,
+    ServiceHistory,
   },
   data () {
     return {
@@ -436,6 +466,9 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      //
+      benefitVisible: false,
+      benefitId: '',
       optionObj: {
         id: 'vehicleProfileTable',
         dataList: [],
@@ -626,18 +659,24 @@ export default {
               {
                 name: '关键日志',
                 click: (rowIndex, row) => {
+                  this.clickItemId = row.id;
+                  this.drawerVisible = true;
                 },
                 type: 'info'
               },
               {
                 name: '维修履历',
                 click: (rowIndex, row) => {
+                  this.clickItemId = row.id;
+                  this.drawerVisible2 = true;
                 },
                 type: 'info'
               },
               {
                 name: '终身权益',
                 click: (rowIndex, row) => {
+                  this.benefitVisible = true;
+                  this.benefitId = row.id;
                 },
                 type: 'info'
               }
@@ -648,7 +687,10 @@ export default {
       },
       // 退车
       visible: false,
-      //
+      // 关键日志
+      drawerVisible: false,
+      // 维修履历
+      drawerVisible2: false,
     };
   },
   created () {
@@ -656,6 +698,9 @@ export default {
     this.getData();
   },
   methods: {
+    onBenefit () {
+
+    },
     handleListSelect (row) {
       this.clickItemId = row.id;
     },

@@ -8,14 +8,14 @@
         :isEditing.sync="isEditing"
         :form.sync="form"
         :originalForm.sync="originalForm"
-        :submitRequest="submitRequest"
+        :submitRequest="() => submitRequest(1)"
         :detailRequest="detailRequest"
       >
         <template #status>
-          <span class="status primary" v-if="form.statusDesc">{{ form.statusDesc }}</span>
+          <!-- <span class="status primary" v-if="form.statusDesc">{{ form.statusDesc }}</span> -->
         </template>
         <template #extraButtons>
-          <el-button size="small" @click="handleShowLog" v-if="_id">审核日志</el-button>
+          <el-button size="small" type="primary" @click="submitRequest(1)" v-if="_id">提交审批</el-button>
         </template>
         <template #footer>
           <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitRequest(0)" :loading="loading">保存</el-button>
@@ -43,6 +43,7 @@
                     placeholder="请选择施工单"
                     clearable
                     filterable
+                    :disabled="!!_id"
                     @change="handleServiceProxyChange"
                   />
                 </el-form-item>
@@ -133,7 +134,7 @@
                   <span>{{ serviceProxyDetail?.carPlate || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="车辆用途：">
-                  <span>{{ serviceProxyDetail?.carPropertyLabel || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.carPropertyLabel || (serviceProxyDetail?.carProperty === 1 ? '是' : serviceProxyDetail?.carProperty === 0 ? '否' : '-') }}</span>
                 </el-form-item>
                 <el-form-item label="进店里程数：">
                   <span>{{ serviceProxyDetail?.mileage || '-' }}</span>
@@ -142,7 +143,7 @@
                   <span>{{ serviceProxyDetail?.productionTime || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="终身免保：">
-                  <span>{{ serviceProxyDetail?.warrantyLifeLabel || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.warrantyLifeLabel || (serviceProxyDetail?.warrantyLife === 1 ? '是' : serviceProxyDetail?.warrantyLife === 0 ? '否' : '-') }}</span>
                 </el-form-item>
                 <el-form-item label="终身质保：">
                   <span>{{ serviceProxyDetail?.isLifetimeLabel || '-' }}</span>
@@ -151,13 +152,13 @@
                   <span>{{ serviceProxyDetail?.startWarrantyDate || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="保修结束日期：">
-                  <span>{{ serviceProxyDetail?.endWarrantyDate || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.warrantyEndTime || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="服务月份：">
                   <span>{{ serviceProxyDetail?.serviceMonth || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="三包预警：">
-                  <span>{{ serviceProxyDetail?.alarmLevelLabel || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.alarmLevelLabel || serviceProxyDetail?.alarmLevel || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="预警信息：">
                   <span>{{ serviceProxyDetail?.alarmInfo || '-' }}</span>
@@ -178,6 +179,7 @@
                     :remote-method="queryQualityReport"
                     remote
                     v-model="form.qualityOrderReportId"
+                    :params="form.qualityOrderReport"
                     value-key="id"
                     label-key="code"
                     placeholder="请选择质量反馈单"
@@ -225,6 +227,17 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
+                <el-form :inline="true" class="form-detail">
+                  <el-form-item label="工时索赔合计：">
+                    <span>{{ form.approvedLaborClaimTotal || '-' }}</span>
+                  </el-form-item>
+                  <el-form-item label="零件索赔合计：">
+                    <span>{{ form.approvedPartsClaimTotal || '-' }}</span>
+                  </el-form-item>
+                  <el-form-item label="其他索赔费用：">
+                    <span>{{ form.approvedOtherClaimTotal || '-' }}</span>
+                  </el-form-item>
+                </el-form>
                 <vxe-table
                   ref="repairTableRef"
                   stripe
@@ -370,7 +383,7 @@
               <h2>附件信息</h2>
             </div>
             <div class="common-section-body">
-              <Attachment :_id="_id" :attachType="'PRE_AUTH'" ref="attachmentRef"/>
+              <Attachment :_id="_id" :attachType="'mcs_preauth'" ref="attachmentRef"/>
             </div>
           </section>
         </el-main>
@@ -389,7 +402,7 @@ import { selectServiceProxy as selectServiceProxyApi, getEnum } from '@/api/main
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import FetchSelect from '@/libs/components/FetchSelect';
-import Attachment from '@/views/maintain/sp/serviceProxy/components/Attachment/index.vue';
+import Attachment from './components/FileUploadGrid';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -490,7 +503,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '预授权申请表管理',
+      pageTitle: '预授权申请',
       pageType: 'edit',
       moduleKey: 'AISMC-preAuth',
       loading: false,
@@ -526,20 +539,23 @@ export default {
         });
       }
     },
-    submitRequest (v) {
+    submitRequest (v = 0) {
       // 表单校验
       return this.$refs.ruleForm.validate().then(() => {
         addOrUpdate({
+          id: this._id,
           saveOrSubmit: v,
           reason: this.form.reason,
           serviceProxyId: this.form.serviceProxyId,
           serviceProxyCode: this.form.serviceProxyCode,
           preAuthType: this.form.preAuthType,
-          qualityOrderReportId: this.form.qualityOrderReportId || '019CFA53-2731-7B3B-9D95-F7F541872B46',
-          qualityOrderReport: this.form.qualityOrderReport || 'ZLR-202603171344380001',
+          qualityOrderReportId: this.form.qualityOrderReportId,
+          qualityOrderReport: this.form.qualityOrderReport,
         }).then(res => {
-          this.$message.success('保存成功');
-          this.$router.replace({ path: '/maintain/sp/preAuth/edit', query: { id: res } });
+          this.$message.success(v === 1 ? '提交审批成功' : '保存成功');
+          if (!this._id) {
+            this.$router.replace({ path: '/maintain/sp/preAuth/edit', query: { id: res } });
+          }
         });
       });
     },
@@ -593,7 +609,7 @@ export default {
           if (detailRes) {
             // 直接保存接口返回的数据，用于展示
             this.serviceProxyDetail = detailRes;
-
+            Object.assign(this.form, detailRes);
             // 设置预授权类型（如果有）
             if (detailRes.preAuthType) {
               this.form.preAuthType = detailRes.preAuthType;

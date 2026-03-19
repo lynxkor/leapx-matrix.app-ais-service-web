@@ -97,3 +97,33 @@ export function vehicleProfileMaintenanceRecordPage (data) {
 export function keyInfoChangeLogPage (data) {
   return api.jsonPost('/datacenter/web/vehicle/keyInfoChangeLog/page', data);
 }
+
+/**
+ * PC端 接车施工单-维修履历信息管理
+ * @param {*} data
+ * @returns
+ */
+export function serviceProxyHisPage (data) {
+  return api.jsonPost('/datacenter/web/vehicle/serviceProxyHis/page', data);
+}
+
+// 权益查询
+export function rightsQuery (data) {
+  return api.jsonPost('/claimreturn/claim/web/warrantyapply/warrantyApply/rights/query', data);
+}
+export function warrantyForecast (data) {
+  return api.jsonPost('/datacenter/web/vehicle/vehicleProfile/warrantyForecast', data);
+}
+
+// 同步车机
+export function syncMaintenance (data) {
+  return api.jsonPost('/datacenter/web/vehicle/vehicleProfile/syncMaintenance', data);
+}
+
+/**
+ * 编辑保养信息
+ * @param {Object} data
+ */
+export function editMaintenanceRecord (data) {
+  return api.jsonPost(vePrefix + 'edit', data);
+}

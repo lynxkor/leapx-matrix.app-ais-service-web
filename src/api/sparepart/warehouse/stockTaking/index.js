@@ -91,3 +91,11 @@ export function stockTakingDetailPage (data) {
 export function stockTakingDetailDelete (data) {
   return api.jsonPost(prefixDetail + 'delete', data);
 }
+
+/**
+ * 备件库存盘点明细表新增/编辑
+ * @param {Object} data
+ */
+export function stockTakingDetailAddOrUpdate (data) {
+  return api.jsonPost(prefixDetail + 'addOrUpdate', data);
+}

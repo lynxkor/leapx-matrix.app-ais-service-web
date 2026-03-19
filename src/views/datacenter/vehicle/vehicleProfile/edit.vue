@@ -1,5 +1,5 @@
 <template>
-  <edit-page-layout ref="editLayout" title="查看关键信息变更日志">
+  <edit-page-layout ref="editLayout" :title="paneTitle">
     <template #left>
       <edit-base-container
         ref="containerRef"
@@ -7,6 +7,7 @@
         :title="`VIN码：${form.vin}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
+        :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
@@ -18,8 +19,8 @@
             <div class="common-section-body">
               <div class="common-section-sub-header">
                 <h3>归属信息</h3>
-                <el-button size="small">查看终身权益</el-button>
-                <el-button size="small">重新预测质保期</el-button>
+                <el-button size="small" @click="onBenefit">查看终身权益</el-button>
+                <el-button v-if="form.warrantyStartdate" size="small" @click="onWarranty">重新预测质保期</el-button>
               </div>
               <!-- <el-form :inline="true" :model="form" label-width="150px" class="form-detail"> -->
               <el-form label-width="150px" :inline="true" :model="form" :rules="rules" ref="ruleForm1" class="form-edit" v-show="isEditing || !_id">
@@ -170,32 +171,32 @@
               </el-form>
               <div class="common-section-sub-header">
                 <h3>保养信息</h3>
+                <el-button size="small" @click="onSync">同步车机</el-button>
+                <el-button size="small" @click="onInfo">调整保养信息</el-button>
               </div>
               <el-form label-width="150px" :inline="true" :model="form" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="下次保养时间：" prop="nextMaintainDate">
                   <el-date-picker
-                    disabled
                     v-model="form.nextMaintainDate"
                     type="date"
-                    style="max-width: 200px"
                     value-format="yyyy-MM-dd"
                     placeholder="选择日期"
                   />
                 </el-form-item>
                 <el-form-item label="下次保养里程：" prop="nextMaintainMileages">
                   <el-input
-                    disabled
                     clearable
                     v-model="form.nextMaintainMileages"
                     placeholder="请输入"
                     :controls="false"
-                    :precision="0"
+                    :precision="2"
                   />
                 </el-form-item>
                 <el-form-item class="form-item-full">
                   <next-table
+                    v-if="isEditing || !_id"
+                    ref="nextTable"
                     :id="form.id"
-                    :isEdit="true"
                   />
                 </el-form-item>
               </el-form>
@@ -208,6 +209,8 @@
                 </el-form-item>
                 <el-form-item class="form-item-full">
                   <next-table
+                    v-if="!(isEditing || !_id)"
+                    ref="nextTable"
                     :id="form.id"
                   />
                 </el-form-item>
@@ -564,7 +567,7 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>车辆信息<el-button style="margin-left: 6px;" size="small">查看维修履历</el-button></h2>
+              <h2>车辆信息<el-button @click="onService" style="margin-left: 6px;" size="small">查看维修履历</el-button></h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-sub-header">
@@ -780,11 +783,28 @@
             </div>
           </section>
         </el-main>
+        <benefit-dialog
+          v-if="visible"
+          :visible.sync="visible"
+          :id="form.id"
+        />
+        <info-dialog
+          v-if="infoDialogVisible"
+          :visible.sync="infoDialogVisible"
+          :vehicleProfileId="form.id"
+          :data="infoDialogData"
+          @update="onInfoSuccess"
+        />
       </edit-base-container>
     </template>
     <template #right>
       <div class="page-common-edit">
         <change-history
+          v-if="paneType === 'history'"
+          :id="form.id"
+        />
+        <service-history
+          v-if="paneType === 'service'"
           :id="form.id"
         />
       </div>
@@ -793,7 +813,7 @@
 </template>
 
 <script>
-import { getDetail, getDetailDecryptField, updateFlat } from '@/api/datacenter/vehicle/vehicleProfile/index';
+import { getDetail, getDetailDecryptField, syncMaintenance, updateFlat, warrantyForecast } from '@/api/datacenter/vehicle/vehicleProfile/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -804,7 +824,10 @@ import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum } from '@/api/common';
 import { getAreaInfo } from '@/utils';
 import ChangeHistory from './ChangeHistory';
+import ServiceHistory from './ServiceHistory';
 import NextTable from './NextTable.vue';
+import BenefitDialog from './BenefitDialog';
+import InfoDialog from './InfoDialog';
 
 const defaultForm = {
   // 基础信息
@@ -844,6 +867,7 @@ const defaultForm = {
   vehicleYearId: '',
   vehicleYearName: '',
   usageType: '',
+  usageTypeLabel: '',
   salesDate: '',
   salesDealerCode: '',
   salesDealerName: '',
@@ -962,6 +986,9 @@ export default {
     EditBaseContainer,
     ChangeHistory,
     NextTable,
+    ServiceHistory,
+    BenefitDialog,
+    InfoDialog,
   },
   computed: {
     _id () {
@@ -1002,12 +1029,43 @@ export default {
         children: 'child'
       },
       rules: {},
+      //
+      paneType: '',
+      paneTitle: '',
+      //
+      visible: false,
+      // 调整保养信息弹窗
+      infoDialogVisible: false,
+      infoDialogData: {},
     };
   },
   mounted () {
   },
   methods: {
+    onBenefit () {
+      this.visible = true;
+    },
+    onWarranty () {
+      if (!this.form.usageType) {
+        this.$message.error('车辆属性为空，无法准确预测质保期');
+        return;
+      }
+      warrantyForecast(this._id).then(res => {
+        if (!res) {
+          this.$message.error('质保政策未维护，无法准确预测质保期');
+          return;
+        }
+        this.$refs.containerRef.loadDetail();
+      });
+    },
     onHistory () {
+      this.paneType = 'history';
+      this.paneTitle = '查看关键信息变更日志';
+      this.$refs.editLayout.openPane();
+    },
+    onService () {
+      this.paneType = 'service';
+      this.paneTitle = '查看维修履历';
       this.$refs.editLayout.openPane();
     },
     detailRequest () {
@@ -1030,7 +1088,21 @@ export default {
         this.form.districtName = areaInfo.districtName;
         this.form.districtCode = areaInfo.districtCode;
       }
-      return updateFlat({ ...this.form });
+      return updateFlat({ ...this.getFormData() });
+    },
+    getFormData () {
+      const data = { ...this.form };
+
+      Object.keys(this.form).forEach(key => {
+        if (Array.isArray(data[key]) && !data[key].length) {
+          delete data[key];
+        }
+        if (data[key] === '' || data[key] === null) {
+          delete data[key];
+        }
+      });
+
+      return data;
     },
     getDefautlForm () {
       return {
@@ -1047,7 +1119,21 @@ export default {
       return [];
     },
     handleCascaderChange (value) {
-      console.log(value);
+    },
+    onSync () {
+      syncMaintenance(this._id).then(res => {
+        this.$message.success('同步成功');
+      });
+    },
+    onInfo () {
+      this.infoDialogData = {
+        nextMaintainDate: this.form.nextMaintainDate,
+        nextMaintainMileages: this.form.nextMaintainMileages,
+      };
+      this.infoDialogVisible = true;
+    },
+    onInfoSuccess () {
+      this.$refs?.nextTable?.getDetailPageApi();
     },
   }
 };

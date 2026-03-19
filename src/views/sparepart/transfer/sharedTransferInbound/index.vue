@@ -27,10 +27,10 @@
           filterable
             />
       </el-form-item>
+      <el-form-item label="调拨出库单号" v-show="this.visibleCount === 3 || show">
+        <tag-input v-model="form.sharedTransferOutboundCodeList" placeholder="请输入" />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="调拨出库单号">
-          <tag-input v-model="form.sharedTransferOutboundCodeList" placeholder="请输入" />
-        </el-form-item>
         <el-form-item label="入库门店">
           <fetch-select
             :remote-method="getDealerList"
@@ -93,12 +93,12 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -135,7 +135,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/transfer/sharedTransferInbound/index';
+import { getList, deleteItem, enableItem, getSign } from '@/api/sparepart/transfer/sharedTransferInbound/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -246,26 +246,56 @@ export default {
               },
               type: 'info'
             }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              popconfirmConfirmButtonText: '删除',
-              popconfirmConfirmButtonType: 'danger',
+              name: '签收',
+              show: (row) => {
+                return row.signStatus === '0';
+              },
+              popconfirmTitle: '确定签收吗?',
               click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
+                getSign({ id: row.id }).then(() => {
                   this.$message({
                     type: 'success',
-                    message: '删除成功!'
+                    message: '签收成功!'
                   });
                   this.getData();
                 }).catch(() => {
                   this.$message({
                     type: 'error',
-                    message: '删除失败!'
+                    message: '签收失败!'
                   });
                 });
               },
-              type: 'danger'
-            }]
+              type: 'info'
+            },
+            {
+              name: '打印',
+              click: (rowIndex, row) => {
+                this.handlePrint(row);
+              },
+              type: 'info'
+            }
+            //  {
+            //   name: '删除',
+            //   popconfirmTitle: '此操作将永久删除, 是否继续?',
+            //   popconfirmConfirmButtonText: '删除',
+            //   popconfirmConfirmButtonType: 'danger',
+            //   click: (rowIndex, row) => {
+            //     deleteItem([row.id]).then(() => {
+            //       this.$message({
+            //         type: 'success',
+            //         message: '删除成功!'
+            //       });
+            //       this.getData();
+            //     }).catch(() => {
+            //       this.$message({
+            //         type: 'error',
+            //         message: '删除失败!'
+            //       });
+            //     });
+            //   },
+            //   type: 'danger'
+            // }
+            ]
           }
         ],
         total: 0
@@ -513,29 +543,15 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
-    }
+    },
+    // 打印备件调拨入库单
+    handlePrint (val) {
+      this.$print.show({
+        id: val.id, // 必选，对应数据id
+        template: 'SharedTransferReceipt', // 必选，对应 ./template/文件名.vue
+        title: `${val.dealerName}厅店共享备件调拨入库单`// 可选，打印标题
+      });
+    },
   }
 };
 </script>

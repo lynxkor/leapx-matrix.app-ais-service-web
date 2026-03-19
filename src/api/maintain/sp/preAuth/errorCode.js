@@ -15,7 +15,7 @@ export function getErrorCodeList (data) {
  * @param {Object} data
  */
 export function addErrorCode (data) {
-  return api.jsonPost(prefix + 'add', data);
+  return api.jsonPost(prefix + 'addOrUpdate', data);
 }
 
 /**
@@ -23,7 +23,7 @@ export function addErrorCode (data) {
  * @param {Object} data
  */
 export function updateErrorCode (data) {
-  return api.jsonPost(prefix + 'update', data);
+  return api.jsonPost(prefix + 'addOrUpdate', data);
 }
 
 /**
@@ -40,4 +40,12 @@ export function deleteErrorCode (data) {
  */
 export function enableErrorCode (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
+}
+
+/**
+ * 更新排序
+ * @param {Object} data
+ */
+export function updateSort (data) {
+  return api.jsonPost(prefix + 'updateSort', data);
 }

@@ -409,7 +409,7 @@ export default {
           editRender: { name: 'ElInput' },
         },
         {
-          field: 'isOemPartLabel',
+          field: 'oemPartLabel',
           title: '是否OEM件',
           width: '20%',
           editRender: { name: 'ElInput' }

@@ -376,6 +376,8 @@ const defaultForm = {
   outboundDealerCode: '',
   outboundDealerName: '',
   outboundWarehouseId: '',
+  outboundWarehouseCode: '',
+  outboundWarehouseName: '',
   inboundDealerCode: '',
   inboundDealerName: '',
   inboundContactName: '',
@@ -474,10 +476,37 @@ export default {
       }
     };
   },
+  mounted () {
+    this.getLoginUser();
+  },
   methods: {
+    async getLoginUser () {
+      try {
+        const res = await getLoginUser();
+        this.form.outboundDealerCode = res.currentDealerCode;
+        this.form.outboundDealerName = res.currentDealerName;
+        this.accountPermissions = res.accountFlag;
+        if (this.form.outboundDealerCode) {
+          this.getPartDealer(this.form.outboundDealerCode);
+        }
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    async getPartDealer (query) {
+      try {
+        const res = await getPartDealer({ code: query });
+        this.form.outboundWarehouseId = res.warehouseId;
+        this.form.outboundWarehouseCode = res.warehouseCode;
+        this.form.outboundWarehouseName = res.warehouseName;
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     async getDealerList (query) {
       try {
-        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query, isPartOrder: true, authority: false });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
