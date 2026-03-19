@@ -1,166 +1,164 @@
 <template>
-    <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
-      <template #left>
-        <!-- TIPS: 如果需要竖排，direction="vertical" -->
-        <edit-base-container
-          ref="containerRef"
-          :id="_id"
-          :title="title"
-          :isEditing.sync="isEditing"
-          :form.sync="form"
-          :originalForm.sync="originalForm"
-          :submitRequest="submitRequest"
-          :detailRequest="detailRequest"
-          :showEditBtn="routeType"
-        >
-          <template #status>
-            <!-- 支持primary,warning,success,danger等状态 -->
-            <span class="status primary">状态</span>
-          </template>
-          <el-main>
-            <section class="common-section">
-              <div class="common-section-header">
-                <h2>基础信息</h2>
-              </div>
-              <div class="common-section-body">
-                <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                  <el-form-item label="充值流水：" prop="flowNo">
-                    {{ form.flowNo }}
-                  </el-form-item>
-                  <el-form-item label="门店编码：" prop="dealerCode">
-                    <fetch-select :remote-method="getDealerList" remote v-model="form.dealerCode" placeholder="请输入门店编码或名称"
-                      labelKey="orgCode" valueKey="orgCode" subLabelKey="orgName" clearable filterable :disabled="isEditing"
-                      @change="handleDealerChange" />
-                  </el-form-item>
-                  <el-form-item label="门店名称：" prop="dealerName">
-                    {{ form.dealerName }}
-                  </el-form-item>
-                  <el-form-item label="公司编码：" prop="companyCode">
-                    {{ form.companyCode }}
-                  </el-form-item>
-                  <el-form-item label="公司名称：" prop="companyName">
-                    {{ form.companyName }}
-                  </el-form-item>
-                  <el-form-item :label="$route.query.type === 'RECHARGE' ? '充值账户：' : '返利账户：'" prop="accountCode">
-                    {{ form.accountCode }}
-                  </el-form-item>
-                  <el-form-item label="交易金额：" prop="transactionAmount">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.transactionAmount"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="费用类别：" prop="expenseCategory">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.expenseCategory"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="预算归口：" prop="budgetCenter">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.budgetCenter"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="流程审批号：" prop="approvalProcessNo">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.approvalProcessNo"
-                      clearable
-                    />
-                  </el-form-item>
-                  <el-form-item label="审批状态：" prop="approvalStatus">
-                    {{ form.approvalStatusLabel }}
-                  </el-form-item>
-                  <el-form-item label="提交人：" prop="submitter">
-                    {{ form.submitterName }}
-                  </el-form-item>
-                  <el-form-item label="提交时间：" prop="submitTime">
-                    {{ form.submitTime }}
-                  </el-form-item>
-                  <el-form-item :label="$route.query.type === 'RECHARGE' ? '充值说明：' : '返利说明：'" prop="rechargeDescription">
-                    {{ form.rechargeDescription }}
-                  </el-form-item>
-                  <el-form-item label="审批人：" prop="approver">
-                    {{ form.approverName }}
-                  </el-form-item>
-                  <el-form-item label="审批时间：" prop="approvalTime">
-                    {{ form.approvalTime }}
-                  </el-form-item>
-                  <el-form-item label="审批说明：" prop="approvalDescription">
-                    {{ form.approvalDescription }}
-                  </el-form-item>
-                </el-form>
-                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                  <el-form-item label="充值流水：" prop="flowNo">
-                    {{ form.flowNo }}
-                  </el-form-item>
-                  <el-form-item label="门店编码：" prop="dealerCode">
-                    {{ form.dealerCode }}
-                  </el-form-item>
-                  <el-form-item label="门店名称：" prop="dealerName">
-                    {{ form.dealerName }}
-                  </el-form-item>
-                  <el-form-item label="公司编码：" prop="companyCode">
-                    {{ form.companyCode }}
-                  </el-form-item>
-                  <el-form-item label="公司名称：" prop="companyName">
-                    {{ form.companyName }}
-                  </el-form-item>
-                  <el-form-item :label="$route.query.type === 'RECHARGE' ? '充值账户：' : '返利账户：'" prop="accountCode">
-                    {{ form.accountCode }}
-                  </el-form-item>
-                  <el-form-item label="交易金额：" prop="transactionAmount">
-                    {{ form.transactionAmount }}
-                  </el-form-item>
-                  <el-form-item label="费用类别：" prop="expenseCategory">
-                    {{ form.expenseCategory }}
-                  </el-form-item>
-                  <el-form-item label="预算归口：" prop="budgetCenter">
-                    {{ form.budgetCenter }}
-                  </el-form-item>
-                  <el-form-item label="流程审批号：" prop="approvalProcessNo">
-                    {{ form.approvalProcessNo }}
-                  </el-form-item>
-                  <el-form-item label="审批状态：" prop="approvalStatus">
-                    {{ form.approvalStatusLabel }}
-                  </el-form-item>
-                  <el-form-item label="提交人：" prop="submitter">
-                    {{ form.submitterName }}
-                  </el-form-item>
-                  <el-form-item label="提交时间：" prop="submitTime">
-                    {{ form.submitTime }}
-                  </el-form-item>
-                  <el-form-item :label="$route.query.type === 'RECHARGE' ? '充值说明：' : '返利说明：'" prop="rechargeDescription">
-                    {{ form.rechargeDescription }}
-                  </el-form-item>
-                  <el-form-item label="审批人：" prop="approver">
-                    {{ form.approverName }}
-                  </el-form-item>
-                  <el-form-item label="审批时间：" prop="approvalTime">
-                    {{ form.approvalTime }}
-                  </el-form-item>
-                  <el-form-item label="审批说明：" prop="approvalDescription">
-                    {{ form.approvalDescription }}
-                  </el-form-item>
-                </el-form>
-              </div>
-            </section>
+  <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
+    <template #left>
+      <!-- TIPS: 如果需要竖排，direction="vertical" -->
+      <edit-base-container ref="containerRef" :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form"
+        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest"
+        :showEditBtn="routeType">
+        <el-main>
+          <section class="common-section" v-show="isEditing || !_id">
+            <div class="common-section-header">
+              <h2>基础信息</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
+                <el-form-item label="充值流水：" prop="flowNo">
+                  {{ form.flowNo }}
+                </el-form-item>
+                <el-form-item label="门店编码：" prop="dealerCode">
+                  <fetch-select :remote-method="getDealerList" remote v-model="form.dealerCode" placeholder="请输入门店编码或名称"
+                    labelKey="orgCode" valueKey="orgCode" subLabelKey="orgName" clearable filterable
+                    :disabled="isEditing" @change="handleDealerChange" />
+                </el-form-item>
+                <el-form-item label="门店名称：" prop="dealerName">
+                  {{ form.dealerName }}
+                </el-form-item>
+                <el-form-item label="公司编码：" prop="companyCode">
+                  {{ form.companyCode }}
+                </el-form-item>
+                <el-form-item label="公司名称：" prop="companyName">
+                  {{ form.companyName }}
+                </el-form-item>
+                <el-form-item label="返利账户：" prop="accountCode">
+                  {{ form.accountCode }}
+                </el-form-item>
+                <el-form-item label="交易金额：" prop="transactionAmount">
+                  <el-input placeholder="请输入" v-model="form.transactionAmount" clearable />
+                </el-form-item>
+                <el-form-item label="费用类别：" prop="expenseCategory">
+                  <el-input placeholder="请输入" v-model="form.expenseCategory" clearable />
+                </el-form-item>
+                <el-form-item label="预算归口：" prop="budgetCenter">
+                  <el-input placeholder="请输入" v-model="form.budgetCenter" clearable />
+                </el-form-item>
+                <el-form-item label="流程审批号：" prop="approvalProcessNo">
+                  <el-input placeholder="请输入" v-model="form.approvalProcessNo" clearable />
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="isEditing || !_id">
+            <div class="common-section-header">
+              <h2>提交&审批</h2>
+            </div>
+            <div class="common-section-body">
+              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
+                <el-form-item label="审批状态：" prop="approvalStatus">
+                  {{ form.approvalStatusLabel }}
+                </el-form-item>
+                <el-form-item label="提交人：" prop="submitter">
+                  {{ form.submitterName }}
+                </el-form-item>
+                <el-form-item label="提交时间：" prop="submitTime">
+                  {{ form.submitTime }}
+                </el-form-item>
+                <el-form-item label="'返利说明：" prop="rechargeDescription">
+                  {{ form.rechargeDescription }}
+                </el-form-item>
+                <el-form-item label="审批人：" prop="approver">
+                  {{ form.approverName }}
+                </el-form-item>
+                <el-form-item label="审批时间：" prop="approvalTime">
+                  {{ form.approvalTime }}
+                </el-form-item>
+                <el-form-item label="审批说明：" prop="approvalDescription">
+                  {{ form.approvalDescription }}
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="!(isEditing || !_id)">
+            <div class="common-section-header">
+              <h2>基础信息</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form :inline="true" class="form-detail">
+                <el-form-item label="充值流水：" prop="flowNo">
+                  {{ form.flowNo }}
+                </el-form-item>
+                <el-form-item label="门店编码：" prop="dealerCode">
+                  {{ form.dealerCode }}
+                </el-form-item>
+                <el-form-item label="门店名称：" prop="dealerName">
+                  {{ form.dealerName }}
+                </el-form-item>
+                <el-form-item label="公司编码：" prop="companyCode">
+                  {{ form.companyCode }}
+                </el-form-item>
+                <el-form-item label="公司名称：" prop="companyName">
+                  {{ form.companyName }}
+                </el-form-item>
+                <el-form-item label="返利账户：" prop="accountCode">
+                  {{ form.accountCode }}
+                </el-form-item>
+                <el-form-item label="交易金额：" prop="transactionAmount">
+                  {{ form.transactionAmount }}
+                </el-form-item>
+                <el-form-item label="费用类别：" prop="expenseCategory">
+                  {{ form.expenseCategory }}
+                </el-form-item>
+                <el-form-item label="预算归口：" prop="budgetCenter">
+                  {{ form.budgetCenter }}
+                </el-form-item>
+                <el-form-item label="流程审批号：" prop="approvalProcessNo">
+                  {{ form.approvalProcessNo }}
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-show="!(isEditing || !_id)">
+            <div class="common-section-header">
+              <h2>提交&审批</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form :inline="true" class="form-detail">
+                <el-form-item label="审批状态：" prop="approvalStatus">
+                  {{ form.approvalStatusLabel }}
+                </el-form-item>
+                <el-form-item label="提交人：" prop="submitter">
+                  {{ form.submitterName }}
+                </el-form-item>
+                <el-form-item label="提交时间：" prop="submitTime">
+                  {{ form.submitTime }}
+                </el-form-item>
+                <el-form-item label="返利说明：" prop="rechargeDescription">
+                  {{ form.rechargeDescription }}
+                </el-form-item>
+                <el-form-item label="审批人：" prop="approver">
+                  {{ form.approverName }}
+                </el-form-item>
+                <el-form-item label="审批时间：" prop="approvalTime">
+                  {{ form.approvalTime }}
+                </el-form-item>
+                <el-form-item label="审批说明：" prop="approvalDescription">
+                  {{ form.approvalDescription }}
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
 
-          </el-main>
-        </edit-base-container>
-      </template>
-      <template #right>
-        <div class="page-common-edit">
-          <!-- 右侧栏组件，自行开发 -->
-        </div>
-      </template>
-    </edit-page-layout>
-  </template>
+        </el-main>
+      </edit-base-container>
+    </template>
+    <template #right>
+      <div class="page-common-edit">
+        <!-- 右侧栏组件，自行开发 -->
+      </div>
+    </template>
+  </edit-page-layout>
+</template>
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/sparepart/fund/accountOperateApply/index';
@@ -237,10 +235,12 @@ export default {
       },
       immediate: true
     },
-    '$route.query.type': {
+    'form.code': {
       handler (val) {
         if (val) {
-          this.routeType = true;
+          if (this.form.approvalStatus === '10' || this.form.approvalStatus === '40') {
+            this.routeType = true;
+          }
         }
       },
       immediate: true
@@ -249,7 +249,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: this.$route.query.type === 'RECHARGE' ? '备件返利充值管理' : '备件返利扣款管理',
+      pageTitle: '备件返利扣款管理',
       pageType: 'edit',
       title: '账户编号：' + form.accountCode,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
@@ -260,134 +260,22 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      defaultNewRow: {
-        name: '',
-      },
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
-      // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
-      columns: [
-        {
-          field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
-        },
-        {
-          field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
-        },
-        {
-          field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
-        },
-      ],
       rules: {
-        accountCode: [
-          { required: true, message: '请输入账户编号', trigger: 'change' }
-        ],
-        companyCode: [
-          { required: true, message: '请输入公司编码', trigger: 'change' }
-        ],
-        companyName: [
-          { required: false, message: '请输入公司名称', trigger: 'change' }
-        ],
-        flowNo: [
-          { required: false, message: '请输入流水no', trigger: 'change' }
-        ],
         dealerCode: [
           { required: true, message: '请输入门店编码', trigger: 'change' }
         ],
-        dealerName: [
-          { required: false, message: '请输入门店名称（组织名称）', trigger: 'change' }
-        ],
-        approvalStatus: [
-          { required: false, message: '请选择审批状态:草稿,待审批,审批通过,已驳回', trigger: 'change' }
+        transactionAmount: [
+          { required: true, message: '请输入返利金额', trigger: 'blur' }
         ],
         expenseCategory: [
-          { required: false, message: '请输入费用类别', trigger: 'change' }
+          { required: true, message: '请选择费用类别', trigger: 'blur' }
         ],
         budgetCenter: [
-          { required: false, message: '请输入预算归口', trigger: 'change' }
+          { required: true, message: '请选择预算归口', trigger: 'blur' }
         ],
         approvalProcessNo: [
-          { required: false, message: '请输入流程审批号', trigger: 'change' }
-        ],
-        submitter: [
-          { required: false, message: '请输入提交人', trigger: 'change' }
-        ],
-        submitTime: [
-          { required: false, message: '请选择提交时间', trigger: 'change' }
-        ],
-        transactionAmount: [
-          { required: true, message: '请输入交易金额', trigger: 'change' }
-        ],
-        rechargeDescription: [
-          { required: false, message: '请输入充值、扣款说明', trigger: 'change' }
-        ],
-        createTime: [
-          { required: false, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: false, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: false, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: false, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: false, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: false, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: false, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        remark: [
-          { required: false, message: '请输入备注', trigger: 'change' }
-        ],
-        status: [
-          { required: false, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: false, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        operateType: [
-          { required: false, message: '请选择操作类型:充值,扣款', trigger: 'change' }
-        ],
-        accountId: [
-          { required: false, message: '请输入备件账户ID', trigger: 'change' }
-        ],
-        approver: [
-          { required: false, message: '请输入审批人', trigger: 'change' }
-        ],
-        approvalTime: [
-          { required: false, message: '请选择审批时间', trigger: 'change' }
-        ],
-        approvalDescription: [
-          { required: false, message: '请输入审批说明', trigger: 'change' }
-        ],
-        archiveTime: [
-          { required: false, message: '请选择归档时间', trigger: 'change' }
-        ],
+          { required: true, message: '请输入流程审批号', trigger: 'blur' }
+        ]
       }
     };
   },
@@ -432,11 +320,7 @@ export default {
         const res = await getPartDealer({ code: query });
         this.form.companyCode = res.parentCompanyCode;
         this.form.companyName = res.parentCompanyName;
-        if (this.$route.query.type === 'RECHARGE') {
-          this.form.accountCode = res.cashAccountCode;
-        } else {
-          this.form.accountCode = res.rebateAccountCode;
-        }
+        this.form.accountCode = res.rebateAccountCode;
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
