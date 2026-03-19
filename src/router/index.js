@@ -861,7 +861,7 @@ const routes = [
       }
     }, {
       path: '/claimreturn/claim/basic/serviceCareActivityVehicle',
-      name: 'serviceActivityVehicle',
+      name: 'serviceCareActivityVehicle',
       component: () => import('@/views/claimreturn/claim/basic/serviceActivityVehicle/index.vue'),
 
       meta: {
@@ -872,7 +872,7 @@ const routes = [
       }
     }, {
       path: '/claimreturn/claim/basic/serviceCareActivityVehicle/edit',
-      name: 'serviceActivityVehicleEdit',
+      name: 'serviceCareActivityVehicleEdit',
       component: () => import('@/views/claimreturn/claim/basic/serviceActivityVehicle/edit.vue'),
 
       meta: {
@@ -905,7 +905,7 @@ const routes = [
       }
     }, {
       path: '/claimreturn/claim/basic/serviceCareActivity',
-      name: 'serviceActivity',
+      name: 'serviceCareActivity',
       component: () => import('@/views/claimreturn/claim/basic/techServiceActivity/index.vue'),
       meta: {
         keepAlive: true,
@@ -915,7 +915,7 @@ const routes = [
       }
     }, {
       path: '/claimreturn/claim/basic/serviceCareActivity/edit',
-      name: 'serviceActivityEdit',
+      name: 'serviceCareActivityEdit',
       component: () => import('@/views/claimreturn/claim/basic/techServiceActivity/edit.vue'),
       meta: {
         noResourceUrl: 'true',
@@ -952,7 +952,7 @@ const routes = [
       }
     }, {
       path: '/claimreturn/claim/basic/freeMaintenancePolicy',
-      name: 'freeMaintenancePolicy',
+      name: 'freeMaintenancePolicy2',
       component: () => import('@/views/claimreturn/claim/basic/freeMaintenancePolicy/index.vue'),
 
       meta: {
@@ -961,7 +961,7 @@ const routes = [
       }
     }, {
       path: '/claimreturn/claim/basic/freemaintenancepolicy/detail',
-      name: 'freeMaintenancePolicyDetail',
+      name: 'freeMaintenancePolicyDetail2',
       component: () => import('@/views/claimreturn/claim/basic/freeMaintenancePolicy/detail.vue'),
 
       meta: {
@@ -970,7 +970,7 @@ const routes = [
       }
     }, {
       path: '/claimreturn/claim/basic/freemaintenancepolicy/edit',
-      name: 'freeMaintenancePolicyEdit',
+      name: 'freeMaintenancePolicyEdit2',
       component: () => import('@/views/claimreturn/claim/basic/freeMaintenancePolicy/edit.vue'),
 
       meta: {
@@ -1277,6 +1277,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/maintain/sp/preAuth',
+      name: 'preAuth',
+      component: () => import('@/views/maintain/sp/preAuth/index.vue'),
+
+      meta: {
+        name: '预授权申请表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/preAuth/edit',
+      name: 'preAuthEdit',
+      component: () => import('@/views/maintain/sp/preAuth/edit.vue'),
+
+      meta: {
+        name: '预授权申请表管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/sparepart/fund/account',
       name: 'account',
       component: () => import('@/views/sparepart/fund/account/index.vue'),
@@ -1320,8 +1338,7 @@ const routes = [
         name: '备件返利账户详情',
         noResourceUrl: 'true'
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/sparepart/warehouse/inventory',
       name: 'inventory',
       component: () => import('@/views/sparepart/warehouse/inventory/index.vue'),
@@ -1339,8 +1356,7 @@ const routes = [
         name: '厅店备件库存详情',
         noResourceUrl: 'true'
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/sparepart/basic/purchasePrice',
       name: 'purchasePrice',
       component: () => import('@/views/sparepart/basic/purchasePrice/index.vue'),
@@ -1358,7 +1374,7 @@ const routes = [
         name: '备件采购价格详情',
         noResourceUrl: 'true'
       }
-    }, // 门店销毁
+    }, // 主机厂
     {
       path: '/sparepart/warehouse/oemWarehouse',
       name: 'oemWarehouse',
@@ -1377,7 +1393,8 @@ const routes = [
         name: '主机厂仓库设置详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 门店销毁
+    {
       path: '/sparepart/basic/purchasePriceCoupon',
       name: 'purchasePriceCoupon',
       component: () => import('@/views/sparepart/basic/purchasePriceCoupon/index.vue'),
@@ -1439,6 +1456,15 @@ const routes = [
       meta: {
         name: '接车施工单-维修履历信息管理',
         keepAlive: true
+      }
+    }, {
+      path: '/datacenter/vehicle/serviceProxyHis/edit',
+      name: 'serviceProxyHisEdit',
+      component: () => import('@/views/datacenter/vehicle/serviceProxyHis/edit.vue'),
+
+      meta: {
+        name: '接车施工单-维修履历信息管理详情',
+        noResourceUrl: 'true'
       }
     }, {
       path: '/sparepart/basic/purchasePartSaleable',
@@ -2304,39 +2330,109 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/cityLaborLevel',
-      name: 'city',
-      component: () => import('@/views/maintain/basic/cityLaborLevel/index.vue'),
+      path: '/claimreturn/claim/basic/warrantyAttachmentSetting',
+      name: 'warrantyAttachmentSetting',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyAttachmentSetting/index.vue'),
 
       meta: {
-        name: '城市工时等级配置表管理',
+        name: '保修附件设置',
         keepAlive: true
       }
     }, {
-      path: '/maintain/basic/cityLaborLevel/edit',
-      name: 'cityEdit',
-      component: () => import('@/views/maintain/basic/cityLaborLevel/edit.vue'),
+      path: '/claimreturn/claim/basic/warrantyattachmentsetting/edit',
+      name: 'warrantyAttachmentSettingEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyAttachmentSetting/edit.vue'),
 
       meta: {
-        name: '城市工时等级配置表管理详情',
+        name: '保修附件设置详情',
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/sp/restatement',
-      name: 'restatement',
-      component: () => import('@/views/maintain/sp/restatement/index.vue'),
+      path: '/claimreturn/claim/basic/warrantyGradeApprovalSetting',
+      name: 'warrantyGradeApprovalSetting',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyGradeApprovalSetting/index.vue'),
 
       meta: {
-        name: '反结算申请单管理',
+        name: '保修分级审批设置',
         keepAlive: true
       }
     }, {
-      path: '/maintain/sp/restatement/edit',
-      name: 'restatementEdit',
-      component: () => import('@/views/maintain/sp/restatement/edit.vue'),
+      path: '/claimreturn/claim/basic/warrantygradeapprovalsetting/edit',
+      name: 'warrantyGradeApprovalSettingEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyGradeApprovalSetting/edit.vue'),
 
       meta: {
-        name: '反结算申请单管理详情',
+        name: '保修分级审批设置',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/file/attachmentConfig',
+      name: 'attachmentConfig',
+      component: () => import('@/views/file/attachmentConfig/index.vue'),
+      meta: {
+        name: '附件配置管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/file/attachmentConfig/edit',
+      name: 'attachmentConfigEdit',
+      component: () => import('@/views/file/attachmentConfig/edit.vue'),
+      meta: {
+        name: '附件配置详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyOrderWarningRule',
+      name: 'warrantyOrderWarningRule',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyOrderWarningRule/index.vue'),
+
+      meta: {
+        name: '保修单预警规则',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/warrantyorderwarningrule/edit',
+      name: 'warrantyOrderWarningRuleEdit',
+      component: () => import('@/views/claimreturn/claim/basic/warrantyOrderWarningRule/edit.vue'),
+
+      meta: {
+        name: '保修单预警规则详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/claimtrace/claimTraceOrder',
+      name: 'claimTraceOrder',
+      component: () => import('@/views/claimreturn/claim/claimtrace/claimTraceOrder/index.vue'),
+
+      meta: {
+        name: '索赔追溯单',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/claimtrace/claimtraceorder/edit',
+      name: 'claimTraceOrderEdit',
+      component: () => import('@/views/claimreturn/claim/claimtrace/claimTraceOrder/edit.vue'),
+
+      meta: {
+        name: '索赔追溯单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/sp/vehRetentionList',
+      name: 'vehRetentionList',
+      component: () => import('@/views/maintain/sp/vehRetentionList/index.vue'),
+
+      meta: {
+        name: '留车清单表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/vehretentionlist/edit',
+      name: 'vehRetentionListEdit',
+      component: () => import('@/views/maintain/sp/vehRetentionList/edit.vue'),
+
+      meta: {
+        name: '留车清单表管理详情',
         noResourceUrl: 'true'
       }
     }]
