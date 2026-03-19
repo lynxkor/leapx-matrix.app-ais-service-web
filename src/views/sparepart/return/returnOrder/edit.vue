@@ -392,7 +392,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, listOrgStoreInfoByParam, listWarehouse, getLoginUser } from '@/api/common';
+import { getEnum, listOrgStoreInfoByParam, listWarehouse, getLoginUser, getPartDealer } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -406,6 +406,7 @@ const defaultForm = {
   dealerCode: '',
   dealerName: '',
   warehouseId: '',
+  warehouseName: '',
   returnReason: '',
   returnStatus: '10',
   returnStatusLabel: '草稿',
@@ -697,6 +698,11 @@ export default {
       this.accountFlag = res.accountFlag;
       this.form.dealerCode = res.currentDealerCode;// 当前门店code
       this.form.dealerName = res.currentDealerName;// 当前门店名称
+      if (this.accountFlag === true) {
+        const res = await getPartDealer({ code: this.form.dealerCode });
+        this.form.warehouseId = res.warehouseId;
+        this.form.warehouseName = res.warehouseName;
+      }
     },
     // 点击带出门店名称
     handleDealerChange (val, ele) {
