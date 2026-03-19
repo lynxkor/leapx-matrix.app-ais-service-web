@@ -94,7 +94,7 @@
       ref="auditDialog"
       :visible.sync="auditDialogVisible"
       :business-id="currentApprovalRow ? currentApprovalRow.id : ''"
-      :row-id="currentApprovalRow ? currentApprovalRow.id : ''"
+      :info="currentApprovalRow"
       @success="getData"
     />
     <ErrorCodeDialog
@@ -175,7 +175,7 @@ export default {
       loading: false,
       exportLoading: false,
       clickItemId: '',
-      currentApprovalRow: null, // 当前审批的行数据
+      currentApprovalRow: {}, // 当前审批的行数据
       auditDialogVisible: false, // 审核对话框显示状态
       errorCodeDialogVisible: false, // 错误代码维护对话框显示状态
       optionObj: {
