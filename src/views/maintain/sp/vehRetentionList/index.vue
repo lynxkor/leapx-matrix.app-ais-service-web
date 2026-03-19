@@ -28,19 +28,27 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="门店名称">
-        <el-input
-          placeholder="请输入"
-          v-model="form.dealerName"
-          clearable
-        />
-      </el-form-item>
       <template v-if="show">
         <el-form-item label="接车施工单">
           <el-input
             placeholder="请输入"
             v-model="form.serviceProxyCode"
             clearable
+          />
+        </el-form-item>
+        <el-form-item label="门店名称">
+          <fetch-select
+            :remote-method="getDealerList"
+            remote
+            v-model="form.dealerCodes"
+            placeholder="请输入门店编码或名称"
+            labelKey="orgName"
+            valueKey="orgCode"
+            subLabelKey="orgCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
           />
         </el-form-item>
         <el-form-item label="留车单状态">
@@ -79,12 +87,11 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canDelete" size="small" @click="handleBatchPush" :disabled="selectionList.length === 0">批量推送</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchInvalid" :disabled="selectionList.length === 0">批量作废</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -125,8 +132,10 @@ import {
   getList,
   deleteItem,
   enableItem,
+  batchPush,
+  batchInvalid,
 } from '@/api/maintain/sp/vehRetentionList/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -168,7 +177,7 @@ export default {
       pageTitle: '留车清单表管理',
       pageType: 'list',
       // TIPS: 权限前缀 AISCR，根据实际情况修改
-      moduleKey: 'AISCR-vehRetentionList',
+      moduleKey: 'AISMC-vehRetentionList',
       form: {
         ...defaultForm
       },
@@ -200,15 +209,15 @@ export default {
         form: this.tableForm,
         dataProp: [
           {
-            props: 'createTime',
-            label: '创建时间',
+            props: 'code',
+            label: '留车单编码',
             visible: true,
             width: 200,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '//maintain/sp/vehRetentionList/basic/vehRetentionList/edit',
+                  path: '/maintain/sp/vehRetentionList/edit',
                   query: {
                     id: row.id
                   }
@@ -217,14 +226,14 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'code', label: '留车单编码', visible: true, width: 200 },
-          { props: 'vehModelName', label: '基本车型', visible: true, width: 200 },
-          { props: 'vehYearTypeName', label: '年型', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'serviceProxyCode', label: '接车施工单', visible: true, width: 200 },
-          { props: 'retentionStatus', label: '留车单状态', visible: true, width: 200 },
           { props: 'vehProfileVin', label: 'VIN码', visible: true, width: 200 },
           { props: 'configCode', label: '留车配置项编码', visible: true, width: 200 },
+          { props: 'vehYearTypeName', label: '年款', visible: true, width: 200 },
+          { props: 'vehModelName', label: '车型', visible: true, width: 200 },
+          { props: 'dealerName', label: '服务门店', visible: true, width: 200 },
+          { props: 'retentionStatusLabel', label: '留车单状态', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',
@@ -232,37 +241,16 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
-              name: '编辑',
+              name: '详情',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '//maintain/sp/vehRetentionList/basic/vehRetentionList/edit',
+                  path: '/maintain/sp/vehRetentionList/edit',
                   query: {
-                    id: row.id,
-                    isEditing: true,
+                    id: row.id
                   }
                 });
               },
               type: 'info'
-            }, {
-              name: '删除',
-              popconfirmConfirmButtonType: 'danger',
-              popconfirmConfirmButtonText: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
             }]
           }
         ],
@@ -296,7 +284,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '//maintain/sp/vehRetentionList/basic/vehRetentionList/edit'
+        path: '/maintain/sp/vehRetentionList/edit'
       });
     },
     onSubmit () {
@@ -473,6 +461,81 @@ export default {
       //   });
       // });
     },
+    handleBatchPush () {
+      const ids = this.selectionList.map(item => item.id) || [];
+      const isAllUnpushed = this.selectionList.every(item => item.retentionStatus === 10);
+      if (!isAllUnpushed) {
+        this.$message({
+          type: 'warning',
+          message: '选中项中包含有已推送的数据，请重新选择'
+        });
+        return;
+      }
+      this.$confirm('此操作将批量推送选中的数据，是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        batchPush(ids).then(() => {
+          this.$message({
+            type: 'success',
+            message: '推送成功!'
+          });
+          this.getData();
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: '推送失败!'
+          });
+        });
+      }).catch(() => {});
+    },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    handleBatchInvalid () {
+      const isAllUnvoided = this.selectionList.every(item => !item.retentionStatus === 60);
+      if (!isAllUnvoided) {
+        this.$message({
+          type: 'warning',
+          message: '选中项有已作废的，请勿重复作废'
+        });
+        return;
+      }
+      this.$prompt('', '此操作将作废选中项，是否继续？', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPlaceholder: '请输入作废说明',
+        inputValidator: (value) => {
+          if (!value || value.trim() === '') {
+            return '请输入作废说明';
+          }
+          return true;
+        }
+      }).then(({ value }) => {
+        const ids = this.selectionList.map(item => item.id) || [];
+        batchInvalid({
+          idSet: ids,
+          invalidReason: value
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '作废成功!'
+          });
+          this.getData();
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: '作废失败!'
+          });
+        });
+      }).catch(() => {});
+    }
   }
 };
 </script>

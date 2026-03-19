@@ -2,11 +2,7 @@
   <section class="common-section">
     <div class="common-section-header">
       <h2>
-        xxx明细
-        <div v-if="_id && !disabled" class="btns">
-          <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="openAdd"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
-          <el-button v-if="canAddOrUpdate" :disabled="!isSelect" size="small" @click.stop="handleRemoveRows">删除</el-button>
-        </div>
+        故障模块
       </h2>
     </div>
     <div v-if="_id" class="common-section-body">
@@ -19,7 +15,6 @@
           :defaultNewRow="disabled ? null : defaultNewRow"
           :show-toolbar="false"
           :options="options"
-          :checkbox="true"
           :auth="{ edit: false, delete: canAddOrUpdate && !disabled }"
           :isFocusNewRow="false"
           :enableSingleRowSave="false"
@@ -30,7 +25,6 @@
           @remove-row="handleRemoveRow"
           @page-size-change="pageSizeChange"
           @current-page-change="currentPageChange"
-          @checkboxChange="checkboxChange"
         />
       </div>
     </div>
@@ -42,7 +36,7 @@
 <script>
 
 import {
-  getDetailList,
+  getFaultList,
   removeDetail,
 } from '@/api/maintain/sp/vehRetentionList/index';
 import EditTable from '@/libs/components/EditTable/index.vue';
@@ -124,9 +118,9 @@ export default {
       if (!this._id) {
         return;
       }
-      getDetailList({
+      getFaultList({
         // TODO 根据需求进行替换
-        // xxxId: this._id,
+        vehRetentionListId: this._id,
         //
         pageSize: this.pageSize,
         pageNum: this.current,
@@ -180,10 +174,6 @@ export default {
     currentPageChange (current) {
       this.current = current;
       this.getTableData();
-    },
-    checkboxChange (records) {
-      this.selectedRows = records;
-      this.$emit('checkboxChange', this.selectedRows);
     },
   },
 };
