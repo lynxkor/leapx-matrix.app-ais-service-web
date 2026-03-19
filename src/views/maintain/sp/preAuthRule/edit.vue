@@ -22,9 +22,10 @@
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="180px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="预授权规则编号：" prop="code">
                   <el-input
-                    placeholder="请输入"
+                    placeholder="自动生成"
                     v-model="form.code"
                     clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="有效日期：" prop="endTime">
@@ -183,7 +184,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, addPartItem, deletePartItem, addPartVehModel, deletePartVehModel } from '@/api/maintain/sp/preAuthRule/index';
+import { getDetail, addOrUpdate, addPartItem, deletePartItem } from '@/api/maintain/sp/preAuthRule/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -320,22 +321,17 @@ export default {
         ...this.form,
         vehicleModels: this.tableDataModel,
         partsResps: this.tableDataPart
-      }).then(result => {
-        this.$message.success('保存成功');
-        console.log(result);
-        this.$router.push({
-          path: '/maintain/sp/preAuthRule/edit',
-          query: {
-            id: result
-          }
-        });
-      }).catch(() => {});
+      });
     },
     // 删除单个车型
     async handleDeleteModelRow (index) {
-      const item = this.tableDataModel[index];
-      await deletePartVehModel([item.id]);
       this.tableDataModel.splice(index, 1);
+      await addOrUpdate({
+        ...this.form,
+        authRuleModelParamList: [
+          ...this.tableDataModel,
+        ]
+      });
       this.$message.success('删除成功');
     },
     // 添加零件
@@ -378,7 +374,7 @@ export default {
     // 处理车型提交
     handleVehicleModelSubmit (data) {
       const submitData = data.addOrUpdateReqList || [];
-      addPartVehModel({
+      addOrUpdate({
         ...this.form,
         authRuleModelParamList: [
           ...this.form.vehicleModels,
