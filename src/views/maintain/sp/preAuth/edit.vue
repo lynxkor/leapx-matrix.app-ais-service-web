@@ -8,18 +8,18 @@
         :isEditing.sync="isEditing"
         :form.sync="form"
         :originalForm.sync="originalForm"
-        :submitRequest="() => submitRequest(1)"
+        :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
         <template #status>
           <!-- <span class="status primary" v-if="form.statusDesc">{{ form.statusDesc }}</span> -->
         </template>
         <template #extraButtons>
-          <el-button size="small" type="primary" @click="submitRequest(1)" v-if="_id">提交审批</el-button>
+          <el-button size="small" type="primary" @click="handleSubmit(1)" v-if="_id && form.approvalStatus === AUDIT_STATUS.TODO">提交审批</el-button>
         </template>
         <template #footer>
-          <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitRequest(0)" :loading="loading">保存</el-button>
-          <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitRequest(1)" :loading="loading">提交</el-button>
+          <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleSubmit(0)" :loading="loading">保存</el-button>
+          <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleSubmit(1)" :loading="loading">提交</el-button>
         </template>
         <el-main>
           <!-- 基础信息 -->
@@ -280,7 +280,7 @@
                 <vxe-table
                   ref="partsTableRef"
                   stripe
-                  :data="serviceProxyDetail?.costCountResp?.sparePartRespList || []"
+                  :data="form.spSparePartResps || serviceProxyDetail?.costCountResp?.sparePartRespList || []"
                   show-overflow
                   :row-config="{ isHover: true }"
                   resizable
@@ -343,37 +343,59 @@
             </div>
             <div class="common-section-body">
               <el-form :inline="true" class="form-detail">
-                <el-form-item label="审批状态：">
-                  <span>{{ form.approvalStatusLabel }}</span>
-                </el-form-item>
-                <el-form-item label="审批人：">
-                  <span>{{ form.approver || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="审批时间：">
-                  <span>{{ form.approvalOn || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="审批意见：">
-                  <span>{{ form.approvalContent || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="提交人：">
-                  <span>{{ form.subUser || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="提交时间：">
-                  <span>{{ form.subDateTime || '-' }}</span>
-                </el-form-item>
                 <el-form-item label="审批单号：">
                   <span>{{ form.auditNo || '-' }}</span>
                 </el-form-item>
-                <el-form-item label="申请驳回状态：">
-                  <span>{{ form.applyRejectStatus === 1 ? '是' : form.applyRejectStatus === 0 ? '否' : '-' }}</span>
+                <el-form-item label="同意工时索赔小计：">
+                  <span>{{ form.approvedLaborClaimTotal || '-' }}</span>
                 </el-form-item>
-                <el-form-item label="申请驳回原因：" v-if="form.applyRejectStatus">
-                  <span>{{ form.rejectReason || '-' }}</span>
+                <el-form-item label="工时分担比例：">
+                  <span>{{ form.laborCostRatio || '-' }}</span>
                 </el-form-item>
-                <el-form-item label="申请驳回时间：" v-if="form.applyRejectStatus">
-                  <span>{{ form.rejectTime || '-' }}</span>
+                <el-form-item label="同意零件索赔小计：">
+                  <span>{{ form.approvedPartsClaimTotal || '-' }}</span>
+                </el-form-item>
+                <el-form-item label="零件分担比例：">
+                  <span>{{ form.partsCostRatio || '-' }}</span>
+                </el-form-item>
+                <el-form-item label="同意其他索赔小计：">
+                  <span>{{ form.approvedOtherClaimTotal || '-' }}</span>
+                </el-form-item>
+                <el-form-item label="其他分担比例：">
+                  <span>{{ form.otherCostSharingRatio || '-' }}</span>
                 </el-form-item>
               </el-form>
+
+              <!-- 审批流程表格 -->
+              <div class="common-section-table">
+                <vxe-table
+                  ref="approvalTableRef"
+                  stripe
+                  :data="form.supportApprovalResps || []"
+                  show-overflow
+                  :row-config="{ isHover: true }"
+                  resizable
+                  border="inner"
+                  size="medium"
+                  min-height="0"
+                  max-height="500px"
+                >
+                  <vxe-column field="approver" title="执行人" min-width="120" />
+                  <vxe-column field="approvalOn" title="执行时间" min-width="160" />
+                  <vxe-column field="statusLabel" title="审批状态" min-width="100" />
+                  <vxe-column field="approvalResult" title="审批结果" min-width="120" />
+                  <vxe-column field="content" title="审批意见" min-width="150" />
+                  <vxe-column field="errorContent" title="错误代码及内容" min-width="120" />
+                  <vxe-column title="附件信息" min-width="200">
+                    <template #default>
+                      <span>{{ '-' }}</span>
+                    </template>
+                  </vxe-column>
+                  <template #empty>
+                    <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
+                  </template>
+                </vxe-table>
+              </div>
             </div>
           </section>
 
@@ -406,6 +428,8 @@ import Attachment from './components/FileUploadGrid';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { AUDIT_STATUS } from './index.vue';
+import { reject } from 'lodash';
 
 const defaultForm = {
   code: '',
@@ -506,6 +530,7 @@ export default {
       pageTitle: '预授权申请',
       pageType: 'edit',
       moduleKey: 'AISMC-preAuth',
+      AUDIT_STATUS,
       loading: false,
       submitLoading: false,
       form: { ...defaultForm },
@@ -530,33 +555,52 @@ export default {
     detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id).then(res => {
-          // 直接保存预授权详情数据（包含费用信息和审批信息）
-          this.serviceProxyDetail = res;
-          // 将审批相关数据合并到form中（用于提交）
-          Object.assign(this.form, res);
-          return res;
+        return new Promise((resolve, reject) => {
+          getDetail(id).then(res => {
+            // 直接保存预授权详情数据（包含费用信息和审批信息）
+            this.serviceProxyDetail = res;
+            // 将审批相关数据合并到form中（用于提交）
+            Object.assign(this.form, res);
+            resolve(res);
+          }).catch((res) => {
+            reject(res);
+          });
         });
       }
     },
     submitRequest (v = 0) {
       // 表单校验
-      return this.$refs.ruleForm.validate().then(() => {
-        addOrUpdate({
-          id: this._id,
-          saveOrSubmit: v,
-          reason: this.form.reason,
-          serviceProxyId: this.form.serviceProxyId,
-          serviceProxyCode: this.form.serviceProxyCode,
-          preAuthType: this.form.preAuthType,
-          qualityOrderReportId: this.form.qualityOrderReportId,
-          qualityOrderReport: this.form.qualityOrderReport,
-        }).then(res => {
-          this.$message.success(v === 1 ? '提交审批成功' : '保存成功');
-          if (!this._id) {
-            this.$router.replace({ path: '/maintain/sp/preAuth/edit', query: { id: res } });
-          }
-        });
+      return addOrUpdate({
+        id: this._id,
+        saveOrSubmit: v,
+        reason: this.form.reason,
+        serviceProxyId: this.form.serviceProxyId,
+        serviceProxyCode: this.form.serviceProxyCode,
+        preAuthType: this.form.preAuthType,
+        qualityOrderReportId: this.form.qualityOrderReportId,
+        qualityOrderReport: this.form.qualityOrderReport,
+      });
+    },
+    handleSubmit (v = 0) {
+      addOrUpdate({
+        id: this._id,
+        saveOrSubmit: v,
+        reason: this.form.reason,
+        serviceProxyId: this.form.serviceProxyId,
+        serviceProxyCode: this.form.serviceProxyCode,
+        preAuthType: this.form.preAuthType,
+        qualityOrderReportId: this.form.qualityOrderReportId,
+        qualityOrderReport: this.form.qualityOrderReport,
+      }).then(res => {
+        this.$message.success(v === 0 ? '保存成功' : '提交审批成功');
+        if (!this._id) {
+          this.$router.replace({
+            path: '/maintain/sp/preAuth/edit',
+            query: { id: res }
+          });
+        } else {
+          this.detailRequest();
+        }
       });
     },
     handleShowLog () {
