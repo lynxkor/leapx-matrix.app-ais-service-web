@@ -256,7 +256,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/fund/accountOperateApply/edit',
+                  path: '/sparepart/fund/accountOperateDeductionApply/edit',
                   query: {
                     id: row.id
                   }
@@ -293,7 +293,7 @@ export default {
               },
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/fund/accountOperateApply/edit',
+                  path: '/sparepart/fund/accountOperateDeductionApply/edit',
                   query: {
                     id: row.id
                   }
@@ -371,7 +371,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/sparepart/fund/accountOperateApply/edit',
+        path: '/sparepart/fund/accountOperateDeductionApply/edit',
       });
     },
     onSubmit () {
