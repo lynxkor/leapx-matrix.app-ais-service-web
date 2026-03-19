@@ -454,7 +454,7 @@ export default {
             }, {
               name: '入库',
               show: (row) => {
-                return row.cancelStatus === '30' && row.inboundStatus === '1';
+                return row.cancelStatus === '30' && row.inboundStatus === '0';
               },
               popconfirmTitle: '此操作将入库, 是否继续?',
               click: (rowIndex, row) => {
