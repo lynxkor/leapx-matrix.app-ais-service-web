@@ -109,27 +109,18 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    ref="partSelectRef"
-                    style="width: 300px;"
-                    :remote-method="querySpareParts"
-                    remote
-                    placeholder="请选择零件"
-                    clearable
+                  <base-search
                     filterable
+                    clearable
+                    remote
+                    reserve-keyword
+                    :remote-method="querySpareParts"
+                    @change="handlePartSelect"
                     value-key="id"
                     label-key="partName"
-                    @change="handlePartSelect"
+                    placeholder="请选择零件"
                   />
-                  <el-button
-                    type="primary"
-                    size="small"
-                  >
-                    添加
-                  </el-button>
                   <el-button type="plain" size="small" @click="handleImport">零件导入</el-button>
-                </div>
               </div>
               <div class="common-section-table">
                 <vxe-table
@@ -195,6 +186,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import ModelDialog from '@/views/maintain/basic/maintenancePartData/components/AddVehicleDialog/index.vue';
 import Upload from '@/libs/components/UploadDialog';
+import BaseSearch from '@/libs/components/BaseSearch';
 
 const defaultForm = {
   code: '',
@@ -229,7 +221,7 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect,
+    BaseSearch,
     ModelDialog,
     Upload
   },
@@ -319,8 +311,8 @@ export default {
     submitRequest () {
       return addOrUpdate({
         ...this.form,
-        vehicleModels: this.tableDataModel,
-        partsResps: this.tableDataPart
+        authRuleModelParamList: this.tableDataModel,
+        partParamList: this.tableDataPart
       });
     },
     // 删除单个车型
@@ -328,9 +320,8 @@ export default {
       this.tableDataModel.splice(index, 1);
       await addOrUpdate({
         ...this.form,
-        authRuleModelParamList: [
-          ...this.tableDataModel,
-        ]
+        authRuleModelParamList: this.tableDataModel,
+        partParamList: this.tableDataPart
       });
       this.$message.success('删除成功');
     },
@@ -379,7 +370,8 @@ export default {
         authRuleModelParamList: [
           ...this.form.vehicleModels,
           ...submitData
-        ]
+        ],
+        partParamList: this.tableDataPart
       }).then(res => {
         this.$message.success('保存成功');
         this.detailRequest();
