@@ -123,6 +123,7 @@ import TagInput from '@/libs/components/TagInput';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
+  accountType: 'REBATE',
   companyCodeList: '',
   companyNameList: '',
   createTime: '',
@@ -145,10 +146,10 @@ export default {
   },
   data () {
     return {
-      pageTitle: this.accountName,
+      pageTitle: '备件返利账户',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: this.accountType === 'FUND' ? 'AISPART-account' : 'AISPART-accountRebate',
+      moduleKey: 'AISPART-accountRebate',
       form: {
         ...defaultForm
       },
@@ -236,8 +237,6 @@ export default {
         ],
         total: 0
       },
-      accountType: '',
-      accountName: ''
     };
   },
   created () {
@@ -314,7 +313,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), accountType: this.accountType, pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {

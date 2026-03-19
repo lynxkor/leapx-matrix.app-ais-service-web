@@ -200,7 +200,7 @@ const defaultForm = {
   remark: '',
   status: '',
   statusDesc: '',
-  operateType: '',
+  operateType: 'DEDUCTION',
   accountId: '',
   approver: '',
   approvalTime: '',
@@ -253,7 +253,7 @@ export default {
       pageType: 'edit',
       title: '账户编号：' + form.accountCode,
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISPART-accountOperateApply',
+      moduleKey: 'AISPART-accountOperateDeductionApply',
       routeType: false,
       loading: false,
       submitLoading: false,
@@ -401,7 +401,7 @@ export default {
       }
     },
     submitRequest () {
-      return addOrUpdate({ ...this.form, operateType: this.$route.query.type });
+      return addOrUpdate({ ...this.form, operateType: 'DEDUCTION' });
     },
     // 打开侧边栏
     openPane () {
