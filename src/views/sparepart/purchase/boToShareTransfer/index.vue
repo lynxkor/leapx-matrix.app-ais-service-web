@@ -118,8 +118,6 @@ import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/purchase/boToShareTransfer/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
-import TagInput from '@/libs/components/TagInput';
-import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -148,10 +146,8 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    FetchSelect,
     EditPage,
     Upload,
-    TagInput
   },
   data () {
     return {

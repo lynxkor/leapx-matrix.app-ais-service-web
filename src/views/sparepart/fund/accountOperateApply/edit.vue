@@ -200,7 +200,7 @@ const defaultForm = {
   remark: '',
   status: '',
   statusDesc: '',
-  operateType: '',
+  operateType: 'RECHARGE',
   accountId: '',
   approver: '',
   approvalTime: '',
@@ -401,7 +401,7 @@ export default {
       }
     },
     submitRequest () {
-      return addOrUpdate({ ...this.form, operateType: this.$route.query.type });
+      return addOrUpdate({ ...this.form, operateType: 'RECHARGE' });
     },
     // 打开侧边栏
     openPane () {

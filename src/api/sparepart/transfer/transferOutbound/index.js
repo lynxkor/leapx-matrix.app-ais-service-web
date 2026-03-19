@@ -3,7 +3,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/dealer/transferOutbound/';
-
+const prefixDetail = SPARE_PREFIX + '/web/dealer/transferOutboundDetail/';
 /**
  * 查询列表
  * @param {Object} data
@@ -121,7 +121,7 @@ export function getInbound (data) {
  * @param {Object} data
  */
 export function transferOutboundPage (data) {
-  return api.jsonPost('/sp/web/dealer/transferOutboundDetail/page', data);
+  return api.jsonPost(prefixDetail + 'page', data);
 }
 
 /**
@@ -129,5 +129,13 @@ export function transferOutboundPage (data) {
  * @param {Object} data
  */
 export function transferOutboundDelete (data) {
-  return api.jsonPost('/sp/web/dealer/transferOutboundDetail/delete', data);
+  return api.jsonPost(prefixDetail + 'delete', data);
+}
+
+/**
+ * 备件调拨出库明细表新增/编辑
+ * @param {Object} data
+ */
+export function transferOutboundAddOrUpdate (data) {
+  return api.jsonPost(prefixDetail + 'addOrUpdate', data);
 }

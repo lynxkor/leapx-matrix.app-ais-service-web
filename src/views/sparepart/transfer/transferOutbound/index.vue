@@ -386,7 +386,7 @@ export default {
               click: (rowIndex, row) => {
                 getShip({ id: row.id }).then(res => {
                   this.$message({
-                    message: '撤回成功',
+                    message: '发运成功',
                     type: 'success'
                   });
                   this.getData();
@@ -402,16 +402,20 @@ export default {
             }, {
               name: '申请撤销',
               show: (row) => {
-                return row.cancelStatus === '10' || row.outboundStatus === '40';
+                return (row.cancelStatus === '10' || row.cancelStatus === '40') && row.outboundStatus === '1';
               },
-              popconfirmTitle: '此操作将申请撤销, 是否继续?',
               click: (rowIndex, row) => {
-                applyCancel({ id: row.id }).then(res => {
-                  this.$message({
-                    message: '申请撤销成功',
-                    type: 'success'
+                this.$prompt('请输入申请撤销原因！', '申请撤销', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                }).then(({ value }) => {
+                  applyCancel({ id: row.id, description: value }).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '申请撤销成功!'
+                    });
+                    this.getData();
                   });
-                  this.getData();
                 });
               },
               type: 'info'
@@ -454,7 +458,7 @@ export default {
             }, {
               name: '入库',
               show: (row) => {
-                return row.cancelStatus === '30' && row.inboundStatus === '1';
+                return row.cancelStatus === '30' && row.inboundStatus === '0';
               },
               popconfirmTitle: '此操作将入库, 是否继续?',
               click: (rowIndex, row) => {
@@ -675,7 +679,17 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null || data[key].length === 0) {
+        const val = data[key];
+
+        // 情况 A: 值为 null, undefined, 或 空字符串 ''
+        if (!val && val !== 0 && val !== false) {
+          delete data[key];
+          return;
+        }
+
+        // 情况 B: 值为空数组 [] 或 空字符串 '' (再次确认 length)
+        // 注意：上面 !val 已经处理了 ''，这里主要处理 []
+        if (Array.isArray(val) && val.length === 0) {
           delete data[key];
         }
       });

@@ -86,7 +86,7 @@
               </el-form>
             </div>
           </section>
-                <section class="common-section" v-show="isEditing || !_id">
+          <section class="common-section" v-show="isEditing || !_id">
             <div class="common-section-header">
               <h2>调拨信息</h2>
             </div>
@@ -295,6 +295,15 @@
               <h2>调拨明细</h2>
             </div>
             <div class="common-section-body">
+              <div class="common-section-header">
+                <div class="ais-select-group">
+                  <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请选择" clearable
+                    value-key="id" label-key="name" subLabelKey="code" :disabled="!orderStatusType"
+                    @change="handleAddTableData" />
+                  <el-button type="primary" size="small">添加</el-button>
+                  <el-button size="small" @click="handleImport">导入备件</el-button>
+                </div>
+              </div>
               <div class="common-section-table">
                 <vxe-table
                   ref="tableRef"
@@ -307,27 +316,27 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="partCode" title="备件编码" min-width="10%" />
-                  <vxe-column field="partName" title="备件名称" min-width="10%" />
-                  <vxe-column field="locationCode" title="库位" min-width="10%" />
-                  <vxe-column field="availableQuantity" title="可用库存" min-width="10%" />
+                  <vxe-column field="sparePartCode" title="备件编码" min-width="10%" />
+                  <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
+                  <vxe-column field="locationName" title="库位" min-width="10%" />
+                  <vxe-column field="availableQty" title="可用库存" min-width="10%" />
                   <vxe-column field="purchasePriceTax" title="采购价格(含税)" min-width="10%" />
                   <vxe-column field="purchasePriceNotax" title="采购价格(不含税)" min-width="10%" />
                   <vxe-column field="costUnitPriceTax" title="金额(含税)" min-width="10%" />
-                  <vxe-column field="inboundQty" title="调拨数量" min-width="10%">
+                  <vxe-column field="transferQty" title="调拨数量" min-width="10%">
                     <template #default="{ row }">
-                      <el-input v-model="row.transferQty" type="number" min="1" @blur="handleBlur(row)"/>
+                      <el-input v-model="row.transferQty" :disabled="!orderStatusType" :max="row.availableQuantity" type="number" min="1" @blur="handleQtyBlur(row)"/>
                     </template>
                   </vxe-column>
-                  <vxe-column field="inboundQty" title="备注" min-width="10%">
+                  <vxe-column field="remark" title="备注" min-width="10%">
                     <template #default="{ row }">
-                      <el-input v-model="row.remark" @blur="handleBlur(row)"/>
+                      <el-input v-model="row.remark" :disabled="!orderStatusType" @blur="handleRemarkBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="10%" />
-                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
+                  <vxe-column title="操作" width="100" fixed="right">
+                    <template #default="{ row }">
+                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(row.id)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
@@ -362,11 +371,12 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, transferOutboundPage, transferOutboundDelete } from '@/api/sparepart/transfer/transferOutbound/index';
+import { getDetail, addOrUpdate, transferOutboundPage, transferOutboundAddOrUpdate, transferOutboundDelete } from '@/api/sparepart/transfer/transferOutbound/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
+import { getEnum, listOrgStoreInfoByParam, getPartDealer, getLoginUser } from '@/api/common';
+import { getSparePart } from '@/api/sparepart/basic/sparePart/index';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -528,10 +538,71 @@ export default {
     openPane () {
       this.$refs.editLayout.openPane();
     },
-    queryListData (queryString) {
+    async queryListData (queryString) {
+      // 查询当前门店备件列表
       return new Promise(resolve => {
-        resolve([]);
+        // 根据需求调用接口
+        getSparePart({ partCodeOrNameLike: queryString }).then(res => {
+          const list = res || [];
+          resolve(list);
+        });
       });
+    },
+    // 新增备件清单
+    handleAddTableData (val, record) {
+      if (!record) {
+        this.$message.warning('请先选择数据');
+        return;
+      }
+      // 检查是否已存在
+      const exists = this.tableData.some(item => item.partCode === record.partCode);
+      if (exists) {
+        this.$message.warning('请勿重复添加');
+      }
+      const params = {
+        transferOutboundId: this._id,
+        sparePartId: record.id,
+        transferQty: 1
+      };
+      this.handleAddOrUpdate(params);
+    },
+    // 数量输入框失去焦点时触发
+    handleQtyBlur (row) {
+      const params = {
+        transferOutboundId: this._id,
+        id: row.id,
+        transferQty: row.transferQty
+      };
+      this.handleAddOrUpdate(params);
+    },
+    // 备注输入框失去焦点时触发
+    handleRemarkBlur (row) {
+      const params = {
+        transferOutboundId: this._id,
+        id: row.id,
+        remark: row.remark
+      };
+      this.handleAddOrUpdate(params);
+    },
+    // 新增/编辑备件清单
+    async handleAddOrUpdate (params) {
+      try {
+        await transferOutboundAddOrUpdate(params);
+        this.$message.success('操作成功');
+        this.getData();
+      } catch (error) {
+        this.$message.error('操作失败');
+      }
+    },
+    // 删除备件
+    async handleDeleteRow (id) {
+      try {
+        await transferOutboundDelete([id]);
+        this.$message.success('删除成功');
+        this.getData();
+      } catch (error) {
+        this.$message.error('删除失败');
+      }
     },
     getDefautlForm () {
       return {
@@ -564,6 +635,8 @@ export default {
       this.pageNum = 1;
       this.getData();
     },
+    // 导入备件清单
+    handleImport () {}
   }
 };
 </script>

@@ -1301,11 +1301,7 @@ const routes = [
 
       meta: {
         name: '备件现金账户',
-        keepAlive: true,
-        query: {
-          type: 'FUND',
-          name: '备件现金账户'
-        }
+        keepAlive: true
       }
     }, {
       path: '/sparepart/fund/account/edit',
@@ -1319,20 +1315,16 @@ const routes = [
     }, {
       path: '/sparepart/fund/accountRebate',
       name: 'accountRebate',
-      component: () => import('@/views/sparepart/fund/account/index.vue'),
+      component: () => import('@/views/sparepart/fund/accountRebate/index.vue'),
 
       meta: {
         name: '备件返利账户',
-        keepAlive: true,
-        query: {
-          type: 'REBATE',
-          name: '备件返利账户'
-        }
+        keepAlive: true
       }
     }, {
       path: '/sparepart/fund/accountRebate/edit',
       name: 'accountRebateEdit',
-      component: () => import('@/views/sparepart/fund/account/edit.vue'),
+      component: () => import('@/views/sparepart/fund/accountRebate/edit.vue'),
 
       meta: {
         name: '备件返利账户详情',
@@ -1800,11 +1792,7 @@ const routes = [
 
       meta: {
         name: '备件返利充值管理',
-        keepAlive: true,
-        query: {
-          type: 'RECHARGE',
-          name: '备件返利充值管理'
-        }
+        keepAlive: true
       }
     }, {
       path: '/sparepart/fund/accountoperateapply/edit',
@@ -1818,20 +1806,16 @@ const routes = [
     }, {
       path: '/sparepart/fund/accountOperateDeductionApply',
       name: 'accountOperateApply',
-      component: () => import('@/views/sparepart/fund/accountOperateApply/index.vue'),
+      component: () => import('@/views/sparepart/fund/accountOperateDeductionApply/index.vue'),
 
       meta: {
         name: '备件返利扣款管理',
-        keepAlive: true,
-        query: {
-          type: 'DEDUCTION',
-          name: '备件返利扣款管理'
-        }
+        keepAlive: true
       }
     }, {
       path: '/sparepart/fund/accountoperatedeductionapply/edit',
       name: 'accountOperateApplyEdit',
-      component: () => import('@/views/sparepart/fund/accountOperateApply/edit.vue'),
+      component: () => import('@/views/sparepart/fund/accountOperateDeductionApply/edit.vue'),
 
       meta: {
         name: '备件返利扣款管理详情',
@@ -2433,6 +2417,24 @@ const routes = [
 
       meta: {
         name: '留车清单表管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/sp/restatement',
+      name: 'restatement',
+      component: () => import('@/views/maintain/sp/restatement/index.vue'),
+
+      meta: {
+        name: '反结算申请单管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/restatement/edit',
+      name: 'restatementEdit',
+      component: () => import('@/views/maintain/sp/restatement/edit.vue'),
+
+      meta: {
+        name: '反结算申请单管理详情',
         noResourceUrl: 'true'
       }
     }]
