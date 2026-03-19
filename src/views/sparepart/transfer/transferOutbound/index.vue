@@ -380,7 +380,7 @@ export default {
             }, {
               name: '发运',
               show: (row) => {
-                return row.transferStatus === '2' && row.outboundStatus === '1';
+                return row.transferStatus === '2' && row.outboundStatus === '0';
               },
               popconfirmTitle: '此操作将发运, 是否继续?',
               click: (rowIndex, row) => {
@@ -454,7 +454,7 @@ export default {
             }, {
               name: '入库',
               show: (row) => {
-                return row.cancelStatus === '30' && row.inboundStatus === '0';
+                return row.cancelStatus === '30' && row.inboundStatus === '1';
               },
               popconfirmTitle: '此操作将入库, 是否继续?',
               click: (rowIndex, row) => {
