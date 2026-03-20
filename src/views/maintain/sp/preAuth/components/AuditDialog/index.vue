@@ -59,10 +59,10 @@
 import AisAttachment from '@/libs/components/AisAttachment';
 import { auditItem } from '@/api/maintain/sp/preAuth/index';
 import { getErrorCodeList } from '@/api/maintain/sp/preAuth/errorCode';
-import { AUDIT_STATUS } from '../../index.vue';
+import { AUDIT_STATUS } from '../../constant';
 
 export default {
-  name: 'AuditDialog',
+  name: 'PreAuthAuditDialog',
   components: {
     AisAttachment
   },

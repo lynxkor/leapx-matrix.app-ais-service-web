@@ -18,6 +18,7 @@
                     <el-button size="small" @click="couponsDialogVisible = true" v-if="!isCanceled">查询卡券&终身</el-button>
                     <el-button size="small" @click="handleImport" v-if="!isCanceled">上传附件</el-button>
                     <el-button size="small" @click="handleShowLog">审核日志</el-button>
+                    <el-button size="small" @click="remindInfoDialogVisible = true">提醒信息</el-button>
                     <!-- 流程操作按钮 -->
                     <el-button size="small" @click="discardDialogVisible = true" v-if="!isCompleted && !form.isCreateStatementInfo">作废</el-button>
                     <el-button size="small" @click="materialReturnDialogVisible = true" v-if="!isCompleted && hasRepairItems">退料</el-button>
@@ -82,6 +83,7 @@
         :visible.sync="selectRepairItemDialogVisible"
         :vehicleInfo="form"
         @refresh="handleRefresh"
+        @check="checkIfShowRemindDialog"
       />
       <!-- 派工 -->
       <DispatchWorkDialog
@@ -135,6 +137,12 @@
         :vehicleInfo="form"
         @refresh="handleRefresh"
       />
+      <!-- 提醒信息 -->
+      <RemindInfoDialog
+        :visible.sync="remindInfoDialogVisible"
+        :vehicleInfo="form"
+        @refresh="handleRefresh"
+      />
     </template>
     <template #right>
       <!-- 右侧栏组件，自行开发 -->
@@ -144,6 +152,7 @@
 
 <script>
 import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal } from '@/api/maintain/sp/serviceProxy/index';
+import { RepairOrderStatusEnum, BusinessTypeEnum } from './constant';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import NavTop from './components/NavTop';
 import { getEnum } from '@/api/common';
@@ -167,6 +176,7 @@ import MaterialReturnDialog from './components/MaterialReturnDialog';
 import SelectRepairItemDialog from './components/SelectRepairItemDialog';
 import StartWorkDialog from './components/StartWorkDialog';
 import DispatchWorkDialog from './components/DispatchWorkDialog';
+import RemindInfoDialog from './components/RemindInfoDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -304,42 +314,6 @@ const defaultForm = {
   partOutboundResps: '',
 };
 
-export const RepairOrderStatusEnum = {
-  /** 接车预检测 */
-  RECEPTION_INSPECTION: 100,
-  /** 制单中 */
-  CREATING_ORDER: 110,
-  /** 待派工 */
-  PENDING_DISPATCH: 120,
-  /** 施工中 */
-  UNDER_CONSTRUCTION: 140,
-  /** 待终检 */
-  PENDING_FINAL_INSPECTION: 150,
-  /** 待交车 */
-  PENDING_DELIVERY: 160,
-  /** 已交车 */
-  DELIVERED: 180,
-  /** 反结算 */
-  ANTI_SETTLEMENT: 200,
-  /** 已作废 */
-  CANCEL: 210
-};
-
-export const BusinessTypeEnum = {
-  /** 自然到店 */
-  NATURAL_ARRIVAL: 10,
-  /** 取送车到店 */
-  PICKUP_DELIVERY: 20,
-  /** 上门服务 */
-  DOOR_SERVICE: 30,
-  /** 外出驻点服务 */
-  ONSITE_SERVICE: 40,
-  /** 预约到店 */
-  APPOINTMENT_ARRIVAL: 50,
-  /** 反结算审批 */
-  ANTI_SETTLEMENT_APPROVAL: 60
-};
-
 export default {
   name: 'serviceProxyEdit',
   // 集中视图预留
@@ -371,7 +345,8 @@ export default {
     MaterialReturnDialog,
     SelectRepairItemDialog,
     StartWorkDialog,
-    DispatchWorkDialog
+    DispatchWorkDialog,
+    RemindInfoDialog
   },
   computed: {
     _id () {
@@ -467,6 +442,7 @@ export default {
       discardDialogVisible: false,
       materialReturnDialogVisible: false,
       couponsDialogVisible: false,
+      remindInfoDialogVisible: false,
       yes_no_enum: YES_NO_ENUM,
       RepairOrderStatusEnum,
       form: { ...form },
@@ -684,7 +660,12 @@ export default {
         });
       }).catch(() => {
       });
-    }
+    },
+    // 检查是否要弹出提醒
+    checkIfShowRemindDialog () {
+      // todo
+      // this.remindInfoDialogVisible = true;
+    },
   }
 };
 </script>

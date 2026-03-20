@@ -1,12 +1,11 @@
 <template>
-    <el-dialog class="m-start-work-dialog" title="呆滞件上架" width="75%" :visible.sync="dialogVisible" @close="close"
-        @closed="closed">
+    <el-dialog class="m-start-work-dialog" title="呆滞件上架" width="75%" :visible.sync="dialogVisible" @close="close">
         <!-- 数据表格 -->
         <div class="table-section">
             <vxe-table ref="workTable" :data="tableData" stripe show-overflow resizable border="inner" size="medium">
                 <vxe-column field="partCode" title="备件编码" width="180" />
                 <vxe-column field="partName" title="备件名称" width="160" show-overflow />
-                <vxe-column field="costUnitPrice" title="最新采购价格" width="120" />
+                <vxe-column field="purchasePrice" title="最新采购价格" width="120" />
                 <vxe-column field="suggestedSharedPrice" title="建议共享价格" width="150">
                     <template #default="{ row }">
                         <el-input v-model="row.suggestedSharedPrice" type="number" />
@@ -79,6 +78,7 @@ export default {
       if (val.length) {
         this.tableData = val.map(item => ({
           ...item,
+          suggestedSharedPrice: item.purchasePrice,
           operateQty: item.availableQty,
         }));
       }
