@@ -544,7 +544,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/purchase/boToShareTransfer/index';
+import { getDetail, addOrUpdate } from '@/api/sparepart/purchase/backOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';

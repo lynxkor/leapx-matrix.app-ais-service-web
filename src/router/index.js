@@ -2459,13 +2459,17 @@ const routes = [
       component: () => import('@/views/claimreturn/claim/basic/dealerReplacementCarClaimPrice/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '门店代步车索赔价格',
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/dealerreplacementcarclaimprice/edit',
+      path: '/claimreturn/claim/basic/dealerReplacementCarClaimPrice/edit',
       name: 'dealerReplacementCarClaimPriceEdit',
       component: () => import('@/views/claimreturn/claim/basic/dealerReplacementCarClaimPrice/edit.vue'),
+      meta: {
+        name: '门店代步车索赔价格详情',
+        noResourceUrl: 'true'
+      }
 
     }, {
       path: '/sparepart/basic/sparePartClaimPrice',
