@@ -308,7 +308,7 @@ export default {
     },
     // 获取维修项目列表
     async getRepairItemList () {
-      const res = await this.$refs.containerRef.loadDetail();
+      const res = await this.detailRequest();
       if (res && res.goodsRepairItemList) {
         this.repairItemTableData = res.goodsRepairItemList;
       }
