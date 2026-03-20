@@ -470,7 +470,7 @@ export default {
           { required: false, message: '请输入备注', trigger: 'blur' }
         ],
         repairItemTypeId: [
-          { required: false, message: '请选择维修项目类型', trigger: 'change' }
+          { required: false, message: '请选择维修类型', trigger: 'change' }
         ],
         mileageInterval: [
           { required: false, message: '请输入里程间隔计算标准', trigger: 'blur' }
