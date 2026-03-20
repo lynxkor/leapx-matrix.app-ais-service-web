@@ -185,6 +185,7 @@
                     :params="form.qualityOrderReport"
                     value-key="id"
                     label-key="code"
+                    subLabelKey="displayName"
                     placeholder="请选择质量反馈单"
                     clearable
                     filterable
@@ -821,7 +822,12 @@ export default {
           pageSize: 20,
           pageNum: 1
         }).then(res => {
-          const list = res?.records || [];
+          const list = (res?.records || []).map(item => {
+            return {
+              ...item,
+              displayName: item.reportTypeLabel + '：' + item.cccName
+            };
+          });
           resolve(list);
         }).catch(() => {
           resolve([]);
