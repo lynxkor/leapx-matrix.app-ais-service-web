@@ -48,3 +48,39 @@ export function enableItem (data) {
 export function vinSearchApi (data) {
   return api.jsonPost('datacenter/web/vehicle/vehicleProfile/listFull', data);
 }
+
+/**
+ * 作废车主信息变更申请
+ * @param {*} data
+ * @returns
+ */
+export function cancel (data) {
+  return api.jsonPost(prefix + 'cancel', data);
+}
+
+/**
+ * 提交车主信息变更申请
+ * @param {*} data
+ * @returns
+ */
+export function submit (data) {
+  return api.jsonPost(prefix + 'submit', data);
+}
+
+/**
+ * 审批驳回车主信息变更申请
+ * @param {*} data
+ * @returns
+ */
+export function reject (data) {
+  return api.jsonPost(prefix + 'reject', data);
+}
+
+/**
+ * 审批通过车主信息变更申请
+ * @param {*} data
+ * @returns
+ */
+export function approve (data) {
+  return api.jsonPost(prefix + 'approve', data);
+}
