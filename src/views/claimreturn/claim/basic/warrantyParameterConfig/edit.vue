@@ -80,8 +80,8 @@ export default {
       }).then(res => {
         if (res) {
           this.form = {
-            warrantyApplicationFormSubmissionDaysConfig: res.warrantyApplicationFormSubmissionDaysConfig || '',
-            warrantyReSubmissionDaysConfig: res.warrantyReSubmissionDaysConfig || '',
+            warrantyApplicationFormSubmissionDaysConfig: res.warrantyApplicationFormSubmissionDaysConfig ?? '',
+            warrantyReSubmissionDaysConfig: res.warrantyReSubmissionDaysConfig ?? '',
           };
         }
       });

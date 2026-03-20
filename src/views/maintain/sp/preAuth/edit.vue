@@ -10,12 +10,15 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :showEditBtn="form.approvalStatus === AUDIT_STATUS.TODO || form.approvalStatus === AUDIT_STATUS.REJECTED || form.approvalStatus === AUDIT_STATUS.EXPIRED"
       >
         <template #status>
           <!-- <span class="status primary" v-if="form.statusDesc">{{ form.statusDesc }}</span> -->
         </template>
         <template #extraButtons>
-          <el-button size="small" type="primary" @click="handleSubmit(1)" v-if="_id && form.approvalStatus === AUDIT_STATUS.TODO">提交审批</el-button>
+          <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && form.approvalStatus === AUDIT_STATUS.IN_PROGRESS">审批</el-button>
+          <el-button size="small" type="primary" plain @click="handleCancel" v-if="_id && form.approvalStatus === AUDIT_STATUS.REJECTED">作废</el-button>
+          <el-button size="small" type="primary" @click="handleSubmit(1)" v-if="_id && form.approvalStatus === AUDIT_STATUS.TODO">提交</el-button>
         </template>
         <template #footer>
           <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleSubmit(0)" :loading="loading">保存</el-button>
@@ -182,6 +185,7 @@
                     :params="form.qualityOrderReport"
                     value-key="id"
                     label-key="code"
+                    subLabelKey="displayName"
                     placeholder="请选择质量反馈单"
                     clearable
                     filterable
@@ -387,8 +391,88 @@
                   <vxe-column field="content" title="审批意见" min-width="150" />
                   <vxe-column field="errorContent" title="错误代码及内容" min-width="120" />
                   <vxe-column title="附件信息" min-width="200">
-                    <template #default>
-                      <span>{{ '-' }}</span>
+                    <template #default="{ row }">
+                      <div class="approval-attachments">
+                        <!-- 加载中状态 -->
+                        <div v-if="attachmentLoadingMap[row.id]" class="attachment-loading">
+                          <i class="el-icon-loading"></i>
+                          <span>加载中...</span>
+                        </div>
+
+                        <!-- 加载失败状态 -->
+                        <div v-else-if="attachmentErrorMap[row.id]" class="attachment-error">
+                          <span>加载失败</span>
+                          <i class="el-icon-refresh" @click="loadRowFiles(row.id)" style="cursor: pointer; margin-left: 4px;"></i>
+                        </div>
+
+                        <!-- 无附件状态 -->
+                        <div v-else-if="!approvalAttachmentsMap[row.id] || approvalAttachmentsMap[row.id].length === 0" class="attachment-empty">
+                          <span>{{ '-' }}</span>
+                        </div>
+
+                        <!-- 附件数量 <= 3: 直接展示缩略图 -->
+                        <div v-else-if="approvalAttachmentsMap[row.id].length <= attachmentConfig.maxDisplay" class="attachment-list">
+                          <div
+                            v-for="file in approvalAttachmentsMap[row.id]"
+                            :key="file.id"
+                            class="table-attachment-item"
+                            @click="handleAttachmentClick(file)"
+                          >
+                            <!-- 文件图标 -->
+                            <img
+                              :src="getFileIconPath(file)"
+                              class="attachment-icon"
+                              :alt="file.name"
+                            />
+
+                            <!-- 文件名提示 -->
+                            <el-tooltip :content="file.name" placement="top" :open-delay="500">
+                              <div class="attachment-name-overlay"></div>
+                            </el-tooltip>
+                          </div>
+                        </div>
+
+                        <!-- 附件数量 > 3: 展示前2个缩略图 + 更多下拉菜单 -->
+                        <div v-else class="attachment-list">
+                          <!-- 前2个附件缩略图 -->
+                          <div
+                            v-for="file in approvalAttachmentsMap[row.id].slice(0, attachmentConfig.maxDisplay)"
+                            :key="file.id"
+                            class="table-attachment-item"
+                            @click="handleAttachmentClick(file)"
+                          >
+                            <!-- 文件图标 -->
+                            <img
+                              :src="getFileIconPath(file)"
+                              class="attachment-icon"
+                              :alt="file.name"
+                            />
+
+                            <!-- 文件名提示 -->
+                            <el-tooltip :content="file.name" placement="top" :open-delay="500">
+                              <div class="attachment-name-overlay"></div>
+                            </el-tooltip>
+                          </div>
+
+                          <!-- 更多下拉菜单按钮 -->
+                          <el-dropdown placement="bottom" class="attachment-dropdown">
+                            <div class="attachment-dropdown-trigger">
+                              <span class="attachment-more-text">更多</span>
+                              <i class="el-icon-arrow-down"></i>
+                            </div>
+                            <el-dropdown-menu slot="dropdown" class="attachment-dropdown-menu">
+                              <el-dropdown-item
+                                v-for="file in approvalAttachmentsMap[row.id].slice(attachmentConfig.maxDisplay)"
+                                :key="file.id"
+                                class="attachment-dropdown-item"
+                                @click.native="handleAttachmentClick(file)"
+                              >
+                                <span class="dropdown-file-name" :title="file.name">{{ file.name }}</span>
+                              </el-dropdown-item>
+                            </el-dropdown-menu>
+                          </el-dropdown>
+                        </div>
+                      </div>
                     </template>
                   </vxe-column>
                   <template #empty>
@@ -410,6 +494,14 @@
           </section>
         </el-main>
       </edit-base-container>
+      <!-- 审核对话框 -->
+      <PreAuthAuditDialog
+        ref="auditDialog"
+        :visible.sync="auditDialogVisible"
+        :business-id="_id"
+        :info="form"
+        @success="$refs.containerRef.loadDetail()"
+      />
     </template>
     <template #right>
       <!-- 右侧栏组件，自行开发 -->
@@ -418,18 +510,20 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getServiceProxyList, getServiceProxyDetail } from '@/api/maintain/sp/preAuth/index';
+import { getDetail, addOrUpdate, getServiceProxyList, getServiceProxyDetail, cancelItem } from '@/api/maintain/sp/preAuth/index';
 import { getList as getQualityReportList } from '@/api/maintain/sp/qualityOrderReport/index';
 import { selectServiceProxy as selectServiceProxyApi, getEnum } from '@/api/maintain/sp/serviceProxy/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Attachment from './components/FileUploadGrid';
+import PreAuthAuditDialog from './components/AuditDialog/index.vue';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { AUDIT_STATUS } from './index.vue';
-import { reject } from 'lodash';
+import { AUDIT_STATUS } from './constant.js';
+import { getFileList } from '@/libs/api/attachment';
+import { isFileType } from '@/libs/utils/file.js';
 
 const defaultForm = {
   code: '',
@@ -505,7 +599,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    Attachment
+    Attachment,
+    PreAuthAuditDialog
   },
   computed: {
     _id () {
@@ -537,6 +632,19 @@ export default {
       originalForm: { ...defaultForm },
       emptyText: '暂无数据',
       serviceProxyDetail: {}, // 施工单详情数据（仅用于展示）
+      // 审批记录附件映射 Map<approvalId, files[]>
+      approvalAttachmentsMap: {},
+      // 附件加载状态 Map<approvalId, boolean>
+      attachmentLoadingMap: {},
+      // 附件加载错误 Map<approvalId, error>
+      attachmentErrorMap: {},
+      // 附件配置
+      attachmentConfig: {
+        maxDisplay: 3,        // 最大显示数量
+        preloadCount: 20       // 预加载数量
+      },
+      // 审核对话框
+      auditDialogVisible: false,
       rules: {
         serviceProxyId: [
           { required: true, message: '请选择施工单', trigger: 'change' }
@@ -561,11 +669,94 @@ export default {
             this.serviceProxyDetail = res;
             // 将审批相关数据合并到form中（用于提交）
             Object.assign(this.form, res);
+            // 预加载前5条审批记录的附件
+            this.$nextTick(() => {
+              this.batchLoadAttachments();
+            });
             resolve(res);
           }).catch((res) => {
             reject(res);
           });
         });
+      }
+    },
+    /**
+     * 加载单个审批记录的附件
+     * @param {string|number} approvalId - 审批记录ID
+     */
+    async loadRowFiles (approvalId) {
+      // 防重复加载
+      if (this.approvalAttachmentsMap[approvalId] ||
+          this.attachmentLoadingMap[approvalId]) {
+        return;
+      }
+
+      this.$set(this.attachmentLoadingMap, approvalId, true);
+      this.$set(this.attachmentErrorMap, approvalId, null);
+
+      try {
+        const response = await getFileList({
+          businessId: approvalId,
+          // attachType: this.attachmentConfig.attachType
+        });
+
+        const files = (response?.data || []).map(file => ({
+          id: file.id,
+          name: file.fileName,
+          url: file.fileUrl,
+          size: file.fileSize,
+          fileType: file.fileType,
+          isImage: isFileType(file, 'image'),
+          isVideo: isFileType(file, 'video'),
+          isPdf: isFileType(file, 'pdf'),
+          isExcel: isFileType(file, 'excel'),
+          isWord: isFileType(file, 'word'),
+          isPPT: isFileType(file, 'ppt'),
+          isText: isFileType(file, 'text'),
+          isZip: isFileType(file, 'zip'),
+          isRar: isFileType(file, 'rar')
+        }));
+
+        this.$set(this.approvalAttachmentsMap, approvalId, files);
+      } catch (error) {
+        console.error(`加载审批记录${approvalId}的附件失败:`, error);
+        this.$set(this.attachmentErrorMap, approvalId, error);
+      } finally {
+        this.$set(this.attachmentLoadingMap, approvalId, false);
+      }
+    },
+    /**
+     * 批量预加载审批附件(用于页面初始化)
+     */
+    async batchLoadAttachments () {
+      const auditList = this.form.supportApprovalResps || [];
+      const preloadList = auditList.slice(0, this.attachmentConfig.preloadCount);
+
+      const promises = preloadList.filter(item => item.status === 20 || item.status === 40).map(item =>
+        this.loadRowFiles(item.id).catch(err => {
+          console.warn(`预加载审批记录${item.id}附件失败:`, err);
+        })
+      );
+
+      await Promise.allSettled(promises);
+    },
+    getFileIconPath (file) {
+      if (file.isImage) return file.url;
+      if (file.isPdf) return require('@/libs/components/AisAttachment/icon/pdf.png');
+      if (file.isExcel) return require('@/libs/components/AisAttachment/icon/xls.png');
+      if (file.isWord) return require('@/libs/components/AisAttachment/icon/word.png');
+      if (file.isPpt) return require('@/libs/components/AisAttachment/icon/ppt.png');
+      if (file.isVideo) return require('@/libs/components/AisAttachment/icon/video.png');
+      if (file.isZip) return require('@/libs/components/AisAttachment/icon/zip.png');
+      return require('@/libs/components/AisAttachment/icon/text.png');
+    },
+    /**
+     * 处理附件点击事件
+     */
+    handleAttachmentClick (file) {
+      // 所有文件都在新窗口打开
+      if (file.url) {
+        window.open(file.url, '_blank');
       }
     },
     submitRequest (v = 0) {
@@ -599,7 +790,7 @@ export default {
             query: { id: res }
           });
         } else {
-          this.detailRequest();
+          this.$refs.containerRef.loadDetail();
         }
       });
     },
@@ -631,7 +822,12 @@ export default {
           pageSize: 20,
           pageNum: 1
         }).then(res => {
-          const list = res?.records || [];
+          const list = (res?.records || []).map(item => {
+            return {
+              ...item,
+              displayName: item.reportTypeLabel + '：' + item.cccName
+            };
+          });
           resolve(list);
         }).catch(() => {
           resolve([]);
@@ -685,12 +881,106 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    /**
+     * 审批操作
+     */
+    handleApprove () {
+      this.auditDialogVisible = true;
+      this.$nextTick(() => {
+        this.$refs.auditDialog?.loadData?.();
+      });
+    },
+    /**
+     * 作废操作
+     */
+    handleCancel () {
+      this.$confirm('确定要作废该记录吗?', '作废确认', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        cancelItem(this._id).then(() => {
+          this.$message.success('作废成功');
+          this.$refs.containerRef.loadDetail();
+        }).catch(() => {
+          this.$message.error('作废失败');
+        });
+      }).catch(() => {
+        // 用户取消操作
+      });
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.m-pre-auth-edit {
+.approval-attachments {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 4px 0;
+
+  .attachment-loading,
+  .attachment-error,
+  .attachment-empty {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #999;
+    font-size: 12px;
+  }
+
+  .attachment-error {
+    color: #F56C6C;
+  }
+
+  // 直接展示附件列表 (<=3个)
+  .attachment-list {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+
+    .table-attachment-item {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      border-radius: 4px;
+      overflow: hidden;
+
+      .attachment-icon {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border: 1px solid #E6E6E5;
+        border-radius: 4px;
+        transition: all 0.2s;
+
+        &:hover {
+          border-color: var(--leap-color-primary);
+          transform: scale(1.05);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+      }
+
+      .attachment-name-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+
+  // 下拉菜单展示附件列表 (>3个)
+  .attachment-dropdown {
+    .attachment-more-text {
+      color: var(--leap-color-link);
+      cursor: pointer;
+    }
+  }
 }
 </style>

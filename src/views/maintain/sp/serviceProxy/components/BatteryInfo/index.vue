@@ -63,7 +63,7 @@
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
 import { getListData } from '@/api/maintain/basic/batteryUnit/index';
-import { RepairOrderStatusEnum } from '@/views/maintain/sp/serviceProxy/edit';
+import { RepairOrderStatusEnum } from '../../constant';
 
 export default {
   props: {

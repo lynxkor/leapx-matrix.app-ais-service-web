@@ -31,6 +31,7 @@
                     placeholder="请选择"
                     clearable
                     filterable
+                    :disabled="isDisabled"
                   />
                 </el-form-item>
                 <el-form-item label="类型：" prop="limitType">
@@ -41,6 +42,7 @@
                     placeholder="请选择"
                     clearable
                     filterable
+                    :disabled="isDisabled"
                   />
                 </el-form-item>
                 <el-form-item label="周期：" prop="period">
@@ -81,6 +83,7 @@
                     clearable
                     collapseTags
                     filterable
+                    :disabled="isDisabled"
                     @change="handleDealerChange"
                   />
                 </el-form-item>
@@ -89,7 +92,6 @@
                     placeholder="请输入"
                     v-model="form.dealerName"
                     clearable
-                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="状态：" prop="status">
@@ -217,6 +219,14 @@ export default {
         }
       },
       immediate: true
+    },
+    'form.id': {
+      handler (val) {
+        if (val) {
+          this.isDisabled = true;
+        }
+      },
+      immediate: true
     }
   },
   data () {
@@ -229,6 +239,7 @@ export default {
       moduleKey: 'AISPART-purchaseTimesLimit',
       loading: false,
       submitLoading: false,
+      isDisabled: false, // 是否在编辑状态 是就禁用
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },

@@ -1,6 +1,6 @@
 ---
 name: gen-module
-description: Intelligent Vue module generator for AIS frontend projects. Use this skill when users need to create new Vue modules with list pages, edit pages, and API files. Supports two modes: (1) Direct JSON configuration for fast generation - provide complete config object with path, list, and title to skip all questions, or (2) Conversational mode - provide module details through natural language. Automatically infers field types (dates, selects, booleans, numbers), generates code based on project templates, and auto-inserts routes. **ALWAYS reads latest templates before generation to ensure consistency.**
+description: Intelligent Vue module generator for AIS frontend projects. Use this skill when users need to create new Vue modules with list pages, edit pages, and API files. Supports two modes (1) Direct JSON configuration for fast generation - provide complete config object with path, list, and title to skip all questions, or (2) Conversational mode - provide module details through natural language. Automatically infers field types (dates, selects, booleans, numbers), generates code based on project templates, and auto-inserts routes. **ALWAYS reads latest templates before generation to ensure consistency.**
 ---
 
 ## Quick Start

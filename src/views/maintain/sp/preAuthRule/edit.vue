@@ -10,6 +10,10 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
+        <!-- <template #extraButtons>
+          <el-button size="small">删除</el-button>
+          <el-button size="small" type="danger">停用</el-button>
+        </template> -->
         <template #status>
           <!-- <span class="status" :class="form.status === 1 ? 'primary' : 'danger'">{{ form.status === 1 ? '启用' : '停用' }}</span> -->
         </template>
@@ -71,9 +75,12 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>适配车型&nbsp;<el-button type="primary" size="small" @click="modelDialogVisible = true">添加</el-button></h2>
+              <h2>适配车型</h2>
             </div>
             <div class="common-section-body">
+              <div class="common-section-header">
+                <el-button type="primary" plain size="small" @click="modelDialogVisible = true">选择适配车型</el-button>
+              </div>
               <div class="common-section-table">
                 <vxe-table
                   ref="tableModel"
@@ -108,19 +115,19 @@
               <h2>适配零件</h2>
             </div>
             <div class="common-section-body">
-              <div class="common-section-header">
-                  <base-search
-                    filterable
-                    clearable
-                    remote
-                    reserve-keyword
-                    :remote-method="querySpareParts"
-                    @change="handlePartSelect"
-                    value-key="id"
-                    label-key="partName"
-                    placeholder="请选择零件"
-                  />
-                  <el-button type="plain" size="small" @click="handleImport">零件导入</el-button>
+              <div class="common-section-header" style="justify-content: flex-start;gap: 10px;">
+                <base-search
+                  filterable
+                  clearable
+                  remote
+                  reserve-keyword
+                  :remote-method="querySpareParts"
+                  @change="handlePartSelect"
+                  value-key="id"
+                  label-key="partName"
+                  placeholder="请选择零件"
+                />
+                <el-button type="primary" plain size="small" @click="handleImport">零件导入</el-button>
               </div>
               <div class="common-section-table">
                 <vxe-table
@@ -176,7 +183,6 @@
 
 <script>
 import { getDetail, addOrUpdate, addPartItem, deletePartItem } from '@/api/maintain/sp/preAuthRule/index';
-import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, sparePartList } from '@/api/common';
@@ -344,7 +350,7 @@ export default {
         partsId: record.id,
       }).then(res => {
         this.$message.success('添加成功');
-        this.detailRequest();
+        this.$refs.containerRef.loadDetail();
       });
     },
     // 零件选择变更
@@ -374,7 +380,7 @@ export default {
         partParamList: this.tableDataPart
       }).then(res => {
         this.$message.success('保存成功');
-        this.detailRequest();
+        this.$refs.containerRef.loadDetail();
       });
     },
     getDefautlForm () {

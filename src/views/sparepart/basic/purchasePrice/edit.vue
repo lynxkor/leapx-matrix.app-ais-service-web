@@ -8,6 +8,7 @@
         :title="title"
         :isEditing.sync="isEditing"
         :form.sync="form"
+        :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
@@ -46,7 +47,7 @@
                     placeholder="请输入"
                     v-model="form.dealerName"
                     clearable
-                    disabled
+                    :disabled="isEditing || _id"
                   />
                 </el-form-item>
                 <el-form-item label="订单类型：" prop="orderType">
@@ -57,7 +58,7 @@
                     placeholder="请选择"
                     clearable
                     filterable
-                    disabled
+                    :disabled="isEditing || _id"
                   />
                 </el-form-item>
                 <el-form-item label="调价比例%：" prop="percent">
@@ -355,7 +356,7 @@ export default {
     submitRequest () {
       addOrUpdate({ ...this.form }).then((res) => {
         this.couponId = res || '';
-        this.detailRequest();
+        this.$refs.containerRef.loadDetail();
         this.getCouponList(this.couponId);
       });
     },
@@ -430,7 +431,7 @@ export default {
       await addCoupon(params);
       this.couponObj = {};
       this.getCouponList(id);
-      this.detailRequest();
+      this.$refs.containerRef.loadDetail();
     },
     // 请求优惠券信息
     async getCouponList (val) {

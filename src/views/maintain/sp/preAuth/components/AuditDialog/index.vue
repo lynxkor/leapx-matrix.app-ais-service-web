@@ -11,10 +11,10 @@
         <el-radio-group v-model="form.auditStaus">
           <el-radio label="30">审批通过</el-radio>
           <el-radio label="20">审批驳回</el-radio>
-          <el-radio label="40">拒绝申请</el-radio>
+          <el-radio label="40" v-if="info.approvalStatus !== AUDIT_STATUS.REFUSED">拒绝申请</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="错误代码及内容" prop="preAuthRuleCodeId">
+      <el-form-item label="错误代码及内容" prop="preAuthRuleCodeId" v-if="form.auditStaus === '20'">
         <el-select
           v-model="form.preAuthRuleCodeId"
           placeholder="请选择错误代码"
@@ -40,12 +40,10 @@
           show-word-limit
         />
       </el-form-item>
-      <el-form-item label="附件信息">
+      <el-form-item label="附件信息" v-if="form.auditStaus === '20'">
         <AisAttachment
           ref="attachment"
           :business-id="businessId"
-          config-code="mcs_preauth"
-          attach-type="审批附件"
           :upload-config="uploadConfig"
         />
       </el-form-item>
@@ -61,9 +59,10 @@
 import AisAttachment from '@/libs/components/AisAttachment';
 import { auditItem } from '@/api/maintain/sp/preAuth/index';
 import { getErrorCodeList } from '@/api/maintain/sp/preAuth/errorCode';
+import { AUDIT_STATUS } from '../../constant';
 
 export default {
-  name: 'AuditDialog',
+  name: 'PreAuthAuditDialog',
   components: {
     AisAttachment
   },
@@ -76,9 +75,9 @@ export default {
       type: [String, Number],
       default: ''
     },
-    rowId: {
-      type: [String, Number],
-      default: ''
+    info: {
+      type: Object,
+      default: () => {}
     }
   },
   data () {
@@ -90,6 +89,7 @@ export default {
         preAuthRuleCodeId: ''
       },
       errorCodeOptions: [], // 错误代码选项
+      AUDIT_STATUS,
       uploadConfig: {
         acceptSuffix: '.png,.jpg,.jpeg,.gif,.pdf,.doc,.docx,.xls,.xlsx',
         maxSize: 10, // 10MB
@@ -157,7 +157,7 @@ export default {
 
           // 准备提交数据
           const submitData = {
-            id: this.rowId,
+            id: this.businessId,
             auditStaus: this.form.auditStaus,
             auditContent: this.form.auditContent,
             preAuthRuleCodeId: this.form.preAuthRuleCodeId,
