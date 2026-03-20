@@ -2437,6 +2437,24 @@ const routes = [
         name: '反结算申请单管理详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/claim/basic/dealerReplacementCarClaimPrice',
+      name: 'dealerReplacementCarClaimPrice',
+      component: () => import('@/views/claimreturn/claim/basic/dealerReplacementCarClaimPrice/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/dealerreplacementcarclaimprice/edit',
+      name: 'dealerReplacementCarClaimPriceEdit',
+      component: () => import('@/views/claimreturn/claim/basic/dealerReplacementCarClaimPrice/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
