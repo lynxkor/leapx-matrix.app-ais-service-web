@@ -495,7 +495,7 @@
         </el-main>
       </edit-base-container>
       <!-- 审核对话框 -->
-      <AuditDialog
+      <PreAuthAuditDialog
         ref="auditDialog"
         :visible.sync="auditDialogVisible"
         :business-id="_id"
@@ -517,11 +517,11 @@ import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Attachment from './components/FileUploadGrid';
-import AuditDialog from './components/AuditDialog';
+import PreAuthAuditDialog from './components/AuditDialog/index.vue';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { AUDIT_STATUS } from './index.vue';
+import { AUDIT_STATUS } from './constant.js';
 import { getFileList } from '@/libs/api/attachment';
 import { isFileType } from '@/libs/utils/file.js';
 
@@ -600,7 +600,7 @@ export default {
     EditBaseContainer,
     FetchSelect,
     Attachment,
-    AuditDialog
+    PreAuthAuditDialog
   },
   computed: {
     _id () {
