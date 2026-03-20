@@ -20,25 +20,28 @@
       <vxe-column title="审批人员" width="180">
         <template #default="{ row }">
           <fetch-select
+            v-if="row._editing"
             filterable
             clearable
             remote
             reserve-keyword
             v-model="row.approverId"
             :remote-method="userRemote"
-            :params="row.approver"
+            :params="row.approverName"
             @change="(value, option) => onUserChange(row, value, option)"
             placeholder="请输入"
             value-key="id"
             label-key="name"
             sub-label-key="code"
           />
+          <span v-else>{{ row.approverName }}</span>
         </template>
       </vxe-column>
       <vxe-column field="approvalStatusCurrentLabel" title="审批时状态" width="160"></vxe-column>
       <vxe-column title="审批后状态" width="160">
         <template #default="{ row }">
           <fetch-select
+            v-if="row._editing"
             :request="fetchOptions"
             enumCode="warranty_approval_status"
             v-model="row.approvalStatusAfter"
@@ -48,6 +51,36 @@
             filterable
             @change="(...args) => onAfter(...args, row)"
           />
+          <span v-else>{{ row.approvalStatusAfterLabel }}</span>
+        </template>
+      </vxe-column>
+      <vxe-column title="操作" :width="200" align="center" fixed="right" :resizable="false">
+        <template #default="{ row, rowIndex }">
+          <template v-if="row._editing">
+            <span
+              class="action-button btn-edit"
+              @click="saveRowEdit(row, rowIndex)"
+              v-if="canAddOrUpdate"
+            >
+              保存
+            </span>
+            <span
+              class="action-button btn-edit"
+              @click="cancelEdit(row, rowIndex)"
+              v-if="canAddOrUpdate"
+            >
+              取消
+            </span>
+          </template>
+          <template v-else>
+            <span
+              class="action-button btn-edit"
+              @click="editRow(row, rowIndex)"
+              v-if="canAddOrUpdate"
+            >
+              编辑
+            </span>
+          </template>
         </template>
       </vxe-column>
       <template #empty>
@@ -76,21 +109,18 @@ import permissions from '@/libs/mixins/permissions';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getUserByNameOrNo, getEnum } from '@/api/common';
 import { logPage, logUpdate } from '@/api/claimreturn/claim/basic/warrantyGradeApprovalSetting';
+import { cloneDeep } from 'lodash';
 
 export default {
   props: {
     id: {
       type: String,
     },
-    moduleKey: {
-      type: String,
-      required: true,
-    },
     disabled: {
       type: Boolean,
     },
-    isServiceCareActivity: {
-      type: Boolean,
+    moduleKey: {
+      type: String,
     }
   },
   components: {
@@ -104,6 +134,7 @@ export default {
   },
   data () {
     return {
+      originTableData: [],
       current: 1,
       pageSize: 10,
       total: 0,
@@ -126,25 +157,47 @@ export default {
     // 表格数据
     getDetailPageApi () {
       logPage({
-        gradeApprovalId: this._id,
+        gradeApprovalId: this._id, // 01B4CC10-65AF-EC11-B0FA-A78BFAB06A24
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {
-        this.tableData = res.records;
+        this.tableData = res.records || [];
+        this.originTableData = cloneDeep(res.records || []);
         this.total = res.total;
       });
+    },
+    getOriginRow (id) {
+      return this.originTableData.find(row => row.id === id);
     },
     getTableData () {
       return this.$refs.editTable.getData();
     },
+    // 行编辑
+    editRow (row, rowIndex) {
+      this.$set(row, '_editing', true);
+    },
+    // 取消
+    cancelEdit (row, rowIndex) {
+      if (!row.id) {
+        this.tableData.splice(rowIndex, 1);
+      } else {
+        const originRow = this.getOriginRow(row.id);
+        if (originRow) {
+          this.tableData.splice(rowIndex, 1, cloneDeep(originRow));
+        }
+      }
+    },
     // 行保存
-    saveRowEdit (row) {
+    saveRowEdit (row, rowIndex) {
       logUpdate({
         id: row.id,
-      }).then(id => {
+        approverId: row.approverId,
+        approverName: row.approverName,
+        approvalStatusAfter: row.approvalStatusAfter,
+      }).then(() => {
         this.$message.success('更新成功');
         this.getDetailPageApi();
-      }).catch(e => {
+      }).catch(() => {
       });
     },
     pageSizeChange (pageSize) {
@@ -158,16 +211,17 @@ export default {
     },
     // -------------
     handleAdd (partId, row) {
-      this.tableData.unshift(row);
-      this.$refs.editTable.setEditRow(row);
+      const newRow = { ...row, _editing: true };
+      this.tableData.unshift(newRow);
+      this.$refs.editTable.setEditRow(newRow);
     },
     onUserChange (row, value, option) {
-      // row.plannedDealerCode = option?.orgCode;
-      // row.plannedDealerName = option?.orgName;
-      // row.plannedDealerId = option?.orgId;
+      row.approverCode = option?.code;
+      row.approverName = option?.name;
+      row.approverId = option?.id;
     },
     userRemote (queryString) {
-      getUserByNameOrNo({ name: queryString });
+      return getUserByNameOrNo({ name: queryString });
     },
     async fetchOptions (code) {
       if (code) {
@@ -175,8 +229,8 @@ export default {
       }
       return [];
     },
-    onAfter (...args) {
-      console.log(args);
+    onAfter (value, label, row) {
+      row.approvalStatusAfterLabel = label;
     }
   },
 };

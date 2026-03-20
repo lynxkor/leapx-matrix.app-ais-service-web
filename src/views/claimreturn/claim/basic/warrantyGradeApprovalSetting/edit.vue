@@ -128,6 +128,7 @@
             <div class="common-section-body">
               <grade-table
                 :id="_id"
+                :moduleKey="moduleKey"
               />
             </div>
           </section>
@@ -261,10 +262,6 @@ export default {
       } else {
         callback();
       }
-    },
-    handleDeleteRow (index) {
-      const item = this.tableData[index];
-      this.tableData.splice(index, 1);
     },
     queryListData (queryString) {
       return new Promise(resolve => {
