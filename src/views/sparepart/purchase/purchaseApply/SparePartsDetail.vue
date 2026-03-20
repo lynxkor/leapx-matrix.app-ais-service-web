@@ -37,6 +37,9 @@
                     <el-form-item label="OEM库存：" prop="oemInventoryIs">
                         {{ sparePartDetail.oemInventoryIs }}
                     </el-form-item>
+                    <el-form-item label="可用库存：" prop="inTransitQty">
+                        {{ sparePartDetail.availableQty }}
+                    </el-form-item>
                     <el-form-item label="在途数量：" prop="inTransitQty">
                         {{ sparePartDetail.inTransitQty }}
                     </el-form-item>

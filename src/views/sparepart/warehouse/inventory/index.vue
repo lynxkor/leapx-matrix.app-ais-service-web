@@ -16,7 +16,7 @@
             v-model="form.sparePartIdList"
             placeholder="请输入编码或名称"
             labelKey="name"
-            valueKey="code"
+            valueKey="id"
             subLabelKey="code"
             clearable
             multiple
