@@ -350,7 +350,7 @@ export default {
         partsId: record.id,
       }).then(res => {
         this.$message.success('添加成功');
-        this.detailRequest();
+        this.$refs.containerRef.loadDetail();
       });
     },
     // 零件选择变更
@@ -380,7 +380,7 @@ export default {
         partParamList: this.tableDataPart
       }).then(res => {
         this.$message.success('保存成功');
-        this.detailRequest();
+        this.$refs.containerRef.loadDetail();
       });
     },
     getDefautlForm () {

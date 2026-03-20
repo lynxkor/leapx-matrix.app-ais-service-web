@@ -1,6 +1,5 @@
 <template>
-    <el-dialog class="m-start-work-dialog" title="呆滞件上架" width="75%" :visible.sync="dialogVisible" @close="close"
-        @closed="closed">
+    <el-dialog class="m-start-work-dialog" title="呆滞件上架" width="75%" :visible.sync="dialogVisible" @close="close">
         <!-- 数据表格 -->
         <div class="table-section">
             <vxe-table ref="workTable" :data="tableData" stripe show-overflow resizable border="inner" size="medium">

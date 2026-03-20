@@ -10,12 +10,15 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :showEditBtn="form.approvalStatus === AUDIT_STATUS.TODO || form.approvalStatus === AUDIT_STATUS.REJECTED || form.approvalStatus === AUDIT_STATUS.EXPIRED"
       >
         <template #status>
           <!-- <span class="status primary" v-if="form.statusDesc">{{ form.statusDesc }}</span> -->
         </template>
         <template #extraButtons>
-          <el-button size="small" type="primary" @click="handleSubmit(1)" v-if="_id && form.approvalStatus === AUDIT_STATUS.TODO">提交审批</el-button>
+          <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && form.approvalStatus === AUDIT_STATUS.IN_PROGRESS">审批</el-button>
+          <el-button size="small" type="primary" plain @click="handleCancel" v-if="_id && form.approvalStatus === AUDIT_STATUS.REJECTED">作废</el-button>
+          <el-button size="small" type="primary" @click="handleSubmit(1)" v-if="_id && form.approvalStatus === AUDIT_STATUS.TODO">提交</el-button>
         </template>
         <template #footer>
           <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleSubmit(0)" :loading="loading">保存</el-button>
@@ -182,6 +185,7 @@
                     :params="form.qualityOrderReport"
                     value-key="id"
                     label-key="code"
+                    subLabelKey="displayName"
                     placeholder="请选择质量反馈单"
                     clearable
                     filterable
@@ -490,6 +494,14 @@
           </section>
         </el-main>
       </edit-base-container>
+      <!-- 审核对话框 -->
+      <PreAuthAuditDialog
+        ref="auditDialog"
+        :visible.sync="auditDialogVisible"
+        :business-id="_id"
+        :info="form"
+        @success="$refs.containerRef.loadDetail()"
+      />
     </template>
     <template #right>
       <!-- 右侧栏组件，自行开发 -->
@@ -498,17 +510,18 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getServiceProxyList, getServiceProxyDetail } from '@/api/maintain/sp/preAuth/index';
+import { getDetail, addOrUpdate, getServiceProxyList, getServiceProxyDetail, cancelItem } from '@/api/maintain/sp/preAuth/index';
 import { getList as getQualityReportList } from '@/api/maintain/sp/qualityOrderReport/index';
 import { selectServiceProxy as selectServiceProxyApi, getEnum } from '@/api/maintain/sp/serviceProxy/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Attachment from './components/FileUploadGrid';
+import PreAuthAuditDialog from './components/AuditDialog/index.vue';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { AUDIT_STATUS } from './index.vue';
+import { AUDIT_STATUS } from './constant.js';
 import { getFileList } from '@/libs/api/attachment';
 import { isFileType } from '@/libs/utils/file.js';
 
@@ -586,7 +599,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    Attachment
+    Attachment,
+    PreAuthAuditDialog
   },
   computed: {
     _id () {
@@ -629,6 +643,8 @@ export default {
         maxDisplay: 3,        // 最大显示数量
         preloadCount: 20       // 预加载数量
       },
+      // 审核对话框
+      auditDialogVisible: false,
       rules: {
         serviceProxyId: [
           { required: true, message: '请选择施工单', trigger: 'change' }
@@ -774,7 +790,7 @@ export default {
             query: { id: res }
           });
         } else {
-          this.detailRequest();
+          this.$refs.containerRef.loadDetail();
         }
       });
     },
@@ -806,7 +822,12 @@ export default {
           pageSize: 20,
           pageNum: 1
         }).then(res => {
-          const list = res?.records || [];
+          const list = (res?.records || []).map(item => {
+            return {
+              ...item,
+              displayName: item.reportTypeLabel + '：' + item.cccName
+            };
+          });
           resolve(list);
         }).catch(() => {
           resolve([]);
@@ -860,6 +881,34 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    /**
+     * 审批操作
+     */
+    handleApprove () {
+      this.auditDialogVisible = true;
+      this.$nextTick(() => {
+        this.$refs.auditDialog?.loadData?.();
+      });
+    },
+    /**
+     * 作废操作
+     */
+    handleCancel () {
+      this.$confirm('确定要作废该记录吗?', '作废确认', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        cancelItem(this._id).then(() => {
+          this.$message.success('作废成功');
+          this.$refs.containerRef.loadDetail();
+        }).catch(() => {
+          this.$message.error('作废失败');
+        });
+      }).catch(() => {
+        // 用户取消操作
+      });
     }
   }
 };

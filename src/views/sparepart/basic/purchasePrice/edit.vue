@@ -8,6 +8,7 @@
         :title="title"
         :isEditing.sync="isEditing"
         :form.sync="form"
+        :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
@@ -355,7 +356,7 @@ export default {
     submitRequest () {
       addOrUpdate({ ...this.form }).then((res) => {
         this.couponId = res || '';
-        this.detailRequest();
+        this.$refs.containerRef.loadDetail();
         this.getCouponList(this.couponId);
       });
     },
@@ -430,7 +431,7 @@ export default {
       await addCoupon(params);
       this.couponObj = {};
       this.getCouponList(id);
-      this.detailRequest();
+      this.$refs.containerRef.loadDetail();
     },
     // 请求优惠券信息
     async getCouponList (val) {
