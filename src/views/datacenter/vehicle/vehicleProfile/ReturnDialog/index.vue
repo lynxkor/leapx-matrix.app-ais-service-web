@@ -2,7 +2,7 @@
   <el-dialog
     class="m-return-dialog"
     title="退车"
-    width="500px"
+    width="600px"
     :visible.sync="dialogVisible"
     @close="close"
   >

@@ -335,6 +335,7 @@
     />
     <return-dialog
       :visible.sync="visible"
+      @update="getData"
     />
     <el-drawer
       title="查看关键信息变更日志"

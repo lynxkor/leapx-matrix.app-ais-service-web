@@ -183,7 +183,7 @@
               </vxe-column>
               <vxe-column field="checkoutTypeName" title="结算类型" width="120px">
                 <template #default="{ row }">
-                  <template v-if="row.id || row.packageId">{{ row?.repairItemTypeName }}</template>
+                  <template v-if="row.id || row.packageId">{{ row?.checkoutTypeName }}</template>
                   <el-select
                     v-else
                     v-model="row.checkoutTypeName"
@@ -853,6 +853,7 @@ export default {
         this.submitLoading = false;
         this.$message.success('保存成功');
         this.$emit('refresh');
+        this.$emit('check');
       }).catch(e => {
         this.submitLoading = false;
       });
