@@ -18,6 +18,7 @@
                     <el-button size="small" @click="couponsDialogVisible = true" v-if="!isCanceled">查询卡券&终身</el-button>
                     <el-button size="small" @click="handleImport" v-if="!isCanceled">上传附件</el-button>
                     <el-button size="small" @click="handleShowLog">审核日志</el-button>
+                    <el-button size="small" @click="remindInfoDialogVisible = true">提醒信息</el-button>
                     <!-- 流程操作按钮 -->
                     <el-button size="small" @click="discardDialogVisible = true" v-if="!isCompleted && !form.isCreateStatementInfo">作废</el-button>
                     <el-button size="small" @click="materialReturnDialogVisible = true" v-if="!isCompleted && hasRepairItems">退料</el-button>
@@ -82,6 +83,7 @@
         :visible.sync="selectRepairItemDialogVisible"
         :vehicleInfo="form"
         @refresh="handleRefresh"
+        @check="checkIfShowRemindDialog"
       />
       <!-- 派工 -->
       <DispatchWorkDialog
@@ -135,6 +137,12 @@
         :vehicleInfo="form"
         @refresh="handleRefresh"
       />
+      <!-- 提醒信息 -->
+      <RemindInfoDialog
+        :visible.sync="remindInfoDialogVisible"
+        :vehicleInfo="form"
+        @refresh="handleRefresh"
+      />
     </template>
     <template #right>
       <!-- 右侧栏组件，自行开发 -->
@@ -168,6 +176,7 @@ import MaterialReturnDialog from './components/MaterialReturnDialog';
 import SelectRepairItemDialog from './components/SelectRepairItemDialog';
 import StartWorkDialog from './components/StartWorkDialog';
 import DispatchWorkDialog from './components/DispatchWorkDialog';
+import RemindInfoDialog from './components/RemindInfoDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -336,7 +345,8 @@ export default {
     MaterialReturnDialog,
     SelectRepairItemDialog,
     StartWorkDialog,
-    DispatchWorkDialog
+    DispatchWorkDialog,
+    RemindInfoDialog
   },
   computed: {
     _id () {
@@ -432,6 +442,7 @@ export default {
       discardDialogVisible: false,
       materialReturnDialogVisible: false,
       couponsDialogVisible: false,
+      remindInfoDialogVisible: false,
       yes_no_enum: YES_NO_ENUM,
       RepairOrderStatusEnum,
       form: { ...form },
@@ -649,7 +660,12 @@ export default {
         });
       }).catch(() => {
       });
-    }
+    },
+    // 检查是否要弹出提醒
+    checkIfShowRemindDialog () {
+      // todo
+      // this.remindInfoDialogVisible = true;
+    },
   }
 };
 </script>

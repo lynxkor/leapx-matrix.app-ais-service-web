@@ -15,7 +15,9 @@
           <h2>基础信息</h2>
         </div>
         <div class="common-section-body">
-          <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+          <div class="common-section-sub-header">
+            <h3>申请信息</h3>
+          </div>
           <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
             <el-form-item label="申请单号：" prop="applyNo">
               <el-input
@@ -27,13 +29,14 @@
             <el-form-item label="业务类型：" prop="businessType">
               <fetch-select
                 :request="fetchOptions"
-                enumCode="key_info change_business_type"
+                enumCode="vehicle_owner_change_type"
                 v-model="form.businessType"
                 placeholder="请选择"
                 clearable
                 multiple
                 filterable
               />
+              <!-- :disabled="Boolean(_id)" -->
             </el-form-item>
             <el-form-item label="VIN：" prop="vin">
               <fetch-select
@@ -47,6 +50,7 @@
                 @change="vinChange"
                 value-key="code"
                 label-key="name"
+                :disabled="Boolean(_id)"
               />
             </el-form-item>
             <el-form-item label="申请人：" prop="applierName">
@@ -82,6 +86,34 @@
                 maxLength="500"
               />
             </el-form-item>
+          </el-form>
+          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+            <el-form-item label="申请单号：" prop="applyNo">
+              {{ form.applyNo }}
+            </el-form-item>
+            <el-form-item label="业务类型：">
+              {{ form.businessTypeLabel }}
+            </el-form-item>
+            <el-form-item label="VIN：" prop="vin">
+              {{ form.vin }}
+            </el-form-item>
+            <el-form-item label="申请人：" prop="applierName">
+              {{ form.applierName }}
+            </el-form-item>
+            <el-form-item label="申请人 ID：" prop="applierId">
+              {{ form.applierId }}
+            </el-form-item>
+            <el-form-item label="申请时间：" prop="applyTime">
+              {{ form.applyTime }}
+            </el-form-item>
+            <el-form-item label="申请说明：" prop="applyDesc">
+              {{ form.applyDesc }}
+            </el-form-item>
+          </el-form>
+          <div class="common-section-sub-header">
+            <h3>审批信息</h3>
+          </div>
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
             <el-form-item label="是否自动审批：" prop="isAutoAudit">
               <el-input
                 placeholder="请输入"
@@ -122,6 +154,28 @@
                 maxLength="500"
               />
             </el-form-item>
+          </el-form>
+          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+            <el-form-item label="是否自动审批：" prop="isAutoAudit">
+              {{ form.isAutoAudit }}
+            </el-form-item>
+            <el-form-item label="未满足自动审批原因：" prop="autoApprovalFailReason">
+              {{ form.autoApprovalFailReason }}
+            </el-form-item>
+            <el-form-item label="审批人：" prop="auditorName">
+              {{ form.auditorName }}
+            </el-form-item>
+            <el-form-item label="审批时间：" prop="auditTime">
+              {{ form.auditTime }}
+            </el-form-item>
+            <el-form-item label="审批说明：" prop="auditDesc">
+              {{ form.auditDesc }}
+            </el-form-item>
+          </el-form>
+          <div class="common-section-sub-header">
+            <h3>变更信息</h3>
+          </div>
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm3" label-width="150px" class="form-edit" v-show="isEditing || !_id">
             <el-form-item label="变更后车主姓名：" prop="targetOwnerName">
               <el-input
                 placeholder="请输入"
@@ -164,6 +218,31 @@
                 clearable
               />
             </el-form-item>
+          </el-form>
+          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+            <el-form-item label="变更后车主姓名：" prop="targetOwnerName">
+              {{ form.targetOwnerName }}
+            </el-form-item>
+            <el-form-item label="变更后车主手机号：" prop="targetOwnerPhone">
+              {{ form.targetOwnerPhone }}
+            </el-form-item>
+            <el-form-item label="变更后车主证件类型：" prop="targetIdType">
+              {{ form.targetIdType }}
+            </el-form-item>
+            <el-form-item label="变更后车主证件号码：" prop="targetIdNo">
+              {{ form.targetIdNo }}
+            </el-form-item>
+            <el-form-item label="变更后车牌号：" prop="targetPlateNo">
+              {{ form.targetPlateNo }}
+            </el-form-item>
+            <el-form-item label="变更后车辆属性：" prop="targetVehicleProperty">
+              {{ form.targetVehicleProperty }}
+            </el-form-item>
+          </el-form>
+          <div class="common-section-sub-header">
+            <h3>作废信息</h3>
+          </div>
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm4" label-width="150px" class="form-edit" v-show="isEditing || !_id">
             <el-form-item label="作废人：" prop="invalidatorName">
               <el-input
                 placeholder="请输入"
@@ -188,6 +267,22 @@
                 maxLength="500"
               />
             </el-form-item>
+          </el-form>
+          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+            <el-form-item label="作废人：" prop="invalidatorName">
+              {{ form.invalidatorName }}
+            </el-form-item>
+            <el-form-item label="作废时间：" prop="invalidTime">
+              {{ form.invalidTime }}
+            </el-form-item>
+            <el-form-item label="作废说明：" prop="invalidDesc">
+              {{ form.invalidDesc }}
+            </el-form-item>
+          </el-form>
+          <div class="common-section-sub-header">
+            <h3>原车主信息</h3>
+          </div>
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm5" label-width="150px" class="form-edit" v-show="isEditing || !_id">
             <el-form-item label="车主姓名：" prop="oldOwnerName">
               <el-input
                 placeholder="请输入"
@@ -230,6 +325,31 @@
                 clearable
               />
             </el-form-item>
+          </el-form>
+          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+            <el-form-item label="车主姓名：" prop="oldOwnerName">
+              {{ form.oldOwnerName }}
+            </el-form-item>
+            <el-form-item label="车主手机号：" prop="oldOwnerPhone">
+              {{ form.oldOwnerPhone }}
+            </el-form-item>
+            <el-form-item label="车主证件类型：" prop="oldIdType">
+              {{ form.oldIdType }}
+            </el-form-item>
+            <el-form-item label="车主证件号码：" prop="oldIdNo">
+              {{ form.oldIdNo }}
+            </el-form-item>
+            <el-form-item label="车牌号：" prop="oldPlateNo">
+              {{ form.oldPlateNo }}
+            </el-form-item>
+            <el-form-item label="车辆属性：" prop="oldVehicleProperty">
+              {{ form.oldVehicleProperty }}
+            </el-form-item>
+          </el-form>
+          <div class="common-section-sub-header">
+            <h3>OCR信息</h3>
+          </div>
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm6" label-width="150px" class="form-edit" v-show="isEditing || !_id">
             <el-form-item label="车主证件类型：" prop="ocrIdType">
               <el-input
                 placeholder="请输入"
@@ -266,88 +386,7 @@
               />
             </el-form-item>
           </el-form>
-          <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-            <el-form-item label="申请单号：" prop="applyNo">
-              {{ form.applyNo }}
-            </el-form-item>
-            <el-form-item label="业务类型：" prop="businessType">
-              {{ form.businessType }}
-            </el-form-item>
-            <el-form-item label="VIN：" prop="vin">
-              {{ form.vin }}
-            </el-form-item>
-            <el-form-item label="申请人：" prop="applierName">
-              {{ form.applierName }}
-            </el-form-item>
-            <el-form-item label="申请人 ID：" prop="applierId">
-              {{ form.applierId }}
-            </el-form-item>
-            <el-form-item label="申请时间：" prop="applyTime">
-              {{ form.applyTime }}
-            </el-form-item>
-            <el-form-item label="申请说明：" prop="applyDesc">
-              {{ form.applyDesc }}
-            </el-form-item>
-            <el-form-item label="是否自动审批：" prop="isAutoAudit">
-              {{ form.isAutoAudit }}
-            </el-form-item>
-            <el-form-item label="未满足自动审批原因：" prop="autoApprovalFailReason">
-              {{ form.autoApprovalFailReason }}
-            </el-form-item>
-            <el-form-item label="审批人：" prop="auditorName">
-              {{ form.auditorName }}
-            </el-form-item>
-            <el-form-item label="审批时间：" prop="auditTime">
-              {{ form.auditTime }}
-            </el-form-item>
-            <el-form-item label="审批说明：" prop="auditDesc">
-              {{ form.auditDesc }}
-            </el-form-item>
-            <el-form-item label="变更后车主姓名：" prop="targetOwnerName">
-              {{ form.targetOwnerName }}
-            </el-form-item>
-            <el-form-item label="变更后车主手机号：" prop="targetOwnerPhone">
-              {{ form.targetOwnerPhone }}
-            </el-form-item>
-            <el-form-item label="变更后车主证件类型：" prop="targetIdType">
-              {{ form.targetIdType }}
-            </el-form-item>
-            <el-form-item label="变更后车主证件号码：" prop="targetIdNo">
-              {{ form.targetIdNo }}
-            </el-form-item>
-            <el-form-item label="变更后车牌号：" prop="targetPlateNo">
-              {{ form.targetPlateNo }}
-            </el-form-item>
-            <el-form-item label="变更后车辆属性：" prop="targetVehicleProperty">
-              {{ form.targetVehicleProperty }}
-            </el-form-item>
-            <el-form-item label="作废人：" prop="invalidatorName">
-              {{ form.invalidatorName }}
-            </el-form-item>
-            <el-form-item label="作废时间：" prop="invalidTime">
-              {{ form.invalidTime }}
-            </el-form-item>
-            <el-form-item label="作废说明：" prop="invalidDesc">
-              {{ form.invalidDesc }}
-            </el-form-item>
-            <el-form-item label="车主姓名：" prop="oldOwnerName">
-              {{ form.oldOwnerName }}
-            </el-form-item>
-            <el-form-item label="车主手机号：" prop="oldOwnerPhone">
-              {{ form.oldOwnerPhone }}
-            </el-form-item>
-            <el-form-item label="车主证件类型：" prop="oldIdType">
-              {{ form.oldIdType }}
-            </el-form-item>
-            <el-form-item label="车主证件号码：" prop="oldIdNo">
-              {{ form.oldIdNo }}
-            </el-form-item>
-            <el-form-item label="车牌号：" prop="oldPlateNo">
-              {{ form.oldPlateNo }}
-            </el-form-item>
-            <el-form-item label="车辆属性：" prop="oldVehicleProperty">
-              {{ form.oldVehicleProperty }}
-            </el-form-item>
+          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
             <el-form-item label="车主证件类型：" prop="ocrIdType">
               {{ form.ocrIdType }}
             </el-form-item>
@@ -456,7 +495,7 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '标题xxx';
+      return '车主信息变更';
     }
   },
   watch: {
@@ -662,3 +701,17 @@ export default {
   }
 };
 </script>
+<style lang="scss" scoped>
+.common-section-sub-header{
+  display: flex;
+  margin-bottom: 8px;
+  h3 {
+    color: #0A0E0A;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 30px;
+    margin-right: 15px;
+  }
+}
+
+</style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="outer-container">
+  <div class="outer-container" :class="{ 'single-condition': conditions.length === 1 }">
     <div class="and-label" v-show="conditions.length > 1">or</div>
     <div
       class="conditions-wrapper"
@@ -15,11 +15,14 @@
         }"
       >
         <div class="condition">
-          <div class="interior-container">
+          <div class="interior-container" :class="{ 'single-item': condition.dataList.length === 1 }">
             <div class="and-label" v-show="condition.dataList.length > 1">and</div>
             <div
               class="content-container"
-              :class="{ 'has-multiple-items': condition.dataList.length >= 2 }"
+              :class="{
+                'has-multiple-items': condition.dataList.length >= 2,
+                'single-item': condition.dataList.length === 1
+              }"
             >
               <div
                 v-for="(item, itemIndex) in condition.dataList"
@@ -61,9 +64,12 @@
                   placeholder="请选择条件值"
                   style="margin-right: 10px;"
                 >
-                  <el-option label="B10" value="B10" />
-                  <el-option label="2026" value="2026" />
-                  <el-option label="直营店" value="直营店" />
+                  <el-option
+                    v-for="option in valueOptions"
+                    :key="option.value"
+                    :label="option.label"
+                    :value="option.value"
+                  />
                 </el-select>
 
                 <!-- 操作按钮 -->
@@ -89,13 +95,7 @@ export default {
   name: 'Condition',
   data () {
     return {
-      fieldOptions: [
-        { label: '车系', value: 'carSeries' },
-        { label: '车型', value: 'carModle' },
-        { label: '年款', value: 'yearType' },
-        { label: '合作类型', value: 'cooperationType' },
-        { label: '所属区域', value: 'region' }
-      ],
+      fieldOptions: [],
       operatorOptions: [
         { label: '等于', value: '=' },
         { label: '不等于', value: '!=' },
@@ -116,7 +116,45 @@ export default {
       ]
     };
   },
+  computed: {
+    valueOptions () {
+      // 根据选中的字段类型动态返回对应的字段值选项
+      return this.fieldOptions.map(item => ({
+        label: item.fieldValue,
+        value: item.fieldValue
+      }));
+    }
+  },
+  mounted () {
+    this.loadFieldOptions();
+  },
   methods: {
+    // 加载字段选项
+    loadFieldOptions () {
+      // 通过 $parent 查找最近的条件列表弹框组件
+      const dialogRef = this.findConditionListDialog();
+      if (dialogRef && dialogRef.getFieldOptions) {
+        dialogRef.getFieldOptions().then(options => {
+          if (options && options.length > 0) {
+            this.fieldOptions = options;
+          }
+        }).catch(err => {
+          console.error('加载字段选项失败', err);
+        });
+      }
+    },
+    // 查找条件列表弹框组件
+    findConditionListDialog () {
+      // 尝试从父组件链中找到 AttachmentConfigDetailDialog 组件
+      let parent = this.$parent;
+      while (parent) {
+        if (parent.$refs && parent.$refs.conditionConfigDialog) {
+          return parent.$refs.conditionConfigDialog;
+        }
+        parent = parent.$parent;
+      }
+      return null;
+    },
     addData (conditionIndex) {
       this.conditions[conditionIndex].dataList.push({
         field: '',
@@ -195,6 +233,11 @@ export default {
   pointer-events: none;
   box-sizing: border-box;
 }
+
+// 当只有一个条件且该条件只有一条数据时隐藏外层边框
+.outer-container.single-condition::before {
+  display: none;
+}
 .interior-container {
   // 确保没有完整的边框
   border: none;
@@ -217,6 +260,11 @@ export default {
   border-radius: 12px 0 0 12px;
   pointer-events: none;
   box-sizing: border-box;
+}
+
+// 当只有一条数据时隐藏边框
+.interior-container.single-item::before {
+  display: none;
 }
 
 .and-label {

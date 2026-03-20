@@ -264,7 +264,9 @@ export default {
     };
   },
   mounted () {
-    this.initDealerUser();
+    if (!this._id) { // 新增时调账号信息
+      this.initDealerUser();
+    }
   },
   methods: {
     async initDealerUser () {
