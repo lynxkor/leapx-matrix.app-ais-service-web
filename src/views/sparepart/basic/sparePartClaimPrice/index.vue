@@ -185,18 +185,18 @@ export default {
           size: pageSize
         },
         dataProp: [
+          { props: 'id', label: '价格序号', visible: true, width: 200 },
           {
             props: 'sparePartCode',
             label: '备件编码',
             visible: true,
             width: 200,
-            fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePartClaimPrice/edit',
+                  path: '/sparepart/basic/sparePart/detail',
                   query: {
-                    id: row.id
+                    id: row.sparePartId
                   }
                 });
               },
