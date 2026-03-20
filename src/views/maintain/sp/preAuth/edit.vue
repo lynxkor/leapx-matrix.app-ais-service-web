@@ -774,7 +774,7 @@ export default {
             query: { id: res }
           });
         } else {
-          this.detailRequest();
+          this.$refs.containerRef.loadDetail();
         }
       });
     },
