@@ -50,6 +50,7 @@
                     @change="handleRepairItemChange"
                     value-key="id"
                     label-key="code"
+                    sub-label-key="name"
                     placeholder="请输入项目代码/名称"
                   />
                 </el-form-item>

@@ -1365,7 +1365,8 @@ const routes = [
         name: '备件采购价格',
         keepAlive: true
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/basic/purchaseprice/edit',
       name: 'purchasePriceEdit',
       component: () => import('@/views/sparepart/basic/purchasePrice/edit.vue'),
@@ -1374,8 +1375,7 @@ const routes = [
         name: '备件采购价格详情',
         noResourceUrl: 'true'
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/sparepart/warehouse/oemWarehouse',
       name: 'oemWarehouse',
       component: () => import('@/views/sparepart/warehouse/oemWarehouse/index.vue'),
@@ -1384,7 +1384,8 @@ const routes = [
         name: '主机厂仓库设置',
         keepAlive: true
       }
-    }, {
+    }, // 门店销毁
+    {
       path: '/sparepart/warehouse/oemwarehouse/edit',
       name: 'oemWarehouseEdit',
       component: () => import('@/views/sparepart/warehouse/oemWarehouse/edit.vue'),
@@ -1393,8 +1394,7 @@ const routes = [
         name: '主机厂仓库设置详情',
         noResourceUrl: 'true'
       }
-    }, // 门店销毁
-    {
+    }, {
       path: '/sparepart/basic/purchasePriceCoupon',
       name: 'purchasePriceCoupon',
       component: () => import('@/views/sparepart/basic/purchasePriceCoupon/index.vue'),
@@ -2433,6 +2433,24 @@ const routes = [
 
       meta: {
         name: '留车清单表管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/datacenter/vehicle/vehicleOwnerChangeApply',
+      name: 'vehicleOwnerChangeApply',
+      component: () => import('@/views/datacenter/vehicle/vehicleOwnerChangeApply/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/datacenter/vehicle/vehicleownerchangeapply/edit',
+      name: 'vehicleOwnerChangeApplyEdit',
+      component: () => import('@/views/datacenter/vehicle/vehicleOwnerChangeApply/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
         noResourceUrl: 'true'
       }
     }]
