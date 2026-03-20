@@ -28,143 +28,78 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="价格序号（业务唯一标识）：" prop="priceSerialNo">
+                <el-form-item label="价格序号：" prop="priceSerialNo">
                   <el-input
-                    placeholder="请输入"
+                    placeholder="系统自动生成"
                     v-model="form.priceSerialNo"
+                    disabled
                     clearable
                   />
                 </el-form-item>
                 <el-form-item label="维修项目代码：" prop="repairItemCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.repairItemCode"
+                  <list-select
+                    listUrl="/maintain/web/basic/repairItem/list"
+                    placeholder="请输入维修项目代码/名称"
+                    v-model="form.repairItemId"
+                    :disabled="Boolean(_id)"
+                    query-key="codeOrNameLike"
+                    auto-load-options
+                    filterable
                     clearable
-                  />
+                    label-key="code"
+                    second-line-key="name"
+                    @change="handleRepairItemChange"
+                    :params="{}" />
                 </el-form-item>
                 <el-form-item label="维修项目名称：" prop="repairItemName">
                   <el-input
                     placeholder="请输入"
                     v-model="form.repairItemName"
                     clearable
+                    disabled
                   />
                 </el-form-item>
-                <el-form-item label="门店索赔价格（货币类型）：" prop="dealerClaimPrice">
+                <el-form-item label="门店索赔价格：" prop="dealerClaimPrice">
                   <el-input
                     placeholder="请输入"
                     v-model="form.dealerClaimPrice"
+                    :disabled="cannotEditPrice"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="生效开始日期（日期和时间）：" prop="effectiveStartTime">
+                <el-form-item label="生效开始日期：" prop="effectiveStartTime">
                   <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.effectiveStartTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
+                      v-model="form.effectiveStartTime"
+                      type="date"
+                      :picker-options="startDatePickerOptions"
+                      value-format="yyyy-MM-dd HH:mm:ss"
+                      :disabled="cannotEditEffectiveStartTime"
+                      placeholder="请选择生效开始日期"
+                      @change="handleStartDateChange"
+                    />
                 </el-form-item>
                 <el-form-item label="状态：" prop="status">
                   <fetch-select
                     :request="fetchOptions"
-                    enumCode="xxx"
+                    enumCode="StatusEnum"
                     v-model="form.status"
-                    placeholder="请选择"
                     clearable
+                    disabled="true"
                     filterable
                   />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
                   <el-input
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.createTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.updateTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.id"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creator"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creatorName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifier"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifierName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statusDesc"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dataSource"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="维修项目ID：" prop="repairItemId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.repairItemId"
-                    clearable
-                  />
+                      type="textarea"
+                      v-model="form.remark"
+                      :disabled="form.pricingMode === '2' && !canEditRemarkForStore"
+                      placeholder="请输入"
+                      :rows="3"
+                    />
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="价格序号（业务唯一标识）：" prop="priceSerialNo">
+                <el-form-item label="价格序号：" prop="priceSerialNo">
                   {{ form.priceSerialNo }}
                 </el-form-item>
                 <el-form-item label="维修项目代码：" prop="repairItemCode">
@@ -173,14 +108,14 @@
                 <el-form-item label="维修项目名称：" prop="repairItemName">
                   {{ form.repairItemName }}
                 </el-form-item>
-                <el-form-item label="门店索赔价格（货币类型）：" prop="dealerClaimPrice">
+                <el-form-item label="门店索赔价格：" prop="dealerClaimPrice">
                   {{ form.dealerClaimPrice }}
                 </el-form-item>
-                <el-form-item label="生效开始日期（日期和时间）：" prop="effectiveStartTime">
+                <el-form-item label="生效开始日期：" prop="effectiveStartTime">
                   {{ form.effectiveStartTime }}
                 </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  {{ form.status }}
+                <el-form-item label="是否启用：" prop="status">
+                  {{ form.statusLabel }}
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
                   {{ form.remark }}
@@ -191,80 +126,10 @@
                 <el-form-item label="修改时间：" prop="updateTime">
                   {{ form.updateTime }}
                 </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  {{ form.modifierName }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
+                <el-form-item label="说明：" prop="statusDesc">
                   {{ form.statusDesc }}
                 </el-form-item>
-                <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
-                  {{ form.dataSource }}
-                </el-form-item>
-                <el-form-item label="维修项目ID：" prop="repairItemId">
-                  {{ form.repairItemId }}
-                </el-form-item>
               </el-form>
-            </div>
-          </section>
-          <section class="common-section" v-if="_id">
-            <div class="common-section-header">
-              <h2>子表标题</h2>
-            </div>
-            <div class="common-section-body">
-              <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
-                  <el-button type="primary" size="small">添加</el-button>
-                </div>
-              </div>
-              <div class="common-section-table">
-                <vxe-table
-                  ref="tableRef"
-                  stripe
-                  :data="tableData"
-                  show-overflow
-                  resizable
-                  border="inner"
-                  size="medium"
-                  min-height="0"
-                  max-height="400px"
-                >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
-                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                      </el-popconfirm>
-                    </template>
-                  </vxe-column>
-                  <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
-                  </template>
-                </vxe-table>
-              </div>
             </div>
           </section>
         </el-main>
@@ -288,7 +153,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-
+import ListSelect from '@/libs/components/list-select/index.vue';
 const defaultForm = {
   // 多选时字段有变化，自行修复
   priceSerialNo: '',
@@ -296,7 +161,7 @@ const defaultForm = {
   repairItemName: '',
   dealerClaimPrice: '',
   effectiveStartTime: '',
-  status: '',
+  status: '1',
   remark: '',
   createTime: '',
   updateTime: '',
@@ -323,6 +188,7 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
+    ListSelect,
     FetchSelect
   },
   computed: {
@@ -330,7 +196,29 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '价格序号（业务唯一标识）：' + this.form.priceSerialNo;
+      return '价格序号：' + this.form.priceSerialNo;
+    },
+    // 判断是否可以编辑门店索赔价格
+    cannotEditPrice () {
+      if (!this.form.effectiveStartTime || !this._id) {
+        return false;
+      }
+      const effectiveDate = new Date(this.form.effectiveStartTime);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      // 生效开始日期早于当天，不允许修改
+      return effectiveDate.getTime() < today.getTime();
+    },
+    // 判断是否可以编辑生效开始日期
+    cannotEditEffectiveStartTime () {
+      if (!this.form.effectiveStartTime || !this._id) {
+        return false;
+      }
+      const effectiveDate = new Date(this.form.effectiveStartTime);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      // 生效开始日期晚于当天，可以修改；否则不允许修改
+      return effectiveDate.getTime() <= today.getTime();
     }
   },
   watch: {
@@ -361,9 +249,6 @@ export default {
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
       rules: {
-        priceSerialNo: [
-          { required: true, message: '请输入价格序号（业务唯一标识）', trigger: 'change' }
-        ],
         repairItemCode: [
           { required: true, message: '请输入维修项目代码', trigger: 'change' }
         ],
@@ -371,47 +256,26 @@ export default {
           { required: true, message: '请输入维修项目名称', trigger: 'change' }
         ],
         dealerClaimPrice: [
-          { required: true, message: '请输入门店索赔价格（货币类型）', trigger: 'change' }
+          { required: true, message: '请输入门店索赔价格', trigger: 'change' },
+          { validator: this.validatePositiveNumber, trigger: 'change' }
         ],
         effectiveStartTime: [
-          { required: true, message: '请选择生效开始日期（日期和时间）', trigger: 'change' }
+          { required: true, message: '请选择生效开始日期', trigger: 'change' },
+          { validator: this.validateEffectiveStartTime, trigger: 'change' }
         ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，150:新销服; 老销服:10', trigger: 'change' }
-        ],
-        repairItemId: [
-          { required: true, message: '请输入维修项目ID', trigger: 'change' }
-        ],
+      },
+      startDatePickerOptions: {
+        disabledDate: (time) => {
+          // 新增时不能选择今天之前的日期
+          // 编辑时，如果生效开始日期晚于当天，只能选择以后的日期（不能早于当前已选日期）
+          if (!this._id) {
+            return time.getTime() < Date.now() - 86400000;
+          }
+          // 编辑状态且生效开始日期晚于当天，不能选择早于今天的日期
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          return time.getTime() < today.getTime();
+        }
       }
     };
   },
@@ -427,7 +291,35 @@ export default {
     submitRequest () {
       return addOrUpdate({ ...this.form });
     },
-    // 打开侧边栏
+    validatePositiveNumber (rule, value, callback) {
+      if (value === '' || value === null || value === undefined) {
+        callback();
+        return;
+      }
+      if (value <= 0) {
+        callback(new Error('必须大于0'));
+      } else {
+        callback();
+      }
+    },
+    validateEffectiveStartTime (rule, value, callback) {
+      // 只在新增时验证，编辑时不允许编辑早于今天的日期，不需要验证提示
+      if (!this._id && value) {
+        const selectedDate = new Date(value).getTime();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (selectedDate < today.getTime()) {
+          callback(new Error('生效开始日期不能早于今天'));
+          return;
+        }
+      }
+      callback();
+    },
+    handleRepairItemChange (val, selectedItem) {
+      this.form.repairItemId = val;
+      this.form.repairItemName = selectedItem ? selectedItem.name : '';
+      this.form.repairItemCode = selectedItem ? selectedItem.code : '';
+    },
     openPane () {
       this.$refs.editLayout.openPane();
     },
