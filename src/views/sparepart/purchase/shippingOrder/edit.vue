@@ -11,6 +11,7 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :showEditBtn="false"
       >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
@@ -27,7 +28,7 @@
             </div>
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              <el-form :inline="true" :model="form" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="发运单号：" prop="code">
                   <el-input
                     placeholder="请输入"
@@ -91,61 +92,6 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.createTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.updateTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.id"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creator"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creatorName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifier"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifierName"
-                    clearable
-                  />
-                </el-form-item>
                 <el-form-item label="备注：" prop="remark">
                   <el-input
                     placeholder="请输入"
@@ -163,17 +109,7 @@
                     filterable
                   />
                 </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statusDesc"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
+                <el-form-item label="数据来源：" prop="dataSource">
                   <el-input
                     placeholder="请输入"
                     v-model="form.dataSource"
@@ -221,24 +157,9 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>子表标题</h2>
+              <h2>发运明细</h2>
             </div>
             <div class="common-section-body">
-              <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
-                  <el-button type="primary" size="small">添加</el-button>
-                </div>
-              </div>
               <div class="common-section-table">
                 <vxe-table
                   ref="tableRef"
@@ -251,20 +172,31 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
-                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                      </el-popconfirm>
-                    </template>
-                  </vxe-column>
+                <vxe-column field="sparePartCode" title="备件编码" min-width="11%" />
+                  <vxe-column field="sparePartName" title="备件名称" min-width="11%" />
+                  <vxe-column field="boxNo" title="箱号" min-width="11%" />
+                  <vxe-column field="packingCategory" title="箱单类别" min-width="11%" />
+                  <vxe-column field="qty" title="数量" min-width="11%" />
+                  <vxe-column field="snNumber" title="SN编号" min-width="11%" />
+                  <vxe-column field="snNumber" title="销售订单" min-width="11%"/>
+                  <vxe-column field="remark" title="备注" min-width="11%"/>
+                  <vxe-column field="createTime" title="创建时间" min-width="11%" />
                   <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
+                    <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
                   </template>
                 </vxe-table>
+                <div class="table-pagination">
+                  <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="pageNum"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total"
+                  >
+                  </el-pagination>
+                </div>
               </div>
             </div>
           </section>
@@ -280,7 +212,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/purchase/shippingOrder/index';
+import { getDetail, addOrUpdate, shippingOrderDetailPage } from '@/api/sparepart/purchase/shippingOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -346,6 +278,14 @@ export default {
         }
       },
       immediate: true
+    },
+    'form.code': {
+      handler (val) {
+        if (val) {
+          this.getData();
+        }
+      },
+      immediate: true
     }
   },
   data () {
@@ -365,71 +305,9 @@ export default {
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
-      rules: {
-        code: [
-          { required: true, message: '请输入发运单号', trigger: 'change' }
-        ],
-        shippingDate: [
-          { required: true, message: '请输入发运日期', trigger: 'change' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称', trigger: 'change' }
-        ],
-        totalPieces: [
-          { required: true, message: '请输入总件数', trigger: 'change' }
-        ],
-        totalBoxes: [
-          { required: true, message: '请输入总箱数', trigger: 'change' }
-        ],
-        recipientName: [
-          { required: true, message: '请输入收货人姓名', trigger: 'change' }
-        ],
-        recipientPhone: [
-          { required: true, message: '请输入收货人手机', trigger: 'change' }
-        ],
-        receiveAddress: [
-          { required: true, message: '请输入收货地址', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，150:新销服; 老销服:10', trigger: 'change' }
-        ],
-        ownerOrgId: [
-          { required: true, message: '请输入门店组织id', trigger: 'change' }
-        ],
-      }
+      pageNum: 1,
+      pageSize: 10,
+      total: 0,
     };
   },
   mounted () {
@@ -513,7 +391,27 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    // 获取调拨明细
+    async getData () {
+      const params = {
+        shippingOrderId: this._id,
+        pageNum: this.pageNum,
+        pageSize: this.pageSize,
+      };
+      const res = await shippingOrderDetailPage(params);
+      this.total = res.total || 0;
+      this.tableData = res.records || [];
+    },
+    handleCurrentChange (pageNum) {
+      this.pageNum = pageNum;
+      this.getData();
+    },
+    handleSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.pageNum = 1;
+      this.getData();
+    },
   }
 };
 </script>

@@ -2455,6 +2455,24 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/basic/sparePartClaimPrice',
+      name: 'sparePartClaimPrice',
+      component: () => import('@/views/sparepart/basic/sparePartClaimPrice/index.vue'),
+
+      meta: {
+        name: '备件索赔价格',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/sparepartclaimprice/edit',
+      name: 'sparePartClaimPriceEdit',
+      component: () => import('@/views/sparepart/basic/sparePartClaimPrice/edit.vue'),
+
+      meta: {
+        name: '备件索赔价格详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];

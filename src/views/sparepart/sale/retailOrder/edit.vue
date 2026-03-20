@@ -745,7 +745,7 @@ export default {
     // 保存侧边栏数据
     handleSave () {
       this.$refs.detailRef.handleSave();
-      this.detailRequest();
+      this.$refs.containerRef.loadDetail();
       this.$refs.editLayout.closePane();
     }
   }
