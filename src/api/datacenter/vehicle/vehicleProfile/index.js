@@ -59,7 +59,7 @@ export function getDetailDecryptField (id, field) {
   };
   return new Promise(resolve => {
     api.jsonPost(prefix + 'getDecrypt', param).then(res => {
-      resolve(res[field]);
+      resolve(res?.[field]);
     });
   });
 }

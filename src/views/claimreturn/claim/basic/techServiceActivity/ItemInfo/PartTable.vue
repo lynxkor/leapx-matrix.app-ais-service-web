@@ -508,8 +508,8 @@ export default {
       });
     },
     onRepairChange (row, value, option) {
-      row.repairItemTypeName = option.name;
-      row.repairItemTypeCode = option.code;
+      row.repairItemTypeName = option?.name || '';
+      row.repairItemTypeCode = option?.code || '';
     },
     // 旧件返回类型接口
     returnTypeRemote () {
