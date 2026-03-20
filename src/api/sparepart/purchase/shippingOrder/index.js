@@ -43,3 +43,11 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 备件发运明细表分页查询
+ * @param {Object} data
+ */
+export function shippingOrderDetailPage (data) {
+  return api.jsonPost('/sp/web/dealer/shippingOrderDetail/page', data);
+}
