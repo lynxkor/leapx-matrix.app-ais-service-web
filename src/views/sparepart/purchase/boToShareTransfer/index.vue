@@ -9,34 +9,39 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="缺货单code">
-        <el-input
-          placeholder="请输入"
-          v-model="form.backOrderCode"
-          clearable
-        />
+      <el-form-item label="缺货单号">
+        <tag-input v-model="form.backOrderCodeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="备件编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.sparePartCode"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="备件名称"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.sparePartName"
-          clearable
-        />
+      <el-form-item label="备件">
+        <fetch-select
+            :remote-method="getSparePart"
+            remote
+            v-model="form.sparePartIdList"
+            placeholder="请输入编码或名称"
+            labelKey="code"
+            valueKey="id"
+            subLabelKey="name"
+            clearable
+            multiple
+            collapseTags
+            filterable
+              />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="待处理零件数">
-          <el-input
-            placeholder="请输入"
-            v-model="form.pendingPartQty"
+        <el-form-item label="门店">
+          <fetch-select
+            :remote-method="getDealerList"
+            remote
+            v-model="form.dealerCodeList"
+            placeholder="请输入门店编码或名称"
+            labelKey="orgName"
+            valueKey="orgCode"
+            subLabelKey="orgCode"
             clearable
-          />
+            multiple
+            collapseTags
+            filterable
+              />
         </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
@@ -74,12 +79,12 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -116,8 +121,8 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { boToTransferPage, deleteItem, enableItem } from '@/api/sparepart/purchase/backOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
+import { reportPage, deleteItem, enableItem } from '@/api/sparepart/purchase/backOrder/index';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser, sparePartListShort } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -125,6 +130,8 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import TagInput from '@/libs/components/TagInput';
+import FetchSelect from '@/libs/components/FetchSelect';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -148,6 +155,8 @@ export default {
     LPVxeTable,
     EditPage,
     Upload,
+    TagInput,
+    FetchSelect
   },
   data () {
     return {
@@ -175,16 +184,16 @@ export default {
         dataProp: [
           {
             props: 'backOrderCode',
-            label: '缺货单code',
+            label: '缺货单号',
             visible: true,
             width: 200,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/purchase/boToShareTransfer/edit',
+                  path: '/sparepart/purchase/backOrder/edit',
                   query: {
-                    id: row.id
+                    id: row.backOrderId
                   }
                 });
               },
@@ -371,7 +380,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      boToTransferPage({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      reportPage({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {
@@ -410,6 +419,18 @@ export default {
         this.optionObj.form.size = num;
       }
       this.debouncedGetData();
+    },
+    async getSparePart (query) {
+      try {
+        const res = await sparePartListShort({ partCodeLikeOrList: query });
+        // res.records = res.records?.map(item => ({
+        //   ...item,
+        //   displayName: item.companyName + `(${item.companyCode})`
+        // }));
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     },
     // 多选框选中数据
     handleSelectionChange (selection) {
