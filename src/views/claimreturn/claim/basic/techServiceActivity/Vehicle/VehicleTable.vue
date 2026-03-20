@@ -22,7 +22,7 @@
     <vxe-column title="计划实施门店名称" width="180">
       <template #default="{ row, rowIndex }">
         <fetch-select
-          v-if="eidtRowIndex === rowIndex && row.finished==='0'"
+          v-if="editRowIndex === rowIndex && row.finished==='0'"
           filterable
           clearable
           remote
@@ -59,7 +59,7 @@
     <vxe-column field="updateTime" title="修改时间" width="160"></vxe-column>
     <vxe-column title="操作" :width="200" align="center" fixed="right" :resizable="false">
       <template #default="{ row, rowIndex }">
-        <template v-if="eidtRowIndex === rowIndex">
+        <template v-if="editRowIndex === rowIndex">
           <span
             class="action-button btn-edit"
             @click="saveRowEdit(row, rowIndex)"
@@ -160,7 +160,7 @@ export default {
   data () {
     return {
       // 正在编辑的行
-      eidtRowIndex: -1,
+      editRowIndex: -1,
       originTableData: [],
       //
       current: 1,
@@ -213,11 +213,11 @@ export default {
       });
     },
     editRow (row, rowIndex) {
-      if (this.eidtRowIndex !== -1) {
+      if (this.editRowIndex !== -1) {
         this.$message.info('数据未保存');
         return;
       }
-      this.eidtRowIndex = rowIndex;
+      this.editRowIndex = rowIndex;
     },
     // 取消
     cancelEdit (row, rowIndex) {
@@ -227,8 +227,8 @@ export default {
         const originRow = this.getOriginRow(row.id);
         this.tableData.splice(rowIndex, 1, originRow); // 数据还原
       }
-      if (rowIndex === this.eidtRowIndex) {
-        this.eidtRowIndex = -1;
+      if (rowIndex === this.editRowIndex) {
+        this.editRowIndex = -1;
       }
     },
     // 行保存
@@ -242,7 +242,7 @@ export default {
       }).then(id => {
         this.$message.success('更新成功');
         this.getDetailPageApi();
-        this.eidtRowIndex = -1;
+        this.editRowIndex = -1;
       }).catch(e => {
       });
     },
@@ -257,13 +257,13 @@ export default {
     },
     // -------------
     handleAdd (partId, row) {
-      if (this.eidtRowIndex !== -1) {
+      if (this.editRowIndex !== -1) {
         this.$message.info('请先保存数据，再添加');
         return;
       }
       this.tableData.unshift(row);
       this.$refs.editTable.setEditRow(row);
-      this.eidtRowIndex = 0;
+      this.editRowIndex = 0;
     },
     // 门店
     onDealerChange (row, value, option) {

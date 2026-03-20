@@ -42,3 +42,28 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+const logPrefix = 'claimreturn/web/claim/basic/warrantyGradeApprovalStatusLog/';
+/**
+ * 保修分级审批状态变化分页查询
+ * @param {Object} data
+ */
+export function logPage (data) {
+  return api.jsonPost(logPrefix + 'page', data);
+}
+
+/**
+ * 保修分级审批状态变化删除
+ * @param {Object} data
+ */
+export function logDelete (data) {
+  return api.jsonPost(logPrefix + 'delete', data);
+}
+
+/**
+ * 保修分级审批状态变化删除
+ * @param {Object} data
+ */
+export function logUpdate (data) {
+  return api.jsonPost(logPrefix + 'addOrUpdate', data);
+}
