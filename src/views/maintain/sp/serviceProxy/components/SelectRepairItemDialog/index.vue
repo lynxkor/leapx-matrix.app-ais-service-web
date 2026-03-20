@@ -1033,61 +1033,63 @@ export default {
     },
     // 处理维修项目表格删除行
     async handleRemoveItemRow (index, row) {
-      let flag = true;
       if (row.packageId) {
-        flag = await this.showMsg('本操作视为您取消核销本次权益套餐，请确认');
-      }
-      if (!flag) return;
-      const deleted = this.deleteRights(row);
-      if (!deleted) return;
-      const removedRow = this.itemData[index];
-      // 从 itemData 中移除该行数据
-      this.itemData.splice(index, 1);
+        // 分支1: 删除权益套餐
+        const confirmed = await this.showMsg('本操作视为您取消核销本次权益套餐，请确认');
+        if (!confirmed) return;
 
-      // 删除该项目自动引入的零件
-      if (removedRow.repairItemId) {
-        // 找到所有关联该维修项目的自动导入零件
-        const autoImportedPartIndices = [];
-        this.partData.forEach((part, idx) => {
-          if (part.repairItemId === removedRow.repairItemId) {
-            autoImportedPartIndices.push(idx);
+        this.deleteRights(row);
+      } else {
+        // 分支2: 删除普通行
+        const removedRow = this.itemData[index];
+        this.itemData.splice(index, 1);
+
+        // 删除该项目自动引入的零件
+        if (removedRow.repairItemId) {
+          const autoImportedPartIndices = [];
+          this.partData.forEach((part, idx) => {
+            if (part.repairItemId === removedRow.repairItemId) {
+              autoImportedPartIndices.push(idx);
+            }
+          });
+
+          // 从后往前删除，避免索引变化
+          for (let i = autoImportedPartIndices.length - 1; i >= 0; i--) {
+            this.partData.splice(autoImportedPartIndices[i], 1);
           }
-        });
-
-        // 从后往前删除，避免索引变化
-        for (let i = autoImportedPartIndices.length - 1; i >= 0; i--) {
-          this.partData.splice(autoImportedPartIndices[i], 1);
         }
       }
+
       // 更新顶部合计
       this.updateTotals();
     },
     // 处理维修配件表格删除行
     async handleRemovePartRow (index, row) {
-      let flag = true;
       if (row.packageId) {
-        flag = await this.showMsg('本操作视为您取消核销本次权益套餐，请确认');
+        // 分支1: 删除权益套餐
+        const confirmed = await this.showMsg('本操作视为您取消核销本次权益套餐，请确认');
+        if (!confirmed) return;
+
+        this.deleteRights(row);
+      } else {
+        // 分支2: 删除普通行
+        this.partData.splice(index, 1);
       }
-      if (!flag) return;
-      // 从 partData 中移除该行数据
-      const deleted = this.deleteRights(row);
-      if (!deleted) return;
-      this.partData.splice(index, 1);
+
       // 更新顶部合计
       this.updateTotals();
     },
     deleteRights (row) {
-      if (row.packageId) {
-        const el = this.partData.find(part => part.isOutstock && part.packageId === row.packageId);
-        if (el) {
-          this.$message.error(`权益导入的零件编码：${el.partsCode}已经领料出库，不允许删除对应权益，请全部退料后再操作，谢谢`);
-          return false;
-        }
-        this.partData = this.partData.filter(part => part.packageId !== row.packageId);
-        this.itemData = this.itemData.filter(item => item.packageId !== row.packageId);
-        return true;
+      // 检查是否有零件已领料出库
+      const outstockPart = this.partData.find(part => part.isOutstock && part.packageId === row.packageId);
+      if (outstockPart) {
+        this.$message.error(`权益导入的零件编码：${outstockPart.partsCode}已经领料出库，不允许删除对应权益，请全部退料后再操作，谢谢`);
+        return;
       }
-      return true;
+
+      // 删除该权益套餐相关的所有项目和零件
+      this.partData = this.partData.filter(part => part.packageId !== row.packageId);
+      this.itemData = this.itemData.filter(item => item.packageId !== row.packageId);
     },
     // ==================== 维修项目表格事件处理 ====================
     // 维修类型变化
