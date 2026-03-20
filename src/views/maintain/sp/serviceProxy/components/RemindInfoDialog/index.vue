@@ -30,7 +30,7 @@
       </div>
       <!-- 预授权提醒 -->
       <div class="info-section">
-        <div class="info-title">预授权提醒</div>
+        <div class="info-title">预授权提醒 <el-button size="small" type="primary">生成预授权</el-button></div>
         <div class="info-content">{{ preAuthReminder }}</div>
       </div>
       <!-- 服务活动提醒 -->
@@ -200,6 +200,9 @@ export default {
     font-weight: 700;
     color: var(--leap-color-default-dark-1);
     margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .warning-list {
