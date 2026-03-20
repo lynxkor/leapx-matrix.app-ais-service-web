@@ -276,7 +276,14 @@ export default {
             }, {
               name: '重新申请',
               click: (rowIndex, row) => {
-                this.handleRegenerate(row);
+                // this.handleRegenerate(row);
+                this.$router.push({
+                  path: '/maintain/sp/preAuth/edit',
+                  query: {
+                    id: row.id,
+                    isEditing: true
+                  }
+                });
               },
               type: 'info',
               show: (row) => row.approvalStatus === AUDIT_STATUS.EXPIRED // 已过期
@@ -365,7 +372,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        regenerate({ id: row.id }).then(() => {
+        regenerate(row.id).then(() => {
           this.$message.success('重新生成成功');
           this.getData();
         }).catch(() => {
