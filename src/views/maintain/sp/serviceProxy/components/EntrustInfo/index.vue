@@ -440,7 +440,7 @@
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum, getCCCList, updateSpFaultAlertRecord, deleteSpFaultAlertRecord } from '@/api/maintain/sp/serviceProxy/index';
-import { RepairOrderStatusEnum } from '../../edit.vue';
+import { RepairOrderStatusEnum } from '../../constant';
 
 export default {
   props: {

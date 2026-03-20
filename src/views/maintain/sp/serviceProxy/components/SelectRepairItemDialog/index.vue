@@ -1087,6 +1087,7 @@ export default {
         this.itemData = this.itemData.filter(item => item.packageId !== row.packageId);
         return true;
       }
+      return true;
     },
     // ==================== 维修项目表格事件处理 ====================
     // 维修类型变化

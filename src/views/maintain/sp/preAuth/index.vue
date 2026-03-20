@@ -117,9 +117,10 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
-import AuditDialog from './components/AuditDialog';
-import ErrorCodeDialog from './components/ErrorCodeDialog';
+import AuditDialog from './components/AuditDialog/index.vue';
+import ErrorCodeDialog from './components/ErrorCodeDialog/index.vue';
 import DealerSelect from '@/components/dealer-select/index.vue';
+import { AUDIT_STATUS } from './constant.js';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -134,19 +135,6 @@ const defaultForm = {
 const pageSize = 20;
 const mockConfig = {
   data: null
-};
-
-/**
- * 审批状态枚举
- */
-export const AUDIT_STATUS = {
-  TODO: 10, // 待提交
-  IN_PROGRESS: 20, // 审批中
-  APPROVED: 30, // 审批通过
-  REJECTED: 40, // 审批驳回
-  CANCELLED: 50, // 已作废
-  EXPIRED: 60, // 已过期
-  REFUSED: 70 // 已拒绝
 };
 
 export default {
@@ -276,7 +264,14 @@ export default {
             }, {
               name: '重新申请',
               click: (rowIndex, row) => {
-                this.handleRegenerate(row);
+                // this.handleRegenerate(row);
+                this.$router.push({
+                  path: '/maintain/sp/preAuth/edit',
+                  query: {
+                    id: row.id,
+                    isEditing: true
+                  }
+                });
               },
               type: 'info',
               show: (row) => row.approvalStatus === AUDIT_STATUS.EXPIRED // 已过期
@@ -365,7 +360,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        regenerate({ id: row.id }).then(() => {
+        regenerate(row.id).then(() => {
           this.$message.success('重新生成成功');
           this.getData();
         }).catch(() => {
@@ -424,11 +419,10 @@ export default {
 
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
-          console.log(res);
           this.optionObj.dataList = res.records.map(item => {
             return {
               ...item,
-              deleteLoading: false
+              // deleteLoading: false
             };
           });
           this.optionObj.total = res.total;

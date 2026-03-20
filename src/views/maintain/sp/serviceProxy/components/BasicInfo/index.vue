@@ -525,7 +525,7 @@
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getVehicleProfile, getCarInfo, checkVinTag, getEnum } from '@/api/maintain/sp/serviceProxy/index';
-import { RepairOrderStatusEnum, BusinessTypeEnum } from '../../edit.vue';
+import { RepairOrderStatusEnum, BusinessTypeEnum } from '../../constant';
 
 export const CustomTypeEnum = {
   /** 预约客户 */
