@@ -1001,7 +1001,7 @@ export default {
     },
     // 获取维修项目列表
     async getRepairItemList () {
-      const res = await this.$refs.containerRef.loadDetail();
+      const res = await this.detailRequest();
       if (res && res.interestsGoodsResp && res.interestsGoodsResp.goodsRepairItemList) {
         this.itemDetails = res.interestsGoodsResp.goodsRepairItemList;
         // 计算合计金额

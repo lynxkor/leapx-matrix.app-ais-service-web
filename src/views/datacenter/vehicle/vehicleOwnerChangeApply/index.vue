@@ -126,6 +126,16 @@
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
     </div>
+    <form-cancel-dialog
+      :visible.sync="visible"
+      :id="cancelId"
+      @update="getData"
+    />
+    <form-reject-dialog
+      :visible.sync="rejectVisible"
+      :id="rejectId"
+      @update="getData"
+    />
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
@@ -144,6 +154,8 @@ import {
   getList,
   deleteItem,
   enableItem,
+  submit,
+  approve,
 } from '@/api/datacenter/vehicle/vehicleOwnerChangeApply/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -156,6 +168,8 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import { getDetailDecryptField } from '@/api/datacenter/vehicle/vehicleProfile/index';
 import TagInput from '@/libs/components/TagInput';
+import FormCancelDialog from './FormCancelDialog';
+import FormRejectDialog from './FormRejectDialog';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -184,6 +198,8 @@ export default {
     EditPage,
     Upload,
     TagInput,
+    FormCancelDialog,
+    FormRejectDialog,
   },
   data () {
     return {
@@ -212,6 +228,12 @@ export default {
         // sort: 'DESC'
         // }
       ],
+      // 作废
+      visible: false,
+      cancelId: '',
+      // 驳回
+      rejectVisible: false,
+      rejectId: '',
     };
   },
   computed: {
@@ -293,26 +315,68 @@ export default {
               {
                 name: '提交',
                 click: (rowIndex, row) => {
+                  submit({
+                    id: row.id,
+                  }).then(res => {
+                    this.$message.success('提交成功');
+                    this.getData();
+                  });
                 },
-                type: 'info'
+                type: 'info',
+                show: (row) => {
+                  // 草稿,审批驳回
+                  if (row.applyStatus === '10' || row.applyStatus === '40') {
+                    return true;
+                  }
+                  return false;
+                },
               },
               {
                 name: '作废',
                 click: (rowIndex, row) => {
+                  this.visible = true;
+                  this.cancelId = row.id;
                 },
-                type: 'info'
+                type: 'info',
+                show: (row) => {
+                  // 草稿,审批驳回
+                  if (row.applyStatus === '10' || row.applyStatus === '40') {
+                    return true;
+                  }
+                  return false;
+                },
               },
               {
                 name: '审批通过',
                 click: (rowIndex, row) => {
+                  approve({
+                    id: row.id,
+                  }).then(res => {
+                    this.$message.success('审批通过');
+                    this.getData();
+                  });
                 },
-                type: 'info'
+                type: 'info',
+                show: (row) => {
+                  if (row.applyStatus === '20') {
+                    return true;
+                  }
+                  return false;
+                }
               },
               {
                 name: '审批驳回',
                 click: (rowIndex, row) => {
+                  this.rejectVisible = true;
+                  this.rejectId = row.id;
                 },
-                type: 'info'
+                type: 'info',
+                show: (row) => {
+                  if (row.applyStatus === '20') {
+                    return true;
+                  }
+                  return false;
+                }
               }
             ]
           }
