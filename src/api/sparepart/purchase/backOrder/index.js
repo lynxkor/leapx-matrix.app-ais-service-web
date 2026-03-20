@@ -3,14 +3,14 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/purchase/backOrder/';
-
+const prefixDetail = SPARE_PREFIX + '/web/purchase/backOrderDetail/';
 /**
  * 查询列表
  * @param {Object} data
  */
 export function getList (data) {
   return api.jsonPost(prefix + 'page', data);
-};
+}
 
 /**
  * 新增或修改
@@ -49,7 +49,7 @@ export function enableItem (data) {
  * @param {Object} data
  */
 export function getBackOrderDetailList (data) {
-  return api.jsonPost('sp/web/purchase/backOrderDetail/page', data);
+  return api.jsonPost(prefixDetail + 'page', data);
 }
 
 /**
@@ -57,7 +57,7 @@ export function getBackOrderDetailList (data) {
  * @param {Object} data
  */
 export function reportPage (data) {
-  return api.jsonPost('sp/web/purchase/backOrderDetail/reportPage', data);
+  return api.jsonPost(prefixDetail + 'reportPage', data);
 }
 
 /**
@@ -65,7 +65,7 @@ export function reportPage (data) {
  * @param {Object} data
  */
 export function getBackOrderDetailDetail (data) {
-  return api.jsonPost('sp/web/purchase/backOrderDetail/get', data);
+  return api.jsonPost(prefixDetail + 'get', data);
 }
 
 /**
@@ -73,5 +73,13 @@ export function getBackOrderDetailDetail (data) {
  * @param {Object} data
  */
 export function updateBackOrderDetail (data) {
-  return api.jsonPost('sp/web/purchase/backOrderDetail/addOrUpdate', data);
+  return api.jsonPost(prefixDetail + 'addOrUpdate', data);
 }
+
+/**
+ * 查询列表
+ * @param {Object} data
+ */
+export function boToTransferPage (data) {
+  return api.jsonPost(prefix + 'boToTransferPage', data);
+};
