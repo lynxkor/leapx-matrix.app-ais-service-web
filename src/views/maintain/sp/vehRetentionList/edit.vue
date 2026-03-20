@@ -11,8 +11,8 @@
         :detailRequest="detailRequest"
       >
         <el-main>
-          <div v-if="isEditing" class="header-desc">
-            顶部说明文字：&nbsp;&nbsp;|&nbsp;&nbsp;顶部说明文字：
+          <div v-if="_id" class="header-desc">
+            留车单状态：{{ form.retentionStatusLabel }}&nbsp;&nbsp;|&nbsp;&nbsp;创建时间：{{ form.createTime }}
           </div>
           <section class="common-section">
             <div class="common-section-header">
@@ -144,26 +144,29 @@
                 </el-form-item>
               </el-form>
               <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="创建时间：" prop="createTime">
-                  {{ form.createTime }}
-                </el-form-item>
                 <el-form-item label="留车单编码：" prop="code">
                   {{ form.code }}
                 </el-form-item>
-                <el-form-item label="基本车型：" prop="vehModelName">
+                <el-form-item label="留车配置项编码：" prop="configCode">
+                  {{ form.configCode }}
+                </el-form-item>
+                <el-form-item label="VIN码：" prop="vehProfileVin">
+                  {{ form.vehProfileVin }}
+                </el-form-item>
+                <el-form-item label="接车施工单：" prop="serviceProxyCode">
+                  {{ form.serviceProxyCode }}
+                </el-form-item>
+                <el-form-item label="年款：" prop="vehYearTypeName">
+                  {{ form.vehYearTypeName }}
+                </el-form-item>
+                <el-form-item label="车型：" prop="vehModelName">
                   {{ form.vehModelName }}
                 </el-form-item>
-                <el-form-item label="年型：" prop="vehYearTypeName">
-                  {{ form.vehYearTypeName }}
+                <el-form-item label="制造日期：" prop="manufactureOn">
+                  {{ form.manufactureOn }}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
-                </el-form-item>
-                <el-form-item label="工程师姓名：" prop="engineerName">
-                  {{ form.engineerName }}
-                </el-form-item>
-                <el-form-item label="预计到店时间：" prop="estimatedArrivedOn">
-                  {{ form.estimatedArrivedOn }}
                 </el-form-item>
                 <el-form-item label="故障描述：" prop="faultDesc">
                   {{ form.faultDesc }}
@@ -171,31 +174,36 @@
                 <el-form-item label="作废理由：" prop="invalidReason">
                   {{ form.invalidReason }}
                 </el-form-item>
-                <el-form-item label="制造日期：" prop="manufactureOn">
-                  {{ form.manufactureOn }}
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>现调信息</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form label-width="150px" :inline="true" class="form-detail" v-show="_id">
+                <el-form-item label="工程师姓名：" prop="engineerName">
+                  {{ form.engineerName }}
                 </el-form-item>
-                <el-form-item label="不现调理由：" prop="noFieldSurveyReason">
-                  {{ form.noFieldSurveyReason }}
+                <el-form-item label="预计到店时间：" prop="estimatedArrivedOn">
+                  {{ form.estimatedArrivedOn }}
                 </el-form-item>
                 <el-form-item label="现调备注：" prop="onsiteSurveyRemark">
                   {{ form.onsiteSurveyRemark }}
                 </el-form-item>
-                <el-form-item label="接车施工单：" prop="serviceProxyCode">
-                  {{ form.serviceProxyCode }}
-                </el-form-item>
-                <el-form-item label="留车单状态：" prop="retentionStatus">
-                  {{ form.retentionStatus }}
-                </el-form-item>
-                <el-form-item label="VIN码：" prop="vehProfileVin">
-                  {{ form.vehProfileVin }}
-                </el-form-item>
-                <el-form-item label="留车配置项编码：" prop="configCode">
-                  {{ form.configCode }}
+                <el-form-item label="不现调理由：" prop="noFieldSurveyReason">
+                  {{ form.noFieldSurveyReason }}
                 </el-form-item>
               </el-form>
             </div>
           </section>
-          <modal-add-table
+          <fault-table
+            :disabled="true"
+            :canAddOrUpdate="canAddOrUpdate"
+            :_id="_id"
+          />
+          <parts-table
             :disabled="true"
             :canAddOrUpdate="canAddOrUpdate"
             :_id="_id"
@@ -216,7 +224,8 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import ModalAddTable from './components/ModalAddTable';
+import FaultTable from './components/FaultTable';
+import PartsTable from './components/PartsTable';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -249,7 +258,8 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
-    ModalAddTable,
+    FaultTable,
+    PartsTable,
     EditBaseContainer,
     FetchSelect,
   },
@@ -258,7 +268,7 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '标题xxx';
+      return '留车单代码：' + this.form.code;
     }
   },
   watch: {
@@ -277,7 +287,7 @@ export default {
       pageTitle: '留车清单表管理',
       pageType: 'edit',
       // TIPS: 权限前缀 AISCR 根据实际情况修改
-      moduleKey: 'AISCR-vehRetentionList',
+      moduleKey: 'AISMC-vehRetentionList',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,

@@ -8,18 +8,18 @@
         :isEditing.sync="isEditing"
         :form.sync="form"
         :originalForm.sync="originalForm"
-        :submitRequest="() => submitRequest(1)"
+        :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
         <template #status>
-          <span class="status primary" v-if="form.statusDesc">{{ form.statusDesc }}</span>
+          <!-- <span class="status primary" v-if="form.statusDesc">{{ form.statusDesc }}</span> -->
         </template>
         <template #extraButtons>
-          <el-button size="small" type="primary" @click="submitRequest(1)" v-if="_id">提交审批</el-button>
+          <el-button size="small" type="primary" @click="handleSubmit(1)" v-if="_id && form.approvalStatus === AUDIT_STATUS.TODO">提交审批</el-button>
         </template>
         <template #footer>
-          <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitRequest(0)" :loading="loading">保存</el-button>
-          <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitRequest(1)" :loading="loading">提交</el-button>
+          <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleSubmit(0)" :loading="loading">保存</el-button>
+          <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleSubmit(1)" :loading="loading">提交</el-button>
         </template>
         <el-main>
           <!-- 基础信息 -->
@@ -43,7 +43,7 @@
                     placeholder="请选择施工单"
                     clearable
                     filterable
-                    :disabled="_id"
+                    :disabled="!!_id"
                     @change="handleServiceProxyChange"
                   />
                 </el-form-item>
@@ -280,7 +280,7 @@
                 <vxe-table
                   ref="partsTableRef"
                   stripe
-                  :data="serviceProxyDetail?.costCountResp?.sparePartRespList || []"
+                  :data="form.spSparePartResps || serviceProxyDetail?.costCountResp?.sparePartRespList || []"
                   show-overflow
                   :row-config="{ isHover: true }"
                   resizable
@@ -343,37 +343,139 @@
             </div>
             <div class="common-section-body">
               <el-form :inline="true" class="form-detail">
-                <el-form-item label="审批状态：">
-                  <span>{{ form.approvalStatusLabel }}</span>
-                </el-form-item>
-                <el-form-item label="审批人：">
-                  <span>{{ form.approver || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="审批时间：">
-                  <span>{{ form.approvalOn || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="审批意见：">
-                  <span>{{ form.approvalContent || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="提交人：">
-                  <span>{{ form.subUser || '-' }}</span>
-                </el-form-item>
-                <el-form-item label="提交时间：">
-                  <span>{{ form.subDateTime || '-' }}</span>
-                </el-form-item>
                 <el-form-item label="审批单号：">
                   <span>{{ form.auditNo || '-' }}</span>
                 </el-form-item>
-                <el-form-item label="申请驳回状态：">
-                  <span>{{ form.applyRejectStatus === 1 ? '是' : form.applyRejectStatus === 0 ? '否' : '-' }}</span>
+                <el-form-item label="同意工时索赔小计：">
+                  <span>{{ form.approvedLaborClaimTotal || '-' }}</span>
                 </el-form-item>
-                <el-form-item label="申请驳回原因：" v-if="form.applyRejectStatus">
-                  <span>{{ form.rejectReason || '-' }}</span>
+                <el-form-item label="工时分担比例：">
+                  <span>{{ form.laborCostRatio || '-' }}</span>
                 </el-form-item>
-                <el-form-item label="申请驳回时间：" v-if="form.applyRejectStatus">
-                  <span>{{ form.rejectTime || '-' }}</span>
+                <el-form-item label="同意零件索赔小计：">
+                  <span>{{ form.approvedPartsClaimTotal || '-' }}</span>
+                </el-form-item>
+                <el-form-item label="零件分担比例：">
+                  <span>{{ form.partsCostRatio || '-' }}</span>
+                </el-form-item>
+                <el-form-item label="同意其他索赔小计：">
+                  <span>{{ form.approvedOtherClaimTotal || '-' }}</span>
+                </el-form-item>
+                <el-form-item label="其他分担比例：">
+                  <span>{{ form.otherCostSharingRatio || '-' }}</span>
                 </el-form-item>
               </el-form>
+
+              <!-- 审批流程表格 -->
+              <div class="common-section-table">
+                <vxe-table
+                  ref="approvalTableRef"
+                  stripe
+                  :data="form.supportApprovalResps || []"
+                  show-overflow
+                  :row-config="{ isHover: true }"
+                  resizable
+                  border="inner"
+                  size="medium"
+                  min-height="0"
+                  max-height="500px"
+                >
+                  <vxe-column field="approver" title="执行人" min-width="120" />
+                  <vxe-column field="approvalOn" title="执行时间" min-width="160" />
+                  <vxe-column field="statusLabel" title="审批状态" min-width="100" />
+                  <vxe-column field="approvalResult" title="审批结果" min-width="120" />
+                  <vxe-column field="content" title="审批意见" min-width="150" />
+                  <vxe-column field="errorContent" title="错误代码及内容" min-width="120" />
+                  <vxe-column title="附件信息" min-width="200">
+                    <template #default="{ row }">
+                      <div class="approval-attachments">
+                        <!-- 加载中状态 -->
+                        <div v-if="attachmentLoadingMap[row.id]" class="attachment-loading">
+                          <i class="el-icon-loading"></i>
+                          <span>加载中...</span>
+                        </div>
+
+                        <!-- 加载失败状态 -->
+                        <div v-else-if="attachmentErrorMap[row.id]" class="attachment-error">
+                          <span>加载失败</span>
+                          <i class="el-icon-refresh" @click="loadRowFiles(row.id)" style="cursor: pointer; margin-left: 4px;"></i>
+                        </div>
+
+                        <!-- 无附件状态 -->
+                        <div v-else-if="!approvalAttachmentsMap[row.id] || approvalAttachmentsMap[row.id].length === 0" class="attachment-empty">
+                          <span>{{ '-' }}</span>
+                        </div>
+
+                        <!-- 附件数量 <= 3: 直接展示缩略图 -->
+                        <div v-else-if="approvalAttachmentsMap[row.id].length <= attachmentConfig.maxDisplay" class="attachment-list">
+                          <div
+                            v-for="file in approvalAttachmentsMap[row.id]"
+                            :key="file.id"
+                            class="table-attachment-item"
+                            @click="handleAttachmentClick(file)"
+                          >
+                            <!-- 文件图标 -->
+                            <img
+                              :src="getFileIconPath(file)"
+                              class="attachment-icon"
+                              :alt="file.name"
+                            />
+
+                            <!-- 文件名提示 -->
+                            <el-tooltip :content="file.name" placement="top" :open-delay="500">
+                              <div class="attachment-name-overlay"></div>
+                            </el-tooltip>
+                          </div>
+                        </div>
+
+                        <!-- 附件数量 > 3: 展示前2个缩略图 + 更多下拉菜单 -->
+                        <div v-else class="attachment-list">
+                          <!-- 前2个附件缩略图 -->
+                          <div
+                            v-for="file in approvalAttachmentsMap[row.id].slice(0, attachmentConfig.maxDisplay)"
+                            :key="file.id"
+                            class="table-attachment-item"
+                            @click="handleAttachmentClick(file)"
+                          >
+                            <!-- 文件图标 -->
+                            <img
+                              :src="getFileIconPath(file)"
+                              class="attachment-icon"
+                              :alt="file.name"
+                            />
+
+                            <!-- 文件名提示 -->
+                            <el-tooltip :content="file.name" placement="top" :open-delay="500">
+                              <div class="attachment-name-overlay"></div>
+                            </el-tooltip>
+                          </div>
+
+                          <!-- 更多下拉菜单按钮 -->
+                          <el-dropdown placement="bottom" class="attachment-dropdown">
+                            <div class="attachment-dropdown-trigger">
+                              <span class="attachment-more-text">更多</span>
+                              <i class="el-icon-arrow-down"></i>
+                            </div>
+                            <el-dropdown-menu slot="dropdown" class="attachment-dropdown-menu">
+                              <el-dropdown-item
+                                v-for="file in approvalAttachmentsMap[row.id].slice(attachmentConfig.maxDisplay)"
+                                :key="file.id"
+                                class="attachment-dropdown-item"
+                                @click.native="handleAttachmentClick(file)"
+                              >
+                                <span class="dropdown-file-name" :title="file.name">{{ file.name }}</span>
+                              </el-dropdown-item>
+                            </el-dropdown-menu>
+                          </el-dropdown>
+                        </div>
+                      </div>
+                    </template>
+                  </vxe-column>
+                  <template #empty>
+                    <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
+                  </template>
+                </vxe-table>
+              </div>
             </div>
           </section>
 
@@ -406,6 +508,9 @@ import Attachment from './components/FileUploadGrid';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { AUDIT_STATUS } from './index.vue';
+import { getFileList } from '@/libs/api/attachment';
+import { isFileType } from '@/libs/utils/file.js';
 
 const defaultForm = {
   code: '',
@@ -503,15 +608,27 @@ export default {
   },
   data () {
     return {
-      pageTitle: '预授权申请表管理',
+      pageTitle: '预授权申请',
       pageType: 'edit',
       moduleKey: 'AISMC-preAuth',
+      AUDIT_STATUS,
       loading: false,
       submitLoading: false,
       form: { ...defaultForm },
       originalForm: { ...defaultForm },
       emptyText: '暂无数据',
       serviceProxyDetail: {}, // 施工单详情数据（仅用于展示）
+      // 审批记录附件映射 Map<approvalId, files[]>
+      approvalAttachmentsMap: {},
+      // 附件加载状态 Map<approvalId, boolean>
+      attachmentLoadingMap: {},
+      // 附件加载错误 Map<approvalId, error>
+      attachmentErrorMap: {},
+      // 附件配置
+      attachmentConfig: {
+        maxDisplay: 3,        // 最大显示数量
+        preloadCount: 20       // 预加载数量
+      },
       rules: {
         serviceProxyId: [
           { required: true, message: '请选择施工单', trigger: 'change' }
@@ -530,30 +647,135 @@ export default {
     detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id).then(res => {
-          // 直接保存预授权详情数据（包含费用信息和审批信息）
-          this.serviceProxyDetail = res;
-          // 将审批相关数据合并到form中（用于提交）
-          Object.assign(this.form, res);
-          return res;
+        return new Promise((resolve, reject) => {
+          getDetail(id).then(res => {
+            // 直接保存预授权详情数据（包含费用信息和审批信息）
+            this.serviceProxyDetail = res;
+            // 将审批相关数据合并到form中（用于提交）
+            Object.assign(this.form, res);
+            // 预加载前5条审批记录的附件
+            this.$nextTick(() => {
+              this.batchLoadAttachments();
+            });
+            resolve(res);
+          }).catch((res) => {
+            reject(res);
+          });
         });
+      }
+    },
+    /**
+     * 加载单个审批记录的附件
+     * @param {string|number} approvalId - 审批记录ID
+     */
+    async loadRowFiles (approvalId) {
+      // 防重复加载
+      if (this.approvalAttachmentsMap[approvalId] ||
+          this.attachmentLoadingMap[approvalId]) {
+        return;
+      }
+
+      this.$set(this.attachmentLoadingMap, approvalId, true);
+      this.$set(this.attachmentErrorMap, approvalId, null);
+
+      try {
+        const response = await getFileList({
+          businessId: approvalId,
+          // attachType: this.attachmentConfig.attachType
+        });
+
+        const files = (response?.data || []).map(file => ({
+          id: file.id,
+          name: file.fileName,
+          url: file.fileUrl,
+          size: file.fileSize,
+          fileType: file.fileType,
+          isImage: isFileType(file, 'image'),
+          isVideo: isFileType(file, 'video'),
+          isPdf: isFileType(file, 'pdf'),
+          isExcel: isFileType(file, 'excel'),
+          isWord: isFileType(file, 'word'),
+          isPPT: isFileType(file, 'ppt'),
+          isText: isFileType(file, 'text'),
+          isZip: isFileType(file, 'zip'),
+          isRar: isFileType(file, 'rar')
+        }));
+
+        this.$set(this.approvalAttachmentsMap, approvalId, files);
+      } catch (error) {
+        console.error(`加载审批记录${approvalId}的附件失败:`, error);
+        this.$set(this.attachmentErrorMap, approvalId, error);
+      } finally {
+        this.$set(this.attachmentLoadingMap, approvalId, false);
+      }
+    },
+    /**
+     * 批量预加载审批附件(用于页面初始化)
+     */
+    async batchLoadAttachments () {
+      const auditList = this.form.supportApprovalResps || [];
+      const preloadList = auditList.slice(0, this.attachmentConfig.preloadCount);
+
+      const promises = preloadList.filter(item => item.status === 20 || item.status === 40).map(item =>
+        this.loadRowFiles(item.id).catch(err => {
+          console.warn(`预加载审批记录${item.id}附件失败:`, err);
+        })
+      );
+
+      await Promise.allSettled(promises);
+    },
+    getFileIconPath (file) {
+      if (file.isImage) return file.url;
+      if (file.isPdf) return require('@/libs/components/AisAttachment/icon/pdf.png');
+      if (file.isExcel) return require('@/libs/components/AisAttachment/icon/xls.png');
+      if (file.isWord) return require('@/libs/components/AisAttachment/icon/word.png');
+      if (file.isPpt) return require('@/libs/components/AisAttachment/icon/ppt.png');
+      if (file.isVideo) return require('@/libs/components/AisAttachment/icon/video.png');
+      if (file.isZip) return require('@/libs/components/AisAttachment/icon/zip.png');
+      return require('@/libs/components/AisAttachment/icon/text.png');
+    },
+    /**
+     * 处理附件点击事件
+     */
+    handleAttachmentClick (file) {
+      // 所有文件都在新窗口打开
+      if (file.url) {
+        window.open(file.url, '_blank');
       }
     },
     submitRequest (v = 0) {
       // 表单校验
-      return this.$refs.ruleForm.validate().then(() => {
-        addOrUpdate({
-          saveOrSubmit: v,
-          reason: this.form.reason,
-          serviceProxyId: this.form.serviceProxyId,
-          serviceProxyCode: this.form.serviceProxyCode,
-          preAuthType: this.form.preAuthType,
-          qualityOrderReportId: this.form.qualityOrderReportId || '019CFA53-2731-7B3B-9D95-F7F541872B46',
-          qualityOrderReport: this.form.qualityOrderReport || 'ZLR-202603171344380001',
-        }).then(res => {
-          this.$message.success('保存成功');
-          this.$router.replace({ path: '/maintain/sp/preAuth/edit', query: { id: res } });
-        });
+      return addOrUpdate({
+        id: this._id,
+        saveOrSubmit: v,
+        reason: this.form.reason,
+        serviceProxyId: this.form.serviceProxyId,
+        serviceProxyCode: this.form.serviceProxyCode,
+        preAuthType: this.form.preAuthType,
+        qualityOrderReportId: this.form.qualityOrderReportId,
+        qualityOrderReport: this.form.qualityOrderReport,
+      });
+    },
+    handleSubmit (v = 0) {
+      addOrUpdate({
+        id: this._id,
+        saveOrSubmit: v,
+        reason: this.form.reason,
+        serviceProxyId: this.form.serviceProxyId,
+        serviceProxyCode: this.form.serviceProxyCode,
+        preAuthType: this.form.preAuthType,
+        qualityOrderReportId: this.form.qualityOrderReportId,
+        qualityOrderReport: this.form.qualityOrderReport,
+      }).then(res => {
+        this.$message.success(v === 0 ? '保存成功' : '提交审批成功');
+        if (!this._id) {
+          this.$router.replace({
+            path: '/maintain/sp/preAuth/edit',
+            query: { id: res }
+          });
+        } else {
+          this.$refs.containerRef.loadDetail();
+        }
       });
     },
     handleShowLog () {
@@ -644,6 +866,72 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.m-pre-auth-edit {
+.approval-attachments {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 4px 0;
+
+  .attachment-loading,
+  .attachment-error,
+  .attachment-empty {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #999;
+    font-size: 12px;
+  }
+
+  .attachment-error {
+    color: #F56C6C;
+  }
+
+  // 直接展示附件列表 (<=3个)
+  .attachment-list {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+
+    .table-attachment-item {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      border-radius: 4px;
+      overflow: hidden;
+
+      .attachment-icon {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border: 1px solid #E6E6E5;
+        border-radius: 4px;
+        transition: all 0.2s;
+
+        &:hover {
+          border-color: var(--leap-color-primary);
+          transform: scale(1.05);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+      }
+
+      .attachment-name-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+
+  // 下拉菜单展示附件列表 (>3个)
+  .attachment-dropdown {
+    .attachment-more-text {
+      color: var(--leap-color-link);
+      cursor: pointer;
+    }
+  }
 }
 </style>

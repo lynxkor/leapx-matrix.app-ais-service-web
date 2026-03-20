@@ -3,7 +3,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/dealer/sharedTransferInbound/';
-
+const prefixDetail = SPARE_PREFIX + '/web/dealer/sharedTransferInboundDetail/';
 /**
  * 查询列表
  * @param {Object} data
@@ -57,5 +57,5 @@ export function getSign (data) {
  * @param {Object} data
  */
 export function sharedTransferInboundDetailPage (data) {
-  return api.jsonPost('/sp/web/dealer/sharedTransferInboundDetail/page', data);
+  return api.jsonPost(prefixDetail + 'page', data);
 }

@@ -220,7 +220,7 @@
               <div class="common-title" v-show="!(isEditing || !_id)">其他信息</div>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="缺货单号：" prop="backOrderCode">
-                  <el-link type="success" v-if="form.backOrderCode" :href="`/service/sparepart/purchase/backOrder/edit?id=${form.backOrderCode}`" target="_blank">{{ form.backOrderCode }}</el-link>
+                  <el-link type="success" v-if="form.backOrderCode" :href="`/service/sparepart/purchase/backOrder/edit?id=${form.backOrderId}`" target="_blank">{{ form.backOrderCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="原价券：" prop="originalPriceCouponId">
                   {{ form.originalPriceCouponId }}
@@ -549,13 +549,8 @@ export default {
     async getPartDealer (query) {
       try {
         const res = await getPartDealer({ code: query });
-        if (this.accountFlag) { // 主机厂账号 默认为空  门店账号 带出
-          this.form.companyCode = res.parentCompanyCode;
-          this.form.companyName = res.parentCompanyName;
-        } else {
-          this.form.companyCode = '';
-          this.form.companyName = '';
-        }
+        this.form.companyCode = res.parentCompanyCode;
+        this.form.companyName = res.parentCompanyName;
         this.form.warehouseId = res.warehouseId;
         this.form.warehouseCode = res.warehouseCode;
         this.form.warehouseName = res.warehouseName;
@@ -599,7 +594,7 @@ export default {
     },
     async getDealerList (query) {
       try {
-        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query, isPartOrder: true, authority: false });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);

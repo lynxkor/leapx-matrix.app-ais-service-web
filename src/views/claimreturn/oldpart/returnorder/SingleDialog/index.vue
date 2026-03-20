@@ -177,6 +177,12 @@ export default {
     },
     'form.attachFileList' () {
       console.log('附件列表变化：', this.form.attachFileList);
+    },
+    'form.acceptanceResult' (val) {
+      // 验收通过时清空不合格代码
+      if (val === '0') {
+        this.form.unqualifiedCode = '';
+      }
     }
   },
   methods: {
@@ -200,7 +206,15 @@ export default {
           attachFileList: attachFileList,
         }).then(res => {
           this.close();
-          this.$message.success('验收成功');
+          this.$message.success('验收成功！');
+          if (res !== '') {
+            this.$notify({
+              title: '警告',
+              message: res,
+              type: 'warning'
+            });
+          }
+
           this.$emit('refresh');
         }).finally(() => {
           this.submitLoading = false;

@@ -18,7 +18,7 @@
             <el-form-item label="维修项目名称：" prop="name">
               {{ info.name  }}
             </el-form-item>
-            <el-form-item label="维修项目类型：" prop="repairItemTypeName">
+            <el-form-item label="维修类型：" prop="repairItemTypeName">
               {{ info.repairItemTypeName  }}
             </el-form-item>
             <el-form-item label="拼音简码：" prop="pinyinCode">

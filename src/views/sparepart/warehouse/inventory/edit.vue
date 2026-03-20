@@ -7,7 +7,6 @@
         :title="`${title} ${form.code}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
-        :showBackBtn="showBackBtn"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
         :originalForm.sync="originalForm"
@@ -303,11 +302,7 @@ export default {
     id: {
       type: [String, Number],
       default: null
-    },
-    showBackBtn: {
-      type: Boolean,
-      default: true,
-    },
+    }
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {

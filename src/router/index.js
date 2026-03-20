@@ -1301,11 +1301,7 @@ const routes = [
 
       meta: {
         name: '备件现金账户',
-        keepAlive: true,
-        query: {
-          type: 'FUND',
-          name: '备件现金账户'
-        }
+        keepAlive: true
       }
     }, {
       path: '/sparepart/fund/account/edit',
@@ -1319,20 +1315,16 @@ const routes = [
     }, {
       path: '/sparepart/fund/accountRebate',
       name: 'accountRebate',
-      component: () => import('@/views/sparepart/fund/account/index.vue'),
+      component: () => import('@/views/sparepart/fund/accountRebate/index.vue'),
 
       meta: {
         name: '备件返利账户',
-        keepAlive: true,
-        query: {
-          type: 'REBATE',
-          name: '备件返利账户'
-        }
+        keepAlive: true
       }
     }, {
       path: '/sparepart/fund/accountRebate/edit',
       name: 'accountRebateEdit',
-      component: () => import('@/views/sparepart/fund/account/edit.vue'),
+      component: () => import('@/views/sparepart/fund/accountRebate/edit.vue'),
 
       meta: {
         name: '备件返利账户详情',
@@ -1800,11 +1792,7 @@ const routes = [
 
       meta: {
         name: '备件返利充值管理',
-        keepAlive: true,
-        query: {
-          type: 'RECHARGE',
-          name: '备件返利充值管理'
-        }
+        keepAlive: true
       }
     }, {
       path: '/sparepart/fund/accountoperateapply/edit',
@@ -1818,20 +1806,16 @@ const routes = [
     }, {
       path: '/sparepart/fund/accountOperateDeductionApply',
       name: 'accountOperateApply',
-      component: () => import('@/views/sparepart/fund/accountOperateApply/index.vue'),
+      component: () => import('@/views/sparepart/fund/accountOperateDeductionApply/index.vue'),
 
       meta: {
         name: '备件返利扣款管理',
-        keepAlive: true,
-        query: {
-          type: 'DEDUCTION',
-          name: '备件返利扣款管理'
-        }
+        keepAlive: true
       }
     }, {
       path: '/sparepart/fund/accountoperatedeductionapply/edit',
       name: 'accountOperateApplyEdit',
-      component: () => import('@/views/sparepart/fund/accountOperateApply/edit.vue'),
+      component: () => import('@/views/sparepart/fund/accountOperateDeductionApply/edit.vue'),
 
       meta: {
         name: '备件返利扣款管理详情',
@@ -2439,18 +2423,66 @@ const routes = [
       path: '/datacenter/vehicle/vehicleOwnerChangeApply',
       name: 'vehicleOwnerChangeApply',
       component: () => import('@/views/datacenter/vehicle/vehicleOwnerChangeApply/index.vue'),
-
       meta: {
-        name: '新页面',
+        name: '车主信息变更',
         keepAlive: true
       }
     }, {
       path: '/datacenter/vehicle/vehicleownerchangeapply/edit',
       name: 'vehicleOwnerChangeApplyEdit',
       component: () => import('@/views/datacenter/vehicle/vehicleOwnerChangeApply/edit.vue'),
+      meta: {
+        name: '车主信息变更',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/sp/restatement',
+      name: 'restatement',
+      component: () => import('@/views/maintain/sp/restatement/index.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '反结算申请单管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/restatement/edit',
+      name: 'restatementEdit',
+      component: () => import('@/views/maintain/sp/restatement/edit.vue'),
+
+      meta: {
+        name: '反结算申请单管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/basic/dealerReplacementCarClaimPrice',
+      name: 'dealerReplacementCarClaimPrice',
+      component: () => import('@/views/claimreturn/claim/basic/dealerReplacementCarClaimPrice/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/dealerreplacementcarclaimprice/edit',
+      name: 'dealerReplacementCarClaimPriceEdit',
+      component: () => import('@/views/claimreturn/claim/basic/dealerReplacementCarClaimPrice/edit.vue'),
+
+    }, {
+      path: '/sparepart/basic/sparePartClaimPrice',
+      name: 'sparePartClaimPrice',
+      component: () => import('@/views/sparepart/basic/sparePartClaimPrice/index.vue'),
+
+      meta: {
+        name: '备件索赔价格',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/sparepartclaimprice/edit',
+      name: 'sparePartClaimPriceEdit',
+      component: () => import('@/views/sparepart/basic/sparePartClaimPrice/edit.vue'),
+
+      meta: {
+        name: '备件索赔价格详情',
         noResourceUrl: 'true'
       }
     }]

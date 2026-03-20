@@ -10,6 +10,10 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
+        <!-- <template #extraButtons>
+          <el-button size="small">删除</el-button>
+          <el-button size="small" type="danger">停用</el-button>
+        </template> -->
         <template #status>
           <!-- <span class="status" :class="form.status === 1 ? 'primary' : 'danger'">{{ form.status === 1 ? '启用' : '停用' }}</span> -->
         </template>
@@ -22,9 +26,10 @@
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="180px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="预授权规则编号：" prop="code">
                   <el-input
-                    placeholder="请输入"
+                    placeholder="自动生成"
                     v-model="form.code"
                     clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="有效日期：" prop="endTime">
@@ -70,9 +75,12 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>适配车型&nbsp;<el-button type="primary" size="small" @click="modelDialogVisible = true">添加</el-button></h2>
+              <h2>适配车型</h2>
             </div>
             <div class="common-section-body">
+              <div class="common-section-header">
+                <el-button type="primary" plain size="small" @click="modelDialogVisible = true">选择适配车型</el-button>
+              </div>
               <div class="common-section-table">
                 <vxe-table
                   ref="tableModel"
@@ -85,9 +93,9 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="vehModelName" title="车型" min-width="30%" />
-                  <vxe-column field="vehYearTypeName" title="年款" min-width="30%" />
-                  <vxe-column field="createTime" title="创建时间" min-width="30%" />
+                  <vxe-column field="vehicleSeriesName" title="车系" min-width="30%" />
+                  <vxe-column field="vehicleModelName" title="车型" min-width="30%" />
+                  <vxe-column field="vehicleYearType" title="年款" min-width="30%" />
                   <vxe-column title="操作" width="100" v-if="canDelete">
                     <template #default="{rowIndex}">
                       <el-popconfirm title="确定要删除该适配车型吗？" @confirm="handleDeleteModelRow(rowIndex)">
@@ -107,27 +115,19 @@
               <h2>适配零件</h2>
             </div>
             <div class="common-section-body">
-              <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    ref="partSelectRef"
-                    style="width: 300px;"
-                    :remote-method="querySpareParts"
-                    remote
-                    placeholder="请选择零件"
-                    clearable
-                    filterable
-                    value-key="id"
-                    label-key="partName"
-                    @change="handlePartSelect"
-                  />
-                  <el-button
-                    type="primary"
-                    size="small"
-                  >
-                    添加
-                  </el-button>
-                </div>
+              <div class="common-section-header" style="justify-content: flex-start;gap: 10px;">
+                <base-search
+                  filterable
+                  clearable
+                  remote
+                  reserve-keyword
+                  :remote-method="querySpareParts"
+                  @change="handlePartSelect"
+                  value-key="id"
+                  label-key="partName"
+                  placeholder="请选择零件"
+                />
+                <el-button type="primary" plain size="small" @click="handleImport">零件导入</el-button>
               </div>
               <div class="common-section-table">
                 <vxe-table
@@ -141,9 +141,11 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="partsName" title="零件名称" min-width="30%" />
-                  <vxe-column field="partsCode" title="零件代码" min-width="30%" />
-                  <vxe-column field="createTime" title="创建时间" min-width="30%" />
+                  <vxe-column field="partsCode" title="零件代码" min-width="200" />
+                  <vxe-column field="partsName" title="零件名称" min-width="200" />
+                  <vxe-column field="remark" title="备注" min-width="200" />
+                  <vxe-column field="creatorName" title="创建人" min-width="200" />
+                  <vxe-column field="createTime" title="创建时间" min-width="200" />
                   <vxe-column title="操作" width="100" v-if="canDelete">
                     <template #default="{ rowIndex }">
                       <el-popconfirm title="确定要删除该零件吗？" @confirm="handleDeletePartRow(rowIndex)">
@@ -160,6 +162,15 @@
           </section>
         </el-main>
         <ModelDialog :visible="modelDialogVisible" :info="form" @submit="handleVehicleModelSubmit" @close="handleCloseModel" />
+        <!-- TIPS: 填入项目id即可 -->
+        <Upload
+          :visible="uploadDialogVisible"
+          :id="'importpreauthpart'"
+          downloadTitle="批量导入零件模版.xlsx"
+          @close="handleUploadDialogClose"
+          @getData="detailRequest"
+          :businessParams="_id"
+        />
       </edit-base-container>
     </template>
     <template #right>
@@ -171,8 +182,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, addPartItem, deletePartItem, addPartVehModel, deletePartVehModel } from '@/api/maintain/sp/preAuthRule/index';
-import FetchSelect from '@/libs/components/FetchSelect';
+import { getDetail, addOrUpdate, addPartItem, deletePartItem } from '@/api/maintain/sp/preAuthRule/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, sparePartList } from '@/api/common';
@@ -181,6 +191,8 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import ModelDialog from '@/views/maintain/basic/maintenancePartData/components/AddVehicleDialog/index.vue';
+import Upload from '@/libs/components/UploadDialog';
+import BaseSearch from '@/libs/components/BaseSearch';
 
 const defaultForm = {
   code: '',
@@ -215,8 +227,9 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect,
-    ModelDialog
+    BaseSearch,
+    ModelDialog,
+    Upload
   },
   computed: {
     _id () {
@@ -242,7 +255,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '预授权参数设置表管理',
+      pageTitle: '预授权参数设置',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-preAuthRule',
@@ -255,6 +268,7 @@ export default {
       // 适配零件
       tableDataPart: [],
       modelDialogVisible: false, // 适配车型弹窗
+      uploadDialogVisible: false,
       pickerOptions: {
         disabledDate (time) {
           return time.getTime() < Date.now() - 8.64e7;
@@ -283,6 +297,12 @@ export default {
     }
   },
   methods: {
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -297,24 +317,18 @@ export default {
     submitRequest () {
       return addOrUpdate({
         ...this.form,
-        vehicleModels: this.tableDataModel,
-        partsResps: this.tableDataPart
-      }).then(result => {
-        this.$message.success('保存成功');
-        console.log(result);
-        this.$router.push({
-          path: '/maintain/sp/preAuthRule/edit',
-          query: {
-            id: result
-          }
-        });
-      }).catch(() => {});
+        authRuleModelParamList: this.tableDataModel,
+        partParamList: this.tableDataPart
+      });
     },
     // 删除单个车型
     async handleDeleteModelRow (index) {
-      const item = this.tableDataModel[index];
-      await deletePartVehModel([item.id]);
       this.tableDataModel.splice(index, 1);
+      await addOrUpdate({
+        ...this.form,
+        authRuleModelParamList: this.tableDataModel,
+        partParamList: this.tableDataPart
+      });
       this.$message.success('删除成功');
     },
     // 添加零件
@@ -336,7 +350,7 @@ export default {
         partsId: record.id,
       }).then(res => {
         this.$message.success('添加成功');
-        this.detailRequest();
+        this.$refs.containerRef.loadDetail();
       });
     },
     // 零件选择变更
@@ -356,19 +370,17 @@ export default {
     },
     // 处理车型提交
     handleVehicleModelSubmit (data) {
-      console.log(data);
-      const submitData = data.addOrUpdateReqList.map(item => {
-        return {
-          preAuthRuleId: this._id,
-          vehModelId: item.vehicleModelId,
-          vehModelName: item.vehicleModelName,
-          vehYearTypeId: item.vehicleYearTypeId,
-          vehYearTypeName: item.vehicleYearTypeName,
-        };
-      });
-      addPartVehModel(submitData).then(res => {
+      const submitData = data.addOrUpdateReqList || [];
+      addOrUpdate({
+        ...this.form,
+        authRuleModelParamList: [
+          ...this.form.vehicleModels,
+          ...submitData
+        ],
+        partParamList: this.tableDataPart
+      }).then(res => {
         this.$message.success('保存成功');
-        this.detailRequest();
+        this.$refs.containerRef.loadDetail();
       });
     },
     getDefautlForm () {

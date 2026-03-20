@@ -24,15 +24,7 @@
         />
       </el-form-item>
       <el-form-item label="门店名称" v-show="this.visibleCount === 3 || show">
-        <fetch-select
-          :request="fetchDealerOptions"
-          v-model="form.dealerName"
-          placeholder="请选择门店"
-          clearable
-          filterable
-          remote
-          :remote-method="searchDealers"
-        />
+        <dealer-select v-model="form.dealerCode"/>
       </el-form-item>
       <template v-if="show">
         <el-form-item label="车牌号">
@@ -53,7 +45,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="AuditStatusEnum"
-            v-model="form.status"
+            v-model="form.statusIncludeList"
             placeholder="请选择"
             clearable
             multiple
@@ -102,7 +94,7 @@
       ref="auditDialog"
       :visible.sync="auditDialogVisible"
       :business-id="currentApprovalRow ? currentApprovalRow.id : ''"
-      :row-id="currentApprovalRow ? currentApprovalRow.id : ''"
+      :info="currentApprovalRow"
       @success="getData"
     />
     <ErrorCodeDialog
@@ -127,6 +119,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import AuditDialog from './components/AuditDialog';
 import ErrorCodeDialog from './components/ErrorCodeDialog';
+import DealerSelect from '@/components/dealer-select/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -164,11 +157,12 @@ export default {
     FetchSelect,
     EditPage,
     AuditDialog,
-    ErrorCodeDialog
+    ErrorCodeDialog,
+    DealerSelect
   },
   data () {
     return {
-      pageTitle: '预授权申请表管理',
+      pageTitle: '预授权申请',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-preAuth',
@@ -181,7 +175,7 @@ export default {
       loading: false,
       exportLoading: false,
       clickItemId: '',
-      currentApprovalRow: null, // 当前审批的行数据
+      currentApprovalRow: {}, // 当前审批的行数据
       auditDialogVisible: false, // 审核对话框显示状态
       errorCodeDialogVisible: false, // 错误代码维护对话框显示状态
       optionObj: {
@@ -212,7 +206,7 @@ export default {
           },
           { props: 'serviceProxyCode', label: '施工单号', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'licensePlateNo', label: '车牌号', visible: true, width: 150 },
+          { props: 'carPlate', label: '车牌号', visible: true, width: 150 },
           { props: 'vehProfileVin', label: 'VIN', visible: true, width: 200 },
           { props: 'approvalStatusLabel', label: '单据状态', visible: true, width: 150 },
           { props: 'approver', label: '审批人', visible: true, width: 150 },
@@ -289,7 +283,7 @@ export default {
             }, {
               name: '激活',
               click: (rowIndex, row) => {
-                this.handleRegenerate(row);
+                this.handleApprove(row, 'pass');
               },
               type: 'info',
               show: (row) => row.approvalStatus === AUDIT_STATUS.REFUSED // 已拒绝

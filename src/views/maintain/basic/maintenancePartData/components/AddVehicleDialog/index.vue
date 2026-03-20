@@ -184,17 +184,13 @@ export default {
     visible: {
       handler (newVal) {
         if (newVal) {
-          // this.getData();
+          this.getVehicleList();
+          this.getYearList();
         }
       }
     },
   },
   mounted () {
-    this.getVehicleList();
-    this.getYearList();
-    // 初始化时默认选择第一个车系和年款
-    this.selectSeries(0);
-    this.selectYear(0);
   },
   methods: {
     async getData () {

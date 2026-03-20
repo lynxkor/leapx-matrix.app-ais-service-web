@@ -1,17 +1,9 @@
 <template>
   <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
-      <edit-base-container
-        ref="containerRef"
-        :id="_id"
-        :title="title"
-        :isEditing.sync="isEditing"
-        :form.sync="form"
-        :originalForm.sync="originalForm"
-        :submitRequest="submitRequest"
-        :detailRequest="detailRequest"
-        :showEditBtn="stockStatusType"
-      >
+      <edit-base-container ref="containerRef" :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form"
+        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest"
+        :showEditBtn="stockStatusType">
         <template #status>
           <span v-if="form.status" class="status primary">{{ form.status }}</span>
         </template>
@@ -23,14 +15,10 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
+                v-show="isEditing || !_id">
                 <el-form-item label="盘点单号：" prop="code">
-                  <el-input
-                    placeholder="自动生成"
-                    v-model="form.code"
-                    clearable
-                    disabled
-                  />
+                  <el-input placeholder="自动生成" v-model="form.code" clearable disabled />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
@@ -42,51 +30,23 @@
                   {{ form.companyName }}
                 </el-form-item>
                 <el-form-item label="盘点类型：" prop="stockType">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="StockTakingTypeEnum"
-                    v-model="form.stockType"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                    :disabled="form.stockStatus !== '0'"
-                  />
+                  <fetch-select :request="fetchOptions" enumCode="StockTakingTypeEnum" v-model="form.stockType"
+                    placeholder="请选择" clearable filterable :disabled="form.stockStatus !== '0'" />
                 </el-form-item>
                 <el-form-item label="盘点状态：" prop="stockStatus">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="StockTakingStatusEnum"
-                    v-model="form.stockStatus"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                    disabled
-                  />
+                  <fetch-select :request="fetchOptions" enumCode="StockTakingStatusEnum" v-model="form.stockStatus"
+                    placeholder="请选择" clearable filterable disabled />
                 </el-form-item>
                 <el-form-item label="计划开始时间：">
-                  <el-date-picker
-                    v-model="form.planStartTime"
-                    :picker-options="planStartTime"
-                    range-separator="至"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                  />
+                  <el-date-picker v-model="form.planStartTime" range-separator="至"
+                    value-format="yyyy-MM-dd HH:mm:ss" />
                 </el-form-item>
                 <el-form-item label="计划完成时间：">
-                  <el-date-picker
-                    v-model="form.planCompleteTime"
-                    :picker-options="planCompleteTime"
-                    range-separator="至"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                  />
+                  <el-date-picker v-model="form.planCompleteTime" range-separator="至"
+                    value-format="yyyy-MM-dd HH:mm:ss" />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark" style="width: 100%;">
-                  <el-input
-                    type="textarea"
-                    :rows="3"
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
+                  <el-input type="textarea" :rows="3" placeholder="请输入" v-model="form.remark" clearable />
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
@@ -130,73 +90,67 @@
             <div class="common-section-body">
               <div class="common-section-header">
                 <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    :disabled="form.stockStatus !== '0'"
-                    @change="handleAddTableData"
-                  />
+                  <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请选择" clearable
+                    value-key="partCode" label-key="partName" :disabled="form.stockStatus !== '0'"
+                    @change="handleAddTableData" />
                   <el-button type="primary" size="small">添加</el-button>
                 </div>
               </div>
               <div class="common-section-table">
-                <vxe-table
-                  ref="tableRef"
-                  stripe
-                  :data="tableData"
-                  show-overflow
-                  resizable
-                  border="inner"
-                  size="medium"
-                  min-height="0"
-                  max-height="400px"
-                >
+                <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
+                  min-height="0" max-height="400px">
                   <vxe-column field="sparePartCode" title="备件编码" min-width="12.5%" />
                   <vxe-column field="sparePartName" title="备件名称" min-width="12.5%" />
                   <vxe-column field="locationName" title="库位" min-width="12.5%" />
                   <vxe-column field="totalQty" title="库存总数" min-width="12.5%" />
                   <vxe-column field="actualQty" title="实盘库存" min-width="12.5%">
                     <template #default="{ row }">
-                      <el-input v-model="row.inboundQuantity" :disabled="!row.stockStatusType" type="number" min="1" />
+                      <el-input v-model="row.actualQty" :disabled="!row.stockStatusType"
+                        @blur="handleActualQtyBlur(row)" type="number" min="1" />
                     </template>
                   </vxe-column>
                   <vxe-column field="remark" title="备注" min-width="12.5%">
                     <template #default="{ row }">
-                      <el-input v-model="row.remark" :disabled="!row.stockStatusType" />
+                      <el-input v-model="row.remark" @blur="handleRemarkBlur(row)" :disabled="!row.stockStatusType" />
                     </template>
                   </vxe-column>
-                  <vxe-column field="inboundQty" title="操作人" min-width="12.5%">
+                  <vxe-column field="operator" title="操作人" min-width="12.5%">
                     <template #default="{ row }">
-                      <el-input v-model="row.operator" placeholder="请输入操作人" :disabled="!row.stockStatusType" />
+                      <el-select
+                        v-model="row.operator"
+                        size="mini"
+                        placeholder="请选择"
+                        filterable
+                        remote
+                        :remote-method="(query) => querySearchAsync(query)"
+                        @change="handleOperatorChange(row, $event)"
+                      >
+                        <el-option
+                          v-for="item in userList"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </el-select>
                     </template>
                   </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="12.5%" />
-                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
+                  <vxe-column title="操作" width="100" fixed="right">
+                    <template #default="{ row }">
+                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger"
+                        @confirm="handleDeleteRow(row.id)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
                   </vxe-column>
                   <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
+                    <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
                   </template>
                 </vxe-table>
                 <div class="table-pagination">
-                  <el-pagination
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
-                    :current-page="pageNum"
-                    :page-sizes="[10, 20, 50, 100]"
-                    :page-size="pageSize"
-                    layout="total, sizes, prev, pager, next, jumper"
-                    :total="total"
-                  >
+                  <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                    :current-page="pageNum" :page-sizes="[10, 20, 50, 100]" :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper" :total="total">
                   </el-pagination>
                 </div>
               </div>
@@ -213,11 +167,12 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, stockTakingDetailPage } from '@/api/sparepart/warehouse/stockTaking/index';
+import { getDetail, addOrUpdate, stockTakingDetailPage, stockTakingDetailAddOrUpdate, stockTakingDetailDelete } from '@/api/sparepart/warehouse/stockTaking/index';
+import { listDealerPart } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, getPartDealer, getLoginUser } from '@/api/common';
+import { getEnum, getPartDealer, getLoginUser, getUserByNameOrNo } from '@/api/common';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -296,6 +251,7 @@ export default {
       pageNum: 1,
       total: 0,
       emptyText: '若要启用此内容，请创建记录',
+      userList: [], // 操作人列表
       tableData: [],
       rules: {
         warehouseId: [
@@ -339,12 +295,22 @@ export default {
     openPane () {
       this.$refs.editLayout.openPane();
     },
-    handleDeleteRow (index) {
-      this.tableData.splice(index, 1);
+    // 删除备件清单
+    async handleDeleteRow (id) {
+      if (id) {
+        await stockTakingDetailDelete([id]);
+        this.$message.success('删除成功');
+        this.getData();
+      }
     },
-    queryListData (queryString) {
+    async queryListData (queryString) {
+      // 查询当前门店备件列表
       return new Promise(resolve => {
-        resolve([]);
+        // 根据需求调用接口
+        listDealerPart({ dealerCode: this.form.dealerCode, partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
+          const list = res || [];
+          resolve(list);
+        });
       });
     },
     handleAddTableData (val, record) {
@@ -357,7 +323,27 @@ export default {
         this.$message.warning('请勿重复添加');
         return;
       }
-      this.tableData.push(record);
+      const params = {
+        stockTakingId: this._id,
+        stockTakingCode: this.form.code,
+        sparePartId: record.id,
+      };
+      this.handleAddOrUpdate(params, 'add');
+    },
+    // 修改备件清单
+    handleBlur (val) {
+      const params = {
+        stockTakingId: this._id,
+        stockTakingCode: this.form.code,
+        sparePartId: val.id,
+      };
+      this.handleAddOrUpdate(params, 'update');
+    },
+    // 调取备件接口
+    async handleAddOrUpdate (params) {
+      await stockTakingDetailAddOrUpdate(params);
+      this.$message.success('操作成功');
+      this.getData();
     },
     getDefautlForm () {
       return {
@@ -393,6 +379,60 @@ export default {
       this.pageSize = pageSize;
       this.pageNum = 1;
       this.getData();
+    },
+    // 失焦以后 保存输入的库存数量
+    handleActualQtyBlur (val) {
+      if (val.actualQty) {
+        const params = {
+          id: val.id,
+          actualQty: val.actualQty,
+        };
+        if (val.actualQty > val.totalQty) {
+          this.$message.warning('实盘库存大于库存总数,请填写备注!');
+        } else {
+          this.handleAddOrUpdate(params);
+        }
+      }
+    },
+    // 失焦以后 输入的备注 判断是否 实盘库存是否超过库存总数
+    handleRemarkBlur (val) {
+      if (val.remark) {
+        let params = {
+          id: val.id,
+          remark: val.remark,
+        };
+        if (val.actualQty > val.totalQty) { // 超过总数 把实盘库存参数一起放进去 否则直接提交
+          params.actualQty = val.actualQty;
+          this.handleAddOrUpdate(params);
+        } else {
+          this.handleAddOrUpdate(params);
+        }
+      }
+    },
+    // 远程搜索方法，接收行索引参数
+    querySearchAsync (queryString) {
+      getUserByNameOrNo({ name: queryString }).then(res => {
+        const list = res?.map(item => {
+          return {
+            value: item.userId,
+            label: item.username
+          };
+        }) || [];
+
+        this.userList = list;
+      }).catch(error => {
+        console.log('搜索用户失败:', error);
+        this.userList = [];
+      });
+    },
+    handleOperatorChange (row, val) {
+      row.operatorName = this.userList.find(item => item.value === val)?.label;
+      const params = {
+        id: row.id,
+        operator: val,
+        operatorName: row.operatorName,
+      };
+      this.handleAddOrUpdate(params);
     },
   }
 };

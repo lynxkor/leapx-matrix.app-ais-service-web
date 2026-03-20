@@ -43,10 +43,27 @@ export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
 /**
- * 详情表格接口
+ * 详情故障模块表格接口
  * @param {Object} data
  * @returns
  */
-export function getDetailList (data) {
-  return api.jsonPost('/maintain/sp/vehRetentionList/web/basic/vehRetentionListFault/page', data);
+export function getFaultList (data) {
+  return api.jsonPost('/maintain/web/basic/vehRetentionListFault/page', data);
+}
+/**
+ * 详情零件表格接口
+ * @param {Object} data
+ * @returns
+ */
+export function getPartsList (data) {
+  return api.jsonPost('/maintain/web/basic/vehRetentionListParts/page', data);
+}
+
+/**
+ * 批量作废
+ * @param {Object} data
+ * @returns
+ */
+export function batchInvalid (data) {
+  return api.jsonPost(prefix + 'batchInvalid', data);
 }

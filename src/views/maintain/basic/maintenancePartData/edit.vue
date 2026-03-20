@@ -369,7 +369,7 @@ export default {
         partsId: record.id,
       }).then(res => {
         this.$message.success('添加成功');
-        this.detailRequest();
+        this.$refs.containerRef.loadDetail();
       });
     },
     // 零件选择变更
@@ -401,7 +401,7 @@ export default {
       });
       addPartVehModel(submitData).then(res => {
         this.$message.success('保存成功');
-        this.detailRequest();
+        this.$refs.containerRef.loadDetail();
       });
     },
     // 删除单个车型

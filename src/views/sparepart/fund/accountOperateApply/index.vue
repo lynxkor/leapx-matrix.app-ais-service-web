@@ -43,7 +43,7 @@
           />
         </el-form-item>
       <template v-if="show">
-        <el-form-item :label="accountType === 'RECHARGE' ? '充值流水' : '扣款流水'">
+        <el-form-item label="充值流水">
           <el-input
             placeholder="请输入"
             v-model="form.flowNo"
@@ -93,7 +93,7 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item :label="accountType === 'RECHARGE' ? '充值说明' : '扣款说明'" >
+        <el-form-item label="充值说明" >
           <el-input
             placeholder="请输入"
             v-model="form.rechargeDescriptionLike"
@@ -190,6 +190,7 @@ import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
+  operateType: 'RECHARGE',
   accountCode: '',
   companyCode: '',
   flowNo: '',
@@ -227,7 +228,7 @@ export default {
       pageTitle: this.accountName,
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: this.accountType === 'RECHARGE' ? 'AISPART-accountOperateApply' : 'AISPART-accountOperateDeductionApply',
+      moduleKey: 'AISPART-accountOperateApply',
       form: {
         ...defaultForm
       },
@@ -256,7 +257,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/fund/accountOperateApply/edit?type=' + this.accountType,
+                  path: '/sparepart/fund/accountOperateApply/edit',
                   query: {
                     id: row.id
                   }
@@ -269,7 +270,7 @@ export default {
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'companyCode', label: '公司编码', visible: true, width: 180 },
           { props: 'companyName', label: '公司名称', visible: true, width: 200 },
-          { props: 'code', label: this.accountType === 'RECHARGE' ? '充值流水' : '扣款流水', visible: true, width: 200 },
+          { props: 'code', label: '充值流水', visible: true, width: 200 },
           { props: 'approvalStatusLabel', label: '审批状态', visible: true, width: 120 },
           { props: 'expenseCategory', label: '费用类别', visible: true, width: 120 },
           { props: 'budgetCenter', label: '预算归口', visible: true, width: 200 },
@@ -277,7 +278,7 @@ export default {
           { props: 'submitter', label: '提交人', visible: true, width: 120 },
           { props: 'submitTime', label: '提交时间', visible: true, width: 200 },
           { props: 'transactionAmount', label: '交易金额', visible: true, align: 'right', width: 120 },
-          { props: 'rechargeDescription', label: this.accountType === 'RECHARGE' ? '充值说明' : '扣款说明', visible: true, width: 200 },
+          { props: 'rechargeDescription', label: '充值说明', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -293,7 +294,7 @@ export default {
               },
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/fund/accountOperateApply/edit?type=' + row.operateType,
+                  path: '/sparepart/fund/accountOperateApply/edit',
                   query: {
                     id: row.id
                   }
@@ -353,28 +354,9 @@ export default {
         ],
         total: 0
       },
-      accountType: '',
-      accountName: ''
     };
   },
   created () {
-    // 1. 先尝试从 URL query 获取（防止用户手动刷新或分享链接）
-    const queryType = this.$route.query.type;
-    const queryName = this.$route.query.name;
-
-    if (queryType) {
-      this.accountType = queryType;
-      this.accountName = queryName;
-    } else {
-      // 2. 如果 URL 没有参数，再从 meta 中获取默认值
-      // 注意：这里通过 $route.matched 获取当前激活路由的配置
-      const currentRoute = this.$route.matched[this.$route.matched.length - 1];
-
-      if (currentRoute && currentRoute.meta && currentRoute.meta.query) {
-        this.accountType = currentRoute.meta.query.type;
-        this.accountName = currentRoute.meta.query.name;
-      }
-    }
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },
@@ -390,7 +372,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/sparepart/fund/accountOperateApply/edit?type=' + this.accountType
+        path: '/sparepart/fund/accountOperateApply/edit'
       });
     },
     onSubmit () {
@@ -462,7 +444,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), operateType: this.accountType, pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           this.optionObj.dataList = res.records.map(item => {
             return {
@@ -576,7 +558,7 @@ export default {
     },
     // 提交
     handleSubmit (val) {
-      let title = this.accountType === 'RECHARGE' ? '充值说明' : '扣款说明';
+      let title =  '充值说明';
       this.$prompt(`请输入${title}`, '提交', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

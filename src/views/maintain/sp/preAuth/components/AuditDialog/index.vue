@@ -9,11 +9,12 @@
     <el-form size="small" ref="ruleForm" :model="form" :rules="rules" label-width="120px" label-position="right">
       <el-form-item label="审核操作" prop="auditStaus">
         <el-radio-group v-model="form.auditStaus">
-          <el-radio label="pass">审批通过</el-radio>
-          <el-radio label="reject">审批驳回</el-radio>
+          <el-radio label="30">审批通过</el-radio>
+          <el-radio label="20">审批驳回</el-radio>
+          <el-radio label="40" v-if="info.approvalStatus !== AUDIT_STATUS.REFUSED">拒绝申请</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="错误代码及内容" prop="preAuthRuleCodeId">
+      <el-form-item label="错误代码及内容" prop="preAuthRuleCodeId" v-if="form.auditStaus === '20'">
         <el-select
           v-model="form.preAuthRuleCodeId"
           placeholder="请选择错误代码"
@@ -23,8 +24,9 @@
           <el-option
             v-for="item in errorCodeOptions"
             :key="item.value"
-            :label="`${item.label} (${item.desc})`"
-            :value="item.value">
+            :label="`${item.label}`"
+            :value="item.value"
+          >
           </el-option>
         </el-select>
       </el-form-item>
@@ -38,12 +40,10 @@
           show-word-limit
         />
       </el-form-item>
-      <el-form-item label="附件信息">
+      <el-form-item label="附件信息" v-if="form.auditStaus === '20'">
         <AisAttachment
           ref="attachment"
           :business-id="businessId"
-          config-code="mcs_preauth"
-          attach-type="审批附件"
           :upload-config="uploadConfig"
         />
       </el-form-item>
@@ -59,6 +59,7 @@
 import AisAttachment from '@/libs/components/AisAttachment';
 import { auditItem } from '@/api/maintain/sp/preAuth/index';
 import { getErrorCodeList } from '@/api/maintain/sp/preAuth/errorCode';
+import { AUDIT_STATUS } from '../../index.vue';
 
 export default {
   name: 'AuditDialog',
@@ -74,20 +75,21 @@ export default {
       type: [String, Number],
       default: ''
     },
-    rowId: {
-      type: [String, Number],
-      default: ''
+    info: {
+      type: Object,
+      default: () => {}
     }
   },
   data () {
     return {
       dialogVisible: false,
       form: {
-        auditStaus: 'reject',
+        auditStaus: '30',
         auditContent: '',
         preAuthRuleCodeId: ''
       },
       errorCodeOptions: [], // 错误代码选项
+      AUDIT_STATUS,
       uploadConfig: {
         acceptSuffix: '.png,.jpg,.jpeg,.gif,.pdf,.doc,.docx,.xls,.xlsx',
         maxSize: 10, // 10MB
@@ -134,7 +136,7 @@ export default {
         // 只显示启用状态的错误代码
         const enabledList = (res.records || []).filter(item => item.status === 1);
         this.errorCodeOptions = enabledList.map(item => ({
-          value: item.code,
+          value: item.id,
           label: item.code,
           desc: item.content
         }));
@@ -153,12 +155,10 @@ export default {
           // 获取附件信息
           const attachments = this.$refs.attachment ? this.$refs.attachment.getAttachment() : [];
 
-          const auditResult = this.form.auditStaus === 'pass' ? 1 : 0;
-
           // 准备提交数据
           const submitData = {
-            id: this.rowId,
-            auditResult,
+            id: this.businessId,
+            auditStaus: this.form.auditStaus,
             auditContent: this.form.auditContent,
             preAuthRuleCodeId: this.form.preAuthRuleCodeId,
             attachments
@@ -167,11 +167,10 @@ export default {
           this.submitting = true;
           try {
             await auditItem(submitData);
-            this.$message.success(this.form.auditStaus === 'pass' ? '审批通过' : '审批驳回');
+            this.$message.success('提交成功');
             this.dialogVisible = false;
             this.$emit('success');
-          } catch (error) {
-          } finally {
+          } catch (error) {} finally {
             this.submitting = false;
           }
         }
@@ -179,7 +178,7 @@ export default {
     },
     resetForm () {
       this.form = {
-        auditStaus: 'reject',
+        auditStaus: '30',
         auditContent: '',
         preAuthRuleCodeId: ''
       };

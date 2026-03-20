@@ -1,439 +1,470 @@
 <template>
-  <el-dialog
-    class="m-add-repair-item-dialog"
-    title="添加维修项目"
-    width="1200px"
-    :visible.sync="dialogVisible"
-    @close="close"
-    @closed="closed"
-  >
-    <!-- 顶部信息栏 -->
-    <div class="info-bar">
-      <div class="info-item">
-        <span class="label">VIN:</span>
-        <span class="value">{{ vehicleInfo.vehProfileVin || '-' }}</span>
-      </div>
-      <div class="info-item">
-        <span class="label">车型:</span>
-        <span class="value">{{ vehicleInfo.vehModelName || '-' }}</span>
-      </div>
-      <div class="info-item">
-        <span class="label">门店:</span>
-        <span class="value">{{ vehicleInfo.dealerName || '-' }}</span>
-      </div>
-      <div class="info-item">
-        <span class="label">优惠模式:</span>
-        <el-select
-          v-model="discountMode"
-          placeholder="请选择"
-          size="small"
-          style="width: 120px;"
-          @change="handleDiscountModeChange"
-          @clear="handleDiscountModeChange"
-          clearable
-        >
-          <el-option :label="item.name" :value="item.id" v-for="item in discountType" :key="item.id"></el-option>
-        </el-select>
-      </div>
-      <div class="info-item">
-        <span class="label">维修项目合计:</span>
-        <span class="value">¥{{ info.workCostCount || 0 }}</span>
-      </div>
-      <div class="info-item">
-        <span class="label">维修配件合计:</span>
-        <span class="value">¥{{ info.barkCostCount || 0 }}</span>
-      </div>
-      <div class="info-item">
-        <span class="label">费用合计:</span>
-        <span class="value">¥{{ info.maintenanceCostEstimation || 0 }}</span>
-      </div>
-    </div>
-
-    <!-- 维修类型标签页 -->
-    <!-- <div class="type-tabs">
-      <div
-        v-for="tab in typeTabs"
-        :key="tab.value"
-        class="type-tab"
-        :class="{ active: activeTypeTab === tab.value }"
-        @click="activeTypeTab = tab.value"
-      >
-        {{ tab.label }}
-      </div>
-    </div> -->
-
-    <!-- Tab内容区 -->
-    <div class="tab-content">
-      <!-- 维修项目 tab -->
-      <div class="tab-panel">
-        <div class="panel-header">
-          <h3>维修项目</h3>
+  <div class="m-repair-item-dialog">
+    <el-dialog
+      class="m-add-repair-item-dialog"
+      title="添加维修项目"
+      width="100%"
+      :visible.sync="dialogVisible"
+      @close="close"
+      @closed="closed"
+    >
+      <!-- 顶部信息栏 -->
+      <div class="info-bar">
+        <div class="info-item">
+          <span class="label">VIN:</span>
+          <span class="value">{{ vehicleInfo.vehProfileVin || '-' }}</span>
         </div>
-        <div class="add-row ais-select-group">
-          <el-autocomplete
-            v-model="itemSearchKey"
-            placeholder="输入维修项目代码、名称、拼音简码"
-            :fetch-suggestions="searchRepairItem"
-            @select="handleSelect"
+        <div class="info-item">
+          <span class="label">车型:</span>
+          <span class="value">{{ vehicleInfo.vehModelName || '-' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">门店:</span>
+          <span class="value">{{ vehicleInfo.dealerName || '-' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">优惠模式:</span>
+          <el-select
+            v-model="discountMode"
+            placeholder="请选择"
             size="small"
-            :trigger-on-focus="false"
-            style="width: 650px;"
+            style="width: 120px;"
+            @change="handleDiscountModeChange"
+            @clear="handleDiscountModeChange"
             clearable
           >
-            <template #prepend>
-              <div>
-                维修类型：
-                <el-select v-model="repairType" placeholder="请选择" style="width: 110px;">
-                  <el-option v-for="item in itemOptions.repairItemTypeName" :label="item.label" :value="item.value" :key="item.value"></el-option>
-                </el-select>
-              </div>
-            </template>
-            <template #default="{item}">
-              <div v-if="item.value === 'empty'" style="pointer-events: none;">您当前搜索的项目，不适用{{vehicleInfo.vehModelName}}车型，请联系服务工程</div>
-              <div v-else>
-                {{ item.value }}
-              </div>
-            </template>
-          </el-autocomplete>
-          <el-button type="primary" size="small">添加</el-button>
+            <el-option :label="item.name" :value="item.id" v-for="item in discountType" :key="item.id"></el-option>
+          </el-select>
         </div>
-        <vxe-table
-          ref="itemTable"
-          :data="itemData"
-          stripe
-          show-overflow
-          resizable
-          :row-config="{ isHover: true }"
-          :row-class-name="getItemRowClassName"
-          border="inner"
-          size="medium"
-          min-height="0"
-          max-height="400px"
+        <div class="info-item">
+          <span class="label">维修项目合计:</span>
+          <span class="value">¥{{ info.workCostCount || 0 }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">维修配件合计:</span>
+          <span class="value">¥{{ info.barkCostCount || 0 }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">费用合计:</span>
+          <span class="value">¥{{ info.maintenanceCostEstimation || 0 }}</span>
+        </div>
+      </div>
+      <!-- 维修类型标签页 -->
+      <!-- <div class="type-tabs">
+        <div
+          v-for="tab in typeTabs"
+          :key="tab.value"
+          class="type-tab"
+          :class="{ active: activeTypeTab === tab.value }"
+          @click="activeTypeTab = tab.value"
         >
-          <vxe-column type="seq" width="70" title="序号" />
-          <vxe-column field="repairItemCode" title="维修项目代码" width="140px" />
-          <vxe-column field="repairItemName" title="维修项目名称" width="180px" >
-           <template #default="{ row }">
-              <template v-if="row.id || row.repairItemId !== '999999'">{{ row?.repairItemName }}</template>
-               <el-input
-                v-else
-                v-model="row.repairItemName"
-                size="small"
-              />
-            </template>
-          </vxe-column>
-          <vxe-column field="repairItemTypeName" title="维修类型" width="150px">
-            <template #default="{ row }">
-              <template v-if="row.id || row.repairItemDisabled">{{ row?.repairItemTypeName }}</template>
-              <el-select
-                v-else
-                v-model="row.repairItemTypeName"
-                size="small"
-                placeholder="请选择"
-                filterable
-                @change="handleRepairItemTypeChange(row)"
-              >
-                <el-option
-                  v-for="item in itemOptions.repairItemTypeName"
-                  :key="item.repairItemTypeId"
-                  :label="item.repairItemTypeName"
-                  :value="item.repairItemTypeName"
-                />
-              </el-select>
-            </template>
-          </vxe-column>
-          <vxe-column field="checkoutTypeName" title="结算类型" width="120px">
-            <template #default="{ row }">
-              <el-select
-                v-model="row.checkoutTypeName"
-                size="small"
-                placeholder="请选择"
-                filterable
-                @change="handleCheckoutTypeChange(row)"
-              >
-                <el-option
-                  v-for="item in filteredRepairItemCheckoutTypes"
-                  :key="item.checkoutTypeId"
-                  :label="item.checkoutTypeName"
-                  :value="item.checkoutTypeName"
-                  :disabled="row.repairItemId === '999999' && checkoutTypeIncluded(item.checkoutTypeId)"
-                />
-              </el-select>
-            </template>
-          </vxe-column>
-          <vxe-column field="warrantyTypeName" title="保修类型" width="150px">
-            <template #default="{ row }">
-              <el-select
-                v-model="row.warrantyTypeName"
-                size="small"
-                placeholder="请选择"
-                filterable
-                @change="handleWarrantyTypeChange(row)"
-              >
-                <el-option
-                  v-for="item in getFilteredWarrantyTypesForRow(row, 'repairItem')"
-                  :key="item.warrantyTypeId"
-                  :label="item.warrantyTypeName"
-                  :value="item.warrantyTypeName"
-                  :disabled="!checkIfWarrantyTypeEditable(row, item.warrantyTypeId)"
-                />
-              </el-select>
-            </template>
-          </vxe-column>
-          <vxe-column field="workHour" title="工时" width="160px">
-            <template #default="{ row }">
-              <template v-if="!checkIfTimeEditable(row)">{{ row?.workHour }}</template>
-              <el-input-number
-                v-else
-                v-model="row.workHour"
-                size="small"
-                :precision="1"
-                :min="0"
-                controls-position="right"
-                @change="handleWorkHourChange(row)"
-              />
-            </template>
-          </vxe-column>
-          <vxe-column field="price" title="单价" width="120px" />
-          <vxe-column field="discountRate" title="折扣率" width="120px" />
-          <vxe-column field="discountAmount" title="优惠金额" width="160px">
-            <template #default="{ row }">
-              <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount | tofixed2 }}</template>
-              <el-input-number
-                v-else
-                v-model="row.discountAmount"
-                size="small"
-                :precision="2"
-                :step="0.1"
-                :min="0"
-                :max="+row.workHour*row.price"
-                controls-position="right"
-                @change="handleItemDiscountAmountChange(row)"
-              />
-            </template>
-          </vxe-column>
-          <vxe-column field="repairAmount" title="项目金额" width="120px">
-            <template #default="{ row }">
-              <template>{{ row?.repairAmount | tofixed2 }}</template>
-            </template>
-          </vxe-column>
-          <vxe-column field="statusLabel" title="维修项目状态" width="120px" />
-          <vxe-column field="packageCode" title="套餐代码" width="120px" />
-          <vxe-column title="操作" width="100" align="center" fixed="right">
-            <template #default="{ rowIndex }">
-              <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleRemoveItemRow(rowIndex)">
-                <span slot="reference" type="text" size="small" :class="['btn-delete'/*, {'disabled': row.workRecordStatus === 40}*/]">删除</span>
-              </el-popconfirm>
-            </template>
-          </vxe-column>
-          <template #empty>
-            <div class="m-vxe-table-empty-text">可搜索添加，或选择维修套餐/权益套餐等</div>
-          </template>
-        </vxe-table>
-      </div>
-
-      <!-- 维修配件 tab -->
-      <div class="tab-panel">
-        <div class="panel-header">
-          <h3>维修配件</h3>
+          {{ tab.label }}
         </div>
-        <div class="add-row ais-select-group">
-          <el-autocomplete
-            v-model="partSearchKey"
-            placeholder="输入维修配件代码、名称、拼音简码"
-            :fetch-suggestions="searchRepairPart"
-            @select="handleSelectPart"
-            size="small"
-            :trigger-on-focus="false"
-            style="width: 650px;"
-            clearable
-          >
-            <template #prepend>
-              <div>
-                维修类型：
-                <el-select v-model="partRepairType" placeholder="请选择" style="width: 110px;">
-                  <el-option v-for="item in itemOptions.repairItemTypeName" :label="item.label" :value="item.value" :key="item.value"></el-option>
-                </el-select>
-              </div>
-            </template>
-            <template #default="{item}">
-              <div v-if="item.value === 'empty'" style="pointer-events: none;">您当前搜索的维修配件，不适用{{vehicleInfo.vehModelName}}车型，请联系服务工程</div>
-              <div v-else>
-                {{ item.value }}
-              </div>
-            </template>
-          </el-autocomplete>
-          <el-button type="primary" size="small">添加</el-button>
+      </div> -->
+      <div class="container">
+        <div class="leftmenu">
+          <div class="left-manual-add">
+            <h3>手动添加</h3>
+            <h4>选择维修类型</h4>
+            <div
+              v-for="tab in itemOptions.repairItemTypeName"
+              :key="tab.value"
+              class="type-tab"
+              :class="{ active: repairType === tab.value }"
+              @click="handleTypeChange(tab.value)"
+            >
+              {{ tab.label }}
+            </div>
+            <h4>添加维修项目</h4>
+            <el-autocomplete
+              v-model="itemSearchKey"
+              placeholder="输入维修项目代码、名称"
+              :fetch-suggestions="searchRepairItem"
+              @select="handleSelect"
+              size="small"
+              :trigger-on-focus="false"
+              clearable
+            >
+              <template #suffix>
+                <i class="iconfont icon-lxppc-search"></i>
+              </template>
+              <template #default="{item}">
+                <div v-if="item.value === 'empty'" style="pointer-events: none;">您当前搜索的项目，不适用{{vehicleInfo.vehModelName}}车型，请联系服务工程</div>
+                <div v-else>
+                  {{ item.value }}
+                </div>
+              </template>
+            </el-autocomplete>
+            <h4>添加维修配件</h4>
+            <el-autocomplete
+              v-model="partSearchKey"
+              placeholder="输入维修配件代码、名称"
+              :fetch-suggestions="searchRepairPart"
+              @select="handleSelectPart"
+              size="small"
+              :trigger-on-focus="false"
+              clearable
+            >
+              <template #suffix>
+                <i class="iconfont icon-lxppc-search"></i>
+              </template>
+              <template #default="{item}">
+                <div v-if="item.value === 'empty'" style="pointer-events: none;">未搜索到配件</div>
+                <div v-else>
+                  {{ item.value }}
+                </div>
+              </template>
+            </el-autocomplete>
+          </div>
+          <div class="left-fast-add">
+            <h3>快捷添加</h3>
+            <ul class="fast-add-list">
+              <li v-for="item in packageType" :key="item.code" @click="handleOpenDialog(item.code)">
+                <span>{{ item.message }}</span>
+                <span>
+                  <span v-if="item.value > 0" class="item-num">{{ item.value }}</span>
+                  <i class="iconfont icon-lxppc-right"></i>
+                </span>
+              </li>
+            </ul>
+          </div>
         </div>
-        <vxe-table
-          ref="partTable"
-          :data="partData"
-          stripe
-          show-overflow
-          resizable
-          border="inner"
-          size="medium"
-          min-height="0"
-          max-height="400px"
-        >
-          <vxe-column type="seq" width="70" title="序号" />
-          <vxe-column field="partsCode" title="零件代码" width="140px" />
-          <vxe-column field="partsName" title="零件名称" width="180px" />
-          <vxe-column field="repairItemTypeName" title="维修类型" width="150px">
-            <template #default="{ row }">
-              <el-select
-                v-model="row.repairItemTypeName"
-                size="small"
-                placeholder="请选择"
-                filterable
-                :disabled="row.repairItemDisabled"
-                @change="handlePartRepairItemTypeChange(row)"
-              >
-                <el-option
-                  v-for="item in itemOptions.repairItemTypeName"
-                  :key="item.repairItemTypeId"
-                  :label="item.repairItemTypeName"
-                  :value="item.repairItemTypeName"
+        <!-- Tab内容区 -->
+        <div class="tab-content">
+          <!-- 维修项目 tab -->
+          <div class="tab-panel">
+            <div class="panel-header">
+              <h3>维修项目</h3>
+            </div>
+            <vxe-table
+              ref="itemTable"
+              :data="itemData"
+              stripe
+              show-overflow
+              resizable
+              :row-config="{ isHover: true }"
+              :row-class-name="getItemRowClassName"
+              border="inner"
+              size="medium"
+              min-height="0"
+              max-height="400px"
+            >
+              <vxe-column type="seq" width="70" title="序号" />
+              <vxe-column field="repairItemCode" title="维修项目代码" width="140px" />
+              <vxe-column field="repairItemName" title="维修项目名称" width="180px" >
+               <template #default="{ row }">
+                  <template v-if="row.id || row.repairItemId !== '999999' || row.packageId">{{ row?.repairItemName }}</template>
+                   <el-input
+                    v-else
+                    v-model="row.repairItemName"
+                    size="small"
+                  />
+                </template>
+              </vxe-column>
+              <vxe-column field="repairItemTypeName" title="维修类型" width="150px">
+                <template #default="{ row }">
+                  <template v-if="row.id || row.packageId || row.repairItemDisabled">{{ row?.repairItemTypeName }}</template>
+                  <el-select
+                    v-else
+                    v-model="row.repairItemTypeName"
+                    size="small"
+                    placeholder="请选择"
+                    filterable
+                    @change="handleRepairItemTypeChange(row)"
+                  >
+                    <el-option
+                      v-for="item in itemOptions.repairItemTypeName"
+                      :key="item.repairItemTypeId"
+                      :label="item.repairItemTypeName"
+                      :value="item.repairItemTypeName"
+                    />
+                  </el-select>
+                </template>
+              </vxe-column>
+              <vxe-column field="checkoutTypeName" title="结算类型" width="120px">
+                <template #default="{ row }">
+                  <template v-if="row.id || row.packageId">{{ row?.repairItemTypeName }}</template>
+                  <el-select
+                    v-else
+                    v-model="row.checkoutTypeName"
+                    size="small"
+                    placeholder="请选择"
+                    filterable
+                    @change="handleCheckoutTypeChange(row)"
+                  >
+                    <el-option
+                      v-for="item in filteredRepairItemCheckoutTypes"
+                      :key="item.checkoutTypeId"
+                      :label="item.checkoutTypeName"
+                      :value="item.checkoutTypeName"
+                      :disabled="row.repairItemId === '999999' && checkoutTypeIncluded(item.checkoutTypeId)"
+                    />
+                  </el-select>
+                </template>
+              </vxe-column>
+              <vxe-column field="warrantyTypeName" title="保修类型" width="150px">
+                <template #default="{ row }">
+                  <el-select
+                    v-model="row.warrantyTypeName"
+                    size="small"
+                    placeholder="请选择"
+                    filterable
+                    @change="handleWarrantyTypeChange(row)"
+                  >
+                    <el-option
+                      v-for="item in getFilteredWarrantyTypesForRow(row, 'repairItem')"
+                      :key="item.warrantyTypeId"
+                      :label="item.warrantyTypeName"
+                      :value="item.warrantyTypeName"
+                      :disabled="!checkIfWarrantyTypeEditable(row, item.warrantyTypeId)"
                 />
-              </el-select>
-            </template>
-          </vxe-column>
-          <vxe-column field="checkoutTypeName" title="结算类型" width="120px">
-            <template #default="{ row }">
-              <el-select
-                v-model="row.checkoutTypeName"
-                size="small"
-                placeholder="请选择"
-                filterable
-                @change="handlePartCheckoutTypeChange(row)"
-              >
-                <el-option
-                  v-for="item in filteredPartCheckoutTypes"
-                  :key="item.checkoutTypeId"
-                  :label="item.checkoutTypeName"
-                  :value="item.checkoutTypeName"
-                  :disabled="row.isOemPart != 1 && checkoutTypeIncluded(item.checkoutTypeId)"
+                  </el-select>
+                </template>
+              </vxe-column>
+              <vxe-column field="workHour" title="工时" width="160px">
+                <template #default="{ row }">
+                  <template v-if="!checkIfTimeEditable(row)">{{ row?.workHour }}</template>
+                  <el-input-number
+                    v-else
+                    v-model="row.workHour"
+                    size="small"
+                    :precision="1"
+                    :min="0"
+                    controls-position="right"
+                    @change="handleWorkHourChange(row)"
+                  />
+                </template>
+              </vxe-column>
+              <vxe-column field="price" title="单价" width="120px" />
+              <vxe-column field="discountRate" title="折扣率" width="120px" />
+              <vxe-column field="discountAmount" title="优惠金额" width="160px">
+                <template #default="{ row }">
+                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount | tofixed2 }}</template>
+                  <el-input-number
+                    v-else
+                    v-model="row.discountAmount"
+                    size="small"
+                    :precision="2"
+                    :step="0.1"
+                    :min="0"
+                    :max="+row.workHour*row.price"
+                    controls-position="right"
+                    @change="handleItemDiscountAmountChange(row)"
+                  />
+                </template>
+              </vxe-column>
+              <vxe-column field="repairAmount" title="项目金额" width="120px">
+                <template #default="{ row }">
+                  <template>{{ row?.repairAmount | tofixed2 }}</template>
+                </template>
+              </vxe-column>
+              <vxe-column field="statusLabel" title="维修项目状态" width="120px" />
+              <vxe-column field="packageCode" title="套餐代码" width="120px" />
+              <vxe-column title="操作" width="100" align="center" fixed="right">
+                <template #default="{ row, rowIndex }">
+                  <span v-if="row.packageId" :class="['btn-delete', {'disabled': row.workRecordStatus === 40}]" @click="handleRemoveItemRow(rowIndex, row)">删除</span>
+                  <el-popconfirm v-else title="确定要删除这条记录吗？" @confirm="handleRemoveItemRow(rowIndex, row)">
+                    <span slot="reference" :class="['btn-delete'/*, {'disabled': row.workRecordStatus === 40}*/]">删除</span>
+                  </el-popconfirm>
+                </template>
+              </vxe-column>
+              <template #empty>
+                <div class="m-vxe-table-empty-text">可搜索添加，或选择维修套餐/权益套餐等</div>
+              </template>
+            </vxe-table>
+          </div>
+          <!-- 维修配件 tab -->
+          <div class="tab-panel">
+            <div class="panel-header">
+              <h3>维修配件</h3>
+            </div>
+            <vxe-table
+              ref="partTable"
+              :data="partData"
+              stripe
+              show-overflow
+              resizable
+              border="inner"
+              size="medium"
+              min-height="0"
+              max-height="400px"
+            >
+              <vxe-column type="seq" width="70" title="序号" />
+              <vxe-column field="partsCode" title="零件代码" width="140px" />
+              <vxe-column field="partsName" title="零件名称" width="180px" />
+              <vxe-column field="repairItemTypeName" title="维修类型" width="150px">
+                <template #default="{ row }">
+                  <el-select
+                    v-model="row.repairItemTypeName"
+                    size="small"
+                    placeholder="请选择"
+                    filterable
+                    :disabled="row.repairItemDisabled"
+                  @change="handlePartRepairItemTypeChange(row)"
+                  >
+                    <el-option
+                      v-for="item in itemOptions.repairItemTypeName"
+                      :key="item.repairItemTypeId"
+                      :label="item.repairItemTypeName"
+                      :value="item.repairItemTypeName"
+                    />
+                  </el-select>
+                </template>
+              </vxe-column>
+              <vxe-column field="checkoutTypeName" title="结算类型" width="120px">
+                <template #default="{ row }">
+                  <el-select
+                    v-model="row.checkoutTypeName"
+                    size="small"
+                    placeholder="请选择"
+                    filterable
+                        @change="handlePartCheckoutTypeChange(row)"
+                  >
+                    <el-option
+                      v-for="item in filteredPartCheckoutTypes"
+                      :key="item.checkoutTypeId"
+                      :label="item.checkoutTypeName"
+                      :value="item.checkoutTypeName"
+                      :disabled="row.isOemPart != 1 && checkoutTypeIncluded(item.checkoutTypeId)"
+                    />
+                  </el-select>
+                </template>
+              </vxe-column>
+              <vxe-column field="warrantyTypeName" title="保修类型" width="150px">
+                <template #default="{ row }">
+                  <el-select
+                    v-model="row.warrantyTypeName"
+                    size="small"
+                    placeholder="请选择"
+                    filterable
+                    @change="handlePartWarrantyTypeChange(row)"
+                  >
+                    <el-option
+                      v-for="item in getFilteredWarrantyTypesForRow(row, 'part')"
+                      :key="item.warrantyTypeId"
+                      :label="item.warrantyTypeName"
+                      :value="item.warrantyTypeName"
+                      :disabled="!checkIfWarrantyTypeEditable(row, item.warrantyTypeId)"
                 />
-              </el-select>
-            </template>
-          </vxe-column>
-          <vxe-column field="warrantyTypeName" title="保修类型" width="150px">
-            <template #default="{ row }">
-              <el-select
-                v-model="row.warrantyTypeName"
-                size="small"
-                placeholder="请选择"
-                filterable
-                @change="handlePartWarrantyTypeChange(row)"
+                  </el-select>
+                </template>
+              </vxe-column>
+              <vxe-column
+                field="isOemPart"
+                title="是否原厂"
+                width="120px"
               >
-                <el-option
-                  v-for="item in getFilteredWarrantyTypesForRow(row, 'part')"
-                  :key="item.warrantyTypeId"
-                  :label="item.warrantyTypeName"
-                  :value="item.warrantyTypeName"
-                  :disabled="!checkIfWarrantyTypeEditable(row, item.warrantyTypeId)"
-                />
-              </el-select>
-            </template>
-          </vxe-column>
-          <vxe-column
-            field="isOemPart"
-            title="是否原厂"
-            width="120px"
-          >
-            <template #default="{ row }">
-              <span>{{ row.isOemPart == 1 ? '是' : '否' }}</span>
-            </template>
-          </vxe-column>
-          <vxe-column field="quantity" title="数量" width="160px">
-            <template #default="{ row }">
-              <template v-if="row.isOutstock">{{ row.quantity }}</template>
-              <el-input-number
-                v-else
-                v-model="row.quantity"
-                size="small"
-                :min="0"
-                controls-position="right"
-                @change="handlePartQuantityChange(row)"
-              />
-            </template>
-          </vxe-column>
-          <vxe-column field="price" title="单价" width="120px" />
-          <vxe-column field="discountRate" title="折扣率" width="120px" />
-          <vxe-column field="discountAmount" title="优惠金额" width="160px">
-            <template #default="{ row }">
-              <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount | tofixed2 }}</template>
-              <el-input-number
-                v-else
-                v-model="row.discountAmount"
-                size="small"
-                :precision="2"
-                :min="0"
-                :max="+row.quantity*row.price"
-                :step="0.1"
-                controls-position="right"
-                clearable
-                @change="handlePartDiscountAmountChange(row)"
-              />
-            </template>
-          </vxe-column>
-          <vxe-column field="partsAmount" title="配件金额" width="120px">
-            <template #default="{ row }">
-              <template>{{ row?.partsAmount | tofixed2 }}</template>
-            </template>
-          </vxe-column>
-          <vxe-column field="repairItemName" title="维修项目名称" width="180px">
-            <template #default="{ row }">
-              <el-select
-                v-model="row.repairItemName"
-                size="small"
-                placeholder="请选择"
-                filterable
-                :disabled="!!row.autoImport"
-                clearable
-                @change="handlePartRepairItemNameChange(row)"
-              >
-                <el-option
-                  v-for="item in repairItemNameOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </template>
-          </vxe-column>
-          <vxe-column field="packageCode" title="套餐代码" width="120px" />
-          <vxe-column title="操作" width="100" align="center" fixed="right">
-            <template #default="{ row, rowIndex }">
-              <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleRemovePartRow(rowIndex)" :disabled="!!row.isOutstock">
-                <span slot="reference" type="text" size="small" :class="['btn-delete', {'disabled': row.isOutstock}]">删除</span>
-              </el-popconfirm>
-            </template>
-          </vxe-column>
-          <template #empty>
-            <div class="m-vxe-table-empty-text">可搜索添加，或选择维修套餐/权益套餐等</div>
-          </template>
-        </vxe-table>
+                <template #default="{ row }">
+                  <span>{{ row.isOemPart == 1 ? '是' : '否' }}</span>
+                </template>
+              </vxe-column>
+              <vxe-column field="quantity" title="数量" width="160px">
+                <template #default="{ row }">
+                  <template v-if="row.isOutstock">{{ row.quantity }}</template>
+                  <el-input-number
+                    v-else
+                    v-model="row.quantity"
+                    size="small"
+                    :min="0"
+                    controls-position="right"
+                    @change="handlePartQuantityChange(row)"
+                  />
+                </template>
+              </vxe-column>
+              <vxe-column field="price" title="单价" width="120px" />
+              <vxe-column field="discountRate" title="折扣率" width="120px" />
+              <vxe-column field="discountAmount" title="优惠金额" width="160px">
+                <template #default="{ row }">
+                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount | tofixed2 }}</template>
+                  <el-input-number
+                    v-else
+                    v-model="row.discountAmount"
+                    size="small"
+                    :precision="2"
+                    :min="0"
+                    :max="+row.quantity*row.price"
+                    :step="0.1"
+                    controls-position="right"
+                    clearable
+                    @change="handlePartDiscountAmountChange(row)"
+                  />
+                </template>
+              </vxe-column>
+              <vxe-column field="partsAmount" title="配件金额" width="120px">
+                <template #default="{ row }">
+                  <template>{{ row?.partsAmount | tofixed2 }}</template>
+                </template>
+              </vxe-column>
+              <vxe-column field="repairItemName" title="维修项目名称" width="180px">
+                <template #default="{ row }">
+                  <el-select
+                    v-model="row.repairItemName"
+                    size="small"
+                    placeholder="请选择"
+                    filterable
+                    :disabled="!!row.autoImport"
+                    clearable
+                  @change="handlePartRepairItemNameChange(row)"
+                  >
+                    <el-option
+                      v-for="item in repairItemNameOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                </template>
+              </vxe-column>
+              <vxe-column field="packageCode" title="套餐代码" width="120px" />
+              <vxe-column title="操作" width="150" align="center" fixed="right">
+                <template #default="{ row, rowIndex }">
+                  <span slot="reference" v-if="row.packageId" :class="['btn-delete', {'disabled': !!row.isOutstock}]" @click="handleRemovePartRow(rowIndex, row)">删除</span>
+                  <el-popconfirm v-else title="确定要删除这条记录吗？" @confirm="handleRemovePartRow(rowIndex, row)" :disabled="!!!!row.isOutstock">
+                    <span slot="reference" :class="['btn-delete', {'disabled': !!row.isOutstock}]">删除</span>
+                  </el-popconfirm>
+                  <el-dropdown v-if="row.replaceSparePartRespList && row.replaceSparePartRespList.length > 0" trigger="click" @command="v => handlePartReplaceChange(v, row)">
+                    <span class="el-dropdown-link">
+                      替换件<i class="el-icon-arrow-down el-icon--right"></i>
+                    </span>
+                    <el-dropdown-menu slot="dropdown" placement="bottom-start" style="max-height: 200px;overflow-y: auto;overflow-x: hidden;">
+                      <el-dropdown-item v-for="el in row.replaceSparePartRespList" :command="el" :key="el.id">{{el.partsName}}-库存:{{el.stockCount || 0}}-{{el.partsCode}}</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
+                </template>
+              </vxe-column>
+              <template #empty>
+                <div class="m-vxe-table-empty-text">可搜索添加，或选择维修套餐/权益套餐等</div>
+              </template>
+            </vxe-table>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <template v-slot:footer>
-      <div class="dialog-footer">
-        <el-button size="small" @click="close">取 消</el-button>
-        <el-button size="small" :loading="submitLoading" type="primary" @click="submit">保 存</el-button>
-      </div>
-    </template>
-  </el-dialog>
+      <template v-slot:footer>
+        <div class="dialog-footer">
+          <el-button size="small" @click="close">取 消</el-button>
+          <el-button size="small" :loading="submitLoading" type="primary" @click="submit">保 存</el-button>
+        </div>
+      </template>
+    </el-dialog>
+    <UpdateActivityDialog
+      :visible.sync="updateDialogVisible"
+      :vehicleInfo="vehicleInfo"
+      :packageType="packageType"
+      :currentPackageType="currentPackageType"
+      @refresh="handleRefresh"
+    />
+  </div>
 </template>
 
 <script>
 // import EditTable from '@/libs/components/EditTable';
 import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getDealerPermission } from '@/api/maintain/sp/serviceProxy/index';
+import UpdateActivityDialog from '../UpdateActivityDialog';
 
 export default {
   name: 'SelectRepairItemDialog',
   components: {
-    // EditTable
+    UpdateActivityDialog
   },
   props: {
     visible: {
@@ -452,8 +483,9 @@ export default {
   data () {
     return {
       dialogVisible: this.visible,
+      updateDialogVisible: false,
       discountMode: '',
-      activeTypeTab: 'items',
+      activeTypeTab: '',
       itemSearchKey: '',
       partSearchKey: '',
       submitLoading: false,
@@ -483,6 +515,17 @@ export default {
       checkoutTypeMap: {},
       // 原始数据
       originalDataJson: null,
+
+      // 套餐类型
+      packageType: [
+        { label: '维修套餐' },
+        { label: '权益套餐' },
+        { label: '商城订单' },
+        { label: '免保项目' },
+        { label: '服务活动' }
+      ],
+      currentPackageType: 1,
+      partReplaceList: [],
       // 经销商权限配置
       dealerPermission: {
         repairItemHasPermission: false,
@@ -589,6 +632,25 @@ export default {
 
       return finalWarrantyOptions;
     },
+    showMsg (msg) {
+      return new Promise((resolve) => {
+        const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>提醒</div><div class="ais-leave-tips-sub">${msg}</div>`;
+        this.$confirm(message, '', {
+          confirmButtonText: '确定',
+          dangerouslyUseHTMLString: true,
+          customClass: 'ais-leave-tips',
+          showClose: false
+        }).then(() => {
+          resolve(true);
+        }).catch(() => {
+          resolve(false);
+        });
+      });
+    },
+    handleOpenDialog (type) {
+      this.currentPackageType = type;
+      this.updateDialogVisible = true;
+    },
     close () {
       this.dialogVisible = false;
     },
@@ -597,7 +659,7 @@ export default {
       this.itemData = [];
       this.partData = [];
       this.discountMode = '';
-      this.activeTypeTab = 'items';
+      this.activeTypeTab = '';
       this.itemSearchKey = '';
       this.partSearchKey = '';
       this.selectedRepairItem = null;
@@ -846,6 +908,16 @@ export default {
           };
           this.originalDataJson = JSON.stringify(data);
         }, 300);
+
+        getEnum('PackageTypeEnum').then(res2 => {
+          this.packageType = (res2 || []).map(item => {
+            const el = this.info.packageRespList?.find(item2 => +item.code === item2.packageType);
+            return {
+              ...item,
+              value: el?.packageCount || 0
+            };
+          });
+        });
       });
     },
     searchRepairItem (queryString, cb) {
@@ -960,7 +1032,14 @@ export default {
       this.info.barkCostCount = parseFloat(this.info.barkCostCount).toFixed(2);
     },
     // 处理维修项目表格删除行
-    handleRemoveItemRow (index) {
+    async handleRemoveItemRow (index, row) {
+      let flag = true;
+      if (row.packageId) {
+        flag = await this.showMsg('本操作视为您取消核销本次权益套餐，请确认');
+      }
+      if (!flag) return;
+      const deleted = this.deleteRights(row);
+      if (!deleted) return;
       const removedRow = this.itemData[index];
       // 从 itemData 中移除该行数据
       this.itemData.splice(index, 1);
@@ -980,16 +1059,34 @@ export default {
           this.partData.splice(autoImportedPartIndices[i], 1);
         }
       }
-
       // 更新顶部合计
       this.updateTotals();
     },
     // 处理维修配件表格删除行
-    handleRemovePartRow (index) {
+    async handleRemovePartRow (index, row) {
+      let flag = true;
+      if (row.packageId) {
+        flag = await this.showMsg('本操作视为您取消核销本次权益套餐，请确认');
+      }
+      if (!flag) return;
       // 从 partData 中移除该行数据
+      const deleted = this.deleteRights(row);
+      if (!deleted) return;
       this.partData.splice(index, 1);
       // 更新顶部合计
       this.updateTotals();
+    },
+    deleteRights (row) {
+      if (row.packageId) {
+        const el = this.partData.find(part => part.isOutstock && part.packageId === row.packageId);
+        if (el) {
+          this.$message.error(`权益导入的零件编码：${el.partsCode}已经领料出库，不允许删除对应权益，请全部退料后再操作，谢谢`);
+          return false;
+        }
+        this.partData = this.partData.filter(part => part.packageId !== row.packageId);
+        this.itemData = this.itemData.filter(item => item.packageId !== row.packageId);
+        return true;
+      }
     },
     // ==================== 维修项目表格事件处理 ====================
     // 维修类型变化
@@ -1198,9 +1295,43 @@ export default {
             warrantyTypeIds: [...new Set(partPerms.map(p => p.repairItemTypeId))]
           }
         };
+      }).finally(() => {
         this.getRepairItemTypeList();
       });
-    }
+    },
+    handleTypeChange (v) {
+      this.repairType = v;
+      this.partRepairType = v;
+    },
+    handleRefresh () {
+      this.getRepairItemInfo();
+    },
+    // ----------替换件逻辑-----------------
+    handlePartReplaceChange (current, row) {
+      const discountAmount = Number(current.price || 0) * (Number(this.selectedDiscount?.discountPartRate || 0) || 0);
+      Object.assign(row, {
+        partsId: current.partsId,
+        partsCode: current.partsCode,
+        partsName: current.partsName,
+        repairItemTypeId: row.repairItemTypeId,
+        repairItemTypeName: row.repairItemTypeName,
+        checkoutTypeId: row?.checkoutTypeId,
+        checkoutTypeName: row?.checkoutTypeName,
+        warrantyTypeId: row?.warrantyTypeId,
+        warrantyTypeName: row?.warrantyTypeName,
+        isOemPart: parseInt(current.isOemPart) || 0,
+        quantity: 1,
+        price: current.price || 0,
+        discountRate: this.selectedDiscount?.discountPartRate || 0,
+        discountAmount: discountAmount,
+        partsAmount: current.price - discountAmount,
+        repairItemName: current.repairItemName || '',
+        repairItemId: current.repairItemId || '',
+        isBindltem: 0, // 手动添加的零件，标记为非自动导入
+        packageCode: row.packageCode || '',
+        packageId: row.packageId || ''
+      });
+    },
   }
 };
 </script>
@@ -1208,11 +1339,17 @@ export default {
 <style lang="scss" scoped>
 .m-add-repair-item-dialog {
   // 维保3.0
-  // ::v-deep .el-dialog{
-  //   height: 100%!important;
-  //   width: 100%!important;
-  //   margin: 0!important;
-  // }
+  ::v-deep .el-dialog{
+    height: 100%!important;
+    width: 100%!important;
+    margin: 0!important;
+    border-radius: 0;
+  }
+  ::v-deep .el-dialog .el-dialog__body {
+    height: calc(100% - 110px);
+    max-height: calc(100% - 110px);
+    padding: 20px;
+  }
   ::v-deep .vxe-table--render-default.size--medium .vxe-header--column.is--padding .vxe-cell,
   ::v-deep .vxe-table--render-default .vxe-body--column:not(.col--active).col--ellipsis > .vxe-cell,
   ::v-deep .vxe-table--render-default.size--medium .vxe-body--column.is--padding .vxe-cell {
@@ -1225,6 +1362,13 @@ export default {
     color: var(--leap-color-default-light-2);
     width: 100%;
     padding: 0 16px;
+  }
+   ::v-deep .el-input__suffix-inner {
+    line-height: 32px;
+  }
+  .el-dropdown-link{
+    margin-left: 10px;
+    color: var(--leap-color-link);
   }
   .btn-delete {
     color: var(--leap-color-danger);
@@ -1242,10 +1386,11 @@ export default {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    padding: 12px 16px;
     border-radius: 4px;
     margin-bottom: 16px;
-    background-color: var(--leap-color-default-light-5);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--leap-color-default-light-4);
+    // background-color: var(--leap-color-default-light-5);
 
     .info-item {
       display: flex;
@@ -1314,32 +1459,106 @@ export default {
       }
     }
   }
+  .container {
+    display: flex;
+    gap: 16px;
+    height: calc(100% - 85px);
 
-  .tab-content {
-    .tab-panel {
-      margin-bottom: 20px;
-      .panel-header {
-        margin-bottom: 8px;
-
-        h3 {
-          font-size: 16px;
-          font-weight: 600;
-          color: var(--leap-color-default);
-          margin: 0;
+    .leftmenu {
+      width: 280px;
+      flex-shrink: 0;
+      background-color: var(--leap-color-default-light-5);
+      border-radius: 4px;
+      padding: 12px;
+      box-sizing: border-box;
+      h4{
+        color: var(--leap-color-default);
+        font-weight: normal;
+        margin-top: 20px;
+      }
+      .type-tab {
+        color: var(--leap-color-default);
+        border: 1px solid #E6E6E5;
+        display: inline-block;
+        border-radius: 4px;
+        padding: 3px 12px;
+        margin: 8px 8px 0px 0px;
+        cursor: pointer;
+        background-color: #fff;
+        &.active {
+          background-color: var(--leap-color-primary);
+          color: #fff;
+          border: 1px solid var(--leap-color-primary);
         }
       }
-
-      .add-row {
-        display: flex;
-        align-items: center;
-        margin-bottom: 12px;
+      .el-autocomplete{
+        margin-top: 8px;
+        width: 100%;
+      }
+      .left-fast-add{
+        margin-top: 32px;
+      }
+      .fast-add-list{
+        li {
+          height: 32px;
+          cursor: pointer;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+          padding: 5px;
+          box-sizing: border-box;
+          margin-top: 8px;
+          &:hover{
+            background-color: var(--leap-color-primary-light-9);
+          }
+        }
+        .item-num{
+          height: 16px;
+          line-height: 16px;
+          border-radius: 8px;
+          padding: 0 5px;
+          text-align: center;
+          background-color: var(--leap-color-primary);
+          color: #fff;
+          display: inline-block;
+          font-size: 12px;
+          vertical-align: bottom;
+          margin-bottom: 2px;
+        }
       }
     }
-    .el-select{
-      color: var(--leap-color-default);
-    }
-    ::v-deep .el-select .el-input .el-select__caret {
-      color: var(--leap-color-default);
+
+    .tab-content {
+      flex: 1;
+      min-width: 0;
+      padding-top: 12px;
+
+      .tab-panel {
+        margin-bottom: 20px;
+        .panel-header {
+          margin-bottom: 8px;
+
+          h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--leap-color-default);
+            margin: 0;
+          }
+        }
+
+        .add-row {
+          display: flex;
+          align-items: center;
+          margin-bottom: 12px;
+        }
+      }
+      .el-select{
+        color: var(--leap-color-default);
+      }
+      ::v-deep .el-select .el-input .el-select__caret {
+        color: var(--leap-color-default);
+      }
     }
   }
 
