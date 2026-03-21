@@ -8,8 +8,14 @@
           value-format="yyyy-MM-dd HH:mm:ss" start-placeholder="开始日期" end-placeholder="结束日期" />
       </el-form-item>
       <el-form-item label="行政区域名称">
-        <fetch-select :request="fetchAreaOptions" v-model="form.areaList" placeholder="请选择" clearable multiple
-          filterable />
+        <el-cascader
+          placeholder="请选择行政区域"
+          v-model="form.areaCode"
+          :props="cascaderProps"
+          :options="areaOptions"
+          filterable
+          clearable
+        />
       </el-form-item>
       <el-form-item label="行政区域级别" v-show="this.visibleCount === 3 || show">
         <fetch-select :request="fetchOptions" enumCode="AreaLevelEnum" v-model="form.areaLevelList" placeholder="请选择"
@@ -58,7 +64,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, getPage } from '@/api/maintain/basic/cityLaborLevel/index';
+import { deleteItem, enableItem, getPage } from '@/api/maintain/basic/cityLaborLevel/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -92,7 +98,7 @@ export default {
     EditPage,
     Upload
   },
-  data() {
+  data () {
     return {
       pageTitle: '城市工时等级配置表管理',
       pageType: 'list',
@@ -108,7 +114,14 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
-
+      areaOptions: this.getAreaOptionsFromStorage(), // 行政区域选项数据
+      cascaderProps: {
+        checkStrictly: true,
+        emitPath: false,
+        label: 'name',
+        value: 'code',
+        children: 'child'
+      },
       optionObj: {
         id: 'cityLaborLevelTable',
         dataList: [],
@@ -124,18 +137,21 @@ export default {
             width: 200,
             fixed: 'left',
             buttons: [{
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/maintain/web/basic/cityLaborLevel/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
+              click: this.navigateToEdit,
               type: 'primary'
             }]
           },
-          { props: 'areaCode', label: '行政区代码', visible: true, width: 200 },
+          {
+            props: 'areaCode',
+            label: '行政区代码',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: this.navigateToEdit,
+              type: 'primary'
+            }]
+          },
           { props: 'areaName', label: '行政区名称', visible: true, width: 200 },
           { props: 'areaLevelLabel', label: '行政区域级别', visible: true, width: 200 },
           { props: 'parentId', label: '父级id', visible: true, width: 200 },
@@ -155,13 +171,13 @@ export default {
       ]
     };
   },
-  created() {
+  created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },
   methods: {
     // 排序
-    handleSortChange(value) {
+    handleSortChange (value) {
       this.sortColumns = (value || []).map(item => {
         return {
           column: (item.field || '').replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, ''),
@@ -170,31 +186,31 @@ export default {
       });
       this.getData();
     },
-    handleListSelect(row) {
+    handleListSelect (row) {
       this.clickItemId = row.id;
     },
-    handleImport() {
+    handleImport () {
       this.uploadDialogVisible = true;
     },
-    handleUploadDialogClose() {
+    handleUploadDialogClose () {
       this.uploadDialogVisible = false;
     },
-    handleAdd() {
+    handleAdd () {
       this.$router.push({
         path: '/maintain/basic/cityLaborLevel/edit'
       });
     },
-    onSubmit() {
+    onSubmit () {
       this.optionObj.form.page = 1;
       this.getData();
     },
-    onReset() {
+    onReset () {
       this.form = { ...defaultForm };
       this.optionObj.form.page = 1;
       this.optionObj.form.pageSize = pageSize;
       this.getData();
     },
-    exportExcel() {
+    exportExcel () {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
       if (this.selectionList.length > 0) {
@@ -227,13 +243,12 @@ export default {
         this.exportLoading = false;
       });
     },
-    getData() {
+    getData () {
       this.loading = true;
       this.selectionList = [];
 
       getPage({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
-
           this.optionObj.dataList = res.records.map(item => {
             return {
               ...item,
@@ -249,7 +264,7 @@ export default {
     debouncedGetData: debounce(function () {
       this.getData();
     }, 300),
-    getConfig() {
+    getConfig () {
       return new Promise((resolve, reject) => {
         getTableConfig(this.optionObj.id).then(data => {
           resolve({ data });
@@ -260,10 +275,10 @@ export default {
         });
       });
     },
-    saveOrUpdate(data) {
+    saveOrUpdate (data) {
       return tableAddOrUpdate(data);
     },
-    paginationChange(type, num) {
+    paginationChange (type, num) {
       if (type === 'page') {
         this.optionObj.form.page = num;
       } else {
@@ -272,10 +287,10 @@ export default {
       this.debouncedGetData();
     },
     // 多选框选中数据
-    handleSelectionChange(selection) {
+    handleSelectionChange (selection) {
       this.selectionList = selection;
     },
-    getFormData() {
+    getFormData () {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
@@ -291,52 +306,37 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
-
-      // 处理多选下拉框，转换为逗号分隔的字符串
-      if (data.areaIdList && Array.isArray(data.areaIdList)) {
-        data.areaIds = data.areaIdList.join(',');
-        delete data.areaIdList;
-      }
-      if (data.areaLevelList && Array.isArray(data.areaLevelList)) {
-        data.areaLevels = data.areaLevelList.join(',');
-        delete data.areaLevelList;
-      }
-      if (data.laborLevelList && Array.isArray(data.laborLevelList)) {
-        data.laborLevels = data.laborLevelList.join(',');
-        delete data.laborLevelList;
-      }
-      if (data.statusIncludeList && Array.isArray(data.statusIncludeList)) {
-        data.statusList = data.statusIncludeList.join(',');
-        delete data.statusIncludeList;
-      }
-
       // 排序字段
       data.sortColumns = this.sortColumns;
       return data;
     },
-    async fetchOptions(code) {
+    async fetchOptions (code) {
       if (code) {
         return getEnum(code);
       }
       return [];
     },
-    async fetchAreaOptions(params) {
-      // 行政区域名称下拉框，需要根据实际接口调整
-      // params 可能是 enumCode 字符串或者 params 对象
-
+    // 导航到编辑页面
+    navigateToEdit (rowIndex, row) {
+      this.$router.push({
+        path: '/maintain/basic/cityLaborLevel/edit',
+        query: {
+          id: row.id
+        }
+      });
+    },
+    // 获取区域选项数据
+    getAreaOptionsFromStorage () {
       try {
-        // 如果传入的是对象，直接调用 getList；如果是字符串，作为查询条件
-        let query = {};
-
-        const res = await getList(query);
-        return res;
+        const stored = localStorage.getItem('areaTree');
+        return stored ? JSON.parse(stored) : [];
       } catch (error) {
-        console.error('Error fetching area list:', error);
+        console.error('Failed to parse areaTree from localStorage:', error);
         return [];
       }
     },
     // 批量删除
-    handleBatchDelete() {
+    handleBatchDelete () {
       const ids = this.selectionList.map(item => item.id) || [];
       this.$confirm('此操作将永久删除, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -358,7 +358,7 @@ export default {
       }).catch(() => { });
     },
     // 批量启用停用
-    handleBatchEnable(status) {
+    handleBatchEnable (status) {
       handleBatchStatusChange.call(this, {
         selectionList: this.selectionList,
         targetStatus: status,

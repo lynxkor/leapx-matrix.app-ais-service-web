@@ -1,10 +1,10 @@
 <template>
-  <edit-page-layout ref="editLayout" :title="pageTitleComputed" showPaneFooter @save="handleSaveClick"
+  <edit-page-layout ref="editLayout" :title="pageTitle" showPaneFooter @save="handleSaveClick"
     @cancel="handleCancelClick">
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container ref="containerRef" :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form"
-        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest">
+        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" :dataTransform="dataTransform">
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
           <!-- <span class="status primary">状态</span> -->
@@ -22,15 +22,23 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
                 v-show="isEditing || !_id">
-                <el-form-item label="行政区域名称：" prop="areaName">
-                  <fetch-select :request="getAreaList" v-model="form.areaName" placeholder="请选择" clearable filterable
-                    remote value-key="name" label-key="name" @change="handleAreaChange" />
+                <el-form-item label="行政区域名称：" prop="areaCode">
+                  <el-cascader
+                    placeholder="请选择行政区域"
+                    v-model="form.areaCode"
+                    :props="cascaderProps"
+                    :options="areaOptions"
+                    filterable
+                    clearable
+                    @change="handleCascaderChange"
+                  />
                 </el-form-item>
                 <el-form-item label="行政区域代码：" prop="areaCode">
                   <el-input placeholder="请输入" v-model="form.areaCode" clearable disabled />
                 </el-form-item>
                 <el-form-item label="行政区域级别：" prop="areaLevel">
-                  <el-input placeholder="请输入" v-model="form.areaLevel" clearable disabled />
+                  <fetch-select :request="fetchOptions" enumCode="AreaLevelEnum" v-model="form.areaLevel" placeholder="请选择"
+            clearable disabled />
                 </el-form-item>
                 <el-form-item label="父级代码：" prop="parentId">
                   <el-input placeholder="请输入" v-model="form.parentId" clearable disabled />
@@ -39,7 +47,7 @@
                   <el-input placeholder="请输入" v-model="form.parentName" clearable disabled />
                 </el-form-item>
                 <el-form-item label="城市工时等级：" prop="laborLevel">
-                  <fetch-select :options="laborLevelEnum" v-model="form.laborLevel" placeholder="请选择" clearable
+                  <fetch-select :request="fetchOptions"  enumCode="CityLevelEnum"  v-model="form.laborLevel" placeholder="请选择" clearable
                     filterable value-key="code" label-key="message" />
                 </el-form-item>
               </el-form>
@@ -50,8 +58,8 @@
                 <el-form-item label="行政区域代码：" prop="areaCode">
                   {{ form.areaCode }}
                 </el-form-item>
-                <el-form-item label="行政区域级别：" prop="areaLevel">
-                  {{ form.areaLevel }}
+                <el-form-item label="行政区域级别：" prop="areaLevelLabel">
+                  {{ form.areaLevelLabel }}
                 </el-form-item>
                 <el-form-item label="父级代码：" prop="parentId">
                   {{ form.parentId }}
@@ -59,14 +67,14 @@
                 <el-form-item label="父级行政区名称：" prop="parentName">
                   {{ form.parentName }}
                 </el-form-item>
-                <el-form-item label="城市工时等级：" prop="laborLevel">
-                  {{ getLaborLevelLabel(form.laborLevel) }}
+                <el-form-item label="城市工时等级：" prop="laborLevelLabel">
+                  {{ form.laborLevelLabel }}
                 </el-form-item>
                 <el-form-item label="创建时间：" prop="createTime">
                   {{ form.createTime }}
                 </el-form-item>
                 <el-form-item label="状态：" prop="status">
-                  {{ form.status === 1 ? '可用' : '停用' }}
+                  {{ form.statusLabel }}
                 </el-form-item>
               </el-form>
             </div>
@@ -84,8 +92,6 @@
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/maintain/basic/cityLaborLevel/index';
-import { getAreaTree } from '@/api/user';
-import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -93,6 +99,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import FetchSelect from '@/libs/components/FetchSelect';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -130,31 +137,35 @@ export default {
     FetchSelect
   },
   computed: {
-    _id() {
+    _id () {
       return this.id || this.$route.query.id || this.form.id;
     },
-    pageTitleComputed() {
-      if (this._id) {
-        return '城市工时等级详情';
-      } else {
-        return '新增城市工时等级';
-      }
+    title () {
+      return '行政区域代码：' + (this.form.areaCode || '新增');
     }
   },
   watch: {
     id: {
-      handler(val) {
+      handler (val) {
         if (val && this.$refs.containerRef) {
           this.$refs.containerRef.loadDetail();
         }
       },
       immediate: true
+    },
+    'form.areaCode': {
+      handler (val) {
+        if (val) {
+          console.log(val);
+          this.handleCascaderChange(val);
+        }
+      }
     }
   },
-  data() {
+  data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '城市工时等级配置表管理',
+      pageTitle: '城市工时等级',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-cityLaborLevel',
@@ -164,20 +175,17 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       emptyText: '若要启用此内容，请创建记录',
-      areaOptions: [], // 行政区域选项数据
-      laborLevelEnum: [ // 城市工时等级枚举
-        { code: '1', message: '一类' },
-        { code: '2', message: '二类' },
-        { code: '3', message: '三类' },
-        { code: '4', message: '四类' },
-        { code: '5', message: '五类' }
-      ],
+      areaOptions: JSON.parse(localStorage.areaTree), // 行政区域选项数据
+      cascaderProps: {
+        checkStrictly: true,
+        emitPath: false,
+        label: 'name',
+        value: 'code',
+        children: 'child'
+      },
       rules: {
-        areaName: [
-          { required: true, message: '请选择行政区名称', trigger: 'change' }
-        ],
         areaCode: [
-          { required: true, message: '请输入行政区代码', trigger: 'change' }
+          { required: true, message: '请选择行政区域', trigger: 'change' }
         ],
         areaLevel: [
           { required: true, message: '请输入行政区域级别', trigger: 'change' }
@@ -188,92 +196,119 @@ export default {
       }
     };
   },
-  mounted() {
-    this.loadAreaTree();
-  },
   methods: {
-    // 加载行政区域树数据
-    async loadAreaTree() {
-      try {
-        const res = await getAreaTree();
-        this.areaOptions = res || [];
-      } catch (error) {
-        console.error('Failed to load area tree:', error);
-      }
-    },
-    // 获取行政区域列表（用于下拉框搜索）
-    async getAreaList(params) {
-      try {
-        // 从 areaTree 中过滤数据
-        const searchKey = typeof params === 'string' ? params : '';
-        const result = this.filterAreaTree(this.areaOptions, searchKey);
-        return result;
-      } catch (error) {
-        console.error('Error fetching area list:', error);
-        return [];
-      }
-    },
-    // 递归过滤行政区域树
-    filterAreaTree(tree, keyword) {
-      let result = [];
-      for (const node of tree) {
-        if (!keyword || node.name.includes(keyword) || node.code.includes(keyword)) {
-          result.push({ ...node });
+    // 级联选择器变化事件
+    handleCascaderChange (value) {
+      if (value) {
+        const areaInfo = this.getAreaInfo(value);
+        if (areaInfo) {
+          console.log('areaInfo', areaInfo);
+          this.form.areaCode = value;
+          // 根据选择的区域判断级别
+          if (areaInfo.districtCode === value) {
+            this.form.areaName = areaInfo.districtName;
+            this.form.areaLevel = '3';
+            this.form.parentId = areaInfo.cityCode;
+            this.form.parentName = areaInfo.cityName;
+          } else if (areaInfo.cityCode === value) {
+            this.form.areaName = areaInfo.cityName;
+            this.form.areaLevel = '2';
+            this.form.parentId = areaInfo.provinceCode;
+            this.form.parentName = areaInfo.provinceName;
+          } else if (areaInfo.provinceCode === value) {
+            this.form.areaName = areaInfo.provinceName;
+            this.form.areaLevel = '1';
+            this.form.parentId = '';
+            this.form.parentName = '';
+          }
         }
-        if (node.child && node.child.length > 0) {
-          const childResult = this.filterAreaTree(node.child, keyword);
-          result = result.concat(childResult);
+      } else {
+        // 清空选择
+        this.form.areaCode = '';
+        this.form.areaName = '';
+        this.form.areaLevel = '';
+        this.form.parentId = '';
+        this.form.parentName = '';
+      }
+    },
+    /**
+     * 获取省市县信息
+     * @param {String} code 区域编码（省/市/区县）
+     * @returns {Object} 省市区县信息
+     */
+    getAreaInfo (code) {
+      let areaTree = JSON.parse(localStorage.areaTree);
+
+      // 遍历省级
+      for (const province of areaTree) {
+        // 省级匹配
+        if (province.code === code) {
+          return {
+            provinceCode: province.code,
+            provinceName: province.name,
+            cityCode: '',
+            cityName: '',
+            districtCode: '',
+            districtName: '',
+          };
+        }
+
+        // 遍历市级
+        if (province.child) {
+          for (const city of province.child) {
+            // 市级匹配
+            if (city.code === code) {
+              return {
+                provinceCode: province.code,
+                provinceName: province.name,
+                cityCode: city.code,
+                cityName: city.name,
+                districtCode: '',
+                districtName: '',
+              };
+            }
+
+            // 遍历区县级
+            if (city.child) {
+              for (const district of city.child) {
+                if (district.code === code) {
+                  return {
+                    provinceCode: province.code,
+                    provinceName: province.name,
+                    cityCode: city.code,
+                    cityName: city.name,
+                    districtCode: district.code,
+                    districtName: district.name,
+                  };
+                }
+              }
+            }
+          }
         }
       }
-      return result;
     },
-    // 行政区域选择变化时，自动填充相关字段
-    handleAreaChange(val, record) {
-      if (record) {
-        this.form.areaCode = record.code;
-        this.form.areaLevel = this.getAreaLevelLabel(record.level);
-        this.form.parentId = record.parentCode || '';
-        this.form.parentName = record.parentName || '';
-      }
-    },
-    // 根据行政区域级别代码返回标签
-    getAreaLevelLabel(level) {
-      const levelMap = {
-        1: '省',
-        2: '市',
-        3: '区县'
-      };
-      return levelMap[level] || '';
-    },
-    detailRequest() {
+    detailRequest () {
       const id = this._id;
       if (id) {
         return getDetail(id);
       }
     },
-    submitRequest() {
+    // 数据转换，用于详情回显
+    dataTransform (data) {
+      // 确保区域名称正确显示
+      return data;
+    },
+    submitRequest () {
       // 校验必填项
       return new Promise((resolve, reject) => {
         this.$refs.ruleForm.validate(valid => {
           if (valid) {
-            // 检查行政区域代码是否重复
-            this.checkAreaCodeDuplicate().then(isDuplicate => {
-              if (isDuplicate) {
-                this.$message.error('该行政区域代码已存在，请勿重复添加');
-                reject(new Error('行政区域代码重复'));
-                return;
-              }
-              // 设置默认状态为可用
-              this.form.status = 1;
-              // 格式化创建时间为年月日时分
-              this.form.createTime = this.formatDateTime(new Date());
-
-              addOrUpdate({ ...this.form }).then(res => {
-                this.$message.success('城市工时等级新增成功');
-                resolve(res);
-              }).catch(error => {
-                reject(error);
-              });
+            // 设置默认状态为可用
+            this.form.status = 1;
+            addOrUpdate({ ...this.form }).then(res => {
+              resolve(res);
+            }).catch(error => {
+              reject(error);
             });
           } else {
             this.$message.error('请填写必填项');
@@ -282,29 +317,12 @@ export default {
         });
       });
     },
-    // 检查行政区域代码是否重复
-    async checkAreaCodeDuplicate() {
-      // TODO: 需要调用后端接口检查行政区域代码是否重复
-      // 这里是示例代码，实际需要根据后端接口实现
-      // const res = await checkAreaCode({ areaCode: this.form.areaCode });
-      // return res && res.count > 0;
-      return false; // 暂时返回 false，表示不重复
-    },
-    // 格式化日期时间为 yyyy-MM-dd HH:mm
-    formatDateTime(date) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      return `${year}-${month}-${day} ${hours}:${minutes}`;
-    },
     // 处理保存按钮点击
-    handleSaveClick() {
+    handleSaveClick () {
       this.submitRequest();
     },
     // 处理取消按钮点击
-    handleCancelClick() {
+    handleCancelClick () {
       // 关闭侧边栏
       this.$refs.editLayout.closePane();
       // 如果有 id，说明是编辑模式，需要返回列表页
@@ -312,63 +330,7 @@ export default {
         this.$router.push({ name: 'cityLaborLevel' });
       }
     },
-    // 打开侧边栏
-    openPane() {
-      this.$refs.editLayout.openPane();
-    },
-    // 获取城市工时等级标签
-    getLaborLevelLabel(value) {
-      const item = this.laborLevelEnum.find(item => item.code === value);
-      return item ? item.message : '';
-    },
-    // 删除子表数据
-    handleDeleteRow(index) {
-      const item = this.tableData[index];
-      this.tableData.splice(index, 1);
-      // 根据需求调用接口
-      // deletePartVehModel([item.id]).then(res => {
-      //   this.$message.success('删除成功');
-      //   this.tableData.splice(index, 1);
-      // });
-    },
-    // 查询新增项的列表
-    queryListData(queryString) {
-      return new Promise(resolve => {
-        // 根据需求调用接口
-        // sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
-        //   const list = res || [];
-        //   resolve(list);
-        // });
-        resolve([
-          { id: 1, name: 'test', age: 25, email: 'test@example.com' }
-        ]);
-      });
-    },
-    // 新增子表数据
-    handleAddTableData(val, record) {
-      if (!record) {
-        this.$message.warning('请先选择数据');
-        return;
-      }
-      // 检查是否已存在
-      const exists = this.tableData.some(item => item.id === record.id);
-      if (exists) {
-        this.$message.warning('请勿重复添加');
-        return;
-      }
-      // 根据需求调用接口
-      this.tableData.push(record);
-      // addPartItem({
-      //   maintenancePartId: this._id,
-      //   partsCode: record.partCode,
-      //   partsName: record.partName,
-      //   partsId: record.id,
-      // }).then(res => {
-      //   this.$message.success('添加成功');
-      //   this.detailRequest();
-      // });
-    },
-    getDefautlForm() {
+    getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
       // const userInfo = this.$store.state.user.userInfo;
       return {
@@ -381,7 +343,7 @@ export default {
     // handleJumpAuditLog () {
     //   this.$auditLog.show({ id: 123 });
     // },
-    async fetchOptions(code) {
+    async fetchOptions (code) {
       if (code) {
         return getEnum(code);
       }
