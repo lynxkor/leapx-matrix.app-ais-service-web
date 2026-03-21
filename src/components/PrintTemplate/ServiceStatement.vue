@@ -44,7 +44,7 @@
                 <tbody>
                   <tr>
                     <td style="width:100px">开单时间</td>
-                    <td style="width:150px">{{ formatDateTime(info.createTime) }}</td>
+                    <td style="width:150px">{{ info.createTime }}</td>
                     <td style="width:100px">单据编号</td>
                     <td style="width:150px">{{ info.code }}</td>
                     <td style="width:100px">VIN码</td>
@@ -70,7 +70,7 @@
                     <td>送修人</td>
                     <td>{{ info.serviceProxyResp?.shuttleName }}</td>
                     <td>销售日期</td>
-                    <td>{{ formatDate(info.serviceProxyResp?.saleDate) }}</td>
+                    <td>{{ info.serviceProxyResp?.saleDate }}</td>
                   </tr>
                   <tr>
                     <td>离店里程(Km)</td>
@@ -88,7 +88,7 @@
                   </tr> -->
                   <tr>
                     <td style="border-bottom-width:0px">下次保养时间</td>
-                    <td style="border-bottom-width:0px; text-align:left" colspan="3">{{ formatDate(info.serviceProxyResp?.maintenanceTime) }}</td>
+                    <td style="border-bottom-width:0px; text-align:left" colspan="3">{{ info.serviceProxyResp?.maintenanceTime }}</td>
                     <td style="border-bottom-width:0px">下次保养里程</td>
                     <td style="border-bottom-width:0px; text-align:left" colspan="3">{{ formatNumber(info.serviceProxyResp?.maintenanceMileage) }}</td>
                   </tr>
@@ -131,9 +131,9 @@
                     <td>{{ item.repairItemCode }}</td>
                     <td>{{ item.repairItemName }}</td>
                     <td>{{ item.workHour }}</td>
-                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: formatAmount(item.price) }}</td>
-                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: formatAmount(item.discountAmount) }}</td>
-                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: formatAmount(item.repairAmount) }}</td>
+                    <td>{{ formatAmount(item.price) }}</td>
+                    <td>{{ formatAmount(item.discountAmount) }}</td>
+                    <td>{{ formatAmount(item.repairAmount) }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -174,9 +174,9 @@
                     <td>{{ item.partsCode }}</td>
                     <td>{{ item.partsName }}</td>
                     <td>{{ item.quantity }}</td>
-                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: formatAmount(item.price) }}</td>
-                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: formatAmount(item.discountAmount) }}</td>
-                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: formatAmount(item.partsAmount) }}</td>
+                    <td>{{ formatAmount(item.price) }}</td>
+                    <td>{{ formatAmount(item.discountAmount) }}</td>
+                    <td>{{ formatAmount(item.partsAmount) }}</td>
                     <td>{{ item.isOemPart === 1 ? '是' : '否' }}</td>
                   </tr>
                 </tbody>
@@ -336,6 +336,8 @@ export default {
             this.storeInfo = res || {};
           });
         }
+        // 处理结算类型数据:保修、合同、内转不需要用户付钱,修改为0
+        this.processCheckoutTypeData();
       });
     },
     // 格式化金额
@@ -356,39 +358,55 @@ export default {
       }
       return num.toFixed(2);
     },
-    // 格式化日期时间
-    formatDateTime (value) {
-      if (!value) return '';
-      const date = new Date(value);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    },
-    // 格式化日期
-    formatDate (value) {
-      if (!value) return '';
-      const date = new Date(value);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    },
-    // 格式化结算类型
-    formatStatementType (value) {
-      const typeMap = {
-        1: '保修内结算',
-        2: '保修外结算',
-        3: '索赔结算'
-      };
-      return typeMap[value] || value || '';
-    },
     checkoutTypeIncluded (type) {
       return type === CheckoutTypeEnum.WARRANTY || type === CheckoutTypeEnum.CONTRACT || type === CheckoutTypeEnum.INTERNAL_SETTLEMENT;
     },
+    // 处理结算类型数据,将不需要支付的金额置为0并更新总金额
+    processCheckoutTypeData () {
+      if (!this.info) return;
+
+      let repairDeduction = 0; // 维修项目扣除金额
+      let partsDeduction = 0; // 零件扣除金额
+
+      // 处理维修项目数据
+      if (this.info.repairItemResps && this.info.repairItemResps.length > 0) {
+        this.info.repairItemResps.forEach(item => {
+          if (this.checkoutTypeIncluded(item.checkoutTypeId)) {
+            const amount = Number(item.repairAmount) || 0;
+            repairDeduction += amount;
+            item.price = 0;
+            item.discountAmount = 0;
+            item.repairAmount = 0;
+          }
+        });
+      }
+
+      // 处理零件数据
+      if (this.info.partResps && this.info.partResps.length > 0) {
+        this.info.partResps.forEach(item => {
+          if (this.checkoutTypeIncluded(item.checkoutTypeId)) {
+            const amount = Number(item.partsAmount) || 0;
+            partsDeduction += amount;
+            item.price = 0;
+            item.discountAmount = 0;
+            item.partsAmount = 0;
+          }
+        });
+      }
+
+      // 更新总金额
+      // 项目和零件的优惠金额需要从优惠金额小计中扣除,同时从应付金额合计中扣除
+      const totalDiscountDeduction = parseFloat((repairDeduction + partsDeduction).toFixed(2));
+      if (this.info.discountAmount !== null && this.info.discountAmount !== undefined) {
+        this.info.discountAmount = parseFloat((parseFloat(this.info.discountAmount) + totalDiscountDeduction).toFixed(2));
+      }
+      if (this.info.payableAmount !== null && this.info.payableAmount !== undefined) {
+        this.info.payableAmount = parseFloat((parseFloat(this.info.payableAmount) - totalDiscountDeduction).toFixed(2));
+      }
+      if (this.info.remainAmount !== null && this.info.remainAmount !== undefined) {
+        this.info.remainAmount = parseFloat((parseFloat(this.info.remainAmount) - totalDiscountDeduction).toFixed(2));
+      }
+    }
   }
 };
 </script>
