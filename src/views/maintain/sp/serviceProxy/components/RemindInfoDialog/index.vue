@@ -26,8 +26,10 @@
               </div>
               <div class="warning-detail">
                 <p v-for="(line, lineIndex) in alarm.contents" :key="lineIndex">{{ line }}</p>
+                <p v-if="alarm.contents.length === 0">暂无提醒信息</p>
               </div>
             </div>
+            <p v-if="item.content.length === 0">暂无提醒信息</p>
           </div>
         </template>
         <!-- 预授权提醒 -->
@@ -36,12 +38,12 @@
             {{ item.typeLabel }}
             <el-button size="small" type="primary" :loading="submitLoading" @click="handleGeneratePreAuth">生成预授权</el-button>
           </div>
-          <div class="info-content">{{ item.content }}</div>
+          <div class="info-content">{{ item.content || '暂无提醒信息'}}</div>
         </template>
         <!-- 服务活动提醒 -->
         <template v-else-if="item.type === RemindInfoTypeEnum.SERVICE_ACTIVITY">
           <div class="info-title">{{ item.typeLabel }}</div>
-          <div class="info-content">{{ item.content }}</div>
+          <div class="info-content">{{ item.content || '暂无提醒信息'}}</div>
         </template>
       </div>
       <!-- 无数据提示 -->
@@ -96,18 +98,20 @@ export default {
     // 根据预警等级获取类型
     getAlarmType (level) {
       const map = {
-        [AlarmLevelEnum.GREEN]: 'success',
-        [AlarmLevelEnum.YELLOW]: 'warning',
-        [AlarmLevelEnum.RED]: 'danger'
+        [AlarmLevelEnum.NORMAL]: 'success',
+        [AlarmLevelEnum.WARNING]: 'warning',
+        [AlarmLevelEnum.CRITICAL]: 'danger'
       };
       return map[level] || 'warning';
     },
     // 根据预警等级获取标签
     getAlarmLabel (level) {
       const map = {
-        [AlarmLevelEnum.GREEN]: '绿色预警',
-        [AlarmLevelEnum.YELLOW]: '黄色预警',
-        [AlarmLevelEnum.RED]: '红色预警'
+        [AlarmLevelEnum.NOT_SPECIFIED]: '--',
+        [AlarmLevelEnum.EXPIRED]: '过期',
+        [AlarmLevelEnum.NORMAL]: '正常',
+        [AlarmLevelEnum.WARNING]: '黄色',
+        [AlarmLevelEnum.CRITICAL]: '红色'
       };
       return map[level] || '预警';
     },

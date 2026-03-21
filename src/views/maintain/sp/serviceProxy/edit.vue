@@ -151,8 +151,8 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal } from '@/api/maintain/sp/serviceProxy/index';
-import { RepairOrderStatusEnum, BusinessTypeEnum } from './constant';
+import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal, getSpRemindInfo } from '@/api/maintain/sp/serviceProxy/index';
+import { RepairOrderStatusEnum, BusinessTypeEnum, RemindInfoTypeEnum } from './constant';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import NavTop from './components/NavTop';
 import { getEnum } from '@/api/common';
@@ -663,8 +663,16 @@ export default {
     },
     // 检查是否要弹出提醒
     checkIfShowRemindDialog () {
-      // todo
-      // this.remindInfoDialogVisible = true;
+      // 后端说是异步，要求延迟
+      setTimeout(() => {
+        getSpRemindInfo(this._id).then(res => {
+          const list = res || [];
+          const target = list.find(item => item.type === RemindInfoTypeEnum.PRE_AUTH && item.content);
+          if (target) {
+            this.remindInfoDialogVisible = true;
+          }
+        });
+      }, 1000);
     },
   }
 };

@@ -77,10 +77,14 @@ export const RemindInfoTypeEnum = {
 
 // 三包预警等级枚举
 export const AlarmLevelEnum = {
-  /** 绿色预警 */
-  GREEN: 30,
-  /** 黄色预警 */
-  YELLOW: 35,
-  /** 红色预警 */
-  RED: 40
+  /** 未指定 */
+  NOT_SPECIFIED: 0,
+  /** 过期 */
+  EXPIRED: 10,
+  /** 正常 */
+  NORMAL: 20,
+  /** 黄色 */
+  WARNING: 30,
+  /** 红色 */
+  CRITICAL: 40
 };
