@@ -297,6 +297,7 @@
 // 对应业务的接口
 import { getPrintInfo } from '@/api/maintain/sp/serviceStatement/index';
 import { getStoreDetailByCode } from '@/api/maintain/sp/serviceProxy/index';
+import { CheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
 
 export default {
   props: {
@@ -386,12 +387,7 @@ export default {
       return typeMap[value] || value || '';
     },
     checkoutTypeIncluded (type) {
-      // SELF_PAY("352BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "自费"),
-      // INSURANCE("372BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "保险"),
-      // WARRANTY("392BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "保修"),
-      // CONTRACT("3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "合同"),
-      // INTERNAL_SETTLEMENT("3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "内部结算");
-      return type === '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF' || type === '3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF' || type === '3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF';
+      return type === CheckoutTypeEnum.WARRANTY || type === CheckoutTypeEnum.CONTRACT || type === CheckoutTypeEnum.INTERNAL_SETTLEMENT;
     },
   }
 };
