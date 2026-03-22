@@ -31,24 +31,23 @@
                 :class="{ 'first-item': itemIndex === 0, 'last-item': itemIndex === condition.dataList.length - 1 }"
               >
                 <!-- 字段选择 -->
-                <el-select
+                <fetch-select
+                  ref="fieldSelectRef"
+                  :options="fieldOptions"
                   v-model="item.field"
                   placeholder="请选择条件项"
-                  style="margin-right: 10px;"
-                >
-                  <el-option
-                    v-for="option in fieldOptions"
-                    :key="option.value"
-                    :label="option.label"
-                    :value="option.value"
-                  />
-                </el-select>
-
+                  value-key="value"
+                  label-key="label"
+                  @change="(val, row) => handleFieldChange(val, row, conditionIndex, itemIndex)"
+                  clearable
+                  style="margin-right: 10px; width: 200px;"
+                />
                 <!-- 逻辑判断 -->
                 <el-select
                   v-model="item.operator"
                   placeholder="请选择逻辑判断"
                   style="margin-right: 10px;"
+                  clearable
                 >
                   <el-option
                     v-for="option in operatorOptions"
@@ -58,19 +57,47 @@
                   />
                 </el-select>
 
-                <!-- 条件值 -->
-                <el-select
+                <!-- 条件值 - 根据 fieldType 动态展示 -->
+                <!-- 文本类型 -->
+                <el-input
+                  v-if="item.fieldType === 'text'"
+                  v-model="item.value"
+                  placeholder="请输入条件值"
+                  clearable
+                  style="margin-right: 10px; width: 200px;"
+                />
+                <!-- 枚举类型 - 使用 fetch-select 远程加载 -->
+                <fetch-select
+                  v-else-if="item.fieldType === 'dict'"
+                  :request="fetchOptions"
+                  :enumCode="item.valueSource"
                   v-model="item.value"
                   placeholder="请选择条件值"
-                  style="margin-right: 10px;"
-                >
-                  <el-option
-                    v-for="option in valueOptions"
-                    :key="option.value"
-                    :label="option.label"
-                    :value="option.value"
-                  />
-                </el-select>
+                  clearable
+                  style="margin-right: 10px; width: 200px;"
+                />
+                <!-- URL 类型 - 远程搜索 -->
+                <fetch-select
+                  v-else-if="item.fieldType === 'url'"
+                  :remote-method="(keyword) => handleUrlRemoteMethod(keyword, item)"
+                  value-key="id"
+                  label-key="name"
+                  v-model="item.value"
+                  placeholder="请选择条件值"
+                  filterable
+                  clearable
+                  remote
+                  reserve-keyword
+                  style="margin-right: 10px; width: 200px;"
+                />
+                <!-- 默认展示输入框 -->
+                <el-input
+                  v-else
+                  v-model="item.value"
+                  placeholder="请输入条件值"
+                  clearable
+                  style="margin-right: 10px; width: 200px;"
+                />
 
                 <!-- 操作按钮 -->
                 <div class="button-group">
@@ -91,11 +118,21 @@
 </template>
 
 <script>
+import FetchSelect from '@/libs/components/FetchSelect';
+import { getEnum } from '@/api/common';
+import { attachmentConfigConditionPage } from '@/libs/api/attachment';
+import api from '@/axios';
+
 export default {
   name: 'Condition',
+  components: {
+    FetchSelect
+  },
   data () {
     return {
       fieldOptions: [],
+      // 存储每个字段的 fieldType 信息
+      fieldTypeInfoMap: {},
       operatorOptions: [
         { label: '等于', value: '=' },
         { label: '不等于', value: '!=' },
@@ -109,51 +146,51 @@ export default {
       conditions: [
         {
           dataList: [
-            { field: 'carSeries', operator: '=', value: 'B10' },
-            { field: 'yearType', operator: '=', value: '2026' }
+            { field: '', fieldType: '', operator: '=', value: '' },
+            // { field: '', fieldType: '', operator: '=', value: '' }
           ]
         }
       ]
     };
   },
-  computed: {
-    valueOptions () {
-      // 根据选中的字段类型动态返回对应的字段值选项
-      return this.fieldOptions.map(item => ({
-        label: item.fieldValue,
-        value: item.fieldValue
-      }));
-    }
-  },
   mounted () {
     this.loadFieldOptions();
   },
   methods: {
-    // 加载字段选项
-    loadFieldOptions () {
-      // 通过 $parent 查找最近的条件列表弹框组件
-      const dialogRef = this.findConditionListDialog();
-      if (dialogRef && dialogRef.getFieldOptions) {
-        dialogRef.getFieldOptions().then(options => {
-          if (options && options.length > 0) {
-            this.fieldOptions = options;
-          }
-        }).catch(err => {
-          console.error('加载字段选项失败', err);
-        });
+    handleFieldChange (_, row, conditionIndex, itemIndex) {
+      // 清空值
+      this.$set(this.conditions[conditionIndex].dataList[itemIndex], 'value', '');
+      this.$set(this.conditions[conditionIndex].dataList[itemIndex], 'valueSource', row.valueSource);
+      this.$set(this.conditions[conditionIndex].dataList[itemIndex], 'fieldType', row.fieldType);
+    },
+    // URL 类型的远程搜索
+    async handleUrlRemoteMethod (keyword, item) {
+      const url = item.valueSource;
+      if (!url) return [];
+      try {
+        // 调用接口获取数据
+        const res = await api.jsonPost(url, { keyword });
+        return res.data || res || [];
+      } catch (err) {
+        console.error('获取远程数据失败', err);
+        return [];
       }
     },
-    // 查找条件列表弹框组件
-    findConditionListDialog () {
-      // 尝试从父组件链中找到 AttachmentConfigDetailDialog 组件
-      let parent = this.$parent;
-      while (parent) {
-        if (parent.$refs && parent.$refs.conditionConfigDialog) {
-          return parent.$refs.conditionConfigDialog;
-        }
-        parent = parent.$parent;
-      }
-      return null;
+    // 加载字段选项 - 直接调用 attachmentConfigConditionPage 接口
+    loadFieldOptions () {
+      attachmentConfigConditionPage({ pageNum: 1, pageSize: 100 })
+        .then(res => {
+          const records = res.data?.records || [];
+          this.fieldOptions = records.map(item => ({
+            label: item.fieldName,
+            value: item.fieldName,
+            fieldType: item.fieldType,
+            valueSource: item.valueSource
+          }));
+        })
+        .catch(err => {
+          console.error('加载字段选项失败', err);
+        });
     },
     addData (conditionIndex) {
       this.conditions[conditionIndex].dataList.push({
@@ -183,6 +220,21 @@ export default {
     setConditions (conditions) {
       if (conditions && Array.isArray(conditions)) {
         this.conditions = JSON.parse(JSON.stringify(conditions));
+        // 回显时重新初始化 fieldTypeInfoMap
+        this.conditions.forEach(condition => {
+          condition.dataList.forEach(item => {
+            if (item.field && !item.fieldType) {
+              // 如果是 url 类型，需要设置 fieldType
+              if (item.valueSource && (item.valueSource.startsWith('http') || item.valueSource.startsWith('/'))) {
+                item.fieldType = 'url';
+              } else if (item.valueSource && item.valueSource.startsWith('dict:')) {
+                item.fieldType = 'dict';
+              } else {
+                item.fieldType = 'text';
+              }
+            }
+          });
+        });
       }
     },
     // 重置条件（供父组件调用）
@@ -190,11 +242,17 @@ export default {
       this.conditions = [
         {
           dataList: [
-            { field: 'carSeries', operator: '=', value: 'B10' },
-            { field: 'yearType', operator: '=', value: '2026' }
+            { field: 'carSeries', fieldType: 'text', operator: '=', value: 'B10' },
+            { field: 'yearType', fieldType: 'text', operator: '=', value: '2026' }
           ]
         }
       ];
+    },
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
     }
   }
 };

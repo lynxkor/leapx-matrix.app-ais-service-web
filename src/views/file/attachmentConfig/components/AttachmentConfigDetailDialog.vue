@@ -1,55 +1,10 @@
 <template>
   <el-dialog
     :visible.sync="dialogVisible"
-    title="条件配置列表"
+    title="补充条件配置"
     width="1000px"
     @close="handleClose"
   >
-    <!-- 搜索区域 -->
-    <!-- <el-form
-      :inline="true"
-      :model="searchForm"
-      size="small"
-      label-width="80px"
-      class="dialog-search-form"
-    >
-      <el-form-item label="条件名称">
-        <el-input
-          placeholder="请输入"
-          v-model="searchForm.conditionNameLike"
-          clearable
-          style="width: 150px"
-        />
-      </el-form-item>
-      <el-form-item label="条件编码">
-        <el-input
-          placeholder="请输入"
-          v-model="searchForm.conditionCodeLike"
-          clearable
-          style="width: 150px"
-        />
-      </el-form-item>
-      <el-form-item label="字段类型">
-        <el-select
-          placeholder="请选择"
-          v-model="searchForm.fieldType"
-          clearable
-          style="width: 120px"
-        >
-          <el-option
-            v-for="option in fieldTypeOptions"
-            :key="option.value"
-            :label="option.label"
-            :value="option.value"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="handleSearch">查询</el-button>
-        <el-button @click="handleReset">重置</el-button>
-      </el-form-item>
-    </el-form> -->
-
     <!-- 操作按钮 -->
     <div class="dialog-actions">
       <el-button type="primary" size="small" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i> 新增条件</el-button>
@@ -67,27 +22,14 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" />
-        <el-table-column prop="conditionName" label="条件名称" min-width="120" />
-        <el-table-column prop="conditionCode" label="条件编码" min-width="120" />
+        <el-table-column prop="fieldLabel" label="字段显示名称" min-width="120" />
+        <el-table-column prop="fieldName" label="字段名称" min-width="120" />
         <el-table-column prop="fieldType" label="字段类型" min-width="100">
           <template #default="{ row }">
             {{ getFieldTypeName(row.fieldType) }}
           </template>
         </el-table-column>
-        <el-table-column prop="fieldValue" label="字段值" min-width="150" />
-        <el-table-column prop="operator" label="逻辑判断" min-width="100">
-          <template #default="{ row }">
-            {{ getOperatorName(row.operator) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="status" label="状态" min-width="80">
-          <template #default="{ row }">
-            <el-tag :type="row.status === '1' ? 'success' : 'info'" size="small">
-              {{ row.status === '1' ? '启用' : '禁用' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="sort" label="排序" min-width="80" />
+        <el-table-column prop="valueSource" label="值来源" min-width="150" show-overflow-tooltip />
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
             <el-button
@@ -98,14 +40,14 @@
             >
               编辑
             </el-button>
-            <el-button
+            <!-- <el-button
               type="text"
               size="small"
               class="btn-delete"
               @click="handleDelete(row)"
             >
               删除
-            </el-button>
+            </el-button> -->
           </template>
         </el-table-column>
       </el-table>
@@ -129,7 +71,7 @@
     <el-dialog
       :visible.sync="formDialogVisible"
       :title="formTitle"
-      width="800px"
+      width="900px"
       :append-to-body="true"
       @close="handleFormClose"
     >
@@ -142,15 +84,15 @@
       >
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="条件名称" prop="conditionName">
-              <el-input v-model="formData.conditionName" placeholder="请输入条件名称" />
+            <el-form-item label="字段显示名称" prop="fieldLabel">
+              <el-input v-model="formData.fieldLabel" placeholder="请输入字段显示名称" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="条件编码" prop="conditionCode">
+            <el-form-item label="字段名称" prop="fieldName">
               <el-input
-                v-model="formData.conditionCode"
-                placeholder="请输入条件编码"
+                v-model="formData.fieldName"
+                placeholder="请输入字段名称"
                 :disabled="!!formData.id"
               />
             </el-form-item>
@@ -160,70 +102,42 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="字段类型" prop="fieldType">
-              <el-select
+              <fetch-select
+                :request="fetchOptions"
+                enumCode="attachment_config_condition_type"
                 v-model="formData.fieldType"
                 placeholder="请选择字段类型"
-                style="width: 100%"
-              >
-                <el-option
-                  v-for="option in fieldTypeOptions"
-                  :key="option.value"
-                  :label="option.label"
-                  :value="option.value"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="字段值" prop="fieldValue">
-              <el-input v-model="formData.fieldValue" placeholder="请输入字段值" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="逻辑判断" prop="operator">
-              <el-select
-                v-model="formData.operator"
-                placeholder="请选择逻辑判断"
-                style="width: 100%"
-              >
-                <el-option
-                  v-for="option in operatorOptions"
-                  :key="option.value"
-                  :label="option.label"
-                  :value="option.value"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="状态" prop="status">
-              <el-select
-                v-model="formData.status"
-                placeholder="请选择状态"
-                style="width: 100%"
-              >
-                <el-option label="启用" value="1" />
-                <el-option label="禁用" value="0" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="排序" prop="sort">
-              <el-input-number
-                v-model="formData.sort"
-                :min="0"
-                :max="999"
-                style="width: 100%"
+                @change="handleFieldTypeChange"
+                clearable
               />
             </el-form-item>
           </el-col>
           <el-col :span="12">
+            <el-form-item label="配置编码" prop="configCode">
+              <el-input
+                v-model="formData.configCode"
+                placeholder="请输入配置编码"
+                disabled
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="20">
+          <el-col :span="24">
+            <el-form-item label="值来源" prop="valueSource" :rules="formData.fieldType !== 'text' ? [{ required: true, message: '请填写值来源', trigger: 'blur' }] : []">
+              <el-input
+                v-model="formData.valueSource"
+                :placeholder="valueSourcePlaceholder"
+                type="textarea"
+                :rows="2"
+              />
+              <div class="form-item-tip">
+                <span v-if="formData.fieldType === 'dict'">填写 dictCode，如：GenderEnum</span>
+                <span v-else-if="formData.fieldType === 'url'">填写接口 URL，如：/api/user/list</span>
+                <span v-else>文本类型无需填写</span>
+              </div>
+            </el-form-item>
           </el-col>
         </el-row>
 
@@ -237,6 +151,14 @@
                 placeholder="请输入备注"
               />
             </el-form-item>
+          </el-col>
+        </el-row>
+
+        <!-- 条件配置区域 -->
+        <el-row :gutter="20" v-if="formData.fieldType === 'url'">
+          <el-col :span="24">
+            <el-divider content-position="left">补充条件配置</el-divider>
+            <Condition ref="conditionRef" />
           </el-col>
         </el-row>
       </el-form>
@@ -253,25 +175,41 @@
 import {
   attachmentConfigConditionPage,
   attachmentConfigConditionDetail,
-  attachmentConfigConditionAddOrUpdate,
-  attachmentConfigConditionList
+  attachmentConfigConditionAddOrUpdate
 } from '@/libs/api/attachment';
+import { getEnum } from '@/api/common';
+import FetchSelect from '@/libs/components/FetchSelect';
+import Condition from './Condition';
 
 const defaultForm = {
   id: '',
-  conditionName: '',
-  conditionCode: '',
+  configCode: '',
+  fieldName: '',
+  fieldLabel: '',
   fieldType: '',
-  fieldValue: '',
-  operator: '',
-  status: '1',
-  sort: 0,
-  remark: ''
+  valueSource: '',
+  remark: '',
+  dataSource: 150,
+  attachmentConfigId: ''
 };
 
 export default {
   name: 'AttachmentConfigDetailDialog',
   props: {
+    // 附件配置 ID（从父组件传递）
+    attachmentConfigId: {
+      type: [String, Number],
+      default: ''
+    },
+    // 配置编码（从父组件传递，即 configCode）
+    configCode: {
+      type: [String, Number],
+      default: ''
+    }
+  },
+  components: {
+    FetchSelect,
+    Condition
   },
   data () {
     return {
@@ -280,12 +218,6 @@ export default {
       loading: false,
       submitLoading: false,
       isEditMode: false,
-      // 搜索表单
-      searchForm: {
-        // conditionNameLike: '',
-        // conditionCodeLike: '',
-        // fieldType: ''
-      },
       // 表格数据
       tableData: [],
       pageNum: 1,
@@ -294,39 +226,21 @@ export default {
       // 表单数据
       formData: { ...defaultForm },
       formRules: {
-        conditionName: [
-          { required: true, message: '请输入条件名称', trigger: 'blur' }
+        fieldLabel: [
+          { required: true, message: '请输入字段显示名称', trigger: 'blur' }
         ],
-        conditionCode: [
-          { required: true, message: '请输入条件编码', trigger: 'blur' }
+        fieldName: [
+          { required: true, message: '请输入字段名称', trigger: 'blur' }
         ],
         fieldType: [
           { required: true, message: '请选择字段类型', trigger: 'change' }
-        ],
-        fieldValue: [
-          { required: true, message: '请输入字段值', trigger: 'blur' }
-        ],
-        operator: [
-          { required: true, message: '请选择逻辑判断', trigger: 'change' }
         ]
       },
       // 选项数据
       fieldTypeOptions: [
-        { label: '车系', value: 'carSeries' },
-        { label: '车型', value: 'carModle' },
-        { label: '年款', value: 'yearType' },
-        { label: '合作类型', value: 'cooperationType' },
-        { label: '所属区域', value: 'region' }
-      ],
-      operatorOptions: [
-        { label: '等于', value: '=' },
-        { label: '不等于', value: '!=' },
-        { label: '大于', value: '>' },
-        { label: '小于', value: '<' },
-        { label: '大于等于', value: '>=' },
-        { label: '小于等于', value: '<=' },
-        { label: '包含', value: 'contains' },
-        { label: '不包含', value: 'not_contains' }
+        { label: '文本', value: 'text' },
+        { label: '枚举', value: 'dict' },
+        { label: '接口', value: 'uel' }
       ],
       selectionList: []
     };
@@ -334,6 +248,26 @@ export default {
   computed: {
     formTitle () {
       return this.isEditMode ? '编辑条件' : '新增条件';
+    },
+    valueSourcePlaceholder () {
+      if (this.formData.fieldType === 'dict') {
+        return '填写 dictCode，如：GenderEnum';
+      } else if (this.formData.fieldType === 'url') {
+        return '填写接口 URL，如：/api/user/list';
+      } else if (this.formData.fieldType === 'text') {
+        return '文本类型无需填写';
+      }
+      return '请选择字段类型后填写';
+    }
+  },
+  watch: {
+    configCode: {
+      handler (val) {
+        if (val) {
+          this.formData.configCode = val;
+        }
+      },
+      immediate: true
     }
   },
   methods: {
@@ -347,7 +281,6 @@ export default {
     // 关闭对话框
     handleClose () {
       this.dialogVisible = false;
-      this.resetSearch();
     },
     // 关闭表单对话框
     handleFormClose () {
@@ -356,15 +289,19 @@ export default {
       if (this.$refs.formRef) {
         this.$refs.formRef.clearValidate();
       }
+      // 不清空 Condition 组件的数据，保留以便下次编辑
     },
     // 获取表格数据
     getData () {
       this.loading = true;
       const params = {
-        ...this.searchForm,
         pageNum: this.pageNum,
         pageSize: this.pageSize
       };
+      // 如果有 attachmentConfigId，则传递
+      if (this.attachmentConfigId) {
+        params.attachmentConfigId = this.attachmentConfigId;
+      }
 
       attachmentConfigConditionPage(params)
         .then(res => {
@@ -379,32 +316,19 @@ export default {
           this.loading = false;
         });
     },
-    // 搜索
-    handleSearch () {
-      this.pageNum = 1;
-      this.getData();
-    },
-    // 重置
-    handleReset () {
-      this.searchForm = {
-        conditionNameLike: '',
-        conditionCodeLike: '',
-        fieldType: ''
-      };
-      this.handleSearch();
-    },
-    // 重置搜索条件
-    resetSearch () {
-      this.searchForm = {
-        conditionNameLike: '',
-        conditionCodeLike: '',
-        fieldType: ''
-      };
-    },
     // 新增
     handleAdd () {
       this.isEditMode = false;
-      this.formData = { ...defaultForm, status: '1', sort: 0 };
+      this.formData = {
+        ...defaultForm,
+        configCode: this.configCode,
+        attachmentConfigId: this.attachmentConfigId,
+        conditionJson: '' // 新增时清空条件数据
+      };
+      // 重置 Condition 组件为默认状态
+      if (this.$refs.conditionRef) {
+        this.$refs.conditionRef.resetConditions();
+      }
       this.formDialogVisible = true;
     },
     // 编辑
@@ -417,9 +341,21 @@ export default {
           if (data) {
             this.formData = {
               ...defaultForm,
-              ...data,
-              status: String(data.status || '1')
+              ...data
             };
+            // 回显条件数据
+            if (data.conditionJson) {
+              try {
+                const conditions = JSON.parse(data.conditionJson);
+                this.$nextTick(() => {
+                  if (this.$refs.conditionRef) {
+                    this.$refs.conditionRef.setConditions(conditions);
+                  }
+                });
+              } catch (e) {
+                console.error('解析条件失败', e);
+              }
+            }
             this.formDialogVisible = true;
           }
         })
@@ -437,7 +373,8 @@ export default {
         this.submitLoading = true;
         attachmentConfigConditionAddOrUpdate({
           ...row,
-          isDelete: true
+          isDelete: true,
+          dataSource: 150
         })
           .then(() => {
             this.$message({
@@ -459,6 +396,22 @@ export default {
     handleSubmit () {
       this.$refs.formRef.validate((valid) => {
         if (valid) {
+          // 如果是 url 类型，需要校验 Condition 组件的数据
+          if (this.formData.fieldType === 'url') {
+            const conditions = this.$refs.conditionRef ? this.$refs.conditionRef.getConditions() : [];
+            const validateResult = this.validateConditions(conditions);
+            if (!validateResult.valid) {
+              this.$message({
+                type: 'warning',
+                message: validateResult.message
+              });
+              return;
+            }
+            // 校验通过，将条件数据转成 JSON 字符串
+            this.formData.conditionJson = JSON.stringify(conditions);
+          }
+          // 非 url 类型，保留之前的 conditionJson 数据
+
           this.submitLoading = true;
           const params = {
             ...this.formData,
@@ -466,6 +419,10 @@ export default {
           };
           if (!params.id) {
             delete params.id;
+          }
+          // 若 conditionJson 为空字符串或空对象，则不传递
+          if (!params.conditionJson || params.conditionJson === '') {
+            delete params.conditionJson;
           }
 
           attachmentConfigConditionAddOrUpdate(params)
@@ -490,6 +447,52 @@ export default {
         }
       });
     },
+    // 校验 Condition 组件的数据
+    // Condition 数据结构：[{ dataList: [{ field, fieldType, operator, value, valueSource }] }]
+    validateConditions (conditions) {
+      if (!conditions || conditions.length === 0) {
+        return { valid: true, message: '' };
+      }
+
+      let hasEmptyField = false; // 是否有字段未填写
+      let hasFilledField = false; // 是否有已填写的字段
+
+      // 遍历所有条件组
+      for (const condition of conditions) {
+        if (!condition.dataList || condition.dataList.length === 0) {
+          continue;
+        }
+        // 遍历每个条件项
+        for (const item of condition.dataList) {
+          const hasValue = item.value !== '' && item.value !== null && item.value !== undefined;
+          const hasOperator = item.operator !== '' && item.operator !== null && item.operator !== undefined;
+
+          if (hasValue && hasOperator) {
+            hasFilledField = true;
+          } else if (item.field && item.field !== '') {
+            // 如果选择了字段但没有填写值或操作符
+            hasEmptyField = true;
+          }
+        }
+      }
+
+      // 如果没有填写任何条件，则通过校验（不提取）
+      if (!hasFilledField && !hasEmptyField) {
+        return { valid: true, message: '' };
+      }
+
+      // 如果部分填写，则要求全部填写
+      if (hasFilledField && hasEmptyField) {
+        return { valid: false, message: '补充条件存在未填写完整的项，请全部填写或全部留空' };
+      }
+
+      // 如果全部填写，则通过校验
+      if (hasFilledField && !hasEmptyField) {
+        return { valid: true, message: '' };
+      }
+
+      return { valid: true, message: '' };
+    },
     // 分页变化
     handlePageChange (page) {
       this.pageNum = page;
@@ -510,23 +513,30 @@ export default {
       const option = this.fieldTypeOptions.find(item => item.value === value);
       return option ? option.label : value;
     },
-    // 获取逻辑判断名称
-    getOperatorName (value) {
-      const option = this.operatorOptions.find(item => item.value === value);
-      return option ? option.label : value;
+    // 字段类型变化
+    handleFieldTypeChange (val, row) {
+      console.log('字段类型变化', val, row);
+      // 清空值来源
+      this.formData.valueSource = '';
+      // 如果是 dict 或 url 类型，需要从 row 中获取 valueSource
+      if (row && row.valueSource) {
+        this.formData.valueSource = row.valueSource;
+      }
+      // 如果从 url 类型切换走，不清空 conditionJson，保留数据
+      // 如果是切换回 url 类型，也不清空，保留之前的数据
     },
     // 获取字段选项列表（供 Condition.vue 调用）
     getFieldOptions () {
       return new Promise((resolve, reject) => {
         // 获取所有启用的条件数据
-        attachmentConfigConditionList({ status: '1', pageNum: 1, pageSize: 100 })
+        attachmentConfigConditionPage({ pageNum: 1, pageSize: 100 })
           .then(res => {
             const records = res.data?.records || [];
             const options = records.map(item => ({
-              label: item.conditionName,
-              value: item.conditionCode,
+              label: item.fieldLabel,
+              value: item.fieldName,
               fieldType: item.fieldType,
-              fieldValue: item.fieldValue
+              valueSource: item.valueSource
             }));
             resolve(options);
           })
@@ -535,16 +545,18 @@ export default {
             reject(err);
           });
       });
+    },
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.dialog-search-form {
-  margin-bottom: 16px;
-}
-
 .dialog-actions {
   margin-bottom: 16px;
 }
@@ -581,5 +593,12 @@ export default {
 
 .dialog-footer {
   text-align: right;
+}
+
+.form-item-tip {
+  font-size: 12px;
+  color: #999;
+  line-height: 1.5;
+  margin-top: 5px;
 }
 </style>

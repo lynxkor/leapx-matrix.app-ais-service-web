@@ -145,6 +145,8 @@
     <!-- 条件配置列表对话框（用于 Condition 组件获取 fieldOptions） -->
     <attachment-config-detail-dialog
       ref="conditionConfigDialog"
+      :attachment-config-id="form.id"
+      :config-code="form.configCode"
     />
   </div>
 </template>
@@ -247,11 +249,6 @@ export default {
   },
   mounted () {},
   methods: {
-    attachmentConfigConditionList () {
-      attachmentConfigConditionList({ pageNum: 1, pageSize: 10 }).then(res => {
-        console.log('附件配置条件列表:', res.data);
-      }).catch(() => {});
-    },
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -293,7 +290,6 @@ export default {
     handleAddRow () {
       this.currentEditIndex = null;
       this.$refs.attachedFilesDialog && this.$refs.attachedFilesDialog.show(false);
-      this.attachmentConfigConditionList();
     },
     // 编辑子表数据
     handleEditRow (rowIndex) {
