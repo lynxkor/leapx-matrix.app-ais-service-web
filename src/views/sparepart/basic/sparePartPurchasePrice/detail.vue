@@ -23,7 +23,7 @@
               {{ info.sparePartName  }}
             </el-form-item>
             <el-form-item label="定价模式：" prop="pricingModel">
-              {{ info.pricingModel  }}
+              {{ info.pricingModelLabel  }}
             </el-form-item>
             <el-form-item label="门店采购价格：" prop="dealerPurchasePrice">
               {{ info.dealerPurchasePrice  }}

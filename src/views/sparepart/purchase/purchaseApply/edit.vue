@@ -261,6 +261,7 @@
                       <vxe-column field="partName" title="备件名称" />
                       <vxe-column field="originalPrice" title="原价" />
                       <vxe-column field="purchasePrice" title="采购价" />
+                      <vxe-column field="purchaseAmount" title="采购金额" />
                       <vxe-column field="cashUnitPrice" title="现金单价" />
                       <vxe-column field="cashAmount" title="现金金额" />
                       <vxe-column field="purchaseQty" title="采购数" />

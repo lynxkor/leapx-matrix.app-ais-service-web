@@ -68,14 +68,14 @@
                     placeholder="请输入索赔金额 1"
                     v-model="form.claimAmount1"
                     clearable
-                    style="width: 150px;"
+                    style="width: calc(50% - 15px);"
                   />
                   <span style="margin: 0 8px;">至</span>
                   <el-input
                     placeholder="请输入索赔金额 2"
                     v-model="form.claimAmount2"
                     clearable
-                    style="width: 150px;"
+                    style="width: calc(50% - 15px);"
                   />
                 </el-form-item>
                 <el-form-item label="是否启用：" prop="status">
@@ -123,51 +123,13 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>子表标题</h2>
+              <h2>状态变化</h2>
             </div>
             <div class="common-section-body">
-              <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
-                  <el-button type="primary" size="small">添加</el-button>
-                </div>
-              </div>
-              <div class="common-section-table">
-                <vxe-table
-                  ref="tableRef"
-                  stripe
-                  :data="tableData"
-                  show-overflow
-                  resizable
-                  border="inner"
-                  size="medium"
-                  min-height="0"
-                  max-height="400px"
-                >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
-                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                      </el-popconfirm>
-                    </template>
-                  </vxe-column>
-                  <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
-                  </template>
-                </vxe-table>
-              </div>
+              <grade-table
+                :id="_id"
+                :moduleKey="moduleKey"
+              />
             </div>
           </section>
         </el-main>
@@ -191,6 +153,8 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import ListSelect from '@/libs/components/list-select/index.vue';
+import GradeTable from './GradeTable';
+
 const defaultForm = {
   gradeApprovalCode: '',
   gradeApprovalName: '',
@@ -216,7 +180,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     ListSelect,
-    FetchSelect
+    FetchSelect,
+    GradeTable,
   },
   computed: {
     _id () {
@@ -297,10 +262,6 @@ export default {
       } else {
         callback();
       }
-    },
-    handleDeleteRow (index) {
-      const item = this.tableData[index];
-      this.tableData.splice(index, 1);
     },
     queryListData (queryString) {
       return new Promise(resolve => {

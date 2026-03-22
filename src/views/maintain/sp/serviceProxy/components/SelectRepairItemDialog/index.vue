@@ -153,7 +153,7 @@
               <vxe-column field="repairItemCode" title="维修项目代码" width="140px" />
               <vxe-column field="repairItemName" title="维修项目名称" width="180px" >
                <template #default="{ row }">
-                  <template v-if="row.id || row.repairItemId !== '999999' || row.packageId">{{ row?.repairItemName }}</template>
+                  <template v-if="row.id || row.repairItemId !== universalLaborHourItemId || row.packageId">{{ row?.repairItemName }}</template>
                    <el-input
                     v-else
                     v-model="row.repairItemName"
@@ -197,7 +197,7 @@
                       :key="item.checkoutTypeId"
                       :label="item.checkoutTypeName"
                       :value="item.checkoutTypeName"
-                      :disabled="row.repairItemId === '999999' && checkoutTypeIncluded(item.checkoutTypeId)"
+                      :disabled="row.repairItemId === universalLaborHourItemId && checkoutTypeIncluded(item.checkoutTypeId)"
                     />
                   </el-select>
                 </template>
@@ -460,6 +460,7 @@
 // import EditTable from '@/libs/components/EditTable';
 import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getDealerPermission } from '@/api/maintain/sp/serviceProxy/index';
 import UpdateActivityDialog from '../UpdateActivityDialog';
+import { CheckoutTypeEnum, WarrantyTypeEnum, UNIVERSAL_LABOR_HOUR_ITEM_ID } from '../../constant';
 
 export default {
   name: 'SelectRepairItemDialog',
@@ -500,6 +501,9 @@ export default {
 
       // 详情信息
       info: {},
+
+      // 常量
+      universalLaborHourItemId: UNIVERSAL_LABOR_HOUR_ITEM_ID,
 
       // 维修项目表格配置
       itemData: [],
@@ -689,7 +693,7 @@ export default {
 
       // 查找结算类型的默认值（取第一个，考虑权限过滤）
       let checkoutTypeObj = this.filteredRepairItemCheckoutTypes?.[0];
-      if (selectedItem.id === '999999') {
+      if (selectedItem.id === this.universalLaborHourItemId) {
         checkoutTypeObj = this.filteredRepairItemCheckoutTypes?.filter(item => !this.checkoutTypeIncluded(item.checkoutTypeId))?.[0];
       }
 
@@ -828,7 +832,7 @@ export default {
       //   return;
       // }
       // 保修类型为售前保修只能单独开单
-      const el = this.itemData.find(item => item.warrantyTypeId === 'ED68D3F0-C1FB-E911-B0BB-FC82BA5F9EDF');
+      const el = this.itemData.find(item => item.warrantyTypeId === WarrantyTypeEnum.PRE_SALE_WARRANTY);
       if (el && this.itemData.length > 1) {
         this.$message.warning('售前保修只能单独开单');
         return;
@@ -940,7 +944,7 @@ export default {
         return;
       }
       // 校验是否重复添加
-      const target = this.itemData.filter(el => el.repairItemId !== '999999' && el.workRecordStatus !== 40).find(el => el.repairItemId === item.id);
+      const target = this.itemData.filter(el => el.repairItemId !== this.universalLaborHourItemId && el.workRecordStatus !== 40).find(el => el.repairItemId === item.id);
       if (target) {
         this.$message.error('维修项目已存在，请勿重复添加');
         return;
@@ -1196,26 +1200,21 @@ export default {
     },
     // 结算类型是否为合同、保修
     checkoutTypeIncluded (type) {
-      // SELF_PAY("352BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "自费"),
-      // INSURANCE("372BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "保险"),
-      // WARRANTY("392BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "保修"),
-      // CONTRACT("3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "合同"),
-      // INTERNAL_SETTLEMENT("3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "内部结算");
-      return type === '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF' || type === '3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF';
+      return type === CheckoutTypeEnum.WARRANTY || type === CheckoutTypeEnum.CONTRACT;
     },
 
     // 【结算类型】为保修，【保修类型】为：技术服务活动 选不到
     // 【结算类型】为合同，【保修类型】为：免费保养、终身保养、保养套餐 选不到
     checkIfWarrantyTypeEditable (row, id) {
-      if (row.checkoutTypeId === '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF' && id === '64A3066F-82AC-E911-B0BB-FC82BA5F9EDF') {
+      if (row.checkoutTypeId === CheckoutTypeEnum.WARRANTY && id === WarrantyTypeEnum.TECHNICAL_SERVICE_ACTIVITY) {
         return false;
       }
       const warrantyTypes = [
-        '60A3066F-82AC-E911-B0BB-FC82BA5F9EDF', // 免费保养
-        '4EC01DDD-DD79-EC11-B0F9-9216EACB73F2', // 终身保养
-        'BA408917-12AE-EF11-B1BC-B6F71A4539C1' // 保养套餐
+        WarrantyTypeEnum.FREE_MAINTENANCE,
+        WarrantyTypeEnum.LIFETIME_MAINTENANCE,
+        WarrantyTypeEnum.MAINTENANCE_PACKAGE
       ];
-      if (row.checkoutTypeId === '3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF' && warrantyTypes.includes(id)) {
+      if (row.checkoutTypeId === CheckoutTypeEnum.CONTRACT && warrantyTypes.includes(id)) {
         return false;
       }
       return true;
@@ -1251,10 +1250,10 @@ export default {
       if (this.checkoutTypeIncluded(row.checkoutTypeId) && (row.isWarranty || row.isProdType)) {
         return true;
       }
-      // if (!this.checkoutTypeIncluded(row.checkoutTypeId) && row.repairItemId !== '999999') {
+      // if (!this.checkoutTypeIncluded(row.checkoutTypeId) && row.repairItemId !== this.universalLaborHourItemId) {
       //   return false;
       // }
-      if (row.repairItemId === '999999' && row.workRecordStatus !== 40) {
+      if (row.repairItemId === this.universalLaborHourItemId && row.workRecordStatus !== 40) {
         return true;
       }
       return false;

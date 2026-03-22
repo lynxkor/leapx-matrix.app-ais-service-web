@@ -157,6 +157,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/maintain/basic/cityLaborLevel',
+      name: 'cityLaborLevel',
+      component: () => import('@/views/maintain/basic/cityLaborLevel/index.vue'),
+
+      meta: {
+        name: '城市工时等级配置表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/basic/cityLaborLevel/edit',
+      name: 'cityLaborLevelEdit',
+      component: () => import('@/views/maintain/basic/cityLaborLevel/edit.vue'),
+
+      meta: {
+        name: '城市工时等级配置表管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/maintain/basic/dealerDiscount',
       name: 'dealerDiscount',
       component: () => import('@/views/maintain/basic/dealerDiscount/index.vue'),

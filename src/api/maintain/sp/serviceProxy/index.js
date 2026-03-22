@@ -335,3 +335,11 @@ export function getStoreDetailByCode (data) {
 export function getDealerPermission (data) {
   return api.jsonPost('maintain/web/basic/dealerPermission/list', data);
 }
+
+/**
+ * 查询提醒信息
+ * @param data
+ */
+export function getSpRemindInfo (data) {
+  return api.jsonPost(prefix + 'getSpRemindInfo', data);
+}

@@ -6,78 +6,48 @@
     :visible.sync="dialogVisible"
     @close="close"
   >
-    <div class="dialog-content">
+    <div class="dialog-content" v-loading="loading">
       <!-- 三包预警 -->
-      <div class="info-section">
-        <div class="warning-title">三包预警</div>
-        <div class="warning-list">
-          <div
-            v-for="(item, index) in threeGuaranteesList"
-            :key="index"
-            :class="['warning-card', `warning-card--${item.type}`]"
-          >
-            <div class="warning-header">
-              <span :class="['warning-tag', `warning-tag--${item.type}`]">
-                {{ item.tagName }}
-              </span>
-              <span class="warning-content-title">{{ item.title }}</span>
+      <div v-for="(item, index) in remindList" :key="index" class="info-section">
+        <!-- 三包预警类型 - 支持多个消息 -->
+        <template v-if="item.type === RemindInfoTypeEnum.THREE_GUARANTEES">
+          <div class="warning-title">{{ item.typeLabel }}</div>
+          <div class="warning-list">
+            <div
+              v-for="(alarm, alarmIndex) in item.content"
+              :key="alarmIndex"
+              :class="['warning-card', `warning-card--${getAlarmType(alarm.alarmLevel)}`]"
+            >
+              <div class="warning-header">
+                <span :class="['warning-tag', `warning-tag--${getAlarmType(alarm.alarmLevel)}`]">
+                  {{ getAlarmLabel(alarm.alarmLevel) }}
+                </span>
+                <span class="warning-content-title">{{ alarm.title }}</span>
+              </div>
+              <div class="warning-detail">
+                <p v-for="(line, lineIndex) in alarm.contents" :key="lineIndex">{{ line }}</p>
+                <p v-if="alarm.contents.length === 0">暂无提醒信息</p>
+              </div>
             </div>
-            <div class="warning-detail">
-              <p v-for="(line, lineIndex) in item.details" :key="lineIndex">{{ line }}</p>
-            </div>
+            <p v-if="item.content.length === 0">暂无提醒信息</p>
           </div>
-        </div>
+        </template>
+        <!-- 预授权提醒 -->
+        <template v-else-if="item.type === RemindInfoTypeEnum.PRE_AUTH">
+          <div class="info-title">
+            {{ item.typeLabel }}
+            <el-button size="small" type="primary" :loading="submitLoading" @click="handleGeneratePreAuth">生成预授权</el-button>
+          </div>
+          <div class="info-content">{{ item.content || '暂无提醒信息'}}</div>
+        </template>
+        <!-- 服务活动提醒 -->
+        <template v-else-if="item.type === RemindInfoTypeEnum.SERVICE_ACTIVITY">
+          <div class="info-title">{{ item.typeLabel }}</div>
+          <div class="info-content">{{ item.content || '暂无提醒信息'}}</div>
+        </template>
       </div>
-      <!-- 预授权提醒 -->
-      <div class="info-section">
-        <div class="info-title">预授权提醒 <el-button size="small" type="primary">生成预授权</el-button></div>
-        <div class="info-content">{{ preAuthReminder }}</div>
-      </div>
-      <!-- 服务活动提醒 -->
-      <div class="info-section">
-        <div class="info-title">服务活动提醒</div>
-        <div class="info-content">{{ serviceActivityReminder }}{{ serviceActivityReminder }}{{ serviceActivityReminder }}{{ serviceActivityReminder }}</div>
-      </div>
-      <!-- 预授权提醒 -->
-      <div class="info-section">
-        <div class="info-title">预授权提醒</div>
-        <div class="info-content">{{ preAuthReminder }}</div>
-      </div>
-      <!-- 服务活动提醒 -->
-      <div class="info-section">
-        <div class="info-title">服务活动提醒</div>
-        <div class="info-content">{{ serviceActivityReminder }}</div>
-      </div>
-      <!-- 预授权提醒 -->
-      <div class="info-section">
-        <div class="info-title">预授权提醒</div>
-        <div class="info-content">{{ preAuthReminder }}</div>
-      </div>
-      <!-- 服务活动提醒 -->
-      <div class="info-section">
-        <div class="info-title">服务活动提醒</div>
-        <div class="info-content">{{ serviceActivityReminder }}</div>
-      </div>
-      <!-- 预授权提醒 -->
-      <div class="info-section">
-        <div class="info-title">预授权提醒</div>
-        <div class="info-content">{{ preAuthReminder }}</div>
-      </div>
-      <!-- 服务活动提醒 -->
-      <div class="info-section">
-        <div class="info-title">服务活动提醒</div>
-        <div class="info-content">{{ serviceActivityReminder }}</div>
-      </div>
-      <!-- 预授权提醒 -->
-      <div class="info-section">
-        <div class="info-title">预授权提醒</div>
-        <div class="info-content">{{ preAuthReminder }}</div>
-      </div>
-      <!-- 服务活动提醒 -->
-      <div class="info-section">
-        <div class="info-title">服务活动提醒</div>
-        <div class="info-content">{{ serviceActivityReminder }}</div>
-      </div>
+      <!-- 无数据提示 -->
+      <div v-if="!remindList.length && !loading" class="empty-tips">暂无提醒信息</div>
     </div>
     <template v-slot:footer>
       <el-button size="small" @click="close">关 闭</el-button>
@@ -86,41 +56,9 @@
 </template>
 
 <script>
-// import { getReminderInfo, mockReminderInfo } from './api';
-export const mockReminderInfo = {
-  threeGuaranteesList: [
-    {
-      type: 'danger',
-      tagName: '红色预警',
-      title: '累计保修次数5项预警 80522250-BE02/低音扬声器总成',
-      details: [
-        '1、广州零跑中心科学城店，2023-08-15至2023-09-05，次数1',
-        '2、深圳零跑中心罗湖店，2023-07-15至2023-08-15，次数1',
-        '3、深圳零跑中心罗湖店，2023-07-15至2023-08-15，次数1'
-      ]
-    },
-    {
-      type: 'success',
-      tagName: '绿色预警',
-      title: '累计保修次数2项预警 80522250-BE53/防冻液-25',
-      details: [
-        '1、广州零跑中心科学城店，2023-08-15至2023-09-05，次数1',
-        '2、深圳零跑中心罗湖店，2023-07-15至2023-08-15，次数1'
-      ]
-    },
-    {
-      type: 'warning',
-      tagName: '黄色预警',
-      title: '累计保修次数2项预警 80522250-BE53/防冻液-25',
-      details: [
-        '1、广州零跑中心科学城店，2023-08-15至2023-09-05，次数1',
-        '2、深圳零跑中心罗湖店，2023-07-15至2023-08-15，次数1'
-      ]
-    }
-  ],
-  preAuthReminder: '此车包含保修专用的维修项目，需要做预授权。请确认是否需要进行预授权申请。',
-  serviceActivityReminder: '此车包含保修专用的维修项目，需要做预授权。请确认是否需要进行预授权申请。'
-};
+import { getSpRemindInfo } from '@/api/maintain/sp/serviceProxy';
+import { addOrUpdate } from '@/api/maintain/sp/preAuth/index';
+import { RemindInfoTypeEnum, AlarmLevelEnum } from '../../constant';
 
 export default {
   name: 'ThreeGuaranteesDialog',
@@ -140,9 +78,9 @@ export default {
     return {
       dialogVisible: this.visible,
       loading: false,
-      threeGuaranteesList: [],
-      preAuthReminder: '',
-      serviceActivityReminder: ''
+      submitLoading: false,
+      remindList: [],
+      RemindInfoTypeEnum
     };
   },
   watch: {
@@ -157,19 +95,78 @@ export default {
     close () {
       this.$emit('update:visible', false);
     },
+    // 根据预警等级获取类型
+    getAlarmType (level) {
+      const map = {
+        [AlarmLevelEnum.NORMAL]: 'success',
+        [AlarmLevelEnum.WARNING]: 'warning',
+        [AlarmLevelEnum.CRITICAL]: 'danger'
+      };
+      return map[level] || 'warning';
+    },
+    // 根据预警等级获取标签
+    getAlarmLabel (level) {
+      const map = {
+        [AlarmLevelEnum.NOT_SPECIFIED]: '--',
+        [AlarmLevelEnum.EXPIRED]: '过期',
+        [AlarmLevelEnum.NORMAL]: '正常',
+        [AlarmLevelEnum.WARNING]: '黄色',
+        [AlarmLevelEnum.CRITICAL]: '红色'
+      };
+      return map[level] || '预警';
+    },
+    showMsg (msg) {
+      return new Promise((resolve) => {
+        const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>提醒</div><div class="ais-leave-tips-sub">${msg}</div>`;
+        this.$confirm(message, '', {
+          confirmButtonText: '确定',
+          dangerouslyUseHTMLString: true,
+          customClass: 'ais-leave-tips',
+          showClose: false
+        }).then(() => {
+          resolve(true);
+        }).catch(() => {
+          resolve(false);
+        });
+      });
+    },
+    // 生成预授权
+    async handleGeneratePreAuth () {
+      if (!this.vehicleInfo.id) {
+        this.$message.warning('施工单ID不存在');
+        return;
+      }
+      const confirmed = await this.showMsg('确定要生成预授权吗？');
+      if (!confirmed) return;
+      this.submitLoading = true;
+      try {
+        // 调用新增接口，参数从 vehicleInfo 中获取
+        const params = {
+          serviceProxyId: this.vehicleInfo.id,
+          saveOrSubmit: 0, // 0-仅保存，1-提交审批
+          reason: '预授权申请',
+          // preAuthType: 1, // 1-技术预授权，2-保修预授权
+        };
+        await addOrUpdate(params);
+        this.$message.success('生成预授权成功');
+        // 刷新提醒信息列表
+        await this.loadData();
+      } catch (error) {
+        console.error('生成预授权失败:', error);
+        this.$message.error('生成预授权失败');
+      } finally {
+        this.submitLoading = false;
+      }
+    },
     async loadData () {
       if (!this.vehicleInfo.id) return;
       this.loading = true;
       try {
-        // 使用 mock 数据进行开发调试，生产环境替换为真实接口
-        // const res = await getReminderInfo(this.vehicleInfo.id);
-        const res = mockReminderInfo;
-        this.threeGuaranteesList = res.threeGuaranteesList || [];
-        this.preAuthReminder = res.preAuthReminder || '';
-        this.serviceActivityReminder = res.serviceActivityReminder || '';
-        console.log(mockReminderInfo);
+        const res = await getSpRemindInfo(this.vehicleInfo.id);
+        this.remindList = res || [];
       } catch (error) {
         console.error('获取提醒信息失败:', error);
+        this.$message.error('获取提醒信息失败');
       } finally {
         this.loading = false;
       }
@@ -184,14 +181,18 @@ export default {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
+    min-height: 100px;
   }
 
-  .warning-section,
   .info-section {
     flex: 0 0 calc(50% - 6px);
     background: var(--leap-color-default-light-5);
     border-radius: 4px;
     padding: 12px 16px;
+
+    &:only-child {
+      flex: 1;
+    }
   }
 
   .warning-title,
@@ -293,6 +294,13 @@ export default {
 
   .info-content {
     white-space: pre-wrap;
+  }
+
+  .empty-tips {
+    width: 100%;
+    text-align: center;
+    color: var(--leap-color-default-dark-2);
+    padding: 40px 0;
   }
 }
 </style>

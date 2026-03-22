@@ -261,9 +261,9 @@
                     <td>{{ item.repairItemName }}</td>
                     <td>{{ item.checkoutTypeName }}</td>
                     <td>{{ item.workHour }}</td>
-                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: item.price }}</td>
-                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: item.discountAmount }}</td>
-                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: item.repairAmount }}</td>
+                    <td>{{ item.price }}</td>
+                    <td>{{ item.discountAmount }}</td>
+                    <td>{{ item.repairAmount }}</td>
                     <td>{{ item.isAddItems === 1 ? '是' : '否' }}</td>
                   </tr>
                 </tbody>
@@ -315,9 +315,9 @@
                     <td>{{ item.partsName }}</td>
                     <td>{{ item.checkoutTypeName }}</td>
                     <td>{{ item.quantity }}</td>
-                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: item.price }}</td>
-                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: item.discountAmount }}</td>
-                    <td>{{ checkoutTypeIncluded(item.checkoutTypeId) ? 0: item.partsAmount }}</td>
+                    <td>{{ item.price }}</td>
+                    <td>{{ item.discountAmount }}</td>
+                    <td>{{ item.partsAmount }}</td>
                     <td>{{ item.isAddItems === 1 ? '是' : '否' }}</td>
                     <td>{{ item.isOemPart === 1 ? '是' : '否' }}</td>
                   </tr>
@@ -375,7 +375,7 @@
                   <tr>
                     <td>优惠金额小计</td>
                     <td>{{ info.costCountResp?.preferentialMoneyCount }}</td>
-                    <td>内转金额估算</td>
+                    <td>内结金额估算</td>
                     <td>{{ info.costCountResp?.innerTurnMoneyEstimation }}</td>
                   </tr>
                   <tr>
@@ -461,6 +461,7 @@
 // 对应业务的接口
 // import { getDetail } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
 import { getPrintInfo, getStoreDetailByCode } from '@/api/maintain/sp/serviceProxy/index';
+import { CheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
 
 export default {
   props: {
@@ -499,16 +500,58 @@ export default {
             this.storeInfo = res || {};
           });
         }
+        // 处理结算类型数据:保修、合同、内转不需要用户付钱,修改为0
+        this.processCheckoutTypeData();
       });
     },
+    // 判断是否为包含的结算类型(保修、合同、内转)
     checkoutTypeIncluded (type) {
-      // SELF_PAY("352BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "自费"),
-      // INSURANCE("372BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "保险"),
-      // WARRANTY("392BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "保修"),
-      // CONTRACT("3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "合同"),
-      // INTERNAL_SETTLEMENT("3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF", "内部结算");
-      return type === '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF' || type === '3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF' || type === '3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF';
+      return type === CheckoutTypeEnum.WARRANTY || type === CheckoutTypeEnum.CONTRACT || type === CheckoutTypeEnum.INTERNAL_SETTLEMENT;
     },
+    // 处理结算类型数据,将不需要支付的金额置为0并更新总金额
+    processCheckoutTypeData () {
+      const costCountResp = this.info.costCountResp;
+      if (!costCountResp) return;
+
+      let repairDeduction = 0; // 维修项目扣除金额
+      let partsDeduction = 0; // 零件扣除金额
+
+      // 处理维修项目数据
+      if (costCountResp.repairItemRespList && costCountResp.repairItemRespList.length > 0) {
+        costCountResp.repairItemRespList.forEach(item => {
+          if (this.checkoutTypeIncluded(item.checkoutTypeId)) {
+            const amount = Number(item.repairAmount) || 0;
+            repairDeduction += amount;
+            item.price = 0;
+            item.discountAmount = 0;
+            item.repairAmount = 0;
+          }
+        });
+      }
+
+      // 处理零件数据
+      if (costCountResp.sparePartRespList && costCountResp.sparePartRespList.length > 0) {
+        costCountResp.sparePartRespList.forEach(item => {
+          if (this.checkoutTypeIncluded(item.checkoutTypeId)) {
+            const amount = Number(item.partsAmount) || 0;
+            partsDeduction += amount;
+            item.price = 0;
+            item.discountAmount = 0;
+            item.partsAmount = 0;
+          }
+        });
+      }
+
+      // 更新总金额
+      // 项目和零件的优惠金额需要从优惠金额小计中扣除,同时从本次维修估算费用中扣除
+      const totalDiscountDeduction = parseFloat((repairDeduction + partsDeduction).toFixed(2));
+      if (costCountResp.preferentialMoneyCount !== null && costCountResp.preferentialMoneyCount !== undefined) {
+        costCountResp.preferentialMoneyCount = parseFloat((parseFloat(costCountResp.preferentialMoneyCount) + totalDiscountDeduction)).toFixed(2);
+      }
+      if (costCountResp.maintenanceCostEstimation !== null && costCountResp.maintenanceCostEstimation !== undefined) {
+        costCountResp.maintenanceCostEstimation = parseFloat((parseFloat(costCountResp.maintenanceCostEstimation) - totalDiscountDeduction)).toFixed(2);
+      }
+    }
   },
 };
 </script>
