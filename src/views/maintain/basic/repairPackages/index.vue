@@ -237,9 +237,9 @@ export default {
         },
         dataProp: [
           {
-            props: 'modifier',
-            label: '修改者',
-            visible: false,
+            props: 'code',
+            label: '套餐代码',
+            visible: true,
             width: 200,
             fixed: 'left',
             buttons: [{
@@ -254,7 +254,6 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'code', label: '套餐代码', visible: true, width: 200 },
           { props: 'packageName', label: '套餐名称', visible: true, width: 200 },
           { props: 'typeName', label: '套餐类型', visible: true, width: 200 },
           { props: 'spellCode', label: '拼音简码', visible: true, width: 200 },

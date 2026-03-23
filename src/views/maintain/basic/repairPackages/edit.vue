@@ -413,7 +413,7 @@ export default {
     // 新增维修项目
     handleAddTableData (val, record) {
       // 检查是否已存在
-      const exists = this.tableData.some(item => item.id === record.id);
+      const exists = this.tableData.some(item => item.repairItemId === record.id);
       if (exists) {
         this.$message.warning('请勿重复添加');
         return;
