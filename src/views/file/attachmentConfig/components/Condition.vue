@@ -1,6 +1,8 @@
 <template>
   <div class="outer-container" :class="{ 'single-condition': conditions.length === 1 }">
-    <div class="and-label" v-show="conditions.length > 1">or</div>
+    <div class="and-label logic-toggle" v-show="conditions.length > 1" @click="toggleOuterLogic">
+      {{ outerLogic }}
+    </div>
     <div
       class="conditions-wrapper"
       :class="{ 'has-multiple-conditions': conditions.length > 1 }"
@@ -16,7 +18,10 @@
       >
         <div class="condition">
           <div class="interior-container" :class="{ 'single-item': condition.dataList.length === 1 }">
-            <div class="and-label" v-show="condition.dataList.length > 1">and</div>
+            <!--  @click="toggleInnerLogic(conditionIndex)" -->
+            <div class="and-label logic-toggle" v-show="condition.dataList.length > 1">
+              {{ condition.logic }}
+            </div>
             <div
               class="content-container"
               :class="{
@@ -139,15 +144,14 @@ export default {
         { label: '大于', value: '>' },
         { label: '小于', value: '<' },
         { label: '大于等于', value: '>=' },
-        { label: '小于等于', value: '<=' },
-        { label: '包含', value: 'contains' },
-        { label: '不包含', value: 'not_contains' }
+        { label: '小于等于', value: '<=' }
       ],
+      outerLogic: 'OR',
       conditions: [
         {
+          logic: 'AND',
           dataList: [
-            { field: '', fieldType: '', operator: '=', value: '' },
-            // { field: '', fieldType: '', operator: '=', value: '' }
+            { field: '', fieldType: '', operator: '=', value: '' }
           ]
         }
       ]
@@ -182,7 +186,7 @@ export default {
         .then(res => {
           const records = res.data?.records || [];
           this.fieldOptions = records.map(item => ({
-            label: item.fieldName,
+            label: item.fieldLabel,
             value: item.fieldName,
             fieldType: item.fieldType,
             valueSource: item.valueSource
@@ -204,6 +208,7 @@ export default {
     },
     addOuterCondition () {
       this.conditions.push({
+        logic: 'AND',
         dataList: [{ field: '', operator: '', value: '' }]
       });
     },
@@ -212,16 +217,45 @@ export default {
         this.conditions.splice(conditionIndex, 1);
       }
     },
+    // 切换外层逻辑（OR/AND）
+    toggleOuterLogic () {
+      this.outerLogic = this.outerLogic === 'OR' ? 'AND' : 'OR';
+    },
+    // 切换内层逻辑（AND/OR）
+    toggleInnerLogic (conditionIndex) {
+      const condition = this.conditions[conditionIndex];
+      const newLogic = condition.logic === 'AND' ? 'OR' : 'AND';
+      this.$set(condition, 'logic', newLogic);
+    },
     // 获取条件数据（供父组件调用）
     getConditions () {
-      return this.conditions;
+      return {
+        outerLogic: this.outerLogic,
+        conditions: this.conditions
+      };
     },
     // 设置条件数据（供父组件回显）
-    setConditions (conditions) {
+    setConditions (data) {
+      // 支持两种格式：包含 outerLogic 的新格式 或 只有 conditions 的旧格式
+      let conditions = data;
+      let outerLogic = 'OR';
+
+      if (data && data.outerLogic !== undefined) {
+        // 新格式：{ outerLogic: 'OR', conditions: [...] }
+        outerLogic = data.outerLogic;
+        conditions = data.conditions;
+      }
+
+      this.outerLogic = outerLogic;
+
       if (conditions && Array.isArray(conditions)) {
         this.conditions = JSON.parse(JSON.stringify(conditions));
-        // 回显时重新初始化 fieldTypeInfoMap
-        this.conditions.forEach(condition => {
+        // 回显时初始化 logic 和 fieldType
+        this.conditions.forEach((condition, index) => {
+          // 确保 logic 有值，默认为 AND
+          const logicValue = condition.logic || 'AND';
+          this.$set(this.conditions[index], 'logic', logicValue);
+
           condition.dataList.forEach(item => {
             if (item.field && !item.fieldType) {
               // 如果是 url 类型，需要设置 fieldType
@@ -239,8 +273,10 @@ export default {
     },
     // 重置条件（供父组件调用）
     resetConditions () {
+      this.outerLogic = 'OR';
       this.conditions = [
         {
+          logic: 'AND',
           dataList: [
             { field: 'carSeries', fieldType: 'text', operator: '=', value: 'B10' },
             { field: 'yearType', fieldType: 'text', operator: '=', value: '2026' }
@@ -337,6 +373,18 @@ export default {
   // font-size: 14px;
   color: #666;
   font-weight: bold;
+}
+
+// 可切换的逻辑标签样式
+.and-label.logic-toggle {
+  cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    background-color: var(--leap-color-primary);
+    color: white;
+    border-color: var(--leap-color-primary);
+  }
 }
 
 .conditions-wrapper {

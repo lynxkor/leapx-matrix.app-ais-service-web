@@ -77,9 +77,17 @@ export function updateBackOrderDetail (data) {
 }
 
 /**
- * 查询列表
+ * bo转调拨共享库存列表
  * @param {Object} data
  */
 export function boToTransferPage (data) {
   return api.jsonPost(prefix + 'boToTransferPage', data);
+};
+
+/**
+ * 申请调拨
+ * @param {Object} data
+ */
+export function applyBoToTransfer (data) {
+  return api.jsonPost(prefix + 'applyBoToTransfer', data);
 };
