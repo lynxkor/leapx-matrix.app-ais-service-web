@@ -467,7 +467,7 @@ export default {
     },
     // 维修套餐--类型表列表查询
     async getType () {
-      const res = await getRepairType({});
+      const res = await getRepairType({ status: 1 });
       this.repairTypeList = res || [];
     },
     // 适配车型接口

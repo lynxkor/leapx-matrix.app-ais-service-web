@@ -172,6 +172,15 @@
                 <el-form-item label="未追溯金额：" prop="unTraceAmount">
                   {{ form.unTraceAmount }}
                 </el-form-item>
+                <el-form-item label="保修工时金额：" prop="laborClaimTotal">
+                  {{ form.laborClaimTotal }}
+                </el-form-item>
+                <el-form-item label="保修备件金额：" prop="partsClaimTotal">
+                  {{ form.partsClaimTotal }}
+                </el-form-item>
+                <el-form-item label="保修其他金额：" prop="otherClaimTotal">
+                  {{ form.otherClaimTotal }}
+                </el-form-item>
                 <el-form-item label="作废说明：" prop="cancelDesc">
                   {{ form.cancelDesc }}
                 </el-form-item>

@@ -373,7 +373,7 @@
               <div class="common-section-header">
                 <div class="ais-select-group">
                   <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请输入编码或名称" clearable
-                    value-key="id" label-key="name" subLabelKey="code" @change="handleAddTableData" filterable />
+                    value-key="id" label-key="partName" subLabelKey="partCode" @change="handleAddTableData" filterable />
                   <el-button type="primary" size="small">添加</el-button>
                 </div>
               </div>
@@ -445,7 +445,7 @@ import { getVin, getDetail, addOrUpdate, retailPaymentRecordPage, retailOrderDet
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, getPartDealer, getLoginUser, sparePartListShort } from '@/api/common';
+import { getEnum, getPartDealer, getLoginUser, listDealerPart } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -624,6 +624,7 @@ export default {
       this.form.vehicleModelId = ele.vehicleModelId;
       this.form.vehicleModelName = ele.vehicleModelName;
       this.form.iotMileage = ele.iotMileage;
+      this.form.saleDate = ele.saleDate;
       this.form.latestVisitMileage = ele.latestVisitMileage;
     },
     async getVinList (query) {
@@ -693,7 +694,7 @@ export default {
     // 备件远程搜索
     async queryListData (query) {
       try {
-        const res = await sparePartListShort({ partCodeLikeOrList: query });
+        const res = await listDealerPart({ dealerCode: this.form.dealerCode, partCodeOrNameLike: query });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);

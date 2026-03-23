@@ -6,7 +6,7 @@
                     <h2>基础信息</h2>
                 </div>
                 <div class="common-section-body">
-                    <el-form label-width="120px" :form="repairDetail" :inline="true" class="form-detail">
+                    <el-form label-width="120px" :roles="roles" :form="repairDetail" :inline="true" class="form-detail">
                         <el-form-item label="项目名称：" prop="name">
                             {{ repairDetail.repairItemName }}
                         </el-form-item>
@@ -192,7 +192,12 @@ export default {
       repairItemOptions: [], // 维修类型选项
       checkoutTypeOptions: [], // 结算类型选项
       sparePartOptions: [], // 零件信息选项
-      tableData: [] // 零件信息列表
+      tableData: [], // 零件信息列表
+      rules: {
+        code: [
+          { required: true, message: '请输入套餐代码', trigger: 'change' }
+        ],
+      }
     };
   },
   watch: {

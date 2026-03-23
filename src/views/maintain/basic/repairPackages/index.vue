@@ -176,6 +176,7 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import MaintenanceDialog from './MaintenanceDialog.vue';
+import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -228,6 +229,7 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      isDealer: true,
       optionObj: {
         id: 'repairPackagesTable',
         dataList: [],
@@ -287,11 +289,11 @@ export default {
             }, {
               name: '下发',
               show: (row) => {
-                return row.suedDealer === 1 && row.comboStatus === 10;
+                return !this.isDealer && row.suedDealer === 1 && row.comboStatus === 10;
               },
               popconfirmTitle: '确认下发该维修套餐',
               click: (rowIndex, row) => {
-                issue([row.id]).then(() => {
+                issue(row.id).then(() => {
                   this.$message({
                     type: 'success',
                     message: '下发成功!'
@@ -308,11 +310,11 @@ export default {
             }, {
               name: '撤回',
               show: (row) => {
-                return row.suedDealer === 1 && row.comboStatus !== 10;
+                return !this.isDealer && row.suedDealer === 1 && row.comboStatus !== 10;
               },
               popconfirmTitle: '确认撤回该维修套餐',
               click: (rowIndex, row) => {
-                backout([row.id]).then(() => {
+                backout(row.id).then(() => {
                   this.$message({
                     type: 'success',
                     message: '撤回成功!'
@@ -328,6 +330,9 @@ export default {
               type: 'danger'
             }, {
               name: '删除',
+              show: (row) => {
+                return this.isDealer && row.suedDealer === 1 && row.comboStatus !== 10;
+              },
               popconfirmConfirmButtonType: 'danger',
               popconfirmConfirmButtonText: '删除',
               popconfirmTitle: '此操作将永久删除, 是否继续?',
@@ -363,6 +368,9 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    loginUserGet().then(data => {
+      this.isDealer = data.accountFlag;
+    });
   },
   methods: {
     // 排序

@@ -256,7 +256,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '索赔追溯单',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-claimTraceOrder',
@@ -301,6 +301,9 @@ export default {
           { props: 'vin', label: 'VIN 码', visible: true, width: 200 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'laborClaimTotal', label: '保修工时金额', visible: true, width: 200 },
+          { props: 'partsClaimTotal', label: '保修备件金额', visible: true, width: 200 },
+          { props: 'otherClaimTotal', label: '保修其他金额', visible: true, width: 200 },
           { props: 'planTraceAmount', label: '计划追溯金额', visible: true, width: 200 },
           { props: 'tracedAmount', label: '已追溯金额', visible: true, width: 200 },
           { props: 'unTraceAmount', label: '未追溯金额', visible: true, width: 200 },
@@ -408,7 +411,7 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '新页面',
+        businessType: '索赔追溯单',
         dataFetchPath: 'claimreturn/web/claim/claimtrace/claimTraceOrder/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -416,7 +419,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '索赔追溯单.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
