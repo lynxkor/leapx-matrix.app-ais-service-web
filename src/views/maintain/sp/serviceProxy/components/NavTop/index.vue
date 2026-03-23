@@ -47,7 +47,7 @@ export default {
   padding-top: 16px;
   position: sticky;
   top: 0px;
-  z-index: 10;
+  z-index: 20;
   background-color: #fff;
   gap: 8px 20px;
   .nav-item {

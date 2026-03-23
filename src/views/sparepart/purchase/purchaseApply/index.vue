@@ -356,7 +356,23 @@ export default {
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
           { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
-          { props: 'backOrderCode', label: '缺货单号', visible: true, width: 200 },
+          {
+            props: 'backOrderCode',
+            label: '缺货单号',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/backOrder/edit',
+                  query: {
+                    id: row.backOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'submitterName', label: '提交人', visible: true, width: 100 },
           { props: 'submitTime', label: '提交时间', visible: true, width: 200 },
           { props: 'approverName', label: '审批人', visible: true, width: 100 },
