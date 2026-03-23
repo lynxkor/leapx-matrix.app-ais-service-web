@@ -36,8 +36,16 @@
             filterable
             />
         </el-form-item>
-        <el-form-item label="营销分类名称" v-if="activeName === 'outOfStock'">
-          <tag-input v-model="form.marketingTypeList" placeholder="请输入" />
+        <el-form-item label="营销分类名称">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="SparePartMarketingTypeEnum"
+            v-model="form.marketingTypeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
         </el-form-item>
         <el-form-item label="订单类型">
           <fetch-select
@@ -398,7 +406,7 @@ export default {
           { props: 'cashUnitPrice', label: '现金单价', visible: true, align: 'right', width: 120 },
           { props: 'availableQty', label: '当店可用库存', visible: true, align: 'right', width: 140 },
           { props: 'sharedQty', label: '当店共享库存', visible: true, align: 'right', width: 140 },
-          { props: 'marketingType', label: '营销分类名称', visible: true, width: 140 },
+          { props: 'marketingTypeLabel', label: '营销分类名称', visible: true, width: 140 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
