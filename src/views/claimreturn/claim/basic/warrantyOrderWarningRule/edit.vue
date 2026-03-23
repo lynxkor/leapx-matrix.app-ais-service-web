@@ -12,14 +12,6 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
-        <template #status>
-          <!-- 支持 primary,warning,success,danger 等状态 -->
-          <!-- <span class="status primary">状态</span> -->
-        </template>
-        <template #extraButtons>
-          <!-- <el-button size="small">按钮 1</el-button>
-          <el-button size="small">按钮 2</el-button> -->
-        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
@@ -28,7 +20,7 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整 label-width="150px"，使得 label 不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="auto" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item class="form-item-full" prop="judgeDays">
+                <el-form-item class="form-item-line">
                   <span>除当前保修申请单外，创建日期大于等于当前日期- </span>
                   <el-input
                     placeholder="请输入天数"
@@ -37,17 +29,13 @@
                     style="width: 150px;"
                   />
                   <span> 的其他保修单，若【VIN】【主因故障零件】等于当前保修申请单且是已提交、审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款的记录数大于</span>
-                </el-form-item>
-                <el-form-item class="form-item-full" prop="judgeTimes">
                   <el-input
                     placeholder="请输入次数"
                     v-model="form.judgeTimes"
                     clearable
                     style="width: 150px;"
                   />
-                  笔记录
-                </el-form-item>
-                <el-form-item label="则提醒：" class="form-item-full" prop="remindContent">
+                  笔记录则提醒
                   <el-input
                     type="textarea"
                     :rows="4"
@@ -58,15 +46,33 @@
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="代码：">{{ form.ruleCode }}</el-form-item>
-                <el-form-item label="名称：">{{ form.ruleName }}</el-form-item>
-                <el-form-item label="判定次数：">{{ form.judgeTimes }}</el-form-item>
-                <el-form-item label="判定天数：">{{ form.judgeDays }}</el-form-item>
-                <el-form-item label="提醒内容：">{{ form.remindContent }}</el-form-item>
-                <el-form-item label="是否启用：">{{ form.statusLabel}}</el-form-item>
-                <el-form-item label="说明：">{{ form.statusDesc }}</el-form-item>
-                <el-form-item label="创建时间：">{{ form.createTime }}</el-form-item>
-                <el-form-item label="修改时间：">{{ form.updateTime }}</el-form-item>
+                <el-form-item class="form-item-line" prop="judgeDays">
+                  <span>除当前保修申请单外，创建日期大于等于当前日期- </span>
+                  <el-input
+                    placeholder="请输入天数"
+                    v-model="form.judgeDays"
+                    clearable
+                    style="width: 150px;"
+                    disabled
+                  />
+                  <span> 的其他保修单，若【VIN】【主因故障零件】等于当前保修申请单且是已提交、审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款的记录数大于</span>
+                  <el-input
+                    placeholder="请输入次数"
+                    v-model="form.judgeTimes"
+                    clearable
+                    style="width: 150px;"
+                    disabled
+                  />
+                  笔记录则提醒
+                  <el-input
+                    type="textarea"
+                    :rows="4"
+                    placeholder="请输入提醒内容"
+                    v-model="form.remindContent"
+                    clearable
+                    disabled
+                  />
+                </el-form-item>
               </el-form>
             </div>
           </section>
@@ -166,6 +172,18 @@ export default {
       }
     },
     submitRequest () {
+      if (!this.form.judgeDays) {
+        this.$message.error('请输入判定天数');
+        return;
+      }
+      if (!this.form.judgeTimes) {
+        this.$message.error('请输入判定次数');
+        return;
+      }
+      if (!this.form.remindContent) {
+        this.$message.error('请输入提醒内容');
+        return;
+      }
       return addOrUpdate({ ...this.form });
     },
     // 打开侧边栏
@@ -188,3 +206,16 @@ export default {
   }
 };
 </script>
+<style lang="scss" scoped>
+.page-common-edit .el-form-item {
+  width: auto;
+  line-height: 22px;
+  ::v-deep .el-form-item__content{
+    line-height: 40px;
+  }
+}
+.el-textarea{
+  width: auto;
+  vertical-align: top;
+}
+</style>

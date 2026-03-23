@@ -12,33 +12,36 @@
       min-height="0"
       max-height="400px"
       >
-      <vxe-column title="序号" width="160">
+      <vxe-column title="步骤" width="160">
         <template #default="{rowIndex}">
           {{ rowIndex + 1 }}
         </template>
       </vxe-column>
-      <vxe-column title="审批人员" width="180">
+      <vxe-column title="审批人员">
         <template #default="{ row }">
           <fetch-select
             v-if="row._editing"
             filterable
             clearable
             remote
+            multiple
             reserve-keyword
-            v-model="row.approverId"
+            v-model="row.approvers"
             :remote-method="userRemote"
-            :params="row.approverName"
+            params=""
             @change="(value, option) => onUserChange(row, value, option)"
             placeholder="请输入"
-            value-key="id"
-            label-key="name"
-            sub-label-key="code"
+            value-key="userId"
+            label-key="username"
+            sub-label-key="empNo"
           />
-          <span v-else>{{ row.approverName }}</span>
+          <div v-else>
+            <div v-for="item in row.approvers" :key="item.id">{{ item.name }}</div>
+          </div>
         </template>
       </vxe-column>
-      <vxe-column field="approvalStatusCurrentLabel" title="审批时状态" width="160"></vxe-column>
-      <vxe-column title="审批后状态" width="160">
+      <vxe-column field="approvalStatusCurrentLabel" title="审批时状态"></vxe-column>
+      <vxe-column title="审批后状态">
         <template #default="{ row }">
           <fetch-select
             v-if="row._editing"
@@ -107,7 +110,7 @@
 
 import permissions from '@/libs/mixins/permissions';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
-import { getUserByNameOrNo, getEnum } from '@/api/common';
+import { getEnum, userQuery } from '@/api/common';
 import { logPage, logUpdate } from '@/api/claimreturn/claim/basic/warrantyGradeApprovalSetting';
 import { cloneDeep } from 'lodash';
 
@@ -161,7 +164,14 @@ export default {
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {
-        this.tableData = res.records || [];
+        this.tableData = (res.records || []).map(item => {
+          const approvers = item.approvers || [];
+          return {
+            ...item,
+            _approvers: approvers,
+            approvers: approvers.map(_ => _.id),
+          };
+        });
         this.originTableData = cloneDeep(res.records || []);
         this.total = res.total;
       });
@@ -191,12 +201,12 @@ export default {
     saveRowEdit (row, rowIndex) {
       logUpdate({
         id: row.id,
-        approverId: row.approverId,
-        approverName: row.approverName,
+        approvers: row._approvers,
         approvalStatusAfter: row.approvalStatusAfter,
       }).then(() => {
         this.$message.success('更新成功');
         this.getDetailPageApi();
+        row._editing = false;
       }).catch(() => {
       });
     },
@@ -216,12 +226,16 @@ export default {
       this.$refs.editTable.setEditRow(newRow);
     },
     onUserChange (row, value, option) {
-      row.approverCode = option?.code;
-      row.approverName = option?.name;
-      row.approverId = option?.id;
+      row.approvers = value;
+      row._approvers = option.map(item => {
+        return {
+          id: item.userId,
+          name: item.username,
+        };
+      });
     },
     userRemote (queryString) {
-      return getUserByNameOrNo({ name: queryString });
+      return userQuery({ keyword: queryString });
     },
     async fetchOptions (code) {
       if (code) {

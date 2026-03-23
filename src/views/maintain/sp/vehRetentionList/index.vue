@@ -305,8 +305,8 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '留车清单表管理',
-        dataFetchPath: '/maintain/sp/vehRetentionList/web/basic/vehRetentionList/page',
+        businessType: '留车清单',
+        dataFetchPath: '/maintain/web/basic/vehRetentionList/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
@@ -499,7 +499,8 @@ export default {
       }
     },
     handleBatchInvalid () {
-      const isAllUnvoided = this.selectionList.every(item => !item.retentionStatus === 60);
+      const isAllUnvoided = this.selectionList.every(item => !(item.retentionStatus === 60));
+      console.log('isAllUnvoided' + isAllUnvoided);
       if (!isAllUnvoided) {
         this.$message({
           type: 'warning',

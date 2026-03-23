@@ -193,7 +193,8 @@ export default {
           this.repairDetail = {
             ...this.repairDetail,
             repairItemId: res.id,
-            // repairItemCode: res.code,
+            repairItemCode: res.code,
+            repairItemName: res.name,
             repairItemTypeName: '精品附件',
             checkoutTypeName: '自费',
             warrantyTypeName: '无',
@@ -210,6 +211,12 @@ export default {
             item.repairItemTypeName = '精品附件';
             item.checkoutTypeName = '自费';
             item.warrantyTypeName = '无';
+            item.totalAmount = 1;
+            item.unitPrice = res.salePrice || 0;
+            item.discount = 0;
+            item.discountAmount = 0;
+            item.claimPrice = 0;
+            item.receivableAmount = res.salePrice || 0;
             this.partsTableData.push(item);
           }
           this.calculateAmount();

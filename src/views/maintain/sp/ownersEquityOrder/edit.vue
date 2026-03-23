@@ -483,7 +483,6 @@
                 <span>零件索赔合计：¥{{ claimPartsTotal }}</span>
                 <span>索赔费用合计：¥{{ totalClaimAmount }}</span>
               </div>
-
               <!-- 多条明细 -->
               <div class="item-details-list">
                 <div
@@ -1028,12 +1027,12 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 10px 15px;
-  background-color: #f5f7fa;
+  background-color: var(--leap-color-default-light-6);
   cursor: pointer;
-  border-bottom: 1px solid #ebeef5;
+  // border-bottom: 1px solid #ebeef5;
 
   &:hover {
-    background-color: #e6f7ff;
+    background-color: var(--leap-color-primary-light-9);
   }
 }
 
@@ -1051,25 +1050,20 @@ export default {
 
 .item-code {
   font-weight: bold;
-  color: #303133;
+  color: var(--leap-color-default-dark-1);
   white-space: nowrap;
   width: 300px;
 }
 
-.item-divider {
-  color: #dcdfe6;
-  margin: 0 5px;
-}
-
 .item-name {
-  color: #606266;
+  color: var(--leap-color-default);
   white-space: nowrap;
   width: 300px;
 }
 
 .expand-toggle {
   font-size: 14px;
-  color: #909399;
+  color: var(--leap-color-default);
   transition: transform 0.3s ease;
 }
 
@@ -1095,12 +1089,12 @@ export default {
 .label {
   width: 100px;
   font-weight: 500;
-  color: #606266;
+  color: var(--leap-color-default);
 }
 
 .value {
   flex: 1;
-  color: #303133;
+  color: var(--leap-color-default-dark-1);
 }
 
 .parts-table-wrapper {
@@ -1110,11 +1104,11 @@ export default {
 // 合计金额样式
 .claim-summary {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 20px;
   margin-bottom: 15px;
   font-size: 14px;
-  color: #606266;
+  color: var(--leap-color-default);
 }
 
 .claim-summary span {
