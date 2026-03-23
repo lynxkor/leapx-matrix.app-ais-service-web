@@ -193,6 +193,7 @@ export default {
       };
       await this.getAddDetail(params);
       this.getSparePartDetail(this.detailId);
+      this.$emit('submit');
     },
   }
 };
