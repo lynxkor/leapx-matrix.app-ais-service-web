@@ -18,7 +18,8 @@
       >
         <div class="condition">
           <div class="interior-container" :class="{ 'single-item': condition.dataList.length === 1 }">
-            <div class="and-label logic-toggle" v-show="condition.dataList.length > 1" @click="toggleInnerLogic(conditionIndex)">
+            <!--  @click="toggleInnerLogic(conditionIndex)" -->
+            <div class="and-label logic-toggle" v-show="condition.dataList.length > 1">
               {{ condition.logic }}
             </div>
             <div

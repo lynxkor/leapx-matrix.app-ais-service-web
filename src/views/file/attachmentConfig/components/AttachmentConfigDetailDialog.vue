@@ -155,12 +155,12 @@
         </el-row>
 
         <!-- 条件配置区域 -->
-        <el-row :gutter="20" v-if="formData.fieldType === 'url'">
+        <!-- <el-row :gutter="20" v-if="formData.fieldType === 'url'">
           <el-col :span="24">
             <el-divider content-position="left">补充条件配置</el-divider>
             <Condition ref="conditionRef" />
           </el-col>
-        </el-row>
+        </el-row> -->
       </el-form>
 
       <div slot="footer" class="dialog-footer">
@@ -179,7 +179,6 @@ import {
 } from '@/libs/api/attachment';
 import { getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
-import Condition from './Condition';
 
 const defaultForm = {
   id: '',
@@ -208,8 +207,7 @@ export default {
     }
   },
   components: {
-    FetchSelect,
-    Condition
+    FetchSelect
   },
   data () {
     // 校验只能输入非中文（英文、数字、下划线等）
