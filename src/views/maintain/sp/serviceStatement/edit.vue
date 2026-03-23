@@ -51,7 +51,7 @@
                     disabled clearable filterable /> -->
                 </el-form-item>
                 <el-form-item label="是否已创建反结算申请单：" prop="statementStatus">
-                  <el-input placeholder="请输入" v-model="form.statementStatus" disabled clearable />
+                  <el-input placeholder="请输入" v-model="form.createReStatement" disabled clearable />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   <el-input placeholder="请输入" v-model="form.dealerName" disabled clearable />
@@ -255,6 +255,14 @@
         :info="form" @refresh="handleRefresh" />
       <AddPayrecordDialog :visible.sync="addPayrecordDialogVisible" :serviceProxyId="_id" :info="form"
         @refresh="handleRefresh" />
+      <CreateRefundDialog
+        :visible.sync="createRefundDialogVisible"
+        :id="_id"
+        :formData="form"
+        :loading="refundLoading"
+        @confirm="handleCreateRefund"
+        @cancel="handleRefundCancel"
+      />
     </template>
     <template #right>
       <div class="page-common-edit">
@@ -283,6 +291,7 @@ import PayRecord from '@/views/maintain/sp/serviceStatement/components/PayRecord
 import SelectRightsDialog from './components/SelectRightsDialog';
 import SubmitSettlemenDialog from './components/SubmitSettlemenDialog';
 import AddPayrecordDialog from './components/AddPayrecordDialog';
+import CreateRefundDialog from './components/CreateRefundDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -374,7 +383,8 @@ export default {
     PayRecord,
     SelectRightsDialog,
     SubmitSettlemenDialog,
-    AddPayrecordDialog
+    AddPayrecordDialog,
+    CreateRefundDialog
   },
   computed: {
     _id () {
@@ -399,10 +409,10 @@ export default {
 
         // 完成收款：结算类型为自费/保险/内部结算，状态为待收款
         success: baseType.includes(statementType) && statementStatus === 30,
-
-        // 创建反结算单：结算类型为自费/保险/内部结算，状态为待结算/待收款
-        reCreate: baseType.includes(statementType) && [10, 30].includes(statementStatus),
-
+        //1）【结算单类型】为自费、保险、内部结算 且 【结算单状态】为【已收款】 且 该结算单未创建反结算申请，展示该按钮支持创建反结算；
+        reCreate: baseType.includes(statementType) && [40].includes(statementStatus) && !this.form.createReStatement,
+        //2）【结算单类型】为保修、合同 且 【结算单状态】为【待收款】、【已收款】且 该结算单未创建反结算申请 ，展示该按钮支持创建反结算；
+        reCreate1: baseType2.includes(statementType) && [40, 30].includes(statementStatus) && !this.form.createReStatement,
         // 添加收款记录：结算类型为自费/保险/内部结算，状态为待收款
         addRecord: baseType.includes(statementType) && statementStatus === 30,
 
@@ -434,6 +444,8 @@ export default {
       rightsDialogVisible: false,
       submitSettlemenDialogVisible: false,
       addPayrecordDialogVisible: false,
+      createRefundDialogVisible: false,
+      refundLoading: false,
       tableData: [],
       form: { ...form },
       originalForm: { ...form },
@@ -576,8 +588,18 @@ export default {
 
     createRefund () {
       // 实现创建反结算单功能
-      console.log('创建反结算单');
-      // 这里可以添加具体的创建反结算单逻辑
+      this.createRefundDialogVisible = true;
+    },
+
+    handleRefundConfirm (response) {
+      // 接口调用已在组件中完成，这里可以处理后续逻辑
+      console.log('反结算申请创建成功', response);
+      // 刷新页面数据
+      this.handleRefresh();
+    },
+
+    handleRefundCancel () {
+      this.$message.info('已取消创建反结算单操作');
     },
 
     createWarrantyApply () {
