@@ -185,13 +185,6 @@
                     end-placeholder="结束日期"
                   />
                 </el-form-item>
-                <el-form-item label="税率：" prop="taxRate">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.taxRate"
-                    clearable
-                  />
-                </el-form-item>
                 <el-form-item label="总金额：" prop="totalAmount">
                   <el-input
                     placeholder="请输入"
@@ -199,14 +192,14 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="现金金额：" prop="cashAmount">
+                <el-form-item label="使用现金：" prop="cashAmount">
                   <el-input
                     placeholder="请输入"
                     v-model="form.cashAmount"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="返利金额：" prop="rebateAmount">
+                <el-form-item label="使用返利：" prop="rebateAmount">
                   <el-input
                     placeholder="请输入"
                     v-model="form.rebateAmount"
@@ -251,16 +244,13 @@
                 <el-form-item label="入库操作时间：" prop="inboundTime">
                   {{ form.inboundTime }}
                 </el-form-item>
-                <el-form-item label="税率：" prop="taxRate">
-                  {{ form.taxRate }}
-                </el-form-item>
                 <el-form-item label="总金额：" prop="totalAmount">
                   {{ form.totalAmount }}
                 </el-form-item>
-                <el-form-item label="现金金额：" prop="cashAmount">
+                <el-form-item label="使用现金：" prop="cashAmount">
                   {{ form.cashAmount }}
                 </el-form-item>
-                <el-form-item label="返利金额：" prop="rebateAmount">
+                <el-form-item label="使用返利：" prop="rebateAmount">
                   {{ form.rebateAmount }}
                 </el-form-item>
               </el-form>
