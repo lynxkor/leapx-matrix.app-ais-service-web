@@ -416,3 +416,8 @@ export default {
   }
 };
 </script>
+<style scoped lang="scss">
+.header-desc{
+  color: var(--leap-color-default-light-1);
+}
+</style>

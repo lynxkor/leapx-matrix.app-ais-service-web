@@ -333,6 +333,7 @@ export default {
 
     // 处理取消按钮
     handleClose () {
+      this.tableData = [];
       this.$emit('close');
     },
   }
