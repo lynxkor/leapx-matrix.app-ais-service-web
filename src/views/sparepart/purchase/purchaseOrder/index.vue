@@ -371,7 +371,24 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'backOrderCode', label: '缺货单号', visible: true, width: 200 },
+          {
+            props: 'backOrderCode',
+            label: '缺货单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/backOrder/edit',
+                  query: {
+                    id: row.backOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'deliveryWarehouseName', label: '发货仓库', visible: true, width: 200 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
