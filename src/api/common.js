@@ -84,6 +84,15 @@ export function getUserByNameOrNo (data) {
 }
 
 /**
+ * 用户查询接口
+ * @param {} data
+ * @returns
+ */
+export function userQuery (data) {
+  return api.jsonPost('/datacenter/web/common/user/query', data);
+}
+
+/**
  * 门店模糊搜索
  * @param {*} data
  */

@@ -23,40 +23,41 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="反结算申请编号"  >
+      <el-form-item label="反结算申请编号"  v-show="this.visibleCount === 3 || show">
         <el-input
           placeholder="请输入"
           v-model="form.code"
           clearable
         />
       </el-form-item>
-
-      <el-form-item label="门店名称" v-show="this.visibleCount === 3 || show">
-        <dealer-select v-model="form.dealerCodeList" multiple/>
-      </el-form-item>
-      <el-form-item label="审核状态" v-show="this.visibleCount === 3 || show">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="ApprovalStatusEnum"
-          v-model="form.approvalStatusList"
-          placeholder="请选择"
-          clearable
-          multiple
-          filterable
-        />
-      </el-form-item>
-      <el-form-item label="创建时间" v-show="this.visibleCount === 3 || show">
-        <el-date-picker
-         :default-time="['00:00:00', '23:59:59']"
-          v-model="form.createTime"
-          type="daterange"
-          :picker-options="pickerOptions"
-          range-separator="至"
-          value-format="yyyy-MM-dd HH:mm:ss"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        />
-      </el-form-item>
+      <template v-if="show">
+        <el-form-item label="门店名称">
+          <dealer-select v-model="form.dealerCodeList" multiple/>
+        </el-form-item>
+        <el-form-item label="审核状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="ApprovalStatusEnum"
+            v-model="form.approvalStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="创建时间">
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="form.createTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+      </template>
 
       <page-search-action
         v-if="canList"
@@ -106,7 +107,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem ,getEnum } from '@/api/maintain/sp/restatement/index';
+import { getList, deleteItem, enableItem, getEnum } from '@/api/maintain/sp/restatement/index';
 import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
