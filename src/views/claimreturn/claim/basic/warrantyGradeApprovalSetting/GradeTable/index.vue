@@ -12,7 +12,7 @@
       min-height="0"
       max-height="400px"
       >
-      <vxe-column title="序号" width="160">
+      <vxe-column title="步骤" width="160">
         <template #default="{rowIndex}">
           {{ rowIndex + 1 }}
         </template>
@@ -24,17 +24,20 @@
             filterable
             clearable
             remote
+            multiple
             reserve-keyword
-            v-model="row.approverId"
+            v-model="row.approvers"
             :remote-method="userRemote"
-            :params="row.approver"
+            params=""
             @change="(value, option) => onUserChange(row, value, option)"
             placeholder="请输入"
             value-key="userId"
             label-key="username"
             sub-label-key="empNo"
           />
-          <span v-else>{{ row.approver }}</span>
+          <div v-else>
+            <div v-for="item in row.approvers" :key="item.id">{{ item.name }}</div>
+          </div>
         </template>
       </vxe-column>
       <vxe-column field="approvalStatusCurrentLabel" title="审批时状态"></vxe-column>
@@ -161,7 +164,14 @@ export default {
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {
-        this.tableData = res.records || [];
+        this.tableData = (res.records || []).map(item => {
+          const approvers = item.approvers || [];
+          return {
+            ...item,
+            _approvers: approvers,
+            approvers: approvers.map(_ => _.id),
+          };
+        });
         this.originTableData = cloneDeep(res.records || []);
         this.total = res.total;
       });
@@ -191,12 +201,12 @@ export default {
     saveRowEdit (row, rowIndex) {
       logUpdate({
         id: row.id,
-        approverId: row.approverId,
-        approver: row.approver,
+        approvers: row._approvers,
         approvalStatusAfter: row.approvalStatusAfter,
       }).then(() => {
         this.$message.success('更新成功');
         this.getDetailPageApi();
+        row._editing = false;
       }).catch(() => {
       });
     },
@@ -216,8 +226,13 @@ export default {
       this.$refs.editTable.setEditRow(newRow);
     },
     onUserChange (row, value, option) {
-      row.approver = option?.username || '';
-      row.approverId = option?.userId;
+      row.approvers = value;
+      row._approvers = option.map(item => {
+        return {
+          id: item.userId,
+          name: item.username,
+        };
+      });
     },
     userRemote (queryString) {
       return userQuery({ keyword: queryString });

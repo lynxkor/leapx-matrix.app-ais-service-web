@@ -201,6 +201,9 @@ export default {
         if (val && this.$refs.containerRef) {
           this.$refs.containerRef.loadDetail();
         }
+        if (val && this.$refs.gradeTable) {
+          this.$refs.gradeTable.getDetailPageApi();
+        }
       },
       immediate: true
     }
@@ -245,8 +248,11 @@ export default {
       }
     },
     submitRequest () {
+      const that = this;
       return addOrUpdate({ ...this.form }).then(res => {
-        this.$refs.gradeTable.getDetailPageApi();
+        if (that.$refs.gradeTable) {
+          that.$refs.gradeTable.getDetailPageApi();
+        }
         return res;
       });
     },
