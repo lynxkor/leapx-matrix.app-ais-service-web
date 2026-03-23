@@ -14,16 +14,15 @@
         </el-radio-group>
       </el-form-item>
 
-      <el-form-item label="未解决问题原因" prop="unresolvedReasons" v-if="!form.isProblemResolved">
-        <el-checkbox-group v-model="form.unresolvedReasons">
-          <el-checkbox :label="1">厂家无库存备件</el-checkbox>
-          <el-checkbox :label="2">厂家备件缺货</el-checkbox>
-          <el-checkbox :label="3">故障未复现</el-checkbox>
-          <el-checkbox :label="4">无解决方案</el-checkbox>
-          <el-checkbox :label="5">用户自费不修车</el-checkbox>
-          <el-checkbox :label="6">车辆超保</el-checkbox>
-          <el-checkbox :label="7">约定下次进店检查</el-checkbox>
-        </el-checkbox-group>
+      <el-form-item label="未解决问题原因" prop="unresolvedReason">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="UnresolvedIssueReasonEnum"
+          v-model="form.unresolvedReason"
+          placeholder="请选择"
+          clearable
+          filterable
+        />
       </el-form-item>
     </el-form>
 
@@ -35,8 +34,14 @@
 </template>
 
 <script>
+import { getEnum } from '@/api/maintain/sp/restatement/index';
+import FetchSelect from '@/libs/components/FetchSelect';
+
 export default {
   name: 'SettlementDialog',
+  components: {
+    FetchSelect
+  },
   props: {
     visible: {
       type: Boolean,
@@ -48,17 +53,17 @@ export default {
       dialogVisible: false,
       form: {
         isProblemResolved: true,
-        unresolvedReasons: []
+        unresolvedReason: ''
       },
       rules: {
         isProblemResolved: [
           { required: true, message: '请选择客户反馈故障是否全部解决', trigger: 'change' }
         ],
-        unresolvedReasons: [
+        unresolvedReason: [
           {
             validator: (_rule, value, callback) => {
               if (!this.form.isProblemResolved) {
-                if (!value || value.length === 0) {
+                if (!value) {
                   callback(new Error('请选择未解决问题原因'));
                 } else {
                   callback();
@@ -73,6 +78,10 @@ export default {
       }
     };
   },
+  mounted () {
+    // 组件挂载时立即加载枚举数据
+    this.loadEnumData();
+  },
   watch: {
     visible (val) {
       this.dialogVisible = val;
@@ -85,22 +94,47 @@ export default {
     },
     'form.isProblemResolved' (val) {
       if (val) {
-        this.form.unresolvedReasons = [];
-        this.$refs.ruleForm.clearValidate('unresolvedReasons');
+        this.form.unresolvedReason = '';
+        this.$refs.ruleForm.clearValidate('unresolvedReason');
       }
     }
   },
   methods: {
+    // 加载枚举数据
+    async loadEnumData () {
+      try {
+        const response = await this.fetchOptions('UnresolvedIssueReasonEnum');
+        console.log('接口返回的原始数据:', response);
+
+        // 处理返回数据，确保是正确的格式
+        let enumData = response;
+        if (response && response.data) {
+          enumData = response.data;
+        } else if (response && response.records) {
+          enumData = response.records;
+        }
+
+      } catch (error) {
+        console.error('加载枚举数据失败:', error);
+      }
+    },
     handleClose () {
       this.dialogVisible = false;
+    },
+    async fetchOptions (enumCode) {
+      if (enumCode) {
+        return getEnum(enumCode);
+      }
+      return [];
     },
     handleConfirm () {
       this.$refs.ruleForm.validate((valid) => {
         if (valid) {
           this.$emit('confirm', {
-            isProblemResolved: this.form.isProblemResolved,
-            unresolvedReasons: this.form.unresolvedReasons
+            faultSolve: this.form.isProblemResolved,
+            reason: this.form.unresolvedReason
           });
+
           this.dialogVisible = false;
         }
       });
@@ -108,7 +142,7 @@ export default {
     resetForm () {
       this.form = {
         isProblemResolved: true,
-        unresolvedReasons: []
+        unresolvedReason: ''
       };
       this.$nextTick(() => {
         this.$refs.ruleForm && this.$refs.ruleForm.clearValidate();

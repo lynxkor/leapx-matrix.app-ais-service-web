@@ -1,7 +1,6 @@
 <template>
-  <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
+  <edit-page-layout ref="editLayout" title="反结算申请单" showPaneFooter>
     <template #left>
-      <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container
         ref="containerRef"
         :id="_id"
@@ -13,12 +12,30 @@
         :detailRequest="detailRequest"
       >
         <template #status>
-          <!-- 支持primary,warning,success,danger等状态 -->
-          <!-- <span class="status primary">状态</span> -->
+          <div class="status-section">
+            <h2>反结算申请单编号：{{ form.code }}</h2>
+            <div class="status-item">
+              <span class="label">审核状态</span>
+              <span class="value">{{ form.approvalStatusLabel || '-' }}</span>
+            </div>
+            <div class="status-item">
+              <span class="label">创建时间</span>
+              <span class="value">{{ form.createTime || '-' }}</span>
+            </div>
+          </div>
         </template>
         <template #extraButtons>
-          <!-- <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button> -->
+
+          <el-button size="small" @click="handleAudit" v-if="form.approvalStatus === 20">审核</el-button>
+          <el-button size="small" @click="handleFinalAudit" v-if="form.approvalStatus === 30">财务审核</el-button>
+          <el-button
+            v-if="form.approvalStatus === 10"
+            size="small"
+            type="primary"
+            @click="handleAuditSubmit"
+          >
+            提交审核
+          </el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -26,545 +43,106 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="结算单编码：" prop="statementCode">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statementCode"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
+                <el-form-item label="反结算申请单号:" required>
+                  <el-input v-model="form.code" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="接车施工单：" prop="serviceProxyCode">
+                <el-form-item label="结算单号:" required>
+                  <el-link type="success" @click.prevent="goToStatementDetail">{{ form.statementCode || '-' }}</el-link>
+                </el-form-item>
+                <el-form-item label="结算单类型:" required>
+                  <el-input v-model="form.statementTypeLabel" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="施工单号:" required>
+                  <el-link type="success" @click.prevent="goToServiceProxyDetail">{{ form.serviceProxyCode || '-' }}</el-link>
+                </el-form-item>
+                <el-form-item label="销账标识:" required>
+                  <el-input v-model="form.accountTypeLabel" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="数据来源:" required>
+                  <el-input v-model="form.dataSourceLabel" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="厅店:" required>
+                  <el-link type="success" @click.prevent="goToDealerDetail">{{ form.dealerName || '-' }}</el-link>
+                </el-form-item>
+                <el-form-item label="结算单状态:" required>
+                  <el-input v-model="form.statementStatusLabel" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="总金额:" required>
+                  <el-input v-model="form.totalAmount" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="维修项目金额:" required>
+                  <el-input v-model="form.repairItemAmount" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="结算人员:" required>
+                  <el-input v-model="form.statementPersonName" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="去零金额:" required>
+                  <el-input v-model="form.noFractionAmount" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="维修项目优惠金额:" required>
+                  <el-input v-model="form.repairItemDiscount" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="结算时间:" required>
+                  <el-input v-model="form.statementTime" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="权益金额:" required>
+                  <el-input v-model="form.rightsAmount" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="维修项目应付金额:" required>
+                  <el-input v-model="form.repairItemPayableAmount" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="收款人:">
+                  <el-input v-model="form.payeeName" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="优惠总金额:" required>
+                  <el-input v-model="form.discountAmount" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="零件金额:" required>
+                  <el-input v-model="form.partAmount" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="收款时间:">
+                  <el-input v-model="form.receiveAt" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="实际应付总金额:" required>
+                  <el-input v-model="form.payableAmount" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="零件优惠金额:" required>
+                  <el-input v-model="form.partDiscount" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="剩余应付款金额:" required>
+                  <el-input v-model="form.remainAmount" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="零件应付金额:" required>
+                  <el-input v-model="form.partPayableAmount" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="原因说明:" prop="reason">
                   <el-input
-                    placeholder="请输入"
-                    v-model="form.serviceProxyCode"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.id"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creator"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifier"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifierName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.updateTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.remark"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.status"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statusDesc"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="反结算申请编号：" prop="code">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.code"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="销账标识：" prop="accountType">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.accountType"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="审核状态：" prop="approvalStatus">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.approvalStatus"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="保修提交状态：" prop="clmStatus">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.clmStatus"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="归属门店ID（组织ID），当数据权限归属到本组织以及本下级：" prop="ownerOrgId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.ownerOrgId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="门店编码：" prop="dealerCode">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dealerCode"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dealerName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="保养项：" prop="maintenanceId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.maintenanceId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="去零金额：" prop="noFractionAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.noFractionAmount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="原因说明：" prop="reason">
-                  <el-input
-                    placeholder="请输入"
                     v-model="form.reason"
-                    clearable
+                    type="textarea"
+                    :rows="3"
+                    placeholder="请输入原因说明"
+                    maxlength="500"
+                    show-word-limit
                   />
-                </el-form-item>
-                <el-form-item label="剩余应付款金额：" prop="remainAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.remainAmount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="接车施工单id：" prop="serviceProxyId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.serviceProxyId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="结算人员ID：" prop="statementPersonId">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statementPersonId"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="结算单id：" prop="statementId">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statementId"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="结算单类型：" prop="statementType">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statementType"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="结算单状态：" prop="statementStatus">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statementStatus"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="数据来源：" prop="dataSource">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dataSource"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="维修项目金额：" prop="repairItemAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.repairItemAmount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="维修项优惠金额：" prop="repairItemDiscount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.repairItemDiscount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="维修项应付金额：" prop="repairItemPayableAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.repairItemPayableAmount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="零件金额：" prop="partAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.partAmount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="零件优惠金额：" prop="partDiscount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.partDiscount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="零件应付金额：" prop="partPayableAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.partPayableAmount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="总金额：" prop="totalAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.totalAmount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="优惠总金额：" prop="discountAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.discountAmount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="权益金额：" prop="rightsAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.rightsAmount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="实际应付总金额：" prop="payableAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.payableAmount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="结算人员：" prop="statementPersonName">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statementPersonName"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="结算时间：" prop="statementTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.statementTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="结算时间：" prop="statementTime">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statementTime"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="收款人：" prop="payeeId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.payeeId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="收款时间：" prop="receiveAt">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.receiveAt"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creatorName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.createTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-              </el-form>
-              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="结算单编码：" prop="statementCode">
-                  {{ form.statementCode }}
-                </el-form-item>
-                <el-form-item label="接车施工单：" prop="serviceProxyCode">
-                  {{ form.serviceProxyCode }}
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  {{ form.modifierName }}
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  {{ form.updateTime }}
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
-                </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  {{ form.status }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  {{ form.statusDesc }}
-                </el-form-item>
-                <el-form-item label="反结算申请编号：" prop="code">
-                  {{ form.code }}
-                </el-form-item>
-                <el-form-item label="销账标识：" prop="accountType">
-                  {{ form.accountType }}
-                </el-form-item>
-                <el-form-item label="审核状态：" prop="approvalStatus">
-                  {{ form.approvalStatus }}
-                </el-form-item>
-                <el-form-item label="保修提交状态：" prop="clmStatus">
-                  {{ form.clmStatus }}
-                </el-form-item>
-                <el-form-item label="归属门店ID（组织ID），当数据权限归属到本组织以及本下级：" prop="ownerOrgId">
-                  {{ form.ownerOrgId }}
-                </el-form-item>
-                <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode }}
-                </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
-                </el-form-item>
-                <el-form-item label="保养项：" prop="maintenanceId">
-                  {{ form.maintenanceId }}
-                </el-form-item>
-                <el-form-item label="去零金额：" prop="noFractionAmount">
-                  {{ form.noFractionAmount }}
-                </el-form-item>
-                <el-form-item label="原因说明：" prop="reason">
-                  {{ form.reason }}
-                </el-form-item>
-                <el-form-item label="剩余应付款金额：" prop="remainAmount">
-                  {{ form.remainAmount }}
-                </el-form-item>
-                <el-form-item label="接车施工单id：" prop="serviceProxyId">
-                  {{ form.serviceProxyId }}
-                </el-form-item>
-                <el-form-item label="结算人员ID：" prop="statementPersonId">
-                  {{ form.statementPersonId }}
-                </el-form-item>
-                <el-form-item label="结算单id：" prop="statementId">
-                  {{ form.statementId }}
-                </el-form-item>
-                <el-form-item label="结算单类型：" prop="statementType">
-                  {{ form.statementType }}
-                </el-form-item>
-                <el-form-item label="结算单状态：" prop="statementStatus">
-                  {{ form.statementStatus }}
-                </el-form-item>
-                <el-form-item label="数据来源：" prop="dataSource">
-                  {{ form.dataSource }}
-                </el-form-item>
-                <el-form-item label="维修项目金额：" prop="repairItemAmount">
-                  {{ form.repairItemAmount }}
-                </el-form-item>
-                <el-form-item label="维修项优惠金额：" prop="repairItemDiscount">
-                  {{ form.repairItemDiscount }}
-                </el-form-item>
-                <el-form-item label="维修项应付金额：" prop="repairItemPayableAmount">
-                  {{ form.repairItemPayableAmount }}
-                </el-form-item>
-                <el-form-item label="零件金额：" prop="partAmount">
-                  {{ form.partAmount }}
-                </el-form-item>
-                <el-form-item label="零件优惠金额：" prop="partDiscount">
-                  {{ form.partDiscount }}
-                </el-form-item>
-                <el-form-item label="零件应付金额：" prop="partPayableAmount">
-                  {{ form.partPayableAmount }}
-                </el-form-item>
-                <el-form-item label="总金额：" prop="totalAmount">
-                  {{ form.totalAmount }}
-                </el-form-item>
-                <el-form-item label="优惠总金额：" prop="discountAmount">
-                  {{ form.discountAmount }}
-                </el-form-item>
-                <el-form-item label="权益金额：" prop="rightsAmount">
-                  {{ form.rightsAmount }}
-                </el-form-item>
-                <el-form-item label="实际应付总金额：" prop="payableAmount">
-                  {{ form.payableAmount }}
-                </el-form-item>
-                <el-form-item label="结算人员：" prop="statementPersonName">
-                  {{ form.statementPersonName }}
-                </el-form-item>
-                <el-form-item label="结算时间：" prop="statementTime">
-                  {{ form.statementTime }}
-                </el-form-item>
-                <el-form-item label="收款人：" prop="payeeId">
-                  {{ form.payeeId }}
-                </el-form-item>
-                <el-form-item label="收款时间：" prop="receiveAt">
-                  {{ form.receiveAt }}
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  {{ form.createTime }}
                 </el-form-item>
               </el-form>
             </div>
           </section>
-          <section class="common-section" v-if="_id">
+
+          <section class="common-section audit-section">
             <div class="common-section-header">
-              <h2>子表标题</h2>
+              <h2>审核记录</h2>
             </div>
             <div class="common-section-body">
-              <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
-                  <el-button type="primary" size="small">添加</el-button>
-                </div>
-              </div>
-              <div class="common-section-table">
-                <vxe-table
-                  ref="tableRef"
-                  stripe
-                  :data="tableData"
-                  show-overflow
-                  resizable
-                  border="inner"
-                  size="medium"
-                  min-height="0"
-                  max-height="400px"
-                >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
-                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                      </el-popconfirm>
-                    </template>
-                  </vxe-column>
-                  <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
-                  </template>
-                </vxe-table>
-              </div>
+              <el-table :data="form.supportApprovalResps" style="width: 100%" border>
+                <el-table-column prop="creatorName" label="审核人" width="150" />
+                <el-table-column prop="approvalOn" label="审核时间" width="180" />
+                <el-table-column prop="approvalResult" label="审核动作" width="120" />
+                <el-table-column prop="statusDesc" label="审核状态" width="120" />
+                <el-table-column prop="content" label="审核意见" show-overflow-tooltip />
+              </el-table>
+
             </div>
           </section>
         </el-main>
@@ -575,70 +153,80 @@
         <!-- 右侧栏组件，自行开发 -->
       </div>
     </template>
+    <!-- 审核弹窗 -->
+    <el-dialog
+      :visible.sync="auditDialogVisible"
+      title="反结算申请审核"
+      width="500px"
+      :close-on-click-modal="false"
+    >
+      <el-form :model="auditForm" :rules="auditRules" ref="auditFormRef" label-width="100px" label-position="left">
+        <el-form-item label="审核操作" prop="auditAction" required>
+          <el-select v-model="auditForm.auditAction" placeholder="请选择" style="width: 100%" @change="handleAuditActionChange">
+            <el-option label="同意" value=1 />
+            <el-option label="拒绝" value=2 />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="审核意见" prop="auditOpinion">
+          <el-input
+            v-model="auditForm.auditOpinion"
+            type="textarea"
+            :rows="4"
+            placeholder="请输入审核意见"
+            maxlength="500"
+            show-word-limit
+          />
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+        <el-button @click="auditDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleAuditConfirm" :loading="auditLoading">确定</el-button>
+      </span>
+    </el-dialog>
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/maintain/sp/restatement/index';
-import FetchSelect from '@/libs/components/FetchSelect';
+import { getDetail, addOrUpdate, audit, submitAudit, financialReview } from '@/api/maintain/sp/restatement/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
-import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
-  // 多选时字段有变化，自行修复
-  statementCode: '',
-  serviceProxyCode: '',
-  id: '',
-  creator: '',
-  modifier: '',
-  modifierName: '',
-  updateTime: '',
-  remark: '',
-  status: '',
-  statusDesc: '',
   code: '',
-  accountType: '',
-  approvalStatus: '',
-  clmStatus: '',
-  ownerOrgId: '',
-  dealerCode: '',
+  statementCode: '',
+  statementTypeLabel: '',
+  serviceProxyCode: '',
+  accountTypeLabel: '',
+  dataSourceLabel: '',
   dealerName: '',
-  maintenanceId: '',
-  noFractionAmount: '',
-  reason: '',
-  remainAmount: '',
-  serviceProxyId: '',
-  statementPersonId: '',
-  statementId: '',
-  statementType: '',
-  statementStatus: '',
-  dataSource: '',
-  repairItemAmount: '',
-  repairItemDiscount: '',
-  repairItemPayableAmount: '',
-  partAmount: '',
-  partDiscount: '',
-  partPayableAmount: '',
+  statementStatusLabel: '',
   totalAmount: '',
-  discountAmount: '',
-  rightsAmount: '',
-  payableAmount: '',
+  repairItemAmount: '',
   statementPersonName: '',
+  noFractionAmount: '',
+  repairItemDiscount: '',
   statementTime: '',
-  payeeId: '',
+  rightsAmount: '',
+  repairItemPayableAmount: '',
+  payeeName: '',
+  discountAmount: '',
+  partAmount: '',
   receiveAt: '',
-  creatorName: '',
-  createTime: '',
+  payableAmount: '',
+  partDiscount: '',
+  remainAmount: '',
+  partPayableAmount: '',
+  reason: '',
+  statementId: '',
+  serviceProxyId: '',
+  dealerId: ''
 };
 
 export default {
   name: 'restatementEdit',
-  // 集中视图预留
   props: {
     id: {
       type: [String, Number],
@@ -648,16 +236,13 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     EditPageLayout,
-    EditBaseContainer,
-    FetchSelect
+    EditBaseContainer
   },
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
     },
-    title () {
-      return '结算单编码：' + this.form.statementCode;
-    }
+
   },
   watch: {
     id: {
@@ -674,157 +259,157 @@ export default {
     return {
       pageTitle: '反结算申请单管理',
       pageType: 'edit',
-      // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-restatement',
       loading: false,
       submitLoading: false,
-      yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      emptyText: '若要启用此内容，请创建记录',
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
       rules: {
-        statementCode: [
-          { required: true, message: '请选择结算单编码', trigger: 'change' }
-        ],
-        serviceProxyCode: [
-          { required: true, message: '请输入接车施工单', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        code: [
-          { required: true, message: '请输入反结算申请编号', trigger: 'change' }
-        ],
-        accountType: [
-          { required: true, message: '请选择销账标识', trigger: 'change' }
-        ],
-        approvalStatus: [
-          { required: true, message: '请选择审核状态', trigger: 'change' }
-        ],
-        clmStatus: [
-          { required: true, message: '请选择保修提交状态', trigger: 'change' }
-        ],
-        ownerOrgId: [
-          { required: true, message: '请输入归属门店ID（组织ID），当数据权限归属到本组织以及本下级', trigger: 'change' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称', trigger: 'change' }
-        ],
-        maintenanceId: [
-          { required: true, message: '请输入保养项', trigger: 'change' }
-        ],
-        noFractionAmount: [
-          { required: true, message: '请输入去零金额', trigger: 'change' }
-        ],
         reason: [
-          { required: true, message: '请输入原因说明', trigger: 'change' }
-        ],
-        remainAmount: [
-          { required: true, message: '请输入剩余应付款金额', trigger: 'change' }
-        ],
-        serviceProxyId: [
-          { required: true, message: '请输入接车施工单id', trigger: 'change' }
-        ],
-        statementPersonId: [
-          { required: true, message: '请选择结算人员ID', trigger: 'change' }
-        ],
-        statementId: [
-          { required: true, message: '请选择结算单id', trigger: 'change' }
-        ],
-        statementType: [
-          { required: true, message: '请选择结算单类型', trigger: 'change' }
-        ],
-        statementStatus: [
-          { required: true, message: '请选择结算单状态', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源', trigger: 'change' }
-        ],
-        repairItemAmount: [
-          { required: true, message: '请输入维修项目金额', trigger: 'change' }
-        ],
-        repairItemDiscount: [
-          { required: true, message: '请输入维修项优惠金额', trigger: 'change' }
-        ],
-        repairItemPayableAmount: [
-          { required: true, message: '请输入维修项应付金额', trigger: 'change' }
-        ],
-        partAmount: [
-          { required: true, message: '请输入零件金额', trigger: 'change' }
-        ],
-        partDiscount: [
-          { required: true, message: '请输入零件优惠金额', trigger: 'change' }
-        ],
-        partPayableAmount: [
-          { required: true, message: '请输入零件应付金额', trigger: 'change' }
-        ],
-        totalAmount: [
-          { required: true, message: '请输入总金额', trigger: 'change' }
-        ],
-        discountAmount: [
-          { required: true, message: '请输入优惠总金额', trigger: 'change' }
-        ],
-        rightsAmount: [
-          { required: true, message: '请输入权益金额', trigger: 'change' }
-        ],
-        payableAmount: [
-          { required: true, message: '请输入实际应付总金额', trigger: 'change' }
-        ],
-        statementPersonName: [
-          { required: true, message: '请选择结算人员', trigger: 'change' }
-        ],
-        statementTime: [
-          { required: true, message: '请选择结算时间', trigger: 'change' }
-        ],
-        statementTime: [
-          { required: true, message: '请选择结算时间', trigger: 'change' }
-        ],
-        payeeId: [
-          { required: true, message: '请输入收款人', trigger: 'change' }
-        ],
-        receiveAt: [
-          { required: true, message: '请选择收款时间', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-      }
+          { max: 500, message: '原因说明最多输入 500 字', trigger: 'blur' }
+        ]
+      },
+      auditList: [],
+      auditPage: 1,
+      auditPageSize: 4,
+      auditTotal: 0,
+      auditDialogVisible: false,
+      auditForm: {
+        auditAction: '',
+        auditOpinion: ''
+      },
+      auditLoading: false,
+      currentAuditType: '' // 当前审核类型：'audit' 或 'financialReview'
     };
   },
-  mounted () {
-  },
+
   methods: {
+    handleSave () {
+      this.$refs.containerRef.handleSubmit();
+    },
+    handleSaveAndClose () {
+      this.$refs.containerRef.handleSubmit(true);
+    },
+
+    handleAudit () {
+      this.currentAuditType = 'audit';
+      this.auditDialogVisible = true;
+      this.auditForm = {
+        auditAction: '',
+        auditOpinion: ''
+      };
+      // 重置表单验证
+      this.$nextTick(() => {
+        if (this.$refs.auditFormRef) {
+          this.$refs.auditFormRef.clearValidate();
+        }
+      });
+    },
+    //财务审核
+    handleFinalAudit () {
+      this.currentAuditType = 'financialReview';
+      this.auditDialogVisible = true;
+      this.auditForm = {
+        auditAction: '',
+        auditOpinion: ''
+      };
+      // 重置表单验证
+      this.$nextTick(() => {
+        if (this.$refs.auditFormRef) {
+          this.$refs.auditFormRef.clearValidate();
+        }
+      });
+    },
+    handleAuditActionChange (value) {
+      // 当选择拒绝时，强制验证审核意见字段
+      if (value === 2) {
+        this.$nextTick(() => {
+          if (this.$refs.auditFormRef) {
+            this.$refs.auditFormRef.validateField('auditOpinion');
+          }
+        });
+      }
+    },
+    handleAuditConfirm () {
+      this.$refs.auditFormRef.validate((valid) => {
+        if (!valid) {
+          return;
+        }
+
+        this.auditLoading = true;
+
+        // 根据审核类型调用不同接口
+        const apiFunc = this.currentAuditType === 'audit' ? audit : financialReview;
+
+        apiFunc({
+          id: this._id,
+          auditStatus: this.auditForm.auditAction,
+          auditDesc: this.auditForm.auditOpinion
+        }).then(() => {
+          this.$message.success('审核成功');
+          this.auditDialogVisible = false;
+          this.$refs.containerRef.loadDetail();
+        }).catch((error) => {
+          console.error('审核失败:', error);
+          this.$message.error(error.msg || '审核失败');
+        }).finally(() => {
+          this.auditLoading = false;
+        });
+      });
+    },
+    goToStatementDetail () {
+      if (this.form.statementId) {
+        this.$router.push({
+          path: '/maintain/sp/serviceStatement/edit',
+          query: { id: this.form.statementId }
+        });
+      } else {
+        this.$message.warning('未找到结算单 ID');
+      }
+    },
+    goToServiceProxyDetail () {
+      if (this.form.serviceProxyId) {
+        this.$router.push({
+          path: '/maintain/sp/serviceProxy/edit',
+          query: { id: this.form.serviceProxyId }
+        });
+      } else {
+        this.$message.warning('未找到施工单 ID');
+      }
+    },
+    goToDealerDetail () {
+      if (this.form.dealerId) {
+        window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${this.form.dealerCode}`, '_blank');
+      } else {
+        this.$message.warning('未找到厅店信息');
+      }
+    },
+
+    async handleAuditSubmit () {
+      // 二次确认
+      this.$confirm('是否确定要提交审核？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        try {
+          this.submitLoading = true;
+          await submitAudit( this._id );
+
+          this.$message.success('提交审核成功');
+          this.$refs.containerRef.loadDetail();
+        } catch (error) {
+          console.error('提交审核失败:', error);
+          this.$message.error(error.msg || '提交审核失败');
+        } finally {
+          this.submitLoading = false;
+        }
+      }).catch(() => {
+        // 用户取消
+        this.$message.info('已取消提交审核');
+      });
+    },
+
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -834,76 +419,103 @@ export default {
     submitRequest () {
       return addOrUpdate({ ...this.form });
     },
-    // 打开侧边栏
     openPane () {
       this.$refs.editLayout.openPane();
     },
-    // 删除子表数据
-    handleDeleteRow (index) {
-      const item = this.tableData[index];
-      this.tableData.splice(index, 1);
-      // 根据需求调用接口
-      // deletePartVehModel([item.id]).then(res => {
-      //   this.$message.success('删除成功');
-      //   this.tableData.splice(index, 1);
-      // });
-    },
-    // 查询新增项的列表
-    queryListData (queryString) {
-      return new Promise(resolve => {
-        // 根据需求调用接口
-        // sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
-        //   const list = res || [];
-        //   resolve(list);
-        // });
-        resolve([
-          { id: 1, name: 'test', age: 25, email: 'test@example.com' }
-        ]);
-      });
-    },
-    // 新增子表数据
-    handleAddTableData (val, record) {
-      if (!record) {
-        this.$message.warning('请先选择数据');
-        return;
-      }
-      // 检查是否已存在
-      const exists = this.tableData.some(item => item.id === record.id);
-      if (exists) {
-        this.$message.warning('请勿重复添加');
-        return;
-      }
-      // 根据需求调用接口
-      this.tableData.push(record);
-      // addPartItem({
-      //   maintenancePartId: this._id,
-      //   partsCode: record.partCode,
-      //   partsName: record.partName,
-      //   partsId: record.id,
-      // }).then(res => {
-      //   this.$message.success('添加成功');
-      //   this.detailRequest();
-      // });
-    },
     getDefautlForm () {
-      // TIPS: 此处可添加表单默认值，如当前用户信息等
-      // const userInfo = this.$store.state.user.userInfo;
-      return {
-        ...defaultForm
-        // ownerId: userInfo.userId,
-        // ownerName: userInfo.userName,
-      };
+      return { ...defaultForm };
     },
-    // 审核日志
-    // handleJumpAuditLog () {
-    //   this.$auditLog.show({ id: 123 });
-    // },
-    async fetchOptions (code) {
-      if (code) {
-        return getEnum(code);
-      }
-      return [];
-    }
+    handleShowLog () {
+      this.$auditLog.show({ id: this._id });
+    },
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.status-section {
+  display: flex;
+  gap: 40px;
+  padding: 10px 0;
+
+  .status-item {
+    display: flex;
+    flex-direction: column;
+
+    .label {
+      font-size: 14px;
+      color: #909399;
+      margin-bottom: 4px;
+    }
+
+    .value {
+      font-size: 14px;
+      color: #303133;
+      font-weight: 500;
+    }
+  }
+}
+
+.common-section {
+  margin-bottom: 20px;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+
+  .common-section-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #ebeef5;
+    background-color: #f5f7fa;
+    border-radius: 4px 4px 0 0;
+
+    h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
+      color: #303133;
+    }
+  }
+
+  .common-section-body {
+    padding: 20px;
+
+    .form-edit {
+      width: 100%;
+
+      ::v-deep .el-form-item {
+        margin-bottom: 20px;
+        width: 33.33%;
+
+        .el-form-item__label {
+          font-weight: 400;
+        }
+      }
+
+      ::v-deep .el-form-item--inline.large {
+        .el-form-item__content {
+          width: 70%;
+        }
+      }
+
+      ::v-deep textarea {
+        resize: vertical;
+      }
+    }
+  }
+}
+
+.audit-section {
+  .common-section-body {
+    .el-table {
+      margin-bottom: 16px;
+
+      ::v-deep .el-table__header th {
+        background-color: #f5f7fa;
+        color: #606266;
+        font-weight: 500;
+      }
+    }
+
+
+  }
+}
+</style>

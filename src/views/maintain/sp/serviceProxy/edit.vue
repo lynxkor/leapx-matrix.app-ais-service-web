@@ -147,6 +147,11 @@
     <template #right>
       <!-- 右侧栏组件，自行开发 -->
     </template>
+    <!-- 结算故障解决情况弹窗 -->
+    <SettlementDialog
+      :visible.sync="settlementDialogVisible"
+      @confirm="handleSettlementConfirm"
+    />
   </edit-page-layout>
 </template>
 
@@ -176,6 +181,7 @@ import MaterialReturnDialog from './components/MaterialReturnDialog';
 import SelectRepairItemDialog from './components/SelectRepairItemDialog';
 import StartWorkDialog from './components/StartWorkDialog';
 import DispatchWorkDialog from './components/DispatchWorkDialog';
+import SettlementDialog from './components/SettlementDialog';
 import RemindInfoDialog from './components/RemindInfoDialog';
 
 const defaultForm = {
@@ -301,7 +307,7 @@ const defaultForm = {
   isPreAuth: '',
   isCreatePreAuth: '',
   preAuthId: '',
-  unresolvedReason: '',
+  reason: '',
   faultDesc: '',
   batteryUnitId: '',
   targetUnitCode: '',
@@ -346,7 +352,8 @@ export default {
     SelectRepairItemDialog,
     StartWorkDialog,
     DispatchWorkDialog,
-    RemindInfoDialog
+    RemindInfoDialog,
+    SettlementDialog
   },
   computed: {
     _id () {
@@ -442,6 +449,7 @@ export default {
       discardDialogVisible: false,
       materialReturnDialogVisible: false,
       couponsDialogVisible: false,
+      settlementDialogVisible: false, // 结算弹窗
       remindInfoDialogVisible: false,
       yes_no_enum: YES_NO_ENUM,
       RepairOrderStatusEnum,
@@ -449,6 +457,7 @@ export default {
       originalForm: { ...form }
     };
   },
+
   mounted () {
     this.getDetailData();
   },
@@ -611,21 +620,14 @@ export default {
     // 结算与取消结算
     handleSettlement (v) {
       if (v) {
-        const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>您确定要生成结算单？</div>';
-        this.$confirm(message, '', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          dangerouslyUseHTMLString: true,
-          customClass: 'ais-leave-tips',
-          showClose: false
-        }).then(() => {
-          // 调用接口
-          addStatement({ serviceProxyId: this._id }).then(res => {
-            this.$message.success('结算成功');
-            this.getDetailData();
-          });
-        }).catch(() => {
-        });
+        // 判断是否存在故障
+        if (this.form.currentFault === 1) {
+          // 存在故障，需要填写故障解决情况
+          this.settlementDialogVisible = true;
+        } else {
+          // 不存在故障，直接确认
+          this.handleSettlementConfirm({ faultSolve: true, reason: '' });
+        }
       } else {
         const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>您确定要取消结算吗？</div>';
         this.$confirm(message, '', {
@@ -643,6 +645,31 @@ export default {
         }).catch(() => {
         });
       }
+    },
+    handleSettlementConfirm (faultData) {
+      // faultData 包含：isProblemResolved、unresolvedReason
+      // 先保存故障解决情况
+      addOrUpdate({
+        ...this.form,
+        faultSolve: faultData.faultSolve,
+        reason: faultData.reason
+      }).then(() => {
+        // 再调用结算接口
+        addStatement({ serviceProxyId: this._id }).then(res => {
+          this.$message.success('结算成功');
+          this.getDetailData();
+          // 跳转到结算单页面
+          if (res) {
+            this.$router.push({
+              path: '/maintain/sp/serviceStatement/edit',
+              query: { id: res }
+            });
+          }
+        });
+      }).catch((error) => {
+        console.error('保存故障解决情况失败:', error);
+        this.$message.error(error.msg || '保存故障解决情况失败');
+      });
     },
     // 取消终检
     handleCancelFinal () {
