@@ -257,7 +257,7 @@ export default {
             }]
           },
           { props: 'packageName', label: '套餐名称', visible: true, width: 200 },
-          { props: 'typeName', label: '套餐类型', visible: true, width: 200 },
+          { props: 'typeNames', label: '套餐类型', visible: true, width: 200 },
           { props: 'spellCode', label: '拼音简码', visible: true, width: 200 },
           { props: 'vehicleSeriesNames', label: '车系', visible: true, width: 200 },
           { props: 'carModelNames', label: '车型年型', visible: true, width: 200 },
