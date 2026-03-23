@@ -844,7 +844,6 @@ export default {
           data.cancelTimeEnd = this.form.cancelTime[1];
         }
       }
-      
 
       return data;
     },
