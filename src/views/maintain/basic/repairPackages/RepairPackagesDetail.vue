@@ -6,7 +6,7 @@
                     <h2>基础信息</h2>
                 </div>
                 <div class="common-section-body">
-                    <el-form label-width="120px" :roles="roles" :form="repairDetail" :inline="true" class="form-edit">
+                    <el-form label-width="120px" :form="repairDetail" :inline="true" class="form-edit">
                         <el-form-item label="项目名称：" prop="name">
                             {{ repairDetail.repairItemName }}
                         </el-form-item>
@@ -161,6 +161,7 @@ import { repairItemType, sparePartList } from '@/api/common';
 import BaseSearch from '@/libs/components/BaseSearch';
 import { listSettlementType } from '@/api/maintain/basic/checkoutType';
 import commonMixins from '@/libs/mixins/commonMixins';
+import FetchSelect from '@/libs/components/FetchSelect';
 
 export default {
   props: {
@@ -178,7 +179,7 @@ export default {
     },
   },
   mixins: [commonMixins],
-  components: { BaseSearch },
+  components: { BaseSearch, FetchSelect },
   data () {
     return {
       repairDetail: {
