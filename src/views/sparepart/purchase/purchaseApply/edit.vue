@@ -319,6 +319,7 @@
       :businessParams="_id"
       id="sparePartPurchaseApplyDetailImport"
       @close="handleUploadDialogClose"
+      @submit="getDetailData"
     />
   </edit-page-layout>
 </template>

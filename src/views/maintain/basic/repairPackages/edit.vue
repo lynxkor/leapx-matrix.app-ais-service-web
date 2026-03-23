@@ -1,5 +1,5 @@
 <template>
-  <edit-page-layout ref="editLayout" :title="repairDetailName" showPaneFooter @save="handleSave">
+  <edit-page-layout ref="editLayout" :title="repairDetailName" showPaneFooter @save="handleSave" :width="60">
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container
@@ -325,10 +325,7 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       emptyText: '暂无数据',
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
+      tableData: [],
       rules: {
         code: [
           { required: true, message: '请输入套餐代码', trigger: 'change' }
@@ -478,7 +475,6 @@ export default {
     },
     // 维修项目套餐列表
     async getProjectPackage () {
-      console.log('getProjectPackage');
       const res = await getPackagesItem({ repairPackagesId: this._id });
       this.tableData = res.records || [];
     },
