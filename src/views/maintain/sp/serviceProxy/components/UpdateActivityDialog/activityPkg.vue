@@ -101,7 +101,15 @@
               <div class="parts-section">
                 <h3>项目零件</h3>
                 <div class="parts-tabs">
-                  <div :class="{'parts-tabs-item': true, 'active': item.id === curPartTab}" v-for="item in partsList" :key="item.id" @click="handleTabClick(item)">{{ item.repairItemName }}123</div>
+                  <div :class="{'parts-tabs-item': true, 'active': item.id === curPartTab, 'is-disabled': item.allowDelete === 0}" v-for="item in partsList" :key="item.id" @click="handleTabClick(item)">
+                    <el-checkbox
+                      :value="item.checked"
+                      @click.native.prevent="handleItemCheckboxClick(item)"
+                      @change="handleItemCheckboxChange(item)"
+                    >
+                      {{ item.repairItemName }}
+                    </el-checkbox>
+                  </div>
                 </div>
                 <div class="info-row">
                   <div class="info-item">
@@ -210,7 +218,8 @@ export default {
       curPartTab: '',
       curItemList: {},
       response: {},
-      hasNewPart: false
+      hasNewPart: false,
+      partsList: []
     };
   },
   computed: {
@@ -334,7 +343,10 @@ export default {
           ...item,
           expanded: true
         }));
-        this.partsList = res.itemResponseList || [];
+        this.partsList = (res.itemResponseList || []).map(item => ({
+          ...item,
+          checked: item.allowDelete === 0 || item.used || false
+        }));
         if (this.partsList.length > 0) {
           this.curPartTab = this.partsList[0].id;
           this.curItemList = this.partsList[0];
@@ -390,6 +402,11 @@ export default {
       }
     },
     checkItemCanAdd (item) {
+      // 如果是维修项目对象
+      if (item.repairItemCode) {
+        return item.allowDelete === 0 || item.checked;
+      }
+      // 如果是零件对象
       if (item.used) {
         return false;
       } else {
@@ -402,9 +419,9 @@ export default {
         this.$message.warning('请选择套餐');
         return false;
       }
-      // 对 itemList 进行字段映射
+      // 对 itemList 进行字段映射，只获取被勾选的维修项目
       const activityRes = this.response?.activityResponse || {};
-      const itemList = (this.response.itemResponseList || []).filter(item => this.checkItemCanAdd(item)).map(item => ({
+      const itemList = (this.partsList || []).filter(item => item.checked).map(item => ({
         serviceProxyId: this.vehicleInfo.id,
         repairItemId: item.id,
         repairItemCode: item.repairItemCode,
@@ -429,38 +446,44 @@ export default {
       (this.response.itemResponseList || []).forEach(item => {
         itemMap[item.id] = item;
       });
-      // 对 partsList 进行字段映射
-      const partsList = this.response?.partResponseList.filter(item => this.checkItemCanAdd(item)).map(part => {
-        const repairItem = itemMap[part.serviceActivityItemId] || {};
-        return {
-          serviceProxyId: this.vehicleInfo.id,
-          partsId: part.partId,
-          partsCode: part.partCode,
-          partsName: part.partName,
-          isOutstock: 0,
-          planPickNumber: part.quantity,
-          actualPickNumber: 0,
-          refundedNumber: 0,
-          repairItemTypeId: part.repairItemTypeId,
-          repairItemTypeName: part.repairItemTypeName,
-          checkoutTypeId: activityRes.checkoutTypeId,
-          checkoutTypeName: activityRes.checkoutTypeName,
-          warrantyTypeId: activityRes.repairItemTypeId,
-          warrantyTypeName: activityRes.repairItemTypeName,
-          isOemPart: 0,
-          quantity: part.quantity,
-          discountAmount: part.discountAmount || 0,
-          spRepairItemId: part.serviceActivityItemId,
-          isBindItem: 0,
-          repairItemId: part.serviceActivityItemId,
-          repairItemCode: repairItem.repairItemCode || '',
-          repairItemName: repairItem.repairItemName || '',
-          packageType: 50,
-          packageId: this.selectedPackage.activityId + '#' + this.selectedPackage.id,
-          packageCode: activityRes.activityCode,
-          packageName: activityRes.activityName,
-        };
-      });
+      // 对 partsList 进行字段映射，只提交被勾选的维修项目相关的零件
+      const checkedItemIds = (this.partsList || [])
+        .filter(item => item.checked)
+        .map(item => item.id);
+
+      const partsList = this.response?.partResponseList
+        .filter(item => checkedItemIds.includes(item.serviceActivityItemId) && this.checkItemCanAdd(item))
+        .map(part => {
+          const repairItem = itemMap[part.serviceActivityItemId] || {};
+          return {
+            serviceProxyId: this.vehicleInfo.id,
+            partsId: part.partId,
+            partsCode: part.partCode,
+            partsName: part.partName,
+            isOutstock: 0,
+            planPickNumber: part.quantity,
+            actualPickNumber: 0,
+            refundedNumber: 0,
+            repairItemTypeId: part.repairItemTypeId,
+            repairItemTypeName: part.repairItemTypeName,
+            checkoutTypeId: activityRes.checkoutTypeId,
+            checkoutTypeName: activityRes.checkoutTypeName,
+            warrantyTypeId: activityRes.repairItemTypeId,
+            warrantyTypeName: activityRes.repairItemTypeName,
+            isOemPart: 0,
+            quantity: part.quantity,
+            discountAmount: part.discountAmount || 0,
+            spRepairItemId: part.serviceActivityItemId,
+            isBindItem: 0,
+            repairItemId: part.serviceActivityItemId,
+            repairItemCode: repairItem.repairItemCode || '',
+            repairItemName: repairItem.repairItemName || '',
+            packageType: 50,
+            packageId: this.selectedPackage.activityId + '#' + this.selectedPackage.id,
+            packageCode: activityRes.activityCode,
+            packageName: activityRes.activityName,
+          };
+        });
       try {
         const params = {
           packageId: this.selectedPackage.id,
@@ -485,6 +508,33 @@ export default {
         this.setCheckedMainParts();
       }, 300);
     },
+    // 处理维修项目checkbox点击
+    handleItemCheckboxClick (item) {
+      if (item.allowDelete === 0) {
+        return false;
+      } else {
+        item.checked = !item.checked;
+      }
+    },
+    // 处理维修项目checkbox变化
+    handleItemCheckboxChange (item) {
+      // console.log('handleItemCheckboxChange', item);
+      // if (item.allowDelete === 0) {
+      //   item.checked = true;
+      //   return;
+      // }
+      // item.checked = !item.checked;
+      // // 更新该项目下所有零件的选中状态
+      // const relatedParts = this.response.partResponseList.filter(part => part.serviceActivityItemId === item.id);
+      // relatedParts.forEach(part => {
+      //   part.checked = item.checked;
+      // });
+      // // 刷新表格选中状态
+      // setTimeout(() => {
+      //   this.setCheckedMainParts();
+      // }, 100);
+      // this.hasNewPart = this.response.partResponseList.some(part => part.checked && part.allowDelete === '1');
+    },
     // 主因件强制勾选，禁止取消
     checkMainPartMethod ({ row }) {
       return row.allowDelete !== '0';
@@ -497,10 +547,19 @@ export default {
         : this.$refs.partsTableRef;
       if (!tableRef) return;
       // 找出所有不允许删除的项目并勾选
-      const mainPartRows = this.partRespList.filter(row => row.allowDelete === '0' || row.used);
+      const mainPartRows = this.partRespList.filter(row => row.allowDelete === '0' || row.used || row.checked);
       if (mainPartRows.length > 0) {
         tableRef.setCheckboxRow(mainPartRows, true);
       }
+      // 同步维修项目的选中状态
+      this.partRespList.forEach(part => {
+        if (part.checked && part.allowDelete === '1') {
+          const repairItem = this.partsList.find(item => item.id === part.serviceActivityItemId);
+          if (repairItem && !repairItem.checked) {
+            repairItem.checked = true;
+          }
+        }
+      });
     },
   }
 };
@@ -744,6 +803,23 @@ export default {
           &.active {
             border: 1px solid var(--leap-color-primary);
             color: var(--leap-color-primary);
+          }
+          &.is-disabled {
+            // cursor: not-allowed;
+            background-color: var(--leap-color-default-light-5);
+            ::v-deep .el-checkbox__input.is-disabled .el-checkbox__inner {
+              background-color: var(--leap-color-default-light-3);
+              border-color: var(--leap-color-default-light-3);
+            }
+            ::v-deep .el-checkbox__input.is-disabled + .el-checkbox__label {
+              color: var(--leap-color-default-light-1);
+            }
+          }
+          ::v-deep .el-checkbox {
+            margin: 0;
+          }
+          ::v-deep .el-checkbox__label {
+            padding-left: 8px;
           }
         }
       }
