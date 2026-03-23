@@ -15,8 +15,20 @@
       <el-form-item label="采购申请单">
         <tag-input v-model="form.purchaseApplyCodeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
-        <tag-input v-model="form.purchaseApplyCodeList" placeholder="请输入" />
+      <el-form-item label="备件" v-if="activeName === 'allSpareParts'||activeName === 'proxySign'" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+            :remote-method="getSparePart"
+            remote
+            v-model="form.sparePartIdList"
+            placeholder="请输入编码或名称"
+            labelKey="name"
+            valueKey="id"
+            subLabelKey="code"
+            clearable
+            multiple
+            collapseTags
+            filterable
+              />
       </el-form-item>
       <el-form-item label="缺货单号"  v-show="this.visibleCount === 3 || show" v-if="activeName === 'homePage'">
         <tag-input v-model="form.backOrderCodeList" placeholder="请输入" />
@@ -69,7 +81,7 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="订单状态" v-if="activeName === 'homePage'">
+        <el-form-item label="订单状态" v-if="activeName === 'homePage'||activeName === 'allSpareParts'">
           <fetch-select
             :request="fetchOptions"
             enumCode="PurchaseOrderStatusEnum"
@@ -80,11 +92,30 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="发运单">
+        <el-form-item label="发运单" v-if="activeName === 'homePage'">
           <el-input
             placeholder="请输入"
             v-model="form.shippingOrderLike"
             clearable
+          />
+        </el-form-item>
+        <el-form-item label="取消人" v-if="activeName === 'allSpareParts'">
+          <el-input
+            placeholder="请输入"
+            v-model="form.cancelOperatorLike"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="取消时间" v-if="activeName === 'allSpareParts'">
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="form.cancelTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
           />
         </el-form-item>
         <el-form-item label="创建时间">
@@ -247,7 +278,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, pageAll, pageWaitSign } from '@/api/sparepart/purchase/purchaseOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listOemWarehouse } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listOemWarehouse, sparePartListShort } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -371,11 +402,29 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'backOrderCode', label: '缺货单号', visible: true, width: 200 },
+          {
+            props: 'backOrderCode',
+            label: '缺货单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/backOrder/edit',
+                  query: {
+                    id: row.backOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'deliveryWarehouseName', label: '发货仓库', visible: true, width: 200 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'receiveWarehouseName', label: '仓库名称', visible: true, width: 200 },
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
           {
@@ -459,6 +508,7 @@ export default {
               type: 'primary'
             }]
           },
+          { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'sparePartCode', label: '备件编码', visible: true, width: 180 },
@@ -474,8 +524,8 @@ export default {
           { props: 'originalPrice', label: '原价', visible: true, align: 'right', width: 120 },
           { props: 'purchasePrice', label: '采购价', visible: true, align: 'right', width: 120 },
           { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
-          { props: 'rebateUnitPrice', label: '折后价', visible: true, align: 'right', width: 120 },
-          { props: 'rebateAmount', label: '折后金额', visible: true, align: 'right', width: 120 },
+          { props: 'cashUnitPrice', label: '现金单价', visible: true, align: 'right', width: 120 },
+          { props: 'cashAmount', label: '现金金额', visible: true, align: 'right', width: 120 },
           { props: 'detailRemark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -543,6 +593,8 @@ export default {
               type: 'primary'
             }]
           },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'dealerCode', label: '运单号', visible: true, width: 200 },
           { props: 'detailRemark', label: '备注', visible: true, width: 200 },
           { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
@@ -653,6 +705,18 @@ export default {
       }).finally(() => {
         this.exportLoading = false;
       });
+    },
+    async getSparePart (query) {
+      try {
+        const res = await sparePartListShort({ partCodeLikeOrList: query });
+        // res.records = res.records?.map(item => ({
+        //   ...item,
+        //   displayName: item.companyName + `(${item.companyCode})`
+        // }));
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     },
     getData () {
       this.loading = true;
@@ -773,6 +837,13 @@ export default {
           data.updateTimeEnd = this.form.updateTime[1];
         }
       }
+      if (this.form.cancelTime) {
+        delete data.cancelTime;
+        if (this.form.cancelTime.length > 1) {
+          data.cancelTimeStart = this.form.cancelTime[0];
+          data.cancelTimeEnd = this.form.cancelTime[1];
+        }
+      }
 
       return data;
     },
@@ -816,7 +887,7 @@ export default {
     // 点击tabs栏切换
     handleClick (item) {
       this.activeName = item.name;
-      this.getData();
+      this.onReset();
     },
     // 签收  签收并入库
     handleSignFor (val, type, returnError) {
@@ -883,7 +954,10 @@ export default {
     },
     // 打开物流信息抽屉
     getLogisticsInfo (row) {
-      this.logisticsData = row || {};
+      this.logisticsData = {
+        logisticsProvider: row.carrier,
+        logisticsOrderNo: row.shippingOrder,
+      };
       this.logisticsDrawerVisible = true;
     }
   }

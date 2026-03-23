@@ -11,7 +11,7 @@
           <el-button size="small" @click="reject" v-if="buttonPermissions.reject">驳回</el-button>
           <el-button size="small" @click="addInvoiceRecord" v-if="buttonPermissions.addRecord">添加收款记录</el-button>
           <el-button size="small" @click="paySuccess" v-if="buttonPermissions.success">完成收款</el-button>
-          <el-button size="small" @click="createRefund" v-if="buttonPermissions.reCreate">创建反结算单</el-button>
+          <el-button size="small" @click="createRefund" v-if="buttonPermissions.reCreate || buttonPermissions.reCreate1">创建反结算单</el-button>
           <el-button size="small" @click="createWarrantyApply"
             v-if="buttonPermissions.createWarranty">创建保修申请单</el-button>
           <el-button size="small" @click="handlePrint">打印结算单</el-button>
@@ -255,14 +255,6 @@
         :info="form" @refresh="handleRefresh" />
       <AddPayrecordDialog :visible.sync="addPayrecordDialogVisible" :serviceProxyId="_id" :info="form"
         @refresh="handleRefresh" />
-      <CreateRefundDialog
-        :visible.sync="createRefundDialogVisible"
-        :id="_id"
-        :formData="form"
-        :loading="refundLoading"
-        @confirm="handleCreateRefund"
-        @cancel="handleRefundCancel"
-      />
     </template>
     <template #right>
       <div class="page-common-edit">
@@ -273,7 +265,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, reject, receiptCompletion } from '@/api/maintain/sp/serviceStatement/index';
+import { getDetail, addOrUpdate, reject, receiptCompletion, createCounterSettlement } from '@/api/maintain/sp/serviceStatement/index';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -291,7 +283,6 @@ import PayRecord from '@/views/maintain/sp/serviceStatement/components/PayRecord
 import SelectRightsDialog from './components/SelectRightsDialog';
 import SubmitSettlemenDialog from './components/SubmitSettlemenDialog';
 import AddPayrecordDialog from './components/AddPayrecordDialog';
-import CreateRefundDialog from './components/CreateRefundDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -383,8 +374,7 @@ export default {
     PayRecord,
     SelectRightsDialog,
     SubmitSettlemenDialog,
-    AddPayrecordDialog,
-    CreateRefundDialog
+    AddPayrecordDialog
   },
   computed: {
     _id () {
@@ -409,9 +399,9 @@ export default {
 
         // 完成收款：结算类型为自费/保险/内部结算，状态为待收款
         success: baseType.includes(statementType) && statementStatus === 30,
-        //1）【结算单类型】为自费、保险、内部结算 且 【结算单状态】为【已收款】 且 该结算单未创建反结算申请，展示该按钮支持创建反结算；
+        // 1）【结算单类型】为自费、保险、内部结算 且 【结算单状态】为【已收款】 且 该结算单未创建反结算申请，展示该按钮支持创建反结算；
         reCreate: baseType.includes(statementType) && [40].includes(statementStatus) && !this.form.createReStatement,
-        //2）【结算单类型】为保修、合同 且 【结算单状态】为【待收款】、【已收款】且 该结算单未创建反结算申请 ，展示该按钮支持创建反结算；
+        // 2）【结算单类型】为保修、合同 且 【结算单状态】为【待收款】、【已收款】且 该结算单未创建反结算申请 ，展示该按钮支持创建反结算；
         reCreate1: baseType2.includes(statementType) && [40, 30].includes(statementStatus) && !this.form.createReStatement,
         // 添加收款记录：结算类型为自费/保险/内部结算，状态为待收款
         addRecord: baseType.includes(statementType) && statementStatus === 30,
@@ -444,7 +434,6 @@ export default {
       rightsDialogVisible: false,
       submitSettlemenDialogVisible: false,
       addPayrecordDialogVisible: false,
-      createRefundDialogVisible: false,
       refundLoading: false,
       tableData: [],
       form: { ...form },
@@ -463,6 +452,21 @@ export default {
   mounted () {
   },
   methods: {
+    showMsg (msg) {
+      return new Promise((resolve) => {
+        const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>提醒</div><div class="ais-leave-tips-sub">${msg}</div>`;
+        this.$confirm(message, '', {
+          confirmButtonText: '确定',
+          dangerouslyUseHTMLString: true,
+          customClass: 'ais-leave-tips',
+          showClose: false
+        }).then(() => {
+          resolve(true);
+        }).catch(() => {
+          resolve(false);
+        });
+      });
+    },
     goToServiceProxy (serviceProxyId) {
       if (serviceProxyId) {
         this.$router.push({
@@ -506,14 +510,10 @@ export default {
 
     reject () {
       // 实现驳回功能
-      this.$confirm('您确定要驳回吗？', '确认操作', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        // 调用驳回接口
-        this.handleReject();
-      }).catch(() => {
+      this.showMsg('您确定要驳回吗？').then((result) => {
+        if (result) {
+          this.handleReject();
+        }
       });
     },
     // 处理驳回逻辑
@@ -560,14 +560,10 @@ export default {
     },
     // 确认收款完成
     confirmPaySuccess () {
-      this.$confirm('您确定要收款完成吗？', '确认操作', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.handlePaySuccess();
-      }).catch(() => {
-        this.$message.info('已取消收款完成操作');
+      this.showMsg('您确定要收款完成吗？').then((result) => {
+        if (result) {
+          this.handlePaySuccess();
+        }
       });
     },
     // 处理收款完成逻辑
@@ -586,20 +582,35 @@ export default {
       }
     },
 
-    createRefund () {
-      // 实现创建反结算单功能
-      this.createRefundDialogVisible = true;
-    },
-
-    handleRefundConfirm (response) {
-      // 接口调用已在组件中完成，这里可以处理后续逻辑
-      console.log('反结算申请创建成功', response);
-      // 刷新页面数据
-      this.handleRefresh();
-    },
-
-    handleRefundCancel () {
-      this.$message.info('已取消创建反结算单操作');
+    async createRefund () {
+      const result = await this.showMsg('确定要创建反结算申请？<br><strong style="color: var(--leap-color-danger);">该施工单对应的结算单均需反结算,才可回退施工单进行修改</strong>');
+      if (result) {
+        try {
+          this.refundLoading = true;
+          const response = await createCounterSettlement(this._id);
+          if (response.code === 200) {
+            this.$message.success('反结算申请创建成功');
+            // 跳转至反结算编辑页面
+            if (response.data) {
+              this.$router.push({
+                path: '/maintain/sp/restatement/edit',
+                query: {
+                  id: response.data
+                }
+              });
+            } else {
+              this.$message.warning('未找到反结算申请单 ID');
+            }
+            this.handleRefresh();
+          } else {
+            this.$message.error(response.msg || '反结算申请创建失败');
+          }
+        } catch (error) {
+          console.error('创建反结算申请失败:', error);
+        } finally {
+          this.refundLoading = false;
+        }
+      }
     },
 
     createWarrantyApply () {

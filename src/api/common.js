@@ -184,6 +184,14 @@ export function sparePartListShort (data) {
 }
 
 /**
+ * 备件主数据表列表查询
+ * @param {*} data
+ */
+export function listDealerPart (data) {
+  return api.jsonPost('/sp/web/basic/sparePart/listDealerPart', data);
+}
+
+/**
  * 母公司列表查询
  * @param {*} data
  */

@@ -98,11 +98,11 @@
                   <vxe-column field="repairItemTypeName" title="维修类型" min-width="120" />
                   <vxe-column field="checkoutTypeName" title="结算类型" min-width="120" />
                   <vxe-column field="warrantyTypeName" title="保修类型" min-width="120" />
-                  <vxe-column field="price" title="工时单价" min-width="120" />
+                  <!-- <vxe-column field="price" title="工时单价" min-width="120" />
                   <vxe-column field="workHour" title="工时数" min-width="100" />
                   <vxe-column field="discountAmount" title="优惠金额" min-width="120" />
                   <vxe-column field="discountRate" title="折扣率" min-width="100" />
-                  <vxe-column field="repairAmount" title="项目金额" min-width="120" />
+                  <vxe-column field="repairAmount" title="项目金额" min-width="120" /> -->
                   <vxe-column field="packageCode" title="活动编号" min-width="150" />
                   <template #empty>
                     <div class="m-vxe-table-empty-text">暂无维修项目数据</div>
@@ -144,11 +144,11 @@
                   <vxe-column field="repairItemTypeName" title="维修类型" min-width="120" />
                   <vxe-column field="checkoutTypeName" title="结算类型" min-width="120" />
                   <vxe-column field="warrantyTypeName" title="保修类型" min-width="120" />
-                  <vxe-column field="price" title="单价" min-width="120" />
+                  <!-- <vxe-column field="price" title="单价" min-width="120" />
                   <vxe-column field="quantity" title="数量" min-width="100" />
                   <vxe-column field="discountAmount" title="优惠金额" min-width="120" />
                   <vxe-column field="discountRate" title="折扣率" min-width="100" />
-                  <vxe-column field="partsAmount" title="配件金额" min-width="120" />
+                  <vxe-column field="partsAmount" title="配件金额" min-width="120" /> -->
                   <vxe-column field="packageCode" title="活动编号" min-width="150" />
                   <template #empty>
                     <div class="m-vxe-table-empty-text">暂无维修配件数据</div>

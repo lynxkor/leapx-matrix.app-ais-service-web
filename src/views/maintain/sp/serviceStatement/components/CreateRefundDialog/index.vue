@@ -36,7 +36,7 @@ export default {
       type: Boolean,
       default: false
     },
-id: {
+    id: {
       type: String,
       default: ''
     },
@@ -80,7 +80,6 @@ id: {
         }
       } catch (error) {
         console.error('创建反结算申请失败:', error);
-
       }
     },
     handleCancel () {

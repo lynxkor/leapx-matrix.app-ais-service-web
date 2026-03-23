@@ -67,3 +67,11 @@ export function getPartsList (data) {
 export function batchInvalid (data) {
   return api.jsonPost(prefix + 'batchInvalid', data);
 }
+/**
+ * 批量作废
+ * @param {Object} data
+ * @returns
+ */
+export function batchPush (data) {
+  return api.jsonPost(prefix + 'batchPush', data);
+}

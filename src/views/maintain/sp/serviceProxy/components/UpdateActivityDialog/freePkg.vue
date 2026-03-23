@@ -147,7 +147,7 @@ export default {
   },
   computed: {
     confirmBtnText () {
-      return this.selectedPackage?.used ? '取消选择' : '核销使用';
+      return this.selectedPackage?.used ? '取消选择' : '选择';
     }
   },
   methods: {

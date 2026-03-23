@@ -211,7 +211,7 @@ export default {
           },
           { props: 'commodityName', label: '权益商品名称', visible: true, width: 200 },
           { props: 'serviceInterestsTypeLabel', label: '服务权益类型', visible: true, width: 200 },
-          { props: 'classificationGoodsName', label: '权益商品分类', visible: true, width: 200 },
+          // { props: 'classificationGoodsName', label: '权益商品分类', visible: true, width: 200 },
           { props: 'datePurchase', label: '购买后有效期（月）', visible: true, width: 200 },
           { props: 'whetherShelfLabel', label: '是否上架', visible: true, width: 200 },
           { props: 'claimItemAmount', label: '索赔项目工时费用（总）', visible: true, width: 200 },
@@ -262,6 +262,9 @@ export default {
               popconfirmConfirmButtonType: 'danger',
               popconfirmConfirmButtonText: '删除',
               popconfirmTitle: '此操作将永久删除, 是否继续?',
+              disabled: (row) => {
+                return row.whetherShelf === 1;
+              },
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
                   this.$message({
@@ -509,6 +512,7 @@ export default {
           // Update the local row data
           row.whetherShelf = status;
           row.whetherShelfLabel = status === 1 ? '是' : '否';
+          this.getData();
         }).catch(() => {
           this.$message({
             type: 'error',
