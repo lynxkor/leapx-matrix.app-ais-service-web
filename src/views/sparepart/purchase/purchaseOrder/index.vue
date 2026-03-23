@@ -393,6 +393,7 @@ export default {
           { props: 'deliveryWarehouseName', label: '发货仓库', visible: true, width: 200 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'receiveWarehouseName', label: '仓库名称', visible: true, width: 200 },
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
           {

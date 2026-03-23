@@ -27,22 +27,22 @@
             filterable
               />
       </el-form-item>
+      <el-form-item label="门店" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :remote-method="getDealerList"
+          remote
+          v-model="form.dealerCodeList"
+          placeholder="请输入门店编码或名称"
+          labelKey="orgName"
+          valueKey="orgCode"
+          subLabelKey="orgCode"
+          clearable
+          multiple
+          collapseTags
+          filterable
+            />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="门店">
-          <fetch-select
-            :remote-method="getDealerList"
-            remote
-            v-model="form.dealerCodeList"
-            placeholder="请输入门店编码或名称"
-            labelKey="orgName"
-            valueKey="orgCode"
-            subLabelKey="orgCode"
-            clearable
-            multiple
-            collapseTags
-            filterable
-              />
-        </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -114,6 +114,14 @@
       @close="handleUploadDialogClose"
       @getData="getData"
     />
+    <!-- 转调拨弹窗 -->
+    <TransferDialog
+      ref="transferDialogRef"
+      :visible.sync="transferDialogVisible"
+      :transferId="transferId"
+      @update:visible="val => transferDialogVisible = val"
+      @submit="getData"
+    />
   </div>
 </template>
 
@@ -132,6 +140,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
+import TransferDialog from './TransferDialog.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -156,7 +165,8 @@ export default {
     EditPage,
     Upload,
     TagInput,
-    FetchSelect
+    FetchSelect,
+    TransferDialog
   },
   data () {
     return {
@@ -173,6 +183,8 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      transferDialogVisible: false, // 转调拨弹窗
+      transferId: '', // 转调拨id
       clickItemId: '',
       optionObj: {
         id: 'boToShareTransferTable',
@@ -212,35 +224,43 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
-              name: '编辑',
+              name: '转调拨',
               click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/purchase/boToShareTransfer/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
+                this.handleTransfer(row);
               },
               type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
-            }]
+            }
+            //   {
+            //   name: '编辑',
+            //   click: (rowIndex, row) => {
+            //     this.$router.push({
+            //       path: '/sparepart/purchase/boToShareTransfer/edit',
+            //       query: {
+            //         id: row.id
+            //       }
+            //     });
+            //   },
+            //   type: 'info'
+            // }, {
+            //   name: '删除',
+            //   popconfirmTitle: '此操作将永久删除, 是否继续?',
+            //   click: (rowIndex, row) => {
+            //     deleteItem([row.id]).then(() => {
+            //       this.$message({
+            //         type: 'success',
+            //         message: '删除成功!'
+            //       });
+            //       this.getData();
+            //     }).catch(() => {
+            //       this.$message({
+            //         type: 'error',
+            //         message: '删除失败!'
+            //       });
+            //     });
+            //   },
+            //   type: 'danger'
+            // }
+            ]
           }
         ],
         total: 0
@@ -500,28 +520,11 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
+    },
+    // 转调拨弹窗
+    handleTransfer (val) {
+      this.transferId = val.id; // 获取调拨单id
+      this.transferDialogVisible = true;
     }
   }
 };

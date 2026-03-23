@@ -174,7 +174,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '留车清单表管理',
+      pageTitle: '留车清单',
       pageType: 'list',
       // TIPS: 权限前缀 AISCR，根据实际情况修改
       moduleKey: 'AISMC-vehRetentionList',

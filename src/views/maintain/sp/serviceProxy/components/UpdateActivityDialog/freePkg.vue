@@ -147,7 +147,7 @@ export default {
   },
   computed: {
     confirmBtnText () {
-      return this.selectedPackage?.used ? '取消选择' : '核销使用';
+      return this.selectedPackage?.used ? '取消选择' : '选择';
     }
   },
   methods: {
@@ -306,7 +306,7 @@ export default {
       flex: 1;
       overflow-y: auto;
       padding: 0 12px;
-      max-height: 620px;
+      max-height: 520px;
     }
 
     .list-empty {
@@ -407,7 +407,7 @@ export default {
       .project-list {
         flex: 1;
         overflow-y: auto;
-        max-height: 600px;
+        max-height: 500px;
 
         .project-item {
           margin-bottom: 16px;

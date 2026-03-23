@@ -134,7 +134,7 @@
             :title="!selectedPackage?.used ? '确定取消使用该维修套餐？' : '确定选择使用该维修套餐？'"
             @confirm="handleConfirm"
           >
-            <el-button :type="!selectedPackage?.used ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
+            <el-button :type="!selectedPackage?.used ? 'primary' : 'plain'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
           </el-popconfirm>
         </div>
       </div>
@@ -180,7 +180,7 @@ export default {
       return type?.name || '全部套餐';
     },
     confirmBtnText () {
-      return this.selectedPackage?.used ? '取消选择' : '核销使用';
+      return this.selectedPackage?.used ? '取消选择' : '选择';
     }
   },
   methods: {
@@ -307,6 +307,7 @@ export default {
         });
         this.$message.success('取消成功');
         this.selectedPackage.used = false;
+        this.$emit('refresh');
         return true;
       } catch (error) {
         console.error('取消套餐失败', error);
@@ -327,6 +328,7 @@ export default {
         await useRp(params);
         this.selectedPackage.used = true;
         this.$message.success('使用成功');
+        this.$emit('refresh');
         return true;
       } catch (error) {
         console.error('使用套餐失败', error);
@@ -382,7 +384,7 @@ export default {
       flex: 1;
       overflow-y: auto;
       padding: 0 12px;
-      max-height: 620px;
+      max-height: 520px;
     }
 
     .list-item {
@@ -470,7 +472,7 @@ export default {
       .project-list {
         flex: 1;
         overflow-y: auto;
-        max-height: 600px;
+        max-height: 500px;
         .project-item {
           margin-bottom: 16px;
           // border: 1px solid var(--leap-color-default-light-4);

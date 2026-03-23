@@ -2507,6 +2507,30 @@ const routes = [
         name: '备件索赔价格详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/claim/basic/supplierReplacementCarClaimPrice',
+      name: 'supplierReplacementCarClaimPrice',
+
+      component: () => import(
+        '@/views/claimreturn/claim/basic/supplierReplacementCarClaimPrice/index.vue'
+      ),
+
+      meta: {
+        name: '供应商代步车索赔价格',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/basic/supplierreplacementcarclaimprice/edit',
+      name: 'supplierReplacementCarClaimPriceEdit',
+
+      component: () => import(
+        '@/views/claimreturn/claim/basic/supplierReplacementCarClaimPrice/edit.vue'
+      ),
+
+      meta: {
+        name: '供应商代步车索赔价格详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
