@@ -307,6 +307,7 @@ export default {
         });
         this.$message.success('取消成功');
         this.selectedPackage.used = false;
+        this.$emit('refresh');
         return true;
       } catch (error) {
         console.error('取消套餐失败', error);
@@ -327,6 +328,7 @@ export default {
         await useRp(params);
         this.selectedPackage.used = true;
         this.$message.success('使用成功');
+        this.$emit('refresh');
         return true;
       } catch (error) {
         console.error('使用套餐失败', error);
