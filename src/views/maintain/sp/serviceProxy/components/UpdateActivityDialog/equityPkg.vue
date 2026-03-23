@@ -223,7 +223,7 @@ export default {
       flex: 1;
       overflow-y: auto;
       padding: 0 12px;
-      max-height: 620px;
+      max-height: 520px;
     }
 
     .list-empty {
