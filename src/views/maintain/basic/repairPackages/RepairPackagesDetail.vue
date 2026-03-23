@@ -374,6 +374,7 @@ export default {
       }
       getAddOrUpdate(params).then(() => {
         this.$message.success('保存成功');
+        this.$emit('refresh');
       });
     }
   }
