@@ -221,8 +221,8 @@ export default {
     // 初始化数据（编辑模式 - 传了detailData，不传repairItemId）
     initData (data) {
       this.repairDetail = {
-        repairItemName: data.repairItemName || '',
-        repairItemCode: data.repairItemCode || '',
+        repairItemName: data.name || '',
+        repairItemCode: data.code || '',
         repairItemId: data.repairItemId || '',
         repairItemTypeId: data.repairItemTypeId || '',
         repairItemTypeName: data.repairItemTypeName || '',
