@@ -212,6 +212,14 @@ export default {
     Condition
   },
   data () {
+    // 校验只能输入非中文（英文、数字、下划线等）
+    const validateNonChinese = (_, value, callback) => {
+      if (value && /[\u4e00-\u9fa5]/.test(value)) {
+        callback(new Error('不能输入中文'));
+      } else {
+        callback();
+      }
+    };
     return {
       dialogVisible: false,
       formDialogVisible: false,
@@ -230,7 +238,8 @@ export default {
           { required: true, message: '请输入字段显示名称', trigger: 'blur' }
         ],
         fieldName: [
-          { required: true, message: '请输入字段名称', trigger: 'blur' }
+          { required: true, message: '请输入字段名称', trigger: 'blur' },
+          { validator: validateNonChinese, trigger: 'blur' }
         ],
         fieldType: [
           { required: true, message: '请选择字段类型', trigger: 'change' }

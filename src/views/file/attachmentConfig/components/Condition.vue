@@ -139,9 +139,7 @@ export default {
         { label: '大于', value: '>' },
         { label: '小于', value: '<' },
         { label: '大于等于', value: '>=' },
-        { label: '小于等于', value: '<=' },
-        { label: '包含', value: 'contains' },
-        { label: '不包含', value: 'not_contains' }
+        { label: '小于等于', value: '<=' }
       ],
       conditions: [
         {
@@ -182,7 +180,7 @@ export default {
         .then(res => {
           const records = res.data?.records || [];
           this.fieldOptions = records.map(item => ({
-            label: item.fieldName,
+            label: item.fieldLabel,
             value: item.fieldName,
             fieldType: item.fieldType,
             valueSource: item.valueSource

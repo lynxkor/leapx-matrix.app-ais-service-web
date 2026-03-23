@@ -144,6 +144,7 @@
                   max-height="200px"
                   :checkbox-config="{ checkMethod: checkMainPartMethod }"
                   @checkbox-change="handlePartCheckboxChange"
+                  @checkbox-all="handlePartCheckboxAll"
                 >
                   <vxe-column type="checkbox" width="50" align="center"/>
                   <vxe-column field="partName" title="零件名称" min-width="140" />
@@ -245,6 +246,13 @@ export default {
   methods: {
     handlePartCheckboxChange ({ checked, row }) {
       row.checked = checked;
+      this.curItemList.checked = checked;
+      this.hasNewPart = this.response.partResponseList.some(item => item.checked && item.allowDelete === '1');
+    },
+    handlePartCheckboxAll ({ checked, records }) {
+      records.forEach(row => {
+        row.checked = checked;
+      });
       this.curItemList.checked = checked;
       this.hasNewPart = this.response.partResponseList.some(item => item.checked && item.allowDelete === '1');
     },
@@ -374,6 +382,7 @@ export default {
           id: this.vehicleInfo.id
         });
         this.$message.success('取消成功');
+        this.$emit('refresh');
         return true;
       } catch (error) {
         console.error('取消套餐失败', error);
@@ -461,6 +470,7 @@ export default {
           partsList: partsList
         };
         await useActivity(params);
+        this.$emit('refresh');
         this.$message.success('使用成功');
         return true;
       } catch (error) {
@@ -532,7 +542,7 @@ export default {
       flex: 1;
       overflow-y: auto;
       padding: 0 12px;
-      max-height: 620px;
+      max-height: 520px;
     }
 
     .list-item {
@@ -627,7 +637,7 @@ export default {
       .project-list {
         flex: 1;
         overflow-y: auto;
-        max-height: 600px;
+        max-height: 500px;
         .project-item {
           margin-bottom: 16px;
           // border: 1px solid var(--leap-color-default-light-4);

@@ -19,7 +19,7 @@
                 <vxe-column field="partName" title="状态">
                   <template #default="{ row }">
                     <el-popconfirm :title="`确定要${row.status === 1 ? '停用' : '启用'}该套餐类型吗？`" @confirm="handleEdit(row)">
-                        <span slot="reference" type="text" :style="{ color: row.status === 1 ? '#B91919' : '#009100' }" size="small" class="btn-delete">{{ row.status === 1 ? '停用' : '启用' }}</span>
+                        <span slot="reference" type="text" :style="{ color: row.status === 1 ? '#009100' : '#B91919' }" size="small" class="btn-delete">{{ row.status === 1 ? '启用' : '停用' }}</span>
                     </el-popconfirm>
                   </template>
                 </vxe-column>

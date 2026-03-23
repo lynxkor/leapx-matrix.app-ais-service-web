@@ -284,7 +284,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '留车清单表管理',
+      pageTitle: '留车清单',
       pageType: 'edit',
       // TIPS: 权限前缀 AISCR 根据实际情况修改
       moduleKey: 'AISMC-vehRetentionList',
