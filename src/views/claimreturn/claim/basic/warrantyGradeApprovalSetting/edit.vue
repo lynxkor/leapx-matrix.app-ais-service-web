@@ -127,6 +127,7 @@
             </div>
             <div class="common-section-body">
               <grade-table
+                ref="gradeTable"
                 :id="_id"
                 :moduleKey="moduleKey"
               />
@@ -244,7 +245,10 @@ export default {
       }
     },
     submitRequest () {
-      return addOrUpdate({ ...this.form });
+      return addOrUpdate({ ...this.form }).then(res => {
+        this.$refs.gradeTable.getDetailPageApi();
+        return res;
+      });
     },
     openPane () {
       this.$refs.editLayout.openPane();
