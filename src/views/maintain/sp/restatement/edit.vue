@@ -11,21 +11,12 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
-        <template #status>
-          <div class="status-section">
-            <h2>反结算申请单编号：{{ form.code }}</h2>
-            <div class="status-item">
-              <span class="label">审核状态</span>
-              <span class="value">{{ form.approvalStatusLabel || '-' }}</span>
-            </div>
-            <div class="status-item">
-              <span class="label">创建时间</span>
-              <span class="value">{{ form.createTime || '-' }}</span>
-            </div>
-          </div>
-        </template>
+         <div class="common-sub-title">
+          <span>审核状态：{{ form.approvalStatusLabel || '-' }}</span>
+          <i>|</i>
+          <span>创建时间：{{ form.createTime || '-' }}</span>
+        </div>
         <template #extraButtons>
-
           <el-button size="small" @click="handleAudit" v-if="form.approvalStatus === 20">审核</el-button>
           <el-button size="small" @click="handleFinalAudit" v-if="form.approvalStatus === 30">财务审核</el-button>
           <el-button
@@ -43,80 +34,80 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
-                <el-form-item label="反结算申请单号:" required>
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="反结算申请单号：" required>
                   <el-input v-model="form.code" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="结算单号:" required>
+                <el-form-item label="结算单号：" required>
                   <el-link type="success" @click.prevent="goToStatementDetail">{{ form.statementCode || '-' }}</el-link>
                 </el-form-item>
-                <el-form-item label="结算单类型:" required>
+                <el-form-item label="结算单类型：" required>
                   <el-input v-model="form.statementTypeLabel" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="施工单号:" required>
+                <el-form-item label="施工单号：" required>
                   <el-link type="success" @click.prevent="goToServiceProxyDetail">{{ form.serviceProxyCode || '-' }}</el-link>
                 </el-form-item>
-                <el-form-item label="销账标识:" required>
+                <el-form-item label="销账标识：" required>
                   <el-input v-model="form.accountTypeLabel" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="数据来源:" required>
+                <el-form-item label="数据来源：" required>
                   <el-input v-model="form.dataSourceLabel" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="厅店:" required>
+                <el-form-item label="厅店：" required>
                   <el-link type="success" @click.prevent="goToDealerDetail">{{ form.dealerName || '-' }}</el-link>
                 </el-form-item>
-                <el-form-item label="结算单状态:" required>
+                <el-form-item label="结算单状态：" required>
                   <el-input v-model="form.statementStatusLabel" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="总金额:" required>
+                <el-form-item label="总金额：" required>
                   <el-input v-model="form.totalAmount" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="维修项目金额:" required>
+                <el-form-item label="维修项目金额：" required>
                   <el-input v-model="form.repairItemAmount" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="结算人员:" required>
+                <el-form-item label="结算人员：" required>
                   <el-input v-model="form.statementPersonName" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="去零金额:" required>
+                <el-form-item label="去零金额：" required>
                   <el-input v-model="form.noFractionAmount" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="维修项目优惠金额:" required>
+                <el-form-item label="维修项目优惠金额：" required>
                   <el-input v-model="form.repairItemDiscount" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="结算时间:" required>
+                <el-form-item label="结算时间：" required>
                   <el-input v-model="form.statementTime" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="权益金额:" required>
+                <el-form-item label="权益金额：" required>
                   <el-input v-model="form.rightsAmount" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="维修项目应付金额:" required>
+                <el-form-item label="维修项目应付金额：" required>
                   <el-input v-model="form.repairItemPayableAmount" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="收款人:">
+                <el-form-item label="收款人：">
                   <el-input v-model="form.payeeName" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="优惠总金额:" required>
+                <el-form-item label="优惠总金额：" required>
                   <el-input v-model="form.discountAmount" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="零件金额:" required>
+                <el-form-item label="零件金额：" required>
                   <el-input v-model="form.partAmount" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="收款时间:">
+                <el-form-item label="收款时间：">
                   <el-input v-model="form.receiveAt" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="实际应付总金额:" required>
+                <el-form-item label="实际应付总金额：" required>
                   <el-input v-model="form.payableAmount" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="零件优惠金额:" required>
+                <el-form-item label="零件优惠金额：" required>
                   <el-input v-model="form.partDiscount" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="剩余应付款金额:" required>
+                <el-form-item label="剩余应付款金额：" required>
                   <el-input v-model="form.remainAmount" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="零件应付金额:" required>
+                <el-form-item label="零件应付金额：" required>
                   <el-input v-model="form.partPayableAmount" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="原因说明:" prop="reason">
+                <el-form-item label="原因说明：" prop="reason" class="form-item-full">
                   <el-input
                     v-model="form.reason"
                     type="textarea"
@@ -127,6 +118,83 @@
                   />
                 </el-form-item>
               </el-form>
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="反结算申请单号：">
+                  {{ form.code || '-' }}
+                </el-form-item>
+                <el-form-item label="结算单号：">
+                  <el-link type="success" @click.prevent="goToStatementDetail">{{ form.statementCode || '-' }}</el-link>
+                </el-form-item>
+                <el-form-item label="结算单类型：">
+                  {{ form.statementTypeLabel || '-' }}
+                </el-form-item>
+                <el-form-item label="施工单号：">
+                  <el-link type="success" @click.prevent="goToServiceProxyDetail">{{ form.serviceProxyCode || '-' }}</el-link>
+                </el-form-item>
+                <el-form-item label="销账标识：">
+                  {{ form.accountTypeLabel || '-' }}
+                </el-form-item>
+                <el-form-item label="数据来源：">
+                  {{ form.dataSourceLabel || '-' }}
+                </el-form-item>
+                <el-form-item label="厅店：">
+                  <el-link type="success" @click.prevent="goToDealerDetail">{{ form.dealerName || '-' }}</el-link>
+                </el-form-item>
+                <el-form-item label="结算单状态：">
+                  {{ form.statementStatusLabel || '-' }}
+                </el-form-item>
+                <el-form-item label="总金额：">
+                  {{ form.totalAmount || '-' }}
+                </el-form-item>
+                <el-form-item label="维修项目金额：">
+                  {{ form.repairItemAmount || '-' }}
+                </el-form-item>
+                <el-form-item label="结算人员：">
+                  {{ form.statementPersonName || '-' }}
+                </el-form-item>
+                <el-form-item label="去零金额：">
+                  {{ form.noFractionAmount || '-' }}
+                </el-form-item>
+                <el-form-item label="维修项目优惠金额：">
+                  {{ form.repairItemDiscount || '-' }}
+                </el-form-item>
+                <el-form-item label="结算时间：">
+                  {{ form.statementTime || '-' }}
+                </el-form-item>
+                <el-form-item label="权益金额：">
+                  {{ form.rightsAmount || '-' }}
+                </el-form-item>
+                <el-form-item label="维修项目应付金额：">
+                  {{ form.repairItemPayableAmount || '-' }}
+                </el-form-item>
+                <el-form-item label="收款人：">
+                  {{ form.payeeName || '-' }}
+                </el-form-item>
+                <el-form-item label="优惠总金额：">
+                  {{ form.discountAmount || '-' }}
+                </el-form-item>
+                <el-form-item label="零件金额：">
+                  {{ form.partAmount || '-' }}
+                </el-form-item>
+                <el-form-item label="收款时间：">
+                  {{ form.receiveAt || '-' }}
+                </el-form-item>
+                <el-form-item label="实际应付总金额：">
+                  {{ form.payableAmount || '-' }}
+                </el-form-item>
+                <el-form-item label="零件优惠金额：">
+                  {{ form.partDiscount || '-' }}
+                </el-form-item>
+                <el-form-item label="剩余应付款金额：">
+                  {{ form.remainAmount || '-' }}
+                </el-form-item>
+                <el-form-item label="零件应付金额：">
+                  {{ form.partPayableAmount || '-' }}
+                </el-form-item>
+                <el-form-item label="原因说明：" class="form-item-full">
+                  {{ form.reason || '-' }}
+                </el-form-item>
+              </el-form>
             </div>
           </section>
 
@@ -135,14 +203,28 @@
               <h2>审核记录</h2>
             </div>
             <div class="common-section-body">
-              <el-table :data="form.supportApprovalResps" style="width: 100%" border>
-                <el-table-column prop="creatorName" label="审核人" width="150" />
-                <el-table-column prop="approvalOn" label="审核时间" width="180" />
-                <el-table-column prop="approvalResult" label="审核动作" width="120" />
-                <el-table-column prop="statusDesc" label="审核状态" width="120" />
-                <el-table-column prop="content" label="审核意见" show-overflow-tooltip />
-              </el-table>
-
+              <div class="common-section-table">
+                <vxe-table
+                  ref="auditTableRef"
+                  stripe
+                  :data="form.supportApprovalResps"
+                  show-overflow
+                  resizable
+                  border="inner"
+                  size="medium"
+                  min-height="0"
+                  max-height="400px"
+                >
+                  <vxe-column field="creatorName" title="审核人" min-width="150px" />
+                  <vxe-column field="approvalOn" title="审核时间" min-width="180px" />
+                  <vxe-column field="approvalResult" title="审核动作" min-width="120px" />
+                  <vxe-column field="statusDesc" title="审核状态" min-width="120px" />
+                  <vxe-column field="content" title="审核意见" min-width="200px" />
+                  <template #empty>
+                    <div class="m-vxe-table-empty-text">暂无审核记录</div>
+                  </template>
+                </vxe-table>
+              </div>
             </div>
           </section>
         </el-main>
@@ -163,8 +245,8 @@
       <el-form :model="auditForm" :rules="auditRules" ref="auditFormRef" label-width="100px" label-position="left">
         <el-form-item label="审核操作" prop="auditAction" required>
           <el-select v-model="auditForm.auditAction" placeholder="请选择" style="width: 100%" @change="handleAuditActionChange">
-            <el-option label="同意" value=1 />
-            <el-option label="拒绝" value=2 />
+            <el-option label="同意" :value="1" />
+            <el-option label="拒绝" :value="2" />
           </el-select>
         </el-form-item>
         <el-form-item label="审核意见" prop="auditOpinion">
@@ -226,12 +308,12 @@ const defaultForm = {
 };
 
 export default {
-  name: 'restatementEdit',
+  name: 'RestatementEdit',
   props: {
     id: {
       type: [String, Number],
       default: null
-    },
+    }
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
@@ -242,7 +324,9 @@ export default {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
     },
-
+    title () {
+      return `反结算申请单编号：${this.form.code}`;
+    }
   },
   watch: {
     id: {
@@ -269,28 +353,36 @@ export default {
           { max: 500, message: '原因说明最多输入 500 字', trigger: 'blur' }
         ]
       },
-      auditList: [],
-      auditPage: 1,
-      auditPageSize: 4,
-      auditTotal: 0,
       auditDialogVisible: false,
       auditForm: {
         auditAction: '',
         auditOpinion: ''
       },
+      auditRules: {
+        auditAction: [
+          { required: true, message: '请选择审核操作', trigger: 'change' }
+        ],
+        auditOpinion: [
+          { required: true, message: '请输入审核意见', trigger: 'blur' }
+        ]
+      },
       auditLoading: false,
-      currentAuditType: '' // 当前审核类型：'audit' 或 'financialReview'
+      currentAuditType: ''
     };
   },
-
   methods: {
-    handleSave () {
-      this.$refs.containerRef.handleSubmit();
+    detailRequest () {
+      const id = this._id;
+      if (id) {
+        return getDetail(id);
+      }
     },
-    handleSaveAndClose () {
-      this.$refs.containerRef.handleSubmit(true);
+    submitRequest () {
+      return addOrUpdate({ ...this.form });
     },
-
+    openPane () {
+      this.$refs.editLayout.openPane();
+    },
     handleAudit () {
       this.currentAuditType = 'audit';
       this.auditDialogVisible = true;
@@ -298,14 +390,12 @@ export default {
         auditAction: '',
         auditOpinion: ''
       };
-      // 重置表单验证
       this.$nextTick(() => {
         if (this.$refs.auditFormRef) {
           this.$refs.auditFormRef.clearValidate();
         }
       });
     },
-    //财务审核
     handleFinalAudit () {
       this.currentAuditType = 'financialReview';
       this.auditDialogVisible = true;
@@ -313,7 +403,6 @@ export default {
         auditAction: '',
         auditOpinion: ''
       };
-      // 重置表单验证
       this.$nextTick(() => {
         if (this.$refs.auditFormRef) {
           this.$refs.auditFormRef.clearValidate();
@@ -321,7 +410,6 @@ export default {
       });
     },
     handleAuditActionChange (value) {
-      // 当选择拒绝时，强制验证审核意见字段
       if (value === 2) {
         this.$nextTick(() => {
           if (this.$refs.auditFormRef) {
@@ -337,8 +425,6 @@ export default {
         }
 
         this.auditLoading = true;
-
-        // 根据审核类型调用不同接口
         const apiFunc = this.currentAuditType === 'audit' ? audit : financialReview;
 
         apiFunc({
@@ -355,6 +441,27 @@ export default {
         }).finally(() => {
           this.auditLoading = false;
         });
+      });
+    },
+    async handleAuditSubmit () {
+      this.$confirm('是否确定要提交审核？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        try {
+          this.submitLoading = true;
+          await submitAudit(this._id);
+          this.$message.success('提交审核成功');
+          this.$refs.containerRef.loadDetail();
+        } catch (error) {
+          console.error('提交审核失败:', error);
+          this.$message.error(error.msg || '提交审核失败');
+        } finally {
+          this.submitLoading = false;
+        }
+      }).catch(() => {
+        this.$message.info('已取消提交审核');
       });
     },
     goToStatementDetail () {
@@ -384,138 +491,15 @@ export default {
         this.$message.warning('未找到厅店信息');
       }
     },
-
-    async handleAuditSubmit () {
-      // 二次确认
-      this.$confirm('是否确定要提交审核？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(async () => {
-        try {
-          this.submitLoading = true;
-          await submitAudit( this._id );
-
-          this.$message.success('提交审核成功');
-          this.$refs.containerRef.loadDetail();
-        } catch (error) {
-          console.error('提交审核失败:', error);
-          this.$message.error(error.msg || '提交审核失败');
-        } finally {
-          this.submitLoading = false;
-        }
-      }).catch(() => {
-        // 用户取消
-        this.$message.info('已取消提交审核');
-      });
-    },
-
-    detailRequest () {
-      const id = this._id;
-      if (id) {
-        return getDetail(id);
-      }
-    },
-    submitRequest () {
-      return addOrUpdate({ ...this.form });
-    },
-    openPane () {
-      this.$refs.editLayout.openPane();
-    },
     getDefautlForm () {
       return { ...defaultForm };
     },
     handleShowLog () {
       this.$auditLog.show({ id: this._id });
-    },
+    }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.status-section {
-  display: flex;
-  gap: 40px;
-  padding: 10px 0;
-
-  .status-item {
-    display: flex;
-    flex-direction: column;
-
-    .label {
-      font-size: 14px;
-      color: #909399;
-      margin-bottom: 4px;
-    }
-
-    .value {
-      font-size: 14px;
-      color: #303133;
-      font-weight: 500;
-    }
-  }
-}
-
-.common-section {
-  margin-bottom: 20px;
-  border: 1px solid #ebeef5;
-  border-radius: 4px;
-
-  .common-section-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid #ebeef5;
-    background-color: #f5f7fa;
-    border-radius: 4px 4px 0 0;
-
-    h2 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 500;
-      color: #303133;
-    }
-  }
-
-  .common-section-body {
-    padding: 20px;
-
-    .form-edit {
-      width: 100%;
-
-      ::v-deep .el-form-item {
-        margin-bottom: 20px;
-        width: 33.33%;
-
-        .el-form-item__label {
-          font-weight: 400;
-        }
-      }
-
-      ::v-deep .el-form-item--inline.large {
-        .el-form-item__content {
-          width: 70%;
-        }
-      }
-
-      ::v-deep textarea {
-        resize: vertical;
-      }
-    }
-  }
-}
-
-.audit-section {
-  .common-section-body {
-    .el-table {
-      margin-bottom: 16px;
-
-      ::v-deep .el-table__header th {
-        background-color: #f5f7fa;
-        color: #606266;
-        font-weight: 500;
-      }
-    }
-
-
-  }
-}
 </style>
