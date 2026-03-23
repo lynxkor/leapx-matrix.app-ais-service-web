@@ -17,7 +17,7 @@
           {{ rowIndex + 1 }}
         </template>
       </vxe-column>
-      <vxe-column title="审批人员" width="180">
+      <vxe-column title="审批人员">
         <template #default="{ row }">
           <fetch-select
             v-if="row._editing"
@@ -27,18 +27,18 @@
             reserve-keyword
             v-model="row.approverId"
             :remote-method="userRemote"
-            :params="row.approverName"
+            :params="row.approver"
             @change="(value, option) => onUserChange(row, value, option)"
             placeholder="请输入"
-            value-key="id"
-            label-key="name"
-            sub-label-key="code"
+            value-key="userId"
+            label-key="username"
+            sub-label-key="empNo"
           />
-          <span v-else>{{ row.approverName }}</span>
+          <span v-else>{{ row.approver }}</span>
         </template>
       </vxe-column>
-      <vxe-column field="approvalStatusCurrentLabel" title="审批时状态" width="160"></vxe-column>
-      <vxe-column title="审批后状态" width="160">
+      <vxe-column field="approvalStatusCurrentLabel" title="审批时状态"></vxe-column>
+      <vxe-column title="审批后状态">
         <template #default="{ row }">
           <fetch-select
             v-if="row._editing"
@@ -107,7 +107,7 @@
 
 import permissions from '@/libs/mixins/permissions';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
-import { getUserByNameOrNo, getEnum } from '@/api/common';
+import { getEnum, userQuery } from '@/api/common';
 import { logPage, logUpdate } from '@/api/claimreturn/claim/basic/warrantyGradeApprovalSetting';
 import { cloneDeep } from 'lodash';
 
@@ -192,7 +192,7 @@ export default {
       logUpdate({
         id: row.id,
         approverId: row.approverId,
-        approverName: row.approverName,
+        approver: row.approver,
         approvalStatusAfter: row.approvalStatusAfter,
       }).then(() => {
         this.$message.success('更新成功');
@@ -216,12 +216,11 @@ export default {
       this.$refs.editTable.setEditRow(newRow);
     },
     onUserChange (row, value, option) {
-      row.approverCode = option?.code;
-      row.approverName = option?.name;
-      row.approverId = option?.id;
+      row.approver = option?.username || '';
+      row.approverId = option?.userId;
     },
     userRemote (queryString) {
-      return getUserByNameOrNo({ name: queryString });
+      return userQuery({ keyword: queryString });
     },
     async fetchOptions (code) {
       if (code) {

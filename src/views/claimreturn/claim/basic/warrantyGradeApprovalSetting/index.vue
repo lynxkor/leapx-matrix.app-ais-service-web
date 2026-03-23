@@ -21,7 +21,6 @@
           listUrl="/maintain/web/basic/repairItemType/list"
           placeholder="请选择"
           v-model="form.warrantyTypeIds"
-          :disabled="Boolean(_id)"
           query-key="codeOrNameLike"
           auto-load-options
           no-param-load
