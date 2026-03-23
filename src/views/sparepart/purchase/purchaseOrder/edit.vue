@@ -13,10 +13,6 @@
         :originalForm.sync="originalForm"
         :showEditBtn="false"
       >
-        <template #status>
-          <!-- 支持primary,warning,success,danger等状态 -->
-          <span class="status primary">状态</span>
-        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
@@ -270,9 +266,6 @@
                 </el-form-item>
                 <el-form-item label="是否第三方收货：">
                   {{ form.thirdPartyDeliveryIsLabel }}
-                </el-form-item>
-                <el-form-item label="订单金额：" prop="cashAmount">
-                  {{ '没有字段' }}
                 </el-form-item>
                 <el-form-item label="发货仓库：" prop="deliveryWarehouse">
                   {{ form.deliveryWarehouseName }}
