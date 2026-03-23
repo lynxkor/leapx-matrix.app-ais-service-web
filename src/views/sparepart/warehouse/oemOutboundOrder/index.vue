@@ -610,7 +610,10 @@ export default {
     },
     // 打开物流信息抽屉
     getLogisticsInfo (row) {
-      this.logisticsData = row || {};
+      this.logisticsData = {
+        logisticsProvider: row.logisticsProvider,
+        logisticsOrderNo: row.logisticsOrderNo,
+      };
       this.logisticsDrawerVisible = true;
     }
   }

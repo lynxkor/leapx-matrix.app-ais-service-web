@@ -182,7 +182,7 @@
                   <vxe-column field="couponStatusLabel" title="优惠券状态" min-width="13%" />
                   <vxe-column field="purchaseCode" title="业务单据" min-width="13%" >
                     <template #default="{ row }">
-                      <el-link type="success" :href="`/service/sparepart/purchase/purchaseApply/edit'?id=${row.purchaseCode}`">{{ row.purchaseCode }}</el-link>
+                      <el-link type="success" :href="`/service/sparepart/purchase/purchaseApply/edit?id=${row.purchaseOrderId}`">{{ row.purchaseCode }}</el-link>
                     </template>
                   </vxe-column>
                   <vxe-column field="useTime" title="使用时间" min-width="13%" />
