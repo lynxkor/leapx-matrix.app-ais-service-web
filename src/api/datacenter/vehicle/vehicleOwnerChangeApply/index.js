@@ -4,6 +4,23 @@ import api from '@/axios';
 const prefix = 'datacenter/web/vehicle/vehicleOwnerChangeApply/';
 
 /**
+ * 查询加密数据
+ * @param {String} id
+ * @param {String} field
+ */
+export function getDecryptField (id, field) {
+  let param = {
+    id,
+    decryptFields: [field]
+  };
+  return new Promise(resolve => {
+    api.jsonPost(prefix + 'getDecrypt', param).then(res => {
+      resolve(res?.[field]);
+    });
+  });
+}
+
+/**
  * 查询列表
  * @param {Object} data
  */
@@ -46,7 +63,7 @@ export function enableItem (data) {
  * VIN下拉接口
  */
 export function vinSearchApi (data) {
-  return api.jsonPost('datacenter/web/vehicle/vehicleProfile/listFull', data);
+  return api.jsonPost('/xxxx', data);
 }
 
 /**

@@ -24,6 +24,7 @@
                 placeholder="请输入"
                 v-model="form.applyNo"
                 clearable
+                disabled
               />
             </el-form-item>
             <el-form-item label="业务类型：" prop="businessType">
@@ -33,10 +34,8 @@
                 v-model="form.businessType"
                 placeholder="请选择"
                 clearable
-                multiple
                 filterable
               />
-              <!-- :disabled="Boolean(_id)" -->
             </el-form-item>
             <el-form-item label="VIN：" prop="vin">
               <fetch-select
@@ -53,11 +52,28 @@
                 :disabled="Boolean(_id)"
               />
             </el-form-item>
+            <el-form-item label="门店编码：" prop="dealerCode">
+              <el-input
+                placeholder="请输入"
+                v-model="form.dealerCode"
+                clearable
+                disabled
+              />
+            </el-form-item>
+            <el-form-item label="门店名称：" prop="dealerName">
+              <el-input
+                placeholder="请输入"
+                v-model="form.dealerName"
+                clearable
+                disabled
+              />
+            </el-form-item>
             <el-form-item label="申请人：" prop="applierName">
               <el-input
                 placeholder="请输入"
                 v-model="form.applierName"
                 clearable
+                disabled
               />
             </el-form-item>
             <el-form-item label="申请人 ID：" prop="applierId">
@@ -65,11 +81,13 @@
                 placeholder="请输入"
                 v-model="form.applierId"
                 clearable
+                disabled
               />
             </el-form-item>
             <el-form-item label="申请时间：" prop="applyTime">
               <el-date-picker
                 v-model="form.applyTime"
+                disabled
                 type="datetime"
                 format="yyyy-MM-dd HH:mm:ss"
                 value-format="yyyy-MM-dd HH:mm:ss"
@@ -97,6 +115,12 @@
             <el-form-item label="VIN：" prop="vin">
               {{ form.vin }}
             </el-form-item>
+            <el-form-item label="门店编码：" prop="dealerCode">
+              {{ form.dealerCode }}
+            </el-form-item>
+            <el-form-item label="门店名称：" prop="dealerName">
+             {{ form.dealerName }}
+            </el-form-item>
             <el-form-item label="申请人：" prop="applierName">
               {{ form.applierName }}
             </el-form-item>
@@ -119,6 +143,7 @@
                 placeholder="请输入"
                 v-model="form.isAutoAudit"
                 clearable
+                disabled
               />
             </el-form-item>
             <el-form-item label="未满足自动审批原因：" prop="autoApprovalFailReason">
@@ -126,6 +151,7 @@
                 placeholder="请输入"
                 v-model="form.autoApprovalFailReason"
                 clearable
+                disabled
               />
             </el-form-item>
             <el-form-item label="审批人：" prop="auditorName">
@@ -133,6 +159,7 @@
                 placeholder="请输入"
                 v-model="form.auditorName"
                 clearable
+                disabled
               />
             </el-form-item>
             <el-form-item label="审批时间：" prop="auditTime">
@@ -141,7 +168,8 @@
                 type="datetime"
                 format="yyyy-MM-dd HH:mm:ss"
                 value-format="yyyy-MM-dd HH:mm:ss"
-                placeholder="选择日期时间">
+                placeholder="选择日期时间"
+                disabled>
               </el-date-picker>
             </el-form-item>
             <el-form-item label="审批说明：" prop="auditDesc">
@@ -152,6 +180,7 @@
                 clearable
                 :rows="2"
                 maxLength="500"
+                disabled
               />
             </el-form-item>
           </el-form>
@@ -176,60 +205,66 @@
             <h3>变更信息</h3>
           </div>
           <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm3" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-            <el-form-item label="变更后车主姓名：" prop="targetOwnerName">
-              <el-input
-                placeholder="请输入"
-                v-model="form.targetOwnerName"
-                clearable
-              />
-            </el-form-item>
-            <el-form-item label="变更后车主手机号：" prop="targetOwnerPhone">
-              <el-input
-                placeholder="请输入"
-                v-model="form.targetOwnerPhone"
-                clearable
-              />
-            </el-form-item>
-            <el-form-item label="变更后车主证件类型：" prop="targetIdType">
-              <el-input
-                placeholder="请输入"
-                v-model="form.targetIdType"
-                clearable
-              />
-            </el-form-item>
-            <el-form-item label="变更后车主证件号码：" prop="targetIdNo">
-              <el-input
-                placeholder="请输入"
-                v-model="form.targetIdNo"
-                clearable
-              />
-            </el-form-item>
-            <el-form-item label="变更后车牌号：" prop="targetPlateNo">
-              <el-input
-                placeholder="请输入"
-                v-model="form.targetPlateNo"
-                clearable
-              />
-            </el-form-item>
-            <el-form-item label="变更后车辆属性：" prop="targetVehicleProperty">
+            <template v-if="form.businessType !== '60'">
+              <el-form-item v-if="form.businessType === '10'" label="变更后车主姓名：" prop="targetOwnerName">
+                <el-input
+                  placeholder="请输入"
+                  v-model="form.targetOwnerName"
+                  clearable
+                />
+              </el-form-item>
+              <el-form-item label="变更后车主手机号：" prop="targetOwnerPhone">
+                <el-input
+                  placeholder="请输入"
+                  v-model="form.targetOwnerPhone"
+                  clearable
+                />
+              </el-form-item>
+              <el-form-item v-if="form.businessType === '10'"  label="变更后车主证件类型：" prop="targetIdType">
+                <fetch-select
+                  :request="fetchOptions"
+                  enumCode="vehretail_id_card_type"
+                  v-model="form.targetIdType"
+                  placeholder="请选择"
+                  clearable
+                  filterable
+                />
+              </el-form-item>
+              <el-form-item v-if="form.businessType === '10'"  label="变更后车主证件号码：" prop="targetIdNo">
+                <el-input
+                  placeholder="请输入"
+                  v-model="form.targetIdNo"
+                  clearable
+                />
+              </el-form-item>
+              <el-form-item label="变更后车牌号：" prop="targetPlateNo">
+                <el-input
+                  placeholder="请输入"
+                  v-model="form.targetPlateNo"
+                  clearable
+                />
+              </el-form-item>
+            </template>
+            <el-form-item v-else label="变更后车辆属性：" prop="targetVehicleProperty">
               <el-input
                 placeholder="请输入"
                 v-model="form.targetVehicleProperty"
                 clearable
+                :disabled="form.businessType === '60'"
               />
             </el-form-item>
           </el-form>
           <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-            <el-form-item label="变更后车主姓名：" prop="targetOwnerName">
+            <el-form-item v-if="form.businessType === '10'" label="变更后车主姓名：" prop="targetOwnerName">
               {{ form.targetOwnerName }}
             </el-form-item>
             <el-form-item label="变更后车主手机号：" prop="targetOwnerPhone">
               {{ form.targetOwnerPhone }}
             </el-form-item>
-            <el-form-item label="变更后车主证件类型：" prop="targetIdType">
-              {{ form.targetIdType }}
+            <el-form-item v-if="form.businessType === '10'" label="变更后车主证件类型：" prop="targetIdTypeLabel">
+              {{ form.targetIdTypeLabel }}
             </el-form-item>
-            <el-form-item label="变更后车主证件号码：" prop="targetIdNo">
+            <el-form-item v-if="form.businessType === '10'" label="变更后车主证件号码：" prop="targetIdNo">
               {{ form.targetIdNo }}
             </el-form-item>
             <el-form-item label="变更后车牌号：" prop="targetPlateNo">
@@ -248,6 +283,7 @@
                 placeholder="请输入"
                 v-model="form.invalidatorName"
                 clearable
+                disabled
               />
             </el-form-item>
             <el-form-item label="作废时间：" prop="invalidTime">
@@ -255,6 +291,7 @@
                 placeholder="请输入"
                 v-model="form.invalidTime"
                 clearable
+                disabled
               />
             </el-form-item>
             <el-form-item label="作废说明：" prop="invalidDesc">
@@ -265,6 +302,7 @@
                 clearable
                 :rows="2"
                 maxLength="500"
+                disabled
               />
             </el-form-item>
           </el-form>
@@ -288,6 +326,7 @@
                 placeholder="请输入"
                 v-model="form.oldOwnerName"
                 clearable
+                disabled
               />
             </el-form-item>
             <el-form-item label="车主手机号：" prop="oldOwnerPhone">
@@ -295,13 +334,15 @@
                 placeholder="请输入"
                 v-model="form.oldOwnerPhone"
                 clearable
+                disabled
               />
             </el-form-item>
-            <el-form-item label="车主证件类型：" prop="oldIdType">
+            <el-form-item label="车主证件类型：" prop="oldIdTypeLabel">
               <el-input
                 placeholder="请输入"
-                v-model="form.oldIdType"
+                v-model="form.oldIdTypeLabel"
                 clearable
+                disabled
               />
             </el-form-item>
             <el-form-item label="车主证件号码：" prop="oldIdNo">
@@ -309,6 +350,7 @@
                 placeholder="请输入"
                 v-model="form.oldIdNo"
                 clearable
+                disabled
               />
             </el-form-item>
             <el-form-item label="车牌号：" prop="oldPlateNo">
@@ -316,6 +358,7 @@
                 placeholder="请输入"
                 v-model="form.oldPlateNo"
                 clearable
+                disabled
               />
             </el-form-item>
             <el-form-item label="车辆属性：" prop="oldVehicleProperty">
@@ -323,6 +366,7 @@
                 placeholder="请输入"
                 v-model="form.oldVehicleProperty"
                 clearable
+                disabled
               />
             </el-form-item>
           </el-form>
@@ -350,11 +394,12 @@
             <h3>OCR信息</h3>
           </div>
           <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm6" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-            <el-form-item label="车主证件类型：" prop="ocrIdType">
+            <el-form-item label="车主证件类型：" prop="ocrIdTypeLabel">
               <el-input
                 placeholder="请输入"
-                v-model="form.ocrIdType"
+                v-model="form.ocrIdTypeLabel"
                 clearable
+                disabled
               />
             </el-form-item>
             <el-form-item label="车主证件号码：" prop="ocrIdNo">
@@ -362,6 +407,7 @@
                 placeholder="请输入"
                 v-model="form.ocrIdNo"
                 clearable
+                disabled
               />
             </el-form-item>
             <el-form-item label="车主名称：" prop="ocrIdUser">
@@ -369,6 +415,7 @@
                 placeholder="请输入"
                 v-model="form.ocrIdUser"
                 clearable
+                disabled
               />
             </el-form-item>
             <el-form-item label="行驶证所有人：" prop="ocrLicenseOwner">
@@ -376,6 +423,7 @@
                 placeholder="请输入"
                 v-model="form.ocrLicenseOwner"
                 clearable
+                disabled
               />
             </el-form-item>
             <el-form-item label="行驶证 VIN：" prop="ocrLicenseVin">
@@ -383,6 +431,7 @@
                 placeholder="请输入"
                 v-model="form.ocrLicenseVin"
                 clearable
+                disabled
               />
             </el-form-item>
           </el-form>
@@ -456,6 +505,7 @@ const defaultForm = {
   targetOwnerName: '',
   targetOwnerPhone: '',
   targetIdType: '',
+  targetIdTypeLabel: '',
   targetIdNo: '',
   targetPlateNo: '',
   targetVehicleProperty: '',
@@ -465,6 +515,7 @@ const defaultForm = {
   oldOwnerName: '',
   oldOwnerPhone: '',
   oldIdType: '',
+  oldIdTypeLabel: '',
   oldIdNo: '',
   oldPlateNo: '',
   oldVehicleProperty: '',
@@ -496,7 +547,7 @@ export default {
     },
     title () {
       return '车主信息变更';
-    }
+    },
   },
   watch: {
     id: {
@@ -506,7 +557,7 @@ export default {
         }
       },
       immediate: true
-    }
+    },
   },
   data () {
     const form = this.getDefautlForm();
@@ -558,101 +609,14 @@ export default {
         },
       ],
       rules: {
-        applyNo: [
-          { required: true, message: '请输入申请单号', trigger: 'blur' }
-        ],
         businessType: [
           { required: true, message: '请选择业务类型', trigger: 'change' }
         ],
         vin: [
           { required: true, message: '请选择VIN', trigger: 'change' }
         ],
-        applierName: [
-          { required: true, message: '请输入申请人', trigger: 'blur' }
-        ],
-        applierId: [
-          { required: true, message: '请输入申请人 ID', trigger: 'blur' }
-        ],
-        applyTime: [
-          { required: true, message: '请选择申请时间', trigger: 'change' }
-        ],
         applyDesc: [
           { required: true, message: '请输入申请说明', trigger: 'blur' }
-        ],
-        isAutoAudit: [
-          { required: true, message: '请输入是否自动审批', trigger: 'blur' }
-        ],
-        autoApprovalFailReason: [
-          { required: true, message: '请输入未满足自动审批原因', trigger: 'blur' }
-        ],
-        auditorName: [
-          { required: true, message: '请输入审批人', trigger: 'blur' }
-        ],
-        auditTime: [
-          { required: true, message: '请选择审批时间', trigger: 'change' }
-        ],
-        auditDesc: [
-          { required: true, message: '请输入审批说明', trigger: 'blur' }
-        ],
-        targetOwnerName: [
-          { required: true, message: '请输入变更后车主姓名', trigger: 'blur' }
-        ],
-        targetOwnerPhone: [
-          { required: true, message: '请输入变更后车主手机号', trigger: 'blur' }
-        ],
-        targetIdType: [
-          { required: true, message: '请输入变更后车主证件类型', trigger: 'blur' }
-        ],
-        targetIdNo: [
-          { required: true, message: '请输入变更后车主证件号码', trigger: 'blur' }
-        ],
-        targetPlateNo: [
-          { required: true, message: '请输入变更后车牌号', trigger: 'blur' }
-        ],
-        targetVehicleProperty: [
-          { required: true, message: '请输入变更后车辆属性', trigger: 'blur' }
-        ],
-        invalidatorName: [
-          { required: true, message: '请输入作废人', trigger: 'blur' }
-        ],
-        invalidTime: [
-          { required: true, message: '请输入作废时间', trigger: 'blur' }
-        ],
-        invalidDesc: [
-          { required: true, message: '请输入作废说明', trigger: 'blur' }
-        ],
-        oldOwnerName: [
-          { required: true, message: '请输入车主姓名', trigger: 'blur' }
-        ],
-        oldOwnerPhone: [
-          { required: true, message: '请输入车主手机号', trigger: 'blur' }
-        ],
-        oldIdType: [
-          { required: true, message: '请输入车主证件类型', trigger: 'blur' }
-        ],
-        oldIdNo: [
-          { required: true, message: '请输入车主证件号码', trigger: 'blur' }
-        ],
-        oldPlateNo: [
-          { required: true, message: '请输入车牌号', trigger: 'blur' }
-        ],
-        oldVehicleProperty: [
-          { required: true, message: '请输入车辆属性', trigger: 'blur' }
-        ],
-        ocrIdType: [
-          { required: true, message: '请输入车主证件类型', trigger: 'blur' }
-        ],
-        ocrIdNo: [
-          { required: true, message: '请输入车主证件号码', trigger: 'blur' }
-        ],
-        ocrIdUser: [
-          { required: true, message: '请输入车主名称', trigger: 'blur' }
-        ],
-        ocrLicenseOwner: [
-          { required: true, message: '请输入行驶证所有人', trigger: 'blur' }
-        ],
-        ocrLicenseVin: [
-          { required: true, message: '请输入行驶证 VIN', trigger: 'blur' }
         ],
       },
     };
