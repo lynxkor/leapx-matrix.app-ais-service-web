@@ -134,7 +134,7 @@ export default {
             faultSolve: this.form.isProblemResolved,
             reason: this.form.unresolvedReason
           });
-          console.log('提交数据:', this.form.isProblemResolved,this.form.unresolvedReason);
+
           this.dialogVisible = false;
         }
       });
