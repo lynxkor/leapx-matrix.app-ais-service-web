@@ -477,6 +477,7 @@ export default {
               type: 'primary'
             }]
           },
+          { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'sparePartCode', label: '备件编码', visible: true, width: 180 },
@@ -492,8 +493,8 @@ export default {
           { props: 'originalPrice', label: '原价', visible: true, align: 'right', width: 120 },
           { props: 'purchasePrice', label: '采购价', visible: true, align: 'right', width: 120 },
           { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
-          { props: 'rebateUnitPrice', label: '折后价', visible: true, align: 'right', width: 120 },
-          { props: 'rebateAmount', label: '折后金额', visible: true, align: 'right', width: 120 },
+          { props: 'cashUnitPrice', label: '现金单价', visible: true, align: 'right', width: 120 },
+          { props: 'cashAmount', label: '现金金额', visible: true, align: 'right', width: 120 },
           { props: 'detailRemark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -561,6 +562,8 @@ export default {
               type: 'primary'
             }]
           },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'dealerCode', label: '运单号', visible: true, width: 200 },
           { props: 'detailRemark', label: '备注', visible: true, width: 200 },
           { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
@@ -901,7 +904,10 @@ export default {
     },
     // 打开物流信息抽屉
     getLogisticsInfo (row) {
-      this.logisticsData = row || {};
+      this.logisticsData = {
+        logisticsProvider: row.carrier,
+        logisticsOrderNo: row.shippingOrder,
+      };
       this.logisticsDrawerVisible = true;
     }
   }
