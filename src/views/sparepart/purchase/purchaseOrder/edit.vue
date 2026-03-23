@@ -13,10 +13,6 @@
         :originalForm.sync="originalForm"
         :showEditBtn="false"
       >
-        <template #status>
-          <!-- 支持primary,warning,success,danger等状态 -->
-          <span class="status primary">状态</span>
-        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
@@ -268,32 +264,35 @@
                 <el-form-item label="订单金额：" prop="purchaseAmount">
                   {{ form.purchaseAmount }}
                 </el-form-item>
-                <el-form-item label="使用现金：" prop="cashAmount">
-                  {{ form.cashAmount }}
-                </el-form-item>
-                <el-form-item label="使用返利：" prop="rebateAmount">
-                  {{ form.rebateAmount }}
-                </el-form-item>
                 <el-form-item label="是否第三方收货：">
                   {{ form.thirdPartyDeliveryIsLabel }}
                 </el-form-item>
                 <el-form-item label="发货仓库：" prop="deliveryWarehouse">
                   {{ form.deliveryWarehouseName }}
                 </el-form-item>
-                <el-form-item label="发运单：" prop="shippingOrder">
-                  <div class="shipping-order" @click="handleLogisticsClick">{{ form.shippingOrder }}</div>
-                </el-form-item>
-                <el-form-item label="承运商：" prop="carrier">
-                  {{ form.carrier }}
-                </el-form-item>
                 <el-form-item label="收货人姓名：" prop="recipientName">
                   {{ form.recipientName }}
+                </el-form-item>
+                <el-form-item label="使用现金：" prop="cashAmount">
+                  {{ form.cashAmount }}
+                </el-form-item>
+                <el-form-item label="发运单：" prop="shippingOrder">
+                  <div class="shipping-order" @click="handleLogisticsClick">{{ form.shippingOrder }}</div>
                 </el-form-item>
                 <el-form-item label="收货人电话：" prop="recipientPhone">
                   {{ form.recipientPhone }}
                 </el-form-item>
+                <el-form-item label="使用返利：" prop="rebateAmount">
+                  {{ form.rebateAmount }}
+                </el-form-item>
+                <el-form-item label="承运商：" prop="carrier">
+                  {{ form.carrier }}
+                </el-form-item>
                 <el-form-item label="收货地址：">
                   {{ form.fullAddress }}
+                </el-form-item>
+                <el-form-item label="是否空出：">
+                  {{ form.emptyIsLabel }}
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
                   {{ form.remark }}
