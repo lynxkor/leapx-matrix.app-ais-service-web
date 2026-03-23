@@ -42,3 +42,33 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+/**
+ * 获取字典
+ * @param {Object} data
+ */
+export function getEnum (code) {
+  return api.jsonPost(`maintain/web/common/enum/${code}`);
+}
+/**
+ * 审核
+ * @param {Object} data
+ */
+export function audit (data) {
+  return api.jsonPost(prefix + 'audit', data);
+}
+/**
+ * 提交审核
+ * @param {Object} data
+ */
+export function submitAudit (data) {
+  return api.jsonPost(prefix + 'submitAudit', data);
+}
+/**
+ * 反结算财务审核
+ * @param {Object} data
+ */
+export function financialReview (data) {
+  return api.jsonPost(prefix + 'financialReview', data);
+}
+
+

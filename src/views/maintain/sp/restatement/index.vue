@@ -10,87 +10,54 @@
       class="ais-search-form"
     >
       <el-form-item label="结算单编码">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="xxx"
+        <el-input
+          placeholder="请输入"
           v-model="form.statementCode"
-          placeholder="请选择"
           clearable
-          multiple
-          filterable
         />
       </el-form-item>
-      <el-form-item label="接车施工单">
+      <el-form-item label="接车施工单" >
         <el-input
           placeholder="请输入"
           v-model="form.serviceProxyCode"
           clearable
         />
       </el-form-item>
-      <el-form-item label="反结算申请编号"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="反结算申请编号"  >
         <el-input
           placeholder="请输入"
           v-model="form.code"
           clearable
         />
       </el-form-item>
-      <template v-if="show">
-        <el-form-item label="审核状态">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.approvalStatus"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
-        <el-form-item label="门店编码">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dealerCode"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="总金额">
-          <el-input
-            placeholder="请输入"
-            v-model="form.totalAmount"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="优惠总金额">
-          <el-input
-            placeholder="请输入"
-            v-model="form.discountAmount"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="结算人员">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.statementPersonName"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
-        <el-form-item label="创建时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
-      </template>
+
+      <el-form-item label="门店名称" v-show="this.visibleCount === 3 || show">
+        <dealer-select v-model="form.dealerCodeList" multiple/>
+      </el-form-item>
+      <el-form-item label="审核状态" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="ApprovalStatusEnum"
+          v-model="form.approvalStatusList"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
+        />
+      </el-form-item>
+      <el-form-item label="创建时间" v-show="this.visibleCount === 3 || show">
+        <el-date-picker
+         :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
+
       <page-search-action
         v-if="canList"
         v-model="show"
@@ -102,12 +69,7 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -144,8 +106,8 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/maintain/sp/restatement/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getList, deleteItem, enableItem ,getEnum } from '@/api/maintain/sp/restatement/index';
+import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -154,18 +116,19 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
-
+import DealerSelect from '@/components/dealer-select/index.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   statementCode: '',
   serviceProxyCode: '',
   code: '',
-  approvalStatus: '',
-  dealerCode: '',
+  approvalStatusList: '',
+  dealerCodeList: '',
   totalAmount: '',
   discountAmount: '',
   statementPersonName: '',
   createTime: '',
+
 };
 
 const pageSize = 20;
@@ -180,7 +143,8 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    Upload
+    Upload,
+    DealerSelect
   },
   data () {
     return {
@@ -207,15 +171,15 @@ export default {
         },
         dataProp: [
           {
-            props: 'statementCode',
-            label: '结算单编码',
+            props: 'code',
+            label: '反结算申请编号',
             visible: true,
             width: 200,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sp/restatement/edit',
+                  path: '/maintain/sp/restatement/edit',
                   query: {
                     id: row.id
                   }
@@ -224,13 +188,48 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'serviceProxyCode', label: '接车施工单', visible: true, width: 200 },
-          { props: 'code', label: '反结算申请编号', visible: true, width: 200 },
-          { props: 'accountType', label: '销账标识', visible: true, width: 200 },
-          { props: 'approvalStatus', label: '审核状态', visible: true, width: 200 },
+          {
+            props: 'statementCode',
+            label: '结算单编码',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/sp/serviceStatement/edit',
+                  query: {
+                    id: row.statementId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'serviceProxyCode',
+            label: '接车施工单',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/sp/serviceProxy/edit',
+                  query: {
+                    id: row.serviceProxyId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+
+          { props: 'accountTypeLabel', label: '销账标识', visible: true, width: 200 },
+          { props: 'approvalStatusLabel', label: '审核状态', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'statementType', label: '结算单类型', visible: true, width: 200 },
-          { props: 'statementStatus', label: '结算单状态', visible: true, width: 200 },
+          { props: 'statementTypeLabel', label: '结算单类型', visible: true, width: 200 },
+          { props: 'statementStatusLabel', label: '结算单状态', visible: true, width: 200 },
           { props: 'repairItemAmount', label: '维修项目金额', visible: true, width: 200 },
           { props: 'repairItemDiscount', label: '维修项优惠金额', visible: true, width: 200 },
           { props: 'repairItemPayableAmount', label: '维修项应付金额', visible: true, width: 200 },
@@ -243,49 +242,10 @@ export default {
           { props: 'payableAmount', label: '实际应付总金额', visible: true, width: 200 },
           { props: 'statementPersonName', label: '结算人员', visible: true, width: 200 },
           { props: 'statementTime', label: '结算时间', visible: true, width: 200 },
-          { props: 'payeeId', label: '收款人', visible: true, width: 200 },
           { props: 'receiveAt', label: '收款时间', visible: true, width: 200 },
           { props: 'creatorName', label: '创建者名称', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
-            visible: true,
-            fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sp/restatement/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmConfirmButtonType: 'danger',
-              popconfirmConfirmButtonText: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
-            }]
-          }
+
         ],
         total: 0
       },
