@@ -180,7 +180,7 @@ export default {
         .then(res => {
           const records = res.data?.records || [];
           this.fieldOptions = records.map(item => ({
-            label: item.fieldName,
+            label: item.fieldLabel,
             value: item.fieldName,
             fieldType: item.fieldType,
             valueSource: item.valueSource
