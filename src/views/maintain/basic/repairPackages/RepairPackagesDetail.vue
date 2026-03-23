@@ -14,13 +14,13 @@
               {{ repairDetail.repairItemCode }}
             </el-form-item>
             <el-form-item label="维修类型：" prop="repairItemTypeId">
-              <fetch-select :remote-method="repairItemSearch" remote v-model="repairDetail.repairItemTypeId"
+              <fetch-select v-model="repairDetail.repairItemTypeId" :options="repairItemOptions"
                 placeholder="请选择维修类型名称" labelKey="label" valueKey="value" clearable filterable
                 @change="handleRepairItemChange" />
             </el-form-item>
             <el-form-item label="结算类型：" prop="checkoutTypeId">
-              <fetch-select filterable clearable remote v-model="repairDetail.checkoutTypeId"
-                :remote-method="settlementSearch" placeholder="请选择结算类型名称" @change="handleCheckoutTypeChange"
+              <fetch-select filterable clearable v-model="repairDetail.checkoutTypeId"
+                :options="checkoutTypeOptions" placeholder="请选择结算类型名称" @change="handleCheckoutTypeChange"
                 value-key="value" label-key="label" />
             </el-form-item>
             <el-form-item label="优惠金额：" prop="discountAmount">
@@ -57,23 +57,18 @@
           <div class="common-section-table">
             <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
               min-height="0" max-height="400px">
-              <vxe-column field="partsName" title="零件名称" width="150">
-                <template #default="{ row }">
-                  <fetch-select v-model="row.partsCode" :remote-method="queryListData" remote placeholder="请输入"
-                    clearable filterable value-key="value" label-key="label" />
-                </template>
-              </vxe-column>
+              <vxe-column field="partsName" title="零件名称" width="150" />
               <vxe-column field="partsCode" title="零件代码" width="120" />
               <vxe-column field="repairItemTypeId" title="维修类型" width="150">
                 <template #default="{ row }">
-                  <fetch-select :remote-method="repairItemSearch" remote v-model="row.repairItemTypeId"
+                  <fetch-select v-model="row.repairItemTypeId" :options="repairItemOptions"
                     placeholder="请选择维修类型名称" labelKey="label" valueKey="value" clearable filterable />
                 </template>
               </vxe-column>
               <vxe-column field="checkoutTypeId" title="结算类型" width="150">
                 <template #default="{ row }">
-                  <fetch-select filterable clearable remote v-model="row.checkoutTypeId"
-                    :remote-method="settlementSearch" placeholder="请选择结算类型名称" @change="handleCheckoutTypeChange"
+                  <fetch-select filterable clearable v-model="row.checkoutTypeId"
+                    :options="checkoutTypeOptions" placeholder="请选择结算类型名称" @change="handleCheckoutTypeChange"
                     value-key="value" label-key="label" />
                 </template>
               </vxe-column>
@@ -137,7 +132,7 @@ export default {
       repairDetail: {
         price: null,
         workHour: null,
-        discountAmount: null,
+        discountAmount: 0,
         actualAmount: null
       }, // 维修套餐详情信息
       detailId: '', // 维修套餐详情ID
@@ -163,7 +158,48 @@ export default {
       deep: true
     }
   },
+  async created () {
+    // 初始化枚举数据
+    await this.initEnumData();
+  },
   methods: {
+    // 初始化枚举数据
+    async initEnumData () {
+      // 获取维修类型枚举
+      const repairTypeRes = await repairItemType({ nameLike: '', categorys: [10] });
+      this.repairItemOptions = repairTypeRes?.map(item => ({
+        value: item.id,
+        label: item.name
+      })) || [];
+
+      // 获取结算类型枚举
+      const checkoutTypeRes = await listSettlementType({ nameLike: '' });
+      this.checkoutTypeOptions = checkoutTypeRes?.map(item => ({
+        value: item.id,
+        label: item.nameAndCategory
+      })) || [];
+      this.setDefaultValues();
+    },
+    // 设置默认值为第一项
+    setDefaultValues () {
+      if (this.repairItemOptions.length > 0 && !this.repairDetail.repairItemTypeId) {
+        this.repairDetail.repairItemTypeId = this.repairItemOptions[0].value;
+        this.repairDetail.repairItemTypeName = this.repairItemOptions[0].label;
+      }
+      if (this.checkoutTypeOptions.length > 0 && !this.repairDetail.checkoutTypeId) {
+        this.repairDetail.checkoutTypeId = this.checkoutTypeOptions[0].value;
+        this.repairDetail.checkoutTypeName = this.checkoutTypeOptions[0].label;
+      }
+      // 为零件信息的每一行设置默认值
+      this.tableData.forEach(row => {
+        if (this.repairItemOptions.length > 0 && !row.repairItemTypeId) {
+          row.repairItemTypeId = this.repairItemOptions[0].value;
+        }
+        if (this.checkoutTypeOptions.length > 0 && !row.checkoutTypeId) {
+          row.checkoutTypeId = this.checkoutTypeOptions[0].value;
+        }
+      });
+    },
     // 获取维修项目详情信息
     async getDetail (id) {
       let fathApi = getDetail;
@@ -179,7 +215,6 @@ export default {
         this.repairDetail.repairItemId = res.id;
         this.repairDetail.repairItemCode = res.code;
         this.repairDetail.repairItemName = res.name;
-        console.log(res.partsRespList);
         if (res.partsRespList && Array.isArray(res.partsRespList)) {
           for (let item of res.partsRespList) {
             this.tableData.push({
@@ -188,7 +223,9 @@ export default {
               partsCode: item.partsCode,
               partsName: item.partsName,
               isOemPart: item.isOemPart,
-              remark: item.remark
+              remark: item.remark,
+              quantity: 1,
+              discountAmount: 0
             });
           }
         }
@@ -206,42 +243,13 @@ export default {
     async getSparePartList () {
       const res = await getPackagesPart({ repairPackagesId: this.repairItemId });
       this.tableData = res || [];
-    },
-    // 维修类型模糊搜索方法
-    async repairItemSearch (query) {
-      try {
-        const res = await repairItemType({ nameLike: query, categorys: [10] });
-        this.repairItemOptions = res?.map(item => {
-          return {
-            value: item.id,
-            label: item.name
-          };
-        });
-        return this.repairItemOptions;
-      } catch (error) {
-        console.error('Error fetching series list:', error);
-      }
+      this.setDefaultValues();
     },
     // 处理维修类型选择变更事件
     handleRepairItemChange (val) {
       const selectedVal = this.repairItemOptions.find(option => option.value === val);
       if (selectedVal) {
         this.repairDetail.repairItemTypeName = selectedVal.label;
-      }
-    },
-    // 结算类型模糊搜索方法
-    async settlementSearch (query) {
-      try {
-        const res = await listSettlementType({ nameLike: query });
-        this.checkoutTypeOptions = res?.map(item => {
-          return {
-            value: item.id,
-            label: item.nameAndCategory
-          };
-        });
-        return this.checkoutTypeOptions;
-      } catch (error) {
-        console.error('Error fetching series list:', error);
       }
     },
     // 处理结算类型选择变更事件
@@ -283,13 +291,23 @@ export default {
     // 备件信息 点击添加table行
     handleAddTableData (val) {
       const selectedVal = this.sparePartOptions.find(option => option.value === val);
-      this.tableData.push({
+      const newRow = {
         partsCode: selectedVal.partCode,
         partsName: selectedVal.partName,
         price: selectedVal.salePrice,
         partTotalPrice: selectedVal.price,
-        partsId: selectedVal.id
-      });
+        partsId: selectedVal.id,
+        quantity: 1,
+        discountAmount: 0
+      };
+      // 设置默认值
+      if (this.repairItemOptions.length > 0) {
+        newRow.repairItemTypeId = this.repairItemOptions[0].value;
+      }
+      if (this.checkoutTypeOptions.length > 0) {
+        newRow.checkoutTypeId = this.checkoutTypeOptions[0].value;
+      }
+      this.tableData.push(newRow);
     },
     // 删除零件表格列
     handleDeleteRow (index) {

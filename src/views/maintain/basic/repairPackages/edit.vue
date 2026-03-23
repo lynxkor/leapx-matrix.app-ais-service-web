@@ -325,10 +325,7 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       emptyText: '暂无数据',
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
+      tableData: [],
       rules: {
         code: [
           { required: true, message: '请输入套餐代码', trigger: 'change' }
