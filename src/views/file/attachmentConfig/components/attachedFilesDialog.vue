@@ -72,7 +72,7 @@
       <!-- 是否默认 -->
       <el-row :gutter="20">
         <el-col :span="8">
-          <el-form-item label="是否默认" prop="isDefault">
+          <el-form-item label="是否自定义" prop="isDefault">
             <el-radio-group v-model="formData.isDefault">
               <el-radio label="1">是</el-radio>
               <el-radio label="0">否</el-radio>

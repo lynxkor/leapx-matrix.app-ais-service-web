@@ -206,10 +206,10 @@ export default {
   },
   data () {
     const form = this.getDefaultForm();
-    // 校验只能输入中文
+    // 校验只能输入中文、数字、字母和符号
     const validateChinese = (_, value, callback) => {
-      if (value && !/^[\u4e00-\u9fa5]+$/.test(value)) {
-        callback(new Error('只能输入中文'));
+      if (value && !/^[\u4e00-\u9fa5\u3000-\u303F\uFF00-\uFFEF\u2000-\u206Fa-zA-Z0-9!"#$%&'()*+\-./:;<=>?@[\]^_`{|}~\s]+$/.test(value)) {
+        callback(new Error('只能输入中文、数字、字母和符号'));
       } else {
         callback();
       }
