@@ -38,14 +38,14 @@
             placeholder="开始金额"
             v-model="form.planTraceAmountStart"
             clearable
-            style="width: 180px;"
+            style="width: 130px;"
           />
           <span style="margin: 0 10px;">至</span>
           <el-input
             placeholder="结束金额"
             v-model="form.planTraceAmountEnd"
             clearable
-            style="width: 180px;"
+            style="width: 130px;"
           />
         </el-form-item>
         <el-form-item label="已追溯金额">
@@ -53,14 +53,14 @@
             placeholder="开始金额"
             v-model="form.tracedAmountStart"
             clearable
-            style="width: 180px;"
+            style="width: 130px;"
           />
           <span style="margin: 0 10px;">至</span>
           <el-input
             placeholder="结束金额"
             v-model="form.tracedAmountEnd"
             clearable
-            style="width: 180px;"
+            style="width: 130px;"
           />
         </el-form-item>
         <el-form-item label="未追溯金额">
@@ -68,14 +68,14 @@
             placeholder="开始金额"
             v-model="form.unTraceAmountStart"
             clearable
-            style="width: 180px;"
+            style="width: 130px;"
           />
           <span style="margin: 0 10px;">至</span>
           <el-input
             placeholder="结束金额"
             v-model="form.unTraceAmountEnd"
             clearable
-            style="width: 180px;"
+            style="width: 130px;"
           />
         </el-form-item>
         <el-form-item label="首次下发时间">

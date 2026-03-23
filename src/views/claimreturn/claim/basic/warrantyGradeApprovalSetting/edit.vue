@@ -165,7 +165,7 @@ const defaultForm = {
   approvalGrade: '',
   claimAmount1: '',
   claimAmount2: '',
-  status: '1',
+  status: '0',
 };
 
 export default {
