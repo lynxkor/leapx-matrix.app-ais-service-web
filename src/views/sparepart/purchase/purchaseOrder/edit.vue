@@ -700,7 +700,10 @@ export default {
     },
     // 打开物流信息抽屉
     handleLogisticsClick () {
-      this.logisticsData = this.form;
+      this.logisticsData = {
+        logisticsProvider: this.form.carrier,
+        logisticsOrderNo: this.form.shippingOrder,
+      };
       this.logisticsDrawerVisible = true;
     }
   }
