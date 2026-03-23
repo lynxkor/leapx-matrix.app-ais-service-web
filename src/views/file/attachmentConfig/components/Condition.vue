@@ -181,7 +181,7 @@ export default {
           const records = res.data?.records || [];
           this.fieldOptions = records.map(item => ({
             label: item.fieldName,
-            value: item.fieldType,
+            value: item.fieldName,
             fieldType: item.fieldType,
             valueSource: item.valueSource
           }));
