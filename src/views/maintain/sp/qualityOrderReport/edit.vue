@@ -679,10 +679,10 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="statusLabel" title="审批状态" width="200" />
-                  <vxe-column field="content" title="审批意见" width="200" />
-                  <vxe-column field="approver" title="操作人" width="150" />
-                  <vxe-column field="createTime" title="创建时间" width="150" />
+                  <vxe-column field="statusLabel" title="审批状态" width="25%" />
+                  <vxe-column field="content" title="审批意见" width="25%" />
+                  <vxe-column field="approver" title="操作人" width="25%" />
+                  <vxe-column field="createTime" title="创建时间" width="25%" />
                   <template #empty>
                     <div class="m-vxe-table-empty-text">{{ supportApprovalEmptyText }}</div>
                   </template>

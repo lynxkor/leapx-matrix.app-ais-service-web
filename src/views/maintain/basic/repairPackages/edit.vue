@@ -141,8 +141,8 @@
             <div class="common-section-body">
               <div class="common-section-header">
                 <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
+                  <base-search
+                    style="width: 360px;"
                     :remote-method="queryListData"
                     remote
                     placeholder="搜索维修项目代码、名称、拼音简码"
@@ -199,6 +199,7 @@
           :repairItemId="repairDetailId"
           :judgment="judgment"
           @submit="getProjectPackage"
+          @refresh="getProjectPackage"
         />
       </div>
     </template>
@@ -210,7 +211,7 @@
 <script>
 import { getDetail, addOrUpdate, getRepairType, getModel, getPackagesItem, modelDelete, partDelete, packagesItemDelete } from '@/api/maintain/basic/repairPackages/index';
 import { getPage } from '@/api/maintain/basic/repairItem/index';
-import FetchSelect from '@/libs/components/FetchSelect';
+import BaseSearch from '@/libs/components/BaseSearch';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, getLoginUser } from '@/api/common';
@@ -271,7 +272,7 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect,
+    BaseSearch,
     ModelDialog,
     RepairPackagesDetail
   },
@@ -390,15 +391,15 @@ export default {
     async handleDeleteModel (val) {
       console.log('删除套餐明细', val);
       await modelDelete([val.id]);
-      console.log('dad');
-      this.message.success('删除成功');
+      this.$message.success('删除成功');
       this.getModelList();
     },
     // 删除套餐明细 维修项目
-    async handleDeleteRow (val) {
-      await packagesItemDelete([val.id]);
-      this.message.success('删除成功');
-      this.getProjectPackage();
+    handleDeleteRow (val) {
+      packagesItemDelete([val.id]).then(() => {
+        this.$message.success('删除成功');
+        this.getProjectPackage();
+      });
     },
     // 查询新增项的列表
     queryListData (queryString) {
@@ -477,6 +478,7 @@ export default {
     },
     // 维修项目套餐列表
     async getProjectPackage () {
+      console.log('getProjectPackage');
       const res = await getPackagesItem({ repairPackagesId: this._id });
       this.tableData = res.records || [];
     },

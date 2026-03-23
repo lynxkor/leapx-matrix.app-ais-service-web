@@ -6,7 +6,7 @@
                     <h2>基础信息</h2>
                 </div>
                 <div class="common-section-body">
-                    <el-form label-width="120px" :roles="roles" :form="repairDetail" :inline="true" class="form-detail">
+                    <el-form label-width="120px" :roles="roles" :form="repairDetail" :inline="true" class="form-edit">
                         <el-form-item label="项目名称：" prop="name">
                             {{ repairDetail.repairItemName }}
                         </el-form-item>
@@ -40,7 +40,7 @@
                             />
                         </el-form-item>
                         <el-form-item label="优惠金额：" prop="discountAmount">
-                            <el-input type="number" @blur="handleDiscountAmountBlur" clearable
+                            <el-input type="number" @blur="handleDiscountAmountBlur" clearable size="small"
                                 v-model="repairDetail.discountAmount"></el-input>
                         </el-form-item>
                         <el-form-item label="工时单价：" prop="price">
@@ -66,7 +66,7 @@
                 <div class="common-section-body">
                     <div class="common-section-header">
                         <div class="ais-select-group">
-                            <fetch-select
+                            <base-search
                                 style="width: 300px;"
                                 :remote-method="queryListData"
                                 remote
@@ -158,7 +158,7 @@
 import { getPackagesPart, getAddOrUpdate, repairItemDetail } from '@/api/maintain/basic/repairPackages/index';
 import { getDetail } from '@/api/maintain/basic/repairItem/index';
 import { repairItemType, sparePartList } from '@/api/common';
-import FetchSelect from '@/libs/components/FetchSelect';
+import BaseSearch from '@/libs/components/BaseSearch';
 import { listSettlementType } from '@/api/maintain/basic/checkoutType';
 import commonMixins from '@/libs/mixins/commonMixins';
 
@@ -178,7 +178,7 @@ export default {
     },
   },
   mixins: [commonMixins],
-  components: { FetchSelect },
+  components: { BaseSearch },
   data () {
     return {
       repairDetail: {
@@ -374,6 +374,7 @@ export default {
       }
       getAddOrUpdate(params).then(() => {
         this.$message.success('保存成功');
+        this.$emit('refresh');
       });
     }
   }
