@@ -1,5 +1,5 @@
 <template>
-  <edit-page-layout ref="editLayout" :title="repairDetailName" showPaneFooter @save="handleSave">
+  <edit-page-layout ref="editLayout" :title="repairDetailName" showPaneFooter @save="handleSave" :width="60">
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container
@@ -478,7 +478,6 @@ export default {
     },
     // 维修项目套餐列表
     async getProjectPackage () {
-      console.log('getProjectPackage');
       const res = await getPackagesItem({ repairPackagesId: this._id });
       this.tableData = res.records || [];
     },

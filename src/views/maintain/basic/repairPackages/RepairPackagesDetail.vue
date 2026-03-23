@@ -1,157 +1,109 @@
 <template>
-    <div>
-        <el-main>
-            <section class="common-section">
-                <div class="common-section-header">
-                    <h2>基础信息</h2>
-                </div>
-                <div class="common-section-body">
-                    <el-form label-width="120px" :roles="roles" :form="repairDetail" :inline="true" class="form-edit">
-                        <el-form-item label="项目名称：" prop="name">
-                            {{ repairDetail.repairItemName }}
-                        </el-form-item>
-                        <el-form-item label="项目代码：" prop="code">
-                            {{ repairDetail.repairItemCode }}
-                        </el-form-item>
-                        <el-form-item label="维修类型：" prop="repairItemTypeId">
-                            <fetch-select
-                                :remote-method="repairItemSearch"
-                                remote
-                                v-model="repairDetail.repairItemTypeId"
-                                placeholder="请选择维修类型名称"
-                                labelKey="label"
-                                valueKey="value"
-                                clearable
-                                filterable
-                                @change="handleRepairItemChange"
-                            />
-                        </el-form-item>
-                        <el-form-item label="结算类型：" prop="checkoutTypeId">
-                            <fetch-select
-                                filterable
-                                clearable
-                                remote
-                                v-model="repairDetail.checkoutTypeId"
-                                :remote-method="settlementSearch"
-                                placeholder="请选择结算类型名称"
-                                @change="handleCheckoutTypeChange"
-                                value-key="value"
-                                label-key="label"
-                            />
-                        </el-form-item>
-                        <el-form-item label="优惠金额：" prop="discountAmount">
-                            <el-input type="number" @blur="handleDiscountAmountBlur" clearable size="small"
-                                v-model="repairDetail.discountAmount"></el-input>
-                        </el-form-item>
-                        <el-form-item label="工时单价：" prop="price">
-                            {{ repairDetail.price }}
-                        </el-form-item>
-                        <el-form-item label="工时数量：" prop="workHour">
-                            {{ repairDetail.workHour }}
-                        </el-form-item>
-                        <el-form-item label="项目金额：" prop="purchaseQty">
-                            {{ repairDetail.actualAmount || 0 }}
-                        </el-form-item>
-                        <el-form-item style="width: 100%;" label="备注：" prop="remark">
-                            <el-input type="textarea" maxlength="500" show-word-limit
-                                v-model="repairDetail.remark" clearable placeholder="请输入备注" />
-                        </el-form-item>
-                    </el-form>
-                </div>
-            </section>
-            <section class="common-section">
-                <div class="common-section-header">
-                    <h2>零件信息</h2>
-                </div>
-                <div class="common-section-body">
-                    <div class="common-section-header">
-                        <div class="ais-select-group">
-                            <base-search
-                                style="width: 300px;"
-                                :remote-method="queryListData"
-                                remote
-                                placeholder="搜索维修零件代码、名称"
-                                clearable
-                                value-key="value"
-                                label-key="label"
-                                @change="handleAddTableData"
-                            />
-                        </div>
-                    </div>
-                    <div class="common-section-table">
-                        <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner"
-                            size="medium" min-height="0" max-height="400px">
-                            <vxe-column field="partsName" title="零件名称" width="150">
-                                <template #default="{ row }">
-                                    <fetch-select
-                                        v-model="row.partsCode"
-                                        :remote-method="queryListData"
-                                        remote
-                                        placeholder="请输入"
-                                        clearable
-                                        filterable
-                                        value-key="value"
-                                        label-key="label"
-                                    />
-                                </template>
-                            </vxe-column>
-                            <vxe-column field="partsCode" title="零件代码" width="120" />
-                            <vxe-column field="repairItemTypeId" title="维修类型" width="150">
-                                <template #default="{ row }">
-                                    <fetch-select
-                                        :remote-method="repairItemSearch"
-                                        remote
-                                        v-model="row.repairItemTypeId"
-                                        placeholder="请选择维修类型名称"
-                                        labelKey="label"
-                                        valueKey="value"
-                                        clearable
-                                        filterable
-                                    />
-                                </template>
-                            </vxe-column>
-                            <vxe-column field="checkoutTypeId" title="结算类型" width="150">
-                                <template #default="{ row }">
-                                    <fetch-select
-                                        filterable
-                                        clearable
-                                        remote
-                                        v-model="row.checkoutTypeId"
-                                        :remote-method="settlementSearch"
-                                        placeholder="请选择结算类型名称"
-                                        @change="handleCheckoutTypeChange"
-                                        value-key="value"
-                                        label-key="label"
-                                    />
-                                </template>
-                            </vxe-column>
-                            <vxe-column field="quantity" title="数量" width="120">
-                                <template #default="{ row }">
-                                    <el-input type="number" v-model="row.quantity" clearable></el-input>
-                                </template>
-                            </vxe-column>
-                            <vxe-column field="price" title="单价" width="80" />
-                            <vxe-column field="discountAmount" title="优惠金额" width="120">
-                                <template #default="{ row }">
-                                    <el-input type="number" v-model="row.discountAmount" clearable></el-input>
-                                </template>
-                            </vxe-column>
-                            <vxe-column title="操作" width="100" fixed="right">
-                                <template #default="{ rowIndex }">
-                                    <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
-                                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                                    </el-popconfirm>
-                                </template>
-                            </vxe-column>
-                            <template #empty>
-                                <div class="m-vxe-table-empty-text">暂无数据</div>
-                            </template>
-                        </vxe-table>
-                    </div>
-                </div>
-            </section>
-        </el-main>
-    </div>
+  <div>
+    <el-main>
+      <section class="common-section">
+        <div class="common-section-header">
+          <h2>基础信息</h2>
+        </div>
+        <div class="common-section-body">
+          <el-form label-width="120px" :rules="rules" :form="repairDetail" :inline="true" class="form-edit">
+            <el-form-item label="项目名称：" prop="name">
+              {{ repairDetail.repairItemName }}
+            </el-form-item>
+            <el-form-item label="项目代码：" prop="code">
+              {{ repairDetail.repairItemCode }}
+            </el-form-item>
+            <el-form-item label="维修类型：" prop="repairItemTypeId">
+              <fetch-select :remote-method="repairItemSearch" remote v-model="repairDetail.repairItemTypeId"
+                placeholder="请选择维修类型名称" labelKey="label" valueKey="value" clearable filterable
+                @change="handleRepairItemChange" />
+            </el-form-item>
+            <el-form-item label="结算类型：" prop="checkoutTypeId">
+              <fetch-select filterable clearable remote v-model="repairDetail.checkoutTypeId"
+                :remote-method="settlementSearch" placeholder="请选择结算类型名称" @change="handleCheckoutTypeChange"
+                value-key="value" label-key="label" />
+            </el-form-item>
+            <el-form-item label="优惠金额：" prop="discountAmount">
+              <el-input type="number" @blur="handleDiscountAmountBlur" clearable size="small"
+                v-model="repairDetail.discountAmount"></el-input>
+            </el-form-item>
+            <el-form-item label="工时单价：" prop="price">
+              {{ repairDetail.price }}
+            </el-form-item>
+            <el-form-item label="工时数量：" prop="workHour">
+              {{ repairDetail.workHour }}
+            </el-form-item>
+            <el-form-item label="项目金额：" prop="purchaseQty">
+              {{ repairDetail.actualAmount || 0 }}
+            </el-form-item>
+            <el-form-item style="width: 100%;" label="备注：" prop="remark">
+              <el-input type="textarea" maxlength="500" show-word-limit v-model="repairDetail.remark" clearable
+                placeholder="请输入备注" />
+            </el-form-item>
+          </el-form>
+        </div>
+      </section>
+      <section class="common-section">
+        <div class="common-section-header">
+          <h2>零件信息</h2>
+        </div>
+        <div class="common-section-body">
+          <div class="common-section-header">
+            <div class="ais-select-group">
+              <base-search style="width: 300px;" :remote-method="queryListData" remote placeholder="搜索维修零件代码、名称"
+                clearable value-key="value" label-key="label" @change="handleAddTableData" />
+            </div>
+          </div>
+          <div class="common-section-table">
+            <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
+              min-height="0" max-height="400px">
+              <vxe-column field="partsName" title="零件名称" width="150">
+                <template #default="{ row }">
+                  <fetch-select v-model="row.partsCode" :remote-method="queryListData" remote placeholder="请输入"
+                    clearable filterable value-key="value" label-key="label" />
+                </template>
+              </vxe-column>
+              <vxe-column field="partsCode" title="零件代码" width="120" />
+              <vxe-column field="repairItemTypeId" title="维修类型" width="150">
+                <template #default="{ row }">
+                  <fetch-select :remote-method="repairItemSearch" remote v-model="row.repairItemTypeId"
+                    placeholder="请选择维修类型名称" labelKey="label" valueKey="value" clearable filterable />
+                </template>
+              </vxe-column>
+              <vxe-column field="checkoutTypeId" title="结算类型" width="150">
+                <template #default="{ row }">
+                  <fetch-select filterable clearable remote v-model="row.checkoutTypeId"
+                    :remote-method="settlementSearch" placeholder="请选择结算类型名称" @change="handleCheckoutTypeChange"
+                    value-key="value" label-key="label" />
+                </template>
+              </vxe-column>
+              <vxe-column field="quantity" title="数量" width="120">
+                <template #default="{ row }">
+                  <el-input type="number" v-model="row.quantity" clearable></el-input>
+                </template>
+              </vxe-column>
+              <vxe-column field="price" title="单价" width="80" />
+              <vxe-column field="discountAmount" title="优惠金额" width="120">
+                <template #default="{ row }">
+                  <el-input type="number" v-model="row.discountAmount" clearable></el-input>
+                </template>
+              </vxe-column>
+              <vxe-column title="操作" width="100" fixed="right">
+                <template #default="{ rowIndex }">
+                  <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
+                    <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
+                  </el-popconfirm>
+                </template>
+              </vxe-column>
+              <template #empty>
+                <div class="m-vxe-table-empty-text">暂无数据</div>
+              </template>
+            </vxe-table>
+          </div>
+        </div>
+      </section>
+    </el-main>
+  </div>
 </template>
 
 <script>
@@ -159,6 +111,7 @@ import { getPackagesPart, getAddOrUpdate, repairItemDetail } from '@/api/maintai
 import { getDetail } from '@/api/maintain/basic/repairItem/index';
 import { repairItemType, sparePartList } from '@/api/common';
 import BaseSearch from '@/libs/components/BaseSearch';
+import FetchSelect from '@/libs/components/FetchSelect';
 import { listSettlementType } from '@/api/maintain/basic/checkoutType';
 import commonMixins from '@/libs/mixins/commonMixins';
 
@@ -178,7 +131,7 @@ export default {
     },
   },
   mixins: [commonMixins],
-  components: { BaseSearch },
+  components: { FetchSelect, BaseSearch },
   data () {
     return {
       repairDetail: {
@@ -372,7 +325,7 @@ export default {
           delete params.id;
         }
       }
-      getAddOrUpdate(params).then(() => {
+      return getAddOrUpdate(params).then(() => {
         this.$message.success('保存成功');
         this.$emit('refresh');
       });
@@ -384,13 +337,13 @@ export default {
 
 <style lang="scss" scoped>
 .btn-delete {
-    color: #B91919;
-    cursor: pointer;
+  color: #B91919;
+  cursor: pointer;
 }
 
 .table-pagination {
-    margin-top: 15px;
-    display: flex;
-    justify-content: flex-end;
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
