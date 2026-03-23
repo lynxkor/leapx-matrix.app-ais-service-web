@@ -134,7 +134,7 @@
             :title="!selectedPackage?.used ? '确定取消使用该维修套餐？' : '确定选择使用该维修套餐？'"
             @confirm="handleConfirm"
           >
-            <el-button :type="!selectedPackage?.used ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
+            <el-button :type="!selectedPackage?.used ? 'primary' : 'plain'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
           </el-popconfirm>
         </div>
       </div>
@@ -180,7 +180,7 @@ export default {
       return type?.name || '全部套餐';
     },
     confirmBtnText () {
-      return this.selectedPackage?.used ? '取消选择' : '核销使用';
+      return this.selectedPackage?.used ? '取消选择' : '选择';
     }
   },
   methods: {
