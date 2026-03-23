@@ -88,7 +88,7 @@ export default {
         },
         {
           field: 'vrtName',
-          title: 'VFG名称',
+          title: 'VRT名称',
           width: '',
         },
       ]

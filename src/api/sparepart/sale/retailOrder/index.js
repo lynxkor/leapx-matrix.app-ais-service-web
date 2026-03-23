@@ -3,6 +3,8 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/dealer/retailOrder/';
+const prefixDetail = SPARE_PREFIX + '/web/dealer/retailOrderDetail/';
+const retailPaymentRecord = SPARE_PREFIX + '/web/dealer/retailPaymentRecord/';
 
 /**
  * 查询列表
@@ -18,6 +20,14 @@ export function getList (data) {
  */
 export function addOrUpdate (data) {
   return api.jsonPost(prefix + 'addOrUpdate', data);
+}
+
+/**
+ * getVin
+ * @param {Object} data
+ */
+export function getVin (data) {
+  return api.jsonPost(prefix + 'getVin', data);
 }
 
 /**
@@ -161,7 +171,7 @@ export function refundOrder (data) {
  * @param {Object} data
  */
 export function retailOrderDetailPage (data) {
-  return api.jsonPost('sp/web/dealer/retailOrderDetail/page', data);
+  return api.jsonPost(prefixDetail + 'page', data);
 }
 
 /**
@@ -169,7 +179,7 @@ export function retailOrderDetailPage (data) {
  * @param {Object} data
  */
 export function addOrUpdateRetailOrderDetail (data) {
-  return api.jsonPost('sp/web/dealer/retailOrderDetail/addOrUpdate', data);
+  return api.jsonPost(prefixDetail + 'addOrUpdate', data);
 }
 
 /**
@@ -177,7 +187,7 @@ export function addOrUpdateRetailOrderDetail (data) {
  * @param {Object} data
  */
 export function getRetailOrderDetail (data) {
-  return api.jsonPost('sp/web/dealer/retailOrderDetail/get', data);
+  return api.jsonPost(prefixDetail + 'get', data);
 }
 
 /**
@@ -185,7 +195,7 @@ export function getRetailOrderDetail (data) {
  * @param {Object} data
  */
 export function deleteRetailOrderDetail (data) {
-  return api.jsonPost('sp/web/dealer/retailOrderDetail/delete', data);
+  return api.jsonPost(prefixDetail + 'delete', data);
 }
 
 /**
@@ -193,5 +203,5 @@ export function deleteRetailOrderDetail (data) {
  * @param {Object} data
  */
 export function retailPaymentRecordPage (data) {
-  return api.jsonPost('sp/web/dealer/retailPaymentRecord/page', data);
+  return api.jsonPost(retailPaymentRecord + 'page', data);
 }

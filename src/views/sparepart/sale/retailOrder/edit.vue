@@ -30,7 +30,9 @@
                   <el-input placeholder="请输入" v-model="form.warehouseName" disabled />
                 </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
-                  <el-input placeholder="请输入后6位VIN" v-model="form.vin" clearable />
+                  <fetch-select :remote-method="getVinList" remote v-model="form.vin" placeholder="请输入vin"
+                    labelKey="vin" valueKey="vin" clearable filterable :disabled="isEditing"
+                    @change="handleVinChange" />
                 </el-form-item>
                 <el-form-item label="客户名称：" prop="customerName">
                   <el-input placeholder="请输入" v-model="form.customerName" disabled />
@@ -439,7 +441,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, retailPaymentRecordPage, retailOrderDetailPage, addOrUpdateRetailOrderDetail, deleteRetailOrderDetail } from '@/api/sparepart/sale/retailOrder/index';
+import { getVin, getDetail, addOrUpdate, retailPaymentRecordPage, retailOrderDetailPage, addOrUpdateRetailOrderDetail, deleteRetailOrderDetail } from '@/api/sparepart/sale/retailOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -616,6 +618,22 @@ export default {
     this.initDealerUser();
   },
   methods: {
+    handleVinChange (val, ele) {
+      this.form.customerName = ele.customerName;
+      this.form.plateNumber = ele.plateNumber;
+      this.form.vehicleModelId = ele.vehicleModelId;
+      this.form.vehicleModelName = ele.vehicleModelName;
+      this.form.iotMileage = ele.iotMileage;
+      this.form.latestVisitMileage = ele.latestVisitMileage;
+    },
+    async getVinList (query) {
+      try {
+        const res = await getVin({ vin: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     async initDealerUser () {
       // 查询是否店端 true为门店  false为厂端
       const res = await getLoginUser();
