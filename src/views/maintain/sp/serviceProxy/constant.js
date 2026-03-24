@@ -100,3 +100,19 @@ export const CurrentSituationEnum = {
   /** 多次重复故障进店 */
   MULTIPLE_REPEAT_FAULT: 40
 };
+
+// 维修类型枚举
+export const MaintenanceTypeEnum = {
+  /** 一般维修 */
+  GENERAL_REPAIR: '898A364C-DD79-EC11-B0F9-9216EACB73F2',
+  /** 钣喷 */
+  SHEET_PAINT: '1073B058-DD79-EC11-B0F9-9216EACB73F2',
+  /** 美容，装潢 */
+  BEAUTY: '137F5860-DD79-EC11-B0F9-9216EACB73F2',
+  /** 精品附件 */
+  ACCESSORIES: '9C938267-DD79-EC11-B0F9-9216EACB73F2',
+  /** 三电维修 */
+  BATTERY_REPAIR: 'EC34606E-DD79-EC11-B0F9-9216EACB73F2',
+  /** 保养 */
+  MAINTENANCE: '6EA3066F-82AC-E911-B0BB-FC82BA5F9EDF'
+};

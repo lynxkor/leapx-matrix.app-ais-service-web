@@ -366,7 +366,7 @@
           {{ form.anomalyDescription }}
         </el-form-item>
       </el-form>
-      <div class="table-section" v-if="form.currentFault">
+      <div class="table-section" v-if="form.currentFault && _id">
         <div class="table-section-header">
           <h3>添加故障模块</h3>
           <div class="ais-select-group">

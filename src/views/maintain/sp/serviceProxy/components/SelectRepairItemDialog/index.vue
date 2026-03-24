@@ -458,9 +458,9 @@
 
 <script>
 // import EditTable from '@/libs/components/EditTable';
-import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getDealerPermission, oneTimeFix } from '@/api/maintain/sp/serviceProxy/index';
+import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getDealerPermission } from '@/api/maintain/sp/serviceProxy/index';
 import UpdateActivityDialog from '../UpdateActivityDialog';
-import { CheckoutTypeEnum, WarrantyTypeEnum, UNIVERSAL_LABOR_HOUR_ITEM_ID } from '../../constant';
+import { CheckoutTypeEnum, WarrantyTypeEnum, UNIVERSAL_LABOR_HOUR_ITEM_ID, MaintenanceTypeEnum } from '../../constant';
 
 export default {
   name: 'SelectRepairItemDialog',
@@ -853,19 +853,37 @@ export default {
       }
 
       saveRepairItem(data).then(res => {
-        this.$emit('update:visible', false);
         this.submitLoading = false;
         this.$message.success('保存成功');
+
+        // 检查维修类型变化
+        this.checkRepairTypeChange();
+
+        this.$emit('update:visible', false);
         this.$emit('refresh');
         this.$emit('check');
-
-        // 静默调用 oneTimeFix 接口，不阻塞后续操作
-        oneTimeFix({ serviceProxyId: this.vehicleInfo.id }).catch(err => {
-          console.error('oneTimeFix调用失败:', err);
-        });
       }).catch(e => {
         this.submitLoading = false;
       });
+    },
+    checkRepairTypeChange () {
+      // 检查原来的维修项目是否包含"一般维修"或"三电维修"
+      const originalRepairItems = this.vehicleInfo.costCountResp?.repairItemRespList || [];
+      const originalHasTargetRepair = originalRepairItems.some(item =>
+        item.repairItemTypeId === MaintenanceTypeEnum.GENERAL_REPAIR ||
+        item.repairItemTypeId === MaintenanceTypeEnum.BATTERY_REPAIR
+      );
+
+      // 检查当前保存的维修项目中是否包含"一般维修"或"三电维修"（通过ID判断）
+      const currentHasTargetRepair = this.itemData.some(item =>
+        item.repairItemTypeId === MaintenanceTypeEnum.GENERAL_REPAIR ||
+        item.repairItemTypeId === MaintenanceTypeEnum.BATTERY_REPAIR
+      );
+
+      // 如果原来不包含，但现在包含，则显示提示
+      if (!originalHasTargetRepair && currentHasTargetRepair) {
+        this.showMsg('维修类型为："一般维修"或"三电维修"，系统默认调整 【本次进店是否存在故障】为：是，存在故障，请填写故障模块信息！');
+      }
     },
     getEnumData () {
       getEnum('MaintenanceTypeEnum').then(res => {

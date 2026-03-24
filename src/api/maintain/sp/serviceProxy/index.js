@@ -353,14 +353,6 @@ export function rightsList (data) {
 }
 
 /**
- * 一次性修复 - 维修项目保存后调用，由后端判断是否需要更新故障状态
- * @param {Object} data - { serviceProxyId: String|Number }
- */
-export function oneTimeFix (data) {
-  return api.jsonPost(prefix + 'oneTimeFix', data);
-}
-
-/**
  * 检查是否需要留车
  * @param {Object} data - { serviceProxyId: String|Number }
  */
