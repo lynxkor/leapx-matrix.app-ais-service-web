@@ -343,3 +343,11 @@ export function getDealerPermission (data) {
 export function getSpRemindInfo (data) {
   return api.jsonPost(prefix + 'getSpRemindInfo', data);
 }
+
+/**
+ * 权益列表
+ * @param {Object} data
+ */
+export function rightsList (data) {
+  return api.jsonPost(prefix + 'rightsList', data);
+}

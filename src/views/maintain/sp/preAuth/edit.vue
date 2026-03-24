@@ -119,52 +119,52 @@
             <div class="common-section-body">
               <el-form :inline="true" class="form-detail">
                 <el-form-item label="车主姓名：">
-                  <span>{{ serviceProxyDetail?.customerName || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.customerName || form.serviceProxyResp.customerName || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="送修人：">
-                  <span>{{ serviceProxyDetail?.shuttleName || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.shuttleName || form.serviceProxyResp.shuttleName || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="送修人手机：">
-                  <span>{{ serviceProxyDetail?.shuttlePhone || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.shuttlePhone || form.serviceProxyResp.shuttlePhone || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="VIN：">
-                  <span>{{ serviceProxyDetail?.vehProfileVin || '-' }}</span>
+                  <span>{{ preAuthInfoDetail?.vehProfileVin || form.vehProfileVin  || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="车型：">
-                  <span>{{ serviceProxyDetail?.vehModelName || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.vehModelName || form.serviceProxyResp.vehModelName || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="车牌号：">
-                  <span>{{ serviceProxyDetail?.carPlate || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.carPlate || form.serviceProxyResp.carPlate || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="车辆用途：">
-                  <span>{{ serviceProxyDetail?.carPropertyLabel || (serviceProxyDetail?.carProperty === 1 ? '是' : serviceProxyDetail?.carProperty === 0 ? '否' : '-') }}</span>
+                  <span>{{ preAuthInfoDetail.carPropertyLabel || form.carPropertyStrLabel || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="进店里程数：">
-                  <span>{{ serviceProxyDetail?.mileage || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.mileage || form.serviceProxyResp.mileage || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="生产日期：">
-                  <span>{{ serviceProxyDetail?.productionTime || '-' }}</span>
+                  <span>{{ preAuthInfoDetail?.productionTime || form.productionTime || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="终身免保：">
-                  <span>{{ serviceProxyDetail?.warrantyLifeLabel || (serviceProxyDetail?.warrantyLife === 1 ? '是' : serviceProxyDetail?.warrantyLife === 0 ? '否' : '-') }}</span>
+                  <span>{{ preAuthInfoDetail?.warrantyLifeLabel || form.warrantyLifeLabel || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="终身质保：">
-                  <span>{{ serviceProxyDetail?.isLifetimeLabel || '-' }}</span>
+                  <span>{{ preAuthInfoDetail?.isLifetimeLabel || form.isLifetimeLabel || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="保修开始日期：">
-                  <span>{{ serviceProxyDetail?.startWarrantyDate || '-' }}</span>
+                  <span>{{ preAuthInfoDetail?.guaranteeStartDate || form.guaranteeStartDate || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="保修结束日期：">
-                  <span>{{ serviceProxyDetail?.warrantyEndTime || '-' }}</span>
+                  <span>{{ preAuthInfoDetail?.warrantyEndTime ||  form.warrantyEndTime || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="服务月份：">
-                  <span>{{ serviceProxyDetail?.serviceMonth || '-' }}</span>
+                  <span>{{ preAuthInfoDetail?.serviceMonth || form.serviceMonth || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="三包预警：">
-                  <span>{{ serviceProxyDetail?.alarmLevelLabel || serviceProxyDetail?.alarmLevel || '-' }}</span>
+                  <span>{{ preAuthInfoDetail?.alarmLevelLabel ||form.alarmLevelLabel || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="预警信息：">
-                  <span>{{ serviceProxyDetail?.alarmInfo || '-' }}</span>
+                  <span>{{ preAuthInfoDetail?.alarmInfo || form.alarmInfo || '-' }}</span>
                 </el-form-item>
               </el-form>
             </div>
@@ -345,8 +345,8 @@
             <div class="common-section-header">
               <h2>审批信息</h2>
             </div>
-            <div class="common-section-body">
-              <el-form :inline="true" class="form-detail">
+            <div class="common-section-body" >
+              <el-form :inline="true" class="form-detail" v-show="form.isGoodWarranty === 1 ">
                 <el-form-item label="审批单号：">
                   <span>{{ form.auditNo || '-' }}</span>
                 </el-form-item>
@@ -386,7 +386,6 @@
                 >
                   <vxe-column field="approver" title="执行人" min-width="120" />
                   <vxe-column field="approvalOn" title="执行时间" min-width="160" />
-                  <vxe-column field="statusLabel" title="审批状态" min-width="100" />
                   <vxe-column field="approvalResult" title="审批结果" min-width="120" />
                   <vxe-column field="content" title="审批意见" min-width="150" />
                   <vxe-column field="errorContent" title="错误代码及内容" min-width="120" />
@@ -510,7 +509,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getServiceProxyList, getServiceProxyDetail, cancelItem } from '@/api/maintain/sp/preAuth/index';
+import { getDetail, addOrUpdate, getServiceProxyList, getServiceProxyDetail, cancelItem,getPreAuthInfo } from '@/api/maintain/sp/preAuth/index';
 import { getList as getQualityReportList } from '@/api/maintain/sp/qualityOrderReport/index';
 import { selectServiceProxy as selectServiceProxyApi, getEnum } from '@/api/maintain/sp/serviceProxy/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -544,6 +543,7 @@ const defaultForm = {
   carPropertyLabel: '',
   mileage: '',
   productionTime: '',
+  carPropertyStrLabel: '',
   warrantyLifeLabel: '',
   isLifetimeLabel: '',
   guaranteeStartDate: '',
@@ -583,7 +583,9 @@ const defaultForm = {
   carProperty: '',
   rejectReason: '',
   rejectTime: '',
-  warrantyLife: ''
+  warrantyLife: '',
+  isGoodWarranty: '',
+  serviceProxyResp: {}
 };
 
 export default {
@@ -632,6 +634,7 @@ export default {
       originalForm: { ...defaultForm },
       emptyText: '暂无数据',
       serviceProxyDetail: {}, // 施工单详情数据（仅用于展示）
+      preAuthInfoDetail: {},
       // 审批记录附件映射 Map<approvalId, files[]>
       approvalAttachmentsMap: {},
       // 附件加载状态 Map<approvalId, boolean>
@@ -819,6 +822,7 @@ export default {
         // 调用质量反馈单分页查询接口
         getQualityReportList({
           codeLike: queryString,
+          vehProfileVin: this.form.vehProfileVin,
           pageSize: 20,
           pageNum: 1
         }).then(res => {
@@ -854,6 +858,16 @@ export default {
             if (detailRes.preAuthType) {
               this.form.preAuthType = detailRes.preAuthType;
             }
+          }
+        }).catch(error => {
+          console.error('获取施工单详情失败:', error);
+        });
+        getPreAuthInfo(record.id).then(preAuthInfo =>{
+          if (preAuthInfo) {
+            // 直接保存接口返回的数据，用于展示
+            this.preAuthInfoDetail = preAuthInfo;
+            Object.assign(this.form, preAuthInfo);
+
           }
         }).catch(error => {
           console.error('获取施工单详情失败:', error);
