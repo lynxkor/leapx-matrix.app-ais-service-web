@@ -36,6 +36,7 @@
                 clearable
                 filterable
                 :format="formatFun"
+                @change="onBusinessType"
               />
             </el-form-item>
             <el-form-item label="VIN：" prop="vin">
@@ -220,6 +221,7 @@
                   placeholder="请输入"
                   v-model="form.targetOwnerPhone"
                   clearable
+                  maxLength="11"
                 />
               </el-form-item>
               <el-form-item v-if="form.businessType === '10'"  label="变更后车主证件类型：" prop="targetIdType">
@@ -247,11 +249,16 @@
                 />
               </el-form-item>
             </template>
-            <el-form-item v-else label="变更后车辆属性：" prop="targetVehicleProperty">
-              <el-input
-                placeholder="请输入"
+            <el-form-item label="变更后车辆属性：" prop="targetVehicleProperty">
+              <fetch-select
+                :key="form.businessType"
+                :request="fetchOptions"
+                enumCode="claim_vehicle_property"
                 v-model="form.targetVehicleProperty"
+                placeholder="请选择"
                 clearable
+                filterable
+                :format="formatVehicleProperty"
                 :disabled="form.businessType === '60'"
               />
             </el-form-item>
@@ -458,45 +465,45 @@
           </el-form>
         </div>
       </section>
-      <section class="common-section">
+      <section class="common-section" v-if="form.businessType">
         <div class="common-section-header">
           <h2>上传附件</h2>
         </div>
         <div class="common-section-body">
           <div class="common-section-table">
-            <el-tabs value="1">
+            <el-tabs value="1" v-if="form.businessType === '10'">
               <el-tab-pane label="个人" name="1">
                 <AisAttachment
                   :businessId="_id"
                   configCode="mcs_vehownerchange"
                   attachType="车主身份证-正面"
-                  ref="attachment"
                   type="card"
                   title="车主身份证-正面"
+                  :businessData="businessData"
                 />
                 <AisAttachment
                   :businessId="_id"
                   configCode="mcs_vehownerchange"
                   attachType="车主身份证-反面"
-                  ref="attachment"
                   type="card"
                   title="车主身份证-反面"
+                  :businessData="businessData"
                 />
                 <AisAttachment
                   :businessId="_id"
                   configCode="mcs_vehownerchange"
                   attachType="登记证书"
-                  ref="attachment"
                   type="card"
                   title="车辆登记证书"
+                  :businessData="businessData"
                 />
                 <AisAttachment
                   :businessId="_id"
                   configCode="mcs_vehownerchange"
                   attachType="车辆行驶证"
-                  ref="attachment"
                   type="card"
                   title="车辆行驶证"
+                  :businessData="businessData"
                 />
               </el-tab-pane>
               <el-tab-pane label="企业" name="2">
@@ -504,28 +511,84 @@
                   :businessId="_id"
                   configCode="mcs_vehownerchange"
                   attachType="营业执照"
-                  ref="attachment"
                   type="card"
                   title="营业执照"
+                  :businessData="businessData"
                 />
                 <AisAttachment
                   :businessId="_id"
                   configCode="mcs_vehownerchange"
                   attachType="登记证书"
-                  ref="attachment"
                   type="card"
                   title="车辆登记证书"
+                  :businessData="businessData"
                 />
                 <AisAttachment
                   :businessId="_id"
                   configCode="mcs_vehownerchange"
                   attachType="车辆行驶证"
-                  ref="attachment"
                   type="card"
                   title="车辆行驶证"
+                  :businessData="businessData"
                 />
               </el-tab-pane>
             </el-tabs>
+            <el-tabs value="1" v-if="form.businessType === '40'">
+              <el-tab-pane label="个人" name="1">
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_vehownerchange"
+                  attachType="车主身份证-正面"
+                  type="card"
+                  title="车主身份证-正面"
+                  :businessData="businessData"
+                />
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_vehownerchange"
+                  attachType="车主身份证-反面"
+                  type="card"
+                  title="车主身份证-反面"
+                  :businessData="businessData"
+                />
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_vehownerchange"
+                  attachType="车辆行驶证"
+                  type="card"
+                  title="车辆行驶证"
+                  :businessData="businessData"
+                />
+              </el-tab-pane>
+              <el-tab-pane label="企业" name="2">
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_vehownerchange"
+                  attachType="营业执照"
+                  type="card"
+                  title="营业执照"
+                  :businessData="businessData"
+                />
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_vehownerchange"
+                  attachType="车辆行驶证"
+                  type="card"
+                  title="车辆行驶证"
+                  :businessData="businessData"
+                />
+              </el-tab-pane>
+            </el-tabs>
+            <div v-if="form.businessType==='60'">
+              <AisAttachment
+                :businessId="_id"
+                configCode="mcs_vehownerchange"
+                attachType="报废灭失证明"
+                type="card"
+                title="报废灭失证明"
+                :businessData="businessData"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -553,6 +616,7 @@ const defaultForm = {
   applyNo: '',
   businessType: '',
   vin: '',
+  vehicleProfileId: '',
   applierName: '',
   applierId: '',
   applyTime: '',
@@ -608,6 +672,12 @@ export default {
     title () {
       return '车主信息变更';
     },
+    businessData () {
+      const data = {
+        businessType: this.form.businessType,
+      };
+      return JSON.stringify(data);
+    }
   },
   watch: {
     id: {
@@ -684,6 +754,13 @@ export default {
   mounted () {
   },
   methods: {
+    onBusinessType (value, option) {
+      if (value === '10' || value === '40') {
+        this.form.targetVehicleProperty = '';
+      } else if (value === '60') {
+        this.form.targetVehicleProperty = '60';
+      }
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -717,18 +794,26 @@ export default {
         searchVin: query,
         pageSize: 20,
         pageNum: 1,
-        isSaleDateNull: true,
+        isSaleDateNull: false,
         usageTypeList: ['1', '2', '4', '10', '20', '30'],
       }).then(res => {
         return res;
       });
     },
-    vinChange (val, record) {},
+    vinChange (val, record) {
+      this.form.vehicleProfileId = record?.id;
+    },
     formatFun (options) {
       const allowedCodes = ['10', '40', '60'];
       return options.filter(item =>
         allowedCodes.includes(String(item.code)));
     },
+    formatVehicleProperty (options) {
+      if (['10', '40'].includes(this.form.businessType)) {
+        return options.filter(item => item.code === '2');
+      }
+      return options;
+    }
   }
 };
 </script>
