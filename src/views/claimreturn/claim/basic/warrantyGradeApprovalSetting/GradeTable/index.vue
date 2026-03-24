@@ -206,6 +206,8 @@ export default {
         id: row.id,
         approvers: row._approvers,
         approvalStatusAfter: row.approvalStatusAfter,
+        step: row.step,
+        gradeApprovalId: row.gradeApprovalId,
       }).then(() => {
         this.$message.success('更新成功');
         this.getDetailPageApi();

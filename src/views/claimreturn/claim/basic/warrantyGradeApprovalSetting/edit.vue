@@ -206,6 +206,17 @@ export default {
         }
       },
       immediate: true
+    },
+    'form.approvalGrade': {
+      handler (newVal, oldVal) {
+        if (this.isEditMode && oldVal && newVal && oldVal !== newVal) {
+          this.$notify({
+            title: '提示',
+            message: '规则调整后，要重新启用，规则才会生效',
+            type: 'warning'
+          });
+        }
+      }
     }
   },
   data () {
@@ -239,6 +250,14 @@ export default {
     };
   },
   mounted () {
+    // 新增模式：提示启用默认为否
+    if (!this._id) {
+      this.$notify({
+        title: '提示',
+        message: '默认为停用，需要自行启用',
+        type: 'warning'
+      });
+    }
   },
   methods: {
     detailRequest () {
