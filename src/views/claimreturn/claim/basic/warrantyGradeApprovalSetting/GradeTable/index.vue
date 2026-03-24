@@ -35,9 +35,12 @@
             label-key="username"
             sub-label-key="empNo"
           />
-          <div v-else>
-            <div v-for="item in row.approvers" :key="item.id">{{ item.name }}</div>
-          </div>
+          <span v-else>
+            <span v-for="(item, index) in row._approvers" :key="item.id">
+              {{ item.name }}
+              <span v-if="index !== row._approvers.length-1">,</span>
+            </span>
+          </span>
         </template>
       </vxe-column>
       <vxe-column field="approvalStatusCurrentLabel" title="审批时状态"></vxe-column>

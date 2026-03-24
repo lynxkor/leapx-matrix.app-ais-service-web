@@ -112,12 +112,12 @@ export function rightsQuery (data) {
   return api.jsonPost('/claimreturn/claim/web/warrantyapply/warrantyApply/rights/query', data);
 }
 export function warrantyForecast (data) {
-  return api.jsonPost('/datacenter/web/vehicle/vehicleProfile/warrantyForecast', data);
+  return api.jsonPost(prefix + 'warrantyForecast', data);
 }
 
 // 同步车机
 export function syncMaintenance (data) {
-  return api.jsonPost('/datacenter/web/vehicle/vehicleProfile/syncMaintenance', data);
+  return api.jsonPost(prefix + 'syncMaintenance', data);
 }
 
 /**

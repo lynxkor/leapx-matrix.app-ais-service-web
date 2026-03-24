@@ -91,6 +91,15 @@ export function checkServiceProxy (data) {
 }
 
 /**
+ * 新增预授权时的展示信息
+ * @param data
+ * @returns {Promise | Promise<unknown>}
+ */
+export function getPreAuthInfo (data) {
+  return api.jsonPost(prefix + 'getPreAuthInfoDetail', data);
+}
+
+/**
  * 获取字典
  * @param {Object} data
  */
