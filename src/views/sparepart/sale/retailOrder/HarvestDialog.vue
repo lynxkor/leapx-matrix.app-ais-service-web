@@ -146,6 +146,16 @@ export default {
     },
     // 暂存
     async saveSubmit () {
+      const actualPaymentAmount = this.tableData.reduce((sum, element) => {
+        // 确保元素存在且实际支付金额是数字，防止报错
+        const amount = Number(element.actualPaymentAmount) || 0;
+        return sum + amount;
+      }, 0); // 第二个参数 0 是累加的初始值
+
+      if (actualPaymentAmount > this.formData.remainingPayableAmount) {
+        this.$message.error('实付金额超过订单的应付总金额，不允许保存');
+        return;
+      }
       this.submitLoading = true;
       const params = {
         id: this.formData.id,
@@ -159,6 +169,16 @@ export default {
     },
     // 收款完成
     async handleSubmit () {
+      // 使用 reduce 进行累加
+      const actualPaymentAmount = this.tableData.reduce((sum, element) => {
+        // 确保元素存在且实际支付金额是数字，防止报错
+        const amount = Number(element.actualPaymentAmount) || 0;
+        return sum + amount;
+      }, 0); // 第二个参数 0 是累加的初始值
+      if (actualPaymentAmount !== Number(this.formData.remainingPayableAmount)) {
+        this.$message.error(`结账记录总金额：${actualPaymentAmount}，不等于应付总金额：${this.formData.remainingPayableAmount}，请添加收款记录后，再操作，谢谢`);
+        return;
+      }
       this.submitLoading = true;
       const params = {
         id: this.formData.id,
@@ -166,6 +186,7 @@ export default {
         payList: this.tableData
       };
       await collectPayment(params);
+      this.$message.success('收款成功');
       this.$emit('update:visible', false);
       this.$emit('success');
       this.submitLoading = false;
