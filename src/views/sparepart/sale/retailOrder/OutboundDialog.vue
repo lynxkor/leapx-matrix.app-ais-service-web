@@ -112,7 +112,8 @@ export default {
         pageNum: 1,
         pageSize: 50,
         retailOrderId: this.id,
-        outboundIs: 0
+        outboundIs: '1',
+        applyReturnMaterialIs: '1'
       };
       retailOrderDetailPage(params).then(res => {
         this.tableData = res.records || [];
