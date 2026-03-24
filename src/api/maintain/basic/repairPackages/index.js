@@ -100,6 +100,14 @@ export function getPackagesPart (data) {
 }
 
 /**
+ * 维修套餐--零配件表列表查询
+ * @param {Object} data
+ */
+export function getPackagesPartPage (data) {
+  return api.jsonPost('maintain/web/basic/repairPackagesPart/page', data);
+}
+
+/**
  * 维修套餐--维修项目新增/编辑
  * @param {Object} data
  */

@@ -234,7 +234,8 @@ export default {
                 this.$router.push({
                   path: '/claimreturn/claim/basic/warrantyHourSetting/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

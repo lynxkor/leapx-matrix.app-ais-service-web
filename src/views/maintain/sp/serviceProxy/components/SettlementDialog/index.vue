@@ -2,7 +2,7 @@
   <el-dialog
     :visible.sync="dialogVisible"
     title="结算"
-    width="600px"
+    width="680px"
     :before-close="handleClose"
     custom-class="settlement-dialog"
   >
@@ -14,15 +14,12 @@
         </el-radio-group>
       </el-form-item>
 
-      <el-form-item label="未解决问题原因" prop="unresolvedReason">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="UnresolvedIssueReasonEnum"
-          v-model="form.unresolvedReason"
-          placeholder="请选择"
-          clearable
-          filterable
-        />
+      <el-form-item label="未解决问题原因" prop="unresolvedReason" v-if="!form.isProblemResolved">
+        <el-radio-group v-model="form.unresolvedReason" class="multi-line">
+          <el-radio v-for="item in unresolvedReasonOptions" :key="item.code" :label="item.code">
+            {{ item.message }}
+          </el-radio>
+        </el-radio-group>
       </el-form-item>
     </el-form>
 
@@ -35,13 +32,10 @@
 
 <script>
 import { getEnum } from '@/api/maintain/sp/restatement/index';
-import FetchSelect from '@/libs/components/FetchSelect';
 
 export default {
   name: 'SettlementDialog',
-  components: {
-    FetchSelect
-  },
+  components: {},
   props: {
     visible: {
       type: Boolean,
@@ -51,6 +45,7 @@ export default {
   data () {
     return {
       dialogVisible: false,
+      unresolvedReasonOptions: [],
       form: {
         isProblemResolved: true,
         unresolvedReason: ''
@@ -79,7 +74,6 @@ export default {
     };
   },
   mounted () {
-    // 组件挂载时立即加载枚举数据
     this.loadEnumData();
   },
   watch: {
@@ -100,20 +94,10 @@ export default {
     }
   },
   methods: {
-    // 加载枚举数据
     async loadEnumData () {
       try {
         const response = await this.fetchOptions('UnresolvedIssueReasonEnum');
-        console.log('接口返回的原始数据:', response);
-
-        // 处理返回数据，确保是正确的格式
-        let enumData = response;
-        if (response && response.data) {
-          enumData = response.data;
-        } else if (response && response.records) {
-          enumData = response.records;
-        }
-
+        this.unresolvedReasonOptions = response || [];
       } catch (error) {
         console.error('加载枚举数据失败:', error);
       }
@@ -134,7 +118,6 @@ export default {
             faultSolve: this.form.isProblemResolved,
             reason: this.form.unresolvedReason
           });
-
           this.dialogVisible = false;
         }
       });
@@ -153,4 +136,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.multi-line {
+  padding: 8px 0;
+  .el-radio {
+    margin: 0 16px 16px 0;
+  }
+}
 </style>
