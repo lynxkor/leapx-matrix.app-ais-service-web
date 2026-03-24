@@ -509,7 +509,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getServiceProxyList, getServiceProxyDetail, cancelItem,getPreAuthInfo } from '@/api/maintain/sp/preAuth/index';
+import { getDetail, addOrUpdate, getServiceProxyList, getServiceProxyDetail, cancelItem, getPreAuthInfo } from '@/api/maintain/sp/preAuth/index';
 import { getList as getQualityReportList } from '@/api/maintain/sp/qualityOrderReport/index';
 import { selectServiceProxy as selectServiceProxyApi, getEnum } from '@/api/maintain/sp/serviceProxy/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -643,8 +643,8 @@ export default {
       attachmentErrorMap: {},
       // 附件配置
       attachmentConfig: {
-        maxDisplay: 3,        // 最大显示数量
-        preloadCount: 20       // 预加载数量
+        maxDisplay: 3, // 最大显示数量
+        preloadCount: 20 // 预加载数量
       },
       // 审核对话框
       auditDialogVisible: false,
@@ -862,12 +862,11 @@ export default {
         }).catch(error => {
           console.error('获取施工单详情失败:', error);
         });
-        getPreAuthInfo(record.id).then(preAuthInfo =>{
+        getPreAuthInfo(record.id).then(preAuthInfo => {
           if (preAuthInfo) {
             // 直接保存接口返回的数据，用于展示
             this.preAuthInfoDetail = preAuthInfo;
             Object.assign(this.form, preAuthInfo);
-
           }
         }).catch(error => {
           console.error('获取施工单详情失败:', error);

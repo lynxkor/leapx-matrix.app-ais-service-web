@@ -15,11 +15,11 @@
             </el-form-item>
             <el-form-item label="维修类型：" prop="repairItemTypeId">
               <fetch-select v-model="repairDetail.repairItemTypeId" :options="repairItemOptions"
-                placeholder="请选择维修类型名称" labelKey="label" valueKey="value" clearable filterable
+                placeholder="请选择维修类型名称" labelKey="label" valueKey="value" filterable
                 @change="handleRepairItemChange" />
             </el-form-item>
             <el-form-item label="结算类型：" prop="checkoutTypeId">
-              <fetch-select filterable clearable v-model="repairDetail.checkoutTypeId"
+              <fetch-select filterable v-model="repairDetail.checkoutTypeId"
                 :options="checkoutTypeOptions" placeholder="请选择结算类型名称" @change="handleCheckoutTypeChange"
                 value-key="value" label-key="label" />
             </el-form-item>
@@ -62,12 +62,12 @@
               <vxe-column field="repairItemTypeId" title="维修类型" width="150">
                 <template #default="{ row }">
                   <fetch-select v-model="row.repairItemTypeId" :options="repairItemOptions"
-                    placeholder="请选择维修类型名称" labelKey="label" valueKey="value" clearable filterable />
+                    placeholder="请选择维修类型名称" labelKey="label" valueKey="value" filterable />
                 </template>
               </vxe-column>
               <vxe-column field="checkoutTypeId" title="结算类型" width="150">
                 <template #default="{ row }">
-                  <fetch-select filterable clearable v-model="row.checkoutTypeId"
+                  <fetch-select filterable v-model="row.checkoutTypeId"
                     :options="checkoutTypeOptions" placeholder="请选择结算类型名称" @change="handleCheckoutTypeChange"
                     value-key="value" label-key="label" />
                 </template>
@@ -133,7 +133,9 @@ export default {
         price: null,
         workHour: null,
         discountAmount: 0,
-        actualAmount: null
+        actualAmount: null,
+        repairItemTypeId: '',
+        checkoutTypeId: '',
       }, // 维修套餐详情信息
       detailId: '', // 维修套餐详情ID
       repairTableData: [], // 维修套餐详情列表
@@ -190,15 +192,6 @@ export default {
         this.repairDetail.checkoutTypeId = this.checkoutTypeOptions[0].value;
         this.repairDetail.checkoutTypeName = this.checkoutTypeOptions[0].label;
       }
-      // 为零件信息的每一行设置默认值
-      this.tableData.forEach(row => {
-        if (this.repairItemOptions.length > 0 && !row.repairItemTypeId) {
-          row.repairItemTypeId = this.repairItemOptions[0].value;
-        }
-        if (this.checkoutTypeOptions.length > 0 && !row.checkoutTypeId) {
-          row.checkoutTypeId = this.checkoutTypeOptions[0].value;
-        }
-      });
     },
     // 获取维修项目详情信息
     async getDetail (id) {
@@ -215,6 +208,10 @@ export default {
         this.repairDetail.repairItemId = res.id;
         this.repairDetail.repairItemCode = res.code;
         this.repairDetail.repairItemName = res.name;
+        this.repairDetail.repairItemTypeId = res.repairItemTypeId;
+        this.repairDetail.repairItemTypeName = res.repairItemTypeName;
+        this.repairDetail.checkoutTypeId = res.checkoutTypeId;
+        this.repairDetail.checkoutTypeName = res.checkoutTypeName;
         if (res.partsRespList && Array.isArray(res.partsRespList)) {
           for (let item of res.partsRespList) {
             this.tableData.push({
@@ -243,13 +240,13 @@ export default {
     async getSparePartList () {
       const res = await getPackagesPart({ repairPackagesId: this.repairItemId });
       this.tableData = res || [];
-      this.setDefaultValues();
     },
     // 处理维修类型选择变更事件
     handleRepairItemChange (val) {
       const selectedVal = this.repairItemOptions.find(option => option.value === val);
       if (selectedVal) {
         this.repairDetail.repairItemTypeName = selectedVal.label;
+        this.repairDetail.repairItemTypeId = selectedVal.value;
       }
     },
     // 处理结算类型选择变更事件
@@ -257,6 +254,7 @@ export default {
       const selectedVal = this.checkoutTypeOptions.find(option => option.value === val);
       if (selectedVal) {
         this.repairDetail.checkoutTypeName = selectedVal.label;
+        this.repairDetail.checkoutTypeId = selectedVal.value;
       }
     },
     // 处理优惠金额失焦以后计算项目金额
@@ -298,14 +296,20 @@ export default {
         partTotalPrice: selectedVal.price,
         partsId: selectedVal.id,
         quantity: 1,
-        discountAmount: 0
+        discountAmount: 0,
+        repairItemTypeId: this.repairDetail.repairItemTypeId,
+        repairItemTypeName: this.repairDetail.repairItemTypeName,
+        checkoutTypeId: this.repairDetail.checkoutTypeId,
+        checkoutTypeName: this.repairDetail.checkoutTypeName,
       };
       // 设置默认值
-      if (this.repairItemOptions.length > 0) {
+      if (this.repairItemOptions.length > 0 && !newRow.repairItemTypeId) {
         newRow.repairItemTypeId = this.repairItemOptions[0].value;
+        newRow.repairItemTypeName = this.repairItemOptions[0].label;
       }
-      if (this.checkoutTypeOptions.length > 0) {
+      if (this.checkoutTypeOptions.length > 0 && !newRow.checkoutTypeId) {
         newRow.checkoutTypeId = this.checkoutTypeOptions[0].value;
+        newRow.checkoutTypeName = this.checkoutTypeOptions[0].label;
       }
       this.tableData.push(newRow);
     },
