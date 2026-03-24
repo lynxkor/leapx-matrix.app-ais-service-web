@@ -471,11 +471,11 @@
         </div>
         <div class="common-section-body">
           <div class="common-section-table">
-            <el-tabs value="1" v-if="form.businessType === '10'">
-              <el-tab-pane key="1" label="个人" name="1">
+            <el-tabs v-model="activeTab" v-if="form.businessType === '10'">
+              <el-tab-pane label="个人" name="1" lazy>
                 <AisAttachment
                   v-for="value in ['车主身份证-正面', '车主身份证-反面', '车辆登记证书', '车辆行驶证']"
-                  :key="value"
+                  :key="'personal-' + value"
                   :businessId="_id"
                   configCode="mcs_vehownerchange"
                   :attachType="value"
@@ -484,10 +484,10 @@
                   :businessData="businessData"
                 />
               </el-tab-pane>
-              <el-tab-pane key="2" label="企业" name="qiyue">
+              <el-tab-pane label="企业" name="2" lazy>
                 <AisAttachment
                   v-for="value in ['营业执照', '车辆登记证书', '车辆行驶证']"
-                  :key="value"
+                  :key="'enterprise-' + value"
                   :businessId="_id"
                   configCode="mcs_vehownerchange"
                   :attachType="value"
@@ -497,30 +497,16 @@
                 />
               </el-tab-pane>
             </el-tabs>
-            <!-- <el-tabs value="1" v-else-if="form.businessType === '40' && [1, 2, 3, 4, 5, 20].includes(form.oldIdType)">
+            <el-tabs value="1" v-else-if="form.businessType === '40' && [1, 2, 3, 4, 5, 20].includes(form.oldIdType)">
               <el-tab-pane label="个人" name="1">
                 <AisAttachment
+                  v-for="value in ['车主身份证-正面', '车主身份证-反面', '车辆行驶证']"
+                  :key="'personal-' + value"
                   :businessId="_id"
                   configCode="mcs_vehownerchange"
-                  attachType="车主身份证-正面"
+                  :attachType="value"
                   type="card"
-                  title="车主身份证-正面"
-                  :businessData="businessData"
-                />
-                <AisAttachment
-                  :businessId="_id"
-                  configCode="mcs_vehownerchange"
-                  attachType="车主身份证-反面"
-                  type="card"
-                  title="车主身份证-反面"
-                  :businessData="businessData"
-                />
-                <AisAttachment
-                  :businessId="_id"
-                  configCode="mcs_vehownerchange"
-                  attachType="车辆行驶证"
-                  type="card"
-                  title="车辆行驶证"
+                  :title="value"
                   :businessData="businessData"
                 />
               </el-tab-pane>
@@ -554,7 +540,7 @@
                 title="报废灭失证明"
                 :businessData="businessData"
               />
-            </div> -->
+            </div>
           </div>
         </div>
       </section>
@@ -659,6 +645,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      activeTab: '1',
       pageTitle: '车主信息变更',
       pageType: 'edit',
       // TIPS: 权限前缀 AISCR 根据实际情况修改
