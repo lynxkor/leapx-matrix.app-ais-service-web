@@ -88,3 +88,15 @@ export const AlarmLevelEnum = {
   /** 红色 */
   CRITICAL: 40
 };
+
+// 本次进店情况枚举
+export const CurrentSituationEnum = {
+  /** 非故障进店 */
+  NO_FAULT: 10,
+  /** 首次故障进店 */
+  FIRST_FAULT: 20,
+  /** 多次非重复故障进店 */
+  MULTIPLE_DIFFERENT_FAULT: 30,
+  /** 多次重复故障进店 */
+  MULTIPLE_REPEAT_FAULT: 40
+};

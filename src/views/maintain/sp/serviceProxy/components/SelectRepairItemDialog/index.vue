@@ -458,7 +458,7 @@
 
 <script>
 // import EditTable from '@/libs/components/EditTable';
-import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getDealerPermission } from '@/api/maintain/sp/serviceProxy/index';
+import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getDealerPermission, oneTimeFix } from '@/api/maintain/sp/serviceProxy/index';
 import UpdateActivityDialog from '../UpdateActivityDialog';
 import { CheckoutTypeEnum, WarrantyTypeEnum, UNIVERSAL_LABOR_HOUR_ITEM_ID } from '../../constant';
 
@@ -858,6 +858,11 @@ export default {
         this.$message.success('保存成功');
         this.$emit('refresh');
         this.$emit('check');
+
+        // 静默调用 oneTimeFix 接口，不阻塞后续操作
+        oneTimeFix({ serviceProxyId: this.vehicleInfo.id }).catch(err => {
+          console.error('oneTimeFix调用失败:', err);
+        });
       }).catch(e => {
         this.submitLoading = false;
       });
