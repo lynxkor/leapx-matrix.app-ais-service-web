@@ -60,7 +60,7 @@
 <script>
 import {
   rightsList
-} from '@/api/maintain/sp/serviceStatement/index';
+} from '@/api/maintain/sp/serviceProxy/index';
 
 export default {
   name: 'CouponsDialog',
