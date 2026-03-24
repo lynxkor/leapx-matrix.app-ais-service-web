@@ -216,7 +216,7 @@ export default {
                 this.handleApprove(row, 'pass');
               },
               type: 'info',
-              show: (row) => row.approvalStatus === AUDIT_STATUS.IN_PROGRESS // 审批中
+              show: (row) => row.approvalStatus === AUDIT_STATUS.IN_PROGRESS && row.isGoodWarranty // 审批中
             }, {
               name: '编辑',
               click: (rowIndex, row) => {
