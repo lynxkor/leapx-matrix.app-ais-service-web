@@ -49,7 +49,7 @@
       <template v-slot:footer>
         <div class="dialog-footer">
           <el-button size="small" @click="close">取 消</el-button>
-          <el-button size="small" type="primary" :loading="submitLoading" @click="submit">出 库</el-button>
+          <el-button size="small" type="primary" :loading="submitLoading" @click="submit">{{ btnTitle }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -87,6 +87,7 @@ export default {
       // 模拟表格数据
       tableData: [],
       title: '销售出库',
+      btnTitle: '出 库'
     };
   },
   watch: {
@@ -99,10 +100,13 @@ export default {
     titleDialog (val) {
       if (val === '1') {
         this.title = '销售出库';
+        this.btnTitle = '出 库';
       } else if (val === '2') {
         this.title = '退料入库';
+        this.btnTitle = '入库';
       } else if (val === '3') {
         this.title = '退订入库';
+        this.btnTitle = '入库';
       }
     }
   },
@@ -112,7 +116,8 @@ export default {
         pageNum: 1,
         pageSize: 50,
         retailOrderId: this.id,
-        outboundIs: 0
+        outboundIs: '1',
+        applyReturnMaterialIs: '1'
       };
       retailOrderDetailPage(params).then(res => {
         this.tableData = res.records || [];

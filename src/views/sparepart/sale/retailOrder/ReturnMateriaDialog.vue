@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { retailOrderDetailPage, addOrUpdateRetailOrderDetail } from '@/api/sparepart/sale/retailOrder/index';
+import { retailOrderDetailPage, applyReturnMaterial } from '@/api/sparepart/sale/retailOrder/index';
 
 export default {
   name: 'RepairDialog',
@@ -115,13 +115,13 @@ export default {
       // 3. 执行提交
       this.submitLoading = true;
       const params = {
-        retailOrderId: row.id,
+        id: row.id,
         applyReturnMaterialIs: row.applyReturnMaterialIs === '1' ? '0' : '1',
         returnMaterialReason: description
       };
 
       try {
-        await addOrUpdateRetailOrderDetail(params);
+        await applyReturnMaterial(params);
         this.$message.success('操作成功');
         this.initData();
       } catch (error) {
