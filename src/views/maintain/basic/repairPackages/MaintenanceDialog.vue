@@ -27,7 +27,7 @@
                     <template #default="{ row,rowIndex }">
                         <el-button type="text" class="action-button btn-edit" @click="handleUpDown(row, 'UP')">上移</el-button>
                         <el-button type="text" class="action-button btn-edit" @click="handleUpDown(row, 'DOWN')">下移</el-button>
-                        <el-popconfirm title="确定要删除该套餐类型吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
+                        <el-popconfirm title="确定要删除该套餐类型吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(row, rowIndex)">
                             <span slot="reference" type="text" size="small" class="btn-delete">删除</span></el-popconfirm>
                     </template>
                 </vxe-column>
@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { repairList, moveSort, addOrUpdateBatch, enableOrDisable } from '@/api/maintain/basic/repairPackages/index';
+import { repairList, moveSort, addOrUpdateBatch, enableOrDisable, repairPackagesTypeDelete } from '@/api/maintain/basic/repairPackages/index';
 
 export default {
   name: 'MaintenanceDialog',
@@ -92,7 +92,8 @@ export default {
       this.getRepairList();
     },
     // 删除套餐类型
-    handleDeleteRow (rowIndex) {
+    handleDeleteRow (row, rowIndex) {
+      repairPackagesTypeDelete([row.id]);
       this.tableData.splice(rowIndex, 1);
     },
     // 上移和下移
