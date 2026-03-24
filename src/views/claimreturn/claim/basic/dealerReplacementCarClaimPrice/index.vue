@@ -233,7 +233,8 @@ export default {
                 this.$router.push({
                   path: '/claimreturn/claim/basic/dealerReplacementCarClaimPrice/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
