@@ -252,28 +252,64 @@ export default {
               },
               type: 'info'
             }, {
-              name: '推送',
+              name: '作废',
               show: (row) => {
-                return row.retentionStatus === 10;
+                return !(row.retentionStatus === 60);
               },
-              popconfirmConfirmButtonType: 'danger',
-              popconfirmConfirmButtonText: '推送',
-              popconfirmTitle: '确定推送该留车单?',
+              // popconfirmConfirmButtonType: 'danger',
+              // popconfirmConfirmButtonText: '作废',
+              // popconfirmTitle: '此操作将作废该留车单，是否继续?',
+              // inputPlaceholder: '请输入作废说明',
+              // inputValidator: (value) => {
+              //   if (!value || value.trim() === '') {
+              //     return '请输入作废说明';
+              //   }
+              //   return true;
+              // },
+              // click: (rowIndex, row) => {
+              //   batchPush([row.id]).then(() => {
+              //     this.$message({
+              //       type: 'success',
+              //       message: '作废成功!'
+              //     });
+              //     this.getData();
+              //   }).catch(() => {
+              //     this.$message({
+              //       type: 'error',
+              //       message: '作废失败!'
+              //     });
+              //   });
+              // },
+              type: 'danger',
               click: (rowIndex, row) => {
-                batchPush([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '推送成功!'
+                this.$prompt('', '此操作将作废选中项，是否继续？', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  inputPlaceholder: '请输入作废说明',
+                  inputValidator: (value) => {
+                    if (!value || value.trim() === '') {
+                      return '请输入作废说明';
+                    }
+                    return true;
+                  }
+                }).then(({ value }) => {
+                  batchInvalid({
+                    idSet: [row.id],
+                    invalidReason: value
+                  }).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '作废成功!'
+                    });
+                    this.getData();
+                  }).catch(() => {
+                    this.$message({
+                      type: 'error',
+                      message: '作废失败!'
+                    });
                   });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '推送失败!'
-                  });
-                });
-              },
-              type: 'info'
+                }).catch(() => {});
+              }
             }]
           }
         ],
