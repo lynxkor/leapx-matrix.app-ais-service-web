@@ -376,7 +376,7 @@
                     <td>优惠金额小计</td>
                     <td>{{ info.costCountResp?.preferentialMoneyCount }}</td>
                     <td>内结金额估算</td>
-                    <td>{{ info.costCountResp?.innerTurnMoneyEstimation }}</td>
+                    <td>0</td>
                   </tr>
                   <tr>
                     <td>本次维修估算费用</td>

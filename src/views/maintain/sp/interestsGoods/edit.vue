@@ -151,6 +151,47 @@
               </div>
             </div>
           </section>
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>零件明细</h2>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-table">
+                <vxe-table
+                  ref="tableRef"
+                  stripe
+                  :data="tablePartData"
+                  show-overflow
+                  resizable
+                  border="inner"
+                  size="medium"
+                  min-height="0"
+                  max-height="400px"
+                >
+                  <vxe-column field="repairItemName" title="维修项目" width="14.3%" />
+                  <vxe-column field="repairItemCode" title="维修项目代码" width="14.3%" />
+                  <vxe-column field="partsName" title="零件名称" width="14.3%" />
+                  <vxe-column field="partsCode" title="零件代码" width="14.3%" />
+                  <vxe-column field="repairItemTypeName" title="维修类型" width="14.3%" />
+                  <vxe-column field="checkoutTypeName" title="结算类型" width="14.3%" />
+                  <vxe-column field="totalAmount" title="数量" width="14.3%" />
+                  <vxe-column field="unitPrice" title="单价" width="14.3%" />
+                  <vxe-column field="discountAmount" title="结算类型" width="14.3%" />
+                  <!-- <vxe-column title="操作" width="150" fixed="right" v-if="canDelete">
+                    <template #default="{ row }">
+                      <span @click="handleEditRow(row)" class="action-button btn-edit">编辑</span>
+                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(row)">
+                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
+                      </el-popconfirm>
+                    </template>
+                  </vxe-column> -->
+                  <template #empty>
+                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
+                  </template>
+                </vxe-table>
+              </div>
+            </div>
+          </section>
         </el-main>
       </edit-base-container>
     </template>
@@ -270,6 +311,7 @@ export default {
       currentRepairItemId: '',
       currentDetailData: {},
       repairDetailName: '',
+      tablePartData: [],
       rules: {
         code: [
           { required: true, message: '请输入权益商品代码', trigger: 'change' }
@@ -311,6 +353,14 @@ export default {
       const res = await this.detailRequest();
       if (res && res.goodsRepairItemList) {
         this.repairItemTableData = res.goodsRepairItemList;
+        // 循环获取零件信息放入tablePartData
+        this.tablePartData = [];
+        res.goodsRepairItemList.forEach(item => {
+          if (item.goodsPartsList) {
+            console.log(item.goodsPartsList);
+            this.tablePartData = this.tablePartData.concat(item.goodsPartsList);
+          }
+        });
       }
     },
     // 搜索维修项目
@@ -364,8 +414,9 @@ export default {
         await addOrUpdate({ ...this.form, goodsRepairItemList: tempList });
 
         // 成功后更新本地数据
-        this.repairItemTableData = tempList;
+        // this.repairItemTableData = tempList;
         this.$message.success('删除成功');
+        this.getRepairItemList();
       } catch (error) {
         this.$message.error('删除失败');
         console.error('删除维修项目失败:', error);
@@ -390,9 +441,10 @@ export default {
         await addOrUpdate({ ...this.form, goodsRepairItemList: tempList });
 
         // 成功后更新本地数据
-        this.repairItemTableData = tempList;
+        // this.repairItemTableData = tempList;
         this.closePane();
         this.$message.success('保存成功');
+        this.getRepairItemList();
       } catch (error) {
         this.$message.error('保存失败');
         console.error('保存维修项目失败:', error);

@@ -390,7 +390,7 @@
                   <vxe-column field="payableAmount" title="应付金额" width="100" />
                   <vxe-column field="qty" title="数量" width="100" />
                   <vxe-column field="outboundIsLabel" title="是否出库" width="100" />
-                  <vxe-column field="operationOperator" title="出入库操作人" width="160" />
+                  <vxe-column field="operationOperatorName" title="出入库操作人" width="160" />
                   <vxe-column field="operationTime" title="出入库操作时间" width="160" />
                   <vxe-column field="createTime" title="创建时间" width="160" />
                   <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">

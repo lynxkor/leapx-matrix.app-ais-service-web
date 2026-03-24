@@ -336,26 +336,6 @@ export default {
               },
               type: 'info'
             }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              popconfirmConfirmButtonText: '删除',
-              popconfirmConfirmButtonType: 'danger',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
-            }, {
               name: '确认',
               popconfirmTitle: '是否确认该订单?',
               show: (row) => {
@@ -378,21 +358,20 @@ export default {
               type: 'info',
             }, {
               name: '作废',
-              popconfirmTitle: '是否作废该订单?',
               show: (row) => {
                 return row.orderStatus === '10' || row.orderStatus === '20';
               },
               click: (rowIndex, row) => {
-                cancelOrder({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '作废成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '作废失败!'
+                this.$prompt('请输入作废备注', '作废', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                }).then(({ value }) => {
+                  cancelOrder({ id: row.id, description: value }).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '作废成功!'
+                    });
+                    this.getData();
                   });
                 });
               },
@@ -540,16 +519,16 @@ export default {
                 return row.orderStatus === '60';
               },
               click: (rowIndex, row) => {
-                reverseSettleOrder({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '反结算成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '反结算失败!'
+                this.$prompt('请输入备注', '反结算', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                }).then(({ value }) => {
+                  reverseSettleOrder({ id: row.id, description: value }).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '反结算成功!'
+                    });
+                    this.getData();
                   });
                 });
               },
