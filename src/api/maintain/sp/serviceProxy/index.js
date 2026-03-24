@@ -351,3 +351,19 @@ export function getSpRemindInfo (data) {
 export function rightsList (data) {
   return api.jsonPost(prefix + 'rightsList', data);
 }
+
+/**
+ * 检查是否需要留车
+ * @param {Object} data - { serviceProxyId: String|Number }
+ */
+export function isVehRetention (data) {
+  return api.jsonPost(prefix + 'isVehRetention', data);
+}
+
+/**
+ * 新增留车清单
+ * @param {Object} data - { serviceProxyId: String|Number }
+ */
+export function addVehRetentionList (data) {
+  return api.jsonPost(prefix + 'addVehRetentionList', data);
+}

@@ -238,7 +238,7 @@
           />
         </el-form-item>
         <el-form-item label="本次进店是否存在故障：" prop="currentFault">
-          <el-switch :active-value="1" :inactive-value="0" v-model="form.currentFault" />
+          <el-switch :active-value="1" :inactive-value="0" v-model="form.currentFault" :disabled="currentFaultDisabled" />
         </el-form-item>
         <el-form-item label="客户故障描述：" prop="customerContent" class="form-item-half">
           <el-input
@@ -366,7 +366,7 @@
           {{ form.anomalyDescription }}
         </el-form-item>
       </el-form>
-      <div class="table-section" v-if="form.currentFault">
+      <div class="table-section" v-if="form.currentFault && _id">
         <div class="table-section-header">
           <h3>添加故障模块</h3>
           <div class="ais-select-group">
@@ -467,6 +467,12 @@ export default {
   computed: {
     formDisabled () {
       return this.formData.orderStatus === RepairOrderStatusEnum.CANCEL || this.formData.orderStatus === RepairOrderStatusEnum.DELIVERED;
+    },
+    currentFaultDisabled () {
+      // 枚举：是、否，非必填，开单默认为 否；工单为：已作废、已交车或【是否已生成结算单】为是时，该字段锁定不可修改；
+      return this.formData.orderStatus === RepairOrderStatusEnum.CANCEL ||
+             this.formData.orderStatus === RepairOrderStatusEnum.DELIVERED ||
+             this.formData.isCreateStatementInfo === 1;
     }
   },
   watch: {

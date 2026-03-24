@@ -1,12 +1,12 @@
 <template>
-  <el-dialog class="m-start-work-dialog" title="套餐类型维护" width="1000px" :visible.sync="dialogVisible" @close="close">
+  <el-dialog class="m-start-work-dialog" title="套餐类型维护" width="800px" :visible.sync="dialogVisible" @close="close">
     <div class="ais-button">
       <el-button size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
     </div>
     <!-- 数据表格 -->
     <div class="table-section">
       <vxe-table ref="workTable" :data="tableData" stripe show-overflow resizable border="inner" size="medium">
-        <vxe-column field="partCode" title="序号">
+        <vxe-column field="partCode" title="序号" width="100">
           <template #default="{ rowIndex }">
             {{ rowIndex + 1 }}
           </template>
@@ -16,7 +16,7 @@
             <el-input v-model="row.name" size="small" placeholder="请输入内容" />
           </template>
         </vxe-column>
-        <vxe-column field="status" title="状态">
+        <vxe-column field="status" title="状态" width="100">
           <template #default="{ row }">
             {{ row.status === 1 ? '启用' : '停用' }}
           </template>

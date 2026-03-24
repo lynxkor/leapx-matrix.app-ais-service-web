@@ -195,7 +195,8 @@ export default {
                 this.$router.push({
                   path: '/claimreturn/claim/basic/warrantyAttachmentSetting/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

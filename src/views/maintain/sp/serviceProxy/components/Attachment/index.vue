@@ -10,7 +10,6 @@
       <vxe-table
         ref="attachmentTable"
         :data="attachmentData"
-        :loading="loading"
         stripe
         show-overflow
         resizable
