@@ -517,6 +517,7 @@ export default {
           } else {
             if (this.form.id) {
               this.getDetailData();
+              this.isEditing = false;
             } else {
               this.$router.replace({
                 path: '/maintain/sp/serviceProxy/edit',
@@ -615,6 +616,7 @@ export default {
           await this.checkVehicleRetention();
         } else {
           this.$message.warning('请先填写预计交车时间');
+          this.isEditing = true;
         }
       } catch (error) {
         console.log(error);
