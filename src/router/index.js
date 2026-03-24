@@ -1366,7 +1366,8 @@ const routes = [
         name: '厅店备件库存详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/basic/purchasePrice',
       name: 'purchasePrice',
       component: () => import('@/views/sparepart/basic/purchasePrice/index.vue'),
@@ -1375,8 +1376,7 @@ const routes = [
         name: '备件采购价格',
         keepAlive: true
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/sparepart/basic/purchaseprice/edit',
       name: 'purchasePriceEdit',
       component: () => import('@/views/sparepart/basic/purchasePrice/edit.vue'),
@@ -1385,7 +1385,8 @@ const routes = [
         name: '备件采购价格详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 门店销毁
+    {
       path: '/sparepart/warehouse/oemWarehouse',
       name: 'oemWarehouse',
       component: () => import('@/views/sparepart/warehouse/oemWarehouse/index.vue'),
@@ -1394,8 +1395,7 @@ const routes = [
         name: '主机厂仓库设置',
         keepAlive: true
       }
-    }, // 门店销毁
-    {
+    }, {
       path: '/sparepart/warehouse/oemwarehouse/edit',
       name: 'oemWarehouseEdit',
       component: () => import('@/views/sparepart/warehouse/oemWarehouse/edit.vue'),
@@ -2529,6 +2529,24 @@ const routes = [
 
       meta: {
         name: '供应商代步车索赔价格详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/monitoringEquipmentConfig',
+      name: 'monitoringEquipmentConfig',
+      component: () => import('@/views/maintain/basic/monitoringEquipmentConfig/index.vue'),
+
+      meta: {
+        name: '监控设备用途',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/basic/monitoringequipmentconfig/edit',
+      name: 'monitoringEquipmentConfigEdit',
+      component: () => import('@/views/maintain/basic/monitoringEquipmentConfig/edit.vue'),
+
+      meta: {
+        name: '监控设备用途详情',
         noResourceUrl: 'true'
       }
     }]
