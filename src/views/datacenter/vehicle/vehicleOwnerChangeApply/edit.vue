@@ -372,10 +372,10 @@
                 disabled
               />
             </el-form-item>
-            <el-form-item label="车辆属性：" prop="oldVehicleProperty">
+            <el-form-item label="车辆属性：" prop="oldVehiclePropertyLabel">
               <el-input
                 placeholder="请输入"
-                v-model="form.oldVehicleProperty"
+                v-model="form.oldVehiclePropertyLabel"
                 clearable
                 disabled
               />
@@ -388,8 +388,8 @@
             <el-form-item label="车主手机号：" prop="oldOwnerPhone">
               {{ form.oldOwnerPhone }}
             </el-form-item>
-            <el-form-item label="车主证件类型：" prop="oldIdType">
-              {{ form.oldIdType }}
+            <el-form-item label="车主证件类型：" prop="oldIdTypeLabel">
+              {{ form.oldIdTypeLabel }}
             </el-form-item>
             <el-form-item label="车主证件号码：" prop="oldIdNo">
               {{ form.oldIdNo }}
@@ -397,8 +397,8 @@
             <el-form-item label="车牌号：" prop="oldPlateNo">
               {{ form.oldPlateNo }}
             </el-form-item>
-            <el-form-item label="车辆属性：" prop="oldVehicleProperty">
-              {{ form.oldVehicleProperty }}
+            <el-form-item label="车辆属性：" prop="oldVehiclePropertyLabel">
+              {{ form.oldVehiclePropertyLabel }}
             </el-form-item>
           </el-form>
           <div class="common-section-sub-header">
@@ -472,68 +472,32 @@
         <div class="common-section-body">
           <div class="common-section-table">
             <el-tabs value="1" v-if="form.businessType === '10'">
-              <el-tab-pane label="个人" name="1">
+              <el-tab-pane key="1" label="个人" name="1">
                 <AisAttachment
+                  v-for="value in ['车主身份证-正面', '车主身份证-反面', '车辆登记证书', '车辆行驶证']"
+                  :key="value"
                   :businessId="_id"
                   configCode="mcs_vehownerchange"
-                  attachType="车主身份证-正面"
+                  :attachType="value"
                   type="card"
-                  title="车主身份证-正面"
-                  :businessData="businessData"
-                />
-                <AisAttachment
-                  :businessId="_id"
-                  configCode="mcs_vehownerchange"
-                  attachType="车主身份证-反面"
-                  type="card"
-                  title="车主身份证-反面"
-                  :businessData="businessData"
-                />
-                <AisAttachment
-                  :businessId="_id"
-                  configCode="mcs_vehownerchange"
-                  attachType="登记证书"
-                  type="card"
-                  title="车辆登记证书"
-                  :businessData="businessData"
-                />
-                <AisAttachment
-                  :businessId="_id"
-                  configCode="mcs_vehownerchange"
-                  attachType="车辆行驶证"
-                  type="card"
-                  title="车辆行驶证"
+                  :title="value"
                   :businessData="businessData"
                 />
               </el-tab-pane>
-              <el-tab-pane label="企业" name="2">
+              <el-tab-pane key="2" label="企业" name="qiyue">
                 <AisAttachment
+                  v-for="value in ['营业执照', '车辆登记证书', '车辆行驶证']"
+                  :key="value"
                   :businessId="_id"
                   configCode="mcs_vehownerchange"
-                  attachType="营业执照"
+                  :attachType="value"
                   type="card"
-                  title="营业执照"
-                  :businessData="businessData"
-                />
-                <AisAttachment
-                  :businessId="_id"
-                  configCode="mcs_vehownerchange"
-                  attachType="登记证书"
-                  type="card"
-                  title="车辆登记证书"
-                  :businessData="businessData"
-                />
-                <AisAttachment
-                  :businessId="_id"
-                  configCode="mcs_vehownerchange"
-                  attachType="车辆行驶证"
-                  type="card"
-                  title="车辆行驶证"
+                  :title="value"
                   :businessData="businessData"
                 />
               </el-tab-pane>
             </el-tabs>
-            <el-tabs value="1" v-if="form.businessType === '40'">
+            <!-- <el-tabs value="1" v-else-if="form.businessType === '40' && [1, 2, 3, 4, 5, 20].includes(form.oldIdType)">
               <el-tab-pane label="个人" name="1">
                 <AisAttachment
                   :businessId="_id"
@@ -560,7 +524,9 @@
                   :businessData="businessData"
                 />
               </el-tab-pane>
-              <el-tab-pane label="企业" name="2">
+            </el-tabs>
+            <el-tabs value="1" v-else-if="form.businessType === '40' && [6, 7].includes(form.oldIdType)">
+              <el-tab-pane label="企业" name="1">
                 <AisAttachment
                   :businessId="_id"
                   configCode="mcs_vehownerchange"
@@ -579,7 +545,7 @@
                 />
               </el-tab-pane>
             </el-tabs>
-            <div v-if="form.businessType==='60'">
+            <div v-else-if="form.businessType==='60'">
               <AisAttachment
                 :businessId="_id"
                 configCode="mcs_vehownerchange"
@@ -588,7 +554,7 @@
                 title="报废灭失证明"
                 :businessData="businessData"
               />
-            </div>
+            </div> -->
           </div>
         </div>
       </section>
@@ -610,7 +576,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import AisAttachment from '@/libs/components/AisAttachment';
 import { vehicleListFull } from '@/api/datacenter/vehicle/vehicleProfile';
-
+// vehicle_profile_id_type 证件类型枚举：（身份证，军官证）
 const defaultForm = {
   // 多选时字段有变化，自行修复
   applyNo: '',
@@ -643,6 +609,7 @@ const defaultForm = {
   oldIdNo: '',
   oldPlateNo: '',
   oldVehicleProperty: '',
+  oldVehiclePropertyLabel: '',
   ocrIdType: '',
   ocrIdNo: '',
   ocrIdUser: '',
@@ -801,7 +768,16 @@ export default {
       });
     },
     vinChange (val, record) {
-      this.form.vehicleProfileId = record?.id;
+      this.form.vehicleProfileId = record?.id; // 车辆档案id
+      const owner = record?.vehicleProfileOwnerResp;
+      this.form.oldOwnerName = owner?.ownerName; // 车主姓名
+      this.form.oldOwnerPhone = owner?.mobilephone; // 车主手机号
+      this.form.oldIdType = owner?.idcardType; // 证件类型
+      this.form.oldIdTypeLabel = owner?.idcardTypeLabel;
+      this.form.oldIdNo = owner?.idcardNo; // 证件号码
+      this.form.oldPlateNo = record?.vehiclePlateNo; // 车牌号
+      this.form.oldVehicleProperty = record?.usageType; // 车辆属性
+      this.form.oldVehiclePropertyLabel = record?.usageTypeLabel;
     },
     formatFun (options) {
       const allowedCodes = ['10', '40', '60'];
