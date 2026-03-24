@@ -28,3 +28,6 @@ debug.log
 /bin/generate.json
 *.iml
 mcp-yapi-server/
+.omc
+.lingma
+.claude/settings.local.json

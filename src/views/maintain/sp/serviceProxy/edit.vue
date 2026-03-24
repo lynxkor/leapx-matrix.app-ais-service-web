@@ -156,8 +156,8 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal, getSpRemindInfo } from '@/api/maintain/sp/serviceProxy/index';
-import { RepairOrderStatusEnum, BusinessTypeEnum, RemindInfoTypeEnum } from './constant';
+import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal, getSpRemindInfo, isVehRetention, addVehRetentionList } from '@/api/maintain/sp/serviceProxy/index';
+import { RepairOrderStatusEnum, BusinessTypeEnum, RemindInfoTypeEnum, CurrentSituationEnum } from './constant';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import NavTop from './components/NavTop';
 import { getEnum } from '@/api/common';
@@ -297,7 +297,9 @@ const defaultForm = {
   startAt: '',
   finishAt: '',
   faultSolve: '',
-  currentSituation: '',
+  // 【本次进店情况（周期内）】：枚举：非故障进店、首次故障进店、多次非重复故障进店、多次重复故障进店；开单默认为“非故障进店”，不可编辑；
+  currentSituation: CurrentSituationEnum.NO_FAULT,
+  currentSituationLabel: '非故障进店',
   faultAlert: '',
   faultPeriod: '',
   earliestfaultServiceProxy: '',
@@ -609,12 +611,52 @@ export default {
       try {
         const entrustInfo = await this.$refs.entrustInfoRef.getFormData();
         if (entrustInfo.expectFinishAt) {
-          this.confirmDocDialogVisible = true;
+          // 检查留车信息
+          await this.checkVehicleRetention();
         } else {
           this.$message.warning('请先填写预计交车时间');
         }
       } catch (error) {
         console.log(error);
+      }
+    },
+    async checkVehicleRetention () {
+      try {
+        // 静默调用检查接口
+        const needRetention = await isVehRetention(this._id);
+
+        if (needRetention.isVehRetention) {
+          // 需要留车，先创建留车清单
+          const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>该车辆需要留车检查，请咨询客户是否同意留车？</div>';
+          this.$confirm(message, '', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            dangerouslyUseHTMLString: true,
+            customClass: 'ais-leave-tips',
+            showClose: false
+          }).then(async () => {
+            try {
+              // 静默调用创建接口
+              await addVehRetentionList({ serviceProxyId: this._id, vehRetentionConfigId: needRetention.vehRetentionConfigId });
+              this.$message.success('留车清单创建成功');
+              // 继续弹出制单确认弹窗
+              this.confirmDocDialogVisible = true;
+            } catch (err) {
+              this.$message.error('创建留车清单失败');
+              console.error(err);
+            }
+          }).catch(() => {
+            // this.$message.info('已取消操作');
+            this.confirmDocDialogVisible = true;
+          });
+        } else {
+          // 不需要留车，直接弹出制单确认弹窗
+          this.confirmDocDialogVisible = true;
+        }
+      } catch (error) {
+        console.error('检查留车信息失败:', error);
+        // 即使检查失败也继续弹出制单确认弹窗
+        this.confirmDocDialogVisible = true;
       }
     },
     // 结算与取消结算

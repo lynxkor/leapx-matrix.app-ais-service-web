@@ -124,6 +124,14 @@ export function moveSort (data) {
 }
 
 /**
+ * 维修套餐--类型表删除
+ * @param {Object} data
+ */
+export function repairPackagesTypeDelete (data) {
+  return api.jsonPost('maintain/web/basic/repairPackagesType/delete', data);
+}
+
+/**
  * 维修套餐--类型表新增/编辑
  * @param {Object} data
  */

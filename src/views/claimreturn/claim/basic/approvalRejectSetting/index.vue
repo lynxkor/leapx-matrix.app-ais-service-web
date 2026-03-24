@@ -216,7 +216,8 @@ export default {
                 this.$router.push({
                   path: '/claimreturn/claim/basic/approvalRejectSetting/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
