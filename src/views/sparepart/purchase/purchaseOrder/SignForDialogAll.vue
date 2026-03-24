@@ -1,7 +1,7 @@
 <template>
     <el-dialog class="m-start-work-dialog" :title="title" width="500px" :visible.sync="dialogVisible" @close="close">
         <el-form :inline="true" :model="formData" size="small" label-width="70px">
-            <el-form-item label="签收数量" prop="code">
+            <el-form-item label="签收数量" prop="qty">
                 <el-input v-model="formData.qty" type="number" placeholder="请输入签收数量" />
             </el-form-item>
         </el-form>
@@ -33,7 +33,9 @@ export default {
   data () {
     return {
       dialogVisible: this.visible,
-      formData: {},
+      formData: {
+        qty: 0
+      },
       title: '签收'
     };
   },
@@ -44,6 +46,7 @@ export default {
     signForForm (val) {
       if (val) {
         this.title = val.inbound ? '入库签收' : '签收';
+        this.formData.qty = Number(val.operateQty) || 0;
       }
     }
   },
@@ -52,7 +55,8 @@ export default {
       this.$emit('close');
     },
     async submit () {
-      if (this.formData.qty <= 0) {
+      const qty = parseInt(this.formData.qty, 10);
+      if (isNaN(qty) || qty <= 0) {
         this.$message.warning('请输入正确的签收数量');
         return;
       }
@@ -61,7 +65,7 @@ export default {
         purchaseOrderSignList: [
           {
             purchaseOrderDetailId: this.signForForm?.purchaseOrderDetailId,
-            qty: this.formData.qty
+            qty: qty
           }
         ],
         inbound: this.signForForm?.inbound,
