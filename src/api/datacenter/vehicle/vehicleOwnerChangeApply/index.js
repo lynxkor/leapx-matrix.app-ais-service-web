@@ -59,12 +59,6 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
-/**
- * VIN下拉接口
- */
-export function vinSearchApi (data) {
-  return api.jsonPost('/xxxx', data);
-}
 
 /**
  * 作废车主信息变更申请

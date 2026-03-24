@@ -203,7 +203,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '车主信息变更',
       pageType: 'list',
       // TIPS: 权限前缀 AISCR，根据实际情况修改
       moduleKey: 'AISDC-vehicleOwnerChangeApply',

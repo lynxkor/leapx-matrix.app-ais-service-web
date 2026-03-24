@@ -35,6 +35,7 @@
                 placeholder="请选择"
                 clearable
                 filterable
+                :format="formatFun"
               />
             </el-form-item>
             <el-form-item label="VIN：" prop="vin">
@@ -47,8 +48,9 @@
                 :remote-method="vinSearch"
                 :params="form.vin"
                 @change="vinChange"
-                value-key="code"
-                label-key="name"
+                value-key="vin"
+                label-key="vin"
+                placeholder="输入VIN"
                 :disabled="Boolean(_id)"
               />
             </el-form-item>
@@ -255,21 +257,23 @@
             </el-form-item>
           </el-form>
           <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-            <el-form-item v-if="form.businessType === '10'" label="变更后车主姓名：" prop="targetOwnerName">
-              {{ form.targetOwnerName }}
-            </el-form-item>
-            <el-form-item label="变更后车主手机号：" prop="targetOwnerPhone">
-              {{ form.targetOwnerPhone }}
-            </el-form-item>
-            <el-form-item v-if="form.businessType === '10'" label="变更后车主证件类型：" prop="targetIdTypeLabel">
-              {{ form.targetIdTypeLabel }}
-            </el-form-item>
-            <el-form-item v-if="form.businessType === '10'" label="变更后车主证件号码：" prop="targetIdNo">
-              {{ form.targetIdNo }}
-            </el-form-item>
-            <el-form-item label="变更后车牌号：" prop="targetPlateNo">
-              {{ form.targetPlateNo }}
-            </el-form-item>
+            <template v-if="form.businessType !== '60'">
+              <el-form-item v-if="form.businessType === '10'" label="变更后车主姓名：" prop="targetOwnerName">
+                {{ form.targetOwnerName }}
+              </el-form-item>
+              <el-form-item label="变更后车主手机号：" prop="targetOwnerPhone">
+                {{ form.targetOwnerPhone }}
+              </el-form-item>
+              <el-form-item v-if="form.businessType === '10'" label="变更后车主证件类型：" prop="targetIdTypeLabel">
+                {{ form.targetIdTypeLabel }}
+              </el-form-item>
+              <el-form-item v-if="form.businessType === '10'" label="变更后车主证件号码：" prop="targetIdNo">
+                {{ form.targetIdNo }}
+              </el-form-item>
+              <el-form-item label="变更后车牌号：" prop="targetPlateNo">
+                {{ form.targetPlateNo }}
+              </el-form-item>
+            </template>
             <el-form-item label="变更后车辆属性：" prop="targetVehicleProperty">
               {{ form.targetVehicleProperty }}
             </el-form-item>
@@ -456,16 +460,72 @@
       </section>
       <section class="common-section">
         <div class="common-section-header">
-          <h2>附件</h2>
+          <h2>上传附件</h2>
         </div>
         <div class="common-section-body">
           <div class="common-section-table">
-            <AisAttachment
-              :businessId="_id"
-              configCode="xxx"
-              attachType="xxxx"
-              ref="attachment"
-            />
+            <el-tabs value="1">
+              <el-tab-pane label="个人" name="1">
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_vehownerchange"
+                  attachType="车主身份证-正面"
+                  ref="attachment"
+                  type="card"
+                  title="车主身份证-正面"
+                />
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_vehownerchange"
+                  attachType="车主身份证-反面"
+                  ref="attachment"
+                  type="card"
+                  title="车主身份证-反面"
+                />
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_vehownerchange"
+                  attachType="登记证书"
+                  ref="attachment"
+                  type="card"
+                  title="车辆登记证书"
+                />
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_vehownerchange"
+                  attachType="车辆行驶证"
+                  ref="attachment"
+                  type="card"
+                  title="车辆行驶证"
+                />
+              </el-tab-pane>
+              <el-tab-pane label="企业" name="2">
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_vehownerchange"
+                  attachType="营业执照"
+                  ref="attachment"
+                  type="card"
+                  title="营业执照"
+                />
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_vehownerchange"
+                  attachType="登记证书"
+                  ref="attachment"
+                  type="card"
+                  title="车辆登记证书"
+                />
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_vehownerchange"
+                  attachType="车辆行驶证"
+                  ref="attachment"
+                  type="card"
+                  title="车辆行驶证"
+                />
+              </el-tab-pane>
+            </el-tabs>
           </div>
         </div>
       </section>
@@ -477,7 +537,6 @@
 import {
   getDetail,
   addOrUpdate,
-  vinSearchApi,
 } from '@/api/datacenter/vehicle/vehicleOwnerChangeApply/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -487,6 +546,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import AisAttachment from '@/libs/components/AisAttachment';
+import { vehicleListFull } from '@/api/datacenter/vehicle/vehicleProfile';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -562,7 +622,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: '车主信息变更',
       pageType: 'edit',
       // TIPS: 权限前缀 AISCR 根据实际情况修改
       moduleKey: 'AISDC-vehicleOwnerChangeApply',
@@ -653,15 +713,22 @@ export default {
       return [];
     },
     vinSearch (query) {
-      return vinSearchApi({
+      return vehicleListFull({
         searchVin: query,
         pageSize: 20,
         pageNum: 1,
+        isSaleDateNull: true,
+        usageTypeList: ['1', '2', '4', '10', '20', '30'],
       }).then(res => {
         return res;
       });
     },
     vinChange (val, record) {},
+    formatFun (options) {
+      const allowedCodes = ['10', '40', '60'];
+      return options.filter(item =>
+        allowedCodes.includes(String(item.code)));
+    },
   }
 };
 </script>
