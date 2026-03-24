@@ -116,9 +116,13 @@ export default {
         pageNum: 1,
         pageSize: 50,
         retailOrderId: this.id,
-        outboundIs: '1',
-        applyReturnMaterialIs: '1'
       };
+      if (this.titleDialog === '1') {
+        params.outboundIs = '0';
+      }
+      if (this.titleDialog === '2') {
+        params.applyReturnMaterialIs = '0';
+      }
       retailOrderDetailPage(params).then(res => {
         this.tableData = res.records || [];
       });
