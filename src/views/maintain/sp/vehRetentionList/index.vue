@@ -251,6 +251,29 @@ export default {
                 });
               },
               type: 'info'
+            }, {
+              name: '推送',
+              show: (row) => {
+                return row.retentionStatus === 10;
+              },
+              popconfirmConfirmButtonType: 'danger',
+              popconfirmConfirmButtonText: '推送',
+              popconfirmTitle: '确定推送该留车单?',
+              click: (rowIndex, row) => {
+                batchPush([row.id]).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '推送成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '推送失败!'
+                  });
+                });
+              },
+              type: 'info'
             }]
           }
         ],

@@ -156,6 +156,7 @@ import {
   enableItem,
   submit,
   approve,
+  getDecryptField,
 } from '@/api/datacenter/vehicle/vehicleOwnerChangeApply/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -166,7 +167,6 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
-import { getDetailDecryptField } from '@/api/datacenter/vehicle/vehicleProfile/index';
 import TagInput from '@/libs/components/TagInput';
 import FormCancelDialog from './FormCancelDialog';
 import FormRejectDialog from './FormRejectDialog';
@@ -266,7 +266,7 @@ export default {
             label: 'VIN',
             visible: true,
             mask: true,
-            getValue: (row) => getDetailDecryptField(row.id, 'vin'),
+            getValue: (row) => getDecryptField(row.id, 'vin'),
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
@@ -288,7 +288,7 @@ export default {
             visible: true,
             width: 150,
             mask: true,
-            getValue: (row) => getDetailDecryptField(row.id, 'applierName')
+            getValue: (row) => getDecryptField(row.id, 'applierName')
           },
           {
             props: 'applierId',
@@ -296,7 +296,7 @@ export default {
             visible: true,
             width: 150,
             mask: true,
-            getValue: (row) => getDetailDecryptField(row.id, 'applierId')
+            getValue: (row) => getDecryptField(row.id, 'applierId')
           },
           { props: 'applyDesc', label: '申请说明', visible: true, width: 200 },
           { props: 'applyTime', label: '申请时间', visible: true, width: 200 },
