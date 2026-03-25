@@ -176,7 +176,8 @@
       :visible="transferDialog"
       :selectionId="selectionList"
       :warehouseIds="warehouseIds"
-      @close="handleTransferDialogClose"
+      @update:visible="val => transferDialog = val"
+      @submit="getData"
     />
     <!-- 共享上架 -->
     <LaunchDialog
@@ -627,7 +628,6 @@ export default {
     },
     handleTransferDialogClose () {
       this.transferDialog = false;
-      this.getData();
     },
     // 批量上架共享
     handleBatchLaunch () {

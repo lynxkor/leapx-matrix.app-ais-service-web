@@ -226,12 +226,68 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'serviceProxyCode', label: '接车施工单', visible: true, width: 200 },
-          { props: 'vehProfileVin', label: 'VIN码', visible: true, width: 200 },
-          { props: 'configCode', label: '留车配置项编码', visible: true, width: 200 },
+          {
+            props: 'serviceProxyCode',
+            label: '接车施工单',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/sp/serviceProxy/edit',
+                  query: {
+                    id: row.serviceProxyId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'vehProfileVin',
+            label: 'VIN码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'configCode',
+            label: '留车配置项编码',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/sp/vehRetention/edit',
+                  query: {
+                    id: row.configId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'vehYearTypeName', label: '年款', visible: true, width: 200 },
           { props: 'vehModelName', label: '车型', visible: true, width: 200 },
-          { props: 'dealerName', label: '服务门店', visible: true, width: 200 },
+          {
+            props: 'dealerName',
+            label: '服务门店',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'retentionStatusLabel', label: '留车单状态', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {

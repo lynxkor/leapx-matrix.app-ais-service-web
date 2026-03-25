@@ -322,7 +322,7 @@ export default {
           width: '8%',
         },
         {
-          field: 'picker',
+          field: 'pickerName',
           title: '领料人',
           width: '8%',
         },

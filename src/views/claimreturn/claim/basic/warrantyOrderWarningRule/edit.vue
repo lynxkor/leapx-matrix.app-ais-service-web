@@ -22,16 +22,22 @@
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="auto" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item class="form-item-line">
                   <span>除当前保修申请单外，创建日期大于等于当前日期- </span>
-                  <el-input
+                  <el-input-number
                     placeholder="请输入天数"
                     v-model="form.judgeDays"
+                    :controls = "false"
+                    :max="999999999"
+                    :min=0
                     clearable
                     style="width: 150px;"
                   />
                   <span> 的其他保修单，若【VIN】【主因故障零件】等于当前保修申请单且是已提交、审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款的记录数大于</span>
-                  <el-input
+                  <el-input-number
                     placeholder="请输入次数"
                     v-model="form.judgeTimes"
+                    :controls = "false"
+                    :max="999999999"
+                    :min="0"
                     clearable
                     style="width: 150px;"
                   />
@@ -39,9 +45,12 @@
                   <el-input
                     type="textarea"
                     :rows="4"
+                    maxlength="500"
+                    show-word-limit
                     placeholder="请输入提醒内容"
                     v-model="form.remindContent"
                     clearable
+                    style="width: 400px;"
                   />
                 </el-form-item>
               </el-form>
@@ -67,10 +76,13 @@
                   <el-input
                     type="textarea"
                     :rows="4"
+                    maxlength="500"
+                    show-word-limit
                     placeholder="请输入提醒内容"
                     v-model="form.remindContent"
                     clearable
                     disabled
+                    style="width: 400px;"
                   />
                 </el-form-item>
               </el-form>
@@ -172,11 +184,11 @@ export default {
       }
     },
     submitRequest () {
-      if (!this.form.judgeDays) {
+      if (this.form.judgeDays === '' || this.form.judgeDays === null || this.form.judgeDays === undefined) {
         this.$message.error('请输入判定天数');
         return;
       }
-      if (!this.form.judgeTimes) {
+      if (this.form.judgeTimes === '' || this.form.judgeTimes === null || this.form.judgeTimes === undefined) {
         this.$message.error('请输入判定次数');
         return;
       }

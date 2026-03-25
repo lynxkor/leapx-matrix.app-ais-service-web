@@ -18,10 +18,8 @@
                 placeholder="请选择维修类型名称" labelKey="label" valueKey="value" filterable
                 @change="handleRepairItemChange" />
             </el-form-item>
-            <el-form-item label="结算类型：" prop="checkoutTypeId">
-              <fetch-select filterable v-model="repairDetail.checkoutTypeId"
-                :options="checkoutTypeOptions" placeholder="请选择结算类型名称" @change="handleCheckoutTypeChange"
-                value-key="value" label-key="label" />
+            <el-form-item label="结算类型：" prop="checkoutTypeName">
+              {{ repairDetail.checkoutTypeName }}
             </el-form-item>
             <el-form-item label="优惠金额：" prop="discountAmount">
               <el-input type="number" @blur="handleDiscountAmountBlur" clearable size="small"
@@ -65,13 +63,7 @@
                     placeholder="请选择维修类型名称" labelKey="label" valueKey="value" filterable />
                 </template>
               </vxe-column>
-              <vxe-column field="checkoutTypeId" title="结算类型" width="150">
-                <template #default="{ row }">
-                  <fetch-select filterable v-model="row.checkoutTypeId"
-                    :options="checkoutTypeOptions" placeholder="请选择结算类型名称" @change="handleCheckoutTypeChange"
-                    value-key="value" label-key="label" />
-                </template>
-              </vxe-column>
+              <vxe-column field="checkoutTypeName" title="结算类型" width="150" />
               <vxe-column field="quantity" title="数量" width="120">
                 <template #default="{ row }">
                   <el-input type="number" v-model="row.quantity" clearable></el-input>
@@ -175,11 +167,11 @@ export default {
       })) || [];
 
       // 获取结算类型枚举
-      const checkoutTypeRes = await listSettlementType({ nameLike: '' });
-      this.checkoutTypeOptions = checkoutTypeRes?.map(item => ({
-        value: item.id,
-        label: item.name
-      })) || [];
+      // const checkoutTypeRes = await listSettlementType({ nameLike: '' });
+      // this.checkoutTypeOptions = checkoutTypeRes?.map(item => ({
+      //   value: item.id,
+      //   label: item.nameAndCategory
+      // })) || [];
       this.setDefaultValues();
     },
     // 设置默认值为第一项
@@ -188,10 +180,10 @@ export default {
         this.repairDetail.repairItemTypeId = this.repairItemOptions[0].value;
         this.repairDetail.repairItemTypeName = this.repairItemOptions[0].label;
       }
-      if (this.checkoutTypeOptions.length > 0 && !this.repairDetail.checkoutTypeId) {
-        this.repairDetail.checkoutTypeId = this.checkoutTypeOptions[0].value;
-        this.repairDetail.checkoutTypeName = this.checkoutTypeOptions[0].label;
-      }
+      // if (this.checkoutTypeOptions.length > 0 && !this.repairDetail.checkoutTypeId) {
+      //   this.repairDetail.checkoutTypeId = this.checkoutTypeOptions[0].value;
+      //   this.repairDetail.checkoutTypeName = this.checkoutTypeOptions[0].label;
+      // }
     },
     // 获取维修项目详情信息
     async getDetail (id) {
@@ -210,8 +202,8 @@ export default {
         this.repairDetail.repairItemName = res.name;
         this.repairDetail.repairItemTypeId = res.repairItemTypeId;
         this.repairDetail.repairItemTypeName = res.repairItemTypeName;
-        this.repairDetail.checkoutTypeId = res.checkoutTypeId;
-        this.repairDetail.checkoutTypeName = res.checkoutTypeName;
+        // this.repairDetail.checkoutTypeId = res.checkoutTypeId;
+        this.repairDetail.checkoutTypeName = '自费';
         if (res.partsRespList && Array.isArray(res.partsRespList)) {
           for (let item of res.partsRespList) {
             this.tableData.push({
@@ -222,7 +214,8 @@ export default {
               isOemPart: item.isOemPart,
               remark: item.remark,
               quantity: 1,
-              discountAmount: 0
+              discountAmount: 0,
+              checkoutTypeName: '自费'
             });
           }
         }
@@ -299,18 +292,18 @@ export default {
         discountAmount: 0,
         repairItemTypeId: this.repairDetail.repairItemTypeId,
         repairItemTypeName: this.repairDetail.repairItemTypeName,
-        checkoutTypeId: this.repairDetail.checkoutTypeId,
-        checkoutTypeName: this.repairDetail.checkoutTypeName,
+        checkoutTypeId: '',
+        checkoutTypeName: '自费',
       };
       // 设置默认值
       if (this.repairItemOptions.length > 0 && !newRow.repairItemTypeId) {
         newRow.repairItemTypeId = this.repairItemOptions[0].value;
         newRow.repairItemTypeName = this.repairItemOptions[0].label;
       }
-      if (this.checkoutTypeOptions.length > 0 && !newRow.checkoutTypeId) {
-        newRow.checkoutTypeId = this.checkoutTypeOptions[0].value;
-        newRow.checkoutTypeName = this.checkoutTypeOptions[0].label;
-      }
+      // if (this.checkoutTypeOptions.length > 0 && !newRow.checkoutTypeId) {
+      //   newRow.checkoutTypeId = this.checkoutTypeOptions[0].value;
+      //   newRow.checkoutTypeName = this.checkoutTypeOptions[0].label;
+      // }
       this.tableData.push(newRow);
     },
     // 删除零件表格列
