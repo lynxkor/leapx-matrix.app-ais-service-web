@@ -35,6 +35,7 @@
                     placeholder="请输入"
                     v-model="form.gradeApprovalName"
                     clearable
+                    maxlength="50"
                   />
                 </el-form-item>
                 <el-form-item label="保修类型：" prop="warrantyTypeId">
@@ -64,17 +65,23 @@
                   />
                 </el-form-item>
                 <el-form-item label="索赔金额区间：" prop="claimAmount1">
-                  <el-input
+                  <el-input-number
                     placeholder="请输入索赔金额 1"
                     v-model="form.claimAmount1"
                     clearable
+                    :controls = "false"
+                    :max="999999999"
+                    :min="0"
                     style="width: calc(50% - 15px);"
                   />
                   <span style="margin: 0 8px;">至</span>
-                  <el-input
+                  <el-input-number
                     placeholder="请输入索赔金额 2"
                     v-model="form.claimAmount2"
                     clearable
+                    :controls = "false"
+                    :max="999999999"
+                    :min="0"
                     style="width: calc(50% - 15px);"
                   />
                 </el-form-item>

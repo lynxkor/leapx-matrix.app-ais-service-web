@@ -212,7 +212,7 @@
                   <vxe-column field="checkoutTypeName" title="结算类型" width="14.3%" />
                   <vxe-column field="quantity" title="数量" width="14.3%" />
                   <vxe-column field="price" title="单价" width="14.3%" />
-                  <vxe-column field="discountAmount" title="结算类型" width="14.3%" />
+                  <vxe-column field="discountAmount" title="优惠金额" width="14.3%" />
                   <!-- <vxe-column title="操作" width="150" fixed="right" v-if="canDelete">
                     <template #default="{ row }">
                       <span @click="handleEditRow(row)" class="action-button btn-edit">编辑</span>

@@ -501,12 +501,12 @@ export default {
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
-          field: 'name',
+          field: 'sparePartCode',
           title: '备件编码',
           width: '10%',
         },
         {
-          field: 'age',
+          field: 'sparePartName',
           title: '备件名称',
           width: '10%',
         },
@@ -546,7 +546,7 @@ export default {
           width: '10%',
         },
         {
-          field: 'email',
+          field: 'remark',
           title: '备注',
           width: '10%',
         },
