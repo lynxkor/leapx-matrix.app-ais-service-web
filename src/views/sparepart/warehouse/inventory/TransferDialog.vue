@@ -98,7 +98,8 @@ export default {
       });
     },
     close () {
-      this.$emit('close');
+      this.locationName = '';
+      this.$emit('update:visible', false);
     },
     handleSelectionChange ({ records }) {
       this.selectedRows = records;
@@ -122,6 +123,7 @@ export default {
         await addOrUpdate(params);
         this.$message.success('转移库位成功');
         this.close();
+        this.$emit('submit');
       } catch (error) {
         this.$message.error('转移库位失败');
       }

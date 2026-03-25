@@ -104,7 +104,6 @@ export default {
       try {
         const res = await purchaseApplyAgree(params);
         if (res.length > 0) {
-          this.close();
           this.$emit('failure', this.id);
         } else {
           this.$emit('success');
@@ -117,8 +116,9 @@ export default {
           id: '',
           approvalDescription: '',
         };
-        this.submitLoading = false;
       } catch (error) {
+        this.$message.error('操作失败：' + (error.message || '未知错误'));
+      } finally {
         this.submitLoading = false;
       }
     },
