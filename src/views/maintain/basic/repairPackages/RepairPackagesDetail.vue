@@ -178,7 +178,7 @@ export default {
       const checkoutTypeRes = await listSettlementType({ nameLike: '' });
       this.checkoutTypeOptions = checkoutTypeRes?.map(item => ({
         value: item.id,
-        label: item.nameAndCategory
+        label: item.name
       })) || [];
       this.setDefaultValues();
     },
