@@ -164,7 +164,7 @@
                 <el-popconfirm
                   title="确定质检吗？"
                   @confirm="handleQualityCheck(row)"
-                  :disabled="row.qualityCheckStatus === 30 && row.isDispatch"
+                  :disabled="row.qualityCheckStatus === 30 && !!row.isDispatch"
                 >
                   <span
                     :class="['action-button', 'btn-back', { disabled: row.qualityCheckStatus === 30 && row.isDispatch }]"
@@ -490,6 +490,17 @@ export default {
               row.qualityCheckAt = this.filterForm.qualityCheckAt;
             }
           });
+          // 已有筛选提交，默认填充
+          if (this.filterForm.qualityCheckerId || this.filterForm.finalChecker) {
+            this.tableData.forEach(row => {
+              if (row.qualityCheckStatus === 10) {
+                row.qualityCheckerId = this.filterForm.qualityCheckerId;
+                row.qualityCheckerName = this.filterForm.qualityCheckerName;
+                row.finalCheckName = this.filterForm.finalCheckerName;
+                row.finalCheckerId = this.filterForm.finalChecker;
+              }
+            });
+          }
           // 设置故障标志
           this.faultForm.faultFlag = res.faultFlag !== undefined ? res.faultFlag : 1;
           // 设置电池信息
@@ -669,6 +680,9 @@ export default {
     },
     // 搜索用户(质检人/终检人)
     async searchUser (query) {
+      if (!query) {
+        return [];
+      }
       try {
         const res = await getUserByNameOrNo({ name: query });
         return res || [];
