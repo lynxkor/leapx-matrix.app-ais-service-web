@@ -23,28 +23,19 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="状态" v-show="this.visibleCount === 3 || show">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="StatusEnum"
-          v-model="form.status"
-          placeholder="请选择"
-          clearable
+      <el-form-item label="创建时间" v-show="this.visibleCount === 3 || show">
+        <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="创建时间">
-          <el-date-picker
-            :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -89,7 +80,6 @@ import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getConfigList } from '@/libs/api/attachment';
 import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
-import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
@@ -112,7 +102,6 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
-    FetchSelect,
     PageSearchAction,
     LPVxeTable,
     EditPage
@@ -158,7 +147,6 @@ export default {
             }]
           },
           { props: 'configCode', label: '实体名称', visible: true, width: 360 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 220 },
           { props: 'createTime', label: '创建时间', visible: true },
           {
             props: 'operate',
