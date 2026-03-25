@@ -374,12 +374,13 @@ export default {
   data () {
     const form = this.getDefautlForm();
     const moduleKey = 'AISCR-' + this.$route.meta.moduleKey;
+    const isServiceCareActivity = this.$route.meta.isServiceCareActivity;
     return {
       pageTitle: this.$route.meta.name,
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey,
-      isServiceCareActivity: this.$route.meta.isServiceCareActivity,
+      isServiceCareActivity,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -391,7 +392,7 @@ export default {
           { required: true, message: '请输入活动名称', trigger: 'blur' }
         ],
         activityType: [
-          { required: true, message: '请选择活动类型', trigger: 'change' }
+          { required: !isServiceCareActivity, message: '请选择活动类型', trigger: 'change' }
         ],
         activityTime: [
           { required: true, message: '请选择活动时间', trigger: 'change' },

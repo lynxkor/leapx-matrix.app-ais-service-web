@@ -142,6 +142,11 @@
                   {{ form.delayMileage }}
                 </el-form-item>
               </el-form>
+              <vehicle-table
+                :moduleKey="moduleKey"
+                ref="vehicleTable"
+                :id="form.repairItemId"
+                />
             </div>
           </section>
           <section class="common-section" v-if="_id">
@@ -235,6 +240,7 @@ import { vehicleSalesVersionList, getEnum, sparePartList } from '../../../../../
 import PartTable from './PartTable.vue';
 import ReplaceTable from './ReplaceTable.vue';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
+import VehicleTable from './Vehicle/VehicleTable.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -280,6 +286,7 @@ export default {
     EnhancedTabs,
     BaseSearch,
     ReplaceTable,
+    VehicleTable,
   },
   computed: {
     _id () {

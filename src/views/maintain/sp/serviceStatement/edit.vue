@@ -50,8 +50,8 @@
                   <!-- <fetch-select :request="fetchOptions" enumCode="xxx" v-model="form.accountType" placeholder="请选择"
                     disabled clearable filterable /> -->
                 </el-form-item>
-                <el-form-item label="是否已创建反结算申请单：" prop="statementStatus">
-                  <el-input placeholder="请输入" v-model="form.createReStatement" disabled clearable />
+                <el-form-item label="是否已创建反结算申请单：" prop="createReStatementLabel">
+                  <el-input placeholder="请输入" v-model="form.createReStatementLabel" disabled clearable />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   <el-input placeholder="请输入" v-model="form.dealerName" disabled clearable />
