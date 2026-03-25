@@ -392,7 +392,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, listOrgStoreInfoByParam, listWarehouse, getLoginUser, getPartDealer } from '@/api/common';
+import { getEnum, listOrgStoreInfoByParam, listWarehouse, listOemWarehouse, getLoginUser, getPartDealer } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -678,7 +678,7 @@ export default {
 
     async getReceiveWarehouse (query) {
       try {
-        const res = await listWarehouse({ codeOrName: query });
+        const res = await listOemWarehouse({ codeOrName: query });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
