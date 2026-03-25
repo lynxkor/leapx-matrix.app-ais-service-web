@@ -1,21 +1,15 @@
 <template>
   <div class="attachment-grid">
-    <div class="attachment-item" v-for="(item, index) in attachmentList" :key="index">
-      <!-- <div class="attachment-label">
-        {{ item.label }}
-        <em v-if="item.required">*</em>
-      </div> -->
-      <div class="attachment-upload">
-        <AisAttachment
-          :businessId="_id"
-          :ref="'attachment' + index"
-          :configCode="item.configCode"
-          :attachType="item.attachType"
-          :title="item.label"
-          :uploadConfig="item.uploadConfig"
-        />
-      </div>
-    </div>
+    <AisAttachment
+      v-for="(item, index) in attachmentList" :key="index"
+      :businessId="_id"
+      :ref="'attachment' + index"
+      :configCode="item.configCode"
+      :attachType="item.attachType"
+      :title="item.label"
+      :uploadConfig="item.uploadConfig"
+      type="card"
+    />
   </div>
 </template>
 
@@ -112,36 +106,8 @@ export default {
 
 <style lang="scss">
   .attachment-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-
-  .attachment-item {
-    position: relative;
-    background-color: var(--leap-color-default-light-5);
-    border-radius: 4px;
-    padding: 16px 20px;
-
-    .attachment-label {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--leap-color-default-dark-1);
-      position: absolute;
-      top: 20px;
-      left: 16px;
-
-      em {
-        color: var(--leap-color-danger);
-        font-style: normal;
-        font-size: 14px;
-      }
-    }
-
-    .attachment-upload {
-      .business-upload-area{
-        text-align: right;
-      }
-    }
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
   }
 </style>
