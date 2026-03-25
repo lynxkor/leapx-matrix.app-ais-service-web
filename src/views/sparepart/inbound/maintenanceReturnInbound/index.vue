@@ -241,7 +241,7 @@ export default {
           { props: 'serviceProxyCode', label: '接车施工单', visible: true, width: 200 },
           { props: 'vehProfileVin', label: 'vin', visible: true, width: 200 },
           { props: 'carPlate', label: '车牌号', visible: true, width: 140 },
-          { props: 'returnMaterialStatusLabel', label: '退料状态', visible: true, width: 120 },
+          { props: 'returnMaterialStatusLabel', label: '入库状态', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
