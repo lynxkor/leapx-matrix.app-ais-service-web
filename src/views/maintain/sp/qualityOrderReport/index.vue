@@ -214,28 +214,122 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'serviceProxyCode', label: '接车施工单', visible: true, width: 200 },
+          {
+            props: 'serviceProxyCode',
+            label: '接车施工单',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/sp/serviceProxy/edit',
+                  query: {
+                    id: row.serviceProxyId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'reportTypeLabel', label: '报告类型', visible: true, width: 200 },
           { props: 'title', label: '故障主题', visible: true, width: 200 },
           { props: 'orderStatusLabel', label: '状态', visible: true, width: 200 },
-          { props: 'serviceCenterName', label: '服务中心名称', visible: true, width: 200 },
+          {
+            props: 'serviceCenterName',
+            label: '服务中心名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.serviceCenterCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'serviceCenterCode', label: '服务中心代码', visible: true, width: 200 },
           { props: 'applicantName', label: '报告人', visible: true, width: 200 },
           { props: 'applicantPosition', label: '报告人职位', visible: true, width: 200 },
           { props: 'applicantTel', label: '报告人电话', visible: true, width: 200 },
-          { props: 'vehProfileVin', label: 'VIN码', visible: true, width: 200 },
-          { props: 'vehModelName', label: '基本车型', visible: true, width: 200 },
+          {
+            props: 'vehProfileVin',
+            label: 'VIN码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'vehModelName',
+            label: '车型',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/sales/datacenter/materials/vehicleModel/detail?id=${row.vehModelId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'powerBatteryNumber', label: '动力电池号', visible: true, width: 200 },
           { props: 'motorSerialNumber', label: '驱动电机号', visible: true, width: 200 },
           { props: 'mileage', label: '里程数（KM)', visible: true, width: 200 },
           { props: 'salesDate', label: '销售日期', visible: true, width: 200 },
           { props: 'repairDate', label: '维修时间', visible: true, width: 200 },
           // { props: 'causePartCode', label: '主因零部件', visible: true, width: 200 },
-          { props: 'causePartName', label: '主因零部件', visible: true, width: 200 },
+          {
+            props: 'causePartName',
+            label: '主因零部件',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/service/sparepart/basic/sparePart/detail?id=${row.causePartId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'supplierName', label: '供应商', visible: true, width: 200 },
-          { props: 'vrtName', label: 'VFG名称', visible: true, width: 200 },
-          { props: 'vfgName', label: 'VFG名称', visible: true, width: 200 },
-          { props: 'cccName', label: 'CCC名称', visible: true, width: 200 },
+          {
+            props: 'vrtName',
+            label: 'VFG名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/service/claimreturn/claim/basic/vrt/edit?id=${row.vrtId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'vfgName',
+            label: 'vfgName',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/service/claimreturn/claim/basic/vfg/edit?id=${row.vfgId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'cccName',
+            label: 'CCC名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/service/claimreturn/claim/basic/ccc/edit?id=${row.cccId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'firstApplicationTime', label: '首次提交审核时间', visible: true, width: 200 },
           { props: 'firstAuditResultsLabel', label: '首次审核结果', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },

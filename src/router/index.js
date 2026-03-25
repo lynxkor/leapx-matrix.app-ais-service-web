@@ -1357,7 +1357,8 @@ const routes = [
         name: '厅店备件库存',
         keepAlive: true
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/warehouse/inventory/edit',
       name: 'inventoryEdit',
       component: () => import('@/views/sparepart/warehouse/inventory/edit.vue'),
@@ -1366,8 +1367,7 @@ const routes = [
         name: '厅店备件库存详情',
         noResourceUrl: 'true'
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/sparepart/basic/purchasePrice',
       name: 'purchasePrice',
       component: () => import('@/views/sparepart/basic/purchasePrice/index.vue'),
@@ -1376,7 +1376,8 @@ const routes = [
         name: '备件采购价格',
         keepAlive: true
       }
-    }, {
+    }, // 门店销毁
+    {
       path: '/sparepart/basic/purchaseprice/edit',
       name: 'purchasePriceEdit',
       component: () => import('@/views/sparepart/basic/purchasePrice/edit.vue'),
@@ -1385,8 +1386,7 @@ const routes = [
         name: '备件采购价格详情',
         noResourceUrl: 'true'
       }
-    }, // 门店销毁
-    {
+    }, {
       path: '/sparepart/warehouse/oemWarehouse',
       name: 'oemWarehouse',
       component: () => import('@/views/sparepart/warehouse/oemWarehouse/index.vue'),
@@ -2547,6 +2547,24 @@ const routes = [
 
       meta: {
         name: '监控设备用途详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/basic/voiceContentTemplateConfig',
+      name: 'voiceContentTemplateConfig',
+      component: () => import('@/views/maintain/basic/voiceContentTemplateConfig/index.vue'),
+
+      meta: {
+        name: '语音内容模板配置管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/basic/voicecontenttemplateconfig/edit',
+      name: 'voiceContentTemplateConfigEdit',
+      component: () => import('@/views/maintain/basic/voiceContentTemplateConfig/edit.vue'),
+
+      meta: {
+        name: '语音内容模板配置管理详情',
         noResourceUrl: 'true'
       }
     }]
