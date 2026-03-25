@@ -447,8 +447,8 @@
             </el-form-item>
           </el-form>
           <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-            <el-form-item label="车主证件类型：" prop="ocrIdType">
-              {{ form.ocrIdType }}
+            <el-form-item label="车主证件类型：" prop="ocrIdTypeLabel">
+              {{ form.ocrIdTypeLabel }}
             </el-form-item>
             <el-form-item label="车主证件号码：" prop="ocrIdNo">
               {{ form.ocrIdNo }}
@@ -482,6 +482,7 @@
                   type="card"
                   :title="value"
                   :businessData="businessData"
+                  @ocr-success="ocrSuccess"
                 />
               </el-tab-pane>
               <el-tab-pane label="企业" name="2" lazy>
@@ -494,6 +495,7 @@
                   type="card"
                   :title="value"
                   :businessData="businessData"
+                  @ocr-success="ocrSuccess"
                 />
               </el-tab-pane>
             </el-tabs>
@@ -508,26 +510,22 @@
                   type="card"
                   :title="value"
                   :businessData="businessData"
+                  @ocr-success="ocrSuccess"
                 />
               </el-tab-pane>
             </el-tabs>
             <el-tabs value="1" v-else-if="form.businessType === '40' && [6, 7].includes(form.oldIdType)">
               <el-tab-pane label="企业" name="1">
                 <AisAttachment
+                  v-for="value in ['营业执照', '车辆行驶证']"
+                  :key="'personal-' + value"
                   :businessId="_id"
                   configCode="mcs_vehownerchange"
-                  attachType="营业执照"
+                  :attachType="value"
                   type="card"
-                  title="营业执照"
+                  :title="value"
                   :businessData="businessData"
-                />
-                <AisAttachment
-                  :businessId="_id"
-                  configCode="mcs_vehownerchange"
-                  attachType="车辆行驶证"
-                  type="card"
-                  title="车辆行驶证"
-                  :businessData="businessData"
+                  @ocr-success="ocrSuccess"
                 />
               </el-tab-pane>
             </el-tabs>
@@ -539,6 +537,7 @@
                 type="card"
                 title="报废灭失证明"
                 :businessData="businessData"
+                @ocr-success="ocrSuccess"
               />
             </div>
           </div>
@@ -562,6 +561,8 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import AisAttachment from '@/libs/components/AisAttachment';
 import { vehicleListFull } from '@/api/datacenter/vehicle/vehicleProfile';
+import { loginUserGet } from '@/libs/api/common';
+
 // vehicle_profile_id_type 证件类型枚举：（身份证，军官证）
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -702,12 +703,27 @@ export default {
         applyDesc: [
           { required: true, message: '请输入申请说明', trigger: 'blur' }
         ],
+        targetOwnerPhone: [
+          {
+            pattern: /^1[3-9]\d{9}$/,
+            message: '请输入正确的手机号码',
+            trigger: 'blur'
+          }
+        ]
       },
     };
   },
   mounted () {
+    loginUserGet().then(data => {
+      this.form.dealerName = data.currentOrgName;
+      this.form.dealerCode = data.currentOrgCode;
+      this.form.ownerOrgId = data.currentOrgId;
+    });
   },
   methods: {
+    ocrSuccess () {
+      this.$refs.containerRef.loadDetail();
+    },
     onBusinessType (value, option) {
       if (value === '10' || value === '40') {
         this.form.targetVehicleProperty = '';

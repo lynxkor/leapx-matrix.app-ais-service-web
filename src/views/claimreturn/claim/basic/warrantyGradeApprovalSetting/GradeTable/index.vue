@@ -27,6 +27,7 @@
             multiple
             reserve-keyword
             v-model="row.approvers"
+            :defaultOptions="row._approvers"
             :remote-method="userRemote"
             params=""
             @change="(value, option) => onUserChange(row, value, option)"
@@ -37,7 +38,7 @@
           />
           <span v-else>
             <span v-for="(item, index) in row._approvers" :key="item.id">
-              {{ item.name }}
+              {{ item.username }}
               <span v-if="index !== row._approvers.length-1">,</span>
             </span>
           </span>
@@ -171,11 +172,16 @@ export default {
           const approvers = item.approvers || [];
           return {
             ...item,
-            _approvers: approvers,
+            _approvers: approvers.map(inner => {
+              return {
+                username: inner.name,
+                userId: inner.id,
+              };
+            }),
             approvers: approvers.map(_ => _.id),
           };
         });
-        this.originTableData = cloneDeep(res.records || []);
+        this.originTableData = cloneDeep(this.tableData || []);
         this.total = res.total;
       });
     },
@@ -204,7 +210,12 @@ export default {
     saveRowEdit (row, rowIndex) {
       logUpdate({
         id: row.id,
-        approvers: row._approvers,
+        approvers: row._approvers.map(item => {
+          return {
+            id: item.userId,
+            name: item.username,
+          };
+        }),
         approvalStatusAfter: row.approvalStatusAfter,
         step: row.step,
         gradeApprovalId: row.gradeApprovalId,
@@ -232,12 +243,7 @@ export default {
     },
     onUserChange (row, value, option) {
       row.approvers = value;
-      row._approvers = option.map(item => {
-        return {
-          id: item.userId,
-          name: item.username,
-        };
-      });
+      row._approvers = option;
     },
     userRemote (queryString) {
       return userQuery({ keyword: queryString });
