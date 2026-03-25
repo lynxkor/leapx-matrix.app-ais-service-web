@@ -326,7 +326,8 @@ export default {
                 this.$router.push({
                   path: '/claimreturn/claim/claimtrace/claimTraceOrder/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

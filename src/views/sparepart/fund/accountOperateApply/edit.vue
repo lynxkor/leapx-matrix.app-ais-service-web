@@ -13,8 +13,8 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
-                <el-form-item label="充值流水：" prop="flowNo">
-                  {{ form.flowNo }}
+                <el-form-item label="充值流水：" prop="code">
+                  {{ form.code }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
                   <fetch-select :remote-method="getDealerList" remote v-model="form.dealerCode" placeholder="请输入门店编码或名称"
@@ -86,7 +86,7 @@
             <div class="common-section-body">
               <el-form :inline="true" class="form-detail" >
                 <el-form-item label="充值流水：" prop="flowNo">
-                  {{ form.flowNo }}
+                  {{ form.code }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
                   {{ form.dealerCode }}

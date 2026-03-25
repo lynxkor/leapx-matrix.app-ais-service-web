@@ -370,8 +370,8 @@
         <div class="table-section-header">
           <h3>添加故障模块</h3>
           <div class="ais-select-group">
-            <fetch-select
-              style="width: 250px;"
+            <base-search
+              style="width: 350px;"
               filterable
               clearable
               remote
@@ -383,12 +383,6 @@
               label-key="name"
               :disabled="formDisabled"
             />
-            <el-button
-              type="primary"
-              size="small"
-            >
-              添加
-            </el-button>
           </div>
         </div>
         <vxe-table
@@ -439,6 +433,7 @@
 </template>
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
+import BaseSearch from '@/libs/components/BaseSearch';
 import { getEnum, getCCCList, updateSpFaultAlertRecord, deleteSpFaultAlertRecord } from '@/api/maintain/sp/serviceProxy/index';
 import { RepairOrderStatusEnum } from '../../constant';
 
@@ -462,7 +457,8 @@ export default {
     }
   },
   components: {
-    FetchSelect
+    FetchSelect,
+    BaseSearch
   },
   computed: {
     formDisabled () {
@@ -628,6 +624,19 @@ export default {
             message: '保存成功',
             type: 'success'
           });
+          if (res) {
+            const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>故障模块消息提醒</div><div class="ais-leave-tips-sub">${res}</div>`;
+            this.$confirm(message, '', {
+              confirmButtonText: '确定',
+              showCancelButton: false,
+              cancelButtonText: '取消',
+              dangerouslyUseHTMLString: true,
+              customClass: 'ais-leave-tips',
+              showClose: false
+            }).then(() => {
+            }).catch(() => {
+            });
+          }
         });
       } else {
         this.$message({

@@ -96,8 +96,9 @@ export default {
     },
     // 删除套餐类型
     handleDeleteRow (row, rowIndex) {
-      repairPackagesTypeDelete([row.id]);
-      this.tableData.splice(rowIndex, 1);
+      repairPackagesTypeDelete([row.id]).then(res => {
+        this.tableData.splice(rowIndex, 1);
+      });
     },
     // 上移和下移
     async handleUpDown (row, direction) {

@@ -56,12 +56,32 @@ export default {
             message: '必须为整数',
             trigger: 'change'
           },
+          {
+            validator: (rule, value, callback) => {
+              if (value && value.toString().length > 8) {
+                callback(new Error('最多输入 8 位数字'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'change'
+          },
         ],
         warrantyReSubmissionDaysConfig: [
           { required: true, message: '请输入', trigger: 'change' },
           {
             pattern: /^[0-9]\d*$/,
             message: '必须为整数',
+            trigger: 'change'
+          },
+          {
+            validator: (rule, value, callback) => {
+              if (value && value.toString().length > 8) {
+                callback(new Error('最多输入 8 位数字'));
+              } else {
+                callback();
+              }
+            },
             trigger: 'change'
           },
         ],
@@ -89,11 +109,14 @@ export default {
     submit () {
       this.$refs.ruleForm.validate((valid) => {
         if (valid) {
+          this.loading = true;
           update({
             warrantyApplicationFormSubmissionDaysConfig: Number(this.form.warrantyApplicationFormSubmissionDaysConfig),
             warrantyReSubmissionDaysConfig: Number(this.form.warrantyReSubmissionDaysConfig),
           }).then(res => {
             this.$message.success('设置成功');
+          }).finally(() => {
+            this.loading = false;
           });
         }
       });

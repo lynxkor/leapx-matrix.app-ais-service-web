@@ -232,7 +232,8 @@ export default {
                 this.$router.push({
                   path: '/claimreturn/claim/basic/warrantyPartManagementRateSetting/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

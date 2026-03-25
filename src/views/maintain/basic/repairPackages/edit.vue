@@ -187,6 +187,47 @@
               </div>
             </div>
           </section>
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>零件明细</h2>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-table">
+                <vxe-table
+                  ref="tableRef"
+                  stripe
+                  :data="tablePartData"
+                  show-overflow
+                  resizable
+                  border="inner"
+                  size="medium"
+                  min-height="0"
+                  max-height="400px"
+                >
+                  <vxe-column field="repairItemName" title="维修项目" width="14.3%" />
+                  <vxe-column field="repairItemCode" title="维修项目代码" width="14.3%" />
+                  <vxe-column field="partsName" title="零件名称" width="14.3%" />
+                  <vxe-column field="partsCode" title="零件代码" width="14.3%" />
+                  <vxe-column field="repairItemTypeName" title="维修类型" width="14.3%" />
+                  <vxe-column field="checkoutTypeName" title="结算类型" width="14.3%" />
+                  <vxe-column field="quantity" title="数量" width="14.3%" />
+                  <vxe-column field="price" title="单价" width="14.3%" />
+                  <vxe-column field="discountAmount" title="优惠金额" width="14.3%" />
+                  <!-- <vxe-column title="操作" width="150" fixed="right" v-if="canDelete">
+                    <template #default="{ row }">
+                      <span @click="handleEditRow(row)" class="action-button btn-edit">编辑</span>
+                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(row)">
+                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
+                      </el-popconfirm>
+                    </template>
+                  </vxe-column> -->
+                  <template #empty>
+                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
+                  </template>
+                </vxe-table>
+              </div>
+            </div>
+          </section>
         </el-main>
       </edit-base-container>
     </template>
@@ -209,7 +250,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getRepairType, getModel, getPackagesItem, modelDelete, partDelete, packagesItemDelete } from '@/api/maintain/basic/repairPackages/index';
+import { getDetail, addOrUpdate, getRepairType, getModel, getPackagesItem, modelDelete, partDelete, packagesItemDelete, getPackagesPartPage } from '@/api/maintain/basic/repairPackages/index';
 import { getPage } from '@/api/maintain/basic/repairItem/index';
 import BaseSearch from '@/libs/components/BaseSearch';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -326,6 +367,7 @@ export default {
       originalForm: { ...form },
       emptyText: '暂无数据',
       tableData: [],
+      tablePartData: [],
       rules: {
         code: [
           { required: true, message: '请输入套餐代码', trigger: 'change' }
@@ -477,6 +519,12 @@ export default {
     async getProjectPackage () {
       const res = await getPackagesItem({ repairPackagesId: this._id });
       this.tableData = res.records || [];
+      // 同时刷新零件列表
+      await this.getPartData();
+    },
+    async getPartData () {
+      const res = await getPackagesPartPage({ repairPackagesId: this._id, pageSize: 5000, sortColumns: [{ column: 'repair_item_id', sort: 'ASC' }] });
+      this.tablePartData = res.records || [];
     },
     // 适配车型弹窗
     handleModel () {
