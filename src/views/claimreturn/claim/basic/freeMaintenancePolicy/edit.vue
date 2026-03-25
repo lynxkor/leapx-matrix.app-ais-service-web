@@ -112,6 +112,13 @@
                     <template slot="append">公里</template>
                   </el-input>
                 </el-form-item>
+                <el-form-item class="form-item-full" label="适用车型：" prop="policyName">
+                  <vehicle-table
+                  :moduleKey="moduleKey"
+                  ref="vehicleTable"
+                  :id="form.repairItemId"
+                  />
+                </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-else>
                 <el-form-item label="政策名称：" prop="policyName">
@@ -141,12 +148,14 @@
                 <el-form-item label="延后里程：" prop="delayMileage">
                   {{ form.delayMileage }}
                 </el-form-item>
+                <el-form-item class="form-item-full" label="适用车型：" prop="policyName">
+                  <vehicle-table
+                  :moduleKey="moduleKey"
+                  ref="vehicleTable"
+                  :id="form.repairItemId"
+                  />
+                </el-form-item>
               </el-form>
-              <vehicle-table
-                :moduleKey="moduleKey"
-                ref="vehicleTable"
-                :id="form.repairItemId"
-                />
             </div>
           </section>
           <section class="common-section" v-if="_id">
