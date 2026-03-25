@@ -153,7 +153,7 @@ export default {
         const res = await getRepairWorkRecord({ serviceProxyId: this.vehicleInfo.id });
         this.tableData = (res || []).map(item => ({
           ...item,
-          disabled: this.mode === 'end' ? (!!item.finishAt || !item.timeSpend) : !item.startAt
+          disabled: this.mode === 'end' ? (!!item.finishAt || !item.timeSpend) : (!item.startAt || item.finishAt)
         }));
         // 设置默认当前时间
         this.batchForm.actualTime = moment().format('YYYY-MM-DD HH:mm:ss');
