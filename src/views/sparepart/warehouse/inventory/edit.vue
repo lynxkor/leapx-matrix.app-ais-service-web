@@ -510,11 +510,11 @@ export default {
     pageSizeChange (pageSize) {
       this.inventory.pageSize = pageSize;
       this.inventory.current = 1; // 重置到第一页
-      this.loadTableData();
+      this.getInventory();
     },
     currentPageChange (current) {
       this.inventory.current = current;
-      this.loadTableData();
+      this.getInventory();
     },
     // 统一的分页处理方法
     handlePageSizeChange (type, pageSize) {
