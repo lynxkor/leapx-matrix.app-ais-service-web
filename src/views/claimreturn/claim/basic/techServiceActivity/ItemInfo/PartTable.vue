@@ -134,6 +134,9 @@
       </vxe-column>
     </template>
     <vxe-column field="repairItemTypeId" title="维修类型" width="160">
+      <template #header>
+        <span class="ais-required">维修类型</span>
+      </template>
       <template #default="{ row, rowIndex }">
         <fetch-select
           v-if="eidtRowIndex === rowIndex"
@@ -148,6 +151,7 @@
           placeholder="请输入"
           value-key="id"
           label-key="name"
+          sub-label-key="code"
         />
         <span v-else>{{ row.repairItemTypeName }}</span>
       </template>
@@ -432,6 +436,10 @@ export default {
       parmas.schemeId = this.schemeId;
       parmas.serviceActivityItemId = row.serviceActivityItemId || this.serviceActivityItemId;
       if (!this.validateQuantity(parmas.quantity)) {
+        return;
+      }
+      if (!parmas.repairItemTypeId) {
+        this.$message.warning('请选中维修类型');
         return;
       }
 
