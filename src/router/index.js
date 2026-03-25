@@ -2314,6 +2314,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/service/claimreturn/claim/warrantyAuditErrorConfig',
+      name: 'warrantyAuditErrorConfig',
+      component: () => import('@/views/claimreturn/claim/warrantyaudit/warrantyAuditErrorConfig/index.vue'),
+
+      meta: {
+        name: '审计错误项配置',
+        keepAlive: true
+      }
+    }, {
+      path: '/service/claimreturn/claim/warrantyAuditErrorConfig/edit',
+      name: 'warrantyAuditErrorConfigEdit',
+      component: () => import('@/views/claimreturn/claim/warrantyaudit/warrantyAuditErrorConfig/edit.vue'),
+
+      meta: {
+        name: '审计错误项配置详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/claimreturn/claim/basic/warrantySettlementCalendar',
       name: 'warrantySettlementCalendar',
       component: () => import('@/views/claimreturn/claim/basic/warrantySettlementCalendar/index.vue'),
