@@ -12,7 +12,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="StatusEnum"
-            v-model="form.statusList"
+            v-model="form.statusIncludeList"
             placeholder="请选择"
             clearable
             multiple
@@ -121,7 +121,7 @@ export default {
               type: 'primary',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/service/claimreturn/claim/warrantyAuditErrorConfig/edit',
+                  path: '/claimreturn/claim/warrantyAuditErrorConfig/edit',
                   query: {
                     id: row.id
                   }
@@ -132,6 +132,8 @@ export default {
           { props: 'errorCategory', label: '错误类别', visible: true, width: 200 },
           { props: 'checkItem', label: '检查项目', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
+          { props: 'statusDesc', label: '说明', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -145,7 +147,7 @@ export default {
               name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/service/claimreturn/claim/warrantyAuditErrorConfig/edit',
+                  path: '/claimreturn/claim/warrantyAuditErrorConfig/edit',
                   query: {
                     id: row.id,
                     isEditing: true
@@ -165,7 +167,7 @@ export default {
   },
   methods: {
     handleAdd () {
-      this.$router.push({ path: '/service/claimreturn/claim/warrantyAuditErrorConfig/edit' });
+      this.$router.push({ path: '/claimreturn/claim/warrantyAuditErrorConfig/edit' });
     },
     onSubmit () {
       this.optionObj.form.page = 1;

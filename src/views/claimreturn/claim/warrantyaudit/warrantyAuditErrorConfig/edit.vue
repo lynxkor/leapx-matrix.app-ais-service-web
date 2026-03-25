@@ -19,16 +19,16 @@
             <div class="common-section-body">
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="错误代码：" prop="errorCode">
-                  <el-input v-model="form.errorCode" placeholder="请输入" clearable :disabled="!!_id" />
+                  <el-input v-model="form.errorCode" placeholder="请输入" maxlength="100" clearable :disabled="!!_id" />
                 </el-form-item>
                 <el-form-item label="错误类别：" prop="errorCategory">
-                  <el-input v-model="form.errorCategory" placeholder="请输入" clearable />
+                  <el-input v-model="form.errorCategory" placeholder="请输入" maxlength="100" clearable />
                 </el-form-item>
                 <el-form-item label="检查项目：" prop="checkItem">
-                  <el-input v-model="form.checkItem" placeholder="请输入" clearable />
+                  <el-input v-model="form.checkItem" placeholder="请输入" maxlength="500" clearable type="textarea" rows="5" />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
-                  <el-input v-model="form.remark" placeholder="请输入" clearable type="textarea" rows="3" />
+                  <el-input v-model="form.remark" placeholder="请输入" maxlength="500" clearable type="textarea" rows="5" />
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
@@ -48,45 +48,39 @@
             <div class="common-section-body">
               <el-row :gutter="20">
                 <el-col :span="12">
-                  <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                    <el-form-item label="正式工时扣款比例" prop="formalLaborDeductRatio">
-                      <span class="mr-5">%</span>
+                  <el-form :model="form" :rules="rules" ref="ruleForm" class="form-edit" v-show="isEditing || !_id" style="display: block">
+                    <el-form-item label="正式工时扣款比例（%）" prop="formalLaborDeductRatio">
                       <el-input-number v-model="form.formalLaborDeductRatio" :min="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
-                    <el-form-item label="正式备件扣款比例" prop="formalPartDeductRatio">
-                      <span class="mr-5">%</span>
+                    <el-form-item label="正式备件扣款比例（%）" prop="formalPartDeductRatio">
                       <el-input-number v-model="form.formalPartDeductRatio" :min="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
-                    <el-form-item label="正式其他扣款比例" prop="formalOtherDeductRatio">
-                      <span class="mr-5">%</span>
+                    <el-form-item label="正式其他扣款比例（%）" prop="formalOtherDeductRatio">
                       <el-input-number v-model="form.formalOtherDeductRatio" :min="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
                   </el-form>
-                  <el-form :model="form" class="form-detail" v-show="!(isEditing || !_id)">
-                    <el-form-item label="正式工时扣款比例">{{ form.formalLaborDeductRatio }}%</el-form-item>
-                    <el-form-item label="正式备件扣款比例">{{ form.formalPartDeductRatio }}%</el-form-item>
-                    <el-form-item label="正式其他扣款比例">{{ form.formalOtherDeductRatio }}%</el-form-item>
+                  <el-form :model="form" class="form-detail" v-if="!(isEditing || !_id)" style="display: block">
+                    <el-form-item label="正式工时扣款比例（%）">{{ form.formalLaborDeductRatio }}%</el-form-item>
+                    <el-form-item label="正式备件扣款比例（%）">{{ form.formalPartDeductRatio }}%</el-form-item>
+                    <el-form-item label="正式其他扣款比例（%）">{{ form.formalOtherDeductRatio }}%</el-form-item>
                   </el-form>
                 </el-col>
                 <el-col :span="12">
-                  <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                    <el-form-item label="跟进工时扣款比例" prop="followLaborDeductRatio">
-                      <span class="mr-5">%</span>
+                  <el-form :model="form" :rules="rules" ref="ruleForm" class="form-edit" v-show="isEditing || !_id" style="display: block">
+                    <el-form-item label="跟进工时扣款比例（%）" prop="followLaborDeductRatio">
                       <el-input-number v-model="form.followLaborDeductRatio" :min="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
-                    <el-form-item label="跟进备件扣款比例" prop="followPartDeductRatio">
-                      <span class="mr-5">%</span>
+                    <el-form-item label="跟进备件扣款比例（%）" prop="followPartDeductRatio">
                       <el-input-number v-model="form.followPartDeductRatio" :min="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
-                    <el-form-item label="跟进其他扣款比例" prop="followOtherDeductRatio">
-                      <span class="mr-5">%</span>
+                    <el-form-item label="跟进其他扣款比例（%）" prop="followOtherDeductRatio">
                       <el-input-number v-model="form.followOtherDeductRatio" :min="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
                   </el-form>
-                  <el-form :model="form" class="form-detail" v-show="!(isEditing || !_id)">
-                    <el-form-item label="跟进工时扣款比例">{{ form.followLaborDeductRatio }}%</el-form-item>
-                    <el-form-item label="跟进备件扣款比例">{{ form.followPartDeductRatio }}%</el-form-item>
-                    <el-form-item label="跟进其他扣款比例">{{ form.followOtherDeductRatio }}%</el-form-item>
+                  <el-form :model="form" class="form-detail" v-if="!(isEditing || !_id)" style="display: block">
+                    <el-form-item label="跟进工时扣款比例（%）">{{ form.followLaborDeductRatio }}</el-form-item>
+                    <el-form-item label="跟进备件扣款比例（%）">{{ form.followPartDeductRatio }}</el-form-item>
+                    <el-form-item label="跟进其他扣款比例（%）">{{ form.followOtherDeductRatio }}</el-form-item>
                   </el-form>
                 </el-col>
               </el-row>

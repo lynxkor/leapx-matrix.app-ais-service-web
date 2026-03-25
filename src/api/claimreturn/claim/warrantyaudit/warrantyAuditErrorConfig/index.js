@@ -1,6 +1,6 @@
 import api from '@/axios';
 
-const prefix = 'claimreturn/web/claim/warrantyaudit/warrantyAuditErrorConfig/';
+const prefix = 'claimreturn/claim/web/warrantyaudit/warrantyAuditErrorConfig/';
 
 export function getList (data) {
   return api.jsonPost(prefix + 'page', data);

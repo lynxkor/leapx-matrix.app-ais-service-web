@@ -2314,7 +2314,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/service/claimreturn/claim/warrantyAuditErrorConfig',
+      path: '/claimreturn/claim/warrantyAuditErrorConfig',
       name: 'warrantyAuditErrorConfig',
       component: () => import('@/views/claimreturn/claim/warrantyaudit/warrantyAuditErrorConfig/index.vue'),
 
@@ -2323,7 +2323,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/service/claimreturn/claim/warrantyAuditErrorConfig/edit',
+      path: '/claimreturn/claim/warrantyAuditErrorConfig/edit',
       name: 'warrantyAuditErrorConfigEdit',
       component: () => import('@/views/claimreturn/claim/warrantyaudit/warrantyAuditErrorConfig/edit.vue'),
 
