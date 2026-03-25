@@ -291,9 +291,6 @@
                 <el-form-item label="收货地址：">
                   {{ form.fullAddress }}
                 </el-form-item>
-                <el-form-item label="是否空出：">
-                  {{ form.emptyIsLabel }}
-                </el-form-item>
                 <el-form-item label="备注：" prop="remark">
                   {{ form.remark }}
                 </el-form-item>

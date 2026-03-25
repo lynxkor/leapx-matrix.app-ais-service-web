@@ -239,7 +239,7 @@
                   {{ form.updateTime }}
                 </el-form-item>
                 <el-form-item label="入库操作人：" prop="inboundOperator">
-                  {{ form.inboundOperator }}
+                  {{ form.inboundOperatorName }}
                 </el-form-item>
                 <el-form-item label="入库操作时间：" prop="inboundTime">
                   {{ form.inboundTime }}

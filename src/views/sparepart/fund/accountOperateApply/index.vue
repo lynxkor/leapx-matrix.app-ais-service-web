@@ -275,7 +275,7 @@ export default {
           { props: 'expenseCategory', label: '费用类别', visible: true, width: 120 },
           { props: 'budgetCenter', label: '预算归口', visible: true, width: 200 },
           { props: 'approvalProcessNo', label: '审批流程编号', visible: true, width: 200 },
-          { props: 'submitter', label: '提交人', visible: true, width: 120 },
+          { props: 'submitterName', label: '提交人', visible: true, width: 120 },
           { props: 'submitTime', label: '提交时间', visible: true, width: 200 },
           { props: 'transactionAmount', label: '交易金额', visible: true, align: 'right', width: 120 },
           { props: 'rechargeDescription', label: '充值说明', visible: true, width: 200 },
