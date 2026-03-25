@@ -1,362 +1,362 @@
 <template>
-    <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
-      <template #left>
-        <div class="page-common-edit">
-          <el-container>
-            <el-main>
-              <section class="common-title" v-if="_id">
-                <div>
-                  <h2>账户编号：{{ form.code }}</h2>
-                  <!-- TIPS: 子标题格式如下 -->
-                  <!-- <h5>活动编码：{{ form.activityCode }}</h5> -->
-                </div>
-                <!-- <div v-if="isEditing">
-                  <el-button size="small" @click="handleCancel">取消</el-button>
-                  <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-                </div>
-                <div v-else>
-                  <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
-                </div> -->
-              </section>
-              <section class="common-section">
-                <div class="common-section-header">
-                  <h2>基础信息</h2>
-                </div>
-                <div class="common-section-body">
-                  <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-                  <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
-                    <el-form-item label="账户编号：" prop="code">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.code"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="公司编码：" prop="companyCode">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.companyCode"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="公司名称：" prop="companyName">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.companyName"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="开户银行：" prop="bankName">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.bankName"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="银行户主：" prop="bankAccountHolder">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.bankAccountHolder"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="开户账户：" prop="bankAccount">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.bankAccount"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="可用资金：" prop="availableAmount">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.availableAmount"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="冻结资金：" prop="frozenAmount">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.frozenAmount"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="保证资金：" prop="marginAmount">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.marginAmount"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="账户总额：" prop="totalAmount">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.totalAmount"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="创建时间：" prop="createTime">
-                      <el-date-picker
-                        :default-time="['00:00:00', '23:59:59']"
-                        v-model="form.createTime"
-                        :picker-options="pickerOptions"
-                        value-format="yyyy-MM-dd HH:mm:ss"
-                        start-placeholder="开始日期"
-                        end-placeholder="结束日期"
-                      />
-                    </el-form-item>
-                    <el-form-item label="修改时间：" prop="updateTime">
-                      <el-date-picker
-                        :default-time="['00:00:00', '23:59:59']"
-                        v-model="form.updateTime"
-                        :picker-options="pickerOptions"
-                        value-format="yyyy-MM-dd HH:mm:ss"
-                        start-placeholder="开始日期"
-                        end-placeholder="结束日期"
-                      />
-                    </el-form-item>
-                    <el-form-item label="主键：" prop="id">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.id"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="创建者：" prop="creator">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.creator"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="创建者名称：" prop="creatorName">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.creatorName"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="修改者：" prop="modifier">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.modifier"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="修改者名称：" prop="modifierName">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.modifierName"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="备注：" prop="remark">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.remark"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="状态：" prop="status">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="xxx"
-                        v-model="form.status"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                    <el-form-item label="状态变更描述：" prop="statusDesc">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="xxx"
-                        v-model="form.statusDesc"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                    <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.dataSource"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="账户类型 资金账户 返利账户：" prop="accountType">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="xxx"
-                        v-model="form.accountType"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                  </el-form>
-                  <el-form :inline="true" class="form-detail" v-else>
-                    <el-form-item label="账户编号：" prop="code">
-                      {{ form.code }}
-                    </el-form-item>
-                    <el-form-item label="公司编码：" prop="companyCode">
-                      {{ form.companyCode }}
-                    </el-form-item>
-                    <el-form-item label="公司名称：" prop="companyName">
-                      {{ form.companyName }}
-                    </el-form-item>
-                    <el-form-item label="开户银行：" prop="bankName">
-                      {{ form.bankName }}
-                    </el-form-item>
-                    <el-form-item label="银行户主：" prop="bankAccountHolder">
-                      {{ form.bankAccountHolder }}
-                    </el-form-item>
-                    <el-form-item label="开户账户：" prop="bankAccount">
-                      {{ form.bankAccount }}
-                    </el-form-item>
-                    <el-form-item label="税号：">
-                      {{ form.taxNo }}
-                    </el-form-item>
-                    <el-form-item label="开票电话：">
-                      {{ form.taxPhone }}
-                    </el-form-item>
-                    <el-form-item label="开票地址：">
-                      {{ form.taxAddress }}
-                    </el-form-item>
-                    <el-form-item label="可用资金：" prop="availableAmount">
-                      {{ form.availableAmount }}
-                    </el-form-item>
-                    <el-form-item label="冻结资金：" prop="frozenAmount">
-                      {{ form.frozenAmount }}
-                    </el-form-item>
-                    <el-form-item label="保证资金：" prop="marginAmount">
-                      {{ form.marginAmount }}
-                    </el-form-item>
-                    <el-form-item label="账户总额：" prop="totalAmount">
-                      {{ form.totalAmount }}
-                    </el-form-item>
-                    <el-form-item label="备注：" prop="remark">
-                      {{ form.remark }}
-                    </el-form-item>
-                  </el-form>
-                </div>
-              </section>
-              <section class="common-section">
-                <div class="common-section-header">
-                  <h2>账户流水 <el-button size="small" :loading="exportLoading" @click="handleExport">导出账户流水</el-button></h2>
-                </div>
-                <div class="common-section-body">
-                  <div class="common-section-table">
-                    <vxe-table
-                      ref="tableExport"
-                      :data="tableData"
-                      stripe
-                      resizable
-                      show-overflow
-                      border="inner"
-                      size="medium"
-                      min-height="0"
-                      max-height="400px"
-                    >
-                      <vxe-column
-                        v-for="col in columnConfigs"
-                        :key="col.field"
-                        :field="col.field"
-                        :title="col.title"
-                        :width="col.width"
-                      >
-                        <!-- 业务单号可跳转 -->
-                        <template v-if="col.field === 'businessNo'" #default="{ row }">
-                          <div class="href-link" @click="handleJump(row)">{{ row.businessNo }}</div>
-                        </template>
-                      </vxe-column>
-                    </vxe-table>
-                    <el-pagination
-                      style="float: right; padding-top: 16px;"
-                      :current-page.sync="pagination.current"
-                      :page-size="pagination.pageSize"
-                      :page-sizes="[10, 20, 50, 100]"
-                      background
-                      layout="total, prev, pager, next, sizes, jumper"
-                      :total="pagination.total"
-                      @size-change="pageSizeChange"
-                      @current-change="currentPageChange"
+  <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
+    <template #left>
+      <div class="page-common-edit">
+        <el-container>
+          <el-main>
+            <section class="common-title" v-if="_id">
+              <div>
+                <h2>账户编号：{{ form.code }}</h2>
+                <!-- TIPS: 子标题格式如下 -->
+                <!-- <h5>活动编码：{{ form.activityCode }}</h5> -->
+              </div>
+              <!-- <div v-if="isEditing">
+                <el-button size="small" @click="handleCancel">取消</el-button>
+                <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
+              </div>
+              <div v-else>
+                <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
+              </div> -->
+            </section>
+            <section class="common-section">
+              <div class="common-section-header">
+                <h2>基础信息</h2>
+              </div>
+              <div class="common-section-body">
+                <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id">
+                  <el-form-item label="账户编号：" prop="code">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.code"
+                      clearable
                     />
-                  </div>
-                </div>
-              </section>
-              <section class="common-section">
-                <div class="common-section-header">
-                  <h2>冻结流水 <el-button size="small" :loading="exportDjLoading" @click="handleDjExport">导出冻结流水</el-button></h2>
-                </div>
-                <div class="common-section-body">
-                  <div class="common-section-table">
-                    <vxe-table
-                      ref="table"
-                      :data="djTableData"
-                      stripe
-                      resizable
-                      show-overflow
-                      border="inner"
-                      size="medium"
-                      min-height="0"
-                      max-height="400px"
-                    >
-                      <vxe-column
-                        v-for="col in columnConfigsDj"
-                        :key="col.field"
-                        :field="col.field"
-                        :title="col.title"
-                        :width="col.width"
-                      >
-                        <!-- 业务单号可跳转 -->
-                        <template v-if="col.field === 'businessNo'" #default="{ row }">
-                          <div class="href-link" @click="handleJump(row)">{{ row.businessNo }}</div>
-                        </template>
-                      </vxe-column>
-                      <!-- <vxe-column field="businessTypeLabel" title="业务类型" width="100" />
-                      <vxe-column field="businessNo" title="业务单号" width="200">
-                        <template #default="{ row }">
-                          <div class="href-link" @click="handleJump(row)">{{ row.businessNo }}</div>
-                        </template>
-                      </vxe-column>
-                      <vxe-column field="dealerCode" title="门店编码" width="150" />
-                      <vxe-column field="dealerName" title="门店名称" width="200" />
-                      <vxe-column field="partCode" title="零件/商品编码" width="200" />
-                      <vxe-column field="partName" title="零件/商品名称" width="160" />
-                      <vxe-column field="frozenQty" title="冻结数量" width="100" />
-                      <vxe-column field="cashUnitPrice" title="现金单价" width="100" />
-                      <vxe-column field="frozenAmount" title="冻结金额" width="100" /> -->
-                    </vxe-table>
-                    <el-pagination
-                      style="float: right; padding-top: 16px;"
-                      :current-page.sync="djPagination.current"
-                      :page-size="djPagination.pageSize"
-                      :page-sizes="[10, 20, 50, 100]"
-                      background
-                      layout="total, prev, pager, next, sizes, jumper"
-                      :total="djPagination.total"
-                      @size-change="djPageSizeChange"
-                      @current-change="djCurrentPageChange"
+                  </el-form-item>
+                  <el-form-item label="公司编码：" prop="companyCode">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.companyCode"
+                      clearable
                     />
-                  </div>
+                  </el-form-item>
+                  <el-form-item label="公司名称：" prop="companyName">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.companyName"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="开户银行：" prop="bankName">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.bankName"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="银行户主：" prop="bankAccountHolder">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.bankAccountHolder"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="开户账户：" prop="bankAccount">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.bankAccount"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="可用资金：" prop="availableAmount">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.availableAmount"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="冻结资金：" prop="frozenAmount">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.frozenAmount"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="保证资金：" prop="marginAmount">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.marginAmount"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="账户总额：" prop="totalAmount">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.totalAmount"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="创建时间：" prop="createTime">
+                    <el-date-picker
+                      :default-time="['00:00:00', '23:59:59']"
+                      v-model="form.createTime"
+                      :picker-options="pickerOptions"
+                      value-format="yyyy-MM-dd HH:mm:ss"
+                      start-placeholder="开始日期"
+                      end-placeholder="结束日期"
+                    />
+                  </el-form-item>
+                  <el-form-item label="修改时间：" prop="updateTime">
+                    <el-date-picker
+                      :default-time="['00:00:00', '23:59:59']"
+                      v-model="form.updateTime"
+                      :picker-options="pickerOptions"
+                      value-format="yyyy-MM-dd HH:mm:ss"
+                      start-placeholder="开始日期"
+                      end-placeholder="结束日期"
+                    />
+                  </el-form-item>
+                  <el-form-item label="主键：" prop="id">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.id"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="创建者：" prop="creator">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.creator"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="创建者名称：" prop="creatorName">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.creatorName"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="修改者：" prop="modifier">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.modifier"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="修改者名称：" prop="modifierName">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.modifierName"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="备注：" prop="remark">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.remark"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="状态：" prop="status">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="xxx"
+                      v-model="form.status"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                  <el-form-item label="状态变更描述：" prop="statusDesc">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="xxx"
+                      v-model="form.statusDesc"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                  <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.dataSource"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="账户类型 资金账户 返利账户：" prop="accountType">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="xxx"
+                      v-model="form.accountType"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                </el-form>
+                <el-form :inline="true" class="form-detail" v-else>
+                  <el-form-item label="账户编号：" prop="code">
+                    {{ form.code }}
+                  </el-form-item>
+                  <el-form-item label="公司编码：" prop="companyCode">
+                    {{ form.companyCode }}
+                  </el-form-item>
+                  <el-form-item label="公司名称：" prop="companyName">
+                    {{ form.companyName }}
+                  </el-form-item>
+                  <el-form-item label="开户银行：" prop="bankName">
+                    {{ form.bankName }}
+                  </el-form-item>
+                  <el-form-item label="银行户主：" prop="bankAccountHolder">
+                    {{ form.bankAccountHolder }}
+                  </el-form-item>
+                  <el-form-item label="开户账户：" prop="bankAccount">
+                    {{ form.bankAccount }}
+                  </el-form-item>
+                  <el-form-item label="税号：">
+                    {{ form.taxNo }}
+                  </el-form-item>
+                  <el-form-item label="开票电话：">
+                    {{ form.taxPhone }}
+                  </el-form-item>
+                  <el-form-item label="开票地址：">
+                    {{ form.taxAddress }}
+                  </el-form-item>
+                  <el-form-item label="可用资金：" prop="availableAmount">
+                    {{ form.availableAmount }}
+                  </el-form-item>
+                  <el-form-item label="冻结资金：" prop="frozenAmount">
+                    {{ form.frozenAmount }}
+                  </el-form-item>
+                  <el-form-item label="保证资金：" prop="marginAmount">
+                    {{ form.marginAmount }}
+                  </el-form-item>
+                  <el-form-item label="账户总额：" prop="totalAmount">
+                    {{ form.totalAmount }}
+                  </el-form-item>
+                  <el-form-item label="备注：" prop="remark">
+                    {{ form.remark }}
+                  </el-form-item>
+                </el-form>
+              </div>
+            </section>
+            <section class="common-section">
+              <div class="common-section-header">
+                <h2>账户流水 <el-button size="small" :loading="exportLoading" @click="handleExport">导出账户流水</el-button></h2>
+              </div>
+              <div class="common-section-body">
+                <div class="common-section-table">
+                  <vxe-table
+                    ref="tableExport"
+                    :data="tableData"
+                    stripe
+                    resizable
+                    show-overflow
+                    border="inner"
+                    size="medium"
+                    min-height="0"
+                    max-height="400px"
+                  >
+                    <vxe-column
+                      v-for="col in columnConfigs"
+                      :key="col.field"
+                      :field="col.field"
+                      :title="col.title"
+                      :width="col.width"
+                    >
+                      <!-- 业务单号可跳转 -->
+                      <template v-if="col.field === 'businessNo'" #default="{ row }">
+                        <div class="href-link" @click="handleJump(row)">{{ row.businessNo }}</div>
+                      </template>
+                    </vxe-column>
+                  </vxe-table>
+                  <el-pagination
+                    style="float: right; padding-top: 16px;"
+                    :current-page.sync="pagination.current"
+                    :page-size="pagination.pageSize"
+                    :page-sizes="[10, 20, 50, 100]"
+                    background
+                    layout="total, prev, pager, next, sizes, jumper"
+                    :total="pagination.total"
+                    @size-change="pageSizeChange"
+                    @current-change="currentPageChange"
+                  />
                 </div>
-              </section>
-            </el-main>
-            <el-footer height="60px" v-if="!_id">
-              <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-              <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
-              <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
-              <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
-            </el-footer>
-          </el-container>
-        </div>
-      </template>
-      <template #right>
-        <!-- 右侧栏组件，自行开发 -->
-      </template>
-    </edit-page-layout>
-  </template>
+              </div>
+            </section>
+            <section class="common-section">
+              <div class="common-section-header">
+                <h2>冻结流水 <el-button size="small" :loading="exportDjLoading" @click="handleDjExport">导出冻结流水</el-button></h2>
+              </div>
+              <div class="common-section-body">
+                <div class="common-section-table">
+                  <vxe-table
+                    ref="table"
+                    :data="djTableData"
+                    stripe
+                    resizable
+                    show-overflow
+                    border="inner"
+                    size="medium"
+                    min-height="0"
+                    max-height="400px"
+                  >
+                    <vxe-column
+                      v-for="col in columnConfigsDj"
+                      :key="col.field"
+                      :field="col.field"
+                      :title="col.title"
+                      :width="col.width"
+                    >
+                      <!-- 业务单号可跳转 -->
+                      <template v-if="col.field === 'businessNo'" #default="{ row }">
+                        <div class="href-link" @click="handleJump(row)">{{ row.businessNo }}</div>
+                      </template>
+                    </vxe-column>
+                    <!-- <vxe-column field="businessTypeLabel" title="业务类型" width="100" />
+                    <vxe-column field="businessNo" title="业务单号" width="200">
+                      <template #default="{ row }">
+                        <div class="href-link" @click="handleJump(row)">{{ row.businessNo }}</div>
+                      </template>
+                    </vxe-column>
+                    <vxe-column field="dealerCode" title="门店编码" width="150" />
+                    <vxe-column field="dealerName" title="门店名称" width="200" />
+                    <vxe-column field="partCode" title="零件/商品编码" width="200" />
+                    <vxe-column field="partName" title="零件/商品名称" width="160" />
+                    <vxe-column field="frozenQty" title="冻结数量" width="100" />
+                    <vxe-column field="cashUnitPrice" title="返利单价" width="100" />
+                    <vxe-column field="frozenAmount" title="冻结金额" width="100" /> -->
+                  </vxe-table>
+                  <el-pagination
+                    style="float: right; padding-top: 16px;"
+                    :current-page.sync="djPagination.current"
+                    :page-size="djPagination.pageSize"
+                    :page-sizes="[10, 20, 50, 100]"
+                    background
+                    layout="total, prev, pager, next, sizes, jumper"
+                    :total="djPagination.total"
+                    @size-change="djPageSizeChange"
+                    @current-change="djCurrentPageChange"
+                  />
+                </div>
+              </div>
+            </section>
+          </el-main>
+          <el-footer height="60px" v-if="!_id">
+            <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
+            <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
+            <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
+            <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
+          </el-footer>
+        </el-container>
+      </div>
+    </template>
+    <template #right>
+      <!-- 右侧栏组件，自行开发 -->
+    </template>
+  </edit-page-layout>
+</template>
 
 <script>
 import { getDetail, addOrUpdate, accountFlowPage, frozenPage } from '@/api/sparepart/fund/account/index';
@@ -433,10 +433,10 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '备件现金账户',
+      pageTitle: '备件返利账户',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISPART-accountRebate',
+      moduleKey: 'AISPART-account',
       isEditing: false,
       loading: false,
       submitLoading: false,
@@ -480,7 +480,7 @@ export default {
         { field: 'partCode', title: '零件/商品编码', width: '11%' },
         { field: 'partName', title: '零件/商品名称', width: '11%' },
         { field: 'frozenQty', title: '冻结数量', width: '10%' },
-        { field: 'cashUnitPrice', title: '现金单价', width: '10%' },
+        { field: 'cashUnitPrice', title: '返利单价', width: '10%' },
         { field: 'frozenAmount', title: '冻结金额', width: '10%' }
       ]
     };
@@ -508,7 +508,7 @@ export default {
     getDetailData () {
       const id = this._id;
       if (!this.id) {
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['备件现金账户', `${id ? '详情' : '新建'}`]);
+        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['备件返利账户', `${id ? '详情' : '新建'}`]);
       }
       if (id) {
         getDetail(id).then(res => {
@@ -534,6 +534,7 @@ export default {
       const params = {
         pageNum: this.djPagination.current,
         pageSize: this.djPagination.pageSize,
+        accountType: 'REBATE',
         accountId: this.$route.query.id
       };
       const res = await frozenPage(params);
@@ -676,7 +677,7 @@ export default {
       } = config;
 
       handleCommonExport({
-        // 1. 动态获取参数 (使用 this[paginationKey] 访问)
+      // 1. 动态获取参数 (使用 this[paginationKey] 访问)
         exportApiParamsFn: () => ({
           pageNum: this[paginationKey].current,
           pageSize: this[paginationKey].pageSize,
@@ -710,7 +711,7 @@ export default {
         loadingKey: 'exportLoading',
         path: 'sparepart/web/fund/accountFlow/page',
         titleMap: this.titleMap
-        // fileNameSuffix 默认为空，即 "导出数据.xlsx"
+      // fileNameSuffix 默认为空，即 "导出数据.xlsx"
       });
     },
 
@@ -761,10 +762,10 @@ export default {
   }
 };
 </script>
-  <style lang="scss" scoped>
-    ::v-deep .vxe-table--render-default.size--medium .vxe-header--column.is--padding .vxe-cell,
-    ::v-deep .vxe-table--render-default .vxe-body--column:not(.col--active).col--ellipsis > .vxe-cell,
-    ::v-deep .vxe-table--render-default.size--medium .vxe-body--column.is--padding .vxe-cell {
-      padding: 8px 12px !important;
-    }
-  </style>
+<style lang="scss" scoped>
+  ::v-deep .vxe-table--render-default.size--medium .vxe-header--column.is--padding .vxe-cell,
+  ::v-deep .vxe-table--render-default .vxe-body--column:not(.col--active).col--ellipsis > .vxe-cell,
+  ::v-deep .vxe-table--render-default.size--medium .vxe-body--column.is--padding .vxe-cell {
+    padding: 8px 12px !important;
+  }
+</style>

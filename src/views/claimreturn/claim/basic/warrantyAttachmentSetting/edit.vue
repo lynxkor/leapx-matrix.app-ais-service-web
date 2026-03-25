@@ -129,7 +129,6 @@ export default {
       moduleKey: 'AISCR-warrantyAttachmentSetting',
       loading: false,
       submitLoading: false,
-      isEditing: false,
       yes_no_enum: YES_NO_ENUM,
       yes_no_enum_map: {
         0: '否',

@@ -49,7 +49,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="InboundTypeEnum"
-            v-model="form.inboundType"
+            v-model="form.inboundTypeList"
             placeholder="请选择"
             clearable
             multiple
@@ -161,7 +161,7 @@ const defaultForm = {
   businessOrderCode: '',
   dealerCode: '',
   warehouseId: '',
-  inboundType: '',
+  inboundTypeList: [],
   inboundStatusList: [],
   createTime: '',
   updateTime: '',
@@ -224,7 +224,31 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'businessOrderCode', label: '业务单号', visible: true, width: 200 },
+          {
+            props: 'businessOrderCode',
+            label: '业务单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                let myPath = '';
+                if (row.inboundType === '0') {
+                  myPath = '/sparepart/purchase/purchaseOrder/edit';
+                }
+                if (row.inboundType === '1') {
+                  myPath = '/sparepart/transfer/transferInbound/edit';
+                }
+                this.$router.push({
+                  path: myPath,
+                  query: {
+                    id: row.businessOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },

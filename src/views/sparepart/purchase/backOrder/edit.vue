@@ -207,13 +207,10 @@
                 <el-form-item label="已处理品种数：" prop="processedVarietyCount">
                   {{ form.processedVarietyCount }}
                 </el-form-item>
-                <el-form-item label="是否空出：">
-                  {{ form.emptyIsLabel }}
-                </el-form-item>
                 <el-form-item label="采购申请单：" prop="purchaseApplyCode">
                   {{ form.purchaseApplyCode }}
                 </el-form-item>
-                <el-form-item label="收货人姓名：" prop="recipientName">
+                <!-- <el-form-item label="收货人姓名：" prop="recipientName">
                   {{ form.recipientName }}
                 </el-form-item>
                 <el-form-item label="收货人电话：" prop="recipientPhone">
@@ -221,7 +218,7 @@
                 </el-form-item>
                 <el-form-item label="收货地址：" prop="address">
                   {{ form.address }}
-                </el-form-item>
+                </el-form-item> -->
               </el-form>
             </div>
           </section>
@@ -375,12 +372,12 @@ export default {
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
-          field: 'name',
+          field: 'sparePartCode',
           title: '备件编码',
           width: '7%',
         },
         {
-          field: 'age',
+          field: 'sparePartName',
           title: '备件名称',
           width: '7%',
         },
