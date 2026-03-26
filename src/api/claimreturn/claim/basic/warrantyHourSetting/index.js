@@ -1,7 +1,7 @@
 import api from '@/axios';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
-const prefix = 'claimreturn/web/claim/basic/warrantyHourSetting/';
+const prefix = 'claimreturn/claim/web/basic/warrantyHourSetting/';
 
 /**
  * 查询列表
