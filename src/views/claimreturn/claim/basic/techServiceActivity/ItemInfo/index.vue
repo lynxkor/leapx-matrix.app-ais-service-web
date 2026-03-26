@@ -21,7 +21,7 @@
             valueKey: 'id',
             labelKey: 'name',
             labelFormat: '${name}(${code})',
-            placeholder: '输入项目零件代码/名称',
+            placeholder: '维修项目代码/名称',
           }"
           close-tip="确定删除该项目零件吗？"
           :disabled="!isEditing"
@@ -416,8 +416,7 @@ export default {
     // 工时下拉接口
     repairRemote (query) {
       return repairList({
-        codeLike: query,
-        nameLike: query,
+        nameOrCodeOrPinyinLike: query,
         pageSize: 20,
         pageNum: 1,
       }).then(res => {

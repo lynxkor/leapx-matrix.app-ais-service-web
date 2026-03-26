@@ -18,6 +18,7 @@
       </el-form-item>
 
       <!-- 扩展查询条件 -->
+      <template v-if="show">
       <el-form-item label="三包预警：">
         <fetch-select
           :request="fetchOptions"
@@ -38,8 +39,8 @@
       <el-form-item label="保修单状态：">
         <fetch-select
           :request="fetchOptions"
-          enumCode=""
-          v-model="form.applyStatus"
+          enumCode="claim_warranty_apply_status"
+          v-model="form.applyStatusList"
           placeholder="请选择"
           clearable
           multiple
@@ -169,6 +170,7 @@
           end-placeholder="结束日期"
         />
       </el-form-item>
+      </template>
       <page-search-action
         v-if="canList"
         v-model="show"
@@ -181,11 +183,11 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button size="small" @click="handleWithdraw">批量撤回</el-button>
+      <el-button size="small" @click="handleReject">批量驳回</el-button>
+      <el-button size="small" @click="handleApprove">批量同意</el-button>
+      <el-button size="small" @click="handleXXX">批量作废</el-button>
+      <el-button size="small" @click="handleMark">打印标签</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -208,13 +210,6 @@
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
     </div>
-    <!-- TIPS: 填入项目id即可 -->
-    <Upload
-      :visible="uploadDialogVisible"
-      :id="'1'"
-      @close="handleUploadDialogClose"
-      @getData="getData"
-    />
   </div>
 </template>
 
@@ -224,16 +219,15 @@ import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import {
   getList,
-  deleteItem,
-  enableItem,
+  submit,
+  withdraw,
+  approve,
 } from '@/api/claimreturn/claim/warrantyapply/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
-import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 // import ListSelect from '@/libs/components/list-select/index.vue';
@@ -279,7 +273,6 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    Upload,
     // ListSelect,
     TagInput,
   },
@@ -297,7 +290,6 @@ export default {
       show: false,
       loading: false,
       exportLoading: false,
-      uploadDialogVisible: false,
       clickItemId: '',
       //
       tableDataList: [],
@@ -320,28 +312,81 @@ export default {
         form: this.tableForm,
         dataProp: [
           {
-            props: 'alarmLevel',
+            props: 'alarmLevelLabel',
             label: '三包预警',
             visible: true,
             width: 200,
-            fixed: 'left',
+          },
+          {
+            props: 'applyNo',
+            label: '保修申请单',
+            visible: true,
+            width: 200,
             buttons: [{
+              type: 'primary',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/warrantyapply/warrantyApply/edit',
+                  path: '/claimreturn/claim/warrantyApply/edit',
                   query: {
                     id: row.id
                   }
                 });
-              },
-              type: 'primary'
+              }
             }]
           },
-          { props: 'applyNo', label: '保修申请单', visible: true, width: 200 },
-          { props: 'vin', label: 'VIN', visible: true, width: 200 },
-          { props: 'serviceProxyNo', label: '施工单', visible: true, width: 200 },
-          { props: 'statementCode', label: '结算单号', visible: true, width: 200 },
-          { props: 'applyStatus', label: '保修单状态', visible: true, width: 200 },
+          {
+            props: 'vin',
+            label: 'VIN',
+            visible: true,
+            width: 200,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/datacenter/vehicle/vehicleProfile/edit',
+                  query: {
+                    // TODO
+                    id: row.id
+                  }
+                });
+              }
+            }]
+          },
+          {
+            props: 'serviceProxyNo',
+            label: '施工单',
+            visible: true,
+            width: 200,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/sp/serviceProxy/edit',
+                  query: {
+                    id: row.serviceProxyId
+                  }
+                });
+              }
+            }]
+          },
+          {
+            props: 'statementCode',
+            label: '结算单号',
+            visible: true,
+            width: 200,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/sp/serviceStatement/edit',
+                  query: {
+                    id: row.statementId
+                  }
+                });
+              }
+            }]
+          },
+          { props: 'applyStatusLabel', label: '保修单状态', visible: true, width: 200 },
           { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 200 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
@@ -376,39 +421,47 @@ export default {
             type: 'operate',
             visible: true,
             fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/claimreturn/claim/warrantyapply/warrantyApply/edit',
-                  query: {
+            buttons: [
+              {
+                name: '提交',
+                // popconfirmTitle: '确认提交?',
+                click: (rowIndex, row) => {
+                  submit({
                     id: row.id,
-                    isEditing: true,
+                  }).then(res => {
+                    this.$message.success('提交成功');
+                    this.getData();
+                  });
+                },
+                type: 'info',
+                show: (row) => {
+                  // 未提交，已驳回
+                  if (row.applyStatus === '10' || row.applyStatus === '40') {
+                    return true;
                   }
-                });
+                  return false;
+                },
               },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmConfirmButtonType: 'danger',
-              popconfirmConfirmButtonText: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
+              {
+                name: '同意',
+                click: (rowIndex, row) => {
+                  approve({
+                    id: row.id,
+                  }).then(res => {
+                    this.$message.success('提交成功');
+                    this.getData();
                   });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
+                },
+                type: 'info',
+                show: (row) => {
+                  // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
+                  if (['20', '25', '30'].includes(row.applyStatus)) {
+                    return true;
+                  }
+                  return false;
+                },
               },
-              type: 'danger'
-            }]
+            ]
           }
         ],
         total: this.tableTotal
@@ -433,15 +486,80 @@ export default {
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
-    handleImport () {
-      this.uploadDialogVisible = true;
+    handleReject () {},
+    handleApprove () {
+      if (!this.selectionList.length) {
+        this.$message({
+          type: 'warning',
+          message: '请选择数据'
+        });
+        return;
+      }
+      this.$prompt('同意', '审批说明', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPlaceholder: '请输入审批说明',
+        // inputValidator: (value) => {
+        //   if (!value || value.trim() === '') {
+        //     return '请输入审批说明';
+        //   }
+        //   return true;
+        // }
+      }).then(({ value }) => {
+        const ids = this.selectionList.map(item => item.id);
+        approve({
+          ids,
+          approvalRemark: value
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '审批成功!'
+          });
+          this.getData();
+        }).catch(() => {
+        });
+      }).catch(() => {});
     },
-    handleUploadDialogClose () {
-      this.uploadDialogVisible = false;
+    handleXXX () {},
+    handleWithdraw () {
+      if (!this.selectionList.length) {
+        this.$message({
+          type: 'warning',
+          message: '请选择数据'
+        });
+        return;
+      }
+      this.$prompt('审核撤回', '撤回说明', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPlaceholder: '请输入撤回说明',
+        inputValidator: (value) => {
+          if (!value || value.trim() === '') {
+            return '请输入撤回说明';
+          }
+          return true;
+        }
+      }).then(({ value }) => {
+        const ids = this.selectionList.map(item => item.id);
+        withdraw({
+          ids,
+          withdrawRemark: value
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '撤回成功!'
+          });
+          this.getData();
+        }).catch(() => {
+        });
+      }).catch(() => {});
+    },
+    handleMark () {
+
     },
     handleAdd () {
       this.$router.push({
-        path: '/claimreturn/claim/warrantyapply/warrantyApply/edit'
+        path: '/claimreturn/claim/warrantyApply/edit'
       });
     },
     onSubmit () {
@@ -453,39 +571,6 @@ export default {
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
       this.getData();
-    },
-    exportExcel () {
-      this.exportLoading = true;
-      const reqParams = this.getFormData() || {};
-      if (this.selectionList.length > 0) {
-        const ids = this.selectionList.map(item => item.id) || [];
-        reqParams.ids = ids;
-      }
-      exportTable({
-        businessType: '新页面',
-        dataFetchPath: 'claimreturn/claim/web/warrantyapply/warrantyApply/page',
-        reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
-        httpMethod: 'POST'
-      }).then(async res => {
-        if (res && res.excelUrl) {
-          try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
-          } catch (error) {
-            this.$message({
-              type: 'error',
-              message: '文件导出失败'
-            });
-          }
-        } else {
-          this.$message({
-            type: 'info',
-            message: '请前往导出列表中查询导出结果'
-          });
-        }
-      }).finally(() => {
-        this.exportLoading = false;
-      });
     },
     getData () {
       this.loading = true;
@@ -536,9 +621,6 @@ export default {
     },
     getFormData () {
       const data = { ...this.form };
-
-      // TODO xxxx为过滤参数 待修改
-      data.xxxx = data.aisActiveTab;
 
       Object.keys(this.form).forEach(key => {
         if (data[key] === '' || data[key] === null) {
@@ -592,59 +674,6 @@ export default {
         return getEnum(code);
       }
       return [];
-    },
-    // 批量删除
-    handleBatchDelete () {
-      const ids = this.selectionList.map(item => item.id) || [];
-      this.$confirm('此操作将永久删除, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        deleteItem(ids).then(() => {
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          });
-          this.getData();
-        }).catch(() => {
-          this.$message({
-            type: 'error',
-            message: '删除失败!'
-          });
-        });
-      }).catch(() => {});
-    },
-    // 批量启用停用
-    handleBatchEnable (status) {
-      handleBatchStatusChange.call(this, {
-        selectionList: this.selectionList,
-        targetStatus: status,
-        apiFunc: enableItem,
-        refreshFunc: this.getData
-      });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
     },
   }
 };

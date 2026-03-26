@@ -13,7 +13,7 @@
           <el-button size="small" @click="paySuccess" v-if="buttonPermissions.success">完成收款</el-button>
           <el-button size="small" @click="createRefund" v-if="buttonPermissions.reCreate || buttonPermissions.reCreate1">创建反结算单</el-button>
           <el-button size="small" @click="createWarrantyApply"
-            v-if="buttonPermissions.createWarranty">创建保修申请单</el-button>
+            v-if="canCreateWarrantyApply">创建保修申请单</el-button>
           <el-button size="small" @click="handlePrint">打印结算单</el-button>
         </template>
         <div class="common-sub-title">
@@ -255,6 +255,10 @@
         :info="form" @refresh="handleRefresh" />
       <AddPayrecordDialog :visible.sync="addPayrecordDialogVisible" :serviceProxyId="_id" :info="form"
         @refresh="handleRefresh" />
+      <CreateWarrantyApplyDialog
+        :visible.sync="warrantyApplyVisible"
+        :id="_id"
+      />
     </template>
     <template #right>
       <div class="page-common-edit">
@@ -271,7 +275,7 @@ import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
 import { CheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
-
+import CreateWarrantyApplyDialog from './components/CreateWarrantyApplyDialog';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -283,6 +287,7 @@ import PayRecord from '@/views/maintain/sp/serviceStatement/components/PayRecord
 import SelectRightsDialog from './components/SelectRightsDialog';
 import SubmitSettlemenDialog from './components/SubmitSettlemenDialog';
 import AddPayrecordDialog from './components/AddPayrecordDialog';
+import { checkCanCreate } from '@/api/claimreturn/claim/warrantyapply';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -374,7 +379,8 @@ export default {
     PayRecord,
     SelectRightsDialog,
     SubmitSettlemenDialog,
-    AddPayrecordDialog
+    AddPayrecordDialog,
+    CreateWarrantyApplyDialog,
   },
   computed: {
     _id () {
@@ -405,9 +411,6 @@ export default {
         reCreate1: baseType2.includes(statementType) && [40, 30].includes(statementStatus) && !this.form.createReStatement,
         // 添加收款记录：结算类型为自费/保险/内部结算，状态为待收款
         addRecord: baseType.includes(statementType) && statementStatus === 30,
-
-        // 创建保修申请单：结算类型为自费/保险，状态为已完成
-        createWarranty: baseType2.includes(statementType) && statementStatus === 30
       };
     }
   },
@@ -419,6 +422,14 @@ export default {
         }
       },
       immediate: true
+    },
+    'form.serviceProxyId': {
+      handler (val) {
+        if (val) {
+          this.checkCanCreate();
+        }
+      },
+      immediate: true,
     }
   },
   data () {
@@ -446,12 +457,22 @@ export default {
         // 对应表格里选型枚举
         // 如 type: [{label: 'xxx', value: 'xxx'}]
       },
-
+      // 创建保修申请单
+      canCreateWarrantyApply: false,
+      warrantyApplyVisible: false,
     };
   },
   mounted () {
   },
   methods: {
+    checkCanCreate () {
+      checkCanCreate({
+        statementId: this._id,
+        serviceProxyId: this.form.serviceProxyId,
+      }).then(res => {
+        this.canCreateWarrantyApply = res?.canCreate;
+      });
+    },
     showMsg (msg) {
       return new Promise((resolve) => {
         const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>提醒</div><div class="ais-leave-tips-sub">${msg}</div>`;
@@ -612,11 +633,9 @@ export default {
         }
       }
     },
-
+    // 创建保修申请单
     createWarrantyApply () {
-      // 实现创建保修申请单功能
-      this.$message.warning('功能开发中...');
-      // 这里可以添加具体的创建保修申请单逻辑
+      this.warrantyApplyVisible = true;
     },
 
     logList () {
