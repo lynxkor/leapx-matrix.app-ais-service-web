@@ -6,13 +6,10 @@
     <div class="common-section-body">
       <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="190px" class="form-edit" v-if="isEditing || !_id" :disabled="formDisabled">
         <el-form-item label="维修类型（汇总）：" prop="repairItemTypeDetailCollect">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="StatusEnum"
+          <el-input
+            placeholder="请输入"
             v-model="form.repairItemTypeDetailCollect"
-            placeholder="请选择"
             clearable
-            filterable
             disabled
           />
         </el-form-item>

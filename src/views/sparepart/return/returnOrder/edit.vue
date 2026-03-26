@@ -305,8 +305,8 @@
                     <vxe-column field="qualifiedQty" title="合格数量" width="120" />
                     <vxe-column field="deliveryOrderNo" title="交货单号" width="120" />
                     <vxe-column field="salesVoucher" title="销售凭证" width="120" />
-                    <vxe-column field="inboundOrderId" title="入库单号" width="120" />
-                    <vxe-column field="purchaseOrderId" title="采购订单号" width="130" />
+                    <vxe-column field="inboundOrderCode" title="入库单号" width="120" />
+                    <vxe-column field="purchaseOrderCode" title="采购订单号" width="130" />
                     <vxe-column field="purchaseCashUnitPrice" title="采购现金单价" width="140" />
                     <vxe-column field="purchaseRebateUnitPrice" title="采购返利单价" width="140" />
                     <vxe-column field="returnCashUnitPrice" title="退货现金单价" width="140" />
@@ -392,7 +392,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, listOrgStoreInfoByParam, listWarehouse, getLoginUser, getPartDealer } from '@/api/common';
+import { getEnum, listOrgStoreInfoByParam, listWarehouse, listOemWarehouse, getLoginUser, getPartDealer } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -678,7 +678,7 @@ export default {
 
     async getReceiveWarehouse (query) {
       try {
-        const res = await listWarehouse({ codeOrName: query });
+        const res = await listOemWarehouse({ codeOrName: query });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
