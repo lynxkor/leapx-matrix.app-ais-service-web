@@ -1,7 +1,7 @@
 import api from '@/axios';
 
 // 保修参数配置
-const prefix = 'claimreturn/web/claim/basic/warrantyParameterConfig/';
+const prefix = 'claimreturn/claim/web/basic/warrantyParameterConfig/';
 
 /**
  * 更新参数

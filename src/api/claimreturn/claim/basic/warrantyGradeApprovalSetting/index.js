@@ -1,7 +1,7 @@
 import api from '@/axios';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
-const prefix = 'claimreturn/web/claim/basic/warrantyGradeApprovalSetting/';
+const prefix = 'claimreturn/claim/web/basic/warrantyGradeApprovalSetting/';
 
 /**
  * 查询列表
@@ -43,7 +43,7 @@ export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
 
-const logPrefix = 'claimreturn/web/claim/basic/warrantyGradeApprovalStatusLog/';
+const logPrefix = 'claimreturn/claim/web/basic/warrantyGradeApprovalStatusLog/';
 /**
  * 保修分级审批状态变化分页查询
  * @param {Object} data
