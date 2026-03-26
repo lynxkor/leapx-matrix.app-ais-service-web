@@ -364,9 +364,9 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/purchase/backOrder/outOfStock/edit',
+                  path: '/sparepart/purchase/backOrder/edit',
                   query: {
-                    id: row.id
+                    id: row.backOrderId
                   }
                 });
               },
