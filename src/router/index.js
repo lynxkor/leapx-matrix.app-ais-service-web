@@ -1348,7 +1348,8 @@ const routes = [
         name: '备件返利账户详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/warehouse/inventory',
       name: 'inventory',
       component: () => import('@/views/sparepart/warehouse/inventory/index.vue'),
@@ -1357,8 +1358,7 @@ const routes = [
         name: '厅店备件库存',
         keepAlive: true
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/sparepart/warehouse/inventory/edit',
       name: 'inventoryEdit',
       component: () => import('@/views/sparepart/warehouse/inventory/edit.vue'),
@@ -1367,7 +1367,8 @@ const routes = [
         name: '厅店备件库存详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 门店销毁
+    {
       path: '/sparepart/basic/purchasePrice',
       name: 'purchasePrice',
       component: () => import('@/views/sparepart/basic/purchasePrice/index.vue'),
@@ -1376,8 +1377,7 @@ const routes = [
         name: '备件采购价格',
         keepAlive: true
       }
-    }, // 门店销毁
-    {
+    }, {
       path: '/sparepart/basic/purchaseprice/edit',
       name: 'purchasePriceEdit',
       component: () => import('@/views/sparepart/basic/purchasePrice/edit.vue'),
@@ -2314,6 +2314,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/claimreturn/claim/warrantyAuditErrorConfig',
+      name: 'warrantyAuditErrorConfig',
+      component: () => import('@/views/claimreturn/claim/warrantyaudit/warrantyAuditErrorConfig/index.vue'),
+
+      meta: {
+        name: '审计错误项配置',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/warrantyAuditErrorConfig/edit',
+      name: 'warrantyAuditErrorConfigEdit',
+      component: () => import('@/views/claimreturn/claim/warrantyaudit/warrantyAuditErrorConfig/edit.vue'),
+
+      meta: {
+        name: '审计错误项配置详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/claimreturn/claim/basic/warrantySettlementCalendar',
       name: 'warrantySettlementCalendar',
       component: () => import('@/views/claimreturn/claim/basic/warrantySettlementCalendar/index.vue'),
@@ -2565,6 +2583,24 @@ const routes = [
 
       meta: {
         name: '语音内容模板配置管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/warrantyapply',
+      name: 'warrantyApply',
+      component: () => import('@/views/claimreturn/claim/warrantyapply/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/warrantyapply/edit',
+      name: 'warrantyApplyEdit',
+      component: () => import('@/views/claimreturn/claim/warrantyapply/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
         noResourceUrl: 'true'
       }
     }]

@@ -246,7 +246,7 @@ export default {
   methods: {
     async getParentCompany (query) {
       try {
-        const res = await getSparePartCompany({ parentCompanyName: query });
+        const res = await getSparePartCompany({ codeOrNameLike: query });
         res.records = res.records?.map(item => ({
           ...item,
           displayName: item.companyName + `(${item.companyCode})`
