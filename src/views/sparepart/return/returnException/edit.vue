@@ -1,0 +1,584 @@
+<template>
+    <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
+      <template #left>
+        <!-- TIPS: 如果需要竖排，direction="vertical" -->
+        <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :isEditing.sync="isEditing" :form.sync="form"
+          :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" :showEditBtn="false">
+          <el-main>
+            <section class="common-section" v-show="!(isEditing || !_id)">
+              <div class="common-section-header">
+                <h2>常规信息</h2>
+              </div>
+              <div class="common-section-body">
+                <el-form :inline="true" class="form-detail">
+                  <el-form-item label="退货单号：" prop="code">
+                    {{ form.code }}
+                  </el-form-item>
+                  <el-form-item label="退货类型：" prop="returnType">
+                    {{ form.returnTypeLabel }}
+                  </el-form-item>
+                  <el-form-item label="退货原因：" prop="returnReason">
+                    {{ form.returnReasonLabel }}
+                  </el-form-item>
+                  <el-form-item label="门店编码：" prop="dealerCode">
+                    {{ form.dealerCode }}
+                  </el-form-item>
+                  <el-form-item label="门店名称：" prop="dealerName">
+                    {{ form.dealerName }}
+                  </el-form-item>
+                  <el-form-item label="备件仓库：" prop="warehouseId">
+                    {{ form.warehouseName }}
+                  </el-form-item>
+                  <el-form-item label="退货状态：" prop="returnStatus">
+                    {{ form.returnStatusLabel }}
+                  </el-form-item>
+                  <el-form-item label="备注：" prop="remark">
+                    {{ form.remark }}
+                  </el-form-item>
+                </el-form>
+              </div>
+            </section>
+            <section class="common-section" v-show="!(isEditing || !_id)">
+              <div class="common-section-header">
+                <h2>物流信息</h2>
+              </div>
+              <div class="common-section-body">
+                <el-form :inline="true" class="form-detail">
+                  <el-form-item label="物流单号：" prop="logisticsOrderNo">
+                    {{ form.logisticsOrderNo }}
+                  </el-form-item>
+                  <el-form-item label="物流商：" prop="logisticsProvider">
+                    {{ form.logisticsProvider }}
+                  </el-form-item>
+                  <el-form-item label="发货时间：" prop="deliveryTime">
+                    {{ form.deliveryTime }}
+                  </el-form-item>
+                  <el-form-item label="物流备注：" prop="logisticsRemark">
+                    {{ form.logisticsRemark }}
+                  </el-form-item>
+                  <el-form-item label="收货主机厂仓库：" prop="receiveWarehouseId">
+                    {{ form.receiveWarehouseName }}
+                  </el-form-item>
+                  <el-form-item label="收货人：" prop="receiver">
+                    {{ form.receiver }}
+                  </el-form-item>
+                  <el-form-item label="收货人联系电话：" prop="receiverPhone">
+                    {{ form.receiverPhone }}
+                  </el-form-item>
+                  <el-form-item label="收货地址：" prop="receiveAddress">
+                    {{ form.receiveAddress }}
+                  </el-form-item>
+                  <el-form-item label="物流支付方式:" prop="logisticsPaymentMethod">
+                    {{ form.logisticsPaymentMethodLabel }}
+                  </el-form-item>
+                  <el-form-item label="退货完成时间：" prop="returnCompleteTime">
+                    {{ form.returnCompleteTime }}
+                  </el-form-item>
+                </el-form>
+              </div>
+            </section>
+            <section class="common-section" v-show="!(isEditing || !_id)">
+              <div class="common-section-header">
+                <h2>退款信息</h2>
+              </div>
+              <div class="common-section-body">
+                <el-form :inline="true" class="form-detail">
+                  <el-form-item label="退货价格比例：" prop="returnPriceRatio">
+                    {{ form.returnPriceRatio }}
+                  </el-form-item>
+                  <el-form-item label="退款完成时间：" prop="refundCompleteTime">
+                    {{ form.refundCompleteTime }}
+                  </el-form-item>
+                  <el-form-item label="预计退货返利总金额：" prop="estimatedReturnRebateAmount">
+                    {{ form.estimatedReturnRebateAmount }}
+                  </el-form-item>
+                  <el-form-item label="实际退货返利总金额：" prop="actualReturnRebateAmount">
+                    {{ form.actualReturnRebateAmount }}
+                  </el-form-item>
+                  <el-form-item label="预计退货现金总金额：" prop="estimatedReturnCashAmount">
+                    {{ form.estimatedReturnCashAmount }}
+                  </el-form-item>
+                  <el-form-item label="实际退货现金总金额：" prop="actualReturnCashAmount">
+                    {{ form.actualReturnCashAmount }}
+                  </el-form-item>
+                </el-form>
+              </div>
+            </section>
+            <section class="common-section" v-show="!(isEditing || !_id)">
+              <div class="common-section-header">
+                <h2>审批信息</h2>
+              </div>
+              <div class="common-section-body">
+                <el-form :inline="true" class="form-detail">
+                  <el-form-item label="提交人：" prop="submitter">
+                    {{ form.submitterName }}
+                  </el-form-item>
+                  <el-form-item label="提交时间：" prop="submitTime">
+                    {{ form.submitTime }}
+                  </el-form-item>
+                  <el-form-item label="审核人：" prop="reviewer">
+                    {{ form.reviewerName }}
+                  </el-form-item>
+                  <el-form-item label="审核时间：" prop="reviewTime">
+                    {{ form.reviewTime }}
+                  </el-form-item>
+                  <el-form-item label="审核说明：" prop="reviewDescription">
+                    {{ form.reviewDescription }}
+                  </el-form-item>
+                  <el-form-item label="作废人：" prop="cancelOperator">
+                    {{ form.cancelOperatorName }}
+                  </el-form-item>
+                  <el-form-item label="作废时间：" prop="cancelTime">
+                    {{ form.cancelTime }}
+                  </el-form-item>
+                  <el-form-item label="作废说明：" prop="cancelDescription">
+                    {{ form.cancelDescription }}
+                  </el-form-item>
+                </el-form>
+              </div>
+            </section>
+            <section class="common-section" v-if="_id">
+              <div class="common-section-header">
+                <h2>异常退货明细</h2>
+              </div>
+              <div class="common-section-body">
+                <div class="common-section-table">
+                  <edit-table
+                    ref="editTable"
+                    :columns="abnormalColumns"
+                    :data="abnormalTableData"
+                    :show-toolbar="false"
+                    showPagination
+                    :current="abnormal.current"
+                    :pageSize="abnormal.pageSize"
+                    :total="abnormal.total"
+                    @page-size-change="abnormalPageSizeChange"
+                    @current-page-change="abnormalCurrentPageChange"
+                  />
+                </div>
+              </div>
+            </section>
+            <section class="common-section" v-if="_id">
+              <div class="common-section-header">
+                <h2>出库明细信息</h2>
+              </div>
+              <div class="common-section-body">
+                <div class="common-section-table">
+                  <vxe-table
+                      ref="editTableRight"
+                      :data="tableData"
+                      stripe
+                      show-overflow
+                      resizable
+                      border="inner"
+                      size="medium"
+                  >
+                      <vxe-column field="partCode" title="备件编码" width="120" />
+                      <vxe-column field="partName" title="备件名称" width="120" />
+                      <vxe-column field="returnQty" title="退货数量" width="120" />
+                      <vxe-column field="qualifiedQty" title="合格数量" width="120" />
+                      <vxe-column field="deliveryOrderNo" title="交货单号" width="120" />
+                      <vxe-column field="salesVoucher" title="销售凭证" width="120" />
+                      <vxe-column field="inboundOrderCode" title="入库单号" width="120" />
+                      <vxe-column field="purchaseOrderCode" title="采购订单号" width="130" />
+                      <vxe-column field="purchaseCashUnitPrice" title="采购现金单价" width="140" />
+                      <vxe-column field="purchaseRebateUnitPrice" title="采购返利单价" width="140" />
+                      <vxe-column field="returnCashUnitPrice" title="退货现金单价" width="140" />
+                      <vxe-column field="estimatedReturnCashAmount" title="预计退货现金金额" width="160" />
+                      <vxe-column field="actualReturnCashAmount" title="实际退货现金金额" width="160" />
+                      <vxe-column field="returnRebateUnitPrice" title="退货返利单价" width="140" />
+                      <vxe-column field="estimatedReturnRebateAmount" title="预计退货返利金额" width="160" />
+                      <vxe-column field="actualReturnRebateAmount" title="实际退货返利金额" width="160" />
+                      <vxe-column field="remark" title="备注" width="120" />
+                  </vxe-table>
+                  <div class="table-pagination">
+                      <el-pagination
+                          @size-change="(val) => pageSizeChange(val)"
+                          @current-change="(val) => currentPageChange(val)"
+                          :current-page="current"
+                          :page-sizes="[10, 20, 50, 100]"
+                          :page-size="pageSize"
+                          layout="total, sizes, prev, pager, next, jumper"
+                          :total="total"
+                      >
+                      </el-pagination>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </el-main>
+        </edit-base-container>
+      </template>
+      <template #right>
+        <div class="page-common-edit">
+          <!-- 右侧栏组件，自行开发 -->
+        </div>
+      </template>
+    </edit-page-layout>
+  </template>
+
+<script>
+import { getDetail, addOrUpdate, returnOrderPage, exceptionPage, returnOrderDel } from '@/api/sparepart/return/returnOrder/index';
+import EditTable from '@/libs/components/EditTable';
+import EditPageLayout from '@/libs/components/EditPageLayout';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
+import { getEnum, listOrgStoreInfoByParam, listWarehouse, listOemWarehouse, getLoginUser, getPartDealer } from '@/api/common';
+import { YES_NO_ENUM } from '@/libs/constants';
+import routeGuard from '@/libs/mixins/routeGuard';
+import permissions from '@/libs/mixins/permissions';
+import commonMixins from '@/libs/mixins/commonMixins';
+
+const defaultForm = {
+  // 多选时字段有变化，自行修复
+  code: '',
+  dealerCode: '',
+  dealerName: '',
+  warehouseId: '',
+  warehouseName: '',
+  returnReason: '',
+  returnStatus: '10',
+  returnStatusLabel: '草稿',
+  logisticsOrderNo: '',
+  logisticsProvider: '',
+  deliveryTime: '',
+  remark: '',
+  createTime: '',
+  updateTime: '',
+  id: '',
+  status: '',
+  dataSource: '',
+  purchaseOrderType: '',
+  warehousingStatus: '',
+  returnType: '',
+  logisticsRemark: '',
+  receiveWarehouseId: '',
+  receiver: '',
+  receiverPhone: '',
+  receiveAddress: '',
+  logisticsPaymentMethod: '',
+  returnCompleteTime: '',
+  returnPriceRatio: '',
+  refundCompleteTime: '',
+  estimatedReturnRebateAmount: '',
+  actualReturnRebateAmount: '',
+  estimatedReturnCashAmount: '',
+  actualReturnCashAmount: '',
+  submitter: '',
+  submitTime: '',
+  reviewer: '',
+  reviewTime: '',
+  reviewDescription: '',
+  outboundOperator: '',
+  outboundTime: '',
+  cancelOperator: '',
+  cancelTime: '',
+  cancelDescription: '',
+  warehousingOperator: '',
+  warehousingTime: '',
+};
+
+export default {
+  name: 'returnOrderEdit',
+  // 集中视图预留
+  props: {
+    id: {
+      type: [String, Number],
+      default: null
+    },
+  },
+  mixins: [routeGuard, permissions, commonMixins],
+  components: {
+    EditPageLayout,
+    EditBaseContainer,
+    EditTable
+  },
+  computed: {
+    _id () {
+      return this.id || this.$route.query.id || this.form.id;
+    },
+  },
+  watch: {
+    id: {
+      handler (val) {
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
+        } else if (!val) {
+          this.getDetailData();
+          this.getList();
+        }
+      },
+      immediate: true
+    },
+  },
+  data () {
+    const form = this.getDefautlForm();
+    return {
+      pageTitle: '备件退货异常订单',
+      pageType: 'edit',
+      title: '备件退货异常订单：',
+      // TIPS: 权限前缀 AISPART，根据实际情况修改
+      moduleKey: 'AISPART-returnOrder',
+      loading: false,
+      submitLoading: false,
+      yes_no_enum: YES_NO_ENUM,
+      form: { ...form },
+      originalForm: { ...form },
+      accountFlag: false, // 账号类型 true为门店  false为厂端
+      pageSize: 10,
+      current: 1,
+      total: 0,
+      tableData: [],
+      abnormal: {
+        current: 1,
+        pageSize: 10,
+        total: 0,
+      },
+      abnormalTableData: [],
+      sparePartsVisible: false,
+      warehouseId: '', // 备件仓库ID
+      uploadDialogVisible: false,
+      // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
+      abnormalColumns: [
+        {
+          field: 'partCode',
+          title: '备件编码',
+          width: '16%',
+        },
+        {
+          field: 'partName',
+          title: '备件名称',
+          width: '16%',
+        },
+        {
+          field: 'backQty',
+          title: '缺货数量',
+          width: '16%',
+        },
+        {
+          field: 'unqualifiedQty',
+          title: '不合格数量',
+          width: '16%',
+        },
+        {
+          field: 'wmsRemark',
+          title: 'wms备注',
+          width: '16%',
+        },
+        {
+          field: 'remark',
+          title: '备注',
+          width: '16%',
+        }
+      ],
+      rules: {
+        code: [
+          { required: false, message: '请输入备件退货单号', trigger: 'change' }
+        ],
+        dealerCode: [
+          { required: true, message: '请输入门店编码', trigger: 'change' }
+        ],
+        dealerName: [
+          { required: false, message: '请输入门店名称', trigger: 'change' }
+        ],
+        warehouseId: [
+          { required: true, message: '请输入备件仓库', trigger: 'change' }
+        ],
+        returnReason: [
+          { required: true, message: '请输入退货原因', trigger: 'change' }
+        ],
+        returnStatus: [
+          { required: true, message: '请选择退货状态', trigger: 'change' }
+        ],
+        logisticsOrderNo: [
+          { required: false, message: '请输入物流单号', trigger: 'change' }
+        ],
+        logisticsProvider: [
+          { required: false, message: '请输入物流商', trigger: 'change' }
+        ],
+        deliveryTime: [
+          { required: false, message: '请选择发货时间', trigger: 'change' }
+        ],
+        remark: [
+          { required: false, message: '请输入备注', trigger: 'change' }
+        ],
+        purchaseOrderType: [
+          { required: false, message: '请选择订单类型', trigger: 'change' }
+        ],
+        warehousingStatus: [
+          { required: false, message: '请选择入库状态', trigger: 'change' }
+        ],
+        returnType: [
+          { required: false, message: '请选择退货类型', trigger: 'change' }
+        ],
+        logisticsRemark: [
+          { required: false, message: '请输入物流备注', trigger: 'change' }
+        ],
+        receiveWarehouseId: [
+          { required: true, message: '请输入收货主机厂仓库ID', trigger: 'change' }
+        ],
+        receiver: [
+          { required: false, message: '请输入收货人', trigger: 'change' }
+        ],
+        receiverPhone: [
+          { required: false, message: '请输入收货人联系电话', trigger: 'change' }
+        ],
+        receiveAddress: [
+          { required: false, message: '请输入收货地址', trigger: 'change' }
+        ],
+        logisticsPaymentMethod: [
+          { required: true, message: '请输入物流支付方式', trigger: 'change' }
+        ],
+      }
+    };
+  },
+  mounted () {
+    this.initDealerUser();
+  },
+  methods: {
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+
+    async getWarehouseByDealer (query) {
+      try {
+        const res = await listWarehouse({ dealerCode: query });
+        this.form.warehouseId = res[0].id;
+        this.form.warehouseName = res[0].name;
+        console.log(JSON.stringify());
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+
+    async getReceiveWarehouse (query) {
+      try {
+        const res = await listOemWarehouse({ codeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    async getWarehouse (query) {
+      try {
+        const res = await listWarehouse({ codeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    async initDealerUser () {
+      // 查询是否店端 true为门店  false为厂端
+      const res = await getLoginUser();
+      this.accountFlag = res.accountFlag;
+      this.form.dealerCode = res.currentDealerCode;// 当前门店code
+      this.form.dealerName = res.currentDealerName;// 当前门店名称
+      if (this.accountFlag === true) {
+        const res = await getPartDealer({ code: this.form.dealerCode });
+        this.form.warehouseId = res.warehouseId;
+        this.form.warehouseName = res.warehouseName;
+      }
+    },
+    detailRequest () {
+      const id = this._id;
+      if (id) {
+        return getDetail(id);
+      }
+    },
+    submitRequest () {
+      return addOrUpdate({ ...this.form });
+    },
+    // 打开侧边栏
+    openPane () {
+      this.$refs.editLayout.openPane();
+    },
+    // 详情表格相关数据
+    handleAddRow () {
+      // 通过引用直接调用子组件方法
+      this.$refs.editTable.addRow();
+    },
+    handleSaveTable (data) {
+      // 调用保存方法并处理结果
+      return new Promise((resolve, reject) => {
+        this.$refs.editTable.saveAll().then(data => {
+          resolve(data);
+        }).catch(error => {
+          reject(error);
+        });
+      });
+    },
+    getDefautlForm () {
+      // TIPS: 此处可添加表单默认值，如当前用户信息等
+      // const userInfo = this.$store.state.user.userInfo;
+      return {
+        ...defaultForm
+        // ownerId: userInfo.userId,
+        // ownerName: userInfo.userName,
+      };
+    },
+    // 审核日志
+    // handleJumpAuditLog () {
+    //   this.$auditLog.show({ id: 123 });
+    // },
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
+    },
+    async getDetailData () {
+      const res = await returnOrderPage({
+        returnOrderId: this._id,
+        pageNum: this.current,
+        pageSize: this.pageSize
+      });
+      this.tableData = res.records || [];
+      this.total = res.total || 0;
+    },
+    pageSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.current = 1;
+      this.getDetailData();
+    },
+    currentPageChange (current) {
+      this.current = current;
+      this.getDetailData();
+    },
+    async getList () {
+      const res = await exceptionPage({
+        returnOrderId: this._id,
+        pageNum: this.abnormal.current,
+        pageSize: this.abnormal.pageSize
+      });
+      this.abnormalTableData = res.records || [];
+      this.abnormal.total = res.total || 0;
+    },
+    abnormalPageSizeChange (pageSize) {
+      this.abnormal.pageSize = pageSize;
+      this.abnormal.current = 1;
+      this.getList();
+    },
+    abnormalCurrentPageChange (current) {
+      this.abnormal.current = current;
+      this.getList();
+    },
+  }
+};
+</script>
+
+  <style lang="scss" scoped>
+  .btn-delete{
+    color:#B91919;
+    cursor: pointer;
+  }
+  .table-pagination {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  </style>

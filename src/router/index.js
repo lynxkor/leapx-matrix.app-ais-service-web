@@ -1741,6 +1741,15 @@ const routes = [
         keepAlive: true
       }
     }, {
+      path: '/sparepart/return/returnExceptionalOrder/edit',
+      name: 'returnOrderEdit',
+      component: () => import('@/views/sparepart/return/returnException/edit.vue'),
+
+      meta: {
+        name: '备件退货异常订单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/sparepart/inbound/inboundOrder',
       name: 'inboundOrder',
       component: () => import('@/views/sparepart/inbound/inboundOrder/index.vue'),
