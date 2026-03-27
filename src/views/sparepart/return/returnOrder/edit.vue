@@ -483,6 +483,7 @@ export default {
           this.$refs.containerRef.loadDetail();
         } else if (!val) {
           this.getDetailData();
+          this.getList();
         }
       },
       immediate: true
@@ -746,6 +747,15 @@ export default {
     currentPageChange (current) {
       this.current = current;
       this.getDetailData();
+    },
+    async getList () {
+      const res = await returnOrderPage({
+        returnOrderId: this._id,
+        pageNum: this.abnormal.current,
+        pageSize: this.abnormal.pageSize
+      });
+      this.abnormalTableData = res.records || [];
+      this.abnormal.total = res.total || 0;
     },
     abnormalPageSizeChange (pageSize) {
       this.abnormal.pageSize = pageSize;
