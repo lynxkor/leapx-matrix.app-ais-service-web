@@ -12,9 +12,9 @@
             </div>
             <div class="el-row">
                 <div class="el-col el-col-5">索赔单号</div>
-                <div class="el-col el-col-7">CO-250919135006081104</div>
+                <div class="el-col el-col-7">{{ info.code }}</div>
                 <div class="el-col el-col-5">SO单号</div>
-                <div class="el-col el-col-7">SO-WS22508220000032</div>
+                <div class="el-col el-col-7">{{ info.purchaseOrderCode }}</div>
             </div>
             <div class="el-row">
                 <div class="el-col el-col-5">箱号</div>
@@ -24,19 +24,19 @@
             </div>
             <div class="el-row">
                 <div class="el-col el-col-5">门店代码</div>
-                <div class="el-col el-col-7">33A05SC108</div>
+                <div class="el-col el-col-7">{{ info.dealerCode }}</div>
                 <div class="el-col el-col-5">联系人</div>
-                <div class="el-col el-col-7">邓汝明</div>
+                <div class="el-col el-col-7">{{ info.receiverName }}</div>
             </div>
             <div class="el-row">
                 <div class="el-col el-col-5">门店名称</div>
-                <div class="el-col el-col-7">杭州服务中心吉利路店</div>
+                <div class="el-col el-col-7">{{ info.dealerName }}</div>
                 <div class="el-col el-col-5">电话</div>
-                <div class="el-col el-col-7">13777147513</div>
+                <div class="el-col el-col-7">{{ info.receiverPhone }}</div>
             </div>
             <div class="last-row el-row">
                 <div class="el-col el-col-5">收货地址</div>
-                <div class="el-col el-col-19">浙江省杭州市萧山区浙江省杭州市萧山区蜀山街道吉利路8号杭州世马纱线有限公司D-102、D-103</div>
+                <div class="el-col el-col-19">{{ info.address }}</div>
             </div>
             <div class="table-section" style="margin-top: 30px;">
                 <div class="el-table el-table--fit el-table--border el-table--enable-row-hover el-table--enable-row-transition"
@@ -106,10 +106,10 @@
                                         <div class="cell">{{ item.sparePartCode }}</div>
                                     </td>
                                     <td rowspan="1" colspan="1" class="el-table_1_column_3   el-table__cell">
-                                        <div class="cell">机械转向器带横拉杆总成</div>
+                                        <div class="cell">{{ item.sparePartName }}</div>
                                     </td>
                                     <td rowspan="1" colspan="1" class="el-table_1_column_4 is-center  el-table__cell">
-                                        <div class="cell">1</div>
+                                        <div class="cell">{{ item.claimQty }}</div>
                                     </td>
                                     <td rowspan="1" colspan="1" class="el-table_1_column_5   el-table__cell">
                                         <div class="cell"></div>
