@@ -322,7 +322,7 @@ export default {
           width: '8%',
         },
         {
-          field: 'picker',
+          field: 'pickerName',
           title: '领料人',
           width: '8%',
         },
@@ -364,7 +364,7 @@ export default {
           width: '9%',
         },
         {
-          field: 'returnApplicant',
+          field: 'returnApplicantName',
           title: '退料申请人',
           width: '9%',
         },
@@ -379,7 +379,7 @@ export default {
           width: '9%',
         },
         {
-          field: 'returnWarehousingOperator',
+          field: 'returnWarehousingOperatorName',
           title: '退料入库人',
           width: '9%',
         },
