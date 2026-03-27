@@ -54,8 +54,8 @@
 
                 <tbody id="data-list">
                     <tr v-for="item in tableData" :key="item.id">
-                        <td>{{item.inboundQty}}</td>
-                        <td>{{item.vin}}</td>
+                        <td>{{item.sparePartCode}}</td>
+                        <td>{{item.sparePartName}}</td>
                         <td>{{item.inboundQty}}</td>
                         <td>{{item.cashUnitPrice}}</td>
                         <td>{{item.cashUnitPrice}}</td>
