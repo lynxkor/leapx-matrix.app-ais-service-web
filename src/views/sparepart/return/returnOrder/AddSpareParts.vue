@@ -191,7 +191,6 @@ export default {
         this.$message.warning('请选择需要添加的明细记录');
         return;
       }
-
       // 验证选中行中的必填字段和退货数量
       const invalidRows = this.selectedRows.filter(row => {
         // 检查退货数量是否有效
