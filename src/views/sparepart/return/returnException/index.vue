@@ -224,7 +224,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/return/returnOrder/edit',
+                  path: '/sparepart/return/returnException/edit',
                   query: {
                     id: row.id
                   }

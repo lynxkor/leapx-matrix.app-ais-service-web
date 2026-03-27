@@ -383,7 +383,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, returnOrderPage, returnOrderDel } from '@/api/sparepart/return/returnOrder/index';
+import { getDetail, addOrUpdate, returnOrderPage, exceptionPage, returnOrderDel } from '@/api/sparepart/return/returnOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -519,27 +519,27 @@ export default {
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       abnormalColumns: [
         {
-          field: 'name',
+          field: 'partCode',
           title: '备件编码',
           width: '16%',
         },
         {
-          field: 'age',
+          field: 'partName',
           title: '备件名称',
           width: '16%',
         },
         {
-          field: 'emails',
+          field: 'backQty',
           title: '缺货数量',
           width: '16%',
         },
         {
-          field: 'emaila',
+          field: 'unqualifiedQty',
           title: '不合格数量',
           width: '16%',
         },
         {
-          field: 'emaisl',
+          field: 'wmsRemark',
           title: 'wms备注',
           width: '16%',
         },
@@ -749,7 +749,7 @@ export default {
       this.getDetailData();
     },
     async getList () {
-      const res = await returnOrderPage({
+      const res = await exceptionPage({
         returnOrderId: this._id,
         pageNum: this.abnormal.current,
         pageSize: this.abnormal.pageSize
