@@ -305,3 +305,13 @@ export function cityPage (data) {
 export function cityListByName (data) {
   return api.post('/area/search/city', data);
 }
+
+/**
+ * 根据组织类型查询组织列表
+ * @export
+ * @param
+ * @returns
+ */
+export function getScopeTypeOrg (data) {
+  return api.jsonPost('/users/scope/type/org', data);
+}
