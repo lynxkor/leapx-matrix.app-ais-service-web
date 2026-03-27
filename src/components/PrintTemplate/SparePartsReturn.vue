@@ -8,7 +8,7 @@
 <template>
     <!-- 以下内容请从销服老系统对应模块拷贝，修改动态字段  -->
     <div id="printArea" style="width:1050px; text-align:center">
-        <div>
+        <div style="margin-bottom: 20px;">
             <h1 id="print_title">{{ info.dealerName }}备件退货单</h1>
         </div>
         <div id="dv_qrcode" style="float: right;margin-top: -60px;margin-right: 30px;" title="RO-250624165225225461">
@@ -44,7 +44,7 @@
                 </tbody>
             </table>
         </div>
-        <div style=" text-align:left">
+        <div style=" text-align:left; margin: 20px 0;">
             <h4>退货单明细：</h4>
         </div>
         <div class="el-card__body">
