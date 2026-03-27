@@ -397,6 +397,9 @@ export default {
                 // 判断 orderStatus 是否包含列表中的任意一个值
                 return validStatuses.some(status => row.orderStatus.includes(status));
               },
+              click: (rowIndex, row) => {
+                this.handlePrint(row);
+              },
               type: 'info',
             }, {
               name: '签收',
@@ -841,7 +844,15 @@ export default {
     handleHarvest (row) {
       this.harvestForm = row;
       this.harvestDialogVisible = true;
-    }
+    },
+    // 打印出库单
+    handlePrint (val) {
+      this.$print.show({
+        id: val.id, // 必选，对应数据id
+        template: 'SparesOutbound', // 必选，对应 ./template/文件名.vue
+        title: `${val.dealerName}备件出库单`// 可选，打印标题
+      });
+    },
   }
 };
 </script>
