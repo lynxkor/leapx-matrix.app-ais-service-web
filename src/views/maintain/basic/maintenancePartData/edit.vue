@@ -16,7 +16,6 @@
         </template>
          -->
         <template #extraButtons>
-          <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button>
         </template>
         <el-main>
           <section class="common-section">
