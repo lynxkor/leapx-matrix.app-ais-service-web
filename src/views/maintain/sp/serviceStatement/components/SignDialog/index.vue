@@ -75,7 +75,7 @@ export default {
     return {
       dialogVisible: this.visible,
       form: {
-        signChannel: '',
+        signChannel: '999',
       },
       rules: {
         signChannel: [
@@ -84,14 +84,17 @@ export default {
       },
       submitLoading: false,
       formLabelWidth: '0',
-      signChannelOptions: [],
+      signChannelOptions: [
+        { code: '999', message: 'APP/短信/零小跑' },
+        { code: '40', message: '纸质单据' },
+      ],
     };
   },
   watch: {
     visible (val) {
       this.dialogVisible = val;
       if (val) {
-        this.getSignChannelEnum();
+        // this.getSignChannelEnum();
       }
     },
   },
@@ -118,19 +121,21 @@ export default {
       this.$refs.form.validate((valid) => {
         if (valid) {
           this.submitLoading = true;
-          this.$emit('submit', this.form.signChannel);
-          // signSettlement({
-          //   serviceProxyCode: this.serviceProxyCode,
-          //   signChannel: this.form.signChannel,
-          // })
-          //   .then((res) => {
-          //     this.$message.success('签字成功');
-          //     this.$emit('update:visible', false);
-          //     this.$emit('refresh');
-          //   })
-          //   .finally(() => {
-          //     this.submitLoading = false;
-          //   });
+          const params = {
+            serviceProxyId: this.info.serviceProxyId
+          };
+          if (this.form.signChannel === '40') {
+            params.signChannel = '40';
+          }
+          signSettlement(params)
+            .then((res) => {
+              this.$message.success('提交成功');
+              this.$emit('update:visible', false);
+              this.$emit('refresh');
+            })
+            .finally(() => {
+              this.submitLoading = false;
+            });
         }
       });
     },

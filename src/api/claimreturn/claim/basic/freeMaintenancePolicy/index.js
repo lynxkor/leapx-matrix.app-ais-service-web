@@ -81,3 +81,8 @@ export function freeMaintenancePartReplaceDetailUpdate (data) {
 export function freeMaintenancePartReplaceDetailDelete (data) {
   return api.jsonPost(prefixReplace + 'delete', data);
 }
+
+// 维修项目适配车型管理
+export function repairItemVehicleModelPage (data) {
+  return api.jsonPost('/maintain/web/basic/repairItemVehicleModel/page', data);
+}

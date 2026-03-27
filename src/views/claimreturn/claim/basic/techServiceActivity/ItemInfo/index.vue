@@ -21,7 +21,7 @@
             valueKey: 'id',
             labelKey: 'name',
             labelFormat: '${name}(${code})',
-            placeholder: '输入项目零件代码/名称',
+            placeholder: '维修项目代码/名称',
           }"
           close-tip="确定删除该项目零件吗？"
           :disabled="!isEditing"
@@ -118,6 +118,7 @@
                 @change="repairItemChange"
                 value-key="id"
                 label-key="name"
+                sub-label-key="code"
               />
             </el-form-item>
             <el-form-item label="工时是否允许修改：" prop="allowDelete">
@@ -214,6 +215,9 @@ const defaultForm = {
   repairItemTypeName: '',
   repairItemTypeId: '',
 };
+const repairItemTypeCode = 'WXLX002';
+const repairItemTypeId = '898A364C-DD79-EC11-B0F9-9216EACB73F2';
+const repairItemTypeName = '一般维修';
 
 export default {
   props: {
@@ -251,6 +255,9 @@ export default {
         checkoutTypeId: [
           { required: true, message: '请选择结算类型ID', trigger: 'change' }
         ],
+        repairItemTypeName: [
+          { required: true, message: '请选择维修类型', trigger: 'change' }
+        ]
       },
       supplierOptions: [],
       menus: [
@@ -337,6 +344,10 @@ export default {
         repairItemId: item.value,
         activityId: this.id,
         schemeId: this.schemeId,
+        // 前后端都是写死的
+        repairItemTypeCode,
+        repairItemTypeId,
+        repairItemTypeName,
       }).then(res => {
         defer.resolve(res);
       }).catch((e) => {
@@ -397,13 +408,15 @@ export default {
     onRemove (item, index, defer) {
       techServiceActivityItemDelete([item.value]).then(() => {
         this.$message.success('操作成功');
+        defer.resolve();
+      }).catch(() => {
+        defer.reject();
       });
     },
     // 工时下拉接口
     repairRemote (query) {
       return repairList({
-        codeLike: query,
-        nameLike: query,
+        nameOrCodeOrPinyinLike: query,
         pageSize: 20,
         pageNum: 1,
       }).then(res => {
@@ -426,6 +439,9 @@ export default {
       });
     },
     repairItemChange (val, record) {
+      this.form.repairItemTypeName = record?.name;
+      this.form.repairItemTypeCode = record?.code;
+      this.form.repairItemTypeId = record?.id;
       this.onUpdate(this.form);
     },
     // ------------
@@ -466,6 +482,10 @@ export default {
         discountAmount: 0,
         quantity: 1,
         unitPrice: cur.purchasePrice, // 【单价】：默认备件主数据采购价格
+        // 前后端都是写死的
+        repairItemTypeCode,
+        repairItemTypeId,
+        repairItemTypeName,
       };
       this.$refs.partTable.handleAdd(partId, newItem);
     }, 200),

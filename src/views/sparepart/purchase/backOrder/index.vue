@@ -51,7 +51,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="PurchaseOrderTypeEnum"
-            v-model="form.purchaseOrderType"
+            v-model="form.purchaseOrderTypeList"
             placeholder="请选择"
             clearable
             multiple
@@ -252,7 +252,7 @@ const defaultForm = {
   code: '',
   purchaseApplyCode: '',
   dealerCode: '',
-  purchaseOrderType: '',
+  purchaseOrderTypeList: [],
   backStatus: '',
   createTime: '',
   updateTime: '',
@@ -364,9 +364,9 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/purchase/backOrder/outOfStock/edit',
+                  path: '/sparepart/purchase/backOrder/edit',
                   query: {
-                    id: row.id
+                    id: row.backOrderId
                   }
                 });
               },
@@ -585,6 +585,13 @@ export default {
         if (this.form.createTime.length > 1) {
           data.createTimeStart = this.form.createTime[0];
           data.createTimeEnd = this.form.createTime[1];
+        }
+      }
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = this.form.updateTime[1];
         }
       }
 

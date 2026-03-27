@@ -75,6 +75,7 @@
       v-if="activeName === 'homePage'"
     >
       <LPVxeTable
+        key="tableRef"
         ref="tableRef"
         v-loading="loading"
         is-checkbox
@@ -94,6 +95,7 @@
       v-if="activeName === 'spareParts'"
     >
       <LPVxeTable
+        key="tableRefSpareParts"
         ref="tableRefSpareParts"
         v-loading="loading"
         is-checkbox

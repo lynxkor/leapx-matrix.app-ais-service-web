@@ -308,7 +308,7 @@
     </el-dialog>
     <SignDialog
       :visible.sync="signDialogVisible"
-      :info="totalData"
+      :info="info"
       :serviceProxyCode="info.serviceProxyCode"
       @refresh="handleRefresh"
       @submit="handleConfirm"
