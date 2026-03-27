@@ -12,10 +12,6 @@
           :detailRequest="detailRequest"
           :originalForm.sync="originalForm"
         >
-          <template #status>
-            <!-- 支持primary,warning,success,danger等状态 -->
-            <span class="status primary">状态</span>
-          </template>
           <el-main>
             <section class="common-section">
               <div class="common-section-header">
@@ -123,7 +119,7 @@
                   <el-form-item label="备件名称：" prop="sparePartName">
                     {{ form.sparePartName }}
                   </el-form-item>
-                  <el-form-item label="备注：" prop="remark">
+                  <el-form-item label="备注：" prop="remark" style="width: 100%">
                     {{ form.remark }}
                   </el-form-item>
                 </el-form>
@@ -172,7 +168,7 @@
                       clearable
                     />
                   </el-form-item>
-                  <el-form-item label="厂端缺货说明：" prop="factoryBackDescription">
+                  <el-form-item label="厂端缺货说明：" prop="factoryBackDescription" style="width: 100%">
                     <el-input
                       type="textarea"
                       placeholder="请输入"

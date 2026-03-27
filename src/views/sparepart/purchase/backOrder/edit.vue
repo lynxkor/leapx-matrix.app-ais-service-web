@@ -11,11 +11,8 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
         :originalForm.sync="originalForm"
+        :showEditBtn="false"
       >
-        <template #status>
-          <!-- 支持primary,warning,success,danger等状态 -->
-          <span class="status primary">状态</span>
-        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">

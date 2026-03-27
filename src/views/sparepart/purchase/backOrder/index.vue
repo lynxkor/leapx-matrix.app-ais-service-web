@@ -410,6 +410,25 @@ export default {
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
+            buttons: [{
+              name: '编辑',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/backOrder/outOfStock/edit',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'info'
+            }]
+          }
         ],
         total: 0
       }
