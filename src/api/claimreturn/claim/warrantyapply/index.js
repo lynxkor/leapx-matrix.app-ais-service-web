@@ -50,6 +50,10 @@ export function checkCanCreate (data) {
 export function listUnprocessedDetails (data) {
   return api.jsonPost(prefix + 'listUnprocessedDetails', data);
 }
+// 查询保修类型列表
+export function listWarrantyTypes (data) {
+  return api.jsonPost(prefix + 'listWarrantyTypes', data);
+}
 export function warrantyApplyCreate (data) {
   return api.jsonPost(prefix + 'create', data);
 }

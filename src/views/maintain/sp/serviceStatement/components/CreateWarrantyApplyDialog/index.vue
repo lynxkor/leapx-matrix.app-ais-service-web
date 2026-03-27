@@ -7,21 +7,24 @@
     @close="close"
   >
     <div class="dialog-content">
-      <el-checkbox-group @change="onChange" v-model="vehicleDataScopes" class="warranty-checkbox">
-        <el-checkbox
-          v-for="option in vehicleDataScopesOptions"
-          :disabled="option.disabled"
-          :label="option.value"
-          :key="option.value">
-          {{option.label}}
-        </el-checkbox>
-      </el-checkbox-group>
-      <el-tabs v-model="activeTab" class="warranty-tabs" v-loading="loading">
+      <el-tabs v-model="activeTab" class="warranty-tabs">
         <el-tab-pane
           v-for="item in wattantyData"
           :label="item.warrantyTypeName"
           :name="item.warrantyTypeId"
           :key="item.warrantyTypeId">
+          <el-checkbox-group
+            @change="onChange"
+            v-model="item.dataScopes"
+            class="warranty-checkbox">
+            <el-checkbox
+              v-for="option in vehicleDataScopesOptions"
+              :disabled="option.disabled"
+              :label="option.value"
+              :key="option.value">
+              {{option.label}}
+            </el-checkbox>
+          </el-checkbox-group>
           <div class="table-section">
             <div class="table-title">工时列表</div>
             <vxe-table
@@ -116,7 +119,7 @@
 </template>
 
 <script>
-import { listUnprocessedDetails, warrantyApplyCreate } from '@/api/claimreturn/claim/warrantyapply';
+import { listUnprocessedDetails, warrantyApplyCreate, listWarrantyTypes } from '@/api/claimreturn/claim/warrantyapply';
 
 export default {
   name: 'CreateWarrantyApplyDialog',
@@ -137,8 +140,6 @@ export default {
       submitLoading: false,
       activeTab: '',
       radio: '2',
-      // 一般整车保修数据
-      vehicleDataScopes: ['UNGENERATED'],
       vehicleDataScopesOptions: [
         { label: '未生成', value: 'UNGENERATED' },
         { label: '未提交', value: 'UNSUBMITTED' },
@@ -168,26 +169,77 @@ export default {
     },
     onReset () {
       this.activeTab = '';
-      this.vehicleDataScopes = ['UNGENERATED'];
       this.radio = '2';
     },
     initData () {
+      this.listWarrantyTypes();
       // 初始化加载数据
-      this.getData();
+      // this.getData();
+    },
+    listWarrantyTypes () {
+      this.loading = true;
+      listWarrantyTypes({ statementId: this.id }).then(res => {
+        this.wattantyData = (res || []).map(item => {
+          return {
+            ...item,
+            dataScopes: ['UNGENERATED'],
+          };
+        });
+        if (this.wattantyData.length) {
+          this.activeTab = this.wattantyData[0].warrantyTypeId;
+        }
+        this.getData();
+      }).finally(() => {
+        this.loading = false;
+      });
     },
     onChange (val) {
       this.getData();
     },
+    getNewIds (list, ids = []) {
+      const newIds = list.map(item => item.id);
+      return ids.filter(id => newIds.includes(id));
+    },
     getData () {
       this.loading = true;
+      const warrantyTypeScopes = this.wattantyData.map(item => {
+        return {
+          warrantyTypeId: item.warrantyTypeId,
+          dataScopes: item.dataScopes,
+        };
+      });
       listUnprocessedDetails({
-        statementId: this.id, // 019CE115-B1DD-71D0-82E5-EEC97D939977
-        dataScopes: this.vehicleDataScopes,
+        // 019CE115-B1DD-71D0-82E5-EEC97D939977
+        // 019D0A53-FF5A-749E-BF72-D8E8CC88A090
+        statementId: this.id,
+        warrantyTypeScopes,
       }).then(res => {
-        this.wattantyData = res.statementWarrantyDetailListResp || [];
-        if (this.wattantyData.length) {
-          this.activeTab = this.wattantyData[0].warrantyTypeId;
+        if (res.statementWarrantyDetailListResp?.length) {
+          (res.statementWarrantyDetailListResp || []).forEach((item, index) => {
+            const oldItem = this.wattantyData[index];
+            const newItem = {
+              ...oldItem,
+              ...item,
+              workhourIds: this.getNewIds(item.workhourList, oldItem.workhourIds || []),
+              partIds: this.getNewIds(item.partList, oldItem.partIds || []),
+              otherIds: this.getNewIds(item.otherList, oldItem.otherIds || []),
+            };
+            this.$set(this.wattantyData, index, newItem);
+          });
+        } else {
+          this.wattantyData = this.wattantyData.map(item => {
+            return {
+              dataScopes: item.dataScopes,
+              warrantyTypeId: item.warrantyTypeId,
+              warrantyTypeName: item.warrantyTypeName,
+            };
+          });
         }
+        console.log(this.wattantyData);
+        // this.wattantyData = ;
+        // if (this.wattantyData.length) {
+        //   this.activeTab = this.wattantyData[0].warrantyTypeId;
+        // }
       }).finally(() => {
         this.loading = false;
       });
@@ -264,6 +316,8 @@ export default {
   }
 
   .dialog-content {
+    height: 100%;
+    min-height: 300px;
     .warranty-tabs {
       .table-section {
         margin-bottom: 20px;
