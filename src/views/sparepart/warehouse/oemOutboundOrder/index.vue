@@ -19,6 +19,20 @@
         <el-form-item label="采购申请单号"  v-show="this.visibleCount === 3 || show">
           <tag-input v-model="form.purchaseApplyCodeList" placeholder="请输入" />
         </el-form-item>
+        <el-form-item label="发货仓库">
+          <fetch-select
+            :remote-method="getOemWarehouse"
+            remote
+            v-model="form.deliveryWarehouse"
+            placeholder="请选择"
+            labelKey="name"
+            valueKey="id"
+            subLabelKey="code"
+            clearable
+            collapseTags
+            filterable
+          />
+        </el-form-item>
         <el-form-item label="门店">
           <fetch-select
             :remote-method="getDealerList"
@@ -172,7 +186,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, getAsync } from '@/api/sparepart/warehouse/oemOutboundOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse, listOemWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -393,7 +407,14 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
-
+    async getOemWarehouse (query) {
+      try {
+        const res = await listOemWarehouse({ codeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     async getWarehouse (query) {
       try {
         const res = await listWarehouse({ codeOrName: query });
