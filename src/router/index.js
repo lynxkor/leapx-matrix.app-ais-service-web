@@ -1741,6 +1741,15 @@ const routes = [
         keepAlive: true
       }
     }, {
+      path: '/sparepart/return/returnExceptionalOrder/edit',
+      name: 'returnOrderEdit',
+      component: () => import('@/views/sparepart/return/returnException/edit.vue'),
+
+      meta: {
+        name: '备件退货异常订单详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/sparepart/inbound/inboundOrder',
       name: 'inboundOrder',
       component: () => import('@/views/sparepart/inbound/inboundOrder/index.vue'),
@@ -2598,6 +2607,42 @@ const routes = [
       path: '/claimreturn/claim/warrantyapply/edit',
       name: 'warrantyApplyEdit',
       component: () => import('@/views/claimreturn/claim/warrantyapply/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/predictDealerType',
+      name: 'predictDealerType',
+      component: () => import('@/views/sparepart/basic/predictDealerType/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/predictdealertype/edit',
+      name: 'predictDealerTypeEdit',
+      component: () => import('@/views/sparepart/basic/predictDealerType/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/sparepart/basic/predictBlacklist',
+      name: 'predictBlacklist',
+      component: () => import('@/views/sparepart/basic/predictBlacklist/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/predictblacklist/edit',
+      name: 'predictBlacklistEdit',
+      component: () => import('@/views/sparepart/basic/predictBlacklist/edit.vue'),
 
       meta: {
         name: '新页面详情',

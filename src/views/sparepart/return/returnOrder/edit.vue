@@ -3,11 +3,7 @@
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :isEditing.sync="isEditing" :form.sync="form"
-        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" >
-        <template #status>
-          <!-- 支持primary,warning,success,danger等状态 -->
-          <span class="status primary">状态</span>
-        </template>
+        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest">
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
             <div class="common-section-header">
@@ -21,11 +17,11 @@
                 </el-form-item>
                 <el-form-item label="退货类型：" prop="returnType">
                   <fetch-select :request="fetchOptions" enumCode="ReturnTypeEnum" v-model="form.returnType"
-                    placeholder="请选择" clearable filterable />
+                    placeholder="请选择" clearable filterable :disabled="accountFlag" />
                 </el-form-item>
                 <el-form-item label="退货原因：" prop="returnReason">
                   <fetch-select :request="fetchOptions" enumCode="ReturnReasonEnum" v-model="form.returnReason"
-                    placeholder="请选择" clearable filterable :disabled="!isEditable" />
+                    placeholder="请选择" clearable filterable :disabled="accountFlag && !isEditable" />
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
                   <fetch-select :remote-method="getDealerList" remote v-model="form.dealerCode" placeholder="请输入门店编码或名称"
@@ -41,8 +37,8 @@
                 <el-form-item label="退货状态:" prop="returnStatus">
                   {{ form.returnStatusLabel }}
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  <el-input type="textarea" maxlength="500" show-word-limit placeholder="请输入" v-model="form.remark" clearable />
+                <el-form-item label="备注：" prop="remark" style="width: 100%;">
+                  <el-input type="textarea" maxlength="500" show-word-limit placeholder="请输入" v-model="form.remark" clearable :disabled="!isEditable" />
                 </el-form-item>
               </el-form>
             </div>
@@ -69,20 +65,20 @@
                 <el-form-item label="收货主机厂仓库：" prop="receiveWarehouseId">
                   <fetch-select :remote-method="getReceiveWarehouse" remote v-model="form.receiveWarehouseId"
                     placeholder="请选择" labelKey="name" valueKey="id" subLabelKey="code" clearable collapseTags
-                    filterable />
+                    filterable :disabled="accountFlag || !isReturnStatus" />
                 </el-form-item>
                 <el-form-item label="收货人：" prop="receiver">
-                  <el-input placeholder="请输入" v-model="form.receiver" clearable />
+                  <el-input placeholder="请输入" v-model="form.receiver" clearable :disabled="accountFlag || !isReturnStatus" />
                 </el-form-item>
                 <el-form-item label="收货人联系电话：" prop="receiverPhone">
-                  <el-input placeholder="请输入" v-model="form.receiverPhone" clearable />
+                  <el-input placeholder="请输入" v-model="form.receiverPhone" clearable :disabled="accountFlag || !isReturnStatus" />
                 </el-form-item>
                 <el-form-item label="收货地址：" prop="receiveAddress">
-                  <el-input placeholder="请输入" v-model="form.receiveAddress" clearable />
+                  <el-input placeholder="请输入" v-model="form.receiveAddress" clearable :disabled="accountFlag || !isReturnStatus" />
                 </el-form-item>
                 <el-form-item label="物流支付方式：" prop="logisticsPaymentMethod">
                   <fetch-select :request="fetchOptions" enumCode="PurchaseLogisticsPaymentMethodEnum"
-                    v-model="form.logisticsPaymentMethod" placeholder="请选择" clearable filterable />
+                    v-model="form.logisticsPaymentMethod" placeholder="请选择" clearable filterable :disabled="accountFlag || !isReturnStatus" />
                 </el-form-item>
                 <el-form-item label="退货完成时间：" prop="returnCompleteTime">
                   {{ form.returnCompleteTime }}
@@ -286,7 +282,7 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>出库明细信息 <el-button size="mini" v-if="isEditable" @click="handleImport">导入备件</el-button><el-button size="mini" v-if="isEditable" @click="addPart">添加备件</el-button></h2>
+              <h2>出库明细信息 <el-button size="mini" v-if="isEditable" @click="handleImport">导入备件</el-button> <el-button size="mini" v-if="isEditable" @click="addPart">添加备件</el-button></h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
@@ -387,7 +383,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, returnOrderPage, returnOrderDel } from '@/api/sparepart/return/returnOrder/index';
+import { getDetail, addOrUpdate, returnOrderPage, exceptionPage, returnOrderDel } from '@/api/sparepart/return/returnOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -474,6 +470,10 @@ export default {
     isEditable () {
       // 只有在状态为 10 或 30 时才允许编辑
       return this.form.returnStatus === '10' || this.form.returnStatus === '30';
+    },
+    isReturnStatus () {
+      // 只有在状态为 20 时才允许 修改
+      return this.form.returnStatus === '20';
     }
   },
   watch: {
@@ -483,10 +483,11 @@ export default {
           this.$refs.containerRef.loadDetail();
         } else if (!val) {
           this.getDetailData();
+          this.getList();
         }
       },
       immediate: true
-    }
+    },
   },
   data () {
     const form = this.getDefautlForm();
@@ -501,7 +502,7 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      accountFlag: null, // 账号类型 true为门店  false为厂端
+      accountFlag: false, // 账号类型 true为门店  false为厂端
       pageSize: 10,
       current: 1,
       total: 0,
@@ -518,32 +519,32 @@ export default {
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       abnormalColumns: [
         {
-          field: 'name',
+          field: 'partCode',
           title: '备件编码',
           width: '16%',
         },
         {
-          field: 'age',
+          field: 'partName',
           title: '备件名称',
           width: '16%',
         },
         {
-          field: 'email',
+          field: 'backQty',
           title: '缺货数量',
           width: '16%',
         },
         {
-          field: 'email',
+          field: 'unqualifiedQty',
           title: '不合格数量',
           width: '16%',
         },
         {
-          field: 'email',
+          field: 'wmsRemark',
           title: 'wms备注',
           width: '16%',
         },
         {
-          field: 'email',
+          field: 'remark',
           title: '备注',
           width: '16%',
         }
@@ -605,48 +606,6 @@ export default {
         ],
         logisticsPaymentMethod: [
           { required: true, message: '请输入物流支付方式', trigger: 'change' }
-        ],
-        returnCompleteTime: [
-          { required: false, message: '请选择退货完成时间', trigger: 'change' }
-        ],
-        returnPriceRatio: [
-          { required: false, message: '请输入退货价格比例', trigger: 'change' }
-        ],
-        refundCompleteTime: [
-          { required: false, message: '请选择退款完成时间', trigger: 'change' }
-        ],
-        estimatedReturnRebateAmount: [
-          { required: false, message: '请输入预计退货返利总金额', trigger: 'change' }
-        ],
-        actualReturnRebateAmount: [
-          { required: false, message: '请输入实际退货返利总金额', trigger: 'change' }
-        ],
-        estimatedReturnCashAmount: [
-          { required: false, message: '请输入预计退货现金总金额', trigger: 'change' }
-        ],
-        actualReturnCashAmount: [
-          { required: false, message: '请输入实际退货现金总金额', trigger: 'change' }
-        ],
-        submitter: [
-          { required: false, message: '请输入提交人', trigger: 'change' }
-        ],
-        submitTime: [
-          { required: false, message: '请选择提交时间', trigger: 'change' }
-        ],
-        reviewer: [
-          { required: false, message: '请输入审核人', trigger: 'change' }
-        ],
-        reviewTime: [
-          { required: false, message: '请选择审核时间', trigger: 'change' }
-        ],
-        reviewDescription: [
-          { required: false, message: '请输入审核说明', trigger: 'change' }
-        ],
-        outboundOperator: [
-          { required: false, message: '请输入出库操作人', trigger: 'change' }
-        ],
-        outboundTime: [
-          { required: false, message: '请选择出库操作时间', trigger: 'change' }
         ],
       }
     };
@@ -788,6 +747,15 @@ export default {
     currentPageChange (current) {
       this.current = current;
       this.getDetailData();
+    },
+    async getList () {
+      const res = await exceptionPage({
+        returnOrderId: this._id,
+        pageNum: this.abnormal.current,
+        pageSize: this.abnormal.pageSize
+      });
+      this.abnormalTableData = res.records || [];
+      this.abnormal.total = res.total || 0;
     },
     abnormalPageSizeChange (pageSize) {
       this.abnormal.pageSize = pageSize;

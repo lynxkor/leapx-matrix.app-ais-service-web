@@ -42,3 +42,41 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+// 检查是否可创建保修申请单
+export function checkCanCreate (data) {
+  return api.jsonPost(prefix + 'checkCanCreate', data);
+}
+export function listUnprocessedDetails (data) {
+  return api.jsonPost(prefix + 'listUnprocessedDetails', data);
+}
+export function warrantyApplyCreate (data) {
+  return api.jsonPost(prefix + 'create', data);
+}
+
+// 审核撤回保修申请单
+export function withdraw (data) {
+  return api.jsonPost(prefix + 'withdraw', data);
+}
+
+// 审批拒赔保修申请单
+export function deny (data) {
+  return api.jsonPost(prefix + 'deny', data);
+}
+
+// 审批同意保修申请单
+export function approve (data) {
+  return api.jsonPost(prefix + 'approve', data);
+}
+// 提交保修申请单
+export function submit (data) {
+  return api.jsonPost(prefix + 'submit', data);
+}
+// 审批驳回保修申请单 （厂端）
+export function reject (data) {
+  return api.jsonPost(prefix + 'reject', data);
+}
+// 申请驳回保修申请单 （门店）
+export function applyReject (data) {
+  return api.jsonPost(prefix + 'applyReject', data);
+}

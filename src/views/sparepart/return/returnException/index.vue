@@ -27,22 +27,22 @@
             filterable
             />
       </el-form-item>
-      <template v-if="show">
-        <el-form-item label="备件仓库"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="备件仓库"  v-show="this.visibleCount === 3 || show">
         <fetch-select
-            :remote-method="getWarehouse"
-            remote
-            v-model="form.warehouseIdList"
-            placeholder="请选择"
-            labelKey="name"
-            valueKey="id"
-            subLabelKey="code"
-            clearable
-            multiple
-            collapseTags
-            filterable
-          />
-      </el-form-item>
+          :remote-method="getWarehouse"
+          remote
+          v-model="form.warehouseIdList"
+          placeholder="请选择"
+          labelKey="name"
+          valueKey="id"
+          subLabelKey="code"
+          clearable
+          multiple
+          collapseTags
+          filterable
+        />
+    </el-form-item>
+      <template v-if="show">
         <el-form-item label="入库状态">
           <fetch-select
             :request="fetchOptions"
@@ -224,7 +224,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/return/returnOrder/edit',
+                  path: '/sparepart/return/returnExceptionalOrder/edit',
                   query: {
                     id: row.id
                   }

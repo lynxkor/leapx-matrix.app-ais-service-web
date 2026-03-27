@@ -27,23 +27,23 @@
             filterable
             />
       </el-form-item>
-      <template v-if="show">
-        <el-form-item label="备件仓库"  v-show="this.visibleCount === 3 || show">
+      <el-form-item label="备件仓库">
         <fetch-select
-            :remote-method="getWarehouse"
-            remote
-            v-model="form.warehouseIdList"
-            placeholder="请选择"
-            labelKey="name"
-            valueKey="id"
-            subLabelKey="code"
-            clearable
-            multiple
-            collapseTags
-            filterable
-          />
-      </el-form-item>
-        <el-form-item label="退货原因">
+          :remote-method="getWarehouse"
+          remote
+          v-model="form.warehouseIdList"
+          placeholder="请选择"
+          labelKey="name"
+          valueKey="id"
+          subLabelKey="code"
+          clearable
+          multiple
+          collapseTags
+          filterable
+        />
+    </el-form-item>
+      <template v-if="show">
+        <el-form-item label="退货原因" v-show="this.visibleCount === 3 || show">
           <fetch-select
             :request="fetchOptions"
             enumCode="ReturnReasonEnum"

@@ -20,22 +20,22 @@
                         </tr>
                         <tr style="font-size: 14px;height: 50px;">
                             <td>门店代码：</td>
-                            <td>950000</td>
+                            <td>{{ info.dealerCode }}</td>
                             <td>门店名称：</td>
-                            <td>海外拓展部</td>
+                            <td>{{ info.dealerName }}</td>
                         </tr>
                         <tr>
                             <td style="font-weight: bold;">备件信息：</td>
                         </tr>
                         <tr style="font-size: 14px;">
                             <td>零件编码：</td>
-                            <td>C11ST100101</td>
+                            <td>{{item.partCode}}</td>
                             <td>零件名称：</td>
-                            <td>C11ST100101</td>
+                            <td>{{item.partName}}</td>
                         </tr>
                         <tr>
                             <td>数量：</td>
-                            <td>1 - 1</td>
+                            <td>{{item.returnQty}}</td>
                             <td colspan="2" rowspan="6">
                                 <div class="dv_qrcode" id="dv_qrcode_0_1" style="padding:20px;" data="C11ST100101"
                                     title="C11ST100101"><canvas width="180" height="180"
@@ -49,19 +49,19 @@
                         </tr>
                         <tr style="font-size: 14px;height: 40px;">
                             <td>退货单号：</td>
-                            <td>RO-250310105512533063</td>
+                            <td>{{ info.code }}</td>
                         </tr>
                         <tr style="font-size: 14px;height: 40px;">
                             <td>退货单明细：</td>
-                            <td>ROD-250310105658393664</td>
+                            <td>{{item.id}}</td>
                         </tr>
                         <tr style="font-size: 14px;height: 40px;">
                             <td>厅店入库单号：</td>
-                            <td>SI-250307141407285876</td>
+                            <td>{{item.inboundOrderCode}}</td>
                         </tr>
                         <tr style="font-size: 14px;height: 40px;">
                             <td>采购订单号：</td>
-                            <td>SO-250114200908955080</td>
+                            <td>{{item.purchaseOrderCode}}</td>
                         </tr>
                     </tbody>
                 </table>

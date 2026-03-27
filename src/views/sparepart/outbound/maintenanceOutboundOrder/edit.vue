@@ -235,7 +235,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: '维修出库',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-maintenanceOutboundOrder',
@@ -448,7 +448,7 @@ export default {
     getDetailData () {
       const id = this._id;
       if (!this.id) {
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', `${id ? '详情' : '新建'}`]);
+        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['维修出库', `${id ? '详情' : '新建'}`]);
       }
       if (id) {
         getDetail(id).then(res => {

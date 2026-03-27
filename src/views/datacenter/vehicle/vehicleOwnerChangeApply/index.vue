@@ -314,6 +314,7 @@ export default {
             buttons: [
               {
                 name: '提交',
+                // popconfirmTitle: '确认提交?',
                 click: (rowIndex, row) => {
                   submit({
                     id: row.id,
