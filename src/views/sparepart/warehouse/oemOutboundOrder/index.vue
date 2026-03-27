@@ -37,8 +37,8 @@
         <el-form-item label="订单类型">
           <fetch-select
             :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.PurchaseOrderTypeEnum"
+            enumCode="PurchaseOrderTypeEnum"
+            v-model="form.purchaseOrderType"
             placeholder="请选择"
             clearable
             multiple
