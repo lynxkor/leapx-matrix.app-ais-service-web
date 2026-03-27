@@ -448,7 +448,7 @@ export default {
     getDetailData () {
       const id = this._id;
       if (!this.id) {
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['新页面', `${id ? '详情' : '新建'}`]);
+        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['维修退料入库', `${id ? '详情' : '新建'}`]);
       }
       if (id) {
         getDetail(id).then(res => {
