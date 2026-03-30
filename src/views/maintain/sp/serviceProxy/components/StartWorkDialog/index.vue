@@ -86,6 +86,8 @@
 <script>
 import { getRepairWorkRecord, startWork, endWork } from '@/api/maintain/sp/serviceProxy/index';
 import moment from 'moment';
+import { WorkRecordStatusEnum } from '../../constant';
+
 export default {
   name: 'StartWorkDialog',
   props: {
@@ -153,7 +155,7 @@ export default {
         const res = await getRepairWorkRecord({ serviceProxyId: this.vehicleInfo.id });
         this.tableData = (res || []).map(item => ({
           ...item,
-          disabled: this.mode === 'end' ? (!!item.finishAt || !item.timeSpend) : (!item.startAt || item.finishAt)
+          disabled: this.mode === 'end' ? item.status !== WorkRecordStatusEnum.IN_PROGRESS : (item.status !== WorkRecordStatusEnum.NOT_STARTED || item.isDispatch !== 1)
         }));
         // 设置默认当前时间
         this.batchForm.actualTime = moment().format('YYYY-MM-DD HH:mm:ss');
