@@ -100,3 +100,27 @@ export function getAgree (data) {
 export function getReject (data) {
   return api.jsonPost(prefix + 'reject', data);
 }
+
+/**
+ * 备件索赔备件明细表新增/编辑
+ * @param {Object} data
+ */
+export function claimOrderDetailUpdate (data) {
+  return api.jsonPost('/sp/web/claim/claimOrderDetail/addOrUpdate', data);
+}
+
+/**
+ * 索赔-物流信息
+ * @param {Object} data
+ */
+export function claimOrderLogisticsClaim (data) {
+  return api.jsonPost('/sp/web/claim/claimOrder/logisticsClaim', data);
+}
+
+/**
+ * 采购-物流信息
+ * @param {Object} data
+ */
+export function claimOrderLogisticsPurchase (data) {
+  return api.jsonPost('/sp/web/claim/claimOrder/logisticsPurchase', data);
+}

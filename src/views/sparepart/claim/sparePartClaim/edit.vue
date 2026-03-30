@@ -30,16 +30,21 @@
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="索赔类型：" prop="claimType">
-                  {{ form.claimTypeLabel }}
+                  <fetch-select
+                    :request="fetchOptions"
+                    enumCode="ClaimTypeEnum"
+                    v-model="form.claimType"
+                    placeholder="请选择"
+                    clearable
+                    filterable
+                    :disabled="isClaimStatus || isAccountFlag"
+                  />
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
                   {{ form.dealerCode }}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
                 </el-form-item>
                 <el-form-item label="采购订单号：" prop="purchaseOrderCode">
                   {{ form.purchaseOrderCode }}
@@ -77,24 +82,37 @@
                 <el-form-item label="理赔方式：" prop="compensationMethod">
                   {{ form.compensationMethod }}
                 </el-form-item>
+                <el-form-item label="备注：" prop="remark" style="width: 100%;">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.remark"
+                    clearable
+                    type="textarea"
+                    maxlength="500"
+                    show-word-limit
+                    :disabled="isClaimStatus || isAccountFlag"
+                />
+                </el-form-item>
               </el-form>
             <div class="common-title" v-show="isEditing || !_id">采购单收货方</div>
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="备件收货人姓名：" prop="compensationMethod">
+                <el-form-item label="备件收货人姓名：" prop="receiverName">
                   <el-input
                     placeholder="请输入"
                     v-model="form.receiverName"
                     clearable
+                    :disabled="isClaimStatus || !accountFlag"
                 />
                 </el-form-item>
-                <el-form-item label="备件收货人手机：" prop="compensationMethod">
+                <el-form-item label="备件收货人手机：" prop="receiverPhone">
                   <el-input
                     placeholder="请输入"
                     v-model="form.receiverPhone"
                     clearable
+                    :disabled="isClaimStatus || !accountFlag"
                 />
                 </el-form-item>
-                <el-form-item label="省市区" prop="provinceCode"
+                <el-form-item label="省市区：" prop="provinceCityCountyCode"
                   >
                     <el-cascader
                       placeholder="请选择省市区"
@@ -102,37 +120,42 @@
                       :props="orgProps"
                       :options="areaOptions"
                       filterable
-                      clearable>
+                      clearable
+                      :disabled="isClaimStatus || !accountFlag"
+                    >
                   </el-cascader>
                   </el-form-item>
-                <el-form-item label="备件收货地址：" prop="address">
-                  {{ form.address }}
+                <el-form-item label="备件收货地址：" prop="address"  v-show="isEditing || !_id">
                   <el-input
                     placeholder="请输入"
                     v-model="form.address"
                     clearable
+                    :disabled="isClaimStatus || !accountFlag"
                 />
+                </el-form-item>
+                <el-form-item label="备件收货地址：" prop="address" v-show="!(isEditing || !_id)">
+                  {{ form.address }}
                 </el-form-item>
               </el-form>
             <div class="common-title" v-show="isEditing || !_id">采购单发货方</div>
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="仓库编码：" prop="compensationMethod">
-                  {{ form.receiverName }}
+                <el-form-item label="仓库编码：" prop="deliveryWarehouseCode">
+                  {{ form.deliveryWarehouseCode }}
                 </el-form-item>
-                <el-form-item label="仓库名称：" prop="compensationMethod">
-                  {{ form.receiverPhone }}
+                <el-form-item label="仓库名称：" prop="deliveryWarehouseName">
+                  {{ form.deliveryWarehouseName }}
                 </el-form-item>
-                <el-form-item label="省：" prop="compensationMethod">
-                  {{ form.provinceName }}
+                <el-form-item label="省：" prop="deliveryProvinceName">
+                  {{ form.deliveryProvinceName }}
                 </el-form-item>
-                <el-form-item label="市：" prop="compensationMethod">
-                  {{ form.cityName }}
+                <el-form-item label="市：" prop="deliveryCityName">
+                  {{ form.deliveryCityName }}
                 </el-form-item>
-                <el-form-item label="区：" prop="compensationMethod">
-                  {{ form.cityName }}
+                <el-form-item label="区：" prop="deliveryDistrictName">
+                  {{ form.deliveryDistrictName }}
                 </el-form-item>
-                <el-form-item label="地址：" prop="compensationMethod">
-                  {{ form.address }}
+                <el-form-item label="地址：" prop="deliveryAddress">
+                  {{ form.deliveryAddress }}
                 </el-form-item>
               </el-form>
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id"></el-form>
@@ -140,7 +163,7 @@
                 <el-form-item label="备件索赔单号：" prop="code">
                   {{ form.code }}
                 </el-form-item>
-                <el-form-item label="索赔类型：" prop="claimType">
+                <el-form-item label="索赔类型：" prop="claimTypeLabel">
                   {{ form.claimTypeLabel }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
@@ -148,9 +171,6 @@
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
-                </el-form-item>
-                <el-form-item label="备注：" prop="remark">
-                  {{ form.remark }}
                 </el-form-item>
                 <el-form-item label="采购订单号：" prop="purchaseOrderCode">
                   {{ form.purchaseOrderCode }}
@@ -188,46 +208,49 @@
                 <el-form-item label="理赔方式：" prop="compensationMethod">
                   {{ form.compensationMethod }}
                 </el-form-item>
+                <el-form-item label="备注：" prop="remark" style="width: 100%;">
+                  {{ form.remark }}
+                </el-form-item>
               </el-form>
               <div class="common-title" v-show="!(isEditing || !_id)">采购单收货方</div>
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
                 v-show="!(isEditing || !_id) ">
-                <el-form-item label="备件收货人姓名：" prop="compensationMethod">
+                <el-form-item label="备件收货人姓名：" prop="receiverName">
                   {{ form.receiverName }}
                 </el-form-item>
-                <el-form-item label="备件收货人手机：" prop="compensationMethod">
+                <el-form-item label="备件收货人手机：" prop="receiverPhone">
                   {{ form.receiverPhone }}
                 </el-form-item>
-                <el-form-item label="省：" prop="compensationMethod">
+                <el-form-item label="省：" prop="provinceName">
                   {{ form.provinceName }}
                 </el-form-item>
-                <el-form-item label="市：" prop="compensationMethod">
+                <el-form-item label="市：" prop="cityName">
                   {{ form.cityName }}
                 </el-form-item>
-                <el-form-item label="备件收货地址：" prop="compensationMethod">
+                <el-form-item label="备件收货地址：" prop="address">
                   {{ form.address }}
                 </el-form-item>
               </el-form>
               <div class="common-title" v-show="!(isEditing || !_id)">采购单发货方</div>
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
                 v-show="!(isEditing || !_id)">
-                <el-form-item label="仓库编码：" prop="compensationMethod">
-                  {{ form.receiverName }}
+                <el-form-item label="仓库编码：" prop="deliveryWarehouseCode">
+                  {{ form.deliveryWarehouseCode }}
                 </el-form-item>
-                <el-form-item label="仓库名称：" prop="compensationMethod">
-                  {{ form.receiverPhone }}
+                <el-form-item label="仓库名称：" prop="deliveryWarehouseName">
+                  {{ form.deliveryWarehouseName }}
                 </el-form-item>
-                <el-form-item label="省：" prop="compensationMethod">
-                  {{ form.provinceName }}
+                <el-form-item label="省：" prop="deliveryProvinceName">
+                  {{ form.deliveryProvinceName }}
                 </el-form-item>
-                <el-form-item label="市：" prop="compensationMethod">
-                  {{ form.cityName }}
+                <el-form-item label="市：" prop="deliveryCityName">
+                  {{ form.deliveryCityName }}
                 </el-form-item>
-                <el-form-item label="区：" prop="compensationMethod">
-                  {{ form.cityName }}
+                <el-form-item label="区：" prop="deliveryDistrictName">
+                  {{ form.deliveryDistrictName }}
                 </el-form-item>
-                <el-form-item label="地址：" prop="compensationMethod">
-                  {{ form.address }}
+                <el-form-item label="地址：" prop="deliveryAddress">
+                  {{ form.deliveryAddress }}
                 </el-form-item>
               </el-form>
             </div>
@@ -237,13 +260,48 @@
               <h2>索赔明细</h2>
             </div>
             <div class="common-section-body">
-                <ComponentTable
-                  :columns="detailColumns"
-                  :pagination="true"
-                  :api-method="getDetailList"
-                  name="索赔明细"
-                />
               <div class="common-section-table">
+                <vxe-table
+                  ref="tableRef"
+                  stripe
+                  :data="tableData"
+                  show-overflow
+                  resizable
+                  border="inner"
+                  size="medium"
+                  min-height="0"
+                  max-height="400px"
+                >
+                  <vxe-column field="sparePartCode" title="备件编码" min-width="10%" />
+                  <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
+                  <vxe-column field="inboundQty" title="已入库数" min-width="10%" />
+                  <vxe-column field="claimQty" title="索赔数量" min-width="10%" >
+                    <template #default="{ row }">
+                      <el-input v-model="row.claimQty" :disabled="isClaimStatus || !accountFlag" :max="row.inboundQty" type="number" min="1" @blur="handleQtyBlur(row)"/>
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="claimDescription" title="索赔说明" min-width="10%">
+                    <template #default="{ row }">
+                      <el-input v-model="row.claimDescription" :disabled="isClaimStatus || !accountFlag" @blur="handleQtyBlur(row)"/>
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="createTime" title="创建时间" min-width="10%" />
+                  <template #empty>
+                    <div class="m-vxe-table-empty-text">暂无数据</div>
+                  </template>
+                </vxe-table>
+                <div class="table-pagination">
+                  <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="pageNum"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total"
+                  >
+                  </el-pagination>
+                </div>
               </div>
             </div>
           </section>
@@ -263,12 +321,6 @@
               </div>
               <h2 style="padding-bottom: 10px;">审批附件</h2>
               <div class="common-section-table">
-                <!-- 附件上传组件 -->
-                <AisAttachment
-                  :businessId="_id"
-                  configCode="mcs_partsclaimorder"
-                  attachType="索赔审批附件"
-                />
               </div>
             </div>
           </section>
@@ -329,29 +381,34 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>索赔物流跟踪</h2>
+              <h2>索赔出库缺货明细</h2>
             </div>
             <div class="common-section-body">
-              <div v-if="loadingLogistics" class="loading">
+              <el-tabs v-model="tabsName" @tab-click="handleTabClick">
+                <el-tab-pane label="索赔物流跟踪" name="claimLogistics" />
+                <el-tab-pane label="采购物流跟踪" name="purchaseLogistics" />
+              </el-tabs>
+              <div class="common-section-table">
+                <div v-if="loadingLogistics" class="loading">
                 <el-loading-spinner></el-loading-spinner>
                 正在加载物流信息...
               </div>
               <div v-else-if="!logisticsData" class="no-data">
                 暂无物流信息
               </div>
-              <div v-else class="logistics-container">
+              <div v-else class="logistics-container" v-for="(logistics, index) in logisticsData" :key="index">
                 <!-- 运单号和预计送达时间 -->
                 <div class="logistics-header">
                   <span class="label">运单号：</span>
-                  <span class="value">{{ logisticsData.waybillCode }}</span>
+                  <span class="value">{{ logistics?.waybillCode }}</span>
                   <span class="label">预计送达日期：</span>
-                  <span class="value">{{ logisticsData.promiseAgingDate }}</span>
+                  <span class="value">{{ logistics?.promiseAgingDate }}</span>
                 </div>
 
                 <!-- 物流节点 -->
                 <el-timeline>
                   <el-timeline-item
-                    v-for="(item, index) in logisticsData.traceDetails"
+                    v-for="(item, index) in logistics?.traceDetails || []"
                     :key="index"
                     :timestamp="item.time"
                     :color="'#007fff'"
@@ -364,43 +421,6 @@
                 </el-timeline>
               </div>
             </div>
-          </section>
-          <section class="common-section">
-            <div class="common-section-header">
-              <h2>采购物流跟踪</h2>
-            </div>
-            <div class="common-section-body">
-              <div v-if="loadingLogistics" class="loading">
-                <el-loading-spinner></el-loading-spinner>
-                正在加载物流信息...
-              </div>
-              <div v-else-if="!logisticsData" class="no-data">
-                暂无物流信息
-              </div>
-              <div v-else class="logistics-container">
-                <!-- 运单号和预计送达时间 -->
-                <div class="logistics-header">
-                  <span class="label">运单号：</span>
-                  <span class="value">{{ logisticsData.waybillCode }}</span>
-                  <span class="label">预计送达日期：</span>
-                  <span class="value">{{ logisticsData.promiseAgingDate }}</span>
-                </div>
-
-                <!-- 物流节点 -->
-                <el-timeline>
-                  <el-timeline-item
-                    v-for="(item, index) in logisticsData.traceDetails"
-                    :key="index"
-                    :timestamp="item.time"
-                    :color="'#007fff'"
-                    :type="'info'"
-                  >
-                    <div class="timeline-content">
-                      <strong>{{ item.context }}</strong>
-                    </div>
-                  </el-timeline-item>
-                </el-timeline>
-              </div>
             </div>
           </section>
         </el-main>
@@ -421,13 +441,16 @@ import {
   getDetailList, // 索赔明细
   getOutboundDetailList, // 索赔出库明细
   getBackDetailList, // 索赔库缺货明细
-  historyPage // 索赔历史
+  historyPage, // 索赔历史
+  claimOrderDetailUpdate,
+  claimOrderLogisticsClaim,
+  claimOrderLogisticsPurchase
 } from '@/api/sparepart/claim/sparePartClaim/index';
-// import FetchSelect from '@/libs/components/FetchSelect';
+import FetchSelect from '@/libs/components/FetchSelect';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, getLogistics } from '@/api/common';
+import { getEnum, getLoginUser } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -483,12 +506,23 @@ export default {
     AisAttachment,
     EditPageLayout,
     EditBaseContainer,
+    FetchSelect
     // EditTable
   },
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
-    }
+    },
+    isClaimStatus () {
+      const accountFlag = this.accountFlag;
+      const hasClaimStatus = this.form.claimStatus === '10' || this.form.claimStatus === '30';
+      return !accountFlag && hasClaimStatus;
+    },
+    isAccountFlag () {
+      const accountFlag = this.accountFlag;
+      const hasClaimStatus = this.form.claimStatus === '20';
+      return accountFlag && hasClaimStatus;
+    },
   },
   watch: {
     id: {
@@ -502,7 +536,13 @@ export default {
     'form.code': {
       handler (val) {
         if (val) {
-          this.getLogisticsInfo();
+          // 根据当前 tab 获取对应物流数据
+          const fetchApi = this.tabsName === 'claimLogistics'
+            ? claimOrderLogisticsClaim
+            : claimOrderLogisticsPurchase;
+          this.getLogistics(fetchApi);
+          // 索赔明细
+          this.getDetailList();
         }
       }
     }
@@ -517,6 +557,11 @@ export default {
       moduleKey: 'AISPART-sparePartClaim',
       loading: false,
       submitLoading: false,
+      accountFlag: false, // 账号权限
+      pageNum: 1, // 索赔明细
+      pageSize: 10,
+      total: 0,
+      tabsName: 'claimLogistics',
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -529,7 +574,7 @@ export default {
         children: 'child'
       },
       activeName: 'getOutboundDetailList',
-      logisticsData: null, // 物流信息
+      logisticsData: [], // 物流信息
       loadingLogistics: false,
       tableData: [
       ],
@@ -616,12 +661,6 @@ export default {
         dealerName: [
           { required: false, message: '请输入门店名称（组织名称）', trigger: 'change' }
         ],
-        submitTime: [
-          { required: false, message: '请选择提交时间', trigger: 'change' }
-        ],
-        submitter: [
-          { required: false, message: '请输入提交人', trigger: 'change' }
-        ],
         rejectionDescription: [
           { required: false, message: '请输入驳回说明', trigger: 'change' }
         ],
@@ -634,38 +673,11 @@ export default {
         remark: [
           { required: false, message: '请输入备注', trigger: 'change' }
         ],
-        createTime: [
-          { required: false, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: false, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: false, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: false, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: false, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: false, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: false, message: '请输入修改者名称', trigger: 'change' }
-        ],
         status: [
           { required: false, message: '请选择状态', trigger: 'change' }
         ],
         statusDesc: [
           { required: false, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: false, message: '请输入数据来源，150:零小跑; 10:E10', trigger: 'change' }
-        ],
-        purchaseOrderId: [
-          { required: false, message: '请输入采购订单号ID', trigger: 'change' }
         ],
         confirmer: [
           { required: false, message: '请输入确认人', trigger: 'change' }
@@ -704,16 +716,13 @@ export default {
     };
   },
   mounted () {
-    // this.getDetailList();
-    // this.getDetailListOutbound();
+    this.getLoginUser();
   },
   methods: {
     // 索赔出库明细
     getOutboundDetailList,
     // 索赔库缺货明细
     getBackDetailList,
-    // 索赔明细
-    getDetailList,
     // 索赔历史
     historyPage,
     detailRequest () {
@@ -771,15 +780,24 @@ export default {
       return [];
     },
     // 索赔明细
-    // async getDetailList () {
-    //   const data = {
-    //     pageNum: 1,
-    //     pageSize: 10,
-    //     claimOrderId: this._id,
-    //   };
-    //   const res = await getDetailList(data);
-    //   this.tableData = res.records;
-    // },
+    async getDetailList () {
+      const data = {
+        pageNum: this.pageNum,
+        pageSize: this.pageSize,
+        claimOrderId: this._id,
+      };
+      const res = await getDetailList(data);
+      this.tableData = res.records;
+    },
+    handleSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.pageNum = 1;
+      this.getDetailList();
+    },
+    handleCurrentChange (current) {
+      this.pageNum = current;
+      this.getDetailList();
+    },
     // 索赔出库明细
     async getDetailListOutbound () {
       const data = {
@@ -790,21 +808,40 @@ export default {
       const res = await getOutboundDetailList(data);
       this.claimTableData = res.records;
     },
-    // 物流信息接口
-    async getLogisticsInfo () {
-      this.loadingLogistics = true;
-      const params = {
-        waybillCode: this.form.logisticsOrderNo,
-        logisticsType: this.form.logisticsProvider,
-      };
+    async getLoginUser () {
       try {
-        const res = await getLogistics(params);
-        this.logisticsData = res;
+        const res = await getLoginUser();
+        this.accountFlag = res.accountFlag;
       } catch (error) {
-        console.error('获取物流信息失败:', error);
-      } finally {
-        this.loadingLogistics = false;
+        console.error('Error fetching series list:', error);
       }
+    },
+    // 失焦 触发更新
+    async handleQtyBlur (row) {
+      const params = {
+        id: row.id,
+        claimQty: row.claimQty,
+        claimDescription: row.claimDescription,
+      };
+      await claimOrderDetailUpdate(params);
+      this.getDetailList();
+    },
+    // 切换tab
+    handleTabClick (tab) {
+      let fetchApi = claimOrderLogisticsClaim;
+      if (tab.name === 'claimLogistics') {
+        fetchApi = claimOrderLogisticsClaim;
+      } else {
+        fetchApi = claimOrderLogisticsPurchase;
+      }
+      this.getLogistics(fetchApi);
+    },
+    // 物流信息接口
+    async getLogistics (val) {
+      this.loadingLogistics = true;
+      const res = await val({ id: this._id });
+      this.logisticsData = res || [];
+      this.loadingLogistics = false;
     }
   }
 };
@@ -814,6 +851,16 @@ export default {
   font-size: 14px;
   font-weight: 500;
   color: #0A0E0A;
+}
+
+.form-edit {
+  text-align: left !important;
+  .el-form-item {
+    text-align: left !important;
+  }
+  .el-form-item__content {
+    text-align: left !important;
+  }
 }
 
 .logistics-container {

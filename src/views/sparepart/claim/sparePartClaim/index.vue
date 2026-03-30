@@ -251,7 +251,7 @@ export default {
           { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'submitTime', label: '提交时间', visible: true, width: 200 },
-          { props: 'submitter', label: '提交人', visible: true, width: 120 },
+          { props: 'submitterName', label: '提交人', visible: true, width: 120 },
           { props: 'claimTypeLabel', label: '索赔类型', visible: true, width: 120 },
           { props: 'claimStatusLabel', label: '索赔状态', visible: true, width: 120 },
           { props: 'rejectionDescription', label: '驳回说明', visible: true, width: 200 },
