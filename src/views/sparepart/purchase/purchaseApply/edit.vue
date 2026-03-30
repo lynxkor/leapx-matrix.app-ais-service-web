@@ -459,6 +459,16 @@ export default {
         }
       }
     },
+    'form.thirdPartyDeliveryIs': {
+      handler (val) {
+        if (val === '1') {
+          this.rules.address[0].required = true;
+        } else {
+          this.rules.address[0].required = false;
+          this.$refs.ruleForm?.clearValidate('address');
+        }
+      }
+    }
   },
   data () {
     const form = this.getDefautlForm();
@@ -509,6 +519,9 @@ export default {
         recipientName: [
           { required: true, message: '请输入收货人姓名', trigger: 'change' }
         ],
+        address: [
+          { required: false, message: '请输入收货地址', trigger: 'change' }
+        ],
         recipientPhone: [
           { required: true, message: '请输入收货人电话', trigger: 'change' }
         ],
@@ -524,7 +537,6 @@ export default {
   mounted () {
     this.oem = this.$store.state.pageSource?.aisPageSource.includes('AISPART-sparePart-oem');
     this.getLoginUser();
-    this.getOrderType();
     this.getDetailData();
   },
   methods: {
@@ -571,8 +583,8 @@ export default {
         } else {
           this.form.dealerCode = '';
           this.form.dealerName = '';
-          this.accountPermissions = '';
         }
+        this.getOrderType(); // 先请求 账号权限接口 再请求类型接口
         if (this.form.dealerCode) {
           this.getPartDealer(this.form.dealerCode);
         }

@@ -747,7 +747,7 @@ export default {
     // 同意
     async handleAgree (val) {
       const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
-      if (res.length > 0) {
+      if (res.length > 0) { // 疑是 同意时 丢失id 是因为这里 打开的时候 重新去赋值了 但是 这个时候 val 是没有值得 所以这里要重新赋值
         this.purchaseId = val.id;
         this.purchaseList = res || [];
         this.agreeDialogVisible = true;

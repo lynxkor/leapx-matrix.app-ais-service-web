@@ -6,26 +6,29 @@
     :visible.sync="dialogVisible"
     @close="close"
   >
-    <div class="dialog-content">
-      <el-checkbox-group @change="onChange" v-model="vehicleDataScopes" class="warranty-checkbox">
-        <el-checkbox
-          v-for="option in vehicleDataScopesOptions"
-          :disabled="option.disabled"
-          :label="option.value"
-          :key="option.value">
-          {{option.label}}
-        </el-checkbox>
-      </el-checkbox-group>
-      <el-tabs v-model="activeTab" class="warranty-tabs" v-loading="loading">
+    <div class="dialog-content" v-loading="loading">
+      <el-tabs v-model="activeTab" class="warranty-tabs">
         <el-tab-pane
-          v-for="item in wattantyData"
+          v-for="(item, index) in wattantyData"
           :label="item.warrantyTypeName"
           :name="item.warrantyTypeId"
           :key="item.warrantyTypeId">
+          <el-checkbox-group
+            @change="onChange"
+            v-model="item.dataScopes"
+            class="warranty-checkbox">
+            <el-checkbox
+              v-for="option in vehicleDataScopesOptions"
+              :disabled="option.disabled"
+              :label="option.value"
+              :key="option.value">
+              {{option.label}}
+            </el-checkbox>
+          </el-checkbox-group>
           <div class="table-section">
             <div class="table-title">工时列表</div>
             <vxe-table
-              ref="vehicleLaborTable"
+              :ref="'vehicleLaborTable' + index"
               :data="item.workhourList"
               :checkbox-config="{ highlight: true }"
               @checkbox-change="(r) => workhourCheckbox(r, item)"
@@ -50,14 +53,21 @@
           <div class="table-section">
             <div class="table-title">零件列表</div>
             <vxe-table
-              ref="vehiclePartTable"
+              :ref="'vehiclePartTable' + index"
               :data="item.partList"
               :checkbox-config="{ highlight: true }"
               @checkbox-change="(r) => partCheckbox(r, item)"
               @checkbox-all="(r) => partCheckbox(r, item)"
-              border
               round
               auto-resize
+              stripe
+              show-overflow
+              resizable
+              :row-config="{ isHover: true }"
+              border="inner"
+              size="medium"
+              min-height="0"
+              max-height="400px"
             >
               <vxe-column type="checkbox" width="60"></vxe-column>
               <vxe-column field="partCode" title="零件编码"></vxe-column>
@@ -68,14 +78,21 @@
           <div class="table-section">
             <div class="table-title">其他列表</div>
             <vxe-table
-              ref="vehicleOtherTable"
+              :ref="'vehicleOtherTable' + index"
               :data="item.otherList"
               :checkbox-config="{ highlight: true }"
               @checkbox-change="(r) => otherCheckbox(r, item)"
               @checkbox-all="(r) => otherCheckbox(r, item)"
-              border
               round
               auto-resize
+              stripe
+              show-overflow
+              resizable
+              :row-config="{ isHover: true }"
+              border="inner"
+              size="medium"
+              min-height="0"
+              max-height="400px"
             >
               <vxe-column type="checkbox" width="60"></vxe-column>
               <vxe-column field="repairItemCode" title="其他代码"></vxe-column>
@@ -116,7 +133,7 @@
 </template>
 
 <script>
-import { listUnprocessedDetails, warrantyApplyCreate } from '@/api/claimreturn/claim/warrantyapply';
+import { listUnprocessedDetails, warrantyApplyCreate, listWarrantyTypes } from '@/api/claimreturn/claim/warrantyapply';
 
 export default {
   name: 'CreateWarrantyApplyDialog',
@@ -137,8 +154,6 @@ export default {
       submitLoading: false,
       activeTab: '',
       radio: '2',
-      // 一般整车保修数据
-      vehicleDataScopes: ['UNGENERATED'],
       vehicleDataScopesOptions: [
         { label: '未生成', value: 'UNGENERATED' },
         { label: '未提交', value: 'UNSUBMITTED' },
@@ -168,29 +183,123 @@ export default {
     },
     onReset () {
       this.activeTab = '';
-      this.vehicleDataScopes = ['UNGENERATED'];
       this.radio = '2';
     },
     initData () {
-      // 初始化加载数据
-      this.getData();
+      this.listWarrantyTypes();
+    },
+    listWarrantyTypes () {
+      this.loading = true;
+      listWarrantyTypes({ statementId: this.id }).then(res => {
+        this.wattantyData = (res || []).map(item => {
+          return {
+            ...item,
+            dataScopes: ['UNGENERATED'],
+          };
+        });
+        if (this.wattantyData.length) {
+          this.activeTab = this.wattantyData[0].warrantyTypeId;
+        }
+        this.getData();
+      }).finally(() => {
+        this.loading = false;
+      });
     },
     onChange (val) {
       this.getData();
     },
+    getNewIds (newList, oldIds = []) {
+      if (!newList || !newList.length) return [];
+      const newIds = newList.map(item => item.id);
+      return oldIds.filter(id => newIds.includes(id));
+    },
     getData () {
       this.loading = true;
+      const warrantyTypeScopes = this.wattantyData.map(item => {
+        return {
+          warrantyTypeId: item.warrantyTypeId,
+          dataScopes: item.dataScopes,
+        };
+      });
       listUnprocessedDetails({
-        statementId: this.id, // 019CE115-B1DD-71D0-82E5-EEC97D939977
-        dataScopes: this.vehicleDataScopes,
+        // 019CE115-B1DD-71D0-82E5-EEC97D939977
+        // 019D0A53-FF5A-749E-BF72-D8E8CC88A090
+        statementId: this.id,
+        warrantyTypeScopes,
       }).then(res => {
-        this.wattantyData = res.statementWarrantyDetailListResp || [];
-        if (this.wattantyData.length) {
-          this.activeTab = this.wattantyData[0].warrantyTypeId;
+        if (res.statementWarrantyDetailListResp?.length) {
+          (res.statementWarrantyDetailListResp || []).forEach((item, index) => {
+            const oldItem = this.wattantyData[index];
+            const newItem = {
+              ...oldItem,
+              ...item,
+              workhourIds: this.getNewIds(item.workhourList, oldItem.workhourIds || []),
+              partIds: this.getNewIds(item.partList, oldItem.partIds || []),
+              otherIds: this.getNewIds(item.otherList, oldItem.otherIds || []),
+            };
+            this.$set(this.wattantyData, index, newItem);
+            this.$nextTick(() => {
+              this.setTableCheckedStatus(index);
+            });
+          });
+        } else {
+          this.wattantyData = this.wattantyData.map(item => {
+            return {
+              dataScopes: item.dataScopes,
+              warrantyTypeId: item.warrantyTypeId,
+              warrantyTypeName: item.warrantyTypeName,
+            };
+          });
         }
       }).finally(() => {
         this.loading = false;
       });
+    },
+    setTableCheckedStatus (index) {
+      const item = this.wattantyData[index];
+      if (!item) return;
+
+      // 设置工时表格选中状态
+      if (item.workhourList && item.workhourIds && item.workhourIds.length) {
+        const workhourTable = this.$refs[`vehicleLaborTable${index}`];
+        if (workhourTable && workhourTable[0]) {
+          const tableInstance = workhourTable[0];
+          const rowsToCheck = item.workhourList.filter(row =>
+            item.workhourIds.includes(row.id)
+          );
+          rowsToCheck.forEach(row => {
+            tableInstance.setCheckboxRow(row, true);
+          });
+        }
+      }
+
+      // 设置零件表格选中状态
+      if (item.partList && item.partIds && item.partIds.length) {
+        const partTable = this.$refs[`vehiclePartTable${index}`];
+        if (partTable && partTable[0]) {
+          const tableInstance = partTable[0];
+          const rowsToCheck = item.partList.filter(row =>
+            item.partIds.includes(row.id)
+          );
+          rowsToCheck.forEach(row => {
+            tableInstance.setCheckboxRow(row, true);
+          });
+        }
+      }
+
+      // 设置其他表格选中状态
+      if (item.otherList && item.otherIds && item.otherIds.length) {
+        const otherTable = this.$refs[`vehicleOtherTable${index}`];
+        if (otherTable && otherTable[0]) {
+          const tableInstance = otherTable[0];
+          const rowsToCheck = item.otherList.filter(row =>
+            item.otherIds.includes(row.id)
+          );
+          rowsToCheck.forEach(row => {
+            tableInstance.setCheckboxRow(row, true);
+          });
+        }
+      }
     },
     workhourCheckbox ({ records }, item) {
       item.workhourIds = records.map(item => item.id);
@@ -202,10 +311,10 @@ export default {
       item.otherIds = records.map(item => item.id);
     },
     submitAndNext () {
-      this.submit(true);
+      this.submit(false);
     },
     submitAndClose () {
-      this.submit(false);
+      this.submit(true);
     },
     submit (isClose) {
       let detailList = [];
@@ -235,13 +344,16 @@ export default {
         detailList,
       }).then(res => {
         if (isClose) {
-          // 保修申请单详情页
-          this.$router.push({
-            path: '/claimreturn/claim/warrantyApply/edit',
-            query: {
-              id: 'xxx',
-            }
-          });
+          if (res.applyIds?.length) {
+            const id = res.applyIds[res.applyIds.length - 1];
+            // 保修申请单详情页
+            this.$router.push({
+              path: '/claimreturn/claim/warrantyApply/edit',
+              query: {
+                id,
+              }
+            });
+          }
         } else {
           this.onReset();
           this.initData();
@@ -264,6 +376,8 @@ export default {
   }
 
   .dialog-content {
+    height: 100%;
+    min-height: 300px;
     .warranty-tabs {
       .table-section {
         margin-bottom: 20px;

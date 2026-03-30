@@ -267,7 +267,7 @@
                     >
                       <!-- 业务单号可跳转 -->
                       <template v-if="col.field === 'businessNo'" #default="{ row }">
-                        <div class="href-link" @click="handleJump(row)">{{ row.businessNo }}</div>
+                        <div class="href-link" @click="handleFlowJump(row)">{{ row.businessNo }}</div>
                       </template>
                     </vxe-column>
                   </vxe-table>
@@ -635,29 +635,49 @@ export default {
       return [];
     },
     // 业务单号跳转
-    async handleJump (row) {
+    async handleFlowJump (row) {
+      console.log(JSON.stringify(row));
       let path = '';
       let type = '';
-      if (row.businessType === '备件采购（不含缺货）') {
-        path = '/sparepart/purchase/purchaseApply/edit';
-        type = 'purchaseApply';
-      } else if (row.businessType === '备件采购（缺货）') {
-        path = '/sparepart/purchase/backOrder/edit';
-        type = 'backOrder';
-      } else if (row.businessType === 'SPARE_PART_RETURN') {
+      if (row.businessType === 'SPARE_PART_RETURN') {
         path = '/sparepart/return/returnOrder/edit';
         type = 'returnOrder';
       } else if (row.businessType === 'SPARE_PART_PURCHASE') {
         path = '/sparepart/warehouse/oemOutboundOrder/edit';
         type = 'oemOutboundOrder';
+      } else if (row.businessType === 'CUSTOMER_CARE') {
+        path = '/sparepart/fund/accountOperateApply/edit';
+        type = 'accountOperateApply';
+      } else if (row.businessType === 'REBATE_RECHARGE') {
+        path = '/sparepart/fund/accountOperateApply/edit';
+        type = 'accountOperateApply';
+      } else if (row.businessType === 'REBATE_DEDUCTION') {
+        path = '/sparepart/fund/accountOperateDeductionApply/edit';
+        type = 'accountOperateDeductionApply';
       } else {
         return;
       }
-      // else if (row.businessType === 'SAP_WRITE_OFF') {
-      //   path = '/sparepart/fund/accountOperateApply/edit?type=RECHARGE';
-      // } else if (row.businessType === 'SAP_RECHARGE') {
-      //   path = '/sparepart/fund/accountOperateApply/edit?type=RECHARGE';
-      // }
+      const res = await getSparePartOrderIdByCode({ code: row.businessNo, type: type });
+      this.$router.push({
+        path: path,
+        query: {
+          id: res
+        }
+      });
+    },
+    // 业务单号跳转
+    async handleJump (row) {
+      let path = '';
+      let type = '';
+      if (row.businessTypeLabel === '备件采购（不含缺货）') {
+        path = '/sparepart/purchase/purchaseApply/edit';
+        type = 'purchaseApply';
+      } else if (row.businessTypeLabel === '备件采购（缺货）') {
+        path = '/sparepart/purchase/backOrder/edit';
+        type = 'backOrder';
+      } else {
+        return;
+      }
       const res = await getSparePartOrderIdByCode({ code: row.businessNo, type: type });
       this.$router.push({
         path: path,

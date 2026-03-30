@@ -9,7 +9,7 @@
     <!-- 以下内容请从销服老系统对应模块拷贝，修改动态字段  -->
     <div id="printArea" style="width:1110px;">
         <div class="divMain">
-            <div class="div_tag">
+            <div class="div_tag" v-for="item in tableData" :key="item.id + '-' + item.returnQtyLabel">
                 <table style="page-break-inside: avoid;">
                     <tbody>
                         <tr>
@@ -27,7 +27,7 @@
                         <tr>
                             <td style="font-weight: bold;">备件信息：</td>
                         </tr>
-                        <tr style="font-size: 14px;">
+                        <tr style="font-size: 14px; white-space: nowrap;">
                             <td>零件编码：</td>
                             <td>{{item.partCode}}</td>
                             <td>零件名称：</td>
@@ -35,7 +35,7 @@
                         </tr>
                         <tr>
                             <td>数量：</td>
-                            <td>{{item.returnQty}}</td>
+                            <td>{{item.returnQtyLabel}}</td>
                             <td colspan="2" rowspan="6">
                                 <div class="dv_qrcode" id="dv_qrcode_0_1" style="padding:20px;" data="C11ST100101"
                                     title="C11ST100101"><canvas width="180" height="180"
@@ -121,7 +121,24 @@ export default {
         returnOrderId: this.id
       };
       const res = await returnOrderPage(params);
-      this.tableData = res.records || [];
+      const records = res.records || [];
+      // 根据数量展开数据，数量乘以2，5-1和5-2并排
+      const expandedData = [];
+      records.forEach(item => {
+        const qty = item.returnQty || 1;
+        // 循环qty次，每次生成一对 5-1 和 5-2
+        for (let i = 0; i < qty; i++) {
+          expandedData.push({
+            ...item,
+            returnQtyLabel: `${parseInt(qty)}-1`
+          });
+          expandedData.push({
+            ...item,
+            returnQtyLabel: `${parseInt(qty)}-2`
+          });
+        }
+      });
+      this.tableData = expandedData;
     },
     getCurrentTime () {
       const now = new Date();

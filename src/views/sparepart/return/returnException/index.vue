@@ -432,6 +432,13 @@ export default {
           data.deliveryTimeEnd = this.form.deliveryTime[1];
         }
       }
+      if (this.form.returnCompleteTime) {
+        delete data.returnCompleteTime;
+        if (this.form.returnCompleteTime.length > 1) {
+          data.returnCompleteTimeStart = this.form.returnCompleteTime[0];
+          data.returnCompleteTimeEnd = this.form.returnCompleteTime[1];
+        }
+      }
 
       return data;
     },

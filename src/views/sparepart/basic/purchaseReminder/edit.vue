@@ -115,7 +115,7 @@
       <el-footer height="60px">
         <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
         <el-button size="small" @click="handleBack">取消</el-button>
-        <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
+        <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button>
       </el-footer>
     </el-container>
       <!-- TIPS: 填入项目id即可 -->
@@ -309,9 +309,9 @@ export default {
       };
     },
     // 审核日志
-    // handleJumpAuditLog () {
-    //   this.$auditLog.show({ id: 123 });
-    // },
+    handleJumpAuditLog () {
+      this.$auditLog.show({ id: this._id });
+    },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);

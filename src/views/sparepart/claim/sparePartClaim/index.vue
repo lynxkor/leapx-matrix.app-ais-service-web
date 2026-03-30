@@ -54,7 +54,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="ClaimTypeEnum"
-            v-model="form.claimType"
+            v-model="form.claimTypeList"
             placeholder="请选择"
             clearable
             multiple
@@ -167,7 +167,7 @@ const defaultForm = {
   dealerCode: '',
   dealerName: '',
   submitTime: '',
-  claimType: '',
+  claimTypeList: [],
   claimStatusList: '',
   createTime: '',
   updateTime: '',
@@ -230,11 +230,28 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'purchaseOrderCode', label: '采购订单号', visible: true, width: 200 },
+          {
+            props: 'purchaseOrderCode',
+            label: '采购订单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseOrder/edit',
+                  query: {
+                    id: row.purchaseOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'submitTime', label: '提交时间', visible: true, width: 200 },
-          { props: 'submitter', label: '提交人', visible: true, width: 120 },
+          { props: 'submitterName', label: '提交人', visible: true, width: 120 },
           { props: 'claimTypeLabel', label: '索赔类型', visible: true, width: 120 },
           { props: 'claimStatusLabel', label: '索赔状态', visible: true, width: 120 },
           { props: 'rejectionDescription', label: '驳回说明', visible: true, width: 200 },
