@@ -11,10 +11,10 @@
     >
       <!-- 基础查询条件 -->
       <el-form-item label="保修申请单号：">
-        <tag-input v-model="form.applyNoList" placeholder="请输入保修申请单号，多个用回车分隔" />
+        <tag-input v-model="form.applyNoList" placeholder="请输入保修申请单号" />
       </el-form-item>
       <el-form-item label="VIN：">
-        <tag-input v-model="form.vinList" placeholder="请输入VIN，多个用回车分隔" />
+        <tag-input v-model="form.vinList" placeholder="请输入VIN" />
       </el-form-item>
 
       <!-- 扩展查询条件 -->
@@ -23,7 +23,7 @@
         <fetch-select
           :request="fetchOptions"
           enumCode=""
-          v-model="form.alarmLevel"
+          v-model="form.alarmLevelList"
           placeholder="请选择"
           clearable
           multiple
@@ -31,10 +31,10 @@
         />
       </el-form-item>
       <el-form-item label="施工单号：">
-        <tag-input v-model="form.serviceProxyNoList" placeholder="请输入施工单号，多个用回车分隔" />
+        <tag-input v-model="form.serviceProxyNoList" placeholder="请输入施工单号" />
       </el-form-item>
       <el-form-item label="结算单号：">
-        <tag-input v-model="form.statementCodeList" placeholder="请输入结算单号，多个用回车分隔" />
+        <tag-input v-model="form.statementCodeList" placeholder="请输入结算单号" />
       </el-form-item>
       <el-form-item label="保修单状态：">
         <fetch-select
@@ -49,30 +49,33 @@
       </el-form-item>
       <el-form-item label="保修类型：">
         <fetch-select
-          :request="fetchOptions"
-          enumCode=""
-          v-model="form.repairItemTypeName"
-          placeholder="请选择"
-          clearable
-          multiple
           filterable
+          clearable
+          remote
+          reserve-keyword
+          multiple
+          v-model="form.repairItemTypeIdList"
+          :remote-method="repairItemTypeRemote"
+          params=""
+          value-key="id"
+          label-key="name"
+          sub-label-key="code"
         />
       </el-form-item>
-      <el-form-item label="门店编码：">
+      <el-form-item label="门店：">
         <dealer-select v-model="form.dealerCodeList" multiple/>
-      </el-form-item>
-      <el-form-item label="门店名称：">
-        <dealer-select v-model="form.dealerNameList" multiple show-name/>
       </el-form-item>
       <el-form-item label="门店所属区域：">
         <fetch-select
-          :request="fetchOptions"
-          enumCode=""
-          v-model="form.dealerRegionName"
+          v-model="form.dealerRegionCodeList"
+          :remote-method="getScopeTypeOrg"
           placeholder="请选择"
           clearable
+          remote
           multiple
           filterable
+          value-key="code"
+          label-key="name"
         />
       </el-form-item>
       <el-form-item label="当前提交时间：">
@@ -88,20 +91,22 @@
         />
       </el-form-item>
       <el-form-item label="车牌号：">
-        <tag-input v-model="form.vehiclePlateNoList" placeholder="请输入车牌号，多个用回车分隔" />
+        <el-input v-model="form.vehiclePlateNo" placeholder="请输入车牌号" clearable />
       </el-form-item>
       <el-form-item label="车主姓名：">
-        <tag-input v-model="form.ownerNameList" placeholder="请输入车主姓名，多个用回车分隔" />
+        <el-input v-model="form.ownerNameList" placeholder="请输入车主姓名" clearable />
       </el-form-item>
       <el-form-item label="车型：">
         <fetch-select
-          :request="fetchOptions"
-          enumCode=""
-          v-model="form.vehicleModelName"
-          placeholder="请选择"
-          clearable
-          multiple
           filterable
+          clearable
+          remote
+          multiple
+          v-model="form.vehicleModelIdList"
+          :remote-method="modelSearch"
+          params=""
+          value-key="id"
+          label-key="name"
         />
       </el-form-item>
       <el-form-item label="保修开始日期：">
@@ -129,10 +134,10 @@
         />
       </el-form-item>
       <el-form-item label="主因件编码：">
-        <tag-input v-model="form.mainPartCodeList" placeholder="请输入主因件编码，多个用回车分隔" />
+        <tag-input v-model="form.mainPartCodeList" placeholder="请输入主因件编码" />
       </el-form-item>
       <el-form-item label="主因件名称：">
-        <tag-input v-model="form.mainPartNameList" placeholder="请输入主因件名称，多个用回车分隔" />
+        <tag-input v-model="form.mainPartNameList" placeholder="请输入主因件名称" />
       </el-form-item>
       <el-form-item label="服务月份：">
         <el-input v-model="form.serviceMonth" placeholder="请输入" clearable />
@@ -223,15 +228,17 @@ import {
   withdraw,
   approve,
 } from '@/api/claimreturn/claim/warrantyapply/index';
-import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, getEnum, listVehicleModel, getScopeTypeOrg } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import DealerSelect from '@/components/dealer-select';
 // import ListSelect from '@/libs/components/list-select/index.vue';
 import TagInput from '@/libs/components/TagInput';
+import { getList as repairGetList } from '@/api/maintain/basic/repairItemType';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -273,7 +280,7 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    // ListSelect,
+    DealerSelect,
     TagInput,
   },
   data () {
@@ -675,6 +682,19 @@ export default {
       }
       return [];
     },
+    async modelSearch (query) {
+      return listVehicleModel({ modelNameLike: query });
+    },
+    repairItemTypeRemote (query) {
+      return repairGetList({
+        nameLike: query,
+        pageSize: 20,
+        pageNum: 1,
+      });
+    },
+    getScopeTypeOrg () {
+      return getScopeTypeOrg({ type: '1020' });
+    }
   }
 };
 </script>

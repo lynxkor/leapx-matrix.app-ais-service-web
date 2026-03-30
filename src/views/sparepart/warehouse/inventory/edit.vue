@@ -402,28 +402,42 @@ export default {
     // 业务单号跳转
     async handleJump (row) {
       const bizType = await getBizType({ code: row.businessType, type: row.type });
+      if (!bizType) {
+        return;
+      }
       const res = await getSparePartOrderIdByCode({ code: row.businessNo, type: bizType });
+      const orderTypeMap = {
+        // 采购相关
+        purchaseOrder: '/sparepart/purchase/purchaseOrder/edit',
+        purchaseApply: '/sparepart/purchase/purchaseApply/edit',
+        backOrder: '/sparepart/purchase/backOrder/edit',
+        inboundOrder: '/sparepart/inbound/inboundOrder/edit',
+        returnOrder: '/sparepart/return/returnOrder/edit',
+        returnExceptionalOrder: '/sparepart/return/returnException/edit',
+        // 外购件相关 (Dealer 前缀)
+        dealerInboundOrder: '/sparepart/inbound/dealerInboundOrder/edit',
+        dealerReturnOrder: '/sparepart/outbound/dealerReturnOrder/edit',
+        dealerOutboundOrder: '/sparepart/outbound/dealerOutboundOrder/edit',
+        // 调拨相关
+        transferInbound: '/sparepart/transfer/transferInbound/edit',
+        transferOutbound: '/sparepart/transfer/transferOutbound/edit',
+        shareTransferOutbound: '/sparepart/transfer/sharedTransferOutbound/edit',
+        // 维修相关
+        maintenanceReturnInbound: '/sparepart/inbound/maintenanceReturnInbound/edit',
+        maintenanceOutboundOrder: '/sparepart/outbound/maintenanceOutboundOrder/edit',
+        // 零售相关
+        retailOrder: '/sparepart/sale/retailOrder/edit',
+        // 盘点相关
+        stockTaking: '/sparepart/warehouse/stockTaking/edit',
+        stockTakingDifferences: '/sparepart/warehouse/stockTakingDifferences/edit',
+        // 其他
+        claimOrder: '/sparepart/claim/sparePartClaim/edit',
+        oemOutboundOrder: '/sparepart/warehouse/oemOutboundOrder/edit'
+      };
 
-      let path = '';
-      if (bizType === 'purchaseOrder') {
-        path = '/sparepart/purchase/purchaseOrder/edit';
-      } else if (bizType === 'purchaseApply') {
-        path = '/sparepart/purchase/purchaseApply/edit';
-      } else if (bizType === 'backOrder') {
-        path = '/sparepart/purchase/backOrder/edit';
-      } else if (bizType === 'returnOrder') {
-        path = '/sparepart/return/returnOrder/edit';
-      } else if (bizType === 'inboundOrder') {
-        path = '/sparepart/inbound/inboundOrder/edit';
-      } else if (bizType === 'maintenanceReturnInbound') {
-        path = '/sparepart/inbound/maintenanceReturnInbound/edit';
-      } else if (bizType === 'maintenanceOutboundOrder') {
-        path = '/sparepart/outbound/maintenanceOutboundOrder/edit';
-      } else if (bizType === 'claimOrder') {
-        path = '/sparepart/claim/sparePartClaim/edit';
-      } else if (bizType === 'oemOutboundOrder') {
-        path = '/sparepart/warehouse/oemOutboundOrder/edit';
-      } else {
+      const path = orderTypeMap[bizType];
+      if (!path) {
+        this.$message.warning(`不支持的 bizType: ${bizType}`);
         return;
       }
 
