@@ -32,23 +32,30 @@
         </el-form-item>
         <template v-if="show">
           <el-form-item label="备件仓库">
-            <el-input
-              placeholder="请输入"
+            <fetch-select
+              :remote-method="getWarehouse"
+              remote
               v-model="form.warehouseId"
+              placeholder="请选择"
+              labelKey="name"
+              valueKey="id"
+              subLabelKey="code"
               clearable
+              collapseTags
+              filterable
             />
           </el-form-item>
           <el-form-item label="vin码">
             <el-input
               placeholder="请输入"
-              v-model="form.vehProfileVin"
+              v-model="form.vehProfileVinLike"
               clearable
             />
           </el-form-item>
           <el-form-item label="车牌号">
             <el-input
               placeholder="请输入"
-              v-model="form.carPlate"
+              v-model="form.carPlateLike"
               clearable
             />
           </el-form-item>
@@ -148,7 +155,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/inbound/maintenanceReturnInbound/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -479,6 +486,14 @@ export default {
     handleWarehousingDialogSuccess () {
       this.warehousingDialogVisible = false;
       this.getData();
+    },
+    async getWarehouse (query) {
+      try {
+        const res = await listWarehouse({ codeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     },
   }
 };
