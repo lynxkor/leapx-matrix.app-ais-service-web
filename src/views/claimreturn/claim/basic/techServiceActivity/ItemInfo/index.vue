@@ -20,6 +20,7 @@
           :select-config="{
             valueKey: 'id',
             labelKey: 'name',
+            subLabelKey: 'code',
             labelFormat: '${name}(${code})',
             placeholder: '维修项目代码/名称',
           }"
