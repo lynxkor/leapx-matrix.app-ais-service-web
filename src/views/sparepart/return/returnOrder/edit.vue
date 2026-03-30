@@ -17,7 +17,7 @@
                 </el-form-item>
                 <el-form-item label="退货类型：" prop="returnType">
                   <fetch-select :request="fetchOptions" enumCode="ReturnTypeEnum" v-model="form.returnType"
-                    placeholder="请选择" clearable filterable :disabled="accountFlag" />
+                    placeholder="请选择" clearable filterable :disabled="!canEditReturnType" />
                 </el-form-item>
                 <el-form-item label="退货原因：" prop="returnReason">
                   <fetch-select :request="fetchOptions" enumCode="ReturnReasonEnum" v-model="form.returnReason"
@@ -38,7 +38,7 @@
                   {{ form.returnStatusLabel }}
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark" style="width: 100%;">
-                  <el-input type="textarea" maxlength="500" show-word-limit placeholder="请输入" v-model="form.remark" clearable :disabled="!isEditable" />
+                  <el-input type="textarea" maxlength="500" show-word-limit placeholder="请输入" v-model="form.remark" clearable :disabled="!canEditReturnType" />
                 </el-form-item>
               </el-form>
             </div>
@@ -65,20 +65,20 @@
                 <el-form-item label="收货主机厂仓库：" prop="receiveWarehouseId">
                   <fetch-select :remote-method="getReceiveWarehouse" remote v-model="form.receiveWarehouseId"
                     placeholder="请选择" labelKey="name" valueKey="id" subLabelKey="code" clearable collapseTags
-                    filterable :disabled="accountFlag || !isReturnStatus" />
+                    filterable :disabled="isReceiveWarehouseDisabled" />
                 </el-form-item>
                 <el-form-item label="收货人：" prop="receiver">
-                  <el-input placeholder="请输入" v-model="form.receiver" clearable :disabled="accountFlag || !isReturnStatus" />
+                  <el-input placeholder="请输入" v-model="form.receiver" clearable :disabled="!canEditReceiver" />
                 </el-form-item>
                 <el-form-item label="收货人联系电话：" prop="receiverPhone">
-                  <el-input placeholder="请输入" v-model="form.receiverPhone" clearable :disabled="accountFlag || !isReturnStatus" />
+                  <el-input placeholder="请输入" v-model="form.receiverPhone" clearable :disabled="!canEditReceiver" />
                 </el-form-item>
                 <el-form-item label="收货地址：" prop="receiveAddress">
-                  <el-input placeholder="请输入" v-model="form.receiveAddress" clearable :disabled="accountFlag || !isReturnStatus" />
+                  <el-input placeholder="请输入" v-model="form.receiveAddress" clearable :disabled="!canEditReceiver" />
                 </el-form-item>
                 <el-form-item label="物流支付方式：" prop="logisticsPaymentMethod">
                   <fetch-select :request="fetchOptions" enumCode="PurchaseLogisticsPaymentMethodEnum"
-                    v-model="form.logisticsPaymentMethod" placeholder="请选择" clearable filterable :disabled="accountFlag || !isReturnStatus" />
+                    v-model="form.logisticsPaymentMethod" placeholder="请选择" clearable filterable :disabled="isReceiveWarehouseDisabled" />
                 </el-form-item>
                 <el-form-item label="退货完成时间：" prop="returnCompleteTime">
                   {{ form.returnCompleteTime }}
@@ -473,7 +473,23 @@ export default {
     },
     isReturnStatus () {
       // 只有在状态为 20 时才允许 修改
-      return this.form.returnStatus === '20';
+      return this.form.returnStatus === '20' || this.form.returnStatus === 20;
+    },
+    // 退货类型、备注 编辑权限：门店(10/30) 或 厂端(20)
+    canEditReturnType () {
+      return (this.accountFlag && this.isEditable) || (!this.accountFlag && this.isReturnStatus);
+    },
+    // 收货人信息 编辑权限：只有门店(10/30)可编辑
+    canEditReceiver () {
+      return this.accountFlag && this.isEditable;
+    },
+    // 仓库、支付方式 编辑权限：新增都可填，编辑时厂端+20才可编辑
+    isReceiveWarehouseDisabled () {
+      const hasId = !!(this.id || this.$route.query.id || this.form.id);
+      const isFactory = !this.accountFlag; // 厂端账号
+      const isStatus20 = this.form.returnStatus === '20' || this.form.returnStatus === 20;
+      // 编辑时：厂端+20可编辑(返回false)，其他禁用(返回true)
+      return hasId && !(isFactory && isStatus20);
     }
   },
   watch: {
@@ -593,7 +609,7 @@ export default {
           { required: false, message: '请输入物流备注', trigger: 'change' }
         ],
         receiveWarehouseId: [
-          { required: true, message: '请输入收货主机厂仓库ID', trigger: 'change' }
+          { required: true, message: '请输入收货主机厂仓库', trigger: 'change' }
         ],
         receiver: [
           { required: false, message: '请输入收货人', trigger: 'change' }

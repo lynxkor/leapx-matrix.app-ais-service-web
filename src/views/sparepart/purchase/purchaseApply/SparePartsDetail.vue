@@ -80,6 +80,10 @@ export default {
     purchaseApplyId: { // 采购申请单ID
       type: [String, Number],
       default: ''
+    },
+    purchaseApplyDeleteId: { // 采购申请单详情ID
+      type: [String, Number],
+      default: ''
     }
   },
   components: { EditTable, FetchSelect },
@@ -136,15 +140,16 @@ export default {
       ],
     };
   },
-  // watch: {
-  //   purchaseApplyId: {
-  //     async handler (val) {
-  //       await this.getDetailData();
-  //     },
-  //     immediate: true,
-  //     deep: true
-  //   }
-  // },
+  watch: {
+    purchaseApplyDeleteId: {
+      async handler (val) {
+        if (val) {
+          await this.getSparePartDetail(val);
+        };
+      },
+      immediate: true,
+    }
+  },
   methods: {
     // 备件远程搜索
     async getSparePart (query) {

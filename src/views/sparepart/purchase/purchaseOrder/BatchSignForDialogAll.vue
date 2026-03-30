@@ -103,7 +103,7 @@ export default {
       //  构建参数
       const params = {
         purchaseOrderSignList: this.tableData.map(item => ({
-          purchaseOrderId: item.purchaseOrderId, // 使用 batchForm 中的 id
+          purchaseOrderDetailId: item.purchaseOrderId, // 使用 batchForm 中的 id
           qty: Number(item.form.qty) // 使用用户输入的数量
         })),
         inbound: this.inbound

@@ -33,6 +33,7 @@
                     placeholder="请输入"
                     v-model="form.partCode"
                     clearable
+                    :disabled="_id"
                   />
                 </el-form-item>
                 <el-form-item label="备件名称" prop="partName">
@@ -40,6 +41,7 @@
                     placeholder="请输入"
                     v-model="form.partName"
                     clearable
+                    :disabled="_id"
                   />
                 </el-form-item>
                 <el-form-item label="拼音简码" prop="pinyinCode">
@@ -48,16 +50,6 @@
                     disabled
                     v-model="form.pinyinCode"
                     clearable
-                  />
-                </el-form-item>
-                <el-form-item label="基本计量单位" prop="baseUnit">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="BaseUnitEnum"
-                    v-model="form.baseUnit"
-                    placeholder="请选择"
-                    clearable
-                    filterable
                   />
                 </el-form-item>
                 <el-form-item label="基本计量单位" prop="baseUnit">
@@ -157,7 +149,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/basic/sparePart/index';
+import { getDetail, addOrUpdateDealer } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -454,7 +446,7 @@ export default {
       }
     },
     submitRequest () {
-      return addOrUpdate({ ...this.form });
+      return addOrUpdateDealer({ ...this.form });
     },
     // 打开侧边栏
     openPane () {

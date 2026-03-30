@@ -122,7 +122,7 @@ export default {
         if (valid) {
           this.submitLoading = true;
           const params = {
-            serviceProxyId: this.info.serviceProxyId
+            id: this.info.id
           };
           if (this.form.signChannel === '40') {
             params.signChannel = '40';

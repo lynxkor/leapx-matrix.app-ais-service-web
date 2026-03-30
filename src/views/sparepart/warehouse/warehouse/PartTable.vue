@@ -82,7 +82,7 @@ export default {
       columns: [
         {
           field: 'locationName',
-          title: '席位名称',
+          title: '库位名称',
           width: '20%',
           editRender: { name: 'ElInput' },
         },

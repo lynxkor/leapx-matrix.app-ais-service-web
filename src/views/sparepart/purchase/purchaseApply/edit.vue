@@ -244,7 +244,7 @@
                 <el-button class="ais-button" size="small">
                   补货预测
                 </el-button>
-                <el-button size="small" @click="handleImport" >备件导入</el-button>
+                <el-button size="small" @click="handleImport" :disabled="!routeQueryType">备件导入</el-button>
               </div>
               <div class="common-title">备件列表</div>
               <div class="common-section-table">
@@ -257,7 +257,11 @@
                       border="inner"
                       size="medium"
                   >
-                      <vxe-column field="partCode" title="备件编码" />
+                      <vxe-column field="partCode" title="备件编码">
+                        <template v-slot="{ row }">
+                          <span class="clickable" @click="handleEdit(row)">{{ row.partCode }}</span>
+                        </template>
+                      </vxe-column>
                       <vxe-column field="partName" title="备件名称" />
                       <vxe-column field="originalPrice" title="原价" />
                       <vxe-column field="purchasePrice" title="采购价" />
@@ -310,6 +314,7 @@
         <!-- 右侧栏组件，自行开发 -->
         <SparePartsDetail
           :purchase-apply-id="_id"
+          :purchaseApplyDeleteId="purchaseApplyDeleteId"
           @submit="getDetailData"
         />
       </div>
@@ -459,6 +464,16 @@ export default {
         }
       }
     },
+    'form.thirdPartyDeliveryIs': {
+      handler (val) {
+        if (val === '1') {
+          this.rules.address[0].required = true;
+        } else {
+          this.rules.address[0].required = false;
+          this.$refs.ruleForm?.clearValidate('address');
+        }
+      }
+    },
   },
   data () {
     const form = this.getDefautlForm();
@@ -491,6 +506,7 @@ export default {
       pageSize: 10,
       current: 1,
       total: 0,
+      purchaseApplyDeleteId: '', // 采购申请单ID
       tableData: [],
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       rules: {
@@ -509,6 +525,9 @@ export default {
         recipientName: [
           { required: true, message: '请输入收货人姓名', trigger: 'change' }
         ],
+        address: [
+          { required: false, message: '请输入收货地址', trigger: 'change' }
+        ],
         recipientPhone: [
           { required: true, message: '请输入收货人电话', trigger: 'change' }
         ],
@@ -524,7 +543,6 @@ export default {
   mounted () {
     this.oem = this.$store.state.pageSource?.aisPageSource.includes('AISPART-sparePart-oem');
     this.getLoginUser();
-    this.getOrderType();
     this.getDetailData();
   },
   methods: {
@@ -571,8 +589,8 @@ export default {
         } else {
           this.form.dealerCode = '';
           this.form.dealerName = '';
-          this.accountPermissions = '';
         }
+        this.getOrderType(); // 先请求 账号权限接口 再请求类型接口
         if (this.form.dealerCode) {
           this.getPartDealer(this.form.dealerCode);
         }
@@ -667,6 +685,12 @@ export default {
     },
     // 添加备件
     handleAdd () {
+      this.purchaseApplyDeleteId = '';
+      this.openPane();
+    },
+    // 编辑备件
+    handleEdit (row) {
+      this.purchaseApplyDeleteId = row.id;
       this.openPane();
     },
     handleImport () {
@@ -726,5 +750,9 @@ export default {
   margin-top: 15px;
   display: flex;
   justify-content: flex-end;
+}
+.clickable {
+  cursor: pointer;
+  color: #009100;
 }
 </style>

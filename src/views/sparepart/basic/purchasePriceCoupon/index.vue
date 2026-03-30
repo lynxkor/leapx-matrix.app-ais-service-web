@@ -25,7 +25,7 @@
         </el-form-item>
       <template v-if="show">
         <el-form-item label="优惠券ID">
-          <tag-input v-model="form.idList" placeholder="请输入" />
+          <tag-input v-model="form.ids" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="门店">
           <fetch-select
