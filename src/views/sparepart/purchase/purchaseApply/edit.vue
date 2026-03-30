@@ -465,6 +465,7 @@ export default {
           this.rules.address[0].required = true;
         } else {
           this.rules.address[0].required = false;
+          this.$refs.ruleForm?.clearValidate('address');
         }
       }
     }
@@ -536,7 +537,6 @@ export default {
   mounted () {
     this.oem = this.$store.state.pageSource?.aisPageSource.includes('AISPART-sparePart-oem');
     this.getLoginUser();
-    this.getOrderType();
     this.getDetailData();
   },
   methods: {
@@ -583,8 +583,8 @@ export default {
         } else {
           this.form.dealerCode = '';
           this.form.dealerName = '';
-          this.accountPermissions = '';
         }
+        this.getOrderType(); // 先请求 账号权限接口 再请求类型接口
         if (this.form.dealerCode) {
           this.getPartDealer(this.form.dealerCode);
         }
