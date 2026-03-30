@@ -209,6 +209,8 @@ export default {
           { props: 'cityName', label: '市', visible: true, width: 120 },
           { props: 'districtName', label: '区', visible: true, width: 120 },
           { props: 'address', label: '详细地址', visible: true, width: 200 },
+          { props: 'contactPhone', label: '联系人手机', visible: true, width: 180 },
+          { props: 'contactName', label: '联系人姓名', visible: true, width: 140 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'statusDesc', label: '停用原因', visible: true, width: 200 },
