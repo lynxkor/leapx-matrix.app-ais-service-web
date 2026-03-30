@@ -459,6 +459,15 @@ export default {
         }
       }
     },
+    'form.thirdPartyDeliveryIs': {
+      handler (val) {
+        if (val === '1') {
+          this.rules.address[0].required = true;
+        } else {
+          this.rules.address[0].required = false;
+        }
+      }
+    }
   },
   data () {
     const form = this.getDefautlForm();
@@ -508,6 +517,9 @@ export default {
         ],
         recipientName: [
           { required: true, message: '请输入收货人姓名', trigger: 'change' }
+        ],
+        address: [
+          { required: false, message: '请输入收货地址', trigger: 'change' }
         ],
         recipientPhone: [
           { required: true, message: '请输入收货人电话', trigger: 'change' }
