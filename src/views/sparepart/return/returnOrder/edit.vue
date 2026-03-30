@@ -792,10 +792,12 @@ export default {
     // 添加成功 表格接口刷新
     dialogSuccess () {
       this.sparePartsVisible = false;
+      this.$refs.containerRef.loadDetail();
       this.getDetailData();
     },
     async handleDel (row) {
       await returnOrderDel([row.id]);
+      this.$refs.containerRef.loadDetail();
       this.getDetailData();
     },
     handleImport () {
