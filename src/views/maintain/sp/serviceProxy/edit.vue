@@ -26,7 +26,7 @@
                     <el-button size="small" @click="handleCreatingOrder" v-if="orderStatus === RepairOrderStatusEnum.CREATING_ORDER && hasItems">制单确认并签字</el-button>
                     <el-button size="small" @click="selectRepairItemDialogVisible = true" v-if="canEditOrder && form.isCreateStatementInfo === 0">选择维修项目</el-button>
                     <el-button size="small" @click="dispatchWorkDialogVisible = true" v-if="isInConstruction && hasUndispatchedItems">派工</el-button>
-                    <el-button size="small" @click="deleteDispatchWorkDialogVisible = true" v-if="isInConstruction && hasWorkingItems">删除派工</el-button>
+                    <el-button size="small" @click="deleteDispatchWorkDialogVisible = true" v-if="isInConstruction && hasDispatchedItems">删除派工</el-button>
                     <el-button size="small" @click="startWorkDialogVisible = true" v-if="isInConstruction && hasDispatchedNotStartedItems">作业开始</el-button>
                     <el-button size="small" @click="endWorkDialogVisible = true" v-if="isInConstruction && hasWorkingItems">作业结束</el-button>
                     <el-button size="small" @click="finalCheckDialogVisible = true" v-if="orderStatus === RepairOrderStatusEnum.PENDING_FINAL_INSPECTION">终检</el-button>
@@ -406,7 +406,10 @@ export default {
     hasUndispatchedItems () {
       return this.form?.workRecordRespList?.some(item => item.isDispatch !== 1);
     },
-
+    // 是否存在已派工的维修项目
+    hasDispatchedItems () {
+      return this.form?.workRecordRespList?.some(item => item.isDispatch === 1);
+    },
     // 是否存在已派工未开始的维修项目
     hasDispatchedNotStartedItems () {
       return this.form?.workRecordRespList?.some(item => item.isDispatch === 1 && !item.timeSpend);

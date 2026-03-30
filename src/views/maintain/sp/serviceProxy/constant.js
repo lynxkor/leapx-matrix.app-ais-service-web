@@ -116,3 +116,16 @@ export const MaintenanceTypeEnum = {
   /** 保养 */
   MAINTENANCE: '6EA3066F-82AC-E911-B0BB-FC82BA5F9EDF'
 };
+
+export const WorkRecordStatusEnum = {
+  /** 作业未开始 */
+  NOT_STARTED: 10,
+  /** 作业中 */
+  IN_PROGRESS: 20,
+  /** 中断 */
+  SUSPEND: 30,
+  /** 作业完成 */
+  COMPLETED: 40,
+  /** 作业作废 */
+  CANCELLED: 50
+};

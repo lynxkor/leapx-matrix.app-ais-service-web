@@ -17,7 +17,7 @@
           border="inner"
           size="medium"
         >
-          <vxe-column field="repairItemId" title="维修项目ID" min-width="150" />
+          <!-- <vxe-column field="repairItemId" title="维修项目ID" min-width="150" /> -->
           <vxe-column
             field="repairItemCode"
             title="维修项目代码"

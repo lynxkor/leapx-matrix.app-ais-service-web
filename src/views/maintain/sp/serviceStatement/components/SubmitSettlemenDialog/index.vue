@@ -62,7 +62,7 @@
                   style="width: 150px"
                   :precision="2"
                   :min="0"
-                  :max="baseInfo.repairItemPayableAmount"
+                  :max="+baseInfo.remainAmount"
                   size="small"
                   v-model="roundAmount"
                   @change="handleRoundAmountChange"
@@ -109,7 +109,7 @@
             <div class="info-item">
               <span class="label">已收款总金额：</span>
               <span class="value">{{
-                baseInfo.payableAmount - baseInfo.remainAmount
+                baseInfo.totalAmount - baseInfo.remainAmount
               }}</span>
             </div>
           </div>
@@ -612,7 +612,7 @@ export default {
         repairItemPayableAmount: parseFloat(repairItemPayableAmount.toFixed(2)),
         partPayableAmount: parseFloat(partPayableAmount.toFixed(2)),
         payableAmount: parseFloat(Math.max(0, payableAmount).toFixed(2)),
-        remainAmount: parseFloat(Math.max(0, payableAmount).toFixed(2)),
+        // remainAmount: parseFloat(Math.max(0, payableAmount).toFixed(2)),
       };
     },
     // 计算最终金额数据（用于提交）

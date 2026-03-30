@@ -15,20 +15,16 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="错误代码及内容" prop="preAuthRuleCodeId" v-if="form.auditStaus === '20'">
-        <el-select
+        <fetch-select
           v-model="form.preAuthRuleCodeId"
           placeholder="请选择错误代码"
+          :options="errorCodeOptions"
+          value-key="value"
+          label-key="label"
+          subLabelKey="desc"
           filterable
           clearable
-        >
-          <el-option
-            v-for="item in errorCodeOptions"
-            :key="item.value"
-            :label="`${item.label}`"
-            :value="item.value"
-          >
-          </el-option>
-        </el-select>
+        />
       </el-form-item>
       <el-form-item label="审核意见" prop="auditContent">
         <el-input
@@ -60,11 +56,13 @@ import AisAttachment from '@/libs/components/AisAttachment';
 import { auditItem } from '@/api/maintain/sp/preAuth/index';
 import { getErrorCodeList } from '@/api/maintain/sp/preAuth/errorCode';
 import { AUDIT_STATUS } from '../../constant';
+import FetchSelect from '@/libs/components/FetchSelect';
 
 export default {
   name: 'PreAuthAuditDialog',
   components: {
-    AisAttachment
+    AisAttachment,
+    FetchSelect
   },
   props: {
     visible: {

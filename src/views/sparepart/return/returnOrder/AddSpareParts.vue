@@ -118,8 +118,8 @@ export default {
         sparePartIdList: [],
         purchaseOrderCodeList: [],
         inboundOrderCodeList: [],
-        availableQtyGreater: false,
-        returnableQtyGreater: false
+        availableQtyGreater: true,
+        returnableQtyGreater: true
       }
     };
   },
