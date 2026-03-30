@@ -94,7 +94,7 @@
         <el-input v-model="form.vehiclePlateNo" placeholder="请输入车牌号" clearable />
       </el-form-item>
       <el-form-item label="车主姓名：">
-        <el-input v-model="form.ownerNameList" placeholder="请输入车主姓名" clearable />
+        <el-input v-model="form.ownerName" placeholder="请输入车主姓名" clearable />
       </el-form-item>
       <el-form-item label="车型：">
         <fetch-select
@@ -134,10 +134,19 @@
         />
       </el-form-item>
       <el-form-item label="主因件编码：">
-        <tag-input v-model="form.mainPartCodeList" placeholder="请输入主因件编码" />
-      </el-form-item>
-      <el-form-item label="主因件名称：">
-        <tag-input v-model="form.mainPartNameList" placeholder="请输入主因件名称" />
+        <fetch-select
+          filterable
+          clearable
+          remote
+          multiple
+          reserve-keyword
+          v-model="form.mainPartCodeList"
+          :remote-method="partRemote"
+          value-key="id"
+          label-key="partName"
+          subLabelKey="partCode"
+          placeholder="请输入零件编码/名称"
+        />
       </el-form-item>
       <el-form-item label="服务月份：">
         <el-input v-model="form.serviceMonth" placeholder="请输入" clearable />
@@ -191,7 +200,7 @@
       <el-button size="small" @click="handleWithdraw">批量撤回</el-button>
       <el-button size="small" @click="handleReject">批量驳回</el-button>
       <el-button size="small" @click="handleApprove">批量同意</el-button>
-      <el-button size="small" @click="handleXXX">批量作废</el-button>
+      <el-button size="small" @click="handleCancel">批量作废</el-button>
       <el-button size="small" @click="handleMark">打印标签</el-button>
     </div>
     <div
@@ -215,6 +224,17 @@
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
     </div>
+    <RejectDialog
+      :visible.sync="rejectDialogVisible"
+      :rejectIds="rejectIds"
+      @success="getData"
+      :isApplyReject="isApplyReject"
+    />
+    <DenyDialog
+      :visible.sync="denyDialogVisible"
+      :denyIds="denyIds"
+      @success="getData"
+      />
   </div>
 </template>
 
@@ -228,7 +248,10 @@ import {
   withdraw,
   approve,
 } from '@/api/claimreturn/claim/warrantyapply/index';
-import { getTableConfig, tableAddOrUpdate, getEnum, listVehicleModel, getScopeTypeOrg } from '@/api/common';
+import {
+  getTableConfig, tableAddOrUpdate, getEnum, listVehicleModel, getScopeTypeOrg,
+  sparePartList
+} from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -239,6 +262,8 @@ import DealerSelect from '@/components/dealer-select';
 // import ListSelect from '@/libs/components/list-select/index.vue';
 import TagInput from '@/libs/components/TagInput';
 import { getList as repairGetList } from '@/api/maintain/basic/repairItemType';
+import RejectDialog from './RejectDialog/index.vue';
+import DenyDialog from './DenyDialog/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -282,10 +307,12 @@ export default {
     EditPage,
     DealerSelect,
     TagInput,
+    RejectDialog,
+    DenyDialog,
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '保修申请单',
       pageType: 'list',
       // TIPS: 权限前缀 AISCR，根据实际情况修改
       moduleKey: 'AISCR-warrantyApply',
@@ -309,6 +336,20 @@ export default {
         // sort: 'DESC'
         // }
       ],
+      rejectDialogVisible: false,
+      rejectIds: [],
+      isApplyReject: false,
+      //
+      denyDialogVisible: false,
+      denyIds: [],
+      //
+      cancel: false,
+      applyReject: false,
+      withdraw: false,
+      deny: false,
+      reject: false,
+      approve: false,
+      submit: false,
     };
   },
   computed: {
@@ -352,8 +393,7 @@ export default {
                 this.$router.push({
                   path: '/datacenter/vehicle/vehicleProfile/edit',
                   query: {
-                    // TODO
-                    id: row.id
+                    id: row.vehicleProfileId
                   }
                 });
               }
@@ -442,6 +482,9 @@ export default {
                 },
                 type: 'info',
                 show: (row) => {
+                  if (!this.submit) {
+                    return false;
+                  }
                   // 未提交，已驳回
                   if (row.applyStatus === '10' || row.applyStatus === '40') {
                     return true;
@@ -452,17 +495,100 @@ export default {
               {
                 name: '同意',
                 click: (rowIndex, row) => {
-                  approve({
-                    id: row.id,
-                  }).then(res => {
-                    this.$message.success('提交成功');
-                    this.getData();
-                  });
+                  this.handleApprove([row.id]);
                 },
                 type: 'info',
                 show: (row) => {
+                  if (!this.approve) {
+                    return false;
+                  }
                   // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
                   if (['20', '25', '30'].includes(row.applyStatus)) {
+                    return true;
+                  }
+                  return false;
+                },
+              },
+              {
+                name: '驳回',
+                click: (rowIndex, row) => {
+                  this.handleReject([row.id], false);
+                },
+                type: 'info',
+                show: (row) => {
+                  if (!this.reject) {
+                    return false;
+                  }
+                  // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
+                  if (['20', '25', '30'].includes(row.applyStatus)) {
+                    return true;
+                  }
+                  return false;
+                },
+              },
+              {
+                name: '申请驳回',
+                click: (rowIndex, row) => {
+                  this.handleReject([row.id], true);
+                },
+                type: 'info',
+                show: (row) => {
+                  if (!this.applyReject) {
+                    return false;
+                  }
+                  // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
+                  if (['20', '25', '30'].includes(row.applyStatus)) {
+                    return true;
+                  }
+                  return false;
+                },
+              },
+              {
+                name: '撤回',
+                click: (rowIndex, row) => {
+                  this.handleWithdraw([row.id]);
+                },
+                type: 'info',
+                show: (row) => {
+                  if (!this.withdraw) {
+                    return false;
+                  }
+                  // 【保修单状态】为审核通过，已拒赔 显示此按钮
+                  if (['60', '50'].includes(row.applyStatus)) {
+                    return true;
+                  }
+                  return false;
+                },
+              },
+              {
+                name: '拒赔',
+                click: (rowIndex, row) => {
+                  this.handleDeny([row.id]);
+                },
+                type: 'info',
+                show: (row) => {
+                  if (!this.deny) {
+                    return false;
+                  }
+                  // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
+                  if (['20', '25', '30'].includes(row.applyStatus)) {
+                    return true;
+                  }
+                  return false;
+                },
+              },
+              {
+                name: '作废',
+                click: (rowIndex, row) => {
+                  this.handleCancel([row.id]);
+                },
+                type: 'info',
+                show: (row) => {
+                  if (!this.cancel) {
+                    return false;
+                  }
+                  // 保修单状态】为未提交，已驳回，显示此按钮
+                  if (['10', '40'].includes(row.applyStatus)) {
                     return true;
                   }
                   return false;
@@ -478,6 +604,13 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    this.cancel = this.permissions.has(`${this.moduleKey}-cancel`);
+    this.applyReject = this.permissions.has(`${this.moduleKey}-applyReject`);
+    this.withdraw = this.permissions.has(`${this.moduleKey}-withdraw`);
+    this.deny = this.permissions.has(`${this.moduleKey}-deny`);
+    this.reject = this.permissions.has(`${this.moduleKey}-reject`);
+    this.approve = this.permissions.has(`${this.moduleKey}-approve`);
+    this.submit = this.permissions.has(`${this.moduleKey}-submit`);
   },
   methods: {
     // 排序
@@ -493,27 +626,35 @@ export default {
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
-    handleReject () {},
-    handleApprove () {
-      if (!this.selectionList.length) {
+    handleReject (paramIds, isApplyReject = false) {
+      const isRow = Array.isArray(paramIds);
+      if (!this.selectionList.length && !isRow) {
         this.$message({
           type: 'warning',
           message: '请选择数据'
         });
         return;
       }
-      this.$prompt('同意', '审批说明', {
+      const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
+      this.rejectIds = ids;
+      this.rejectDialogVisible = true;
+      this.isApplyReject = isApplyReject;
+    },
+    handleApprove (paramIds) {
+      const isRow = Array.isArray(paramIds);
+      if (!this.selectionList.length && !isRow) {
+        this.$message({
+          type: 'warning',
+          message: '请选择数据'
+        });
+        return;
+      }
+      this.$prompt('审批说明', '同意', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         inputPlaceholder: '请输入审批说明',
-        // inputValidator: (value) => {
-        //   if (!value || value.trim() === '') {
-        //     return '请输入审批说明';
-        //   }
-        //   return true;
-        // }
       }).then(({ value }) => {
-        const ids = this.selectionList.map(item => item.id);
+        const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
         approve({
           ids,
           approvalRemark: value
@@ -527,9 +668,23 @@ export default {
         });
       }).catch(() => {});
     },
-    handleXXX () {},
-    handleWithdraw () {
-      if (!this.selectionList.length) {
+    handleDeny (paramIds) {
+      const isRow = Array.isArray(paramIds);
+      if (!this.selectionList.length && !isRow) {
+        this.$message({
+          type: 'warning',
+          message: '请选择数据'
+        });
+        return;
+      }
+      const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
+      this.denyIds = ids;
+      this.denyDialogVisible = true;
+    },
+    handleCancel (paramIds) {},
+    handleWithdraw (paramIds) {
+      const isRow = Array.isArray(paramIds);
+      if (!this.selectionList.length && !isRow) {
         this.$message({
           type: 'warning',
           message: '请选择数据'
@@ -545,9 +700,10 @@ export default {
             return '请输入撤回说明';
           }
           return true;
-        }
+        },
+        iconClass: 'ais-required',
       }).then(({ value }) => {
-        const ids = this.selectionList.map(item => item.id);
+        const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
         withdraw({
           ids,
           withdrawRemark: value
@@ -672,6 +828,10 @@ export default {
         }
       }
 
+      if (data.serviceMonth) {
+        data.serviceMonth = Number(data.serviceMonth);
+      }
+
       // 排序字段
       data.sortColumns = this.sortColumns;
       return data;
@@ -694,7 +854,10 @@ export default {
     },
     getScopeTypeOrg () {
       return getScopeTypeOrg({ type: '1020' });
-    }
+    },
+    partRemote (query) {
+      return sparePartList({ partCodeOrNameLike: query, oemPart: 1 });
+    },
   }
 };
 </script>

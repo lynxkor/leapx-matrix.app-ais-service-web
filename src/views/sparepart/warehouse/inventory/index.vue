@@ -330,7 +330,7 @@ export default {
           { props: 'costUnitPrice', label: '成本单价', visible: true, align: 'right', width: 120 },
           { props: 'costAmount', label: '成本金额', visible: true, align: 'right', width: 120 },
           { props: 'standingInventoryIsLabel', label: '是否常用件', visible: true, width: 120 },
-          { props: 'remarkLike', label: '备注', visible: true, width: 200 },
+          { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'latestInboundTime', label: '最近入库时间', visible: true, width: 200 },
           { props: 'latestOutboundTime', label: '最近出库时间', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },

@@ -1496,7 +1496,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: '保修申请单',
       pageType: 'edit',
       // TIPS: 权限前缀 AISCR 根据实际情况修改
       moduleKey: 'AISCR-warrantyApply',
