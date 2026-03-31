@@ -746,16 +746,30 @@ export default {
     },
     // 同意
     async handleAgree (val) {
+      if (!val || !val.id) {
+        this.$message.error('操作失败：缺少采购单ID');
+        return;
+      }
       const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
-      if (res.length > 0) { // 疑是 同意时 丢失id 是因为这里 打开的时候 重新去赋值了 但是 这个时候 val 是没有值得 所以这里要重新赋值
-        this.purchaseId = val.id;
-        this.purchaseList = res || [];
-        this.agreeDialogVisible = true;
+      if (res.length > 0) {
+        // 确保只设置有效的id值
+        if (val.id) {
+          this.purchaseId = val.id;
+          this.purchaseList = res || [];
+          this.agreeDialogVisible = true;
+        } else {
+          this.$message.error('操作失败：缺少采购单ID');
+        }
       } else if (res.length === 0) {
         const res = await purchaseApplyGetCoupon({ id: val.id });
-        this.couponObj = res;
-        this.purchaseId = val.id;
-        this.approvalDialogVisible = true;
+        // 确保只设置有效的id值
+        if (val.id) {
+          this.couponObj = res;
+          this.purchaseId = val.id;
+          this.approvalDialogVisible = true;
+        } else {
+          this.$message.error('操作失败：缺少采购单ID');
+        }
       }
     },
     // 批量同意
@@ -783,8 +797,12 @@ export default {
     // 审批同意失败时
     handleApprovalFailure (val) {
       this.approvalDialogVisible = false;
-      this.purchaseId = val;
-      this.agreeDialogVisible = true;
+      if (val) {
+        this.purchaseId = val;
+        this.agreeDialogVisible = true;
+      } else {
+        this.$message.error('操作失败：缺少采购单ID');
+      }
     },
     // 驳回
     handleReject (val) {
