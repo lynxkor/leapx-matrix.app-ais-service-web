@@ -422,9 +422,9 @@ export default {
       }
       // 对 itemList 进行字段映射，只获取被勾选的维修项目
       const activityRes = this.response?.activityResponse || {};
-      const itemList = (this.partsList || []).filter(item => item.checked).map(item => ({
+      const itemList = (this.partsList || []).filter(item => item.checked && !item.used).map(item => ({
         serviceProxyId: this.vehicleInfo.id,
-        repairItemId: item.id,
+        repairItemId: item.repairItemId,
         repairItemCode: item.repairItemCode,
         repairItemName: item.repairItemName,
         repairItemTypeId: item.repairItemTypeId,
