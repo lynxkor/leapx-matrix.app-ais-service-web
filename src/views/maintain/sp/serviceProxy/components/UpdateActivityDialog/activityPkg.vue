@@ -10,7 +10,7 @@
           <el-dropdown-item
             v-for="item in packageTypeList"
             :key="item.id"
-            :command="item.id"
+            :command="item.code"
           >
             {{ item.message }}
           </el-dropdown-item>
