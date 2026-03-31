@@ -80,7 +80,7 @@ export default {
       }
       return [];
     },
-    addData (data) {
+    addData ({ data }) {
       // 新增
       serviceActivityFaultUpdate({
         cccId: data.id,

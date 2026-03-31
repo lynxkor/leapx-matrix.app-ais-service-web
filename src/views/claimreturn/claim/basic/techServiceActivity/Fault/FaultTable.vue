@@ -22,7 +22,7 @@
         <ccc-search
           v-if="eidtRowIndex === rowIndex"
           :id="id"
-          @update="(data) => onUpdate(row, data)"
+          @update="({data}) => onUpdate(row, data)"
           :value="row.cccName"
         />
         <span v-else>{{ row.cccName }}</span>

@@ -66,3 +66,8 @@ export function submitApproval (data) {
 export function approval (data) {
   return api.jsonPost(prefix + 'approval', data);
 }
+
+// 查询关联质量反馈报告列表
+export function getRelatedReports (data) {
+  return api.jsonPost(prefix + 'getRelatedReports', data);
+}
