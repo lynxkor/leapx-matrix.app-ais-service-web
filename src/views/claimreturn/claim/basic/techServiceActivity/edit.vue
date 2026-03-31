@@ -434,6 +434,8 @@ export default {
   mounted () {
     if (this.isServiceCareActivity) {
       this.form.checkoutTypeName = '自费';
+      this.form.activityTypeLabel = '服务关爱活动';
+      this.form.activityType = '4';
     }
   },
   methods: {
