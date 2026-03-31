@@ -106,7 +106,7 @@ export default {
         if (res.length > 0 && this.id) {
           this.$emit('failure', this.id);
         } else if (res.length > 0) {
-          this.$message.error('操作失败：缺少采购单ID');
+          this.$message.warning('操作失败：缺少采购单ID');
         } else {
           this.$emit('success');
           this.$message({

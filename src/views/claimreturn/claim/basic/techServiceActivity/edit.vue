@@ -416,7 +416,7 @@ export default {
           { required: true, message: '请输入故障排查流程', trigger: 'blur' }
         ],
         checkoutTypeId: [
-          { required: true, message: '请选择结算类型ID', trigger: 'change' }
+          { required: !isServiceCareActivity, message: '请选择结算类型', trigger: 'change' }
         ],
         checkoutTypeName: [
           { required: true, message: '请选择结算类型名称', trigger: 'change' }
@@ -432,6 +432,11 @@ export default {
     };
   },
   mounted () {
+    if (this.isServiceCareActivity) {
+      this.form.checkoutTypeName = '自费';
+      this.form.activityTypeLabel = '服务关爱活动';
+      this.form.activityType = '4';
+    }
   },
   methods: {
     detailRequest () {
