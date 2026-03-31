@@ -5,7 +5,7 @@
     </div>
     <div class="common-section-body" v-if="id">
       <section class="common-section">
-        <fault-search
+        <ccc-search
           @update="addData"
           :isAdd="true"
         />
@@ -31,7 +31,7 @@ import {
 import permissions from '@/libs/mixins/permissions';
 import { getEnum } from '@/api/common';
 import FaultTable from './FaultTable.vue';
-import FaultSearch from './FaultSearch.vue';
+import CccSearch from '@/components/CccSearch/index.vue';
 
 export default {
   props: {
@@ -50,7 +50,7 @@ export default {
   mixins: [permissions],
   components: {
     FaultTable,
-    FaultSearch,
+    CccSearch,
   },
   data () {
     return {

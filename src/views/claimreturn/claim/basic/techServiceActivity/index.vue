@@ -259,7 +259,7 @@ export default {
             }, {
               name: '提交零配件准备',
               show: (row) => {
-                return row.activityStatus === '0' && this.permissions.has('AISCR-techServiceActivity-submitPartsPreparation');
+                return row.activityStatus === '0' && this.permissions.has(moduleKey + '-submitPartsPreparation');
               },
               click: this.handleSubmitPartsPreparation,
               type: 'info'
@@ -269,7 +269,7 @@ export default {
               click: this.partsPreparationCompleted,
               type: 'info',
               show: (row) => {
-                return row.activityStatus === '1' && this.permissions.has('AISCR-techServiceActivity-partsPreparationCompleted');
+                return row.activityStatus === '1' && this.permissions.has(moduleKey + '-partsPreparationCompleted');
               },
             }]
           }
