@@ -107,7 +107,10 @@ export default {
         return;
       }
       this.selectRef.blur();
-      this.$emit('update', data);
+      this.$emit('update', {
+        data,
+        node,
+      });
     },
     // 自定义渲染内容
     renderContent (h, { node, data, store }) {
