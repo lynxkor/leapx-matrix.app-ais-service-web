@@ -148,3 +148,11 @@ export function purchaseApplyDeleteUnPurchaseDetail (data) {
 export function purchaseApplyGetCoupon (data) {
   return api.jsonPost(prefix + 'getCoupon', data);
 }
+
+/**
+ * 采购原价券列表
+ * @param {Object} data
+ */
+export function purchaseApplyBatchSubmit (data) {
+  return api.jsonPost('/sp/web/purchase/purchaseApply/batchSubmit', data);
+}

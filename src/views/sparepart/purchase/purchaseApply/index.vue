@@ -177,6 +177,7 @@
       <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
+      <el-button size="small" @click="handleBatchSubmit" :disabled="selectionList.length === 0">批量提交</el-button>
       <el-button size="small" @click="handleBatchAgree" :disabled="selectionList.length === 0">批量同意</el-button>
       <el-button size="small" @click="handleBatchReject" :disabled="selectionList.length === 0">批量驳回</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">铺货导入</el-button>
@@ -240,7 +241,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, purchaseApplyReject, purchaseApplyBatchReject, purchaseApplyListUnPurchaseDetail, purchaseApplySubmit, purchaseApplyCopy, batchAgree, purchaseApplyGetCoupon } from '@/api/sparepart/purchase/purchaseApply/index';
+import { getList, deleteItem, enableItem, purchaseApplyReject, purchaseApplyBatchReject, purchaseApplyListUnPurchaseDetail, purchaseApplySubmit, purchaseApplyCopy, batchAgree, purchaseApplyGetCoupon, purchaseApplyBatchSubmit } from '@/api/sparepart/purchase/purchaseApply/index';
 import { getUserByNameOrNo, getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -746,17 +747,58 @@ export default {
     },
     // 同意
     async handleAgree (val) {
+      if (!val || !val.id) {
+        this.$message.warning('操作失败：缺少采购单ID');
+        return;
+      }
       const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
-      if (res.length > 0) { // 疑是 同意时 丢失id 是因为这里 打开的时候 重新去赋值了 但是 这个时候 val 是没有值得 所以这里要重新赋值
-        this.purchaseId = val.id;
-        this.purchaseList = res || [];
-        this.agreeDialogVisible = true;
+      if (res.length > 0) {
+        // 确保只设置有效的id值
+        if (val.id) {
+          this.purchaseId = val.id;
+          this.purchaseList = res || [];
+          this.agreeDialogVisible = true;
+        } else {
+          this.$message.warning('操作失败：缺少采购单ID');
+        }
       } else if (res.length === 0) {
         const res = await purchaseApplyGetCoupon({ id: val.id });
-        this.couponObj = res;
-        this.purchaseId = val.id;
-        this.approvalDialogVisible = true;
+        // 确保只设置有效的id值
+        if (val.id) {
+          this.couponObj = res;
+          this.purchaseId = val.id;
+          this.approvalDialogVisible = true;
+        } else {
+          this.$message.warning('操作失败：缺少采购单ID');
+        }
       }
+    },
+    // 批量提交
+    async handleBatchSubmit () {
+      // 检查选中记录的订单状态是否都是草稿/已驳回
+      const invalidRecords = this.selectionList.filter(item => {
+        return item.orderStatus !== '0' && item.orderStatus !== '3';
+      });
+
+      if (invalidRecords.length > 0) {
+        this.$message.warning('只能选择草稿/已驳回的单据');
+        return;
+      }
+
+      // 批量提交逻辑
+      const idList = this.selectionList.map(item => item.id);
+      this.$confirm('确认批量提交吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        await purchaseApplyBatchSubmit({ ids: idList });
+
+        this.$message.success('批量提交成功!');
+        this.getData();
+      }).catch(() => {
+        this.$message.error('批量提交失败!');
+      });
     },
     // 批量同意
     handleBatchAgree () {
@@ -783,8 +825,12 @@ export default {
     // 审批同意失败时
     handleApprovalFailure (val) {
       this.approvalDialogVisible = false;
-      this.purchaseId = val;
-      this.agreeDialogVisible = true;
+      if (val) {
+        this.purchaseId = val;
+        this.agreeDialogVisible = true;
+      } else {
+        this.$message.error('操作失败：缺少采购单ID');
+      }
     },
     // 驳回
     handleReject (val) {
