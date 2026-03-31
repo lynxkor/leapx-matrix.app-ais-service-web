@@ -227,7 +227,7 @@ export default {
       if (!this.selectedType) {
         return '全部活动';
       }
-      const type = this.packageTypeList.find(item => item.id === this.selectedType);
+      const type = this.packageTypeList.find(item => item.code === this.selectedType);
       return type?.message || '全部活动';
     },
     confirmBtnText () {
