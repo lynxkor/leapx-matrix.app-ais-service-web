@@ -81,7 +81,7 @@
                         <td>{{item.locationName}}</td>
                         <td>{{item.outboundQty}}</td>
                         <td>{{item.outboundIsLabel}}</td>
-                        <td>{{item.picker}}</td>
+                        <td>{{item.pickerName}}</td>
                         <td>{{item.pickTime}}</td>
                         <td>¥{{item.price}}</td>
                         <td>{{ item.remark || '--' }}</td>
