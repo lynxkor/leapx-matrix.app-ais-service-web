@@ -130,6 +130,12 @@ import api from '@/axios';
 
 export default {
   name: 'Condition',
+  props: {
+    configCode: {
+      type: [String, Number],
+      default: ''
+    }
+  },
   components: {
     FetchSelect
   },
@@ -182,7 +188,12 @@ export default {
     },
     // 加载字段选项 - 直接调用 attachmentConfigConditionPage 接口
     loadFieldOptions () {
-      attachmentConfigConditionPage({ pageNum: 1, pageSize: 100 })
+      const params = { pageNum: 1, pageSize: 100 };
+      // 如果有 configCode，则传入参数
+      if (this.configCode) {
+        params.configCode = this.configCode;
+      }
+      attachmentConfigConditionPage(params)
         .then(res => {
           const records = res.data?.records || [];
           this.fieldOptions = records.map(item => ({
