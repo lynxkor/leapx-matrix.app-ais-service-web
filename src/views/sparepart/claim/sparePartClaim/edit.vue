@@ -50,13 +50,13 @@
                   {{ form.purchaseOrderCode }}
                 </el-form-item>
                 <el-form-item label="提交人：" prop="submitter">
-                  {{ form.submitter }}
+                  {{ form.submitterName }}
                 </el-form-item>
                 <el-form-item label="提交时间：" prop="submitTime">
                   {{ form.submitTime }}
                 </el-form-item>
                 <el-form-item label="确认人：" prop="confirmer">
-                  {{ form.confirmer }}
+                  {{ form.confirmerName }}
                 </el-form-item>
                 <el-form-item label="确认时间：" prop="confirmTime">
                   {{ form.confirmTime }}
@@ -317,10 +317,17 @@
                   :businessId="_id"
                   configCode="mcs_partsclaimorder"
                   attachType="索赔申请附件"
+                  :readonly="form.claimStatus !== '10' && form.claimStatus !== '30'"
                 />
               </div>
               <h2 style="padding-bottom: 10px;">审批附件</h2>
               <div class="common-section-table">
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_partsclaimorder"
+                  attachType="索赔审批附件"
+                  readonly
+                />
               </div>
             </div>
           </section>
