@@ -22,7 +22,7 @@
       <el-form-item label="三包预警：">
         <fetch-select
           :request="fetchOptions"
-          enumCode=""
+          enumCode="alarm_level"
           v-model="form.alarmLevelList"
           placeholder="请选择"
           clearable
@@ -264,7 +264,6 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select';
-// import ListSelect from '@/libs/components/list-select/index.vue';
 import TagInput from '@/libs/components/TagInput';
 import { getList as repairGetList } from '@/api/maintain/basic/repairItemType';
 import RejectDialog from './RejectDialog/index.vue';
@@ -375,6 +374,7 @@ export default {
             label: '三包预警',
             visible: true,
             width: 200,
+            buttons: [{ type: 'primary' }],
           },
           {
             props: 'applyNo',

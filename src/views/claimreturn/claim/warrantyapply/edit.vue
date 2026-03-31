@@ -452,6 +452,17 @@
           </el-form>
         </div>
       </section>
+      <section class="common-section">
+        <div class="common-section-header">
+          <h2>工时信息</h2>
+        </div>
+        <div class="common-section-body">
+          <work-hour-table
+            :id="_id"
+            :canAddOrUpdate="canAddOrUpdate"
+          />
+        </div>
+      </section>
     </el-main>
   </edit-base-container>
 </template>
@@ -471,6 +482,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import CccSearch from '@/components/CccSearch/index.vue';
 import { getRelatedReports } from '@/api/maintain/sp/qualityOrderReport/index';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
+import WorkHourTable from './WorkHourTable.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -617,6 +629,7 @@ export default {
     FetchSelect,
     CccSearch,
     BaseInput,
+    WorkHourTable,
   },
   computed: {
     _id () {
@@ -690,6 +703,7 @@ export default {
     };
   },
   mounted () {
+    // 571005W202603271622250001
   },
   methods: {
     dataTransform (data) {
