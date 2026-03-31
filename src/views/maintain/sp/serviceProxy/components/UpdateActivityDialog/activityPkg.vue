@@ -255,15 +255,16 @@ export default {
   methods: {
     handlePartCheckboxChange ({ checked, row }) {
       row.checked = checked;
-      this.curItemList.checked = checked;
-      this.hasNewPart = this.response.partResponseList.some(item => item.checked && item.allowDelete === '1');
+      const el = this.partsList.some(item => item.checked);
+      this.curItemList.checked = !!el;
+      this.hasNewPart = this.response.partResponseList.some(item => item.checked && item.allowDelete === 1);
     },
     handlePartCheckboxAll ({ checked, records }) {
       records.forEach(row => {
         row.checked = checked;
       });
       this.curItemList.checked = checked;
-      this.hasNewPart = this.response.partResponseList.some(item => item.checked && item.allowDelete === '1');
+      this.hasNewPart = this.response.partResponseList.some(item => item.checked && item.allowDelete === 1);
     },
     handleSearch () {
       if (this.searchTimer) {
@@ -404,13 +405,13 @@ export default {
     checkItemCanAdd (item) {
       // 如果是维修项目对象
       if (item.repairItemCode) {
-        return item.allowDelete === 0 || item.checked;
+        return !item.used || item.allowDelete === 0 || item.checked;
       }
       // 如果是零件对象
       if (item.used) {
         return false;
       } else {
-        return item.allowDelete === '0' || item.checked;
+        return item.allowDelete === 0 || item.checked;
       }
     },
     // 使用套餐
@@ -537,7 +538,7 @@ export default {
     },
     // 主因件强制勾选，禁止取消
     checkMainPartMethod ({ row }) {
-      return row.allowDelete !== '0';
+      return row.allowDelete !== 0;
     },
     // 设置主因件为勾选状态
     setCheckedMainParts () {
@@ -547,13 +548,13 @@ export default {
         : this.$refs.partsTableRef;
       if (!tableRef) return;
       // 找出所有不允许删除的项目并勾选
-      const mainPartRows = this.partRespList.filter(row => row.allowDelete === '0' || row.used || row.checked);
+      const mainPartRows = this.partRespList.filter(row => row.allowDelete === 0 || row.used || row.checked);
       if (mainPartRows.length > 0) {
         tableRef.setCheckboxRow(mainPartRows, true);
       }
       // 同步维修项目的选中状态
       this.partRespList.forEach(part => {
-        if (part.checked && part.allowDelete === '1') {
+        if (part.checked && part.allowDelete === 1) {
           const repairItem = this.partsList.find(item => item.id === part.serviceActivityItemId);
           if (repairItem && !repairItem.checked) {
             repairItem.checked = true;
