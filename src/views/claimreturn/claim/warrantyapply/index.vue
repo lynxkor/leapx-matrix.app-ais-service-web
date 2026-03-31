@@ -195,8 +195,6 @@
       />
     </el-form>
     <div class="ais-actions">
-      <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button size="small" @click="handleWithdraw">批量撤回</el-button>
       <el-button size="small" @click="handleReject">批量驳回</el-button>
       <el-button size="small" @click="handleApprove">批量同意</el-button>
@@ -253,6 +251,7 @@ import {
   withdraw,
   approve,
   batchCancel,
+  queryOldPartOemInventoryId,
 } from '@/api/claimreturn/claim/warrantyapply/index';
 import {
   getTableConfig, tableAddOrUpdate, getEnum, listVehicleModel, getScopeTypeOrg,
@@ -609,6 +608,7 @@ export default {
               {
                 name: '打印标签',
                 click: (rowIndex, row) => {
+                  this.handlePrint([row.id]);
                 },
                 type: 'info',
               },
@@ -640,17 +640,29 @@ export default {
     this.submit = this.permissions.has(`${this.moduleKey}-submit`);
   },
   methods: {
-    handlePrint () {
-      if (!this.selectionList?.length) {
+    handlePrint (paramIds) {
+      const isRow = Array.isArray(paramIds);
+      if (!this.selectionList?.length && !isRow) {
         this.$message.warning('请选择打印数据');
         return;
       }
-      this.$print.show({
-        id: new Date().getTime() + '',
-        template: 'OldPartMark',
-        title: '保修旧件标签',
-        data: this.selectionList.map(item => item.id),
-        width: 1122,
+      queryOldPartOemInventoryId({
+        ids: isRow ? paramIds : this.selectionList.map(item => item.id)
+        // ids: ['00008247-0442-4D0E-AC1A-DE82B580213F']
+      }).then(res => {
+        if (res?.length) {
+          this.$print.show({
+            id: new Date().getTime() + '',
+            template: 'OldPartMark',
+            title: '保修旧件标签',
+            data: res,
+            width: 1122,
+          });
+        } else {
+          this.$message.warning('暂无可打印数据');
+        }
+      }).catch(() => {
+        this.$message.warning('打印失败');
       });
     },
     // 排序
