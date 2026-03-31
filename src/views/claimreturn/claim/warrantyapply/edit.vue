@@ -460,6 +460,43 @@
           <work-hour-table
             :id="_id"
             :canAddOrUpdate="canAddOrUpdate"
+            @update="handleTableUpdate"
+          />
+        </div>
+      </section>
+      <section class="common-section">
+        <div class="common-section-header">
+          <h2>其他信息</h2>
+        </div>
+        <div class="common-section-body">
+          <other-table
+            :id="_id"
+            :canAddOrUpdate="canAddOrUpdate"
+            @update="handleTableUpdate"
+          />
+        </div>
+      </section>
+      <section class="common-section">
+        <div class="common-section-header">
+          <h2>未完成活动</h2>
+        </div>
+        <div class="common-section-body">
+          <activity-table
+            :vin="form.vin"
+            :canAddOrUpdate="canAddOrUpdate"
+            @update="handleTableUpdate"
+          />
+        </div>
+      </section>
+      <section class="common-section">
+        <div class="common-section-header">
+          <h2>审批记录</h2>
+        </div>
+        <div class="common-section-body">
+          <approval-record-table
+            :id="_id"
+            :canAddOrUpdate="canAddOrUpdate"
+            @update="handleTableUpdate"
           />
         </div>
       </section>
@@ -483,6 +520,9 @@ import CccSearch from '@/components/CccSearch/index.vue';
 import { getRelatedReports } from '@/api/maintain/sp/qualityOrderReport/index';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
 import WorkHourTable from './WorkHourTable.vue';
+import OtherTable from './OtherTable.vue';
+import ActivityTable from './ActivityTable.vue';
+import ApprovalRecordTable from './ApprovalRecordTable.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -630,6 +670,9 @@ export default {
     CccSearch,
     BaseInput,
     WorkHourTable,
+    OtherTable,
+    ActivityTable,
+    ApprovalRecordTable,
   },
   computed: {
     _id () {
@@ -706,6 +749,9 @@ export default {
     // 571005W202603271622250001
   },
   methods: {
+    handleTableUpdate () {
+      this.$refs.containerRef.loadDetail();
+    },
     dataTransform (data) {
       if (data.spRemindInfo) {
         data.spRemindInfoContent = data.spRemindInfo.map(item => {

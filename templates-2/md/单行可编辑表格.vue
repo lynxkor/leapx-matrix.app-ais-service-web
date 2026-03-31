@@ -146,8 +146,8 @@ export default {
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {
-        this.tableData = (res.records || []).map(item => ({ ...item, isMainItem: item.isMainItem === 1 }));
-        this.originTableData = cloneDeep(res.records);
+        this.tableData = (res.records || []).map(item => ({ ...item, isMainItem: item.isMainItem === 1 || item.isMainItem === true }));
+        this.originTableData = cloneDeep(this.tableData);
         this.total = res.total;
       });
     },
@@ -165,6 +165,7 @@ export default {
       warrantyApplyWorkhourDelete([row.id]).then((d) => {
         this.$message.success('删除成功');
         this.getDetailPageApi();
+        this.$emit('update');
       }).catch(() => {
       });
     },

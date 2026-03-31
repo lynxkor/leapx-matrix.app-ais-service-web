@@ -12,7 +12,7 @@
     min-height="0"
     max-height="400px"
     >
-    <vxe-column title="是否主因" width="180">
+    <vxe-column title="是否主因" width="80">
       <template #default="{ row, rowIndex }">
         <el-switch
           v-if="editRowIndex === rowIndex"
@@ -147,7 +147,7 @@ export default {
         pageNum: this.current,
       }).then((res) => {
         this.tableData = (res.records || []).map(item => ({ ...item, isMainItem: item.isMainItem === 1 }));
-        this.originTableData = cloneDeep(res.records);
+        this.originTableData = cloneDeep(this.tableData);
         this.total = res.total;
       });
     },
@@ -165,6 +165,7 @@ export default {
       warrantyApplyWorkhourDelete([row.id]).then((d) => {
         this.$message.success('删除成功');
         this.getDetailPageApi();
+        this.$emit('update');
       }).catch(() => {
       });
     },
