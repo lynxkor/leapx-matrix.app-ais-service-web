@@ -752,14 +752,24 @@ export default {
       }
       const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
       if (res.length > 0) {
-        this.purchaseId = val.id;
-        this.purchaseList = res || [];
-        this.agreeDialogVisible = true;
+        // 确保只设置有效的id值
+        if (val.id) {
+          this.purchaseId = val.id;
+          this.purchaseList = res || [];
+          this.agreeDialogVisible = true;
+        } else {
+          this.$message.error('操作失败：缺少采购单ID');
+        }
       } else if (res.length === 0) {
         const res = await purchaseApplyGetCoupon({ id: val.id });
-        this.couponObj = res;
-        this.purchaseId = val.id;
-        this.approvalDialogVisible = true;
+        // 确保只设置有效的id值
+        if (val.id) {
+          this.couponObj = res;
+          this.purchaseId = val.id;
+          this.approvalDialogVisible = true;
+        } else {
+          this.$message.error('操作失败：缺少采购单ID');
+        }
       }
     },
     // 批量同意
