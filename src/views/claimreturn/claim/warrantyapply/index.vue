@@ -201,7 +201,7 @@
       <el-button size="small" @click="handleReject">批量驳回</el-button>
       <el-button size="small" @click="handleApprove">批量同意</el-button>
       <el-button size="small" @click="handleCancel">批量作废</el-button>
-      <el-button size="small" @click="handleMark">打印标签</el-button>
+      <el-button size="small" @click="handlePrint">打印标签</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -235,6 +235,11 @@
       :denyIds="denyIds"
       @success="getData"
       />
+    <RightsDialog
+      :visible.sync="rightsDialogVisible"
+      :vehicleProfileId="vehicleProfileId"
+      :vin="vin"
+    />
   </div>
 </template>
 
@@ -247,6 +252,7 @@ import {
   submit,
   withdraw,
   approve,
+  batchCancel,
 } from '@/api/claimreturn/claim/warrantyapply/index';
 import {
   getTableConfig, tableAddOrUpdate, getEnum, listVehicleModel, getScopeTypeOrg,
@@ -264,6 +270,7 @@ import TagInput from '@/libs/components/TagInput';
 import { getList as repairGetList } from '@/api/maintain/basic/repairItemType';
 import RejectDialog from './RejectDialog/index.vue';
 import DenyDialog from './DenyDialog/index.vue';
+import RightsDialog from './RightsDialog/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -309,6 +316,7 @@ export default {
     TagInput,
     RejectDialog,
     DenyDialog,
+    RightsDialog,
   },
   data () {
     return {
@@ -350,6 +358,10 @@ export default {
       reject: false,
       approve: false,
       submit: false,
+      //
+      rightsDialogVisible: false,
+      vehicleProfileId: '',
+      vin: '',
     };
   },
   computed: {
@@ -594,6 +606,21 @@ export default {
                   return false;
                 },
               },
+              {
+                name: '打印标签',
+                click: (rowIndex, row) => {
+                },
+                type: 'info',
+              },
+              {
+                name: '查看权益',
+                click: (rowIndex, row) => {
+                  this.rightsDialogVisible = true;
+                  this.vin = row.vin;
+                  this.vehicleProfileId = row.vehicleProfileId;
+                },
+                type: 'info',
+              },
             ]
           }
         ],
@@ -613,6 +640,19 @@ export default {
     this.submit = this.permissions.has(`${this.moduleKey}-submit`);
   },
   methods: {
+    handlePrint () {
+      if (!this.selectionList?.length) {
+        this.$message.warning('请选择打印数据');
+        return;
+      }
+      this.$print.show({
+        id: new Date().getTime() + '',
+        template: 'OldPartMark',
+        title: '保修旧件标签',
+        data: this.selectionList.map(item => item.id),
+        width: 1122,
+      });
+    },
     // 排序
     handleSortChange (value) {
       this.sortColumns = (value || []).map(item => {
@@ -681,7 +721,41 @@ export default {
       this.denyIds = ids;
       this.denyDialogVisible = true;
     },
-    handleCancel (paramIds) {},
+    handleCancel (paramIds) {
+      const isRow = Array.isArray(paramIds);
+      if (!this.selectionList.length && !isRow) {
+        this.$message({
+          type: 'warning',
+          message: '请选择数据'
+        });
+        return;
+      }
+      this.$prompt('作废', '作废原因', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPlaceholder: '请输入作废原因',
+        inputValidator: (value) => {
+          if (!value || value.trim() === '') {
+            return '请输入作废原因';
+          }
+          return true;
+        },
+        iconClass: 'ais-required',
+      }).then(({ value }) => {
+        const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
+        batchCancel({
+          applyIds: ids,
+          cancelReason: value
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '作废成功!'
+          });
+          this.getData();
+        }).catch(() => {
+        });
+      }).catch(() => {});
+    },
     handleWithdraw (paramIds) {
       const isRow = Array.isArray(paramIds);
       if (!this.selectionList.length && !isRow) {

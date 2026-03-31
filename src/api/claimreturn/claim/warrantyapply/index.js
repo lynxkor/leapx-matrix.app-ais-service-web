@@ -84,3 +84,13 @@ export function reject (data) {
 export function applyReject (data) {
   return api.jsonPost(prefix + 'applyReject', data);
 }
+
+// 批量作废保修申请单
+export function batchCancel (data) {
+  return api.jsonPost(prefix + 'batchCancel', data);
+}
+
+// 查看权益
+export function queryRights (data) {
+  return api.jsonPost(prefix + 'rights/query', data);
+}
