@@ -183,6 +183,167 @@
           </el-form>
         </div>
       </section>
+      <section class="common-section">
+        <div class="common-section-header">
+          <h2>车辆&客户</h2>
+        </div>
+        <div class="common-section-body">
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+            <el-form-item label="VIN：" prop="vin">
+              <el-input placeholder="" v-model="form.vin" clearable disabled />
+            </el-form-item>
+            <el-form-item label="车牌号：" prop="vehiclePlateNo">
+              <el-input placeholder="" v-model="form.vehiclePlateNo" clearable disabled />
+            </el-form-item>
+            <el-form-item label="生产日期：" prop="produceDate">
+              <el-date-picker
+                disabled
+                v-model="form.produceDate"
+                type="datetime"
+                format="yyyy-MM-dd HH:mm:ss"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                placeholder="选择日期时间">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="服务月份：" prop="serviceMonth">
+              <el-input placeholder="" v-model="form.serviceMonth" clearable disabled />
+            </el-form-item>
+            <el-form-item label="车型：" prop="vehicleModelName">
+              <el-input placeholder="" v-model="form.vehicleModelName" clearable disabled />
+            </el-form-item>
+            <el-form-item label="保修开始日期：" prop="warrantyStartdate">
+              <el-date-picker
+                disabled
+                v-model="form.warrantyStartdate"
+                type="datetime"
+                format="yyyy-MM-dd HH:mm:ss"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                placeholder="选择日期时间">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="整车保修结束日期(预测)：" prop="warrantyEnddateForecast">
+              <el-date-picker
+                disabled
+                v-model="form.warrantyEnddateForecast"
+                type="datetime"
+                format="yyyy-MM-dd HH:mm:ss"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                placeholder="选择日期时间">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="进店里程KM：" prop="mileage">
+              <el-input placeholder="" v-model="form.mileage" clearable disabled />
+            </el-form-item>
+            <el-form-item label="车主姓名：" prop="ownerName">
+              <el-input placeholder="" v-model="form.ownerName" clearable disabled />
+            </el-form-item>
+            <el-form-item label="车主电话：" prop="ownerPhone">
+              <el-input placeholder="" v-model="form.ownerPhone" clearable disabled />
+            </el-form-item>
+            <el-form-item label="送修人姓名：" prop="shuttleName">
+              <el-input placeholder="" v-model="form.shuttleName" clearable disabled />
+            </el-form-item>
+            <el-form-item label="送修人电话：" prop="shuttlePhone">
+              <el-input placeholder="" v-model="form.shuttlePhone" clearable disabled />
+            </el-form-item>
+            <el-form-item label="是否终身免保：" prop="isLifetimeWarrantyLabel">
+              <el-input placeholder="" v-model="form.isLifetimeWarrantyLabel" clearable disabled />
+            </el-form-item>
+            <el-form-item label="车辆用途：" prop="vehicleProperty">
+              <el-input placeholder="" v-model="form.vehicleProperty" clearable disabled />
+            </el-form-item>
+            <el-form-item label="开单预警信息：" prop="xxx">
+              <el-input placeholder="" v-model="form.xxx" clearable disabled />
+            </el-form-item>
+            <el-form-item label="保修预警信息：" prop="warrantyWarningMsg">
+              <el-input placeholder="" v-model="form.warrantyWarningMsg" clearable disabled />
+            </el-form-item>
+            <el-form-item label="整车是否在保(预测)：" prop="isLifetimeWarrantyForecastLabel">
+              <el-input placeholder="" v-model="form.isLifetimeWarrantyForecastLabel" clearable disabled />
+            </el-form-item>
+            <el-form-item label="三包预警：" prop="alarmLevel">
+              <el-input placeholder="" v-model="form.alarmLevel" clearable disabled />
+            </el-form-item>
+          </el-form>
+          <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+            <el-form-item label="VIN：" prop="vin">
+              {{ form.vin }}
+            </el-form-item>
+            <el-form-item label="车牌号：" prop="vehiclePlateNo">
+              {{ form.vehiclePlateNo }}
+            </el-form-item>
+            <el-form-item label="生产日期：" prop="produceDate">
+              {{ form.produceDate }}
+            </el-form-item>
+            <el-form-item label="服务月份：" prop="serviceMonth">
+              {{ form.serviceMonth }}
+            </el-form-item>
+            <el-form-item label="车型：" prop="vehicleModelName">
+              {{ form.vehicleModelName }}
+            </el-form-item>
+            <el-form-item label="保修开始日期：" prop="warrantyStartdate">
+              {{ form.warrantyStartdate }}
+            </el-form-item>
+            <el-form-item label="整车保修结束日期(预测)：" prop="warrantyEnddateForecast">
+              {{ form.warrantyEnddateForecast }}
+            </el-form-item>
+            <el-form-item label="进店里程KM：" prop="mileage">
+              {{ form.mileage }}
+            </el-form-item>
+            <el-form-item label="车主姓名：" prop="ownerName">
+              {{ form.ownerName }}
+            </el-form-item>
+            <el-form-item label="车主电话：" prop="ownerPhone">
+              {{ form.ownerPhone }}
+            </el-form-item>
+            <el-form-item label="送修人姓名：" prop="shuttleName">
+              {{ form.shuttleName }}
+            </el-form-item>
+            <el-form-item label="送修人电话：" prop="shuttlePhone">
+              {{ form.shuttlePhone }}
+            </el-form-item>
+            <el-form-item label="是否终身免保：" prop="isLifetimeWarrantyLabel">
+              {{ form.isLifetimeWarrantyLabel }}
+            </el-form-item>
+            <el-form-item label="车辆用途：" prop="vehicleProperty">
+              {{ form.vehicleProperty }}
+            </el-form-item>
+            <!-- TODO -->
+            <el-form-item label="开单预警信息：" prop="xxx">
+              {{ form.xxx }}
+            </el-form-item>
+            <el-form-item label="保修预警信息：" prop="warrantyWarningMsg">
+              {{ form.warrantyWarningMsg }}
+            </el-form-item>
+            <el-form-item label="整车是否在保(预测)：" prop="isLifetimeWarrantyForecastLabel">
+              {{ form.isLifetimeWarrantyForecastLabel }}
+            </el-form-item>
+            <el-form-item label="三包预警：" prop="alarmLevel">
+              {{ form.alarmLevel }}
+            </el-form-item>
+          </el-form>
+        </div>
+      </section>
+      <section class="common-section">
+        <div class="common-section-header">
+          <h2>质量反馈信息</h2>
+        </div>
+        <div class="common-section-body">
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+            <el-form-item label="ccc：" prop="cccName">
+              <ccc-search
+                @update="onUpdate"
+                :value="form.cccName"
+              />
+            </el-form-item>
+          </el-form>
+          <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+            <el-form-item label="ccc：" prop="cccName">
+              {{ form.cccName }}
+            </el-form-item>
+          </el-form>
+        </div>
+      </section>
     </el-main>
   </edit-base-container>
 </template>
@@ -199,6 +360,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import CccSearch from '@/components/CccSearch/index.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -343,6 +505,7 @@ export default {
   components: {
     EditBaseContainer,
     // FetchSelect,
+    CccSearch,
   },
   computed: {
     _id () {
@@ -446,6 +609,11 @@ export default {
       }
       return [];
     },
+    onUpdate (data) {
+      this.form.cccName = data.name;
+      this.form.cccId = data.id;
+      this.form.cccCode = data.code;
+    }
   }
 };
 </script>

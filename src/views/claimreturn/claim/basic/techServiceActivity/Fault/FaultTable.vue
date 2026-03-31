@@ -19,7 +19,7 @@
     <vxe-column field="vfgName" title="VFG名称" width=""></vxe-column>
     <vxe-column field="cccName" title="CCC名称" width="">
       <template #default="{ row, rowIndex }">
-        <fault-search
+        <ccc-search
           v-if="eidtRowIndex === rowIndex"
           :id="id"
           @update="(data) => onUpdate(row, data)"
@@ -96,9 +96,8 @@ import {
   serviceActivityFaultUpdate,
   serviceActivityFaultDelete,
 } from '@/api/claimreturn/claim/basic/serviceActivity';
-
+import CccSearch from '@/components/CccSearch/index.vue';
 import permissions from '@/libs/mixins/permissions';
-import FaultSearch from './FaultSearch.vue';
 import { cloneDeep } from 'lodash';
 
 export default {
@@ -115,7 +114,7 @@ export default {
     },
   },
   components: {
-    FaultSearch,
+    CccSearch,
   },
   mixins: [permissions],
   computed: {
