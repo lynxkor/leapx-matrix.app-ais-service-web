@@ -21,7 +21,7 @@
             @click="handleSelectItem(item)"
           >
             <div class="list-item__content">
-              <div class="list-item__name">{{ item.rightsName }}</div>
+              <div class="list-item__name">{{ item.rightsName }}({{ item.usedTimes }}/{{ item.totalRemainTimes }})</div>
               <div class="list-item__code">{{ item.rightsCode }}</div>
             </div>
             <!-- <i v-if="selectedItem.useId === item.useId" class="el-icon-success selected-icon"></i> -->
@@ -222,7 +222,7 @@ export default {
     .list-wrapper {
       flex: 1;
       overflow-y: auto;
-      padding: 0 12px;
+      padding: 0 12px 12px 12px;
       max-height: 520px;
     }
 
