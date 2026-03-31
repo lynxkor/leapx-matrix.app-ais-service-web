@@ -140,6 +140,7 @@
     <attached-files-dialog
       ref="attachedFilesDialog"
       :attachment-config-id="form.id"
+      :config-code="form.configCode"
       @confirm="handleAttachedFilesConfirm"
     />
     <!-- 条件配置列表对话框（用于 Condition 组件获取 fieldOptions） -->

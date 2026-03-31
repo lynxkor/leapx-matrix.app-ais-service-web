@@ -28,23 +28,25 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="备件编码" prop="partCode">
-                  E-<el-input
+                <el-form-item label="备件编码：" prop="partCode">
+                  <el-input
                     placeholder="请输入"
                     v-model="form.partCode"
                     clearable
-                    :disabled="_id"
-                  />
+                    :disabled="!!_id"
+                  >
+                    <span slot="prepend">E-</span>
+                  </el-input>
                 </el-form-item>
-                <el-form-item label="备件名称" prop="partName">
+                <el-form-item label="备件名称：" prop="partName">
                   <el-input
                     placeholder="请输入"
                     v-model="form.partName"
                     clearable
-                    :disabled="_id"
+                    :disabled="!!_id"
                   />
                 </el-form-item>
-                <el-form-item label="拼音简码" prop="pinyinCode">
+                <el-form-item label="拼音简码：" prop="pinyinCode">
                   <el-input
                     placeholder="提交后自动生成"
                     disabled
@@ -52,7 +54,7 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="基本计量单位" prop="baseUnit">
+                <el-form-item label="基本计量单位：" prop="baseUnit">
                   <fetch-select
                     :request="fetchOptions"
                     enumCode="BaseUnitEnum"
@@ -68,14 +70,14 @@
                 <el-form-item label="门店名称：" prop="baseUnit">
                   {{ form.dealerName  }}
                 </el-form-item>
-                <el-form-item label="采购价格" prop="purchasePrice">
+                <el-form-item label="采购价格：" prop="purchasePrice">
                   <el-input
                     placeholder="请输入"
                     v-model="form.purchasePrice"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="销售价格" prop="salePrice">
+                <el-form-item label="销售价格：" prop="salePrice">
                   <el-input
                     placeholder="请输入"
                     v-model="form.salePrice"
@@ -88,7 +90,7 @@
                 <el-form-item label="是否启用：" prop="status">
                   {{ form.statusLabel  }}
                 </el-form-item>
-                <el-form-item label="备注" prop="remark" class="form-item-full">
+                <el-form-item label="备注：" prop="remark" class="form-item-full">
                   <el-input
                     type="textarea"
                     placeholder="请输入"
