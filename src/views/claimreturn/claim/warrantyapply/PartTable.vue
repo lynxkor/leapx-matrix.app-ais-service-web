@@ -28,7 +28,24 @@
       <vxe-column field="partName" title="零件名称" width="150"></vxe-column>
       <vxe-column field="returnType" title="旧件返回类型" width="120"></vxe-column>
       <vxe-column field="isReturned" title="是否已返" width="120"></vxe-column>
-      <vxe-column field="oldPartCode" title="旧件编码" width="150"></vxe-column>
+      <vxe-column title="旧件编码" width="200">
+        <template #default="{ row, rowIndex }">
+          <fetch-select
+            v-if="editRowIndex === rowIndex"
+            :remote-method="searchOldPart"
+            remote
+            v-model="form.oldPartId"
+            @change="onOldPartChange"
+            placeholder="请输入零件编码/名称"
+            labelKey="code"
+            valueKey="id"
+            subLabelKey="name"
+            clearable
+            filterable
+          />
+          <span v-else>{{ row.oldPartCode }}</span>
+        </template>
+      </vxe-column>
       <vxe-column field="oldPartName" title="旧件名称" width="150"></vxe-column>
       <vxe-column field="oldPartSupplierCode" title="旧件供应商编码" width="150"></vxe-column>
       <vxe-column field="oldPartSupplierName" title="旧件供应商名称" width="150"></vxe-column>
@@ -115,6 +132,8 @@
 <script>
 import { cloneDeep } from 'lodash';
 import { warrantyApplyPartPage, warrantyApplyPartDelete, warrantyApplyPartUpdate } from '@/api/claimreturn/claim/warrantyapply/warrantyApplyPart';
+import { getList } from '@/api/maintain/basic/repairItem';
+import FetchSelect from '@/libs/components/FetchSelect';
 
 export default {
   props: {
@@ -129,7 +148,9 @@ export default {
       default: false,
     },
   },
-  components: {},
+  components: {
+    FetchSelect,
+  },
   mixins: [],
   computed: {
     _id () {
@@ -237,6 +258,20 @@ export default {
       this.tableData.unshift(row);
       this.editRowIndex = 0;
     },
+    // 搜索旧件
+    searchOldPart (query) {
+      return getList({
+        pageNum: 1,
+        pageSize: 20,
+        nameOrCodeOrPinyinLike: query,
+      });
+    },
+    // 旧件选择变更
+    onOldPartChange (val, row) {
+      this.form.oldPartCode = row?.code;
+      this.form.oldPartName = row?.name;
+      this.form.oldPartId = row?.id;
+    }
   },
 };
 </script>
