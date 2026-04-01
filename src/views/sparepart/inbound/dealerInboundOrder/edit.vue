@@ -443,6 +443,7 @@ export default {
         dealerInboundOrderCode: this.form.code,
         sparePartId: val.id,
         inboundQty: val.inboundQty,
+        id: val.id
       };
       this.handleAddOrUpdate(params, 'update');
     },
