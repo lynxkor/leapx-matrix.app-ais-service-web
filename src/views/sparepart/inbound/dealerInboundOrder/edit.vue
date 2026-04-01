@@ -379,7 +379,7 @@ export default {
     },
     async getSupplierList (query) {
       try {
-        const res = await getSupplierInfo({ supplierCodeOrNameLike: query, dealerCode: this.form.dealerCode });
+        const res = await getSupplierInfo({ supplierCodeOrNameLike: query });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
@@ -411,7 +411,7 @@ export default {
     queryListData (queryString) {
       return new Promise(resolve => {
         // 根据需求调用接口
-        listDealerPart({ dealerCode: this.form.dealerCode, partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
+        listDealerPart({ partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
           const list = res || [];
           resolve(list);
         });

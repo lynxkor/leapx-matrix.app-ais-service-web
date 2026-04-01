@@ -146,7 +146,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, dealerReturnOrderAgree, dealerReturnOrderCancel, dealerReturnOrderOutbound } from '@/api/sparepart/outbound/dealerReturnOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getSupplierInfo } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getSupplierInfo, getLoginUser } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -250,7 +250,7 @@ export default {
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
-          { props: 'supplierInfoName', label: '供应商名称', visible: true, width: 200 },
+          { props: 'supplierName', label: '供应商名称', visible: true, width: 200 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 200 },
           { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 200 },
           { props: 'totalAmount', label: '出库总金额', visible: true, width: 200 },
@@ -350,8 +350,18 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    this.getLoginUser();
   },
   methods: {
+    async getLoginUser () {
+      try {
+        const res = await getLoginUser();
+        this.dealerCode = res.currentDealerCode;
+        this.dealerName = res.currentDealerName;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     // 排序
     handleSortChange (value) {
       this.sortColumns = (value || []).map(item => {

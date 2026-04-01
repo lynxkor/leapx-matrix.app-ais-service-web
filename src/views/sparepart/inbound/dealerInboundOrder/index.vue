@@ -529,7 +529,7 @@ export default {
 
     async getSupplierList (query) {
       try {
-        const res = await getSupplierInfo({ supplierCodeOrNameLike: query, dealerCode: this.dealerCode });
+        const res = await getSupplierInfo({ supplierCodeOrNameLike: query });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
