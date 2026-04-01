@@ -103,7 +103,7 @@
                   {{ form.warehouseName }}
                 </el-form-item>
                 <el-form-item label="供应商名称：" prop="supplierInfoId">
-                  {{ form.supplierInfoName }}
+                  {{ form.supplierName }}
                 </el-form-item>
                 <el-form-item label="订单状态：" prop="orderStatus">
                   {{ form.orderStatusLabel }}
@@ -177,11 +177,11 @@
               <div class="common-section-table">
                 <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
                   min-height="0" max-height="400px">
-                  <vxe-column field="partCode" title="备件编码" min-width="10%" />
-                  <vxe-column field="partName" title="备件名称" min-width="10%" />
+                  <vxe-column field="sparePartCode" title="备件编码" min-width="10%" />
+                  <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
                   <vxe-column field="locationCode" title="库位编码" min-width="10%" />
-                  <vxe-column field="availableQuantity" title="可用库存" min-width="10%" />
-                  <vxe-column field="returnableQuantity" title="可退数量" min-width="10%" />
+                  <vxe-column field="availableQty" title="可用库存" min-width="10%" />
+                  <vxe-column field="returnableQty" title="可退数量" min-width="10%" />
                   <vxe-column field="purchaseUnitPrice" title="采购单价" min-width="10%" />
                   <vxe-column field="inboundQty" title="入库数量" min-width="10%">
                     <template #default="{ row }">
@@ -247,7 +247,9 @@ const defaultForm = {
   warehouseId: '',
   supplierInfoId: '',
   orderStatus: '',
+  orderStatusLabel: '草稿',
   inboundStatus: '',
+  inboundStatusLabel: '未入库',
   totalAmount: '',
   createTime: '',
   updateTime: '',
@@ -377,7 +379,7 @@ export default {
     },
     async getSupplierList (query) {
       try {
-        const res = await getSupplierInfo({ supplierCodeOrNameLike: query });
+        const res = await getSupplierInfo({ supplierCodeOrNameLike: query, dealerCode: this.form.dealerCode });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);

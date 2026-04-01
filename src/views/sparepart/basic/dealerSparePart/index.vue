@@ -390,6 +390,11 @@ export default {
           data.updateTimeEnd = this.form.updateTime[1];
         }
       }
+
+      if (Array.isArray(this.form.partCodeList) && this.form.partCodeList.length <= 1) {
+        delete data.partCodeList;
+        data.partCodeLike = this.form.partCodeList[0] || '';
+      }
       // 排序字段
       data.sortColumns = this.sortColumns;
       return data;
