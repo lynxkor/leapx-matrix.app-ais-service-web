@@ -170,7 +170,7 @@
               <div class="common-section-header">
                 <div class="ais-select-group">
                   <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请选择" clearable
-                    value-key="partCode" label-key="partName" @change="handleAddTableData" />
+                    value-key="partCode" label-key="partName" @change="handleAddTableData" :disabled="!orderStatusType" />
                   <el-button type="primary" size="small">添加</el-button>
                 </div>
               </div>
@@ -185,12 +185,12 @@
                   <vxe-column field="purchaseUnitPrice" title="采购单价" min-width="10%" />
                   <vxe-column field="inboundQty" title="入库数量" min-width="10%">
                     <template #default="{ row }">
-                      <el-input v-model="row.inboundQty" type="number" min="1" @blur="handleBlur(row)"/>
+                      <el-input v-model="row.inboundQty" type="number" :disabled="!orderStatusType" min="1" @blur="handleBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="inboundAmount" title="入库金额" min-width="10%" />
                   <vxe-column field="createTime" title="创建时间" min-width="10%" />
-                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
+                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete && orderStatusType">
                     <template #default="{ rowIndex }">
                       <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>

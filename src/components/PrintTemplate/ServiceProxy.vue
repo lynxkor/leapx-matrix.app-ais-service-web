@@ -551,6 +551,12 @@ export default {
       if (costCountResp.maintenanceCostEstimation !== null && costCountResp.maintenanceCostEstimation !== undefined) {
         costCountResp.maintenanceCostEstimation = parseFloat((parseFloat(costCountResp.maintenanceCostEstimation) - totalDiscountDeduction)).toFixed(2);
       }
+      if (costCountResp.workCostCount !== null && costCountResp.workCostCount !== undefined) {
+        costCountResp.workCostCount = parseFloat((parseFloat(costCountResp.workCostCount) - repairDeduction)).toFixed(2);
+      }
+      if (costCountResp.barkCostCount !== null && costCountResp.barkCostCount !== undefined) {
+        costCountResp.barkCostCount = parseFloat((parseFloat(costCountResp.barkCostCount) - partsDeduction)).toFixed(2);
+      }
     }
   },
 };
