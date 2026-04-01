@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { dealerInboundOrderDetailPage, dealerInboundOrderReturnApply } from '@/api/sparepart/inbound/dealerInboundOrder/index';
+import { returnDetailPage, dealerInboundOrderReturnApply } from '@/api/sparepart/inbound/dealerInboundOrder/index';
 
 export default {
   name: 'OrderReturnDialog',
@@ -100,7 +100,7 @@ export default {
         pageNum: 1,
         pageSize: 1000
       };
-      const res = await dealerInboundOrderDetailPage(params);
+      const res = await returnDetailPage(params);
       this.tableData = res.records.map(item => ({
         ...item,
         qty: Math.min(item.availableQty, item.returnableQty)

@@ -316,7 +316,7 @@ export default {
             }, {
               name: '出库',
               show: (row) => {
-                return row.orderStatus === '20' || row.outboundStatus === '10';
+                return row.orderStatus === '20' && row.outboundStatus === '10';
               },
               popconfirmTitle: '此操作将出库订单, 是否继续?',
               click: (rowIndex, row) => {

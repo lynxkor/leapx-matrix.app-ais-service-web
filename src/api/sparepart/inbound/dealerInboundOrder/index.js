@@ -51,6 +51,9 @@ export function enableItem (data) {
 export function dealerInboundOrderDetailPage (data) {
   return api.jsonPost(prefixDetail + 'page', data);
 }
+export function returnDetailPage (data) {
+  return api.jsonPost(prefixDetail + 'returnPage', data);
+}
 
 /**
  * 外购件入库明细表删除
