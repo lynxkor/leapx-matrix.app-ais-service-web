@@ -23,7 +23,7 @@
                     <el-button size="small" @click="discardDialogVisible = true" v-if="!isCompleted && !form.isCreateStatementInfo">作废</el-button>
                     <el-button size="small" @click="materialReturnDialogVisible = true" v-if="!isCompleted && hasRepairItems">退料</el-button>
                     <el-button size="small" @click="handlePreCheck" v-if="orderStatus === RepairOrderStatusEnum.RECEPTION_INSPECTION">预检确认</el-button>
-                    <el-button size="small" @click="handleCreatingOrder" v-if="orderStatus === RepairOrderStatusEnum.CREATING_ORDER && hasItems">制单确认并签字</el-button>
+                    <el-button size="small" @click="handleCreatingOrder" v-if="orderStatus === RepairOrderStatusEnum.CREATING_ORDER && hasItems && !form.signStatus">制单确认并签字</el-button>
                     <el-button size="small" @click="selectRepairItemDialogVisible = true" v-if="canEditOrder && form.isCreateStatementInfo === 0">选择维修项目</el-button>
                     <el-button size="small" @click="dispatchWorkDialogVisible = true" v-if="isInConstruction && hasUndispatchedItems">派工</el-button>
                     <el-button size="small" @click="deleteDispatchWorkDialogVisible = true" v-if="isInConstruction && hasDispatchedItems">删除派工</el-button>
