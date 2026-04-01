@@ -27,17 +27,22 @@
         />
       </div>
       <div class="list-wrapper">
-         <div
-          v-for="item in packageList"
-          :key="item.id"
-          :class="['list-item', { 'is-selected': selectedPackage?.id === item.id }]"
-          @click="handleSelectPackage(item)"
-        >
-          <div class="list-item__content">
-            <div class="list-item__name">{{ item.schemeName }}</div>
-            <div class="list-item__code">{{ item.description }}</div>
+        <template v-if="packageList.length">
+          <div
+            v-for="item in packageList"
+            :key="item.id"
+            :class="['list-item', { 'is-selected': selectedPackage?.id === item.id, 'is-disabled': item.activityUsed }]"
+            @click="handleSelectPackage(item)"
+          >
+            <div class="list-item__content">
+              <div class="list-item__name">{{ item.schemeName }}</div>
+              <div class="list-item__code">{{ item.description }}</div>
+            </div>
+            <i v-if="item.used" class="el-icon-success selected-icon"></i>
           </div>
-          <i v-if="item.used" class="el-icon-success selected-icon"></i>
+        </template>
+        <div v-else class="list-empty">
+          <div class="empty-text">没有找到相关内容</div>
         </div>
       </div>
     </div>
@@ -101,7 +106,7 @@
               <div class="parts-section">
                 <h3>项目零件</h3>
                 <div class="parts-tabs">
-                  <div :class="{'parts-tabs-item': true, 'active': item.id === curPartTab, 'is-disabled': item.allowDelete === 0}" v-for="item in partsList" :key="item.id" @click="handleTabClick(item)">
+                  <div :class="{'parts-tabs-item': true, 'active': item.id === curPartTab, 'is-disabled': item.allowDelete === 0}" v-for="item in itemList" :key="item.id" @click="handleTabClick(item)">
                     <el-checkbox
                       :value="item.checked"
                       @click.native.prevent="handleItemCheckboxClick(item)"
@@ -128,17 +133,17 @@
                   </div>
                   <div class="info-item">
                     <span class="label">主因工时：</span>
-                    <span class="value">{{ curItemList?.amount }}</span>
+                    <span class="value">{{ curItemList?.islainRepairItem === '1' ? '是': '否' }}</span>
                   </div>
                 </div>
                 <div class="info-row">
                   <div class="info-item">
                     <span class="label">工时数：</span>
-                    <span class="value">{{ curItemList?.workHour }}</span>
+                    <span class="value">{{ curItemList?.quantity }}</span>
                   </div>
                    <div class="info-item">
                     <span class="label">索赔价：</span>
-                    <span class="value">{{ curItemList?.quantity }}</span>
+                    <span class="value">{{ curItemList?.amout }}</span>
                   </div>
                 </div>
                 <div class="section-title">维修零件</div>
@@ -180,7 +185,7 @@
             :title="popconfirmText"
             @confirm="handleConfirm"
           >
-            <el-button :type="selectedPackage?.used && !hasNewPart ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
+            <el-button :type="selectedPackage?.used && !hasNewPart ? 'plain' : 'primary'" size="small" slot="reference" :disabled="selectedPackage.activityUsed">{{ confirmBtnText }}</el-button>
           </el-popconfirm>
         </div>
       </div>
@@ -219,7 +224,7 @@ export default {
       curItemList: {},
       response: {},
       hasNewPart: false,
-      partsList: []
+      itemList: []
     };
   },
   computed: {
@@ -255,16 +260,20 @@ export default {
   methods: {
     handlePartCheckboxChange ({ checked, row }) {
       row.checked = checked;
-      const el = this.partsList.some(item => item.checked);
-      this.curItemList.checked = !!el;
-      this.hasNewPart = this.response.partResponseList.some(item => item.checked && item.allowDelete === 1);
+      const el = this.partRespList.some(item => item.checked);
+      this.curItemList.checked = this.curItemList.allowDelete === 0 || !!el;
+      this.hasNewPart = this.response.partResponseList.some(item => {
+        return (item.checked && item.allowDelete === 1 && !item.used) || (item.used && !item.checked);
+      });
     },
     handlePartCheckboxAll ({ checked, records }) {
-      records.forEach(row => {
+      this.partRespList.forEach(row => {
         row.checked = checked;
       });
-      this.curItemList.checked = checked;
-      this.hasNewPart = this.response.partResponseList.some(item => item.checked && item.allowDelete === 1);
+      this.curItemList.checked = this.curItemList.allowDelete === 0 || checked;
+      this.hasNewPart = this.response.partResponseList.some(item => {
+        return (item.checked && item.allowDelete === 1 && !item.used) || (item.used && !item.checked);
+      });
     },
     handleSearch () {
       if (this.searchTimer) {
@@ -325,8 +334,12 @@ export default {
     },
     handleSelectPackage (item) {
       if (this.loading) return;
+      this.hasNewPart = false;
       this.selectedPackage = item;
       this.loadProjectDetail(item);
+      if (item.activityUsed) {
+        this.$message.warning("该活动已被'实际施工门店名称'使用，您不可重复使用");
+      }
     },
     // 获取套餐详情
     async loadProjectDetail (pkg) {
@@ -344,13 +357,13 @@ export default {
           ...item,
           expanded: true
         }));
-        this.partsList = (res.itemResponseList || []).map(item => ({
+        this.itemList = (res.itemResponseList || []).map(item => ({
           ...item,
           checked: item.allowDelete === 0 || item.used || false
         }));
-        if (this.partsList.length > 0) {
-          this.curPartTab = this.partsList[0].id;
-          this.curItemList = this.partsList[0];
+        if (this.itemList.length > 0) {
+          this.curPartTab = this.itemList[0].id;
+          this.curItemList = this.itemList[0];
         }
         // 数据加载完成后设置主因件勾选
         setTimeout(() => {
@@ -422,7 +435,7 @@ export default {
       }
       // 对 itemList 进行字段映射，只获取被勾选的维修项目
       const activityRes = this.response?.activityResponse || {};
-      const itemList = (this.partsList || []).filter(item => item.checked && !item.used).map(item => ({
+      const itemList = (this.itemList || []).filter(item => item.checked && !item.used).map(item => ({
         serviceProxyId: this.vehicleInfo.id,
         repairItemId: item.repairItemId,
         repairItemCode: item.repairItemCode,
@@ -448,7 +461,7 @@ export default {
         itemMap[item.id] = item;
       });
       // 对 partsList 进行字段映射，只提交被勾选的维修项目相关的零件
-      const checkedItemIds = (this.partsList || [])
+      const checkedItemIds = (this.itemList || [])
         .filter(item => item.checked)
         .map(item => item.id);
 
@@ -555,7 +568,7 @@ export default {
       // 同步维修项目的选中状态
       this.partRespList.forEach(part => {
         if (part.checked && part.allowDelete === 1) {
-          const repairItem = this.partsList.find(item => item.id === part.serviceActivityItemId);
+          const repairItem = this.itemList.find(item => item.id === part.serviceActivityItemId);
           if (repairItem && !repairItem.checked) {
             repairItem.checked = true;
           }
@@ -582,6 +595,19 @@ export default {
   }
   ::v-deep .vxe-table--render-default .vxe-cell--checkbox.is--checked .vxe-checkbox--icon {
     color: var(--leap-color-primary)!important;
+  }
+
+  .list-empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 150px;
+
+    .empty-text {
+      color: var(--leap-color-default-light-1);
+      font-size: 14px;
+    }
   }
 
   // 左侧面板
@@ -625,6 +651,9 @@ export default {
         .list-item__code {
           color: $--leap-color-primary;
         }
+      }
+      &.is-disabled {
+        background-color: $--leap-color-default-light-5;
       }
 
       &__content {

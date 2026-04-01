@@ -188,10 +188,10 @@
               <div class="common-section-table">
                 <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
                   min-height="0" max-height="400px">
-                  <vxe-column field="partCode" title="备件编码" min-width="10%" />
-                  <vxe-column field="partName" title="备件名称" min-width="10%" />
-                  <vxe-column field="locationCode" title="库位编码" min-width="10%" />
-                  <vxe-column field="availableQuantity" title="可用库存" min-width="10%" />
+                  <vxe-column field="sparePartCode" title="备件编码" min-width="10%" />
+                  <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
+                  <vxe-column field="locationName" title="库位编码" min-width="10%" />
+                  <vxe-column field="availableQty" title="可用库存" min-width="10%" />
                   <vxe-column field="unitPrice" title="单价" min-width="10%" />
                   <vxe-column field="outboundQty" title="出库数量" min-width="10%" />
                   <vxe-column field="outboundAmount" title="出库金额" min-width="10%" />

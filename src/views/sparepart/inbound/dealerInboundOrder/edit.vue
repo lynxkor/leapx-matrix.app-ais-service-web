@@ -103,7 +103,7 @@
                   {{ form.warehouseName }}
                 </el-form-item>
                 <el-form-item label="供应商名称：" prop="supplierInfoId">
-                  {{ form.supplierInfoName }}
+                  {{ form.supplierName }}
                 </el-form-item>
                 <el-form-item label="订单状态：" prop="orderStatus">
                   {{ form.orderStatusLabel }}
@@ -170,27 +170,27 @@
               <div class="common-section-header">
                 <div class="ais-select-group">
                   <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请选择" clearable
-                    value-key="partCode" label-key="partName" @change="handleAddTableData" />
+                    value-key="partCode" label-key="partName" @change="handleAddTableData" :disabled="!orderStatusType" />
                   <el-button type="primary" size="small">添加</el-button>
                 </div>
               </div>
               <div class="common-section-table">
                 <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
                   min-height="0" max-height="400px">
-                  <vxe-column field="partCode" title="备件编码" min-width="10%" />
-                  <vxe-column field="partName" title="备件名称" min-width="10%" />
+                  <vxe-column field="sparePartCode" title="备件编码" min-width="10%" />
+                  <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
                   <vxe-column field="locationCode" title="库位编码" min-width="10%" />
-                  <vxe-column field="availableQuantity" title="可用库存" min-width="10%" />
-                  <vxe-column field="returnableQuantity" title="可退数量" min-width="10%" />
+                  <vxe-column field="availableQty" title="可用库存" min-width="10%" />
+                  <vxe-column field="returnableQty" title="可退数量" min-width="10%" />
                   <vxe-column field="purchaseUnitPrice" title="采购单价" min-width="10%" />
                   <vxe-column field="inboundQty" title="入库数量" min-width="10%">
                     <template #default="{ row }">
-                      <el-input v-model="row.inboundQty" type="number" min="1" @blur="handleBlur(row)"/>
+                      <el-input v-model="row.inboundQty" type="number" :disabled="!orderStatusType" min="1" @blur="handleBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="inboundAmount" title="入库金额" min-width="10%" />
                   <vxe-column field="createTime" title="创建时间" min-width="10%" />
-                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
+                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete && orderStatusType">
                     <template #default="{ rowIndex }">
                       <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
@@ -247,7 +247,9 @@ const defaultForm = {
   warehouseId: '',
   supplierInfoId: '',
   orderStatus: '',
+  orderStatusLabel: '草稿',
   inboundStatus: '',
+  inboundStatusLabel: '未入库',
   totalAmount: '',
   createTime: '',
   updateTime: '',
@@ -409,7 +411,7 @@ export default {
     queryListData (queryString) {
       return new Promise(resolve => {
         // 根据需求调用接口
-        listDealerPart({ dealerCode: this.form.dealerCode, partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
+        listDealerPart({ partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
           const list = res || [];
           resolve(list);
         });
@@ -441,6 +443,7 @@ export default {
         dealerInboundOrderCode: this.form.code,
         sparePartId: val.id,
         inboundQty: val.inboundQty,
+        id: val.id
       };
       this.handleAddOrUpdate(params, 'update');
     },
