@@ -139,7 +139,7 @@
     <OrderReturnDialog
       ref="orderReturnDialogRef"
       :visible.sync="orderReturnDialogVisible"
-      :orderList="orderList"
+      :orderId="orderId"
       @update:visible="val => orderReturnDialogVisible = val"
       @confirm="getData"
     />
@@ -162,7 +162,6 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
 import OrderReturnDialog from './OrderReturnDialog.vue';
-import { get } from 'lodash';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -388,7 +387,7 @@ export default {
         // }
       ],
       orderReturnDialogVisible: false, // 退货申请弹窗
-      orderList: [], // 退货申请列表
+      orderId: '', // 退货申请订单id
     };
   },
   created () {
@@ -529,7 +528,7 @@ export default {
 
     async getSupplierList (query) {
       try {
-        const res = await getSupplierInfo({ supplierCodeOrNameLike: query, dealerCode: this.dealerCode });
+        const res = await getSupplierInfo({ supplierCodeOrNameLike: query });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
@@ -631,7 +630,7 @@ export default {
     // 申请退货
     handleReturn (val) {
       this.orderReturnDialogVisible = true;
-      this.orderList = [val];
+      this.orderId = val.id;
     },
   }
 };

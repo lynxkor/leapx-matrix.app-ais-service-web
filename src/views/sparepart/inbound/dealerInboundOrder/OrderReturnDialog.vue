@@ -8,15 +8,15 @@
         <!-- 数据表格 -->
         <div class="table-section">
             <vxe-table ref="workTable" :data="tableData" stripe show-overflow resizable border="inner" size="medium">
-                <vxe-column field="partCode" title="备件编码" />
-                <vxe-column field="partName" title="备件名称" />
-                <vxe-column field="locationCode" title="库位编码" />
-                <vxe-column field="availableStock" title="可用库存" />
-                <vxe-column field="returnableQuantity" title="可退数量" />
-                <vxe-column field="inboundPrice" title="入库金额" />
-                <vxe-column field="returnQuantity" title="本次退货数量">
+                <vxe-column field="sparePartCode" title="备件编码" />
+                <vxe-column field="sparePartName" title="备件名称" />
+                <vxe-column field="locationName" title="库位编码" />
+                <vxe-column field="availableQty" title="可用库存" />
+                <vxe-column field="returnableQty" title="可退数量" />
+                <vxe-column field="inboundAmount" title="入库金额" />
+                <vxe-column field="qty" title="本次退货数量">
                   <template #default="{ row }">
-                      <el-input v-model="row.returnQuantity" type="number" min="1" />
+                      <el-input v-model="row.qty" type="number" min="1" />
                     </template>
                 </vxe-column>
             </vxe-table>
@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { dealerInboundOrderReturnApply } from '@/api/sparepart/inbound/dealerInboundOrder/index';
+import { dealerInboundOrderDetailPage, dealerInboundOrderReturnApply } from '@/api/sparepart/inbound/dealerInboundOrder/index';
 
 export default {
   name: 'OrderReturnDialog',
@@ -42,9 +42,9 @@ export default {
       type: Boolean,
       default: false
     },
-    orderList: {
-      type: Array,
-      default: () => []
+    orderId: {
+      type: String,
+      default: ''
     }
   },
   data () {
@@ -61,12 +61,9 @@ export default {
     visible (val) {
       this.dialogVisible = val;
     },
-    orderList (val) {
+    orderId (val) {
       if (val) {
-        this.tableData = val.map(item => ({
-          ...item,
-          returnQuantity: 0
-        }));
+        this.getData();
       }
     }
   },
@@ -74,28 +71,39 @@ export default {
     close () {
       this.$emit('update:visible', false);
     },
-    async submit () {
-      this.submitLoading = true;
-      if (!this.form.description) {
-        this.$message.error('请填写退货原因！');
-        this.submitLoading = false;
-        return;
-      }
-      if (this.tableData.some(item => item.returnQuantity <= 0)) {
-        this.$message.error('退货数量必须大于0！');
-        this.submitLoading = false;
-        return;
-      }
+    // 请求数据
+    async getData () {
       const params = {
-        id: this.tableData[0].id,
+        dealerInboundOrderId: this.orderId,
+        pageNum: 1,
+        pageSize: 1000
+      };
+      const res = await dealerInboundOrderDetailPage(params);
+      this.tableData = res.records.map(item => ({
+        ...item,
+        qty: 0
+      }));
+    },
+    async submit () {
+      if (!this.form.description) {
+        this.$message.warning('请填写退货原因！');
+        return;
+      }
+      if (this.tableData.some(item => item.qty <= 0)) {
+        this.$message.warning('退货数量必须大于0！');
+        return;
+      }
+      this.submitLoading = true;
+      const params = {
+        dealerInboundOrderId: this.orderId,
         description: this.form.description,
-        list: this.tableData.map(item => ({
-          id: item.id,
-          returnQuantity: item.returnQuantity
+        details: this.tableData.map(item => ({
+          sparePartId: item.sparePartId,
+          qty: item.qty
         }))
       };
       await dealerInboundOrderReturnApply(params);
-      this.$emit('update:visible', false);
+      this.close();
       this.$emit('confirm');
       this.$message.success('申请退货成功！');
     }
