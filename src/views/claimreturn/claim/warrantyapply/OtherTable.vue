@@ -161,7 +161,6 @@ export default {
       warrantyApplyOtherDelete([row.id]).then((d) => {
         this.$message.success('删除成功');
         this.getDetailPageApi();
-        this.$emit('update');
       }).catch(() => {});
     },
     editRow (row, rowIndex) {

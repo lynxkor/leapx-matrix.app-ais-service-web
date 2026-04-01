@@ -33,6 +33,7 @@
                     placeholder="请输入"
                     v-model="form.code"
                     clearable
+                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()"
                   />
                 </el-form-item>
                 <el-form-item label="套餐名称：" prop="packageName">

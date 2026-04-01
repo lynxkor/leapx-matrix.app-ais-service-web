@@ -12,13 +12,13 @@
       min-height="0"
       max-height="400px"
     >
-      <vxe-column field="approverUserName" title="审批人" width="120"></vxe-column>
-      <vxe-column field="approvalTime" title="审批时间" width="160"></vxe-column>
-      <vxe-column field="approvalResult" title="审批结果" width="120">
+      <vxe-column field="approverUserName" title="审批人"></vxe-column>
+      <vxe-column field="approvalTime" title="审批时间"></vxe-column>
+      <vxe-column field="approvalResult" title="审批结果">
       </vxe-column>
-      <vxe-column field="approvalRemark" title="审批说明" min-width="150"></vxe-column>
-      <vxe-column field="errorCode" title="错误代码" width="120"></vxe-column>
-      <vxe-column field="errorContent" title="错误内容" min-width="200"></vxe-column>
+      <vxe-column field="approvalRemark" title="审批说明"></vxe-column>
+      <vxe-column field="errorCode" title="错误代码"></vxe-column>
+      <vxe-column field="errorContent" title="错误内容"></vxe-column>
       <template #empty>
         <div class="m-vxe-table-empty-text">
           暂无数据
