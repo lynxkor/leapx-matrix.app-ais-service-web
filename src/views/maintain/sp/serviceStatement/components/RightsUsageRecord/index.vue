@@ -19,6 +19,7 @@
         >
           <vxe-column field="rightsName" title="权益名称" min-width="150" />
           <vxe-column field="rightsCode" title="权益代码" min-width="150" />
+          <vxe-column field="useId" title="权益ID" min-width="150" />
 
           <vxe-column
             field="rightsTypeLabel"

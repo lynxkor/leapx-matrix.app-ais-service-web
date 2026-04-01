@@ -22,8 +22,8 @@
               {{ repairDetail.checkoutTypeName }}
             </el-form-item>
             <el-form-item label="优惠金额：" prop="discountAmount">
-              <el-input type="number" @blur="handleDiscountAmountBlur" clearable size="small"
-                v-model="repairDetail.discountAmount"></el-input>
+              <el-input-number type="number" @blur="handleDiscountAmountBlur" clearable size="small" :min="0" :max="repairDetail.price * repairDetail.workHour"
+                v-model="repairDetail.discountAmount"></el-input-number>
             </el-form-item>
             <el-form-item label="工时单价：" prop="price">
               {{ repairDetail.price }}
@@ -47,7 +47,7 @@
         </div>
         <div class="common-section-body">
           <div class="common-section-header">
-            <div class="ais-select-group">
+            <div>
               <base-search style="width: 300px;" :remote-method="queryListData" remote placeholder="搜索维修零件代码、名称"
                 clearable value-key="value" label-key="label" @change="handleAddTableData" />
             </div>
@@ -56,23 +56,23 @@
             <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
               min-height="0" max-height="400px">
               <vxe-column field="partsName" title="零件名称" width="150" />
-              <vxe-column field="partsCode" title="零件代码" width="120" />
+              <vxe-column field="partsCode" title="零件代码" width="150" />
               <vxe-column field="repairItemTypeId" title="维修类型" width="150">
                 <template #default="{ row }">
-                  <fetch-select v-model="row.repairItemTypeId" :options="repairItemOptions"
+                  <fetch-select v-model="row.repairItemTypeId" :options="repairItemOptions" size="small"
                     placeholder="请选择维修类型名称" labelKey="label" valueKey="value" filterable />
                 </template>
               </vxe-column>
               <vxe-column field="checkoutTypeName" title="结算类型" width="150" />
-              <vxe-column field="quantity" title="数量" width="120">
+              <vxe-column field="quantity" title="数量" width="150">
                 <template #default="{ row }">
-                  <el-input type="number" v-model="row.quantity" clearable></el-input>
+                  <el-input-number type="number" v-model="row.quantity" clearable size="small" :min="0"></el-input-number>
                 </template>
               </vxe-column>
-              <vxe-column field="price" title="单价" width="80" />
-              <vxe-column field="discountAmount" title="优惠金额" width="120">
+              <vxe-column field="price" title="单价" width="120" />
+              <vxe-column field="discountAmount" title="优惠金额" width="150">
                 <template #default="{ row }">
-                  <el-input type="number" v-model="row.discountAmount" clearable></el-input>
+                  <el-input-number  type="number" v-model="row.discountAmount" clearable size="small" :min="0" :max="row.quantity*row.price"></el-input-number >
                 </template>
               </vxe-column>
               <vxe-column title="操作" width="100" fixed="right">
@@ -99,7 +99,6 @@ import { getDetail } from '@/api/maintain/basic/repairItem/index';
 import { repairItemType, sparePartList } from '@/api/common';
 import BaseSearch from '@/libs/components/BaseSearch';
 import FetchSelect from '@/libs/components/FetchSelect';
-import { listSettlementType } from '@/api/maintain/basic/checkoutType';
 import commonMixins from '@/libs/mixins/commonMixins';
 
 export default {
@@ -137,7 +136,13 @@ export default {
       tableData: [], // 零件信息列表
       rules: {
         code: [
-          { required: true, message: '请输入套餐代码', trigger: 'change' }
+          { required: true, message: '请输入套餐代码', trigger: 'blur' }
+        ],
+        repairItemTypeId: [
+          { required: true, message: '请选择维修类型', trigger: 'blur' },
+        ],
+        checkoutTypeName: [
+          { required: true, message: '请输入结算类型', trigger: 'blur' },
         ],
       }
     };
