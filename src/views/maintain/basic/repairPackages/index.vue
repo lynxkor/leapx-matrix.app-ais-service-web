@@ -331,7 +331,7 @@ export default {
             }, {
               name: '删除',
               show: (row) => {
-                return this.isDealer && row.suedDealer === 1 && row.comboStatus !== 10;
+                return (this.isDealer && row.dataSource === 10) || (!this.isDealer && row.dataSource === 20);
               },
               popconfirmConfirmButtonType: 'danger',
               popconfirmConfirmButtonText: '删除',
@@ -367,9 +367,9 @@ export default {
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
-    this.getData();
     loginUserGet().then(data => {
       this.isDealer = data.accountFlag;
+      this.getData();
     });
   },
   methods: {
