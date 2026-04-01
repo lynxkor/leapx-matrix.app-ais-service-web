@@ -1355,7 +1355,7 @@ const routes = [
       component: () => import('@/views/sparepart/warehouse/inventory/index.vue'),
 
       meta: {
-        name: '厅店备件库存',
+        name: '门店备件库存',
         keepAlive: true
       }
     }, {
@@ -1364,7 +1364,7 @@ const routes = [
       component: () => import('@/views/sparepart/warehouse/inventory/edit.vue'),
 
       meta: {
-        name: '厅店备件库存详情',
+        name: '门店备件库存详情',
         noResourceUrl: 'true'
       }
     }, // 门店销毁
