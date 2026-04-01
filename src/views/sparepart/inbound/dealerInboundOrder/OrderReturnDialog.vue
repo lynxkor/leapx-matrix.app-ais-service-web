@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { dealerInboundOrderDetailPage, dealerInboundOrderReturnApply } from '@/api/sparepart/inbound/dealerInboundOrder/index';
+import { returnDetailPage, dealerInboundOrderReturnApply } from '@/api/sparepart/inbound/dealerInboundOrder/index';
 
 export default {
   name: 'OrderReturnDialog',
@@ -65,13 +65,11 @@ export default {
   },
   watch: {
     visible (val) {
-      this.dialogVisible = val;
-    },
-    orderId (val) {
       if (val) {
+        this.dialogVisible = val;
         this.getData();
       }
-    }
+    },
   },
   methods: {
     close () {
@@ -102,7 +100,7 @@ export default {
         pageNum: 1,
         pageSize: 1000
       };
-      const res = await dealerInboundOrderDetailPage(params);
+      const res = await returnDetailPage(params);
       this.tableData = res.records.map(item => ({
         ...item,
         qty: Math.min(item.availableQty, item.returnableQty)
@@ -135,6 +133,7 @@ export default {
         }))
       };
       await dealerInboundOrderReturnApply(params);
+      this.submitLoading = false;
       this.close();
       this.$emit('confirm');
       this.$message.success('申请退货成功！');
