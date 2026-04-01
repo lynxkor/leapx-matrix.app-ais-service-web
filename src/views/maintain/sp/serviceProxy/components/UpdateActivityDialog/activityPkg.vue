@@ -31,7 +31,7 @@
           <div
             v-for="item in packageList"
             :key="item.id"
-            :class="['list-item', { 'is-selected': selectedPackage?.id === item.id }]"
+            :class="['list-item', { 'is-selected': selectedPackage?.id === item.id, 'is-disabled': item.activityUsed }]"
             @click="handleSelectPackage(item)"
           >
             <div class="list-item__content">
@@ -185,7 +185,7 @@
             :title="popconfirmText"
             @confirm="handleConfirm"
           >
-            <el-button :type="selectedPackage?.used && !hasNewPart ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
+            <el-button :type="selectedPackage?.used && !hasNewPart ? 'plain' : 'primary'" size="small" slot="reference" :disabled="selectedPackage.activityUsed">{{ confirmBtnText }}</el-button>
           </el-popconfirm>
         </div>
       </div>
@@ -337,6 +337,9 @@ export default {
       this.hasNewPart = false;
       this.selectedPackage = item;
       this.loadProjectDetail(item);
+      if (item.activityUsed) {
+        this.$message.warning("该活动已被'实际施工门店名称'使用，您不可重复使用");
+      }
     },
     // 获取套餐详情
     async loadProjectDetail (pkg) {
@@ -648,6 +651,9 @@ export default {
         .list-item__code {
           color: $--leap-color-primary;
         }
+      }
+      &.is-disabled {
+        background-color: $--leap-color-default-light-5;
       }
 
       &__content {
