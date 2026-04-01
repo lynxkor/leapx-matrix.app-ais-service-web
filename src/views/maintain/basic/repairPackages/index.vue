@@ -101,7 +101,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="BooleanEnum"
-            v-model="form.suedDealerList"
+            v-model="form.comboStatusList"
             placeholder="请选择"
             clearable
             multiple
@@ -289,7 +289,7 @@ export default {
             }, {
               name: '下发',
               show: (row) => {
-                return !this.isDealer && row.dataSource === 20 && row.suedDealer === 1 && row.comboStatus === 10;
+                return !this.isDealer && row.dataSource === 20 && row.comboStatus === 10;
               },
               popconfirmTitle: '确认下发该维修套餐',
               click: (rowIndex, row) => {
@@ -310,7 +310,7 @@ export default {
             }, {
               name: '撤回',
               show: (row) => {
-                return !this.isDealer && row.dataSource === 20 && row.suedDealer === 1 && row.comboStatus !== 10;
+                return !this.isDealer && row.dataSource === 20 && row.comboStatus !== 10;
               },
               popconfirmTitle: '确认撤回该维修套餐',
               click: (rowIndex, row) => {
