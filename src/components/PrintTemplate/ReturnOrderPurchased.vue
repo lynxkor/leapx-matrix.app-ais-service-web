@@ -33,7 +33,7 @@
                     </tr>
                     <tr>
                         <td colspan="2" style="width: 100%; text-align: left;">
-                            合计品项：1，合计数量：1，合计总价：30</td>
+                            合计品项：{{ info.detailQty }}，合计数量：{{ info.totalQty }}，合计总价：{{ info.totalAmount }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -52,9 +52,9 @@
                 <tbody id="data-list">
                     <tr v-for="item,index in tableData" :key="item.id">
                         <td>{{index+1}}</td>
-                        <td>{{item.dealerInboundOrderCode}}</td>
-                        <td>{{item.inboundQty}}</td>
-                        <td>{{item.cashUnitPrice}}</td>
+                        <td>{{item.sparePartCode}}</td>
+                        <td>{{item.sparePartName}}</td>
+                        <td>{{item.locationName}}</td>
                         <td>{{item.outboundQty}}</td>
                         <td>{{item.unitPrice}}</td>
                         <td>{{item.outboundAmount}}</td>

@@ -41,7 +41,9 @@
             <i v-if="item.used" class="el-icon-success selected-icon"></i>
           </div>
         </template>
-        <div v-else class="list-empty">暂无数据</div>
+        <div v-else class="list-empty">
+          <div class="empty-text">没有找到相关内容</div>
+        </div>
       </div>
     </div>
 
@@ -375,10 +377,16 @@ export default {
       max-height: 520px;
 
       .list-empty {
-        text-align: center;
-        color: var(--leap-color-default-light-2);
-        font-size: 14px;
-        padding: 40px 0;
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding-top: 150px;
+
+          .empty-text {
+            color: var(--leap-color-default-light-1);
+            font-size: 14px;
+          }
       }
     }
 

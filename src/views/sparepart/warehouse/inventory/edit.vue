@@ -352,7 +352,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '厅店备件库存',
+      pageTitle: '门店备件库存',
       pageType: 'edit',
       title: '库存单号：',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
