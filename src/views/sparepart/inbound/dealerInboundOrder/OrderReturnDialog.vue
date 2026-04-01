@@ -65,13 +65,11 @@ export default {
   },
   watch: {
     visible (val) {
-      this.dialogVisible = val;
-    },
-    orderId (val) {
       if (val) {
+        this.dialogVisible = val;
         this.getData();
       }
-    }
+    },
   },
   methods: {
     close () {
@@ -135,6 +133,7 @@ export default {
         }))
       };
       await dealerInboundOrderReturnApply(params);
+      this.submitLoading = false;
       this.close();
       this.$emit('confirm');
       this.$message.success('申请退货成功！');
