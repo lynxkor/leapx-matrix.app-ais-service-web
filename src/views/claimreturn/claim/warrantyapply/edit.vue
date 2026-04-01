@@ -468,12 +468,13 @@
         </div>
         <div class="common-section-body">
           <el-form :inline="true" ref="ruleForm5" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-            <el-form-item label="主因零件编码：" prop="mainPartId">
+            <el-form-item label="主因零件编码：" prop="mainPartCode">
               <fetch-select
                 :remote-method="searchMainPart"
                 remote
-                v-model="form.mainPartId"
+                v-model="form.mainPartCode"
                 @change="onMainPartChange"
+                :params="form.mainPartCode"
                 placeholder="请输入零件编码/名称"
                 labelKey="code"
                 valueKey="id"
