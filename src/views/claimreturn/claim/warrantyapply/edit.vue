@@ -119,7 +119,7 @@
               <el-input placeholder="" v-model="form.claimTrackNo" clearable disabled />
             </el-form-item>
           </el-form>
-          <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
             <el-form-item label="保修申请单号：" prop="applyNo">
               {{ form.applyNo }}
             </el-form-item>
@@ -265,7 +265,7 @@
               <el-input placeholder="" v-model="form.alarmLevel" clearable disabled />
             </el-form-item>
           </el-form>
-          <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
             <el-form-item label="VIN：" prop="vin">
               {{ form.vin }}
             </el-form-item>
@@ -361,7 +361,7 @@
               <base-input type="textarea" v-model="form.troubleshootingFlow" clearable />
             </el-form-item>
           </el-form>
-          <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
             <el-form-item label="质量反馈报告：" prop="qualityOrderReport">
               {{ form.qualityOrderReport }}
             </el-form-item>
@@ -427,7 +427,6 @@
             </el-form-item>
           </el-form>
           <el-form
-            label-width="150px"
             :inline="true"
             class="form-detail"
             v-show="!(isEditing || !_id)"
@@ -463,10 +462,52 @@
       </section>
       <section class="common-section">
         <div class="common-section-header">
-          <h2>零件信息</h2>
+          <h2>
+            零件信息
+          </h2>
         </div>
         <div class="common-section-body">
+          <el-form :inline="true" ref="ruleForm5" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+            <el-form-item label="主因零件编码：" prop="mainPartId">
+              <fetch-select
+                :remote-method="searchMainPart"
+                remote
+                v-model="form.mainPartId"
+                @change="onMainPartChange"
+                placeholder="请输入零件编码/名称"
+                labelKey="code"
+                valueKey="id"
+                subLabelKey="name"
+                clearable
+                filterable
+              />
+            </el-form-item>
+            <el-form-item label="主因零件名称：" prop="mainPartName">
+              <el-input placeholder="" v-model="form.mainPartName" clearable disabled />
+            </el-form-item>
+            <el-form-item label="主因供应商编码：" prop="mainPartSupplierCode">
+              <el-input placeholder="" v-model="form.mainPartSupplierCode" clearable disabled />
+            </el-form-item>
+            <el-form-item label="主因供应商名称：" prop="mainPartSupplierName">
+              <el-input placeholder="" v-model="form.mainPartSupplierName" clearable disabled />
+            </el-form-item>
+          </el-form>
+          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+            <el-form-item label="主因零件编码：" prop="mainPartCode">
+              {{ form.mainPartCode }}
+            </el-form-item>
+            <el-form-item label="主因零件名称：" prop="mainPartName">
+              {{ form.mainPartName }}
+            </el-form-item>
+            <el-form-item label="主因供应商编码：" prop="mainPartSupplierCode">
+              {{ form.mainPartSupplierCode }}
+            </el-form-item>
+            <el-form-item label="主因供应商名称：" prop="mainPartSupplierName">
+              {{ form.mainPartSupplierName }}
+            </el-form-item>
+          </el-form>
           <part-table
+            ref="partTableRef"
             :id="_id"
             :canAddOrUpdate="canAddOrUpdate"
           />
@@ -536,6 +577,7 @@ import ActivityTable from './ActivityTable.vue';
 import ApprovalRecordTable from './ApprovalRecordTable.vue';
 import PartTable from './PartTable.vue';
 import WarrantyApplyFile from './WarrantyApplyFile.vue';
+import { getList } from '@/api/maintain/basic/repairItem';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -837,6 +879,20 @@ export default {
       this.form.mainPartSupplierName = row.mainPartSupplierName;
       this.form.mainPartSupplierCode = row.mainPartSupplierCode;
       this.form.mainPartSupplierId = row.mainPartSupplierId;
+    },
+    // 搜索主因零件
+    searchMainPart (query) {
+      return getList({
+        pageNum: 1,
+        pageSize: 20,
+        nameOrCodeOrPinyinLike: query,
+      });
+    },
+    // 主因零件选择变更
+    onMainPartChange (val, row) {
+      this.form.mainPartCode = row?.code;
+      this.form.mainPartName = row?.name;
+      this.form.mainPartId = row?.id;
     }
   }
 };
