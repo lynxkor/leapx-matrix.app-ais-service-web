@@ -1331,6 +1331,7 @@ export default {
     },
     handleRefresh () {
       this.getRepairItemInfo();
+      this.$emit('refresh');
     },
     // ----------替换件逻辑-----------------
     handlePartReplaceChange (current, row) {
