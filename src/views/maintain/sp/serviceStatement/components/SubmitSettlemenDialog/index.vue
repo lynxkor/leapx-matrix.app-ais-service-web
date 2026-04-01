@@ -634,6 +634,7 @@ export default {
     },
     handleRefresh () {
       this.$emit('refresh');
+      this.close();
     },
   },
 };

@@ -30,6 +30,9 @@ export function getDealerPage (data) {
 export function addOrUpdate (data) {
   return api.jsonPost(prefix + 'addOrUpdate', data);
 }
+export function addOrUpdateDealer (data) {
+  return api.jsonPost(prefix + 'addOrUpdateDealer', data);
+}
 
 /**
  * 删除

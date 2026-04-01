@@ -3,7 +3,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/dealer/dealerInboundOrder/';
-
+const prefixDetail = SPARE_PREFIX + '/web/dealer/dealerInboundOrderDetail/';
 /**
  * 查询列表
  * @param {Object} data
@@ -49,7 +49,7 @@ export function enableItem (data) {
  * @param {Object} data
  */
 export function dealerInboundOrderDetailPage (data) {
-  return api.jsonPost('/sp/web/dealer/dealerInboundOrderDetail/page', data);
+  return api.jsonPost(prefixDetail + 'page', data);
 }
 
 /**
@@ -57,7 +57,7 @@ export function dealerInboundOrderDetailPage (data) {
  * @param {Object} data
  */
 export function dealerInboundOrderDetailDelete (data) {
-  return api.jsonPost('/sp/web/dealer/dealerInboundOrderDetail/delete', data);
+  return api.jsonPost(prefixDetail + 'delete', data);
 }
 
 /**
@@ -65,7 +65,7 @@ export function dealerInboundOrderDetailDelete (data) {
  * @param {Object} data
  */
 export function dealerInboundOrderCommit (data) {
-  return api.jsonPost('/sp/web/dealer/dealerInboundOrder/commit', data);
+  return api.jsonPost(prefix + 'commit', data);
 }
 
 /**
@@ -73,7 +73,7 @@ export function dealerInboundOrderCommit (data) {
  * @param {Object} data
  */
 export function dealerInboundOrderAgree (data) {
-  return api.jsonPost('/sp/web/dealer/dealerInboundOrder/agree', data);
+  return api.jsonPost(prefix + 'agree', data);
 }
 
 /**
@@ -81,7 +81,7 @@ export function dealerInboundOrderAgree (data) {
  * @param {Object} data
  */
 export function dealerInboundOrderReject (data) {
-  return api.jsonPost('/sp/web/dealer/dealerInboundOrder/reject', data);
+  return api.jsonPost(prefix + 'reject', data);
 }
 
 /**
@@ -89,7 +89,7 @@ export function dealerInboundOrderReject (data) {
  * @param {Object} data
  */
 export function dealerInboundOrderInbound (data) {
-  return api.jsonPost('/sp/web/dealer/dealerInboundOrder/inbound', data);
+  return api.jsonPost(prefix + 'inbound', data);
 }
 
 /**
@@ -97,7 +97,7 @@ export function dealerInboundOrderInbound (data) {
  * @param {Object} data
  */
 export function dealerInboundOrderReturnApply (data) {
-  return api.jsonPost('/sp/web/dealer/dealerInboundOrder/returnApply', data);
+  return api.jsonPost(prefix + 'returnApply', data);
 }
 
 /**
@@ -105,5 +105,5 @@ export function dealerInboundOrderReturnApply (data) {
  * @param {Object} data
  */
 export function dealerInboundOrderDetailAdd (data) {
-  return api.jsonPost('/sp/web/dealer/dealerInboundOrderDetail/addOrUpdate', data);
+  return api.jsonPost(prefixDetail + 'addOrUpdate', data);
 }

@@ -309,7 +309,7 @@ export default {
       // 查询当前门店备件列表
       return new Promise(resolve => {
         // 根据需求调用接口
-        listDealerPart({ dealerCode: this.form.dealerCode, partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
+        listDealerPart({ partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
           const list = res || [];
           resolve(list);
         });

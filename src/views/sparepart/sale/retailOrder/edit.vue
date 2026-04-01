@@ -694,7 +694,7 @@ export default {
     // 备件远程搜索
     async queryListData (query) {
       try {
-        const res = await listDealerPart({ dealerCode: this.form.dealerCode, partCodeOrNameLike: query });
+        const res = await listDealerPart({ partCodeOrNameLike: query });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
