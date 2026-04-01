@@ -42,7 +42,7 @@ import { getList } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
 
 export default {
   props: {
-    vin: {
+    vehicleProfileId: {
       type: String,
     },
     disabled: {
@@ -64,7 +64,7 @@ export default {
     };
   },
   watch: {
-    vin: {
+    vehicleProfileId: {
       handler (val) {
         if (val) {
           this.getDetailPageApi();
@@ -73,14 +73,13 @@ export default {
     },
   },
   mounted () {
-    this.getDetailPageApi();
   },
   beforeDestroy () {},
   methods: {
     // 表格数据
     getDetailPageApi () {
       getList({
-        vin: this.vin,
+        vehicleProfileId: this.vehicleProfileId,
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {
