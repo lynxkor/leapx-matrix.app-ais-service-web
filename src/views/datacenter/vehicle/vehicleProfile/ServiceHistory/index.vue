@@ -2,27 +2,45 @@
   <div class="change-history">
     <el-timeline class="change-history-timeline">
       <el-timeline-item
-        v-for="(item, index) in [1,2]"
+        v-for="(item, index) in tableData"
         :key="index"
-        color="#6C6E6C"
+        color="#354"
         >
+        <template v-slot:dot>
+          <div class="dot" :class="{'first': index === 0}"></div>
+        </template>
         <div class="item">
-          <div class="line-1">2025-11-12 16:33:00 退车
-            <span>精品附件</span>
-            <span>精品附件</span>
-            <span>精品附件</span>
-            <span>精品附件</span>
+          <div class="line-1">{{ item.orderTime }}
+            <span class="type" v-for="val in item.repairTypes" :key="val">{{ val }}</span>
           </div>
           <div class="line-2">
             <div class="line-item">
-              <span class="grey">操作人：</span>
-              <span>sfdf</span>
+              <span class="grey">业务单据：</span>
+              <el-link type="success" :href="`/maintain/sp/serviceProxy/edit?id=${item.serviceProxyId}`" target="_blank">{{ item.serviceProxyCode }}</el-link>
             </div>
           </div>
           <div class="line-2">
             <div class="line-item">
-              <span class="grey">操作人：</span>
-              <span>sfdf</span>
+              <span class="grey">施工门店：</span>
+              <span>{{ item.dealerName }}</span>
+            </div>
+          </div>
+          <div class="line-2">
+            <div class="line-item">
+              <span class="grey">进店里程：</span>
+              <span>{{ item.mileage }}</span>
+            </div>
+          </div>
+          <div class="line-2">
+            <div class="line-item">
+              <span class="grey">客户故障描述：</span>
+              <span>{{ item.customerFaultDescription }}</span>
+            </div>
+          </div>
+          <div class="line-2">
+            <div class="line-item">
+              <span class="grey">客户经理建议：</span>
+              <span>{{ item.managerSuggestion }}</span>
             </div>
           </div>
         </div>
@@ -46,7 +64,6 @@
 <script>
 import { serviceProxyHisPage } from '@/api/datacenter/vehicle/vehicleProfile';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { getEnum } from '@/api/common';
 
 const defaultForm = {
   businessType: '',
@@ -71,12 +88,6 @@ export default {
       total: 0,
       tableData: [],
       //
-      types: [
-        'RETURN_VEHICLE',
-        'USED_CAR_CHANGE',
-        'ORIGINAL_OWNER_CHANGE',
-        'SERVICE_DEALER_CHANGE',
-      ],
     };
   },
   computed: {
@@ -98,7 +109,8 @@ export default {
   methods: {
     getDetailPageApi () {
       serviceProxyHisPage({
-        vehProfileId: this.id,
+        // vehProfileId: this.id,
+        vehProfileId: 'FFFE520B-3858-45A9-B7A5-DDA656D717D3',
         pageSize: this.pageSize,
         pageNum: this.current,
         sortColumns: [{
@@ -106,31 +118,14 @@ export default {
           sort: 'DESC'
         }]
       }).then((res) => {
-        this.tableData = res.records;
+        this.tableData = (res.records || []).map(item => {
+          return {
+            ...item,
+            repairTypes: `${item.repairItemTypeDetailCollect}`.split('&'),
+          };
+        });
         this.total = res.total;
       });
-    },
-    getFormData () {
-      const data = { ...this.form };
-
-      Object.keys(this.form).forEach(key => {
-        if (Array.isArray(data[key]) && !data[key].length) {
-          delete data[key];
-        }
-        if (data[key] === '' || data[key] === null) {
-          delete data[key];
-        }
-      });
-
-      return data;
-    },
-    onSubmit () {
-      this.getDetailPageApi();
-    },
-    onReset () {
-      this.form = { ...defaultForm };
-      this.current = 1;
-      this.getDetailPageApi();
     },
     pageSizeChange (pageSize) {
       this.pageSize = pageSize;
@@ -141,12 +136,6 @@ export default {
       this.current = current;
       this.getDetailPageApi();
     },
-    async fetchOptions (code) {
-      if (code) {
-        return getEnum(code);
-      }
-      return [];
-    },
   }
 };
 </script>
@@ -154,6 +143,9 @@ export default {
 <style lang="scss" scoped>
 .change-history {
   padding: 0 0 12px 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   .ais-search-form {
     display: flex;
     .el-form-item:not(.form-item-action) {
@@ -169,8 +161,10 @@ export default {
   }
 }
 .change-history-timeline{
-  margin-top: 10px;
-  padding-left: 30px;
+  flex: 1;
+  overflow-y: auto;
+  padding-top: 10px;
+  padding-left: 18px;
   .status{
     position: absolute;
     left: -32px;
@@ -188,19 +182,19 @@ export default {
     }
   }
   .item{
-    padding-left: 30px;
     .line-1{
       color: #0A0E0A;
       font-weight: 500;
       font-size: 14px;
       line-height: 22px;
-      margin-bottom: 4px;
-      span{
+      .type {
         display: inline-block;
-        background: #FAF6EA;
+        margin-left: 8px;
+        margin-bottom: 8px;
+        color: #3B3E3B;
+        border: 1px solid #3B3E3B;
         padding: 2px 10px;
-        margin-right: 6px;
-        color: #C8A12B;
+        border-radius: 4px;
         line-height: 20px;
         font-size: 12px;
         font-weight: normal;
@@ -213,21 +207,51 @@ export default {
       line-height: 22px;
       display: flex;
       flex-wrap: wrap;
-      margin-top: 5px;
+      margin-bottom: 8px;
       .line-item{
         flex: 1;
         .grey{
           color: #6C6E6C;
+          font-weight: normal;
         }
       }
     }
   }
 }
+.table-pagination{
+  padding: 0 12px;
+}
+::v-deep .el-timeline .el-timeline-item .el-timeline-item__tail {
+  top: 7px;
+}
+::v-deep .el-timeline .el-timeline-item:last-child{
+  .el-timeline-item__tail{
+    border:none;
+  }
+}
+::v-deep .el-timeline .el-timeline-item .el-timeline-item__wrapper{
+  padding-left: 24px;
+}
+
 ::v-deep .el-timeline .el-timeline-item:last-child .el-timeline-item__tail {
   display: block !important;
 }
 ::v-deep .el-pagination{
   display: flex;
   flex-wrap: wrap;
+}
+.dot{
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+  border: 1px solid #3B3E3B;
+  margin-left: 1px;
+  &.first{
+    background-color: #009100;
+  }
 }
 </style>
