@@ -300,10 +300,6 @@ export default {
               },
               popconfirmTitle: '此操作将允许BO调拨, 是否继续?',
               click: (rowIndex, row) => {
-                if (!row.domesticPrePackageWeightKg || row.domesticPrePackageWeightKg === '0' || !row.domesticPostPackageVolumeCm3 || row.domesticPostPackageVolumeCm3 === '0') {
-                  this.$message.error('备件编码: ' + row.partCode + '的信息为准确维护，请维护后再操作，谢谢！');
-                  return;
-                }
                 allowBoTransfer({
                   id: row.id
                 }).then(() => {
