@@ -68,14 +68,14 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect,
+    // FetchSelect,
   },
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '标题xxx'
+      return '标题xxx';
     }
   },
   watch: {

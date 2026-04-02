@@ -338,7 +338,7 @@ export default {
       this.selectedPackage = item;
       this.loadProjectDetail(item);
       if (item.activityUsed) {
-        this.$message.warning(`该活动已被${item.actualDealerName}使用，您不可重复使用`);
+        this.$message.warning(`该活动已被${item.actualDealerName ? item.actualDealerName : ''}使用，您不可重复使用`);
       }
     },
     // 获取套餐详情
@@ -653,7 +653,7 @@ export default {
         }
       }
       &.is-disabled {
-        background-color: $--leap-color-default-light-5;
+        background-color: $--leap-color-default-light-4;
       }
 
       &__content {

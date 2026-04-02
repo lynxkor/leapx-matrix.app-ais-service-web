@@ -120,8 +120,14 @@
                   <vxe-column field="partsName" title="零件名称" min-width="140" />
                   <vxe-column field="repairItemTypeName" title="维修类型" min-width="100" />
                   <vxe-column field="checkoutTypeName" title="结算类型" min-width="100" />
-                  <vxe-column field="warrantyTypeName" title="保修类型" min-width="100" />
-                  <vxe-column field="workHour" title="工时" min-width="80"/>
+                  <vxe-column field="quantity" title="数量" min-width="80"/>
+                  <vxe-column field="price" title="单价" min-width="80"/>
+                  <vxe-column field="discountAmount" title="优惠金额" min-width="80"/>
+                  <vxe-column field="amout" title="零件金额" min-width="80" >
+                    <template #default="{ row }">
+                      {{ row.quantity * row.price - row.discountAmount }}
+                    </template>
+                  </vxe-column>
                 </vxe-table>
               </div>
             </div>

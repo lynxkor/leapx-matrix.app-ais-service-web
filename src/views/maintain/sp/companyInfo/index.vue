@@ -477,7 +477,7 @@ export default {
     companyList: async function (code) {
       if (code) {
         const data = { isParentCompany: code };
-        return  companyList(data);
+        return companyList(data);
       }
       return [];
     },
