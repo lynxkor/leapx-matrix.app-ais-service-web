@@ -35,7 +35,7 @@
           filterable
         />
       </el-form-item>
-      <el-form-item label="门店状态:">
+      <el-form-item label="门店状态:" >
         <fetch-select
           :request="fetchOptions"
           enumCode="DealerStatusEnum"
@@ -275,12 +275,12 @@ export default {
 
             buttons: [{
               name: '申请开通健康档案',
-               
+
               click: (rowIndex, row) => {
                 this.handleOpenApplyDialog(row);
               },
               type: 'info',
-              show: (row) => row.healthStatus === 10 && row.isParentCompany===1
+              show: (row) => row.healthStatus === 10 && row.isParentCompany === 1
             }]
           }
         ],
