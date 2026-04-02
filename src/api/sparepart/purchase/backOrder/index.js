@@ -12,6 +12,10 @@ export function getList (data) {
   return api.jsonPost(prefix + 'page', data);
 }
 
+export function boToShareTransferPage (data) {
+  return api.jsonPost(prefix + 'boToShareTransferPage', data);
+}
+
 /**
  * 新增或修改
  * @param {Object} data

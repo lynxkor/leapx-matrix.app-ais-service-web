@@ -214,6 +214,7 @@
         :option-obj="optionObj"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
+        row-class-name="warranty-apply-table-row"
         @paginationChange="paginationChange"
         @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
@@ -252,6 +253,7 @@ import {
   approve,
   batchCancel,
   queryOldPartOemInventoryId,
+  getDetailDecryptField,
 } from '@/api/claimreturn/claim/warrantyapply/index';
 import {
   getTableConfig, tableAddOrUpdate, getEnum, listVehicleModel, getScopeTypeOrg,
@@ -374,7 +376,7 @@ export default {
             label: '三包预警',
             visible: true,
             width: 200,
-            buttons: [{ type: 'primary' }],
+            // buttons: [{ type: 'primary' }],
           },
           {
             props: 'applyNo',
@@ -398,6 +400,8 @@ export default {
             label: 'VIN',
             visible: true,
             width: 200,
+            mask: true,
+            getValue: (row) => getDetailDecryptField(row.id, 'vin'),
             buttons: [{
               type: 'primary',
               click: (rowIndex, row) => {
