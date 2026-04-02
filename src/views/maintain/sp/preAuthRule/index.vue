@@ -32,7 +32,7 @@
           collapseTags
           clearable
           filterable
-          :params="{seriesIdList: form.vehicleSeriesId}"
+          :params="{seriesIdList: [form.vehicleSeriesId]}"
         />
       </el-form-item>
       <el-form-item label="启用状态"  v-show="this.visibleCount === 3 || show">
@@ -61,6 +61,7 @@
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
     </div>
     <div class="ais-table-c">
       <LPVxeTable
@@ -89,12 +90,12 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/sp/preAuthRule/index';
-import { getTableConfig, tableAddOrUpdate, getEnum, vehicleModelTree } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, getEnum, vehicleModelTree, exportTable } from '@/api/common';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import FetchSelect from '@/libs/components/FetchSelect';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange } from '@/libs/utils';
+import { downloadExcel, handleBatchStatusChange } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 
@@ -133,6 +134,7 @@ export default {
         { code: 1, message: '启用' },
         { code: 0, message: '停用' }
       ],
+      exportLoading: false,
       show: false,
       loading: false,
       clickItemId: '',
@@ -274,6 +276,39 @@ export default {
       this.optionObj.form.pageSize = pageSize;
       this.getData();
     },
+    exportExcel () {
+      this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
+      exportTable({
+        businessType: '预授权参数管理',
+        dataFetchPath: 'maintain/web/sp/preAuthRule/page',
+        reqParams,
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '预授权参数管理.xlsx');
+          } catch (error) {
+            this.$message({
+              type: 'error',
+              message: '文件导出失败'
+            });
+          }
+        } else {
+          this.$message({
+            type: 'info',
+            message: '请前往导出列表中查询导出结果'
+          });
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
+    },
     getData () {
       this.loading = true;
       this.selectionList = [];
@@ -296,11 +331,11 @@ export default {
 
       getList(params)
         .then(res => {
-          console.log(res);
           this.optionObj.dataList = res.records.map(item => {
             return {
               ...item,
-              deleteLoading: false
+              deleteLoading: false,
+              statusLabel: item.status === 1 ? '启用' : '停用'
             };
           });
           this.optionObj.total = res.total;
@@ -398,8 +433,16 @@ export default {
     },
     // 批量删除
     handleBatchDelete () {
+      // 检查是否有启用的数据
+      const enabledItems = this.selectionList.filter(item => item.status === 1);
+
+      if (enabledItems.length > 0) {
+        this.$message.warning('该数据尚在使用，请停用后再行删除');
+        return;
+      }
+
       const ids = this.selectionList.map(item => item.id) || [];
-      this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+      this.$confirm('此操作将永久删除，是否继续？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
