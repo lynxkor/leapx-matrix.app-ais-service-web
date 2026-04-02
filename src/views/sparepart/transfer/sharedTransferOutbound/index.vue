@@ -139,6 +139,13 @@
       @close="handleUploadDialogClose"
       @getData="getData"
     />
+    <!-- 发运弹窗 -->
+    <ShipmentDialog
+      :visible="shipmentDialogVisible"
+      :id="shipmentId"
+      @update:visible="val => shipmentDialogVisible = val"
+      @success="getData"
+    />
   </div>
 </template>
 
@@ -146,7 +153,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, getShip } from '@/api/sparepart/transfer/sharedTransferOutbound/index';
+import { getList, deleteItem, enableItem } from '@/api/sparepart/transfer/sharedTransferOutbound/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -157,7 +164,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
-
+import ShipmentDialog from './ShipmentDialog.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   codeList: '',
@@ -186,7 +193,8 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    TagInput
+    TagInput,
+    ShipmentDialog
   },
   data () {
     return {
@@ -203,6 +211,8 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      shipmentDialogVisible: false, // 发运弹窗
+      shipmentId: '',
       clickItemId: '',
       optionObj: {
         id: 'sharedTransferOutboundTable',
@@ -263,20 +273,8 @@ export default {
               show: (row) => {
                 return row.outboundStatus === '0';
               },
-              popconfirmTitle: '确定发运吗, 是否继续?',
               click: (rowIndex, row) => {
-                getShip({ id: row.id, operator: row.outboundOperator, operatorName: row.outboundOperatorName }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '发运成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '发运失败!'
-                  });
-                });
+                this.handleShipment(row);
               },
               type: 'info'
             }, {
@@ -561,6 +559,11 @@ export default {
         template: 'SharedTransferOutbound', // 必选，对应 ./template/文件名.vue
         title: `${val.dealerName}厅店共享备件调拨出库单`// 可选，打印标题
       });
+    },
+    // 发运
+    handleShipment (val) {
+      this.shipmentId = val.id;
+      this.shipmentDialogVisible = true;
     },
   }
 };
