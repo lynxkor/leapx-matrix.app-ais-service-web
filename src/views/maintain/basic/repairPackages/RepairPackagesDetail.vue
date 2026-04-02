@@ -66,15 +66,16 @@
               <vxe-column field="checkoutTypeName" title="结算类型" width="150" />
               <vxe-column field="quantity" title="数量" width="150">
                 <template #default="{ row }">
-                  <el-input-number type="number" v-model="row.quantity" clearable size="small" :min="0"></el-input-number>
+                  <el-input-number type="number" v-model="row.quantity" clearable size="small" :min="0" @change="calculatePartsAmount(row)" ></el-input-number>
                 </template>
               </vxe-column>
               <vxe-column field="price" title="单价" width="120" />
-              <vxe-column field="discountAmount" title="优惠金额" width="150">
+              <vxe-column field="discountAmount" title="优惠金额" width="150" >
                 <template #default="{ row }">
-                  <el-input-number  type="number" v-model="row.discountAmount" clearable size="small" :min="0" :max="row.quantity*row.price"></el-input-number >
+                  <el-input-number  type="number" v-model="row.discountAmount" clearable size="small" :min="0" :max="row.quantity*row.price" @change="calculatePartsAmount(row)" ></el-input-number >
                 </template>
               </vxe-column>
+              <vxe-column field="actualAmount" title="零件金额" width="120" />
               <vxe-column title="操作" width="100" fixed="right">
                 <template #default="{ rowIndex }">
                   <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
@@ -189,6 +190,12 @@ export default {
       //   this.repairDetail.checkoutTypeId = this.checkoutTypeOptions[0].value;
       //   this.repairDetail.checkoutTypeName = this.checkoutTypeOptions[0].label;
       // }
+      if (this.tableData && this.tableData.length > 0) {
+        this.tableData.forEach(item => {
+          item.repairItemTypeId = this.repairItemOptions[0].value;
+          item.repairItemTypeName = this.repairItemOptions[0].label;
+        });
+      }
     },
     // 获取维修项目详情信息
     async getDetail (id) {
@@ -220,13 +227,24 @@ export default {
               remark: item.remark,
               quantity: 1,
               discountAmount: 0,
-              checkoutTypeName: '自费'
+              actualAmount: item.price,
+              checkoutTypeName: '自费',
+              repairItemTypeId: this.repairDetail.repairItemTypeId
             });
           }
         }
       } else {
         this.repairDetail = res || {};
         this.tableData = res.partRespList || [];
+        // 计算零件金额
+        this.tableData.forEach(item => {
+          const number = Number(item.quantity) || 0;
+          const unitPrice = Number(item.price) || 0;
+          const discountAmount = Number(item.discountAmount) || 0;
+          let receivable = number * unitPrice;
+          receivable = receivable - discountAmount;
+          item.actualAmount = Math.max(0, receivable.toFixed(2));
+        });
       }
       if (this.repairDetail.discountAmount) { // 有优惠金额时，计算项目金额
         this.repairDetail.actualAmount = Number(this.repairDetail.price) * Number(this.repairDetail.workHour) - Number(this.repairDetail.discountAmount);
@@ -267,6 +285,16 @@ export default {
         ...this.repairDetail,
         actualAmount: result
       };
+    },
+    // 计算配件应收金额
+    calculatePartsAmount (row) {
+      const number = Number(row.quantity) || 0;
+      const unitPrice = Number(row.price) || 0;
+      const discountAmount = Number(row.discountAmount) || 0;
+
+      let receivable = number * unitPrice;
+      receivable = receivable - discountAmount;
+      row.actualAmount = Math.max(0, receivable.toFixed(2));
     },
     // 零件信息模糊搜索方法
     async queryListData (queryString) {

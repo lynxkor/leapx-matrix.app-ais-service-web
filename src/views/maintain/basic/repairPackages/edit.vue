@@ -11,6 +11,7 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :showEditBtn = "canEdit"
       >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
@@ -106,7 +107,7 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
-              <div class="model-select" @click="handleModel">选择适配车型</div>
+              <div class="model-select" @click="handleModel" v-if = "canEdit">选择适配车型</div>
               <vxe-table
                   ref="editTable"
                   stripe
@@ -151,6 +152,7 @@
                     value-key="id"
                     label-key="name"
                     @change="handleAddTableData"
+                    :disabled = "!canEdit"
                   />
                 </div>
               </div>
@@ -214,6 +216,7 @@
                   <vxe-column field="quantity" title="数量" width="14.3%" />
                   <vxe-column field="price" title="单价" width="14.3%" />
                   <vxe-column field="discountAmount" title="优惠金额" width="14.3%" />
+                  <vxe-column field="actualAmount" title="零件金额" width="14.3%" />
                   <!-- <vxe-column title="操作" width="150" fixed="right" v-if="canDelete">
                     <template #default="{ row }">
                       <span @click="handleEditRow(row)" class="action-button btn-edit">编辑</span>
@@ -324,6 +327,10 @@ export default {
     },
     title () {
       return '套餐代码：' + this.form.code;
+    },
+    canEdit () {
+      console.log('accountFlag:' + this.accountFlag, (this.accountFlag && this.form.dataSource === 10), (!this.accountFlag && this.form.dataSource === 20));
+      return (this.accountFlag && this.form.dataSource === 10) || (!this.accountFlag && this.form.dataSource === 20);
     }
   },
   watch: {
@@ -369,6 +376,7 @@ export default {
       emptyText: '暂无数据',
       tableData: [],
       tablePartData: [],
+      accountFlag: true,
       rules: {
         code: [
           { required: true, message: '请输入套餐代码', trigger: 'change' }
@@ -498,15 +506,17 @@ export default {
       // 查询是否店端 true为门店  false为厂端
       const res = await getLoginUser();
       this.accountFlag = res.accountFlag;
-      this.form.ownerOrgId = res.currentOrgId;// 当前门店code
-      this.form.dealerCode = res.currentDealerCode;// 当前门店编码
-      this.form.dealerName = res.currentDealerName;// 当前门店名称
-      if (this.accountFlag) {
-        this.form.dataSource = 10;
-        this.form.dataSourceLabel = '门店';
-      } else {
-        this.form.dataSource = 20;
-        this.form.dataSourceLabel = '主机厂';
+      if (!this._id) {
+        this.form.ownerOrgId = res.currentOrgId;// 当前门店code
+        this.form.dealerCode = res.currentDealerCode;// 当前门店编码
+        this.form.dealerName = res.currentDealerName;// 当前门店名称
+        if (this.accountFlag) {
+          this.form.dataSource = 10;
+          this.form.dataSourceLabel = '门店';
+        } else {
+          this.form.dataSource = 20;
+          this.form.dataSourceLabel = '主机厂';
+        }
       }
     },
     // 维修套餐--类型表列表查询
@@ -529,6 +539,15 @@ export default {
     async getPartData () {
       const res = await getPackagesPartPage({ repairPackagesId: this._id, pageSize: 5000, sortColumns: [{ column: 'repair_item_id', sort: 'ASC' }] });
       this.tablePartData = res.records || [];
+      // 计算零件金额
+      this.tablePartData.forEach(item => {
+        const number = Number(item.quantity) || 0;
+        const unitPrice = Number(item.price) || 0;
+        const discountAmount = Number(item.discountAmount) || 0;
+        let receivable = number * unitPrice;
+        receivable = receivable - discountAmount;
+        item.actualAmount = Math.max(0, receivable.toFixed(2));
+      });
     },
     // 适配车型弹窗
     handleModel () {
