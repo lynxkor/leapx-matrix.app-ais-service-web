@@ -94,10 +94,9 @@ export function batchCancel (data) {
 export function queryRights (data) {
   return api.jsonPost(prefix + 'rights/query', data);
 }
-
-// 查询旧件库存ID
-export function queryOldPartOemInventoryId (data) {
-  return api.jsonPost(prefix + 'queryOldPartOemInventoryId', data);
+// 打印
+export function print (data) {
+  return api.jsonPost(prefix + 'print', data);
 }
 
 /**

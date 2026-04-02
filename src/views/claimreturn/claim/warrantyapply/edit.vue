@@ -487,9 +487,9 @@
                 @change="onMainPartChange"
                 :params="form.mainPartCode"
                 placeholder="请输入零件编码/名称"
-                labelKey="code"
+                labelKey="partCode"
                 valueKey="id"
-                subLabelKey="name"
+                subLabelKey="partName"
                 clearable
                 filterable
               />
@@ -591,7 +591,7 @@ import ActivityTable from './ActivityTable.vue';
 import ApprovalRecordTable from './ApprovalRecordTable.vue';
 import PartTable from './PartTable.vue';
 import WarrantyApplyFile from './WarrantyApplyFile.vue';
-import { getList } from '@/api/maintain/basic/repairItem';
+import { getList } from '@/api/sparepart/basic/sparePartSupplier/index';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -921,17 +921,22 @@ export default {
     },
     // 搜索主因零件
     searchMainPart (query) {
+      // TODO
       return getList({
         pageNum: 1,
         pageSize: 20,
-        nameOrCodeOrPinyinLike: query,
+        partCodeLike: query,
+        // partNameLike: query,
       });
     },
     // 主因零件选择变更
     onMainPartChange (val, row) {
-      this.form.mainPartCode = row?.code;
-      this.form.mainPartName = row?.name;
+      this.form.mainPartCode = row?.partCode;
+      this.form.mainPartName = row?.partName;
       this.form.mainPartId = row?.id;
+      this.form.mainPartSupplierCode = row?.supplierCode;
+      this.form.mainPartSupplierName = row?.supplierName;
+      this.form.mainPartSupplierId = row?.supplierInfoId;
     }
   }
 };
