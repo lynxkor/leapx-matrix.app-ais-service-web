@@ -250,7 +250,7 @@
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="采购申请单：" prop="purchaseApplyCode">
-                  {{ form.purchaseApplyCode }}
+                  <el-link type="success" :href="`/sparepart/purchase/purchaseApply/edit?id=${form.purchaseApplyId}`" target="_blank">{{ form.purchaseApplyCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="仓库名称：" prop="receiveWarehouseId">
                   {{ form.receiveWarehouseName }}
@@ -259,7 +259,7 @@
                   {{ form.purchaseOrderTypeLabel }}
                 </el-form-item>
                 <el-form-item label="缺货单号：" prop="backOrderCode">
-                  {{ form.backOrderCode }}
+                  <el-link type="success" :href="`/sparepart/purchase/backOrder/edit?id=${form.backOrderId}`" target="_blank">{{ form.backOrderCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="订单金额：" prop="purchaseAmount">
                   {{ form.purchaseAmount }}

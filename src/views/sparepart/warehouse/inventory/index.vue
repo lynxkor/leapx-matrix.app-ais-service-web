@@ -249,7 +249,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '厅店备件库存',
+      pageTitle: '门店备件库存',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-inventory',
@@ -442,7 +442,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '厅店备件库存',
+        businessType: '门店备件库存',
         dataFetchPath: 'sparepart/web/warehouse/inventory/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -450,7 +450,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '厅店备件库存.xlsx');
+            await downloadExcel(res.excelUrl, '门店备件库存.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',

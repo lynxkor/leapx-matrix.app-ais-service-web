@@ -73,6 +73,7 @@
                 <el-form-item label="采购价格：" prop="purchasePrice">
                   <el-input
                     placeholder="请输入"
+                    type="number"
                     v-model="form.purchasePrice"
                     clearable
                   />
@@ -80,6 +81,7 @@
                 <el-form-item label="销售价格：" prop="salePrice">
                   <el-input
                     placeholder="请输入"
+                    type="number"
                     v-model="form.salePrice"
                     clearable
                   />

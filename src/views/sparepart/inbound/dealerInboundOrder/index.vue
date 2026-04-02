@@ -139,7 +139,7 @@
     <OrderReturnDialog
       ref="orderReturnDialogRef"
       :visible.sync="orderReturnDialogVisible"
-      :orderList="orderList"
+      :orderId="orderId"
       @update:visible="val => orderReturnDialogVisible = val"
       @confirm="getData"
     />
@@ -151,7 +151,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, dealerInboundOrderCommit, dealerInboundOrderAgree, dealerInboundOrderReject, dealerInboundOrderInbound } from '@/api/sparepart/inbound/dealerInboundOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getSupplierInfo, listWarehouse } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getSupplierInfo, getLoginUser } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -162,7 +162,6 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
 import OrderReturnDialog from './OrderReturnDialog.vue';
-import { get } from 'lodash';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -196,6 +195,7 @@ export default {
   },
   data () {
     return {
+      dealerCode: '',
       pageTitle: '外购件入库单',
       pageType: 'list',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
@@ -239,7 +239,7 @@ export default {
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
-          { props: 'supplierInfoName', label: '供应商名称', visible: true, width: 200 },
+          { props: 'supplierName', label: '供应商名称', visible: true, width: 200 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 200 },
           { props: 'inboundStatusLabel', label: '入库状态', visible: true, width: 200 },
           { props: 'totalAmount', label: '入库总金额', visible: true, width: 200 },
@@ -348,7 +348,7 @@ export default {
             }, {
               name: '入库',
               show: (row) => {
-                return row.orderStatus === '30' || row.inboundStatus === '10';
+                return row.orderStatus === '30' && row.inboundStatus === '10';
               },
               popconfirmTitle: '此操作将入库订单, 是否继续?',
               click: (rowIndex, row) => {
@@ -369,7 +369,7 @@ export default {
             }, {
               name: '申请退货',
               show: (row) => {
-                return row.orderStatus === '30' || row.inboundStatus === '20';
+                return row.orderStatus === '30' && row.inboundStatus === '20';
               },
               click: (rowIndex, row) => {
                 this.handleReturn(row);
@@ -387,14 +387,24 @@ export default {
         // }
       ],
       orderReturnDialogVisible: false, // 退货申请弹窗
-      orderList: [], // 退货申请列表
+      orderId: '', // 退货申请订单id
     };
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    this.getLoginUser();
   },
   methods: {
+    async getLoginUser () {
+      try {
+        const res = await getLoginUser();
+        this.dealerCode = res.currentDealerCode;
+        this.dealerName = res.currentDealerName;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     // 排序
     handleSortChange (value) {
       this.sortColumns = (value || []).map(item => {
@@ -620,7 +630,7 @@ export default {
     // 申请退货
     handleReturn (val) {
       this.orderReturnDialogVisible = true;
-      this.orderList = [val];
+      this.orderId = val.id;
     },
   }
 };

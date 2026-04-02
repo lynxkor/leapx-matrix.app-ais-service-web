@@ -33,6 +33,7 @@
                     placeholder="请输入"
                     v-model="form.code"
                     clearable
+                    @input="handleCodeInput"
                   />
                 </el-form-item>
                 <el-form-item label="套餐名称：" prop="packageName">
@@ -51,7 +52,7 @@
                   />
                 </el-form-item>
                 <el-form-item label="是否下发：" prop="suedDealer">
-                  <el-radio-group v-model="form.suedDealer">
+                  <el-radio-group v-model="form.comboStatus">
                     <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
                   </el-radio-group>
                 </el-form-item>
@@ -88,7 +89,7 @@
                   {{ form.spellCode }}
                 </el-form-item>
                 <el-form-item label="是否下发：" prop="suedDealer">
-                  {{ form.suedDealerLabel }}
+                  {{ form.comboStatusLabel }}
                 </el-form-item>
                 <el-form-item label="数据来源：" prop="dataSource">
                   {{ form.dataSourceLabel }}
@@ -356,11 +357,11 @@ export default {
       yes_no_enum: [
         {
           message: '是',
-          code: 1
+          code: 20
         },
         {
           message: '否',
-          code: 0
+          code: 10
         }
       ],
       form: { ...form },
@@ -409,6 +410,9 @@ export default {
     this.getType();
   },
   methods: {
+    handleCodeInput (val) {
+      this.form.code = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    },
     detailRequest () {
       const id = this._id;
       if (id) {

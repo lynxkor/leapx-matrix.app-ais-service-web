@@ -33,6 +33,7 @@
                     placeholder="请输入"
                     v-model="form.supplierCode"
                     clearable
+                    :disabled="!!_id"
                   />
                 </el-form-item>
                 <el-form-item label="供应商名称" prop="supplierName">
@@ -184,7 +185,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/basic/supplierInfo/index';
+import { getDetail, addOrUpdateDealer } from '@/api/sparepart/basic/supplierInfo/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -294,61 +295,61 @@ export default {
       ],
       rules: {
         id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
+          { required: false, message: '请输入主键', trigger: 'change' }
         ],
         creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
+          { required: false, message: '请输入创建者', trigger: 'change' }
         ],
         creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
+          { required: false, message: '请输入创建者名称', trigger: 'change' }
         ],
         createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
+          { required: false, message: '请选择创建时间', trigger: 'change' }
         ],
         modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
+          { required: false, message: '请输入修改者', trigger: 'change' }
         ],
         modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
+          { required: false, message: '请输入修改者名称', trigger: 'change' }
         ],
         updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
+          { required: false, message: '请选择修改时间', trigger: 'change' }
         ],
         remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
+          { required: false, message: '请输入备注', trigger: 'change' }
         ],
         status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
+          { required: false, message: '请选择状态', trigger: 'change' }
         ],
         statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
+          { required: false, message: '请选择状态变更描述', trigger: 'change' }
         ],
         provinceCityCountyCode: [
-          { required: true, message: '请输入省市区code', trigger: 'change' }
+          { required: false, message: '请输入省市区code', trigger: 'change' }
         ],
         provinceCode: [
-          { required: true, message: '请输入省code', trigger: 'change' }
+          { required: false, message: '请输入省code', trigger: 'change' }
         ],
         provinceName: [
-          { required: true, message: '请输入省', trigger: 'change' }
+          { required: false, message: '请输入省', trigger: 'change' }
         ],
         cityCode: [
-          { required: true, message: '请输入市code', trigger: 'change' }
+          { required: false, message: '请输入市code', trigger: 'change' }
         ],
         cityName: [
-          { required: true, message: '请输入市', trigger: 'change' }
+          { required: false, message: '请输入市', trigger: 'change' }
         ],
         districtCode: [
-          { required: true, message: '请输入区&#x2F;县编码', trigger: 'change' }
+          { required: false, message: '请输入区&#x2F;县编码', trigger: 'change' }
         ],
         districtName: [
-          { required: true, message: '请输入区&#x2F;县名称', trigger: 'change' }
+          { required: false, message: '请输入区&#x2F;县名称', trigger: 'change' }
         ],
         address: [
-          { required: true, message: '请输入详细地址', trigger: 'change' }
+          { required: false, message: '请输入详细地址', trigger: 'change' }
         ],
         fullAddress: [
-          { required: true, message: '请输入详细地址', trigger: 'change' }
+          { required: false, message: '请输入详细地址', trigger: 'change' }
         ],
         supplierCode: [
           { required: true, message: '请输入供应商编码', trigger: 'change' }
@@ -357,34 +358,34 @@ export default {
           { required: true, message: '请输入供应商名称', trigger: 'change' }
         ],
         pinyinCode: [
-          { required: true, message: '请输入拼音简码', trigger: 'change' }
+          { required: false, message: '请输入拼音简码', trigger: 'change' }
         ],
         supplierShortName: [
-          { required: true, message: '请输入供应商简称', trigger: 'change' }
+          { required: false, message: '请输入供应商简称', trigger: 'change' }
         ],
         supplierType: [
-          { required: true, message: '请选择供应商类型', trigger: 'change' }
+          { required: false, message: '请选择供应商类型', trigger: 'change' }
         ],
         oemFlag: [
-          { required: true, message: '请输入是否OEM', trigger: 'change' }
+          { required: false, message: '请输入是否OEM', trigger: 'change' }
         ],
         dealerCode: [
-          { required: true, message: '请输入门店编码（组织code）', trigger: 'change' }
+          { required: false, message: '请输入门店编码（组织code）', trigger: 'change' }
         ],
         dealerName: [
-          { required: true, message: '请输入门店名称（组织名称）', trigger: 'change' }
+          { required: false, message: '请输入门店名称（组织名称）', trigger: 'change' }
         ],
         supplierLevel: [
-          { required: true, message: '请输入供应商等级', trigger: 'change' }
+          { required: false, message: '请输入供应商等级', trigger: 'change' }
         ],
         supplierSafetyStock: [
-          { required: true, message: '请输入供应商安全库存系数', trigger: 'change' }
+          { required: false, message: '请输入供应商安全库存系数', trigger: 'change' }
         ],
         countryCode: [
-          { required: true, message: '请输入国家code', trigger: 'change' }
+          { required: false, message: '请输入国家code', trigger: 'change' }
         ],
         countryName: [
-          { required: true, message: '请输入国家', trigger: 'change' }
+          { required: false, message: '请输入国家', trigger: 'change' }
         ],
       }
     };
@@ -399,7 +400,7 @@ export default {
       }
     },
     submitRequest () {
-      return addOrUpdate({ ...this.form });
+      return addOrUpdateDealer({ ...this.form });
     },
     // 打开侧边栏
     openPane () {

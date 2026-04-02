@@ -85,7 +85,7 @@
       <el-row :gutter="20" v-if="formData.isDefault === '1'">
         <el-col :span="24">
           <el-form-item label="判断条件">
-            <condition ref="conditionRef" />
+            <condition ref="conditionRef" :config-code="configCode" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -110,6 +110,11 @@ export default {
   props: {
     // 附件配置 ID
     attachmentConfigId: {
+      type: [String, Number],
+      default: ''
+    },
+    // 配置编码
+    configCode: {
       type: [String, Number],
       default: ''
     }

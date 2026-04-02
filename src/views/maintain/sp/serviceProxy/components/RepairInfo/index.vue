@@ -68,7 +68,7 @@
           <vxe-column field="discountRate" title="折扣率" width="200px" />
           <vxe-column field="repairAmount" title="项目金额" width="200px" />
           <vxe-column field="packageCode" title="套餐代码" width="200px" />
-          <vxe-column field="packageType" title="服务权益代码" width="200px" />
+          <!-- <vxe-column field="packageType" title="服务权益代码" width="200px" /> -->
           <!-- <vxe-column field="packageCode" title="车主服务权益明细" width="200px" /> -->
           <vxe-column field="createTime" title="创建时间" width="200px" sortable/>
           <template #empty>

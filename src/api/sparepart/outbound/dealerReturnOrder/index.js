@@ -3,7 +3,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/dealer/dealerReturnOrder/';
-
+const prefixDetail = SPARE_PREFIX + '/web/dealer/dealerReturnOrderDetail/';
 /**
  * 查询列表
  * @param {Object} data
@@ -73,5 +73,5 @@ export function dealerReturnOrderOutbound (data) {
  * @param {Object} data
  */
 export function dealerReturnOrderDetailPage (data) {
-  return api.jsonPost('/sp/web/dealer/dealerReturnOrderDetail/page', data);
+  return api.jsonPost(prefixDetail + 'page', data);
 }
