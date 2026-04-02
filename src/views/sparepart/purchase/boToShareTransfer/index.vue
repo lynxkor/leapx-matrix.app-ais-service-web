@@ -129,7 +129,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { reportPage, deleteItem, enableItem } from '@/api/sparepart/purchase/backOrder/index';
+import { deleteItem, enableItem, boToShareTransferPage } from '@/api/sparepart/purchase/backOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser, sparePartListShort } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -214,6 +214,8 @@ export default {
           },
           { props: 'sparePartCode', label: '备件编码', visible: true, width: 180 },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'pendingPartQty', label: '待处理零件数', visible: true, width: 140, align: 'right' },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -400,7 +402,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      reportPage({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      boToShareTransferPage({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {
