@@ -479,16 +479,16 @@
         </div>
         <div class="common-section-body">
           <el-form :inline="true" ref="ruleForm5" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-            <el-form-item label="主因零件编码：" prop="mainPartCode">
+            <el-form-item label="主因零件编码：" prop="mainPartId">
               <fetch-select
                 :remote-method="searchMainPart"
                 remote
-                v-model="form.mainPartCode"
+                v-model="form.mainPartId"
                 @change="onMainPartChange"
                 :params="form.mainPartCode"
                 placeholder="请输入零件编码/名称"
                 labelKey="partCode"
-                valueKey="id"
+                valueKey="sparePartId"
                 subLabelKey="partName"
                 clearable
                 filterable
@@ -933,7 +933,7 @@ export default {
     onMainPartChange (val, row) {
       this.form.mainPartCode = row?.partCode;
       this.form.mainPartName = row?.partName;
-      this.form.mainPartId = row?.id;
+      this.form.mainPartId = row?.sparePartId;
       this.form.mainPartSupplierCode = row?.supplierCode;
       this.form.mainPartSupplierName = row?.supplierName;
       this.form.mainPartSupplierId = row?.supplierInfoId;
