@@ -56,7 +56,7 @@
                     <tr v-for="item in tableData" :key="item.id">
                         <td>{{ item.sparePartCode }}</td>
                         <td>{{ item.sparePartName }}</td>
-                        <td>{{ item.location }}</td>
+                        <td>{{ item.locationName }}</td>
                         <td>{{ item.transferQty }}</td>
                     </tr>
                 </tbody>

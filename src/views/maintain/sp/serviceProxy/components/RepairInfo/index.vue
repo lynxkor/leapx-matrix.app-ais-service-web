@@ -271,7 +271,7 @@ export default {
       linkMap: {
         [PackageTypeEnum.REPAIR]: '/service/maintain/basic/repairPackages/edit',
         [PackageTypeEnum.EQUITY]: '',
-        [PackageTypeEnum.STORE]: '/service/maintain/sp/interestsGoods/edit',
+        [PackageTypeEnum.STORE]: '/service/maintain/sp/ownersEquityOrder/edit',
         [PackageTypeEnum.FREE]: '/service/claimreturn/claim/basic/freeMaintenancePolicy/edit',
         [PackageTypeEnum.TECH_ACTIVITY]: '/service/claimreturn/claim/basic/techServiceActivity/edit',
         [PackageTypeEnum.CARE_ACTIVITY]: '/service/claimreturn/claim/basic/serviceCareActivity/edit',
