@@ -116,7 +116,7 @@
         </el-form-item>
       </template>
       <page-search-action
-        v-if="canList"
+        v-if="canPage"
         v-model="show"
         is-expandable
         :loading="loading"
@@ -270,13 +270,13 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'companyName', label: '母公司名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
-          { props: 'stockTypeLabel', label: '盘点类型', visible: true, width: 200 },
-          { props: 'differencesTypeLabel', label: '差异类型', visible: true, width: 200 },
-          { props: 'orderStatusLabel', label: '差异单状态', visible: true, width: 200 },
-          { props: 'outInboundStatusLabel', label: '出入库状态', visible: true, width: 200 },
+          { props: 'stockTypeLabel', label: '盘点类型', visible: true, width: 100 },
+          { props: 'differencesTypeLabel', label: '差异类型', visible: true, width: 100 },
+          { props: 'orderStatusLabel', label: '差异单状态', visible: true, width: 100 },
+          { props: 'outInboundStatusLabel', label: '出入库状态', visible: true, width: 100 },
           { props: 'applyDescription', label: '申请说明', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },

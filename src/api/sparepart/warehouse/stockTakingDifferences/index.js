@@ -115,7 +115,9 @@ export function getExceptionList (data) {
 export function clearAndDifferences (data) {
   return api.jsonPost(prefix + 'clearAndDifferences', data);
 }
-
+export function initDifferences (data) {
+  return api.jsonPost(prefix + 'initDifferences', data);
+}
 /**
  * 备件盘点差异单明细表分页查询
  * @param {Object} data

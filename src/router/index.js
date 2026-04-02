@@ -2648,7 +2648,17 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
-    }]
+    },
+    {
+      path: '/maintain/sp/companyInfo/',
+      name: 'dealerHealthInfo',
+      component: () => import('@/views/maintain/sp/companyInfo/index.vue'),
+      meta: {
+        name: '车辆健康档案',
+        noResourceUrl: 'true'
+      }
+    }
+    ]
   }
 ];
 

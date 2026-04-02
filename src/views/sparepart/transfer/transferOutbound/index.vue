@@ -179,6 +179,13 @@
       @close="handleUploadDialogClose"
       @getData="getData"
     />
+    <!-- 发运弹窗 -->
+    <ShipmentDialog
+      :visible="shipmentDialogVisible"
+      :id="shipmentId"
+      @update:visible="val => shipmentDialogVisible = val"
+      @success="getData"
+    />
   </div>
 </template>
 
@@ -186,7 +193,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, getSubmit, getApprove, getReject, getRevoke, getShip, applyCancel, approveCancel, rejectCancel, getInbound } from '@/api/sparepart/transfer/transferOutbound/index';
+import { getList, deleteItem, enableItem, getSubmit, getApprove, getReject, getRevoke, applyCancel, approveCancel, rejectCancel, getInbound } from '@/api/sparepart/transfer/transferOutbound/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -197,6 +204,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import ShipmentDialog from './ShipmentDialog.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -230,7 +238,8 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    TagInput
+    TagInput,
+    ShipmentDialog
   },
   data () {
     return {
@@ -247,6 +256,8 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      shipmentDialogVisible: false, // 发运弹窗
+      shipmentId: '', // 发运弹窗id
       clickItemId: '',
       optionObj: {
         id: 'transferOutboundTable',
@@ -274,17 +285,17 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 200 },
+          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180 },
           { props: 'outboundDealerName', label: '出库门店名称', visible: true, width: 200 },
           { props: 'outboundWarehouseName', label: '出库方仓库', visible: true, width: 200 },
-          { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 200 },
+          { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180 },
           { props: 'inboundDealerName', label: '入库门店名称', visible: true, width: 200 },
-          { props: 'inboundContactName', label: '入库方联系人', visible: true, width: 200 },
-          { props: 'inboundContactPhone', label: '入库方手机', visible: true, width: 200 },
-          { props: 'transferStatusLabel', label: '调拨状态', visible: true, width: 200 },
-          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 200 },
-          { props: 'cancelStatusLabel', label: '撤销状态', visible: true, width: 200 },
-          { props: 'inboundStatusLabel', label: '入库状态', visible: true, width: 200 },
+          { props: 'inboundContactName', label: '入库方联系人', visible: true, width: 160 },
+          { props: 'inboundContactPhone', label: '入库方手机', visible: true, width: 180 },
+          { props: 'transferStatusLabel', label: '调拨状态', visible: true, width: 120 },
+          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
+          { props: 'cancelStatusLabel', label: '撤销状态', visible: true, width: 120 },
+          { props: 'inboundStatusLabel', label: '入库状态', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -382,15 +393,15 @@ export default {
               show: (row) => {
                 return row.transferStatus === '2' && row.outboundStatus === '0';
               },
-              popconfirmTitle: '此操作将发运, 是否继续?',
               click: (rowIndex, row) => {
-                getShip({ id: row.id }).then(res => {
-                  this.$message({
-                    message: '发运成功',
-                    type: 'success'
-                  });
-                  this.getData();
-                });
+                this.handleShipment(row);
+                // getShip({ id: row.id }).then(res => {
+                //   this.$message({
+                //     message: '发运成功',
+                //     type: 'success'
+                //   });
+                //   this.getData();
+                // });
               },
               type: 'info'
             }, {
@@ -757,6 +768,11 @@ export default {
         template: 'TransferOutbound', // 必选，对应 ./template/文件名.vue
         title: `${val.dealerName}厅店调拨出库单`// 可选，打印标题
       });
+    },
+    // 发运
+    handleShipment (val) {
+      this.shipmentId = val.id;
+      this.shipmentDialogVisible = true;
     },
   }
 };

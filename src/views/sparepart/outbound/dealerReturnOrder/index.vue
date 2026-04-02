@@ -247,13 +247,13 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
           { props: 'supplierName', label: '供应商名称', visible: true, width: 200 },
-          { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 200 },
-          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 200 },
-          { props: 'totalAmount', label: '出库总金额', visible: true, width: 200 },
+          { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
+          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
+          { props: 'totalAmount', label: '出库总金额', visible: true, width: 120, align: 'right' },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
 

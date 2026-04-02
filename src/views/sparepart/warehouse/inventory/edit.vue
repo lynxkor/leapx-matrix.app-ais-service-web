@@ -450,7 +450,7 @@ export default {
     },
     async getLocaltion (query) {
       try {
-        const res = await locationList({ codeOrName: query });
+        const res = await locationList({ codeOrName: query, warehouseId: this.form.warehouseId });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);

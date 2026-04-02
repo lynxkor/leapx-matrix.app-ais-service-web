@@ -212,9 +212,9 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180 },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
-          { props: 'pendingPartQty', label: '待处理零件数', visible: true, width: 200 },
+          { props: 'pendingPartQty', label: '待处理零件数', visible: true, width: 140, align: 'right' },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
