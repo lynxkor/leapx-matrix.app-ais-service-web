@@ -229,7 +229,8 @@ export default {
               discountAmount: 0,
               actualAmount: item.price,
               checkoutTypeName: '自费',
-              repairItemTypeId: this.repairDetail.repairItemTypeId
+              repairItemTypeId: this.repairDetail.repairItemTypeId,
+              repairItemTypeName: this.repairDetail.repairItemTypeName
             });
           }
         }

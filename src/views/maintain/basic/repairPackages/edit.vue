@@ -122,7 +122,7 @@
                   <vxe-column field="vehicleSeriesName" title="车系名称" width="30%" />
                   <vxe-column field="vehicleModelName" title="车型名称" width="30%" />
                   <vxe-column field="vehicleYearType" title="车辆年型" width="30%" />
-                  <vxe-column title="操作" width="150" fixed="right" v-if="canDelete">
+                  <vxe-column title="操作" width="150" fixed="right" v-if="canEdit">
                     <template #default="{ row }">
                       <el-popconfirm title="此操作将删除此 维修套餐-适配车型 信息，您无法撤消此操作，是否继续？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteModel(row)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
@@ -174,7 +174,7 @@
                   <vxe-column field="price" title="工时单价" width="14.3%" />
                   <vxe-column field="discountAmount" title="优惠金额" width="14.3%" />
                   <vxe-column field="actualAmount" title="项目金额" width="14.3%" />
-                  <vxe-column title="操作" width="150" fixed="right" v-if="canDelete">
+                  <vxe-column title="操作" width="150" fixed="right" v-if="canEdit">
                     <template #default="{ row }">
                       <!-- <span @click="handleEditRow(rowIndex)" class="action-button btn-edit">日志</span> -->
                       <span @click="handleEditRow(row)" class="action-button btn-edit">编辑</span>
