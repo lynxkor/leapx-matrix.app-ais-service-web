@@ -45,7 +45,15 @@
 
 <script>
 import { getShip } from '@/api/sparepart/transfer/transferOutbound/index';
-import { getUserByNameOrNo } from '@/api/common';
+import { getUserByNameOrNo, getLoginUser } from '@/api/common';
+
+const getInitialFormData = () => ({ // 初始值
+  outboundOperator: null,
+  outboundOperatorName: '',
+  logisticsProvider: '',
+  logisticsOrderNo: '',
+  logisticsRemark: ''
+});
 
 export default {
   name: 'ShipmentDialog',
@@ -63,28 +71,30 @@ export default {
     return {
       dialogVisible: this.visible,
       submitLoading: false,
-      formData: {
-        outboundOperator: '',
-        outboundOperatorName: '',
-        logisticsProvider: '',
-        logisticsOrderNo: '',
-        logisticsRemark: ''
-      },
+      formData: getInitialFormData(),
       userList: []
     };
   },
   watch: {
     visible (val) {
       this.dialogVisible = val;
+      this.getUser();
     },
   },
   methods: {
+    async getUser () {
+      // 查询是否店端 true为门店  false为厂端
+      const res = await getLoginUser();
+      this.formData.outboundOperator = Number(res.userId);
+      this.formData.outboundOperatorName = res.userName;
+      this.userList = [{ value: Number(res.userId), label: res.userName }];
+    },
     // 远程搜索方法，接收行索引参数
     querySearchAsync (queryString) {
       getUserByNameOrNo({ name: queryString }).then(res => {
         const list = res?.map(item => {
           return {
-            value: item.userId,
+            value: Number(item.userId),
             label: item.username
           };
         }) || [];
@@ -125,6 +135,8 @@ export default {
       }
     },
     close () {
+      this.formData = getInitialFormData();
+      this.userList = [];
       this.$emit('update:visible', false);
     },
   }

@@ -52,6 +52,15 @@ export function deletePartItem (data) {
 }
 
 /**
+ * 删除车型
+ * @param data
+ * @returns {Promise | Promise<unknown>}
+ */
+export function deleteModelItem (data) {
+  return api.jsonPost('maintain/web/sp/preAuthRuleModel/delete', data);
+}
+
+/**
  * 新增零件
  * @param {Object} data
  */
