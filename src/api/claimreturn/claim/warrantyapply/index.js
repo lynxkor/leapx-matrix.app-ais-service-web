@@ -99,3 +99,20 @@ export function queryRights (data) {
 export function queryOldPartOemInventoryId (data) {
   return api.jsonPost(prefix + 'queryOldPartOemInventoryId', data);
 }
+
+/**
+ * 查询加密数据
+ * @param {String} id
+ * @param {String} field
+ */
+export function getDetailDecryptField (id, field) {
+  let param = {
+    id,
+    decryptFields: [field]
+  };
+  return new Promise(resolve => {
+    api.jsonPost(prefix + 'getDecrypt', param).then(res => {
+      resolve(res[field]);
+    });
+  });
+}

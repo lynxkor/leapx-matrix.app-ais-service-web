@@ -16,11 +16,11 @@
         <template #default="{ row, rowIndex }">
           <el-switch
             v-if="editRowIndex === rowIndex"
-            v-model="row.isMainItem"
+            v-model="row.isMainPart"
             :active-value="1"
             :inactive-value="0"
           />
-          <span v-else>{{ row.isMainItem === 1 ? '是' : '否' }}</span>
+          <span v-else>{{ row.isMainPart === 1 ? '是' : '否' }}</span>
         </template>
       </vxe-column>
       <vxe-column field="oldPartUniqueCode" title="旧件唯一码" width="180"></vxe-column>
@@ -34,11 +34,11 @@
             v-if="editRowIndex === rowIndex"
             :remote-method="searchOldPart"
             remote
-            v-model="form.oldPartId"
-            @change="onOldPartChange"
+            v-model="row.oldPartCode"
+            @change="(val, option) => onOldPartChange(val, option, row)"
             placeholder="请输入零件编码/名称"
             labelKey="code"
-            valueKey="id"
+            valueKey="code"
             subLabelKey="name"
             clearable
             filterable
@@ -58,8 +58,6 @@
           <el-input
             v-if="editRowIndex === rowIndex"
             v-model="row.remark"
-            type="textarea"
-            :rows="2"
             placeholder="请输入备注"
             clearable
           />
@@ -187,7 +185,7 @@ export default {
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {
-        this.tableData = (res.records || []).map(item => ({ ...item, isMainItem: item.isMainItem === 1 }));
+        this.tableData = (res.records || []);
         this.originTableData = cloneDeep(this.tableData);
         this.total = res.total;
       });
@@ -233,8 +231,11 @@ export default {
       warrantyApplyPartUpdate({
         id: row.id,
         applyId: this._id,
-        isMainItem: row.isMainItem ? 1 : 0,
+        isMainPart: row.isMainPart,
         remark: row.remark,
+        oldPartId: row.oldPartId,
+        oldPartCode: row.oldPartCode,
+        oldPartName: row.oldPartName,
       }).then(id => {
         this.$message.success('更新成功');
         this.getDetailPageApi();
@@ -267,10 +268,10 @@ export default {
       });
     },
     // 旧件选择变更
-    onOldPartChange (val, row) {
-      this.form.oldPartCode = row?.code;
-      this.form.oldPartName = row?.name;
-      this.form.oldPartId = row?.id;
+    onOldPartChange (val, option, row) {
+      row.oldPartCode = option?.code;
+      row.oldPartName = option?.name;
+      row.oldPartId = option?.id;
     }
   },
 };

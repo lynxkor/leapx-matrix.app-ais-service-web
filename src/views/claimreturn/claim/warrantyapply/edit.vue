@@ -124,7 +124,7 @@
               {{ form.applyNo }}
             </el-form-item>
             <el-form-item label="接车施工单号：" prop="serviceProxyNo">
-              {{ form.serviceProxyNo }}
+              <el-link type="success" :href="`/service/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`" target="_blank">{{ form.serviceProxyNo }}</el-link>
             </el-form-item>
             <el-form-item label="首次提交时间：" prop="firstSubmitTime">
               {{ form.firstSubmitTime }}
@@ -136,7 +136,7 @@
               {{ form.checkoutTypeCode }}
             </el-form-item>
             <el-form-item label="结算单号：" prop="statementCode">
-              {{ form.statementCode }}
+              <el-link type="success" :href="`/maintain/sp/servicestatement/edit?id=${form.statementId}`" target="_blank">{{ form.statementCode }}</el-link>
             </el-form-item>
             <el-form-item label="当前提交时间：" prop="currentSubmitTime">
               {{ form.currentSubmitTime }}
@@ -154,7 +154,7 @@
               {{ form.approvalTime }}
             </el-form-item>
             <el-form-item label="预授权单：" prop="preAuthCode">
-              {{ form.preAuthCode }}
+              <el-link type="success" :href="`/maintain/sp/preAuth/edit?id=${form.preAuthId}`" target="_blank">{{ form.preAuthCode }}</el-link>
             </el-form-item>
             <el-form-item label="维修开始时间：" prop="repairStartTime">
               {{ form.repairStartTime }}
@@ -178,7 +178,7 @@
               {{ form.paymentTime }}
             </el-form-item>
             <el-form-item label="索赔追溯单：" prop="claimTrackNo">
-              {{ form.claimTrackNo }}
+              <el-link type="success" :href="`/claimreturn/claim/claimtrace/claimtraceorder/edit?id=${form.claimTrackId}`" target="_blank">{{ form.claimTrackNo }}</el-link>
             </el-form-item>
           </el-form>
         </div>
@@ -190,7 +190,12 @@
         <div class="common-section-body">
           <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
             <el-form-item label="VIN：" prop="vin">
-              <el-input placeholder="" v-model="form.vin" clearable disabled />
+              <LPEncrypted
+                :value.sync="form.vin"
+                :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
+                >
+                <el-input placeholder="" v-model="form.vin" clearable disabled />
+              </LPEncrypted>
             </el-form-item>
             <el-form-item label="车牌号：" prop="vehiclePlateNo">
               <el-input placeholder="" v-model="form.vehiclePlateNo" clearable disabled />
@@ -252,22 +257,27 @@
             <el-form-item label="车辆用途：" prop="vehicleProperty">
               <el-input placeholder="" v-model="form.vehicleProperty" clearable disabled />
             </el-form-item>
-            <!-- TODO getSpRemindInfo -->
-            <el-form-item label="开单预警信息：" prop="spRemindInfoContent">
+            <el-form-item label="开单预警信息：" prop="spRemindInfo">
+              <el-input type="textarea" :value="remindContent" clearable disabled />
             </el-form-item>
             <el-form-item label="保修预警信息：" prop="warrantyWarningMsg">
-              {{ form.warrantyWarningMsg }}
+              <el-input type="textarea" :value="form.warrantyWarningMsg" clearable disabled />
             </el-form-item>
             <el-form-item label="整车是否在保(预测)：" prop="isLifetimeWarrantyForecastLabel">
               <el-input placeholder="" v-model="form.isLifetimeWarrantyForecastLabel" clearable disabled />
             </el-form-item>
-            <el-form-item label="三包预警：" prop="alarmLevel">
-              <el-input placeholder="" v-model="form.alarmLevel" clearable disabled />
+            <el-form-item label="三包预警：" prop="alarmLevelLabel">
+              <el-input placeholder="" v-model="form.alarmLevelLabel" clearable disabled />
             </el-form-item>
           </el-form>
           <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
             <el-form-item label="VIN：" prop="vin">
-              {{ form.vin }}
+              <LPEncrypted
+                :value.sync="form.vin"
+                :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
+              >
+                <el-link type="success" :href="`/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfileId}`" target="_blank">{{ form.vin }}</el-link>
+              </LPEncrypted>
             </el-form-item>
             <el-form-item label="车牌号：" prop="vehiclePlateNo">
               {{ form.vehiclePlateNo }}
@@ -308,7 +318,8 @@
             <el-form-item label="车辆用途：" prop="vehicleProperty">
               {{ form.vehicleProperty }}
             </el-form-item>
-            <el-form-item label="开单预警信息：" prop="spRemindInfoContent">
+            <el-form-item label="开单预警信息：">
+              {{ remindContent }}
             </el-form-item>
             <el-form-item label="保修预警信息：" prop="warrantyWarningMsg">
               {{ form.warrantyWarningMsg }}
@@ -316,8 +327,8 @@
             <el-form-item label="整车是否在保(预测)：" prop="isLifetimeWarrantyForecastLabel">
               {{ form.isLifetimeWarrantyForecastLabel }}
             </el-form-item>
-            <el-form-item label="三包预警：" prop="alarmLevel">
-              {{ form.alarmLevel }}
+            <el-form-item label="三包预警：" prop="alarmLevelLabel">
+              {{ form.alarmLevelLabel }}
             </el-form-item>
           </el-form>
         </div>
@@ -561,6 +572,7 @@
 import {
   getDetail,
   addOrUpdate,
+  getDetailDecryptField,
 } from '@/api/claimreturn/claim/warrantyapply/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -572,6 +584,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import CccSearch from '@/components/CccSearch/index.vue';
 import { getRelatedReports } from '@/api/maintain/sp/qualityOrderReport/index';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
+import LPEncrypted from '@/libs/components/LPEncrypted/index.vue';
 import WorkHourTable from './WorkHourTable.vue';
 import OtherTable from './OtherTable.vue';
 import ActivityTable from './ActivityTable.vue';
@@ -709,7 +722,6 @@ const defaultForm = {
   cancelTime: '',
   cancelReason: '',
   dataSource: '',
-  spRemindInfoContent: [],
 };
 
 export default {
@@ -733,6 +745,7 @@ export default {
     ApprovalRecordTable,
     PartTable,
     WarrantyApplyFile,
+    LPEncrypted,
   },
   computed: {
     _id () {
@@ -740,6 +753,28 @@ export default {
     },
     title () {
       return '保修申请单号：' + (this.form.applyNo);
+    },
+    remindContent () {
+      let result = '';
+      let last = false;
+      const remindList = this.form.spRemindInfo || [];
+      remindList?.forEach((item, index) => {
+        if (index === remindList.length - 1) {
+          last = true;
+        }
+        if (item.type === '2') { // 三包预警
+          item.content?.forEach(contentItem => {
+            result += contentItem.title + '，';
+            result += contentItem.contents.join('，');
+          });
+        } else {
+          result += item.content;
+          if (!last) {
+            result += ' ';
+          }
+        }
+      });
+      return result;
     }
   },
   watch: {
@@ -809,6 +844,9 @@ export default {
     // 571005W202603271622250001
   },
   methods: {
+    getDetailDecryptField () {
+      return getDetailDecryptField(this.form.id, 'vin');
+    },
     handleTableUpdate () {
       this.$refs.containerRef.loadDetail();
     },
