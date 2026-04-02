@@ -162,9 +162,9 @@
               <div class="common-section-table">
                 <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
                   min-height="0" max-height="400px">
-                  <vxe-column field="partCode" title="备件编码" min-width="11.1%" />
-                  <vxe-column field="partName" title="备件名称" min-width="11.1%" />
-                  <vxe-column field="locationCode" title="库位" min-width="11.1%" />
+                  <vxe-column field="sparePartCode" title="备件编码" min-width="11.1%" />
+                  <vxe-column field="sparePartName" title="备件名称" min-width="11.1%" />
+                  <vxe-column field="locationName" title="库位" min-width="11.1%" />
                   <vxe-column field="totalQty" title="盘点前库存总数" min-width="11.1%" />
                   <vxe-column field="actualQty" title="实盘库存" min-width="11.1%" />
                   <vxe-column field="costUnitPrice" title="成本单价" min-width="11.1%" />

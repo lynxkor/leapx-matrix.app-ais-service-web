@@ -175,8 +175,8 @@
                 <el-form-item label="负责人：" prop="serviceOwnerName">
                   {{ form.serviceOwnerName }}
                 </el-form-item>
-                <el-form-item label="支付方式：" prop="payTypeLabel">
-                  {{ form.payTypeLabel }}
+                <el-form-item label="支付方式：" prop="payType">
+                  {{ form.payType }}
                 </el-form-item>
                 <el-form-item label="维修类型（汇总）：" prop="warrantyTypeCollect">
                   {{ form.warrantyTypeCollect }}

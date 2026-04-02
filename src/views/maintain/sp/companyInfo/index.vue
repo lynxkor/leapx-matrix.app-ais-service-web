@@ -35,7 +35,8 @@
           filterable
         />
       </el-form-item>
-      <el-form-item label="门店状态:">
+      <template v-if="show">
+      <el-form-item label="门店状态:" >
         <fetch-select
           :request="fetchOptions"
           enumCode="DealerStatusEnum"
@@ -46,22 +47,18 @@
           filterable
         />
       </el-form-item>
-
-      <template v-if="show">
-        <el-form-item label="母公司名称:">
-          <remote-select-with-scroll
+        <el-form-item label="母公司名称:" >
+          <fetch-select
             :remote-method="handleCompanyList"
             v-model="form.companyIdList"
             placeholder="请选择"
             clearable
             multiple
-            value-key="companyId"
-            label-key="companyName"
-            sub-label-key="companyCode"
-            :page-size="20"
+            remote
+            labelKey="companyName"
+            valueKey="companyId"
           />
         </el-form-item>
-
       </template>
       <page-search-action
         v-if="canPage"
@@ -154,7 +151,6 @@ import {
 } from '@/api/maintain/sp/companyInfo';
 import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
-import RemoteSelectWithScroll from '@/libs/components/RemoteSelectWithScroll/index.vue';
 import Upload from '@/libs/components/UploadDialog/index.vue';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -169,6 +165,7 @@ const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   createTime: '',
   shopName: '',
+  companyNameLike: '',
   dealerStatusList: [],
   companyIdList: [],
   healthStatusList: [],
@@ -187,7 +184,6 @@ export default {
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
-    RemoteSelectWithScroll,
     EditPage,
     Upload
   },
@@ -468,7 +464,7 @@ export default {
       try {
         const res = await getList(param);
         // 直接返回完整的响应对象，组件内部会处理 data.records
-        return res;
+        return res.records;
       } catch (error) {
         console.error('Error fetching company list:', error);
         return { data: { records: [], total: 0, totalPage: 0 } };

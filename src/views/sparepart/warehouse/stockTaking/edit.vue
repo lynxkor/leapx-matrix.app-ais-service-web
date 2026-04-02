@@ -136,7 +136,7 @@
                     </template>
                   </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="12.5%" />
-                  <vxe-column title="操作" width="100" fixed="right">
+                  <vxe-column title="操作" width="100" fixed="right" v-if="stockStatusType">
                     <template #default="{ row }">
                       <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger"
                         @confirm="handleDeleteRow(row.id)">
@@ -169,7 +169,7 @@
 
 <script>
 import { getDetail, addOrUpdate, stockTakingDetailPage, stockTakingDetailAddOrUpdate, stockTakingDetailDelete } from '@/api/sparepart/warehouse/stockTaking/index';
-import { listDealerPart } from '@/api/sparepart/basic/sparePart/index';
+import { listDealerPartWithOem } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -310,7 +310,7 @@ export default {
       // 查询当前门店备件列表
       return new Promise(resolve => {
         // 根据需求调用接口
-        listDealerPart({ partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
+        listDealerPartWithOem({ partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
           const list = res || [];
           resolve(list);
         });

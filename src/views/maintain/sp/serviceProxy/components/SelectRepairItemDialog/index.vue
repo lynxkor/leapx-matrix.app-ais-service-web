@@ -460,7 +460,7 @@
 // import EditTable from '@/libs/components/EditTable';
 import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getDealerPermission } from '@/api/maintain/sp/serviceProxy/index';
 import UpdateActivityDialog from '../UpdateActivityDialog';
-import { CheckoutTypeEnum, WarrantyTypeEnum, UNIVERSAL_LABOR_HOUR_ITEM_ID, MaintenanceTypeEnum } from '../../constant';
+import { CheckoutTypeEnum, WarrantyTypeEnum, UNIVERSAL_LABOR_HOUR_ITEM_ID, MaintenanceTypeEnum, PackageTypeEnum, PackageTypeOptions } from '../../constant';
 
 export default {
   name: 'SelectRepairItemDialog',
@@ -937,14 +937,12 @@ export default {
           this.originalDataJson = JSON.stringify(data);
         }, 300);
 
-        getEnum('PackageTypeEnum').then(res2 => {
-          this.packageType = (res2 || []).map(item => {
-            const el = this.info.packageRespList?.find(item2 => +item.code === item2.packageType);
-            return {
-              ...item,
-              value: el?.packageCount || 0
-            };
-          });
+        this.packageType = PackageTypeOptions.map(item => {
+          const el = this.info.packageRespList?.find(item2 => +item.code === item2.packageType);
+          return {
+            ...item,
+            value: el?.packageCount || 0
+          };
         });
       });
     },

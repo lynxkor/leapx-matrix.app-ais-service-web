@@ -6,7 +6,7 @@
                 <vxe-column field="partCode" title="备件编码" width="200" />
                 <vxe-column field="partName" title="备件名称" width="200" />
                 <vxe-column field="sharedQty" title="共享库存" width="200" />
-                <vxe-column title="本次上架库存" width="200">
+                <vxe-column title="本次下架库存" width="200">
                     <template #default="{ row }">
                         <el-input v-model="row.operateQty" type="number" />
                     </template>

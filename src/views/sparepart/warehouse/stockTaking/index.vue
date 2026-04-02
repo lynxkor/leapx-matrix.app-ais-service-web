@@ -123,7 +123,7 @@
         </el-form-item>
       </template>
       <page-search-action
-        v-if="canList"
+        v-if="canPage"
         v-model="show"
         is-expandable
         :loading="loading"
@@ -185,7 +185,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, initializeItem, cancelItem } from '@/api/sparepart/warehouse/stockTaking/index';
-import { getExceptionList, clearAndDifferences } from '@/api/sparepart/warehouse/stockTakingDifferences/index';
+import { getExceptionList, initDifferences } from '@/api/sparepart/warehouse/stockTakingDifferences/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -668,7 +668,7 @@ export default {
         this.differenceTableData = res;
         this.differenceDialogVisible = true;
       } else {
-        await clearAndDifferences({ id: row.id });
+        await initDifferences({ id: row.id });
       }
     }
   }
