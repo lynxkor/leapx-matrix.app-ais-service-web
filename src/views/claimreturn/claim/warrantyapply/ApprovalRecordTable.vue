@@ -14,8 +14,7 @@
     >
       <vxe-column field="approverUserName" title="审批人"></vxe-column>
       <vxe-column field="approvalTime" title="审批时间"></vxe-column>
-      <vxe-column field="approvalResult" title="审批结果">
-      </vxe-column>
+      <vxe-column field="approvalResultLabel" title="审批结果"></vxe-column>
       <vxe-column field="approvalRemark" title="审批说明"></vxe-column>
       <vxe-column field="errorCode" title="错误代码"></vxe-column>
       <vxe-column field="errorContent" title="错误内容"></vxe-column>
