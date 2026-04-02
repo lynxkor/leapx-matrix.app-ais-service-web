@@ -275,12 +275,12 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'companyName', label: '母公司名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
-          { props: 'stockTypeLabel', label: '盘点类型', visible: true, width: 200 },
-          { props: 'stockStatusLabel', label: '盘点状态', visible: true, width: 200 },
+          { props: 'stockTypeLabel', label: '盘点类型', visible: true, width: 100 },
+          { props: 'stockStatusLabel', label: '盘点状态', visible: true, width: 100 },
           { props: 'planStartTime', label: '计划开始时间', visible: true, width: 200 },
           { props: 'planCompleteTime', label: '计划完成时间', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
