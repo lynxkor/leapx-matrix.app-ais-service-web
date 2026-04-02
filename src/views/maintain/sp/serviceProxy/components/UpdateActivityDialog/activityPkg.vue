@@ -31,12 +31,12 @@
           <div
             v-for="item in packageList"
             :key="item.id"
-            :class="['list-item', { 'is-selected': selectedPackage?.id === item.id }]"
+            :class="['list-item', { 'is-selected': selectedPackage?.id === item.id, 'is-disabled': item.activityUsed }]"
             @click="handleSelectPackage(item)"
           >
             <div class="list-item__content">
-              <div class="list-item__name">{{ item.schemeName }}</div>
-              <div class="list-item__code">{{ item.description }}</div>
+              <div class="list-item__name">{{ item.activityName }}</div>
+              <div class="list-item__code">{{ item.schemeName }}</div>
             </div>
             <i v-if="item.used" class="el-icon-success selected-icon"></i>
           </div>
@@ -51,7 +51,7 @@
     <div class="right-panel">
       <div v-if="selectedPackage" class="detail-content" v-loading="loading">
         <!-- 套餐标题 -->
-        <div class="detail-header">{{ selectedPackage.schemeName }}</div>
+        <div class="detail-header">{{ selectedPackage.activityName }}</div>
 
         <!-- 项目列表 -->
         <div class="project-list">
@@ -112,7 +112,7 @@
                       @click.native.prevent="handleItemCheckboxClick(item)"
                       @change="handleItemCheckboxChange(item)"
                     >
-                      {{ item.repairItemName }}
+                      {{ item.repairItemName }}({{ item.repairItemCode }})
                     </el-checkbox>
                   </div>
                 </div>
@@ -133,7 +133,7 @@
                   </div>
                   <div class="info-item">
                     <span class="label">主因工时：</span>
-                    <span class="value">{{ curItemList?.islainRepairItem === '1' ? '是': '否' }}</span>
+                    <span class="value">{{ curItemList?.isMainRepairItem === '1' ? '是': '否' }}</span>
                   </div>
                 </div>
                 <div class="info-row">
@@ -143,7 +143,7 @@
                   </div>
                    <div class="info-item">
                     <span class="label">索赔价：</span>
-                    <span class="value">{{ curItemList?.amout }}</span>
+                    <span class="value">{{ curItemList?.claimPrice }}</span>
                   </div>
                 </div>
                 <div class="section-title">维修零件</div>
@@ -185,7 +185,7 @@
             :title="popconfirmText"
             @confirm="handleConfirm"
           >
-            <el-button :type="selectedPackage?.used && !hasNewPart ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
+            <el-button :type="selectedPackage?.used && !hasNewPart ? 'plain' : 'primary'" size="small" slot="reference" :disabled="selectedPackage.activityUsed">{{ confirmBtnText }}</el-button>
           </el-popconfirm>
         </div>
       </div>
@@ -337,6 +337,9 @@ export default {
       this.hasNewPart = false;
       this.selectedPackage = item;
       this.loadProjectDetail(item);
+      if (item.activityUsed) {
+        this.$message.warning(`该活动已被${item.actualDealerName ? item.actualDealerName : ''}使用，您不可重复使用`);
+      }
     },
     // 获取套餐详情
     async loadProjectDetail (pkg) {
@@ -446,7 +449,7 @@ export default {
         workHour: item.workHour || 1,
         isAddItems: 0,
         discountAmount: item.discountAmount || 0,
-        packageType: 50,
+        packageType: activityRes.activityResponse.activityType === 4 ? 60 : 50,
         packageId: this.selectedPackage.activityId + '#' + this.selectedPackage.id,
         packageCode: activityRes.activityCode,
         packageName: activityRes.activityName,
@@ -489,7 +492,7 @@ export default {
             repairItemId: part.serviceActivityItemId,
             repairItemCode: repairItem.repairItemCode || '',
             repairItemName: repairItem.repairItemName || '',
-            packageType: 50,
+            packageType: activityRes.activityResponse.activityType === 4 ? 60 : 50,
             packageId: this.selectedPackage.activityId + '#' + this.selectedPackage.id,
             packageCode: activityRes.activityCode,
             packageName: activityRes.activityName,
@@ -648,6 +651,9 @@ export default {
         .list-item__code {
           color: $--leap-color-primary;
         }
+      }
+      &.is-disabled {
+        background-color: $--leap-color-default-light-4;
       }
 
       &__content {

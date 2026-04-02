@@ -410,7 +410,7 @@ export default {
                 }
                 // 门店账号需要额外检查订单类型
                 if (this.accountFlag) {
-                  return (row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && row.backOrderId === null;
+                  return (row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && !row.backOrderId;
                 }
                 // 主机厂账号直接显示
                 return true;
@@ -428,7 +428,7 @@ export default {
                 }
                 // 门店账号需要额外检查订单类型
                 if (this.accountFlag) {
-                  return (row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && row.backOrderId === null;
+                  return (row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && !row.backOrderId;
                 }
                 // 主机厂账号直接显示
                 return true;
@@ -446,7 +446,7 @@ export default {
                 }
                 // 门店账号需要额外检查订单类型
                 if (this.accountFlag) {
-                  return (row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && row.backOrderId === null;
+                  return (row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && !row.backOrderId;
                 }
                 // 主机厂账号直接显示
                 return true;

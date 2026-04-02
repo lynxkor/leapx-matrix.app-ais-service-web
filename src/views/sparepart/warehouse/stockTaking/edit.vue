@@ -106,12 +106,12 @@
                   <vxe-column field="actualQty" title="实盘库存" min-width="12.5%">
                     <template #default="{ row }">
                       <el-input v-model="row.actualQty" :disabled="!row.stockStatusType"
-                        @blur="handleActualQtyBlur(row)" type="number" min="1" />
+                        @change="handleActualQtyBlur(row)" type="number" min="1" />
                     </template>
                   </vxe-column>
                   <vxe-column field="remark" title="备注" min-width="12.5%">
                     <template #default="{ row }">
-                      <el-input v-model="row.remark" @blur="handleRemarkBlur(row)" :disabled="!row.stockStatusType" />
+                      <el-input v-model="row.remark" @change="handleRemarkBlur(row)" :disabled="!row.stockStatusType" />
                     </template>
                   </vxe-column>
                   <vxe-column field="operator" title="操作人" min-width="12.5%">
@@ -122,6 +122,7 @@
                         placeholder="请选择"
                         filterable
                         remote
+                        :disabled="!row.stockStatusType"
                         :remote-method="(query) => querySearchAsync(query)"
                         @change="handleOperatorChange(row, $event)"
                       >
@@ -389,11 +390,14 @@ export default {
           id: val.id,
           actualQty: val.actualQty,
         };
-        if (val.actualQty > val.totalQty) {
-          this.$message.warning('实盘库存大于库存总数,请填写备注!');
-        } else {
-          this.handleAddOrUpdate(params);
-        }
+        this.handleAddOrUpdate(params);
+        // if (val.actualQty > val.totalQty) {
+        //   if (val.remark) {
+        //     this.$message.warning('实盘库存大于库存总数,请填写备注!');
+        //   }
+        // } else {
+        //   this.handleAddOrUpdate(params);
+        // }
       }
     },
     // 失焦以后 输入的备注 判断是否 实盘库存是否超过库存总数

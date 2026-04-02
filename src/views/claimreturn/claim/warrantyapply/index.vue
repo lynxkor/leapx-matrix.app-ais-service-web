@@ -936,6 +936,7 @@ export default {
         nameLike: query,
         pageSize: 20,
         pageNum: 1,
+        categorys: ['20'],
       });
     },
     getScopeTypeOrg () {

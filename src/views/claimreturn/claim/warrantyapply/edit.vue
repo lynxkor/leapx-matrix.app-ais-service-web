@@ -8,7 +8,6 @@
     :originalForm.sync="originalForm"
     :submitRequest="submitRequest"
     :detailRequest="detailRequest"
-    :dataTransform="dataTransform"
   >
     <el-main>
       <section class="common-section">
@@ -120,7 +119,7 @@
               <el-input placeholder="" v-model="form.claimTrackNo" clearable disabled />
             </el-form-item>
           </el-form>
-          <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
             <el-form-item label="保修申请单号：" prop="applyNo">
               {{ form.applyNo }}
             </el-form-item>
@@ -253,8 +252,8 @@
             <el-form-item label="车辆用途：" prop="vehicleProperty">
               <el-input placeholder="" v-model="form.vehicleProperty" clearable disabled />
             </el-form-item>
+            <!-- TODO getSpRemindInfo -->
             <el-form-item label="开单预警信息：" prop="spRemindInfoContent">
-              {{ form.spRemindInfoContent }}
             </el-form-item>
             <el-form-item label="保修预警信息：" prop="warrantyWarningMsg">
               {{ form.warrantyWarningMsg }}
@@ -266,7 +265,7 @@
               <el-input placeholder="" v-model="form.alarmLevel" clearable disabled />
             </el-form-item>
           </el-form>
-          <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
             <el-form-item label="VIN：" prop="vin">
               {{ form.vin }}
             </el-form-item>
@@ -310,7 +309,6 @@
               {{ form.vehicleProperty }}
             </el-form-item>
             <el-form-item label="开单预警信息：" prop="spRemindInfoContent">
-              {{ form.spRemindInfoContent }}
             </el-form-item>
             <el-form-item label="保修预警信息：" prop="warrantyWarningMsg">
               {{ form.warrantyWarningMsg }}
@@ -329,9 +327,8 @@
           <h2>质量反馈信息</h2>
         </div>
         <div class="common-section-body">
-          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm3" label-width="150px" class="form-edit" v-show="isEditing || !_id">
             <el-form-item label="质量反馈报告：" prop="qualityOrderReportId">
-              <!-- TODO -->
               <fetch-select
                 remote
                 v-model="form.qualityOrderReportId"
@@ -364,7 +361,7 @@
               <base-input type="textarea" v-model="form.troubleshootingFlow" clearable />
             </el-form-item>
           </el-form>
-          <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
             <el-form-item label="质量反馈报告：" prop="qualityOrderReport">
               {{ form.qualityOrderReport }}
             </el-form-item>
@@ -391,7 +388,7 @@
           <h2>保修费用信息</h2>
         </div>
         <div class="common-section-body">
-          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm4" label-width="150px" class="form-edit" v-show="isEditing || !_id">
             <el-form-item label="工时索赔小计：" prop="laborClaimTotal">
               <el-input v-model="form.laborClaimTotal" clearable disabled />
             </el-form-item>
@@ -430,7 +427,6 @@
             </el-form-item>
           </el-form>
           <el-form
-            label-width="150px"
             :inline="true"
             class="form-detail"
             v-show="!(isEditing || !_id)"
@@ -466,25 +462,83 @@
       </section>
       <section class="common-section">
         <div class="common-section-header">
+          <h2>
+            零件信息
+          </h2>
+        </div>
+        <div class="common-section-body">
+          <el-form :inline="true" ref="ruleForm5" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+            <el-form-item label="主因零件编码：" prop="mainPartCode">
+              <fetch-select
+                :remote-method="searchMainPart"
+                remote
+                v-model="form.mainPartCode"
+                @change="onMainPartChange"
+                :params="form.mainPartCode"
+                placeholder="请输入零件编码/名称"
+                labelKey="code"
+                valueKey="id"
+                subLabelKey="name"
+                clearable
+                filterable
+              />
+            </el-form-item>
+            <el-form-item label="主因零件名称：" prop="mainPartName">
+              <el-input placeholder="" v-model="form.mainPartName" clearable disabled />
+            </el-form-item>
+            <el-form-item label="主因供应商编码：" prop="mainPartSupplierCode">
+              <el-input placeholder="" v-model="form.mainPartSupplierCode" clearable disabled />
+            </el-form-item>
+            <el-form-item label="主因供应商名称：" prop="mainPartSupplierName">
+              <el-input placeholder="" v-model="form.mainPartSupplierName" clearable disabled />
+            </el-form-item>
+          </el-form>
+          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+            <el-form-item label="主因零件编码：" prop="mainPartCode">
+              {{ form.mainPartCode }}
+            </el-form-item>
+            <el-form-item label="主因零件名称：" prop="mainPartName">
+              {{ form.mainPartName }}
+            </el-form-item>
+            <el-form-item label="主因供应商编码：" prop="mainPartSupplierCode">
+              {{ form.mainPartSupplierCode }}
+            </el-form-item>
+            <el-form-item label="主因供应商名称：" prop="mainPartSupplierName">
+              {{ form.mainPartSupplierName }}
+            </el-form-item>
+          </el-form>
+          <part-table
+            ref="partTableRef"
+            :id="_id"
+            :canAddOrUpdate="canAddOrUpdate"
+          />
+        </div>
+      </section>
+      <section class="common-section">
+        <div class="common-section-header">
           <h2>其他信息</h2>
         </div>
         <div class="common-section-body">
           <other-table
             :id="_id"
             :canAddOrUpdate="canAddOrUpdate"
-            @update="handleTableUpdate"
           />
         </div>
       </section>
+      <warranty-apply-file
+        :id="_id"
+        :canAddOrUpdate="canAddOrUpdate"
+        :repairItemTypeId="form.repairItemTypeId"
+        :disabled="form.applyStatus !== '10' && form.applyStatus !== '40'"
+      />
       <section class="common-section">
         <div class="common-section-header">
           <h2>未完成活动</h2>
         </div>
         <div class="common-section-body">
           <activity-table
-            :vin="form.vin"
+            :vehicleProfileId="form.vehicleProfileId"
             :canAddOrUpdate="canAddOrUpdate"
-            @update="handleTableUpdate"
           />
         </div>
       </section>
@@ -496,7 +550,6 @@
           <approval-record-table
             :id="_id"
             :canAddOrUpdate="canAddOrUpdate"
-            @update="handleTableUpdate"
           />
         </div>
       </section>
@@ -523,6 +576,9 @@ import WorkHourTable from './WorkHourTable.vue';
 import OtherTable from './OtherTable.vue';
 import ActivityTable from './ActivityTable.vue';
 import ApprovalRecordTable from './ApprovalRecordTable.vue';
+import PartTable from './PartTable.vue';
+import WarrantyApplyFile from './WarrantyApplyFile.vue';
+import { getList } from '@/api/maintain/basic/repairItem';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -579,6 +635,7 @@ const defaultForm = {
   claimTrackNo: '',
   vin: '',
   vehiclePlateNo: '',
+  vehicleProfileId: '',
   produceDate: '',
   vehicleProperty: '',
   vehicleModelId: '',
@@ -652,6 +709,7 @@ const defaultForm = {
   cancelTime: '',
   cancelReason: '',
   dataSource: '',
+  spRemindInfoContent: [],
 };
 
 export default {
@@ -673,13 +731,15 @@ export default {
     OtherTable,
     ActivityTable,
     ApprovalRecordTable,
+    PartTable,
+    WarrantyApplyFile,
   },
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '保修申请单号：' + (this.form.applyNo || '新建');
+      return '保修申请单号：' + (this.form.applyNo);
     }
   },
   watch: {
@@ -752,21 +812,6 @@ export default {
     handleTableUpdate () {
       this.$refs.containerRef.loadDetail();
     },
-    dataTransform (data) {
-      if (data.spRemindInfo) {
-        data.spRemindInfoContent = data.spRemindInfo.map(item => {
-          return item.content.map(con => {
-            return con.title + con.contents.reduce((pre, cur) => {
-              return pre + ', ' + cur;
-            }, '');
-            // [{"title": "累计保修天数63000预警", "contents": ["1 杭州服务中心西溪路店 2026/02/02-2026/02/02，天数63000"], "alarmLevel": 40}]
-          });
-        });
-      }
-      return {
-        ...data,
-      };
-    },
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -835,6 +880,20 @@ export default {
       this.form.mainPartSupplierName = row.mainPartSupplierName;
       this.form.mainPartSupplierCode = row.mainPartSupplierCode;
       this.form.mainPartSupplierId = row.mainPartSupplierId;
+    },
+    // 搜索主因零件
+    searchMainPart (query) {
+      return getList({
+        pageNum: 1,
+        pageSize: 20,
+        nameOrCodeOrPinyinLike: query,
+      });
+    },
+    // 主因零件选择变更
+    onMainPartChange (val, row) {
+      this.form.mainPartCode = row?.code;
+      this.form.mainPartName = row?.name;
+      this.form.mainPartId = row?.id;
     }
   }
 };

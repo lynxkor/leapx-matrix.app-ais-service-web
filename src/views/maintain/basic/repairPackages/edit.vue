@@ -33,6 +33,7 @@
                     placeholder="请输入"
                     v-model="form.code"
                     clearable
+                    @input="handleCodeInput"
                   />
                 </el-form-item>
                 <el-form-item label="套餐名称：" prop="packageName">
@@ -51,7 +52,7 @@
                   />
                 </el-form-item>
                 <el-form-item label="是否下发：" prop="suedDealer">
-                  <el-radio-group v-model="form.suedDealer">
+                  <el-radio-group v-model="form.comboStatus">
                     <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
                   </el-radio-group>
                 </el-form-item>
@@ -88,7 +89,7 @@
                   {{ form.spellCode }}
                 </el-form-item>
                 <el-form-item label="是否下发：" prop="suedDealer">
-                  {{ form.suedDealerLabel }}
+                  {{ form.comboStatusLabel }}
                 </el-form-item>
                 <el-form-item label="数据来源：" prop="dataSource">
                   {{ form.dataSourceLabel }}
@@ -204,15 +205,20 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="repairItemName" title="维修项目" width="14.3%" />
-                  <vxe-column field="repairItemCode" title="维修项目代码" width="14.3%" />
-                  <vxe-column field="partsName" title="零件名称" width="14.3%" />
-                  <vxe-column field="partsCode" title="零件代码" width="14.3%" />
-                  <vxe-column field="repairItemTypeName" title="维修类型" width="14.3%" />
-                  <vxe-column field="checkoutTypeName" title="结算类型" width="14.3%" />
-                  <vxe-column field="quantity" title="数量" width="14.3%" />
-                  <vxe-column field="price" title="单价" width="14.3%" />
-                  <vxe-column field="discountAmount" title="优惠金额" width="14.3%" />
+                  <vxe-column field="repairItemName" title="维修项目" width="12%" />
+                  <vxe-column field="repairItemCode" title="维修项目代码" width="12%" />
+                  <vxe-column field="partsName" title="零件名称" width="12%" />
+                  <vxe-column field="partsCode" title="零件代码" width="12%" />
+                  <vxe-column field="repairItemTypeName" title="维修类型" width="10%" />
+                  <vxe-column field="checkoutTypeName" title="结算类型" width="10%" />
+                  <vxe-column field="quantity" title="数量" width="8%" />
+                  <vxe-column field="price" title="单价" width="8%" />
+                  <vxe-column field="discountAmount" title="优惠金额" width="8%" />
+                  <vxe-column field="amout" title="零件金额" width="8%" >
+                    <template #default="{ row }">
+                      {{ row.quantity * row.price - row.discountAmount }}
+                    </template>
+                  </vxe-column>
                   <!-- <vxe-column title="操作" width="150" fixed="right" v-if="canDelete">
                     <template #default="{ row }">
                       <span @click="handleEditRow(row)" class="action-button btn-edit">编辑</span>
@@ -356,11 +362,11 @@ export default {
       yes_no_enum: [
         {
           message: '是',
-          code: 1
+          code: 20
         },
         {
           message: '否',
-          code: 0
+          code: 10
         }
       ],
       form: { ...form },
@@ -409,6 +415,9 @@ export default {
     this.getType();
   },
   methods: {
+    handleCodeInput (val) {
+      this.form.code = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
