@@ -35,8 +35,8 @@
             @click="handleSelectPackage(item)"
           >
             <div class="list-item__content">
-              <div class="list-item__name">{{ item.schemeName }}</div>
-              <div class="list-item__code">{{ item.description }}</div>
+              <div class="list-item__name">{{ item.activityName }}</div>
+              <div class="list-item__code">{{ item.schemeName }}</div>
             </div>
             <i v-if="item.used" class="el-icon-success selected-icon"></i>
           </div>
@@ -51,7 +51,7 @@
     <div class="right-panel">
       <div v-if="selectedPackage" class="detail-content" v-loading="loading">
         <!-- 套餐标题 -->
-        <div class="detail-header">{{ selectedPackage.schemeName }}</div>
+        <div class="detail-header">{{ selectedPackage.activityName }}</div>
 
         <!-- 项目列表 -->
         <div class="project-list">
@@ -112,7 +112,7 @@
                       @click.native.prevent="handleItemCheckboxClick(item)"
                       @change="handleItemCheckboxChange(item)"
                     >
-                      {{ item.repairItemName }}
+                      {{ item.repairItemName }}({{ item.repairItemCode }})
                     </el-checkbox>
                   </div>
                 </div>
@@ -133,7 +133,7 @@
                   </div>
                   <div class="info-item">
                     <span class="label">主因工时：</span>
-                    <span class="value">{{ curItemList?.islainRepairItem === '1' ? '是': '否' }}</span>
+                    <span class="value">{{ curItemList?.isMainRepairItem === '1' ? '是': '否' }}</span>
                   </div>
                 </div>
                 <div class="info-row">
@@ -143,7 +143,7 @@
                   </div>
                    <div class="info-item">
                     <span class="label">索赔价：</span>
-                    <span class="value">{{ curItemList?.amout }}</span>
+                    <span class="value">{{ curItemList?.claimPrice }}</span>
                   </div>
                 </div>
                 <div class="section-title">维修零件</div>
