@@ -12,7 +12,7 @@
     <div class="tabs-wrapper">
       <div class="tabs-list">
         <div
-          v-for="tab in packageType"
+          v-for="tab in tabs"
           :key="tab.code"
           :class="['tabs-item', { 'is-active': activeTab === tab.code }]"
           @click="handleTabClick(tab.code)"
@@ -27,48 +27,39 @@
     <div class="content-wrapper">
       <!-- 维修套餐 -->
       <maintain-pkg
-        v-if="activeTab == 10"
+        v-if="activeTab == PackageTypeEnum.REPAIR"
         ref="repairRef"
         :vehicle-info="vehicleInfo"
         @refresh="handleRefresh"
       />
       <!-- 权益套餐 -->
       <equity-pkg
-        v-else-if="activeTab == 20"
+        v-else-if="activeTab == PackageTypeEnum.EQUITY"
         ref="equityRef"
         :vehicle-info="vehicleInfo"
         @refresh="handleRefresh"
       />
       <!-- 商城订单 -->
       <StorePkg
-        v-else-if="activeTab == 30"
+        v-else-if="activeTab == PackageTypeEnum.STORE"
         ref="orderRef"
         :vehicle-info="vehicleInfo"
         @refresh="handleRefresh"
       />
-      <!-- <div v-else-if="activeTab == 30" class="placeholder-content">
-        <span>商城订单功能开发中...</span>
-      </div> -->
       <!-- 免保项目 -->
        <FreePkg
-        v-else-if="activeTab == 40"
+        v-else-if="activeTab == PackageTypeEnum.FREE"
         ref="freeRef"
         :vehicle-info="vehicleInfo"
         @refresh="handleRefresh"
       />
-      <!-- <div v-else-if="activeTab == 40" class="placeholder-content">
-        <span>免保项目功能开发中...</span>
-      </div> -->
       <!-- 服务活动 -->
        <ActivityPkg
-        v-else-if="activeTab == 50"
+        v-else-if="activeTab == PackageTypeEnum.TECH_ACTIVITY"
         ref="activityRef"
         :vehicle-info="vehicleInfo"
         @refresh="handleRefresh"
       />
-      <!-- <div v-else-if="activeTab == 50" class="placeholder-content">
-        <span>服务活动功能开发中...</span>
-      </div> -->
     </div>
   </el-dialog>
 </template>
@@ -79,6 +70,7 @@ import EquityPkg from './equityPkg.vue';
 import ActivityPkg from './activityPkg.vue';
 import StorePkg from './storePkg.vue';
 import FreePkg from './freePkg.vue';
+import { PackageTypeEnum, PackageTypeOptions } from '../../constant';
 
 export default {
   name: 'UpdateActivityDialog',
@@ -98,10 +90,6 @@ export default {
       type: Object,
       default: () => ({})
     },
-    packageType: {
-      type: Array,
-      default: () => ([])
-    },
     currentPackageType: {
       type: [String, Number],
       default: ''
@@ -111,13 +99,8 @@ export default {
     return {
       dialogVisible: this.visible,
       activeTab: '',
-      tabs: [
-        { code: '10', message: '维修套餐' },
-        { code: '20', message: '权益套餐' },
-        { code: '30', message: '商城订单' },
-        { code: '40', message: '免保项目' },
-        { code: '50', message: '服务活动' }
-      ]
+      tabs: PackageTypeOptions,
+      PackageTypeEnum
     };
   },
   watch: {
@@ -149,11 +132,11 @@ export default {
     },
     getCurrentRef () {
       const refMap = {
-        10: 'repairRef',
-        20: 'equityRef',
-        30: 'orderRef',
-        40: 'freeRef',
-        50: 'activityRef'
+        [PackageTypeEnum.REPAIR]: 'repairRef',
+        [PackageTypeEnum.EQUITY]: 'equityRef',
+        [PackageTypeEnum.STORE]: 'orderRef',
+        [PackageTypeEnum.FREE]: 'freeRef',
+        [PackageTypeEnum.TECH_ACTIVITY]: 'activityRef'
       };
       return this.$refs[refMap[this.activeTab]];
     },

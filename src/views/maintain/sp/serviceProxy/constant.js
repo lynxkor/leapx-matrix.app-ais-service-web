@@ -117,6 +117,31 @@ export const MaintenanceTypeEnum = {
   MAINTENANCE: '6EA3066F-82AC-E911-B0BB-FC82BA5F9EDF'
 };
 
+// 套餐类型枚举
+export const PackageTypeEnum = {
+  /** 维修套餐 */
+  REPAIR: '10',
+  /** 权益套餐 */
+  EQUITY: '20',
+  /** 商城订单 */
+  STORE: '30',
+  /** 免保项目 */
+  FREE: '40',
+  /** 技术服务活动 */
+  TECH_ACTIVITY: '50',
+  /** 关爱服务活动 */
+  CARE_ACTIVITY: '60'
+};
+
+// 套餐类型选项
+export const PackageTypeOptions = [
+  { code: PackageTypeEnum.REPAIR, message: '维修套餐' },
+  { code: PackageTypeEnum.EQUITY, message: '权益套餐' },
+  { code: PackageTypeEnum.STORE, message: '商城订单' },
+  { code: PackageTypeEnum.FREE, message: '免保项目' },
+  { code: PackageTypeEnum.TECH_ACTIVITY, message: '服务活动' }
+];
+
 export const WorkRecordStatusEnum = {
   /** 作业未开始 */
   NOT_STARTED: 10,

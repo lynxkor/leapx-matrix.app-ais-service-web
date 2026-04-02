@@ -190,7 +190,7 @@ export default {
             props: 'sparePartCode',
             label: '备件编码',
             visible: true,
-            width: 200,
+            width: 180,
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -203,8 +203,8 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
-          { props: 'claimPrice', label: '索赔价格', visible: true, width: 200 },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 160 },
+          { props: 'claimPrice', label: '索赔价格', visible: true, width: 100, align: 'right' },
           { props: 'effectiveStartDate', label: '生效开始日期', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
