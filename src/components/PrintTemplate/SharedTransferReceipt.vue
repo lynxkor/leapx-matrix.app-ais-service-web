@@ -42,7 +42,7 @@
                     <tr v-for="item in tableData" :key="item.id">
                         <td>{{ item.sharedTransferInboundCode }}</td>
                         <td>{{ item.sparePartName }}</td>
-                        <td>{{ item.warehouseLocation }}</td>
+                        <td>{{ item.locationName }}</td>
                     </tr>
                 </tbody>
             </table>
