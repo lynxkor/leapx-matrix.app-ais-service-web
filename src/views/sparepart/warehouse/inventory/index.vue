@@ -355,7 +355,7 @@ export default {
             }, {
               name: '上架共享',
               show: (row) => {
-                return row.availableQty > 0;
+                return row.availableQty > 0 && row.oemPart === '1';
               },
               click: (rowIndex, row) => {
                 this.launchDialog = true;

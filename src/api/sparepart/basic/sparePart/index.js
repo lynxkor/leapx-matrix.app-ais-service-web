@@ -32,6 +32,9 @@ export function listDealerPart (data) {
 export function getSparePart (data) {
   return api.jsonPost(prefix + 'list', data);
 };
+export function listDealerPartWithOem (data) {
+  return api.jsonPost(prefix + 'listDealerPartWithOem', data);
+};
 
 /**
  * 新增或修改
