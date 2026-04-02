@@ -524,7 +524,7 @@
 </template>
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getVehicleProfile, getCarInfo, checkVinTag, getEnum } from '@/api/maintain/sp/serviceProxy/index';
+import { getVehicleProfile, getCarInfo, checkVinTag, getEnum, getActivityInfo } from '@/api/maintain/sp/serviceProxy/index';
 import { RepairOrderStatusEnum, BusinessTypeEnum } from '../../constant';
 
 export const CustomTypeEnum = {
@@ -706,7 +706,7 @@ export default {
       return getVehicleProfile({ searchVin: query });
     },
     handleVinChange (val, record) {
-      if (record.vin) {
+      if (record?.vin) {
         checkVinTag(record.vin).then(res => {
           if (res) {
             const message = `<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>提示</div><div class="ais-leave-tips-sub">该车辆为${res}，请注意接待。</div>`;
@@ -751,6 +751,7 @@ export default {
           };
           Object.assign(this.form, { ...data });
           this.getNetworkCarInfo();
+          this.checkActivity();
         });
       }
     },
@@ -768,6 +769,23 @@ export default {
         });
         // if (!this.form.netMileage) this.form.netMileage = res.mileage;
         // if (!this.form.inPower) this.form.inPower = res.electricity;
+      });
+    },
+    // 校验是否有活动
+    checkActivity () {
+      getActivityInfo(this.form.vehProfileVin).then(res => {
+        if (res) {
+          const message = `<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>提示</div><div class="ais-leave-tips-sub">${res}</div>`;
+          this.$confirm(message, '', {
+            confirmButtonText: '确定',
+            dangerouslyUseHTMLString: true,
+            showCancelButton: false,
+            customClass: 'ais-leave-tips',
+            showClose: false
+          }).then(() => {
+          }).catch(() => {
+          });
+        }
       });
     },
     handleCustomTypeChange (value) {

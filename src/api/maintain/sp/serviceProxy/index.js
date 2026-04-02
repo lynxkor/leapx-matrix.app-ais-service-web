@@ -367,3 +367,11 @@ export function isVehRetention (data) {
 export function addVehRetentionList (data) {
   return api.jsonPost(prefix + 'addVehRetentionList', data);
 }
+
+/**
+ * 检查车辆活动
+ * @param {Object} data - vin
+ */
+export function getActivityInfo (data) {
+  return api.jsonPost(prefix + 'getActivityInfo', data);
+}

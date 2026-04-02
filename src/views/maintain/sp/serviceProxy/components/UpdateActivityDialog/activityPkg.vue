@@ -338,7 +338,7 @@ export default {
       this.selectedPackage = item;
       this.loadProjectDetail(item);
       if (item.activityUsed) {
-        this.$message.warning("该活动已被'实际施工门店名称'使用，您不可重复使用");
+        this.$message.warning(`该活动已被${item.actualDealerName ? item.actualDealerName : ''}使用，您不可重复使用`);
       }
     },
     // 获取套餐详情
@@ -449,7 +449,7 @@ export default {
         workHour: item.workHour || 1,
         isAddItems: 0,
         discountAmount: item.discountAmount || 0,
-        packageType: 50,
+        packageType: activityRes.activityResponse.activityType === 4 ? 60 : 50,
         packageId: this.selectedPackage.activityId + '#' + this.selectedPackage.id,
         packageCode: activityRes.activityCode,
         packageName: activityRes.activityName,
@@ -492,7 +492,7 @@ export default {
             repairItemId: part.serviceActivityItemId,
             repairItemCode: repairItem.repairItemCode || '',
             repairItemName: repairItem.repairItemName || '',
-            packageType: 50,
+            packageType: activityRes.activityResponse.activityType === 4 ? 60 : 50,
             packageId: this.selectedPackage.activityId + '#' + this.selectedPackage.id,
             packageCode: activityRes.activityCode,
             packageName: activityRes.activityName,
@@ -653,7 +653,7 @@ export default {
         }
       }
       &.is-disabled {
-        background-color: $--leap-color-default-light-5;
+        background-color: $--leap-color-default-light-4;
       }
 
       &__content {
