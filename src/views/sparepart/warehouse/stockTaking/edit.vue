@@ -122,6 +122,7 @@
                         placeholder="请选择"
                         filterable
                         remote
+                        :disabled="!row.stockStatusType"
                         :remote-method="(query) => querySearchAsync(query)"
                         @change="handleOperatorChange(row, $event)"
                       >
