@@ -67,7 +67,12 @@
           <vxe-column field="discountAmount" title="优惠金额" width="200px" />
           <vxe-column field="discountRate" title="折扣率" width="200px" />
           <vxe-column field="repairAmount" title="项目金额" width="200px" />
-          <vxe-column field="packageCode" title="套餐代码" width="200px" />
+          <vxe-column field="packageCode" title="套餐代码" width="200px"  >
+            <template #default="{ row }">
+              <el-link v-if="linkMap[row.packageType]" type="success" :href="`${linkMap[row.packageType]}?id=${row.packageId}`" target="_blank">{{ row.packageCode }}</el-link>
+              <span v-else>{{ row.packageCode }}</span>
+            </template>
+          </vxe-column>
           <!-- <vxe-column field="packageType" title="服务权益代码" width="200px" /> -->
           <!-- <vxe-column field="packageCode" title="车主服务权益明细" width="200px" /> -->
           <vxe-column field="createTime" title="创建时间" width="200px" sortable/>
@@ -131,7 +136,12 @@
           </vxe-column>
           <vxe-column field="repairItemCode" title="维修项目代码" width="200px"/>
           <vxe-column field="repairItemName" title="维修项目名称" width="200px"/>
-          <vxe-column field="packageCode" title="套餐代码" width="200px" />
+          <vxe-column field="packageCode" title="套餐代码" width="200px"  >
+            <template #default="{ row }">
+              <el-link v-if="linkMap[row.packageType]" type="success" :href="`${linkMap[row.packageType]}?id=${row.packageId}`" target="_blank">{{ row.packageCode }}</el-link>
+              <span v-else>{{ row.packageCode }}</span>
+            </template>
+          </vxe-column>
           <vxe-column field="packageName" title="套餐名称" width="200px" />
           <!-- <vxe-column field="packageCode" title="服务权益代码" width="200px" /> -->
           <!-- <vxe-column field="packageCode" title="车主服务权益明细" width="200px" /> -->
@@ -220,6 +230,8 @@
 	</section>
 </template>
 <script>
+import { PackageTypeEnum } from '../../constant';
+
 export default {
   props: {
     formData: {
@@ -255,7 +267,15 @@ export default {
       partsTraceRecordRespList: [],
       repairItemRespList: [],
       sparePartRespList: [],
-      costCountResp: {}
+      costCountResp: {},
+      linkMap: {
+        [PackageTypeEnum.REPAIR]: '/service/maintain/basic/repairPackages/edit',
+        [PackageTypeEnum.EQUITY]: '',
+        [PackageTypeEnum.STORE]: '/service/maintain/sp/interestsGoods/edit',
+        [PackageTypeEnum.FREE]: '/service/claimreturn/claim/basic/freeMaintenancePolicy/edit',
+        [PackageTypeEnum.TECH_ACTIVITY]: '/service/claimreturn/claim/basic/techServiceActivity/edit',
+        [PackageTypeEnum.CARE_ACTIVITY]: '/service/claimreturn/claim/basic/serviceCareActivity/edit',
+      }
     };
   },
   methods: {
