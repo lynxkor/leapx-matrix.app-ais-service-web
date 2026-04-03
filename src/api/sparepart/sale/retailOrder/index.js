@@ -205,3 +205,19 @@ export function deleteRetailOrderDetail (data) {
 export function retailPaymentRecordPage (data) {
   return api.jsonPost(retailPaymentRecord + 'page', data);
 }
+
+/**
+ * 备附件销售出库单打印设置表新增/编辑
+ * @param {Object} data
+ */
+export function printSetting (data) {
+  return api.jsonPost('/sp/web/basic/retailPrintSetting/addOrUpdate', data);
+}
+
+/**
+ * 备附件销售出库单打印设置表详情信息
+ * @param {Object} data
+ */
+export function getPrintSettingDetail (data) {
+  return api.jsonPost('/sp/web/basic/retailPrintSetting/get', data);
+}
