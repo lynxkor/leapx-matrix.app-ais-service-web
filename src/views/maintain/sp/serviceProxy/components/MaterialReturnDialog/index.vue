@@ -10,7 +10,7 @@
     <div class="material-return-content" v-loading="loading">
       <!-- 出库单号 -->
       <div class="action-section">
-        出库单号：<el-link type="success">{{ vehicleInfo.code }}</el-link>
+        出库单号：<el-link type="success">{{ vehicleInfo.outboundOrderList[0]?.code }}</el-link>
       </div>
 
       <!-- 数据表格 -->
@@ -145,8 +145,9 @@ export default {
 
     // 计算最大可退料数量（出库数量 - 已退料数量）
     getMaxReturnQuantity (row) {
-      const quantity = row.quantity || 0;
-      return Math.max(0, quantity);
+      const planPickNumber = row.planPickNumber || 0;
+      const refundedNumber = row.refundedNumber || 0;
+      return Math.max(0, planPickNumber - refundedNumber);
     },
 
     // 判断是否可以退料
