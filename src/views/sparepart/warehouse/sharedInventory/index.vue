@@ -9,13 +9,36 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="备件编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.partCode"
-          clearable
-        />
+    <el-form-item label="备件">
+        <fetch-select
+            :remote-method="getSparePart"
+            remote
+            v-model="form.sparePartIdList"
+            placeholder="请输入编码或名称"
+            labelKey="partName"
+            valueKey="id"
+            subLabelKey="partCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
+              />
       </el-form-item>
+      <el-form-item label="门店">
+          <fetch-select
+            :remote-method="getDealerList"
+            remote
+            v-model="form.dealerCodeList"
+            placeholder="请输入门店编码或名称"
+            labelKey="orgName"
+            valueKey="orgCode"
+            subLabelKey="orgCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
+              />
+        </el-form-item>
       <template v-if="show">
       </template>
       <page-search-action
@@ -28,13 +51,6 @@
       />
     </el-form>
     <div class="ais-actions">
-      <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -71,15 +87,15 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/sharedInventory/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
+import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/inventory/index';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser, listDealerPartWithOem } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
-import EditPage from './edit.vue';
+import FetchSelect from '@/libs/components/FetchSelect';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -96,8 +112,8 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    EditPage,
     Upload,
+    FetchSelect
   },
   data () {
     return {
@@ -132,7 +148,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/warehouse/sharedInventory/edit',
+                  path: '/sparepart/warehouse/inventory/edit',
                   query: {
                     id: row.id
                   }
@@ -142,50 +158,20 @@ export default {
             }]
           },
           { props: 'partName', label: '备件名称', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码（组织code）', visible: true, width: 180 },
-          { props: 'dealerName', label: '门店名称（组织名称）', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'sharedQty', label: '共享数量', visible: true, width: 120, align: 'right' },
           { props: 'purchasePrice', label: '采购价格', visible: true, width: 120, align: 'right' },
-          { props: 'suggestedSharedPrice', label: '建议共享价格', visible: true, width: 140, align: 'right' },
-          { props: 'sharedContactPerson', label: '共享联系人', visible: true, width: 160 },
-          { props: 'sharedContactInfo', label: '共享联系方式', visible: true, width: 180 },
+          { props: 'suggestedSharedPrice', label: '共享价格', visible: true, width: 140, align: 'right' },
+          { props: 'sharedContactPerson', label: '联系人', visible: true, width: 160 },
+          { props: 'sharedContactInfo', label: '联系方式', visible: true, width: 180 },
           { props: 'sharedDescription', label: '共享说明', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',
             type: 'operate',
             visible: true,
-            fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/warehouse/sharedInventory/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
-            }]
+            fixed: 'right'
           }
         ],
         total: 0
@@ -273,9 +259,21 @@ export default {
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
     },
+    async getSparePart (query) {
+      try {
+        const res = await listDealerPartWithOem({ partCodeLikeOrList: query });
+        // res.records = res.records?.map(item => ({
+        //   ...item,
+        //   displayName: item.companyName + `(${item.companyCode})`
+        // }));
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     handleAdd () {
       this.$router.push({
-        path: '/sparepart/warehouse/sharedInventory/edit'
+        path: '/sparepart/warehouse/inventory/edit'
       });
     },
     onSubmit () {
@@ -325,7 +323,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getList({ ...this.getFormData(), sharedIs: '1', orderBySparePartCode: true, pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {

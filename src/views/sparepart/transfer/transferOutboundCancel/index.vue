@@ -1,0 +1,784 @@
+<template>
+  <div class="page-common m-transfer-outbound-list">
+    <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
+    <el-form
+      :inline="true"
+      :model="form"
+      size="small"
+      label-position="right"
+      label-width="150px"
+      class="ais-search-form"
+    >
+      <el-form-item label="调拨出库单号">
+        <tag-input v-model="form.codeList" placeholder="请输入" />
+      </el-form-item>
+      <el-form-item label="入库门店">
+        <fetch-select
+          :remote-method="getDealerList"
+          remote
+          v-model="form.inboundDealerCodeList"
+          placeholder="请输入门店编码或名称"
+          labelKey="orgName"
+          valueKey="orgCode"
+          subLabelKey="orgCode"
+          clearable
+          multiple
+          collapseTags
+          filterable
+            />
+      </el-form-item>
+      <el-form-item label="出库门店" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :remote-method="getDealerList"
+          remote
+          v-model="form.outboundDealerCodeList"
+          placeholder="请输入门店编码或名称"
+          labelKey="orgName"
+          valueKey="orgCode"
+          subLabelKey="orgCode"
+          clearable
+          multiple
+          collapseTags
+          filterable
+        />
+      </el-form-item>
+      <template v-if="show">
+        <el-form-item label="入库方联系人">
+          <el-input
+            placeholder="请输入"
+            v-model="form.inboundContactNameLike"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="入库方手机">
+          <el-input
+            placeholder="请输入"
+            v-model="form.inboundContactPhone"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="调拨状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="TransferOutboundStatusEnum"
+            v-model="form.transferStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="出库状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="DealerTransferOutStatusEnum"
+            v-model="form.outboundStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="撤销状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="TransferOutboundCancelStatusEnum"
+            v-model="form.cancelStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="入库状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="TransferOutboundInStatusEnum"
+            v-model="form.inboundStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-input
+            placeholder="请输入"
+            v-model="form.remark"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="创建时间">
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="form.createTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="修改时间">
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="form.updateTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+      </template>
+      <page-search-action
+        v-if="canList"
+        v-model="show"
+        is-expandable
+        :loading="loading"
+        @submit="onSubmit"
+        @reset="onReset"
+      />
+    </el-form>
+    <div class="ais-actions">
+      <!--  TIPS:根据产品增删功能按钮  -->
+      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
+    </div>
+    <div
+      class="ais-table-c"
+    >
+      <LPVxeTable
+        ref="tableRef"
+        v-loading="loading"
+        is-checkbox
+        is-page
+        checkboxFixed
+        centralized
+        :option-obj="optionObj"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+        @listSelect="handleListSelect"
+        @sortChange="handleSortChange"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
+    </div>
+    <!-- TIPS: 填入项目id即可 -->
+    <Upload
+      :visible="uploadDialogVisible"
+      :id="'1'"
+      @close="handleUploadDialogClose"
+      @getData="getData"
+    />
+    <!-- 发运弹窗 -->
+    <ShipmentDialog
+      :visible="shipmentDialogVisible"
+      :id="shipmentId"
+      @update:visible="val => shipmentDialogVisible = val"
+      @success="getData"
+    />
+  </div>
+</template>
+
+<script>
+import debounce from 'lodash.debounce';
+import { LPVxeTable } from '@leapmotor/design';
+import PageSearchAction from '@/libs/components/AisPageSearchAction';
+import { getList, deleteItem, enableItem, getSubmit, getApprove, getReject, getRevoke, applyCancel, approveCancel, rejectCancel, getInbound } from '@/api/sparepart/transfer/transferOutbound/index';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
+import TagInput from '@/libs/components/TagInput';
+import FetchSelect from '@/libs/components/FetchSelect';
+import Upload from '@/libs/components/UploadDialog';
+import { YES_NO_ENUM } from '@/libs/constants';
+import responsiveSearchForm from '@/libs/mixins/responsive';
+import permissions from '@/libs/mixins/permissions';
+import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
+import commonMixins from '@/libs/mixins/commonMixins';
+import EditPage from '../transferOutbound/edit.vue';
+import ShipmentDialog from '../transferOutbound/ShipmentDialog.vue';
+
+const defaultForm = {
+  // TIPS:多选时字段名称会有变化，自行校对
+  codeList: '',
+  outboundDealerCodeList: '',
+  outboundDealerName: '',
+  outboundWarehouseId: '',
+  inboundDealerCodeList: '',
+  inboundDealerName: '',
+  inboundContactNameLike: '',
+  inboundContactPhone: '',
+  transferStatusList: '',
+  outboundStatusList: '',
+  cancelStatusList: '',
+  inboundStatusList: '',
+  remark: '',
+  createTime: '',
+  updateTime: '',
+};
+
+const pageSize = 20;
+const mockConfig = {
+  data: null
+};
+
+export default {
+  mixins: [responsiveSearchForm, permissions, commonMixins],
+  components: {
+    PageSearchAction,
+    LPVxeTable,
+    FetchSelect,
+    EditPage,
+    Upload,
+    TagInput,
+    ShipmentDialog
+  },
+  data () {
+    return {
+      pageTitle: '门店备件调拨撤销申请',
+      pageType: 'list',
+      // TIPS: 权限前缀 AISPART，根据实际情况修改
+      moduleKey: 'AISPART-transferOutbound',
+      form: {
+        ...defaultForm
+      },
+      selectionList: [],
+      yes_no_enum: YES_NO_ENUM,
+      show: false,
+      loading: false,
+      exportLoading: false,
+      uploadDialogVisible: false,
+      shipmentDialogVisible: false, // 发运弹窗
+      shipmentId: '', // 发运弹窗id
+      clickItemId: '',
+      optionObj: {
+        id: 'transferOutboundTable',
+        dataList: [],
+        form: {
+          page: 1,
+          size: pageSize
+        },
+        dataProp: [
+          {
+            props: 'code',
+            label: '调拨出库单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/transfer/transferOutbound/edit',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180 },
+          { props: 'outboundDealerName', label: '出库门店名称', visible: true, width: 200 },
+          { props: 'outboundWarehouseName', label: '出库方仓库', visible: true, width: 200 },
+          { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180 },
+          { props: 'inboundDealerName', label: '入库门店名称', visible: true, width: 200 },
+          { props: 'inboundContactName', label: '入库方联系人', visible: true, width: 160 },
+          { props: 'inboundContactPhone', label: '入库方手机', visible: true, width: 180 },
+          { props: 'transferStatusLabel', label: '调拨状态', visible: true, width: 120 },
+          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
+          { props: 'cancelStatusLabel', label: '撤销状态', visible: true, width: 120 },
+          { props: 'inboundStatusLabel', label: '入库状态', visible: true, width: 120 },
+          { props: 'remark', label: '备注', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
+            buttons: [{
+              name: '编辑',
+              show: (row) => {
+                return row.transferStatus === '0';
+              },
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/transfer/transferOutbound/edit',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'info'
+            }, {
+              name: '提交',
+              show: (row) => {
+                return row.transferStatus === '0' || row.transferStatus === '3';
+              },
+              popconfirmTitle: '此操作将提交, 是否继续?',
+              click: (rowIndex, row) => {
+                getSubmit({ id: row.id }).then(res => {
+                  this.$message({
+                    message: '提交成功',
+                    type: 'success'
+                  });
+                  this.getData();
+                });
+              },
+              type: 'info'
+            }, {
+              name: '同意',
+              show: (row) => {
+                return row.transferStatus === '1';
+              },
+              popconfirmTitle: '此操作将同意, 是否继续?',
+              click: (rowIndex, row) => {
+                getApprove({ id: row.id }).then(res => {
+                  this.$message({
+                    message: '同意成功',
+                    type: 'success'
+                  });
+                  this.getData();
+                });
+              },
+              type: 'info'
+            }, {
+              name: '驳回',
+              show: (row) => {
+                return row.transferStatus === '1';
+              },
+              click: (rowIndex, row) => {
+                this.$prompt('请输入驳回原因！', '驳回', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                }).then(({ value }) => {
+                  // 调用驳回接口
+                  getReject({ id: row.id, description: value }).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '驳回成功!'
+                    });
+                    this.getData();
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '撤回',
+              show: (row) => {
+                return row.transferStatus === '2' && row.outboundStatus === '0';
+              },
+              popconfirmTitle: '此操作将撤回该出库单, 是否继续?',
+              click: (rowIndex, row) => {
+                getRevoke({ id: row.id }).then(res => {
+                  this.$message({
+                    message: '撤回成功',
+                    type: 'success'
+                  });
+                  this.getData();
+                });
+              },
+              type: 'info'
+            }, {
+              name: '发运',
+              show: (row) => {
+                return row.transferStatus === '2' && row.outboundStatus === '0';
+              },
+              click: (rowIndex, row) => {
+                this.handleShipment(row);
+                // getShip({ id: row.id }).then(res => {
+                //   this.$message({
+                //     message: '发运成功',
+                //     type: 'success'
+                //   });
+                //   this.getData();
+                // });
+              },
+              type: 'info'
+            }, {
+              name: '打印',
+              click: (rowIndex, row) => {
+                this.handlePrint(row);
+              },
+              type: 'info'
+            }, {
+              name: '申请撤销',
+              show: (row) => {
+                return (row.cancelStatus === '10' || row.cancelStatus === '40') && row.outboundStatus === '1';
+              },
+              click: (rowIndex, row) => {
+                this.$prompt('请输入申请撤销原因！', '申请撤销', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                }).then(({ value }) => {
+                  applyCancel({ id: row.id, description: value }).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '申请撤销成功!'
+                    });
+                    this.getData();
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '同意撤销',
+              show: (row) => {
+                return row.cancelStatus === '20';
+              },
+              popconfirmTitle: '此操作将同意撤销, 是否继续?',
+              click: (rowIndex, row) => {
+                approveCancel({ id: row.id }).then(res => {
+                  this.$message({
+                    message: '同意撤销成功',
+                    type: 'success'
+                  });
+                  this.getData();
+                });
+              },
+              type: 'info'
+            }, {
+              name: '驳回撤销',
+              show: (row) => {
+                return row.cancelStatus === '20';
+              },
+              click: (rowIndex, row) => {
+                this.$prompt('请输入驳回撤销原因！', '驳回撤销', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                }).then(({ value }) => {
+                  rejectCancel({ id: row.id, description: value }).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '驳回撤销成功!'
+                    });
+                    this.getData();
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '入库',
+              show: (row) => {
+                return row.cancelStatus === '30' && row.inboundStatus === '0';
+              },
+              popconfirmTitle: '此操作将入库, 是否继续?',
+              click: (rowIndex, row) => {
+                getInbound({ id: row.id }).then(res => {
+                  this.$message({
+                    message: '入库成功',
+                    type: 'success'
+                  });
+                  this.getData();
+                });
+              },
+              type: 'info'
+            }
+            // {
+            //   name: '删除',
+            //   popconfirmTitle: '此操作将永久删除, 是否继续?',
+            //   click: (rowIndex, row) => {
+            //     deleteItem([row.id]).then(() => {
+            //       this.$message({
+            //         type: 'success',
+            //         message: '删除成功!'
+            //       });
+            //       this.getData();
+            //     }).catch(() => {
+            //       this.$message({
+            //         type: 'error',
+            //         message: '删除失败!'
+            //       });
+            //     });
+            //   },
+            //   type: 'danger'
+            // }
+            ]
+          }
+        ],
+        total: 0
+      },
+      sortColumns: [
+        // {
+        // column: 'create_time',
+        // sort: 'DESC'
+        // }
+      ]
+    };
+  },
+  created () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    this.getData();
+  },
+  methods: {
+    async getUser (query) {
+      try {
+        const res = await getUserByNameOrNo({ name: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    async getParentCompany (query) {
+      try {
+        const res = await getSparePartCompany({ codeOrNameLike: query });
+        res.records = res.records?.map(item => ({
+          ...item,
+          displayName: item.companyName + `(${item.companyCode})`
+        }));
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    async getWarehouse (query) {
+      try {
+        const res = await listWarehouse({ codeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    async initDealerUser () {
+      // 查询是否店端 true为门店  false为厂端
+      const res = await getLoginUser();
+      this.accountFlag = res.accountFlag;
+      this.currentDealerCode = res.currentDealerCode;// 当前门店code
+      this.currentDealerName = res.currentDealerName;// 当前门店名称
+
+      if (this.accountFlag === true) {
+        const res = await getPartDealer({ code: this.currentDealerCode });
+        this.isPartOrder = res.isPartOrder;
+      }
+      if (this.accountFlag === false) {
+        this.isPartOrder = true;
+      }
+    },
+    // 排序
+    handleSortChange (value) {
+      this.sortColumns = (value || []).map(item => {
+        return {
+          column: (item.field || '').replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, ''),
+          sort: (item.order || '').toUpperCase()
+        };
+      });
+      this.getData();
+    },
+    handleListSelect (row) {
+      this.clickItemId = row.id;
+    },
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
+    },
+    handleAdd () {
+      this.$router.push({
+        path: '/sparepart/transfer/transferOutbound/edit'
+      });
+    },
+    onSubmit () {
+      this.optionObj.form.page = 1;
+      this.getData();
+    },
+    onReset () {
+      this.form = { ...defaultForm };
+      this.optionObj.form.page = 1;
+      this.optionObj.form.pageSize = pageSize;
+      this.getData();
+    },
+    exportExcel () {
+      this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
+      exportTable({
+        businessType: '门店备件调拨撤销申请',
+        dataFetchPath: 'sparepart/web/transfer/transferOutbound/page',
+        reqParams,
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '门店备件调拨撤销申请.xlsx');
+          } catch (error) {
+            this.$message({
+              type: 'error',
+              message: '文件导出失败'
+            });
+          }
+        } else {
+          this.$message({
+            type: 'info',
+            message: '请前往导出列表中查询导出结果'
+          });
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
+    },
+    getData () {
+      this.loading = true;
+      this.selectionList = [];
+
+      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+        .then(res => {
+          console.log(res);
+          this.optionObj.dataList = res.records.map(item => {
+            return {
+              ...item,
+              deleteLoading: false
+            };
+          });
+          this.optionObj.total = res.total;
+        }).finally(() => {
+          this.loading = false;
+        });
+    },
+    // 需要防抖场景时使用
+    debouncedGetData: debounce(function () {
+      this.getData();
+    }, 300),
+    getConfig () {
+      return new Promise((resolve, reject) => {
+        getTableConfig(this.optionObj.id).then(data => {
+          resolve({ data });
+        }).catch(err => {
+          // 容错：此处如果接口挂了，也不应该影响正常使用
+          console.error(err);
+          resolve(mockConfig);
+        });
+      });
+    },
+    saveOrUpdate (data) {
+      return tableAddOrUpdate(data);
+    },
+    paginationChange (type, num) {
+      if (type === 'page') {
+        this.optionObj.form.page = num;
+      } else {
+        this.optionObj.form.size = num;
+      }
+      this.debouncedGetData();
+    },
+    // 多选框选中数据
+    handleSelectionChange (selection) {
+      this.selectionList = selection;
+    },
+    getFormData () {
+      const data = { ...this.form };
+
+      Object.keys(this.form).forEach(key => {
+        const val = data[key];
+
+        // 情况 A: 值为 null, undefined, 或 空字符串 ''
+        if (!val && val !== 0 && val !== false) {
+          delete data[key];
+          return;
+        }
+
+        // 情况 B: 值为空数组 [] 或 空字符串 '' (再次确认 length)
+        // 注意：上面 !val 已经处理了 ''，这里主要处理 []
+        if (Array.isArray(val) && val.length === 0) {
+          delete data[key];
+        }
+      });
+
+      if (this.form.createTime) {
+        delete data.createTime;
+        if (this.form.createTime.length > 1) {
+          data.createTimeStart = this.form.createTime[0];
+          data.createTimeEnd = this.form.createTime[1];
+        }
+      }
+
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = this.form.updateTime[1];
+        }
+      }
+      // 排序字段
+      data.sortColumns = this.sortColumns;
+      return data;
+    },
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
+    },
+    // 批量删除
+    handleBatchDelete () {
+      const ids = this.selectionList.map(item => item.id) || [];
+      this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteItem(ids).then(() => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+          this.getData();
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: '删除失败!'
+          });
+        });
+      }).catch(() => {});
+    },
+    // 批量启用停用
+    handleBatchEnable (status) {
+      handleBatchStatusChange.call(this, {
+        selectionList: this.selectionList,
+        targetStatus: status,
+        apiFunc: enableItem,
+        refreshFunc: this.getData
+      });
+    },
+    // 打印调拨出库单
+    handlePrint (val) {
+      this.$print.show({
+        id: val.id, // 必选，对应数据id
+        template: 'TransferOutbound', // 必选，对应 ./template/文件名.vue
+        title: `${val.dealerName}厅店调拨出库单`// 可选，打印标题
+      });
+    },
+    // 发运
+    handleShipment (val) {
+      this.shipmentId = val.id;
+      this.shipmentDialogVisible = true;
+    },
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+.m-transfer-outbound-list {
+}
+</style>

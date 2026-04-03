@@ -26,6 +26,7 @@
             :disabled="vinDisabled"
             value-key="vin"
             label-key="vin"
+            :selectRef="onSelectRef"
           />
         </el-form-item>
         <el-form-item label="车牌号：" prop="carPlate" :required="carPlateRequired">
@@ -586,6 +587,7 @@ export default {
       form: {},
       popoverVisible: false,
       RepairOrderStatusEnum,
+      selectRef: null,
       rules: {
         vehProfileVin: [
           { required: true, message: '请输入VIN', trigger: 'change' }
@@ -705,9 +707,13 @@ export default {
       }
       return getVehicleProfile({ searchVin: query });
     },
+    onSelectRef (el) {
+      this.selectRef = el;
+    },
     handleVinChange (val, record) {
       if (record?.vin) {
         checkVinTag(record.vin).then(res => {
+          this.selectRef?.blur();
           if (res) {
             const message = `<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>提示</div><div class="ais-leave-tips-sub">该车辆为${res}，请注意接待。</div>`;
             this.$confirm(message, '', {
