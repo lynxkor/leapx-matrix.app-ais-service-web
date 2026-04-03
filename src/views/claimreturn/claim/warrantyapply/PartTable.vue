@@ -39,15 +39,18 @@
             :remote-method="partRemote"
             remote
             v-model="row.partAndSupplierId"
-            @change="(val, option) => partRemote(val, option, row)"
+            @change="(val, option) => onOldPartChange(val, option, row)"
             placeholder="请输入零件编码/名称"
             :params="row.oldPartCode"
             labelKey="partCode"
             valueKey="partAndSupplierId"
-            customOptionKey="partAndSupplierName"
             clearable
             filterable
-          />
+          >
+            <template #option="{ item }">
+              <span>{{ item.partCode }}/{{ item.partName }}————{{ item.supplierName }}({{ item.supplierCode }})</span>
+            </template>
+          </fetch-select>
           <span v-else>{{ row.oldPartCode }}</span>
         </template>
       </vxe-column>
@@ -280,7 +283,6 @@ export default {
           return {
             ...item,
             partAndSupplierId: item.sparePartId + item.supplierInfoId,
-            partAndSupplierName: `${item.partCode}/${item.partName}————${item.supplierName}(${item.supplierCode})`,
           };
         });
         return {
@@ -298,9 +300,7 @@ export default {
       row.oldPartSupplierCode = option?.supplierCode;
       row.oldPartSupplierName = option?.supplierName;
       row.oldPartSupplierId = option?.supplierInfoId;
-      // 备件编码/备件名称————供应商(供应商编码)
       row.partAndSupplierId = row.oldPartId + row.oldPartSupplierId;
-      row.partAndSupplierName = `${row.oldPartCode}/${row.oldPartName}————${row.oldPartSupplierName}(${row.oldPartSupplierCode})`;
     }
   },
 };

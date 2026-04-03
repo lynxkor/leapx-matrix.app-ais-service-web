@@ -489,10 +489,13 @@
                 :params="form.mainPartCode"
                 labelKey="partCode"
                 valueKey="partAndSupplierId"
-                customOptionKey="partAndSupplierName"
                 clearable
                 filterable
-              />
+              >
+                <template #option="{ item }">
+                  <span>{{ item.partCode }}/{{ item.partName }}————{{ item.supplierName }}({{ item.supplierCode }})</span>
+                </template>
+              </fetch-select>
             </el-form-item>
             <el-form-item label="主因零件名称：" prop="mainPartName">
               <el-input placeholder="" v-model="form.mainPartName" clearable disabled />
@@ -936,7 +939,6 @@ export default {
           return {
             ...item,
             partAndSupplierId: item.sparePartId + item.supplierInfoId,
-            partAndSupplierName: `${item.partCode}/${item.partName}————${item.supplierName}(${item.supplierCode})`,
           };
         });
         return {
@@ -953,10 +955,6 @@ export default {
       this.form.mainPartSupplierCode = row?.supplierCode;
       this.form.mainPartSupplierName = row?.supplierName;
       this.form.mainPartSupplierId = row?.supplierInfoId;
-
-      // 备件编码/备件名称————供应商(供应商编码)
-      row.partAndSupplierId = this.form.mainPartId + this.form.mainPartSupplierId;
-      row.partAndSupplierName = `${this.form.mainPartCode}/${this.form.mainPartName}————${this.form.mainPartSupplierName}(${this.form.mainPartSupplierCode})`;
     }
   }
 };
