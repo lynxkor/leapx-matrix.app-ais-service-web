@@ -832,10 +832,13 @@ export default {
       //   return;
       // }
       // 保修类型为售前保修只能单独开单
-      const el = this.itemData.find(item => item.warrantyTypeId === WarrantyTypeEnum.PRE_SALE_WARRANTY);
-      if (el && this.itemData.length > 1) {
-        this.$message.warning('售前保修只能单独开单');
-        return;
+      const preSaleItem = this.itemData.filter(item => item.warrantyTypeId === WarrantyTypeEnum.PRE_SALE_WARRANTY) || [];
+      const preSalePart = this.partData.filter(item => item.warrantyTypeId === WarrantyTypeEnum.PRE_SALE_WARRANTY) || [];
+      if (preSaleItem.length > 0 || preSalePart.length > 0) {
+        if ((this.itemData.length && preSaleItem.length < this.itemData.length) || (this.partData.length && preSalePart.length < this.partData.length)) {
+          this.$message.warning('售前保修只能单独开单');
+          return;
+        }
       }
       this.submitLoading = true;
 
