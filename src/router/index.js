@@ -2101,15 +2101,6 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/warehouse/sharedinventory/edit',
-      name: 'sharedInventoryEdit',
-      component: () => import('@/views/sparepart/warehouse/sharedInventory/edit.vue'),
-
-      meta: {
-        name: '共享呆滞件库存详情',
-        noResourceUrl: 'true'
-      }
-    }, {
       path: '/sparepart/transfer/transferOutbound',
       name: 'transferOutbound',
       component: () => import('@/views/sparepart/transfer/transferOutbound/index.vue'),

@@ -15,9 +15,9 @@
             remote
             v-model="form.sparePartIdList"
             placeholder="请输入编码或名称"
-            labelKey="name"
+            labelKey="partName"
             valueKey="id"
-            subLabelKey="code"
+            subLabelKey="partCode"
             clearable
             multiple
             collapseTags
@@ -201,7 +201,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/inventory/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, sparePartListShort, listOrgStoreInfoByParam } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listDealerPartWithOem, listOrgStoreInfoByParam } from '@/api/common';
 import { locationList } from '@/api/sparepart/warehouse/warehouse/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -387,7 +387,7 @@ export default {
 
     async getSparePart (query) {
       try {
-        const res = await sparePartListShort({ partCodeLikeOrList: query });
+        const res = await listDealerPartWithOem({ partCodeLikeOrList: query });
         // res.records = res.records?.map(item => ({
         //   ...item,
         //   displayName: item.companyName + `(${item.companyCode})`
