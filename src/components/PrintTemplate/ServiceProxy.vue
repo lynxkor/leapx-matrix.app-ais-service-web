@@ -515,6 +515,9 @@ export default {
 
       let repairDeduction = 0; // 维修项目扣除金额
       let partsDeduction = 0; // 零件扣除金额
+      let totalRepairAmount = 0; // 工时费用小计
+      let totalPartAmount = 0; // 零件费用小计
+      let totalDiscountAmount = 0; // 优惠费用小计
 
       // 处理维修项目数据
       if (costCountResp.repairItemRespList && costCountResp.repairItemRespList.length > 0) {
@@ -526,6 +529,8 @@ export default {
             item.discountAmount = 0;
             item.repairAmount = 0;
           }
+          totalRepairAmount += (+item.repairAmount + +item.discountAmount);
+          totalDiscountAmount += (+item.discountAmount);
         });
       }
 
@@ -539,6 +544,8 @@ export default {
             item.discountAmount = 0;
             item.partsAmount = 0;
           }
+          totalPartAmount += (+item.partsAmount + +item.discountAmount);
+          totalDiscountAmount += (+item.discountAmount);
         });
       }
 
@@ -551,11 +558,15 @@ export default {
       if (costCountResp.maintenanceCostEstimation !== null && costCountResp.maintenanceCostEstimation !== undefined) {
         costCountResp.maintenanceCostEstimation = parseFloat((parseFloat(costCountResp.maintenanceCostEstimation) - totalDiscountDeduction)).toFixed(2);
       }
+      console.log(totalRepairAmount, totalPartAmount);
       if (costCountResp.workCostCount !== null && costCountResp.workCostCount !== undefined) {
-        costCountResp.workCostCount = parseFloat((parseFloat(costCountResp.workCostCount) - repairDeduction)).toFixed(2);
+        costCountResp.workCostCount = parseFloat(totalRepairAmount).toFixed(2);
       }
       if (costCountResp.barkCostCount !== null && costCountResp.barkCostCount !== undefined) {
-        costCountResp.barkCostCount = parseFloat((parseFloat(costCountResp.barkCostCount) - partsDeduction)).toFixed(2);
+        costCountResp.barkCostCount = parseFloat(totalPartAmount).toFixed(2);
+      }
+      if (costCountResp.preferentialMoneyCount !== null && costCountResp.preferentialMoneyCount !== undefined) {
+        costCountResp.preferentialMoneyCount = parseFloat(totalDiscountAmount).toFixed(2);
       }
     }
   },
