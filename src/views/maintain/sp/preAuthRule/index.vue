@@ -32,7 +32,7 @@
           collapseTags
           clearable
           filterable
-          :params="{seriesIdList: [form.vehicleSeriesId]}"
+          :params="{seriesIdList: form.vehicleSeriesId?[form.vehicleSeriesId]:[]}"
         />
       </el-form-item>
       <el-form-item label="启用状态"  v-show="this.visibleCount === 3 || show">
@@ -100,7 +100,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 
 const defaultForm = {
-  vehicleSeriesId: [],
+  vehicleSeriesId: '',
   vehicleModelId: [],
   status: ''
 };

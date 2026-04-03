@@ -310,6 +310,7 @@
       :visible.sync="signDialogVisible"
       :info="info"
       :serviceProxyCode="info.serviceProxyCode"
+      :formData="totalData"
       @refresh="handleRefresh"
       @submit="handleConfirm"
     />
@@ -433,6 +434,7 @@ export default {
     checkAndSign () {
       queryIsLastConfirm(this.info.id).then((res) => {
         if (res.lastRecord) {
+          this.getFinalData();
           this.signDialogVisible = true;
         } else {
           const message = `<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>${res.msg || '提交签字并确认'}</div>`;
