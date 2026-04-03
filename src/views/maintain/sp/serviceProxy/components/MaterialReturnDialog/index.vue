@@ -34,7 +34,7 @@
               {{ row.isOutstock === 1 ? '是' : '否' }}
             </template>
           </vxe-column>
-          <vxe-column field="actualPickNumber" title="出库数量" width="100" align="center" />
+          <vxe-column field="planPickNumber" title="出库数量" width="100" align="center" />
           <vxe-column field="refundedNumber" title="退料数量" width="100" align="center" />
           <vxe-column title="剩余可退料数量" width="140" align="center">
             <template #default="{ row }">
@@ -157,19 +157,13 @@ export default {
 
     // 获取退料状态文本
     getReturnStatusText (row) {
-      const maxQuantity = this.getMaxReturnQuantity(row);
-      const refundedNumber = +row.refundedNumber || 0;
-      const actualPickNumber = +row.actualPickNumber || 0;
-      const isOutstock = +row.isOutstock || 0;
-
+      const isOutstock = +row.returnMaterialStatus || 0;
       if (isOutstock === 0) {
-        return '未出库';
-      } else if (refundedNumber > 0 && refundedNumber === actualPickNumber) {
-        return '全部退料';
-      } else if (refundedNumber > 0 && refundedNumber < actualPickNumber) {
-        return '部分退料';
-      } else if (maxQuantity > 0 && refundedNumber === 0) {
-        return '未退料';
+        return '待入库';
+      } else if (isOutstock === 1) {
+        return '已入库';
+      } else if (isOutstock === 2) {
+        return '部分入库';
       }
       return '不可退料';
     },
