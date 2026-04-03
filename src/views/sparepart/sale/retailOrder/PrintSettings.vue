@@ -20,7 +20,7 @@
 </template>
 <script>
 import { getEnum } from '@/api/common';
-import { getCurrentUserSet, settingUpdate } from '@/api/sparepart/outbound/maintenanceOutboundOrder/index';
+import { getPrintSettingDetail, printSetting } from '@/api/sparepart/sale/retailOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 
 export default {
@@ -37,7 +37,10 @@ export default {
   data () {
     return {
       dialogVisible: this.visible,
-      form: {},
+      form: {
+        sortOrder: '',
+        defaultPrintRange: '',
+      },
       submitLoading: false
     };
   },
@@ -51,17 +54,21 @@ export default {
   },
   methods: {
     async initData () {
-      const res = await getCurrentUserSet();
+      const res = await getPrintSettingDetail();
       this.form = res || {};
     },
     close () {
-      this.$emit('close');
+      this.$emit('update:visible', false);
     },
     async submit () {
       this.submitLoading = true;
-      await settingUpdate(this.form);
-      this.submitLoading = false;
-      this.$emit('success');
+      try {
+        await printSetting(this.form);
+        this.close();
+        this.$emit('success');
+      } finally {
+        this.submitLoading = false;
+      }
     },
     async fetchOptions (code) {
       if (code) {

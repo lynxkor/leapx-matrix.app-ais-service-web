@@ -152,7 +152,8 @@
     <!-- 打印设置 -->
     <PrintSettings
       ref="printSettingsRef"
-      :visible="printSettingsVisible"
+      :visible.sync="printSettingsVisible"
+      @update:visible="val => printSettingsVisible = val"
       @success="getData"
     />
     <!-- 销售出库, 退料入库, 退订入库 -->
@@ -828,7 +829,9 @@ export default {
       });
     },
     // 打印设置
-    excelSetting () {},
+    excelSetting () {
+      this.printSettingsVisible = true;
+    },
     // 出库
     handleOutbound (row, ele) {
       this.outboundId = row.id;
