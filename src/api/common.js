@@ -191,6 +191,10 @@ export function listDealerPart (data) {
   return api.jsonPost('/sp/web/basic/sparePart/listDealerPart', data);
 }
 
+export function listDealerPartWithOem (data) {
+  return api.jsonPost('/sp/web/basic/sparePart/listDealerPartWithOem', data);
+};
+
 /**
  * 母公司列表查询
  * @param {*} data
