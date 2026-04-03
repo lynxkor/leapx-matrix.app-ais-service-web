@@ -252,8 +252,8 @@ import {
   withdraw,
   approve,
   batchCancel,
-  queryOldPartOemInventoryId,
   getDetailDecryptField,
+  print,
 } from '@/api/claimreturn/claim/warrantyapply/index';
 import {
   getTableConfig, tableAddOrUpdate, getEnum, listVehicleModel, getScopeTypeOrg,
@@ -650,23 +650,21 @@ export default {
         this.$message.warning('请选择打印数据');
         return;
       }
-      queryOldPartOemInventoryId({
-        ids: isRow ? paramIds : this.selectionList.map(item => item.id)
-        // ids: ['00008247-0442-4D0E-AC1A-DE82B580213F']
+      print({
+        ids: isRow ? paramIds : this.selectionList.map(item => item.id),
       }).then(res => {
-        if (res?.length) {
+        if (res && res.length > 0) {
           this.$print.show({
             id: new Date().getTime() + '',
             template: 'OldPartMark',
             title: '保修旧件标签',
             data: res,
             width: 1122,
+            isWarrantyApply: true,
           });
         } else {
-          this.$message.warning('暂无可打印数据');
+          this.$message.warning('未查询到打印数据');
         }
-      }).catch(() => {
-        this.$message.warning('打印失败');
       });
     },
     // 排序

@@ -182,7 +182,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, addPartItem, deletePartItem } from '@/api/maintain/sp/preAuthRule/index';
+import { getDetail, addOrUpdate, addPartItem, deletePartItem,deleteModelItem } from '@/api/maintain/sp/preAuthRule/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, sparePartList } from '@/api/common';
@@ -278,9 +278,7 @@ export default {
         code: [
           { required: false, message: '请输入预授权规则编号', trigger: 'change' }
         ],
-        endTime: [
-          { required: true, message: '请选择有效日期', trigger: 'change' }
-        ],
+
         authAmount: [
           { required: true, message: '请输入预授权额度', trigger: 'change' }
         ],
@@ -323,13 +321,21 @@ export default {
     },
     // 删除单个车型
     async handleDeleteModelRow (index) {
-      this.tableDataModel.splice(index, 1);
-      await addOrUpdate({
-        ...this.form,
-        authRuleModelParamList: this.tableDataModel,
-        partParamList: this.tableDataPart
-      });
-      this.$message.success('删除成功');
+      const item = this.tableDataModel[index];
+      if (!item || !item.id) {
+        this.$message.warning('无法获取车型信息');
+        return;
+      }
+
+      try {
+        await deleteModelItem([item.id]);
+        this.tableDataModel.splice(index, 1);
+        this.$message.success('删除成功');
+        getDetail(this._id);
+      } catch (error) {
+        console.error('删除失败:', error);
+        this.$message.error('删除失败');
+      }
     },
     // 添加零件
     handleAddPart (record) {

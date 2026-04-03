@@ -14,7 +14,7 @@
             <vxe-table ref="couponTable" :data="couponData" stripe show-overflow :row-config="{ isHover: true }"
               resizable border="inner" size="medium" min-height="0" max-height="500px">
               <vxe-column type="seq" title="序号" width="70" align="center" />
-              <vxe-column field="rightsCode" title="权益ID" width="250" show-overflow="tooltip" />
+              <vxe-column field="useId" title="权益ID" width="250" show-overflow="tooltip" />
               <vxe-column field="rightsName" title="权益名称" width="200" show-overflow="tooltip" />
               <vxe-column field="cardTypeLabel" title="卡券类型" width="120" align="center" />
               <!-- <vxe-column field="applicableMaintenanceType" title="适用维修类型" width="120" align="center">

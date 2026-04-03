@@ -56,7 +56,7 @@
                     <tr v-for="item in tableData" :key="item.id">
                         <td>{{ item.sparePartCode }}</td>
                         <td>{{ item.sparePartName }}</td>
-                        <td>{{ item.locationCode }}</td>
+                        <td>{{ item.locationName }}</td>
                         <td>{{ item.transferQty }}</td>
                     </tr>
                 </tbody>
@@ -67,7 +67,7 @@
 
 <script>
 // 对应业务的接口
-import { getDetail, sharedTransferOutboundDetailPage } from '@/api/sparepart/transfer/transferOutbound/index';
+import { getDetail, sharedTransferOutboundDetailPage } from '@/api/sparepart/transfer/sharedTransferOutbound/index';
 
 export default {
   props: {

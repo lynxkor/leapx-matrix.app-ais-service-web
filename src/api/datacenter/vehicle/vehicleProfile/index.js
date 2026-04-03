@@ -104,7 +104,7 @@ export function keyInfoChangeLogPage (data) {
  * @returns
  */
 export function serviceProxyHisPage (data) {
-  return api.jsonPost('/datacenter/web/vehicle/serviceProxyHis/page', data);
+  return api.jsonPost('/maintain/web/sp/serviceProxyHis/page', data);
 }
 
 // 权益查询

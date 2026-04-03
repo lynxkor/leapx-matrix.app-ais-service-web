@@ -134,11 +134,13 @@
         </table>
       </div>
     </div>
+    <div class="no-data" v-if="result.length === 0">暂无数据</div>
   </div>
 </template>
 <script>
 import QrcodeVue from 'qrcode.vue';
 import { print } from '@/api/claimreturn/oldpart/inventory/oem/index.js';
+
 export default {
   components: {
     QrcodeVue,
@@ -151,6 +153,11 @@ export default {
     data: {
       type: Array,
       default: () => ([])
+    },
+    // 是否为保修申请单
+    isWarrantyApply: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -162,7 +169,16 @@ export default {
   watch: {
     id: {
       handler () {
-        this.getData(this.data);
+        if (Array.isArray(this.data) && this.data.length > 0) {
+          // 是否为保修申请单
+          if (this.isWarrantyApply) {
+            this.result = this.data;
+          } else {
+            this.getData(this.data);
+          }
+        } else {
+          this.result = [];
+        }
       },
       immediate: true,
     }
@@ -176,7 +192,11 @@ export default {
       print({
         ids,
       }).then(res => {
-        this.result = res;
+        if (res && res.length > 0) {
+          this.result = res;
+        } else {
+          this.result = [];
+        }
       }).finally(() => {
         this.loading = false;
       });
@@ -297,5 +317,12 @@ td:nth-child(odd) {
 .PageNext {
   page-break-after: always;
   margin-bottom: 30px;
+}
+
+.no-data{
+  padding-top: 80px;
+  text-align: center;
+  font-size: 16px;
+  color: #999;
 }
 </style>
