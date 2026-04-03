@@ -2110,6 +2110,15 @@ const routes = [
         keepAlive: true
       }
     }, {
+      path: '/sparepart/transfer/transferOutboundCancel',
+      name: 'transferOutbound',
+      component: () => import('@/views/sparepart/transfer/transferOutboundCancel/index.vue'),
+
+      meta: {
+        name: '门店备件调拨撤销申请',
+        keepAlive: true
+      }
+    }, {
       path: '/sparepart/transfer/transferoutbound/edit',
       name: 'transferOutboundEdit',
       component: () => import('@/views/sparepart/transfer/transferOutbound/edit.vue'),
@@ -2197,6 +2206,24 @@ const routes = [
 
       meta: {
         name: '备附件销售',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/sale/retailOrderOut',
+      name: 'retailOrder',
+      component: () => import('@/views/sparepart/sale/retailOrderOut/index.vue'),
+
+      meta: {
+        name: '备附件销售出库',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/sale/retailOrderReturn',
+      name: 'retailOrder',
+      component: () => import('@/views/sparepart/sale/retailOrderReturn/index.vue'),
+
+      meta: {
+        name: '备附件退料入库',
         keepAlive: true
       }
     }, {
