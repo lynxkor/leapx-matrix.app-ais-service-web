@@ -27,22 +27,30 @@
       <vxe-column field="partCode" title="零件编码" width="150"></vxe-column>
       <vxe-column field="partName" title="零件名称" width="150"></vxe-column>
       <vxe-column field="returnType" title="旧件返回类型" width="120"></vxe-column>
-      <vxe-column field="isReturned" title="是否已返" width="120"></vxe-column>
+      <vxe-column title="是否已返" width="120">
+        <template #default="{row}">
+          {{ row.isReturned ? '是' : '否' }}
+        </template>
+      </vxe-column>
       <vxe-column title="旧件编码" width="200">
         <template #default="{ row, rowIndex }">
           <fetch-select
             v-if="editRowIndex === rowIndex"
-            :remote-method="searchOldPart"
+            :remote-method="partRemote"
             remote
-            v-model="row.oldPartCode"
+            v-model="row.partAndSupplierId"
             @change="(val, option) => onOldPartChange(val, option, row)"
             placeholder="请输入零件编码/名称"
-            labelKey="code"
-            valueKey="code"
-            subLabelKey="name"
+            :params="row.oldPartCode"
+            labelKey="partCode"
+            valueKey="partAndSupplierId"
             clearable
             filterable
-          />
+          >
+            <template #option="{ item }">
+              <span>{{ item.partCode }}/{{ item.partName }}————{{ item.supplierName }}({{ item.supplierCode }})</span>
+            </template>
+          </fetch-select>
           <span v-else>{{ row.oldPartCode }}</span>
         </template>
       </vxe-column>
@@ -130,7 +138,7 @@
 <script>
 import { cloneDeep } from 'lodash';
 import { warrantyApplyPartPage, warrantyApplyPartDelete, warrantyApplyPartUpdate } from '@/api/claimreturn/claim/warrantyapply/warrantyApplyPart';
-import { getList } from '@/api/maintain/basic/repairItem';
+import { getList } from '@/api/sparepart/basic/sparePartSupplier/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 
 export default {
@@ -185,7 +193,13 @@ export default {
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {
-        this.tableData = (res.records || []);
+        this.tableData = (res.records || []).map(item => {
+          // 备件编码/备件名称————供应商(供应商编码)
+          return {
+            ...item,
+            partAndSupplierId: item.oldPartId + item.oldPartSupplierId,
+          };
+        });
         this.originTableData = cloneDeep(this.tableData);
         this.total = res.total;
       });
@@ -234,8 +248,7 @@ export default {
         isMainPart: row.isMainPart,
         remark: row.remark,
         oldPartId: row.oldPartId,
-        oldPartCode: row.oldPartCode,
-        oldPartName: row.oldPartName,
+        oldPartSupplierId: row.oldPartSupplierId,
       }).then(id => {
         this.$message.success('更新成功');
         this.getDetailPageApi();
@@ -260,18 +273,34 @@ export default {
       this.editRowIndex = 0;
     },
     // 搜索旧件
-    searchOldPart (query) {
+    partRemote (query) {
       return getList({
         pageNum: 1,
         pageSize: 20,
-        nameOrCodeOrPinyinLike: query,
+        partCodeOrNameLike: query,
+      }).then(res => {
+        const records = res.records?.map(item => {
+          return {
+            ...item,
+            partAndSupplierId: item.sparePartId + item.supplierInfoId,
+          };
+        });
+        return {
+          ...res,
+          records,
+        };
       });
     },
     // 旧件选择变更
     onOldPartChange (val, option, row) {
-      row.oldPartCode = option?.code;
-      row.oldPartName = option?.name;
-      row.oldPartId = option?.id;
+      row.oldPartCode = option?.partCode;
+      row.oldPartName = option?.partName;
+      row.oldPartId = option?.sparePartId;
+
+      row.oldPartSupplierCode = option?.supplierCode;
+      row.oldPartSupplierName = option?.supplierName;
+      row.oldPartSupplierId = option?.supplierInfoId;
+      row.partAndSupplierId = row.oldPartId + row.oldPartSupplierId;
     }
   },
 };

@@ -481,18 +481,21 @@
           <el-form :inline="true" ref="ruleForm5" label-width="150px" class="form-edit" v-show="isEditing || !_id">
             <el-form-item label="主因零件编码：" prop="mainPartId">
               <fetch-select
-                :remote-method="searchMainPart"
+                :remote-method="partRemote"
                 remote
-                v-model="form.mainPartId"
+                v-model="form.partAndSupplierId"
                 @change="onMainPartChange"
-                :params="form.mainPartCode"
                 placeholder="请输入零件编码/名称"
+                :params="form.mainPartCode"
                 labelKey="partCode"
-                valueKey="sparePartId"
-                subLabelKey="partName"
+                valueKey="partAndSupplierId"
                 clearable
                 filterable
-              />
+              >
+                <template #option="{ item }">
+                  <span>{{ item.partCode }}/{{ item.partName }}————{{ item.supplierName }}({{ item.supplierCode }})</span>
+                </template>
+              </fetch-select>
             </el-form-item>
             <el-form-item label="主因零件名称：" prop="mainPartName">
               <el-input placeholder="" v-model="form.mainPartName" clearable disabled />
@@ -591,6 +594,7 @@ import ActivityTable from './ActivityTable.vue';
 import ApprovalRecordTable from './ApprovalRecordTable.vue';
 import PartTable from './PartTable.vue';
 import WarrantyApplyFile from './WarrantyApplyFile.vue';
+// 旧件供应商
 import { getList } from '@/api/sparepart/basic/sparePartSupplier/index';
 
 const defaultForm = {
@@ -853,7 +857,12 @@ export default {
     detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id);
+        return getDetail(id).then(res => {
+          return {
+            ...res,
+            partAndSupplierId: res.mainPartId + res.mainPartSupplierId,
+          };
+        });
       }
     },
     submitRequest () {
@@ -920,13 +929,22 @@ export default {
       this.form.mainPartSupplierId = row.mainPartSupplierId;
     },
     // 搜索主因零件
-    searchMainPart (query) {
-      // TODO
+    partRemote (query) {
       return getList({
         pageNum: 1,
         pageSize: 20,
-        partCodeLike: query,
-        // partNameLike: query,
+        partCodeOrNameLike: query,
+      }).then(res => {
+        const records = res.records?.map(item => {
+          return {
+            ...item,
+            partAndSupplierId: item.sparePartId + item.supplierInfoId,
+          };
+        });
+        return {
+          ...res,
+          records,
+        };
       });
     },
     // 主因零件选择变更

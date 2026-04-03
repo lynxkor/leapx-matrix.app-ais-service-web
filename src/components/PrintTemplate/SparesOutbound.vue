@@ -1,27 +1,27 @@
 <template>
     <div id="printArea" class="el-card">
         <div class="el-card__header" style="text-align: center; margin: 20px 0;">
-            <h1 id="print_title">武汉零跑中心兴业路店厅店备件出库单</h1>
+            <h1 id="print_title">{{info.dealerName}}备件出库单</h1>
         </div>
         <div class="el-card__header" id="header_serviceproxy">
             <div class="el-row">
                 <div class="el-col-12">
                     <label>施工单：</label>
-                    <span id="info_serviceno">RE-251025142359070542</span>
+                    <span id="info_serviceno">{{info.code}}</span>
                 </div>
                 <div class="el-col-12">
-                    <label>车牌：</label>
+                    <label>车牌：{{info.plateNumber}}</label>
                     <span id="info_carplate"></span>
                 </div>
             </div>
             <div class="el-row">
                 <div class="el-col-12">
-                    <label>VIN码：</label>
+                    <label>VIN码：{{info.vin}}</label>
                     <span id="info_vin"> </span>
                 </div>
                 <div class="el-col-12">
                     <label>车主：</label>
-                    <span id="info_customername">成都捷讯美泉汽车销售服务有限公司</span>
+                    <span id="info_customername">{{info.customerName}}</span>
                 </div>
             </div>
         </div>
@@ -37,9 +37,9 @@
                 </thead>
                 <tbody id="data-main">
                     <tr>
-                        <td>RE-251025142359070542</td>
+                        <td> 待做 </td>
                         <td>零售出库</td>
-                        <td>武汉零跑中心兴业路店</td>
+                        <td>{{info.dealerName}}</td>
                         <td>--</td>
                         <td> </td>
                     </tr>
@@ -51,7 +51,7 @@
         </div>
         <div class="el-card__body" id="tablebodyid">
             <div class="el-card__header">
-                <h4>仓库名称：<span>零跑汽车武汉直营店</span></h4>
+                <h4>仓库名称：<span>{{info.warehouseName}}</span></h4>
             </div>
             <table>
                 <thead>
@@ -69,15 +69,15 @@
                 </thead>
                 <tbody>
                     <tr v-for="item in tableData" :key="item.id">
-                        <td>{{ item.partNo }}</td>
-                        <td>{{ item.partName }}</td>
-                        <td>{{ item.warehouseLocation }}</td>
-                        <td>{{ item.outboundNum }}</td>
-                        <td>{{ item.isOutbound }}</td>
-                        <td>{{ item.outboundPerson }}</td>
-                        <td>{{ item.outboundDate }}</td>
-                        <td>¥{{ item.salePrice }}</td>
-                        <td>--</td>
+                        <td>{{ item.sparePartCode }}</td>
+                        <td>{{ item.sparePartName }}</td>
+                        <td>{{ item.locationName }}</td>
+                        <td>{{ item.qty }}</td>
+                        <td>{{ item.outboundIsLabel }}</td>
+                        <td>{{ item.operationOperatorName }}</td>
+                        <td>{{ item.operationTime }}</td>
+                        <td>¥{{ item.unitPrice }}</td>
+                        <td>{{ item.remark }}</td>
                     </tr>
                 </tbody>
             </table>
