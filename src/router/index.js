@@ -1339,7 +1339,8 @@ const routes = [
         name: '备件返利账户',
         keepAlive: true
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/fund/accountRebate/edit',
       name: 'accountRebateEdit',
       component: () => import('@/views/sparepart/fund/accountRebate/edit.vue'),
@@ -1348,8 +1349,7 @@ const routes = [
         name: '备件返利账户详情',
         noResourceUrl: 'true'
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/sparepart/warehouse/inventory',
       name: 'inventory',
       component: () => import('@/views/sparepart/warehouse/inventory/index.vue'),
@@ -1358,7 +1358,8 @@ const routes = [
         name: '门店备件库存',
         keepAlive: true
       }
-    }, {
+    }, // 门店销毁
+    {
       path: '/sparepart/warehouse/inventory/edit',
       name: 'inventoryEdit',
       component: () => import('@/views/sparepart/warehouse/inventory/edit.vue'),
@@ -1367,8 +1368,7 @@ const routes = [
         name: '门店备件库存详情',
         noResourceUrl: 'true'
       }
-    }, // 门店销毁
-    {
+    }, {
       path: '/sparepart/basic/purchasePrice',
       name: 'purchasePrice',
       component: () => import('@/views/sparepart/basic/purchasePrice/index.vue'),
@@ -2666,8 +2666,7 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
-    },
-    {
+    }, {
       path: '/maintain/sp/companyInfo/',
       name: 'dealerHealthInfo',
       component: () => import('@/views/maintain/sp/companyInfo/index.vue'),
@@ -2675,8 +2674,25 @@ const routes = [
         name: '车辆健康档案',
         noResourceUrl: 'true'
       }
-    }
-    ]
+    }, {
+      path: '/maintain/basic/dataSyncRecord',
+      name: 'dataSyncRecord',
+      component: () => import('@/views/maintain/basic/dataSyncRecord/index.vue'),
+
+      meta: {
+        name: '数据同步记录表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/basic/datasyncrecord/edit',
+      name: 'dataSyncRecordEdit',
+      component: () => import('@/views/maintain/basic/dataSyncRecord/edit.vue'),
+
+      meta: {
+        name: '数据同步记录表管理详情',
+        noResourceUrl: 'true'
+      }
+    }]
   }
 ];
 
