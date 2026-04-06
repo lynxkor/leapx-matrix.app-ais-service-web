@@ -61,7 +61,7 @@
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
                 </el-form-item>
-                <el-form-item label="公司名称：" prop="companyCode">
+                <el-form-item label="公司名称：" prop="companyName">
                   {{ form.companyName }}
                 </el-form-item>
                 <el-form-item label="备件仓库：" prop="warehouseId">
@@ -277,8 +277,8 @@
                 >
                   <vxe-column field="sparePartCode" title="备件编码" min-width="11%" />
                   <vxe-column field="sparePartName" title="备件名称" min-width="11%" />
-                  <vxe-column field="locationCode" title="库位编码" min-width="11%" />
-                  <vxe-column field="availableQuantity" title="可用库存" min-width="11%" />
+                  <vxe-column field="locationName" title="库位编码" min-width="11%" />
+                  <vxe-column field="availableQty" title="可用库存" min-width="11%" />
                   <vxe-column field="salesUnitPrice" title="销售单价" min-width="11%" />
                   <vxe-column field="costUnitPrice" title="成本单价" min-width="11%" />
                   <vxe-column field="qty" title="数量" min-width="11%">
@@ -326,11 +326,10 @@
 
 <script>
 import { getDetail, addOrUpdate, orderDetailPage, orderDetailDelete, orderDetailAddOrUpdate } from '@/api/sparepart/outbound/dealerOutboundOrder/index';
-import { listDealerPart } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, listOrgStoreInfoByParam, getPartDealer, getLoginUser } from '@/api/common';
+import { getEnum, listOrgStoreInfoByParam, getPartDealer, getLoginUser, listDealerPartWithOem } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -533,7 +532,7 @@ export default {
     queryListData (queryString) {
       return new Promise(resolve => {
         // 根据需求调用接口
-        listDealerPart({ partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
+        listDealerPartWithOem({ partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
           const list = res || [];
           resolve(list);
         });

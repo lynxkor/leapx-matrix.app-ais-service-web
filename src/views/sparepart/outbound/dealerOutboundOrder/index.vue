@@ -139,7 +139,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, applyRequest, agreeRequest, rejectRequest, outbound, applyReturn, rejectReturn, inbound } from '@/api/sparepart/outbound/dealerOutboundOrder/index';
+import { getList, deleteItem, enableItem, applyRequest, agreeRequest, rejectRequest, outbound, applyReturn, rejectReturn, inbound, agreeReturn } from '@/api/sparepart/outbound/dealerOutboundOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -352,7 +352,7 @@ export default {
             }, {
               name: '出库',
               show: (row) => {
-                return row.orderStatus === '40' || row.outboundStatus === '0';
+                return row.orderStatus === '40' && row.outboundStatus === '0';
               },
               click: (rowIndex, row) => {
                 outbound({ id: row.id }).then(() => {
@@ -380,7 +380,7 @@ export default {
                   cancelButtonText: '取消',
                   inputValue: ''
                 }).then(({ value }) => {
-                  rejectReturn({ id: row.id, description: value }).then(() => {
+                  applyReturn({ id: row.id, description: value }).then(() => {
                     this.$message({
                       type: 'success',
                       message: '申请退料成功!'
@@ -406,7 +406,7 @@ export default {
                 return row.orderStatus === '50';
               },
               click: (rowIndex, row) => {
-                rejectReturn({ id: row.id }).then(() => {
+                agreeReturn({ id: row.id }).then(() => {
                   this.$message({
                     type: 'success',
                     message: '同意退料成功!'
@@ -431,7 +431,7 @@ export default {
                   cancelButtonText: '取消',
                   inputValue: ''
                 }).then(({ value }) => {
-                  applyReturn({ id: row.id, description: value }).then(() => {
+                  rejectReturn({ id: row.id, description: value }).then(() => {
                     this.$message({
                       type: 'success',
                       message: '驳回退料成功!'
@@ -454,7 +454,7 @@ export default {
             }, {
               name: '入库',
               show: (row) => {
-                return row.orderStatus === '70' || row.inboundStatus === '0';
+                return row.orderStatus === '70' && row.inboundStatus === '0';
               },
               click: (rowIndex, row) => {
                 inbound({ id: row.id }).then(() => {
