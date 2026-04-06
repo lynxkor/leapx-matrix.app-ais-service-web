@@ -372,7 +372,7 @@ export default {
             }, {
               name: '申请退料',
               show: (row) => {
-                return row.orderStatus === '40' || row.outboundStatus === '1';
+                return (row.orderStatus === '40' || row.outboundStatus === '60') && row.outboundStatus === '1';
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入申请退料原因', '申请退料', {
