@@ -189,7 +189,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, confirmOrder, cancelOrder, signOrder, cancelSignOrder, settleOrder, cancelSettleOrder, reverseSettleOrder, refundOrder } from '@/api/sparepart/sale/retailOrder/index';
+import { getListReturn, deleteItem, enableItem, confirmOrder, cancelOrder, signOrder, cancelSignOrder, settleOrder, cancelSettleOrder, reverseSettleOrder, refundOrder } from '@/api/sparepart/sale/retailOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -709,7 +709,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getListReturn({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {

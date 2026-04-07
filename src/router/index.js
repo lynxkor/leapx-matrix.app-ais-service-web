@@ -2631,6 +2631,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/claimreturn/claim/warrantysettle',
+      name: 'warrantysettle',
+      component: () => import('@/views/claimreturn/claim/warrantysettle/index.vue'),
+
+      meta: {
+        name: '保修结算通知书',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/warrantysettle/edit',
+      name: 'warrantysettleEdit',
+      component: () => import('@/views/claimreturn/claim/warrantysettle/edit.vue'),
+
+      meta: {
+        name: '保修结算通知书详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/sparepart/basic/predictDealerType',
       name: 'predictDealerType',
       component: () => import('@/views/sparepart/basic/predictDealerType/index.vue'),
