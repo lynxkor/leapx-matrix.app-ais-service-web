@@ -10,17 +10,16 @@
       class="ais-search-form"
     >
       <el-form-item label="申请单号">
-        <el-input
+        <TagInput
+          v-model="form.applyNoList"
           placeholder="请输入"
-          v-model="form.applyNo"
-          clearable
         />
       </el-form-item>
       <el-form-item label="申请状态">
         <fetch-select
           :request="fetchOptions"
           enumCode="vehicle_service_dealer_change_status"
-          v-model="form.applyStatus"
+          v-model="form.applyStatusList"
           placeholder="请选择"
           clearable
           multiple
@@ -31,7 +30,7 @@
         <el-form-item label="申请人">
           <el-input
             placeholder="请输入"
-            v-model="form.applierName"
+            v-model="form.applierNameLike"
             clearable
           />
         </el-form-item>
@@ -50,7 +49,7 @@
         <el-form-item label="一级审批人">
           <el-input
             placeholder="请输入"
-            v-model="form.firstApproverName"
+            v-model="form.firstApproverNameLike"
             clearable
           />
         </el-form-item>
@@ -69,7 +68,7 @@
         <el-form-item label="最终审批人">
           <el-input
             placeholder="请输入"
-            v-model="form.finalApproverName"
+            v-model="form.finalApproverNameLike"
             clearable
           />
         </el-form-item>
@@ -123,8 +122,6 @@
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -154,6 +151,18 @@
       @close="handleUploadDialogClose"
       @getData="getData"
     />
+    <!-- 一级审批驳回弹窗 -->
+    <FirstApproveRejectDialog
+      :visible.sync="firstApproveDialogVisible"
+      :id="currentApproveId"
+      @success="getData"
+    />
+    <!-- 最终审批驳回弹窗 -->
+    <FinalApproveRejectDialog
+      :visible.sync="finalApproveDialogVisible"
+      :id="currentApproveId"
+      @success="getData"
+    />
   </div>
 </template>
 
@@ -164,29 +173,35 @@ import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import {
   getList,
   deleteItem,
-  enableItem,
+  firstApprovePass,
+  finalApprovePass,
+  submit,
 } from '@/api/datacenter/vehicle/serviceDealerChangeApply/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import TagInput from '@/libs/components/TagInput';
+import FirstApproveRejectDialog from './FirstApproveRejectDialog/index.vue';
+import FinalApproveRejectDialog from './FinalApproveRejectDialog/index.vue';
+
+// 申请状态，10:草稿; 20:待一级审批; 30:待最终审批; 40:审批通过; 50:审批驳回; 100:导入中
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   createTime: '',
   updateTime: '',
-  applyNo: '',
-  applyStatus: '',
-  applierName: '',
+  applyNoList: [],
+  applyStatusList: [],
+  applierNameLike: '',
   applyTime: '',
-  firstApproverName: '',
+  firstApproverNameLike: '',
   firstApproveTime: '',
-  finalApproverName: '',
+  finalApproverNameLike: '',
   finalApproveTime: '',
 };
 
@@ -203,6 +218,9 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
+    TagInput,
+    FirstApproveRejectDialog,
+    FinalApproveRejectDialog,
   },
   data () {
     return {
@@ -219,6 +237,11 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      // 一级审批弹窗
+      firstApproveDialogVisible: false,
+      currentApproveId: '',
+      // 最终审批弹窗
+      finalApproveDialogVisible: false,
       //
       tableDataList: [],
       tableTotal: 0,
@@ -257,7 +280,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'status', label: '申请状态', visible: true, width: 200 },
+          { props: 'applyStatusLabel', label: '申请状态', visible: true, width: 200 },
           { props: 'applierName', label: '申请人', visible: true, width: 200 },
           { props: 'applyTime', label: '申请时间', visible: true, width: 200 },
           { props: 'applyReason', label: '申请原因', visible: true, width: 200 },
@@ -282,37 +305,70 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
-              name: '编辑',
+              name: '提交',
               click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/datacenter/vehicle/serviceDealerChangeApply/edit',
-                  query: {
-                    id: row.id,
-                    isEditing: true,
-                  }
-                });
+                this.handleSubmit(row);
               },
-              type: 'info'
+              type: 'info',
+              show: (row) => {
+                // 【申请状态】为草稿，审批驳回
+                if (row.applyStatus === '10' || row.applyStatus === '50') {
+                  return true;
+                }
+                return false;
+              },
             }, {
-              name: '删除',
-              popconfirmConfirmButtonType: 'danger',
-              popconfirmConfirmButtonText: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
+              name: '一级审批通过',
               click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
+                this.handleFirstApprovePass(row);
               },
-              type: 'danger'
+              type: 'success',
+              show: (row) => {
+                // 【申请状态】为待一级审批
+                if (row.applyStatus === '20') {
+                  return true;
+                }
+                return false;
+              },
+            }, {
+              name: '一级审批驳回',
+              click: (rowIndex, row) => {
+                this.handleFirstApproveReject(row);
+              },
+              type: 'danger',
+              show: (row) => {
+                // 【申请状态】为待一级审批
+                if (row.applyStatus === '20') {
+                  return true;
+                }
+                return false;
+              },
+            }, {
+              name: '最终审批通过',
+              click: (rowIndex, row) => {
+                this.handleFinalApprovePass(row);
+              },
+              type: 'success',
+              show: (row) => {
+                // 【申请状态】为待最终审批
+                if (row.applyStatus === '30') {
+                  return true;
+                }
+                return false;
+              },
+            }, {
+              name: '最终审批驳回',
+              click: (rowIndex, row) => {
+                this.handleFinalApproveReject(row);
+              },
+              type: 'danger',
+              show: (row) => {
+                // 【申请状态】为待最终审批
+                if (row.applyStatus === '30') {
+                  return true;
+                }
+                return false;
+              },
             }]
           }
         ],
@@ -358,39 +414,6 @@ export default {
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
       this.getData();
-    },
-    exportExcel () {
-      this.exportLoading = true;
-      const reqParams = this.getFormData() || {};
-      if (this.selectionList.length > 0) {
-        const ids = this.selectionList.map(item => item.id) || [];
-        reqParams.ids = ids;
-      }
-      exportTable({
-        businessType: '专属服务门店变更车辆明细表管理',
-        dataFetchPath: 'datacenter/web/vehicle/serviceDealerChangeApply/page',
-        reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
-        httpMethod: 'POST'
-      }).then(async res => {
-        if (res && res.excelUrl) {
-          try {
-            await downloadExcel(res.excelUrl, '专属服务门店变更车辆明细表管理.xlsx');
-          } catch (error) {
-            this.$message({
-              type: 'error',
-              message: '文件导出失败'
-            });
-          }
-        } else {
-          this.$message({
-            type: 'info',
-            message: '请前往导出列表中查询导出结果'
-          });
-        }
-      }).finally(() => {
-        this.exportLoading = false;
-      });
     },
     getData () {
       this.loading = true;
@@ -520,36 +543,42 @@ export default {
         });
       }).catch(() => {});
     },
-    // 批量启用停用
-    handleBatchEnable (status) {
-      handleBatchStatusChange.call(this, {
-        selectionList: this.selectionList,
-        targetStatus: status,
-        apiFunc: enableItem,
-        refreshFunc: this.getData
+    // 提交
+    handleSubmit (row) {
+      submit({ id: row.id }).then(() => {
+        this.$message.success('提交成功');
+        this.getData();
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
+    },
+    // 一级审批通过
+    handleFirstApprovePass (row) {
+      // this.$confirm('确认通过一级审批？', '提示', {
       //   confirmButtonText: '确定',
       //   cancelButtonText: '取消',
       //   type: 'warning'
       // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
+      // }).catch(() => {});
+      firstApprovePass({ id: row.id }).then(() => {
+        this.$message.success('操作成功');
+        this.getData();
+      });
+    },
+    // 一级审批驳回
+    handleFirstApproveReject (row) {
+      this.currentApproveId = row.id;
+      this.firstApproveDialogVisible = true;
+    },
+    // 最终审批通过
+    handleFinalApprovePass (row) {
+      finalApprovePass({ id: row.id }).then(() => {
+        this.$message.success('操作成功');
+        this.getData();
+      });
+    },
+    // 最终审批驳回
+    handleFinalApproveReject (row) {
+      this.currentApproveId = row.id;
+      this.finalApproveDialogVisible = true;
     },
   }
 };

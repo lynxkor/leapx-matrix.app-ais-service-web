@@ -760,6 +760,15 @@ export default {
       return [];
     },
     vinSearch (query) {
+      // [
+      //   { "家用": "1" },
+      //   { "营运": "2" },
+      //   { "B级车": "4" },
+      //   { "J级车": "10" },
+      //   { "J1级车": "20" },
+      //   { "专车": "30" },
+      //   { "报废灭失": "60" }
+      // ]
       return vehicleListFull({
         searchVin: query,
         pageSize: 20,

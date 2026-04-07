@@ -156,31 +156,31 @@
               <div class="common-section-table">
                 <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
                   min-height="0" max-height="400px">
-                  <vxe-column field="partCode" title="备件编码" min-width="10%" />
-                  <vxe-column field="partName" title="备件名称" min-width="10%" />
-                  <vxe-column field="locationCode" title="库位" min-width="10%" />
+                  <vxe-column field="sparePartCode" title="备件编码" min-width="10%" />
+                  <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
+                  <vxe-column field="locationName" title="库位" min-width="10%" />
                   <vxe-column field="availableQuantity" title="可用库存" min-width="10%" />
                   <vxe-column field="purchasePriceTax" title="采购价格(含税)" min-width="10%" />
                   <vxe-column field="purchasePriceNotax" title="采购价格(不含税)" min-width="10%" />
                   <vxe-column field="costUnitPriceTax" title="金额(含税)" min-width="10%" />
                   <vxe-column field="inboundQty" title="调拨数量" min-width="10%">
-                    <template #default="{ row }">
+                    <!-- <template #default="{ row }">
                       <el-input v-model="row.transferQty" type="number" min="1" @blur="handleBlur(row)"/>
-                    </template>
+                    </template> -->
                   </vxe-column>
                   <vxe-column field="inboundQty" title="备注" min-width="10%">
-                    <template #default="{ row }">
+                    <!-- <template #default="{ row }">
                       <el-input v-model="row.remark" @blur="handleBlur(row)"/>
-                    </template>
+                    </template> -->
                   </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="10%" />
-                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
+                  <!-- <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
                     <template #default="{ rowIndex }">
                       <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
-                  </vxe-column>
+                  </vxe-column> -->
                   <template #empty>
                     <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
                   </template>
@@ -309,6 +309,7 @@ export default {
       handler (val) {
         if (val) {
           this.getLogisticsInfo();
+          this.getData();
         }
       }
     }
