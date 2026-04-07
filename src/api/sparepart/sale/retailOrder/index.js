@@ -35,6 +35,14 @@ export function getVin (data) {
 }
 
 /**
+ * getVin
+ * @param {Object} data
+ */
+export function getMileage (data) {
+  return api.jsonPost(prefix + 'getMileage', data);
+}
+
+/**
  * 删除
  * @param {Array<Number>} data
  */

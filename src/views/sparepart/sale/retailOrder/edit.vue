@@ -441,7 +441,7 @@
 </template>
 
 <script>
-import { getVin, getDetail, addOrUpdate, retailPaymentRecordPage, retailOrderDetailPage, addOrUpdateRetailOrderDetail, deleteRetailOrderDetail } from '@/api/sparepart/sale/retailOrder/index';
+import { getMileage, getVin, getDetail, addOrUpdate, retailPaymentRecordPage, retailOrderDetailPage, addOrUpdateRetailOrderDetail, deleteRetailOrderDetail } from '@/api/sparepart/sale/retailOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -623,9 +623,15 @@ export default {
       this.form.plateNumber = ele.plateNumber;
       this.form.vehicleModelId = ele.vehicleModelId;
       this.form.vehicleModelName = ele.vehicleModelName;
-      this.form.iotMileage = ele.iotMileage;
       this.form.saleDate = ele.saleDate;
-      this.form.latestVisitMileage = ele.latestVisitMileage;
+
+      try {
+        const res = getMileage({ vin: val });
+        this.form.latestVisitMileage = res.latestVisitMileage;
+        this.form.iotMileage = res.iotMileage;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     },
     async getVinList (query) {
       try {
