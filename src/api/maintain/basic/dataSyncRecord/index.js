@@ -1,8 +1,7 @@
 import api from '@/axios';
-import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
-const prefix = SPARE_PREFIX + '/web/dealer/sharedInventory/';
+const prefix = 'maintain/web/basic/dataSyncRecord/';
 
 /**
  * 查询列表
@@ -42,4 +41,12 @@ export function getDetail (data) {
  */
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
+}
+
+/**
+ * 初始化
+ * @param {Object} data
+ */
+export function initDataSyncRecord (data) {
+  return api.jsonPost(prefix + 'init', data);
 }

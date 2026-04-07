@@ -1330,7 +1330,8 @@ const routes = [
         name: '备件现金账户详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/fund/accountRebate',
       name: 'accountRebate',
       component: () => import('@/views/sparepart/fund/accountRebate/index.vue'),
@@ -1348,7 +1349,7 @@ const routes = [
         name: '备件返利账户详情',
         noResourceUrl: 'true'
       }
-    }, // 主机厂
+    }, // 门店销毁
     {
       path: '/sparepart/warehouse/inventory',
       name: 'inventory',
@@ -1367,8 +1368,7 @@ const routes = [
         name: '门店备件库存详情',
         noResourceUrl: 'true'
       }
-    }, // 门店销毁
-    {
+    }, {
       path: '/sparepart/basic/purchasePrice',
       name: 'purchasePrice',
       component: () => import('@/views/sparepart/basic/purchasePrice/index.vue'),
@@ -2101,21 +2101,21 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/warehouse/sharedinventory/edit',
-      name: 'sharedInventoryEdit',
-      component: () => import('@/views/sparepart/warehouse/sharedInventory/edit.vue'),
-
-      meta: {
-        name: '共享呆滞件库存详情',
-        noResourceUrl: 'true'
-      }
-    }, {
       path: '/sparepart/transfer/transferOutbound',
       name: 'transferOutbound',
       component: () => import('@/views/sparepart/transfer/transferOutbound/index.vue'),
 
       meta: {
         name: '备件调拨出库',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/transfer/transferOutboundCancel',
+      name: 'transferOutbound',
+      component: () => import('@/views/sparepart/transfer/transferOutboundCancel/index.vue'),
+
+      meta: {
+        name: '门店备件调拨撤销申请',
         keepAlive: true
       }
     }, {
@@ -2206,6 +2206,24 @@ const routes = [
 
       meta: {
         name: '备附件销售',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/sale/retailOrderOut',
+      name: 'retailOrder',
+      component: () => import('@/views/sparepart/sale/retailOrderOut/index.vue'),
+
+      meta: {
+        name: '备附件销售出库',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/sale/retailOrderReturn',
+      name: 'retailOrder',
+      component: () => import('@/views/sparepart/sale/retailOrderReturn/index.vue'),
+
+      meta: {
+        name: '备附件退料入库',
         keepAlive: true
       }
     }, {
@@ -2613,6 +2631,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/claimreturn/claim/warrantysettle',
+      name: 'warrantysettle',
+      component: () => import('@/views/claimreturn/claim/warrantysettle/index.vue'),
+
+      meta: {
+        name: '保修结算通知书',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/warrantysettle/edit',
+      name: 'warrantysettleEdit',
+      component: () => import('@/views/claimreturn/claim/warrantysettle/edit.vue'),
+
+      meta: {
+        name: '保修结算通知书详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/sparepart/basic/predictDealerType',
       name: 'predictDealerType',
       component: () => import('@/views/sparepart/basic/predictDealerType/index.vue'),
@@ -2648,8 +2684,7 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
-    },
-    {
+    }, {
       path: '/maintain/sp/companyInfo/',
       name: 'dealerHealthInfo',
       component: () => import('@/views/maintain/sp/companyInfo/index.vue'),
@@ -2657,8 +2692,43 @@ const routes = [
         name: '车辆健康档案',
         noResourceUrl: 'true'
       }
-    }
-    ]
+    }, {
+      path: '/maintain/basic/dataSyncRecord',
+      name: 'dataSyncRecord',
+      component: () => import('@/views/maintain/basic/dataSyncRecord/index.vue'),
+
+      meta: {
+        name: '数据同步记录表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/basic/datasyncrecord/edit',
+      name: 'dataSyncRecordEdit',
+      component: () => import('@/views/maintain/basic/dataSyncRecord/edit.vue'),
+
+      meta: {
+        name: '数据同步记录表管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/datacenter/vehicle/serviceDealerChangeApply',
+      name: 'serviceDealerChangeApply',
+      component: () => import('@/views/datacenter/vehicle/serviceDealerChangeApply/index.vue'),
+
+      meta: {
+        name: '专属服务门店变更',
+        keepAlive: true
+      }
+    }, {
+      path: '/datacenter/vehicle/serviceDealerChangeApply/edit',
+      name: 'serviceDealerChangeApplyEdit',
+      component: () => import('@/views/datacenter/vehicle/serviceDealerChangeApply/edit.vue'),
+
+      meta: {
+        name: '专属服务门店变更',
+        noResourceUrl: 'true'
+      }
+    }]
   }
 ];
 

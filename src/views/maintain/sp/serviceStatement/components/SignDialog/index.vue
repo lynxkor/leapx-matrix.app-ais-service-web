@@ -70,6 +70,14 @@ export default {
       type: Object,
       default: () => {},
     },
+    formData: {
+      type: Object,
+      default: () => {},
+    },
+     data: {
+      type: Object,
+      default: () => {},
+    },
   },
   data () {
     return {
@@ -122,7 +130,8 @@ export default {
         if (valid) {
           this.submitLoading = true;
           const params = {
-            id: this.info.id
+            ...this.formData,
+             ...this.data,
           };
           if (this.form.signChannel === '40') {
             params.signChannel = '40';

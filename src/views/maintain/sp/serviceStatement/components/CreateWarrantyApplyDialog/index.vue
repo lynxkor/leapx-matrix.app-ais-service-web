@@ -368,11 +368,18 @@ export default {
 
 <style lang="scss" scoped>
 .m-create-warranty-apply-dialog {
+  ::v-deep .el-dialog{
+    margin-top: 80px !important;
+    height: calc(100% - 160px) !important;
+    display: flex;
+    flex-direction: column;
+  }
   ::v-deep .el-dialog__body {
-    padding: 20px;
-    max-height: 60vh;
-    min-height: 300px;
-    overflow-y: auto;
+    flex: 1;
+    max-height: none;
+    .container {
+      height: 100%;
+    }
   }
 
   .dialog-content {
