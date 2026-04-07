@@ -37,10 +37,10 @@
                 </thead>
                 <tbody id="data-main">
                     <tr>
-                        <td>{{info.dealerOutboundOrderCode}}</td>
+                        <td>{{info.code}}</td>
                         <td>内部领料出库</td>
                         <td>{{info.dealerName}}</td>
-                        <td>零跑汽车武汉零跑汽车直营店</td>
+                        <td></td>
                         <td> </td>
                     </tr>
                 </tbody>
@@ -51,7 +51,7 @@
         </div>
         <div class="el-card__body" id="tablebodyid">
             <div class="el-card__header">
-                <h4>仓库名称：<span>{{info.dealerName}}</span></h4>
+                <h4>仓库名称：<span>{{info.warehouseName}}</span></h4>
             </div>
             <table>
                 <thead>
@@ -73,10 +73,10 @@
                         <td>{{item.sparePartCode}}</td>
                         <td>{{item.sparePartName}}</td>
                         <td>{{item.locationName}}</td>
-                        <td>{{item.outboundQty}}</td>
-                        <td>{{item.outboundIsLabel}}</td>
-                        <td>{{item.pickerName}}</td>
-                        <td>{{item.pickTime}}</td>
+                        <td>{{item.qty}}</td>
+                        <td>{{info.outboundStatusLabel}}</td>
+                        <td>{{info.outboundOperatorName}}</td>
+                        <td>{{info.outboundTime}}</td>
                         <td>¥{{item.salesUnitPrice}}</td>
                         <td>{{ item.costUnitPrice }}</td>
                         <td>{{ item.remark || '--' }}</td>

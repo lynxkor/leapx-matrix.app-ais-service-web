@@ -14,6 +14,10 @@ export function getList (data) {
   return api.jsonPost(prefix + 'page', data);
 };
 
+export function getListReturn (data) {
+  return api.jsonPost(prefix + 'returnPage', data);
+};
+
 /**
  * 新增或修改
  * @param {Object} data

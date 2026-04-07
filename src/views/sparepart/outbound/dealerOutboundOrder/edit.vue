@@ -61,7 +61,7 @@
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
                 </el-form-item>
-                <el-form-item label="公司名称：" prop="companyCode">
+                <el-form-item label="公司名称：" prop="companyName">
                   {{ form.companyName }}
                 </el-form-item>
                 <el-form-item label="备件仓库：" prop="warehouseId">
@@ -259,8 +259,10 @@
                     value-key="partCode"
                     label-key="partName"
                     @change="handleAddTableData"
+                    :disabled="!orderStatusType"
                   />
                   <el-button type="primary" size="small">添加</el-button>
+                  <el-button size="small" @click="handleImport" :disabled="!orderStatusType">导入备件清单</el-button>
                 </div>
               </div>
               <div class="common-section-table">
@@ -277,19 +279,19 @@
                 >
                   <vxe-column field="sparePartCode" title="备件编码" min-width="11%" />
                   <vxe-column field="sparePartName" title="备件名称" min-width="11%" />
-                  <vxe-column field="locationCode" title="库位编码" min-width="11%" />
-                  <vxe-column field="availableQuantity" title="可用库存" min-width="11%" />
+                  <vxe-column field="locationName" title="库位编码" min-width="11%" />
+                  <vxe-column field="availableQty" title="可用库存" min-width="11%" />
                   <vxe-column field="salesUnitPrice" title="销售单价" min-width="11%" />
                   <vxe-column field="costUnitPrice" title="成本单价" min-width="11%" />
                   <vxe-column field="qty" title="数量" min-width="11%">
                     <template #default="{ row }">
-                      <el-input v-model="row.qty" type="number" min="1" @blur="handleBlur(row)"/>
+                      <el-input v-model="row.qty" type="number" :disabled="!(isEditing || !_id)" min="1" @blur="handleBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="11%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
+                  <vxe-column title="操作" width="100" v-if="canDelete && isEditing || !_id">
                     <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
+                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
@@ -321,20 +323,27 @@
         <!-- 右侧栏组件，自行开发 -->
       </div>
     </template>
+    <Upload
+      :visible="uploadDialogVisible"
+      :businessParams="_id"
+      id="sparepartDealerOutboundOrderDetail"
+      @close="handleUploadDialogClose"
+      @submit="getDetailData"
+    />
   </edit-page-layout>
 </template>
 
 <script>
 import { getDetail, addOrUpdate, orderDetailPage, orderDetailDelete, orderDetailAddOrUpdate } from '@/api/sparepart/outbound/dealerOutboundOrder/index';
-import { listDealerPart } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, listOrgStoreInfoByParam, getPartDealer, getLoginUser } from '@/api/common';
+import { getEnum, listOrgStoreInfoByParam, getPartDealer, getLoginUser, listDealerPartWithOem } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import Upload from '@/libs/components/UploadDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -400,7 +409,8 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect
+    FetchSelect,
+    Upload
   },
   computed: {
     _id () {
@@ -434,6 +444,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      uploadDialogVisible: false,
       pageTitle: '内部领料申请',
       pageType: 'edit',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
@@ -463,6 +474,13 @@ export default {
     this.getLoginUser();
   },
   methods: {
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
+      this.getData();
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -533,7 +551,7 @@ export default {
     queryListData (queryString) {
       return new Promise(resolve => {
         // 根据需求调用接口
-        listDealerPart({ partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
+        listDealerPartWithOem({ partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
           const list = res || [];
           resolve(list);
         });
@@ -561,6 +579,7 @@ export default {
     // 修改备件清单
     handleBlur (val) {
       const params = {
+        id: val.id,
         dealerOutboundOrderId: this._id,
         dealerOutboundOrderCode: this.form.code,
         sparePartId: val.id,

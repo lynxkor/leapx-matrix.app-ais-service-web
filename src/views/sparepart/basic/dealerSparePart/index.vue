@@ -115,7 +115,8 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="'1'"
+      :id="'dealerSparePart'"
+      :businessParams="currentDealerCode"
       @close="handleUploadDialogClose"
       @getData="getData"
     />
@@ -127,7 +128,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getDealerList, deleteItem, enableItem } from '@/api/sparepart/basic/sparePart/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getLoginUser } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -243,8 +244,16 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    this.initDealerUser();
   },
   methods: {
+    async initDealerUser () {
+      // 查询是否店端 true为门店  false为厂端
+      const res = await getLoginUser();
+      this.accountFlag = res.accountFlag;
+      this.currentDealerCode = res.currentDealerCode;// 当前门店code
+      this.currentDealerName = res.currentDealerName;// 当前门店名称
+    },
     // 排序
     handleSortChange (value) {
       this.sortColumns = (value || []).map(item => {

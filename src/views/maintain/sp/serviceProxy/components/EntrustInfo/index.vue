@@ -402,7 +402,7 @@
               <span>{{ row.alertModule === 1 ? '是' : '否' }}</span>
             </template>
           </vxe-column>
-          <vxe-column field="currentSituationText" title="本次进店情况(周期内)" min-width="150"/>
+          <vxe-column field="currentSituationLabel" title="本次进店情况(周期内)" min-width="150"/>
           <vxe-column field="faultAlert" title="故障提醒内容" min-width="150"/>
           <vxe-column title="操作" width="150" align="center" fixed="right" :resizable="false">
             <template #default="{ row }">
@@ -653,13 +653,13 @@ export default {
         this.form.faultAlertRecordRespList.push(record);
         // 强制触发响应式更新
         this.$set(this.form, 'faultAlertRecordRespList', [...this.form.faultAlertRecordRespList]);
-        // 通知父组件数据变化
-        // this.$emit('change', this.form);
         updateSpFaultAlertRecord({ serviceProxyId: this._id, ...record }).then(res => {
           this.$message({
             message: '保存成功',
             type: 'success'
           });
+          // 通知父组件刷新数据
+          this.$emit('refresh');
           if (res) {
             const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>故障模块消息提醒</div><div class="ais-leave-tips-sub">${res}</div>`;
             this.$confirm(message, '', {
@@ -682,9 +682,9 @@ export default {
       }
     },
     handleDeleteFault (row) {
-      // 根据 vrtId 查找并删除记录
+      // 根据主键id查找并删除记录
       const index = this.form.faultAlertRecordRespList.findIndex(
-        item => item.vrtId === row.vrtId
+        item => item.id === row.id
       );
 
       if (index > -1) {
@@ -696,6 +696,8 @@ export default {
             message: '保存成功',
             type: 'success'
           });
+          // 通知父组件刷新数据
+          this.$emit('refresh');
         });
       }
     },

@@ -3,6 +3,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/dealer/dealerOutboundOrder/';
+const prefixDetail = SPARE_PREFIX + '/web/dealer/dealerOutboundOrderDetail/';
 
 /**
  * 查询列表
@@ -91,6 +92,9 @@ export function applyReturn (data) {
 export function rejectReturn (data) {
   return api.jsonPost(prefix + 'rejectReturn', data);
 }
+export function agreeReturn (data) {
+  return api.jsonPost(prefix + 'agreeReturn', data);
+}
 
 /**
  * 入库
@@ -105,7 +109,7 @@ export function inbound (data) {
  * @param {Object} data
  */
 export function orderDetailPage (data) {
-  return api.jsonPost('/sp/web/dealer/dealerOutboundOrderDetail/page', data);
+  return api.jsonPost(prefixDetail + 'page', data);
 }
 
 /**
@@ -113,7 +117,7 @@ export function orderDetailPage (data) {
  * @param {Object} data
  */
 export function orderDetailDelete (data) {
-  return api.jsonPost('/sp/web/dealer/dealerOutboundOrderDetail/delete', data);
+  return api.jsonPost(prefixDetail + 'delete', data);
 }
 
 /**
@@ -121,5 +125,5 @@ export function orderDetailDelete (data) {
  * @param {Object} data
  */
 export function orderDetailAddOrUpdate (data) {
-  return api.jsonPost('/sp/web/dealer/dealerOutboundOrderDetail/addOrUpdate', data);
+  return api.jsonPost(prefixDetail + 'addOrUpdate', data);
 }
