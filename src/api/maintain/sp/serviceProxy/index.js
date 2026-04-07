@@ -375,3 +375,11 @@ export function addVehRetentionList (data) {
 export function getActivityInfo (data) {
   return api.jsonPost(prefix + 'getActivityInfo', data);
 }
+
+/**
+ * 更新故障模块
+ * @param {Object} data - vin
+ */
+export function addFaultRecord (data) {
+  return api.jsonPost('maintain/web/sp/spFaultAlertRecord/addFaultRecord', data);
+}

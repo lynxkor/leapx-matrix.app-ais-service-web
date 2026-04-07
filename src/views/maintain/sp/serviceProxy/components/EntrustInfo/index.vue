@@ -235,7 +235,7 @@
           />
         </el-form-item>
         <el-form-item label="本次进店是否存在故障：" prop="currentFault">
-          <el-switch :active-value="1" :inactive-value="0" v-model="form.currentFault" :disabled="currentFaultDisabled" />
+          <el-switch :active-value="1" :inactive-value="0" v-model="form.currentFault" :disabled="currentFaultDisabled" @change="handleCurrentFaultChange" />
         </el-form-item>
         <el-form-item label="客户故障描述：" prop="customerContent" class="form-item-half">
           <el-input
@@ -431,7 +431,7 @@
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
 import BaseSearch from '@/libs/components/BaseSearch';
-import { getEnum, getCCCList, updateSpFaultAlertRecord, deleteSpFaultAlertRecord } from '@/api/maintain/sp/serviceProxy/index';
+import { getEnum, getCCCList, updateSpFaultAlertRecord, deleteSpFaultAlertRecord, addFaultRecord } from '@/api/maintain/sp/serviceProxy/index';
 import { RepairOrderStatusEnum } from '../../constant';
 
 export default {
@@ -476,6 +476,10 @@ export default {
           // 确保 faultAlertRecordRespList 存在
           if (!this.form.faultAlertRecordRespList) {
             this.$set(this.form, 'faultAlertRecordRespList', []);
+          }
+          // 记录初始 currentFault 值
+          if (this.form._prevCurrentFault === undefined) {
+            this.form._prevCurrentFault = val.currentFault;
           }
         }
       },
@@ -597,6 +601,41 @@ export default {
     },
     clearValidate () {
       this.$refs.ruleForm.clearValidate();
+    },
+    handleCurrentFaultChange (val) {
+      if (val === 0 && this._id) {
+        const oldVal = this.form._prevCurrentFault;
+        // 记录当前值，供下次对比
+        this.form._prevCurrentFault = val;
+        // 从是变到否时弹确认
+        if (oldVal === 1) {
+          const message = '<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>提醒</div><div class="ais-leave-tips-sub">若本次无故障，将自动清空【故障模块】信息，请确认是否操作！</div>';
+          this.$confirm(message, '', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            dangerouslyUseHTMLString: true,
+            customClass: 'ais-leave-tips',
+            showClose: false
+          }).then(() => {
+            addFaultRecord({
+              id: this._id,
+              currentFault: 0,
+              customerContent: null
+            }).then(() => {
+              this.$message.success('本次故障信息清除成功');
+              this.$emit('refresh', false);
+              this.$emit('update:isEditing', false);
+            });
+          }).catch(() => {
+            // 取消则恢复为是
+            this.$set(this.form, 'currentFault', 1);
+            this.form._prevCurrentFault = 1;
+          });
+          return;
+        }
+      }
+      // 记录当前值
+      this.form._prevCurrentFault = val;
     },
     handleAlertModuleChange (val, record) {
       // 确保 faultAlertRecordRespList 存在
