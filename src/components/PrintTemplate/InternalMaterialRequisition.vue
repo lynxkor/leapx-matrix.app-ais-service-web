@@ -75,8 +75,8 @@
                         <td>{{item.locationName}}</td>
                         <td>{{item.qty}}</td>
                         <td>{{info.outboundStatusLabel}}</td>
-                        <td>{{item.pickerName}}</td>
-                        <td>{{item.pickTime}}</td>
+                        <td>{{info.outboundOperatorName}}</td>
+                        <td>{{info.outboundTime}}</td>
                         <td>¥{{item.salesUnitPrice}}</td>
                         <td>{{ item.costUnitPrice }}</td>
                         <td>{{ item.remark || '--' }}</td>

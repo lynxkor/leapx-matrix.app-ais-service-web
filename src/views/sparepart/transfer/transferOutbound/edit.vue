@@ -301,7 +301,7 @@
                     value-key="id" label-key="name" subLabelKey="code" :disabled="!orderStatusType"
                     @change="handleAddTableData" />
                   <el-button type="primary" size="small">添加</el-button>
-                  <el-button size="small" @click="handleImport">导入备件</el-button>
+                  <el-button size="small" @click="handleImport" :disabled="!orderStatusType">导入备件清单</el-button>
                 </div>
               </div>
               <div class="common-section-table">
@@ -367,6 +367,13 @@
       <div class="page-common-edit">
       </div>
     </template>
+    <Upload
+      :visible="uploadDialogVisible"
+      :businessParams="_id"
+      id="sparepartTransferOutboundDetail"
+      @close="handleUploadDialogClose"
+      @submit="getDetailData"
+    />
   </edit-page-layout>
 </template>
 
@@ -380,6 +387,7 @@ import { getSparePart } from '@/api/sparepart/basic/sparePart/index';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import Upload from '@/libs/components/UploadDialog';
 
 const defaultForm = {
   code: '',
@@ -426,7 +434,8 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect
+    FetchSelect,
+    Upload
   },
   computed: {
     _id () {
@@ -460,6 +469,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      uploadDialogVisible: false,
       pageTitle: '备件调拨出库',
       pageType: 'edit',
       moduleKey: 'AISPART-transferOutbound',
@@ -636,7 +646,13 @@ export default {
       this.getData();
     },
     // 导入备件清单
-    handleImport () {}
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
+      this.getData();
+    },
   }
 };
 </script>
