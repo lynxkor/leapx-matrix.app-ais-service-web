@@ -85,6 +85,96 @@
               </el-form>
             </div>
           </section>
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>调拨明细</h2>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-table">
+                <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
+                  min-height="0" max-height="400px">
+                  <vxe-column field="sparePartCode" title="备件编码" min-width="10%" />
+                  <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
+                  <vxe-column field="locationName" title="库位" min-width="10%" />
+                  <vxe-column field="availableQuantity" title="可用库存" min-width="10%" />
+                  <vxe-column field="purchasePriceTax" title="采购价格(含税)" min-width="10%" />
+                  <vxe-column field="purchasePriceNotax" title="采购价格(不含税)" min-width="10%" />
+                  <vxe-column field="costUnitPriceTax" title="金额(含税)" min-width="10%" />
+                  <vxe-column field="inboundQty" title="调拨数量" min-width="10%">
+                    <!-- <template #default="{ row }">
+                      <el-input v-model="row.transferQty" type="number" min="1" @blur="handleBlur(row)"/>
+                    </template> -->
+                  </vxe-column>
+                  <vxe-column field="inboundQty" title="备注" min-width="10%">
+                    <!-- <template #default="{ row }">
+                      <el-input v-model="row.remark" @blur="handleBlur(row)"/>
+                    </template> -->
+                  </vxe-column>
+                  <vxe-column field="createTime" title="创建时间" min-width="10%" />
+                  <!-- <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
+                    <template #default="{ rowIndex }">
+                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
+                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
+                      </el-popconfirm>
+                    </template>
+                  </vxe-column> -->
+                  <template #empty>
+                    <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
+                  </template>
+                </vxe-table>
+                <div class="table-pagination">
+                  <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="pageNum"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total"
+                  >
+                  </el-pagination>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>物流详情</h2>
+            </div>
+            <div class="common-section-body">
+              <div v-if="loadingLogistics" class="loading">
+                <el-loading-spinner></el-loading-spinner>
+                正在加载物流信息...
+              </div>
+              <div v-else-if="!logisticsData" class="no-data">
+                暂无物流信息
+              </div>
+              <div v-else class="logistics-container">
+                <!-- 运单号和预计送达时间 -->
+                <div class="logistics-header">
+                  <span class="label">运单号：</span>
+                  <span class="value">{{ logisticsData.waybillCode }}</span>
+                  <span class="label">预计送达日期：</span>
+                  <span class="value">{{ logisticsData.promiseAgingDate }}</span>
+                </div>
+
+                <!-- 物流节点 -->
+                <el-timeline>
+                  <el-timeline-item
+                    v-for="(item, index) in logisticsData.traceDetails"
+                    :key="index"
+                    :timestamp="item.time"
+                    :color="'#007fff'"
+                    :type="'info'"
+                  >
+                    <div class="timeline-content">
+                      <strong>{{ item.context }}</strong>
+                    </div>
+                  </el-timeline-item>
+                </el-timeline>
+              </div>
+            </div>
+          </section>
         </el-main>
       </edit-base-container>
     </template>
@@ -97,10 +187,10 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/transfer/sharedTransferInbound/index';
+import { getDetail, addOrUpdate, sharedTransferInboundDetailPage } from '@/api/sparepart/transfer/sharedTransferInbound/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
+import { getEnum, getLogistics } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -166,6 +256,14 @@ export default {
         }
       },
       immediate: true
+    },
+    'form.code': {
+      handler (val) {
+        if (val) {
+          this.getLogisticsInfo();
+          this.getData();
+        }
+      }
     }
   },
   data () {
@@ -180,6 +278,9 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
+      pageNum: 1,
+      pageSize: 10,
+      total: 0,
       emptyText: '若要启用此内容，请创建记录',
       tableData: [
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
@@ -273,6 +374,42 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    // 获取调拨明细
+    async getData () {
+      const params = {
+        sharedTransferInboundId: this._id,
+        pageNum: this.pageNum,
+        pageSize: this.pageSize,
+      };
+      const res = await sharedTransferInboundDetailPage(params);
+      this.total = res.total || 0;
+      this.tableData = res.records || [];
+    },
+    handleCurrentChange (pageNum) {
+      this.pageNum = pageNum;
+      this.getData();
+    },
+    handleSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.pageNum = 1;
+      this.getData();
+    },
+    // 物流信息接口
+    async getLogisticsInfo () {
+      this.loadingLogistics = true;
+      const params = {
+        waybillCode: this.form.logisticsOrderNo,
+        logisticsType: this.form.logisticsProvider,
+      };
+      try {
+        const res = await getLogistics(params);
+        this.logisticsData = res;
+      } catch (error) {
+        console.error('获取物流信息失败:', error);
+      } finally {
+        this.loadingLogistics = false;
+      }
     }
   }
 };
