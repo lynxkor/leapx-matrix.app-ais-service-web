@@ -887,6 +887,7 @@ export default {
     // 点击tabs栏切换
     handleClick (item) {
       this.activeName = item.name;
+      this.show = false;
       this.onReset();
     },
     // 签收  签收并入库
