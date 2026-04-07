@@ -1,4 +1,12 @@
 <template>
+  <edit-page-layout
+    ref="editLayout"
+    title="添加车辆"
+    showPaneFooter
+    @save="onAddSave"
+    @cancel="onAddCancel"
+    >
+    <template #left>
       <edit-base-container
         ref="containerRef"
         :id="_id"
@@ -19,92 +27,95 @@
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="申请单号：" prop="applyNo">
                   <el-input
-                    placeholder="请输入"
                     v-model="form.applyNo"
                     clearable
+                    disabled
                   />
                 </el-form-item>
-                <el-form-item label="申请原因：" prop="applyReason">
+                <el-form-item label="申请数量：" prop="vehicleCount">
                   <el-input
-                    placeholder="请输入"
-                    v-model="form.applyReason"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="申请状态，10:草稿; 20:待一级审批; 30:待最终审批; 40:审批通过; 50:审批驳回; 100:导入中：" prop="applyStatus">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.applyStatus"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="申请人姓名：" prop="applierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.applierName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="申请时间：" prop="applyTime">
-                  <el-date-picker
-                    v-model="form.applyTime"
-                    type="datetime"
-                    format="yyyy-MM-dd HH:mm:ss"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    placeholder="选择日期时间">
-                  </el-date-picker>
-                </el-form-item>
-                <el-form-item label="申请数量（车辆明细记录数）：" prop="vehicleCount">
-                  <el-input
-                    placeholder="请输入"
+                    disabled
                     v-model="form.vehicleCount"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="一级审批人姓名：" prop="firstApproverName">
+                <el-form-item label="申请状态：" prop="applyStatusLabel">
                   <el-input
-                    placeholder="请输入"
+                    v-model="form.applyStatusLabel"
+                    clearable
+                    disabled
+                  />
+                </el-form-item>
+                <el-form-item label="申请人：" prop="applierName">
+                  <el-input
+                    v-model="form.applierName"
+                    clearable
+                    disabled
+                  />
+                </el-form-item>
+                <el-form-item label="申请时间：" prop="applyTime">
+                  <el-date-picker
+                    disabled
+                    v-model="form.applyTime"
+                    type="datetime"
+                    format="yyyy-MM-dd HH:mm:ss"
+                    value-format="yyyy-MM-dd HH:mm:ss"
+                    >
+                  </el-date-picker>
+                </el-form-item>
+                <el-form-item label="一级审批人：" prop="firstApproverName">
+                  <el-input
                     v-model="form.firstApproverName"
                     clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="一级审批时间：" prop="firstApproveTime">
                   <el-date-picker
+                    disabled
                     v-model="form.firstApproveTime"
                     type="datetime"
                     format="yyyy-MM-dd HH:mm:ss"
                     value-format="yyyy-MM-dd HH:mm:ss"
-                    placeholder="选择日期时间">
+                    >
                   </el-date-picker>
                 </el-form-item>
                 <el-form-item label="一级审批说明：" prop="firstApproveComment">
                   <el-input
-                    placeholder="请输入"
+                    disabled
                     v-model="form.firstApproveComment"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="最终审批人姓名：" prop="finalApproverName">
+                <el-form-item label="最终审批人：" prop="finalApproverName">
                   <el-input
-                    placeholder="请输入"
+                    disabled
                     v-model="form.finalApproverName"
                     clearable
                   />
                 </el-form-item>
+                <el-form-item label="申请原因：" prop="applyReason">
+                  <base-input
+                    v-model="form.applyReason"
+                    clearable
+                    type="textarea"
+                  />
+                </el-form-item>
                 <el-form-item label="最终审批时间：" prop="finalApproveTime">
                   <el-date-picker
+                    disabled
                     v-model="form.finalApproveTime"
                     type="datetime"
                     format="yyyy-MM-dd HH:mm:ss"
                     value-format="yyyy-MM-dd HH:mm:ss"
-                    placeholder="选择日期时间">
+                    >
                   </el-date-picker>
                 </el-form-item>
                 <el-form-item label="最终审批说明：" prop="finalApproveComment">
                   <el-input
-                    placeholder="请输入"
                     v-model="form.finalApproveComment"
                     clearable
+                    disabled
                   />
                 </el-form-item>
               </el-form>
@@ -112,32 +123,32 @@
                 <el-form-item label="申请单号：" prop="applyNo">
                   {{ form.applyNo }}
                 </el-form-item>
-                <el-form-item label="申请原因：" prop="applyReason">
-                  {{ form.applyReason }}
-                </el-form-item>
-                <el-form-item label="申请状态，10:草稿; 20:待一级审批; 30:待最终审批; 40:审批通过; 50:审批驳回; 100:导入中：" prop="applyStatus">
-                  {{ form.applyStatus }}
-                </el-form-item>
-                <el-form-item label="申请人姓名：" prop="applierName">
-                  {{ form.applierName }}
-                </el-form-item>
-                <el-form-item label="申请时间：" prop="applyTime">
-                  {{ form.applyTime }}
-                </el-form-item>
-                <el-form-item label="申请数量（车辆明细记录数）：" prop="vehicleCount">
+                <el-form-item label="申请数量：" prop="vehicleCount">
                   {{ form.vehicleCount }}
                 </el-form-item>
-                <el-form-item label="一级审批人姓名：" prop="firstApproverName">
+                <el-form-item label="申请状态：" prop="applyStatusLabel">
+                  {{ form.applyStatusLabel }}
+                </el-form-item>
+                <el-form-item label="申请人：" prop="applierName">
+                  {{ form.applierName }}
+                </el-form-item>
+                <el-form-item label="一级审批人：" prop="firstApproverName">
                   {{ form.firstApproverName }}
+                </el-form-item>
+                <el-form-item label="最终审批人：" prop="finalApproverName">
+                  {{ form.finalApproverName }}
+                </el-form-item>
+                <el-form-item label="申请原因：" prop="applyReason">
+                  {{ form.applyReason }}
                 </el-form-item>
                 <el-form-item label="一级审批时间：" prop="firstApproveTime">
                   {{ form.firstApproveTime }}
                 </el-form-item>
+                <el-form-item label="申请时间：" prop="applyTime">
+                  {{ form.applyTime }}
+                </el-form-item>
                 <el-form-item label="一级审批说明：" prop="firstApproveComment">
                   {{ form.firstApproveComment }}
-                </el-form-item>
-                <el-form-item label="最终审批人姓名：" prop="finalApproverName">
-                  {{ form.finalApproverName }}
                 </el-form-item>
                 <el-form-item label="最终审批时间：" prop="finalApproveTime">
                   {{ form.finalApproveTime }}
@@ -155,6 +166,7 @@
             :_id="_id"
             @data-change="() => {}"
             @checkboxChange="checkboxChange"
+            @open-add="openPane"
           />
           <section class="common-section">
             <div class="common-section-header">
@@ -173,14 +185,38 @@
           </section>
         </el-main>
       </edit-base-container>
+    </template>
+    <template #right>
+      <div class="page-common-edit">
+        <add-vehicle-form
+          v-if="_id"
+          :applyId="_id"
+          @success="handleAddVehicleSuccess"
+          @cancel="handleAddVehicleCancel"
+        />
+      </div>
+    </template>
+  </edit-page-layout>
 </template>
 
 <script>
+
+// 1. 申请单号
+// 2. 申请数量
+// 3. 申请状态
+// 4. 申请人
+// 5. 一级审批人
+// 6. 最终审批人
+// 7. 申请原因
+// 8. 一级审批时间
+// 9. 申请时间
+// 10. 一级审批说明
+// 11. 最终审批时间
+// 12. 最终审批说明
 import {
   getDetail,
   addOrUpdate,
 } from '@/api/datacenter/vehicle/serviceDealerChangeApply/index';
-// import FetchSelect from '@/libs/components/FetchSelect';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -188,7 +224,10 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import ModalAddTable from './components/ModalAddTable';
+import AddVehicleForm from './components/AddVehicleForm';
 import AisAttachment from '@/libs/components/AisAttachment';
+import EditPageLayout from '@/libs/components/EditPageLayout';
+import BaseInput from '@/libs/components/BaseInput';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -220,13 +259,16 @@ export default {
     ModalAddTable,
     EditBaseContainer,
     AisAttachment,
+    EditPageLayout,
+    AddVehicleForm,
+    BaseInput,
   },
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '标题xxx';
+      return '申请单号：' + this.form.applyNo;
     }
   },
   watch: {
@@ -288,41 +330,8 @@ export default {
         },
       ],
       rules: {
-        applyNo: [
-          { required: true, message: '请输入申请单号', trigger: 'blur' }
-        ],
         applyReason: [
           { required: true, message: '请输入申请原因', trigger: 'blur' }
-        ],
-        applyStatus: [
-          { required: true, message: '请输入申请状态，10:草稿; 20:待一级审批; 30:待最终审批; 40:审批通过; 50:审批驳回; 100:导入中', trigger: 'blur' }
-        ],
-        applierName: [
-          { required: true, message: '请输入申请人姓名', trigger: 'blur' }
-        ],
-        applyTime: [
-          { required: true, message: '请选择申请时间', trigger: 'change' }
-        ],
-        vehicleCount: [
-          { required: true, message: '请输入申请数量（车辆明细记录数）', trigger: 'blur' }
-        ],
-        firstApproverName: [
-          { required: true, message: '请输入一级审批人姓名', trigger: 'blur' }
-        ],
-        firstApproveTime: [
-          { required: true, message: '请选择一级审批时间', trigger: 'change' }
-        ],
-        firstApproveComment: [
-          { required: true, message: '请输入一级审批说明', trigger: 'blur' }
-        ],
-        finalApproverName: [
-          { required: true, message: '请输入最终审批人姓名', trigger: 'blur' }
-        ],
-        finalApproveTime: [
-          { required: true, message: '请选择最终审批时间', trigger: 'change' }
-        ],
-        finalApproveComment: [
-          { required: true, message: '请输入最终审批说明', trigger: 'blur' }
         ],
       },
       selectedRows: [],
@@ -344,6 +353,9 @@ export default {
     openPane () {
       this.$refs.editLayout.openPane();
     },
+    closePane () {
+      this.$refs.editLayout.closePane();
+    },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
       // const userInfo = this.$store.state.user.userInfo;
@@ -362,6 +374,13 @@ export default {
     checkboxChange (records) {
       this.selectedRows = records;
     },
+    onAddCancel () {
+      this.closePane();
+    },
+    onAddSave () {
+      this.$refs.modalAddTable.getTableData();
+      this.closePane();
+    }
   }
 };
 </script>

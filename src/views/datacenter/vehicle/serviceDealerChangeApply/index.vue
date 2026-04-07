@@ -175,6 +175,7 @@ import {
   deleteItem,
   firstApprovePass,
   finalApprovePass,
+  submit,
 } from '@/api/datacenter/vehicle/serviceDealerChangeApply/index';
 import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -306,6 +307,7 @@ export default {
             buttons: [{
               name: '提交',
               click: (rowIndex, row) => {
+                this.handleSubmit(row);
               },
               type: 'info',
               show: (row) => {
@@ -540,6 +542,13 @@ export default {
           });
         });
       }).catch(() => {});
+    },
+    // 提交
+    handleSubmit (row) {
+      submit({ id: row.id }).then(() => {
+        this.$message.success('提交成功');
+        this.getData();
+      });
     },
     // 一级审批通过
     handleFirstApprovePass (row) {

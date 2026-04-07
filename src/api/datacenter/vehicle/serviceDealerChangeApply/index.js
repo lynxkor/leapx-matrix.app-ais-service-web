@@ -68,13 +68,20 @@ export function finalRejectReject (data) {
 }
 
 /**
+ * 专属服务门店变更车辆批量转移
+ * @param {Object} data
+ */
+export function batchTransfer (data) {
+  return api.jsonPost(prefix + 'batchTransfer', data);
+}
+
+/**
  * 提交专属服务门店变更申请
  * @param {Object} data
  */
 export function submit (data) {
   return api.jsonPost(prefix + 'apply/submit', data);
 }
-
 const detailTablePrefix = '/datacenter/web/vehicle/serviceDealerChangeVehicle/';
 /**
  * 详情表格接口

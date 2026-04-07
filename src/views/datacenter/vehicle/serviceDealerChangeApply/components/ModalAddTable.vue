@@ -2,47 +2,89 @@
   <section class="common-section">
     <div class="common-section-header">
       <h2>
-        xxx明细
+        变更车辆信息
         <div v-if="_id && !disabled" class="btns">
-          <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="openAdd"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
-          <el-button v-if="canAddOrUpdate" :disabled="!isSelect" size="small" @click.stop="handleRemoveRows">删除</el-button>
+          <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="openAdd"><i class="iconfont icon-lxppc-plus"></i>添加车辆</el-button>
+          <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="batchTransfer">批量转移</el-button>
+          <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="handleImport">导入车辆</el-button>
         </div>
       </h2>
     </div>
     <div v-if="_id" class="common-section-body">
       <div class="common-section-table">
-        <!-- 明细表格 -->
-        <edit-table
+        <vxe-table
           ref="editTable"
-          :columns="columns"
           :data="tableData"
-          :defaultNewRow="disabled ? null : defaultNewRow"
-          :show-toolbar="false"
-          :options="options"
+          stripe
+          show-overflow
+          resizable
+          :row-config="{ isHover: true }"
+          border="inner"
+          size="medium"
+          min-height="0"
+          max-height="400px"
           :checkbox="true"
-          :auth="{ edit: false, delete: canAddOrUpdate && !disabled }"
-          :isFocusNewRow="false"
-          :enableSingleRowSave="false"
-          :showPagination="true"
-          :current="current"
-          :pageSize="pageSize"
-          :total="total"
-          @remove-row="handleRemoveRow"
-          @page-size-change="pageSizeChange"
-          @current-page-change="currentPageChange"
           @checkboxChange="checkboxChange"
-        />
+        >
+          <vxe-column field="vin" title="VIN" width="160"></vxe-column>
+          <vxe-column field="beforeDealerCode" title="变更前门店编码" width="160"></vxe-column>
+          <vxe-column field="beforeDealerName" title="变更前门店名称" width="160"></vxe-column>
+          <vxe-column field="afterDealerCode" title="变更后门店编码" width="160"></vxe-column>
+          <vxe-column field="afterDealerName" title="变更后门店名称" width="160"></vxe-column>
+          <vxe-column field="isUserChange" title="是否用户修改专属服务门店" width="160">
+            <template #default="{ row }">
+              {{ row.isUserChange ? '是' : '否' }}
+            </template>
+          </vxe-column>
+          <vxe-column field="applyReason" title="申请原因" width="160"></vxe-column>
+          <vxe-column field="salesDate" title="销售日期" width="160"></vxe-column>
+          <vxe-column field="createTime" title="创建时间" width="160"></vxe-column>
+          <vxe-column title="操作" :width="100" align="center" fixed="right" :resizable="false">
+            <template #default="{ row, rowIndex }">
+              <el-popconfirm
+                title="确定要删除这条记录吗？"
+                @confirm="handleRemoveRow(row, rowIndex)"
+                v-if="canAddOrUpdate && !disabled"
+              >
+                <el-button
+                  class="action-button btn-delete"
+                  slot="reference"
+                  type="text">
+                  删除
+                </el-button>
+              </el-popconfirm>
+            </template>
+          </vxe-column>
+          <template #empty>
+            <div class="m-vxe-table-empty-text">
+              暂无数据
+            </div>
+          </template>
+        </vxe-table>
+        <div class="table-pagination">
+          <el-pagination
+            @size-change="pageSizeChange"
+            @current-change="currentPageChange"
+            :current-page="current"
+            :page-sizes="[10, 20, 50, 100]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          >
+          </el-pagination>
+        </div>
       </div>
     </div>
     <div class="common-section-body not-commit" v-else>
       提交新建后，即可添加
     </div>
-    <add-data-dialog
-      type="outbound"
-      :visible.sync="visible"
-      :_id="_id"
-      @update="getTableData"
-      />
+    <Upload
+      :visible="uploadDialogVisible"
+      :businessParams="_id"
+      id="serviceDealerChangeVehicle"
+      @close="handleUploadDialogClose"
+      @getData="getTableData"
+    />
   </section>
 </template>
 <script>
@@ -51,8 +93,7 @@ import {
   getDetailList,
   removeDetail,
 } from '@/api/datacenter/vehicle/serviceDealerChangeApply/index';
-import EditTable from '@/libs/components/EditTable/index.vue';
-import AddDataDialog from './AddDataDialog';
+import Upload from '@/libs/components/UploadDialog';
 
 export default {
   props: {
@@ -62,86 +103,24 @@ export default {
     _id: {
       type: String,
     },
-    // 禁用后无法添加和删除
     disabled: {
       type: Boolean,
       default: false
     }
   },
   components: {
-    EditTable,
-    AddDataDialog,
+    Upload,
   },
   data () {
     return {
-      defaultNewRow: {
-        createTime: '', // 创建时间
-        vin: '', // 车辆 VIN 码
-        beforeDealerCode: '', // 变更前门店编码
-        beforeDealerName: '', // 变更前门店名称
-        afterDealerCode: '', // 变更后门店编码
-        afterDealerName: '', // 变更后门店名称
-        isUserChange: '', // 是否用户修改专属服务门店，1:是; 0:否
-        applyReason: '', // 申请原因
-        salesDate: '', // 销售日期
-      },
       current: 1,
       pageSize: 10,
       total: 0,
       tableData: [],
-      //
       visible: false,
-      // 表格内的下拉列表
-      options: {
-      },
       selectedRows: [],
-      columns: [
-        {
-          field: 'createTime',
-          title: '创建时间',
-          width: '160',
-        },
-        {
-          field: 'vin',
-          title: '车辆 VIN 码',
-          width: '160',
-        },
-        {
-          field: 'beforeDealerCode',
-          title: '变更前门店编码',
-          width: '160',
-        },
-        {
-          field: 'beforeDealerName',
-          title: '变更前门店名称',
-          width: '160',
-        },
-        {
-          field: 'afterDealerCode',
-          title: '变更后门店编码',
-          width: '160',
-        },
-        {
-          field: 'afterDealerName',
-          title: '变更后门店名称',
-          width: '160',
-        },
-        {
-          field: 'isUserChange',
-          title: '是否用户修改专属服务门店，1:是; 0:否',
-          width: '160',
-        },
-        {
-          field: 'applyReason',
-          title: '申请原因',
-          width: '160',
-        },
-        {
-          field: 'salesDate',
-          title: '销售日期',
-          width: '160',
-        },
-      ]
+      //
+      uploadDialogVisible: false,
     };
   },
   computed: {
@@ -163,15 +142,12 @@ export default {
   beforeDestroy () {
   },
   methods: {
-    // 表格数据
     getTableData () {
       if (!this._id) {
         return;
       }
       getDetailList({
-        // TODO 根据需求进行替换
-        // xxxId: this._id,
-        //
+        applyId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {
@@ -182,10 +158,9 @@ export default {
       });
     },
     openAdd () {
-      this.visible = true;
+      this.$emit('open-add');
     },
     handleRemoveRows () {
-      // 您确定要移除选择的【{N}】条数据吗？
       this.$confirm('您确定要移除选择的【' + this.selectedRows.length + '】条数据吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -195,17 +170,14 @@ export default {
         this.removeRows(ids);
       }).catch(() => {});
     },
-    handleRemoveRow (row) {
+    handleRemoveRow (row, rowIndex) {
       if (!row.id) {
         return;
       }
       this.removeRows([row.id]);
     },
     removeRows (ids) {
-      removeDetail({
-        id: this._id,
-        detailIdList: ids,
-      }).then((d) => {
+      removeDetail(ids).then((d) => {
         this.$message.success('删除成功');
         this.selectedRows = [];
         this.getTableData();
@@ -229,6 +201,15 @@ export default {
       this.selectedRows = records;
       this.$emit('checkboxChange', this.selectedRows);
     },
+    batchTransfer () {
+    },
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
+    },
+
   },
 };
 
