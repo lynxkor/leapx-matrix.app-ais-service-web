@@ -36,19 +36,53 @@ export function getDetail (data) {
 }
 
 /**
- * 启用停用
+ * 一级审批通过
  * @param {Object} data
  */
-export function enableItem (data) {
-  return api.jsonPost(prefix + 'enableOrDisable', data);
+export function firstApprovePass (data) {
+  return api.jsonPost(prefix + 'apply/firstApprove', data);
 }
+
+/**
+ * 一级审批驳回
+ * @param {Object} data
+ */
+export function firstApproveReject (data) {
+  return api.jsonPost(prefix + 'apply/firstReject', data);
+}
+
+/**
+ * 二级审批通过
+ * @param {Object} data
+ */
+export function finalApprovePass (data) {
+  return api.jsonPost(prefix + 'apply/finalApprove', data);
+}
+
+/**
+ * 二级审批驳回
+ * @param {Object} data
+ */
+export function finalRejectReject (data) {
+  return api.jsonPost(prefix + 'apply/finalReject', data);
+}
+
+/**
+ * 提交专属服务门店变更申请
+ * @param {Object} data
+ */
+export function submit (data) {
+  return api.jsonPost(prefix + 'apply/submit', data);
+}
+
+const detailTablePrefix = '/datacenter/web/vehicle/serviceDealerChangeVehicle/';
 /**
  * 详情表格接口
  * @param {Object} data
  * @returns
  */
 export function getDetailList (data) {
-  return api.jsonPost('maintain/web/vehicle/serviceDealerChangeVehicle/page', data);
+  return api.jsonPost(detailTablePrefix + 'page', data);
 }
 /**
  * 详情表格新增接口
@@ -56,7 +90,7 @@ export function getDetailList (data) {
  * @returns
  */
 export function addDetail (data) {
-  return api.jsonPost('maintain/datacenter/web/vehicle/serviceDealerChangeVehicle/addOrUpdate', data);
+  return api.jsonPost(detailTablePrefix + 'addOrUpdate', data);
 }
 /**
  * 详情表格删除接口
@@ -64,13 +98,5 @@ export function addDetail (data) {
  * @returns
  */
 export function removeDetail (data) {
-  return api.jsonPost('maintain/datacenter/web/vehicle/serviceDealerChangeVehicle/delete', data);
-}
-/**
- * 弹窗表格查询接口
- * @param {Object} data
- * @returns
- */
-export function getDialogList (data) {
-  return api.jsonPost('maintain/web/vehicle/serviceDealerChangeVehicle/page', data);
+  return api.jsonPost(detailTablePrefix + 'delete', data);
 }
