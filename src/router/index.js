@@ -1330,7 +1330,8 @@ const routes = [
         name: '备件现金账户详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/fund/accountRebate',
       name: 'accountRebate',
       component: () => import('@/views/sparepart/fund/accountRebate/index.vue'),
@@ -1339,8 +1340,7 @@ const routes = [
         name: '备件返利账户',
         keepAlive: true
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/sparepart/fund/accountRebate/edit',
       name: 'accountRebateEdit',
       component: () => import('@/views/sparepart/fund/accountRebate/edit.vue'),
@@ -1349,7 +1349,8 @@ const routes = [
         name: '备件返利账户详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 门店销毁
+    {
       path: '/sparepart/warehouse/inventory',
       name: 'inventory',
       component: () => import('@/views/sparepart/warehouse/inventory/index.vue'),
@@ -1358,8 +1359,7 @@ const routes = [
         name: '门店备件库存',
         keepAlive: true
       }
-    }, // 门店销毁
-    {
+    }, {
       path: '/sparepart/warehouse/inventory/edit',
       name: 'inventoryEdit',
       component: () => import('@/views/sparepart/warehouse/inventory/edit.vue'),
@@ -2690,6 +2690,24 @@ const routes = [
 
       meta: {
         name: '数据同步记录表管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/datacenter/vehicle/serviceDealerChangeApply',
+      name: 'serviceDealerChangeApply',
+      component: () => import('@/views/datacenter/vehicle/serviceDealerChangeApply/index.vue'),
+
+      meta: {
+        name: '专属服务门店变更',
+        keepAlive: true
+      }
+    }, {
+      path: '/datacenter/vehicle/serviceDealerChangeApply/edit',
+      name: 'serviceDealerChangeApplyEdit',
+      component: () => import('@/views/datacenter/vehicle/serviceDealerChangeApply/edit.vue'),
+
+      meta: {
+        name: '专属服务门店变更',
         noResourceUrl: 'true'
       }
     }]
