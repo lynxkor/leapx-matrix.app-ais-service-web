@@ -259,8 +259,10 @@
                     value-key="partCode"
                     label-key="partName"
                     @change="handleAddTableData"
+                    :disabled="!orderStatusType"
                   />
                   <el-button type="primary" size="small">添加</el-button>
+                  <el-button size="small" @click="handleImport" :disabled="!orderStatusType">导入备件清单</el-button>
                 </div>
               </div>
               <div class="common-section-table">
@@ -321,6 +323,13 @@
         <!-- 右侧栏组件，自行开发 -->
       </div>
     </template>
+    <Upload
+      :visible="uploadDialogVisible"
+      :businessParams="_id"
+      id="sparepartDealerOutboundOrderDetail"
+      @close="handleUploadDialogClose"
+      @submit="getDetailData"
+    />
   </edit-page-layout>
 </template>
 
@@ -334,6 +343,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import Upload from '@/libs/components/UploadDialog';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -399,7 +409,8 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect
+    FetchSelect,
+    Upload
   },
   computed: {
     _id () {
@@ -433,6 +444,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      uploadDialogVisible: false,
       pageTitle: '内部领料申请',
       pageType: 'edit',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
@@ -462,6 +474,13 @@ export default {
     this.getLoginUser();
   },
   methods: {
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
+      this.getData();
+    },
     detailRequest () {
       const id = this._id;
       if (id) {

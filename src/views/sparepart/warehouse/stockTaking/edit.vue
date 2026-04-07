@@ -94,6 +94,8 @@
                     value-key="partCode" label-key="partName" :disabled="form.stockStatus !== '0'"
                     @change="handleAddTableData" />
                   <el-button type="primary" size="small">添加</el-button>
+                  <el-button size="small" @click="handleImport('sparepartStockTakingDetail')" :disabled="form.stockStatus !== '0'">导入备件清单</el-button>
+                  <el-button size="small" @click="handleImport('sparepartStockTakingDetailRes')" :disabled="form.stockStatus !== '0'">盘点结果导入</el-button>
                 </div>
               </div>
               <div class="common-section-table">
@@ -164,6 +166,13 @@
       <div class="page-common-edit">
       </div>
     </template>
+    <Upload
+      :visible="uploadDialogVisible"
+      :businessParams="_id"
+      :id="importType"
+      @close="handleUploadDialogClose"
+      @submit="getDetailData"
+    />
   </edit-page-layout>
 </template>
 
@@ -177,6 +186,7 @@ import { getEnum, getPartDealer, getLoginUser, getUserByNameOrNo } from '@/api/c
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import Upload from '@/libs/components/UploadDialog';
 
 const defaultForm = {
   code: '',
@@ -206,7 +216,8 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect
+    FetchSelect,
+    Upload
   },
   computed: {
     _id () {
@@ -240,6 +251,8 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      importType: '',
+      uploadDialogVisible: false,
       pageTitle: '库存盘点',
       pageType: 'edit',
       moduleKey: 'AISPART-stockTaking',
@@ -285,6 +298,15 @@ export default {
       this.form.warehouseName = resDealer.warehouseName;
       this.form.warehouseId = resDealer.warehouseId;// 当前门店code
       this.form.warehouseCode = resDealer.warehouseCode;// 当前门店名称
+    },
+    // 导入备件清单
+    handleImport (type) {
+      this.importType = type;
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
+      this.getData();
     },
     detailRequest () {
       const id = this._id;
