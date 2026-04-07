@@ -258,7 +258,6 @@
                     clearable
                     value-key="partCode"
                     label-key="partName"
-                    :disabled="!(isEditing || !_id)"
                     @change="handleAddTableData"
                     :disabled="!orderStatusType"
                   />
