@@ -309,6 +309,7 @@
     <SignDialog
       :visible.sync="signDialogVisible"
       :info="info"
+      :data="totalData"
       :serviceProxyCode="info.serviceProxyCode"
       :formData="totalData"
       @refresh="handleRefresh"

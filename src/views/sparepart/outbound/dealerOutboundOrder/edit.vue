@@ -258,6 +258,7 @@
                     clearable
                     value-key="partCode"
                     label-key="partName"
+                    :disabled="!(isEditing || !_id)"
                     @change="handleAddTableData"
                     :disabled="!orderStatusType"
                   />
@@ -285,13 +286,13 @@
                   <vxe-column field="costUnitPrice" title="成本单价" min-width="11%" />
                   <vxe-column field="qty" title="数量" min-width="11%">
                     <template #default="{ row }">
-                      <el-input v-model="row.qty" type="number" min="1" @blur="handleBlur(row)"/>
+                      <el-input v-model="row.qty" type="number" :disabled="!(isEditing || !_id)" min="1" @blur="handleBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="11%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
+                  <vxe-column title="操作" width="100" v-if="canDelete && isEditing || !_id">
                     <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
+                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
@@ -579,6 +580,7 @@ export default {
     // 修改备件清单
     handleBlur (val) {
       const params = {
+        id: val.id,
         dealerOutboundOrderId: this._id,
         dealerOutboundOrderCode: this.form.code,
         sparePartId: val.id,
