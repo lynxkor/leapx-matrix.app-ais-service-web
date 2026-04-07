@@ -46,7 +46,7 @@
         <el-form-item label="充值流水">
           <el-input
             placeholder="请输入"
-            v-model="form.flowNo"
+            v-model="form.code"
             clearable
           />
         </el-form-item>
@@ -165,7 +165,7 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :businessParams="operateType"
+      :businessParams="'RECHARGE'"
       id="sparePartAccountRechargeApplyImport"
       @close="handleUploadDialogClose"
     />

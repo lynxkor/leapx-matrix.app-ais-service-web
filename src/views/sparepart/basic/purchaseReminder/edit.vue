@@ -377,6 +377,7 @@ export default {
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
+      this.partDetailPage(this._id);
     },
   }
 };

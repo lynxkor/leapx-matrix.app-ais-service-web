@@ -92,16 +92,16 @@
                     placeholder="请输入"
                     v-model="form.dealerName"
                     clearable
+                    disabled
                   />
                 </el-form-item>
-                <el-form-item label="状态：" prop="status">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="StatusEnum"
-                    v-model="form.status"
-                    placeholder="请选择"
+                <el-form-item label="状态：">
+                  <el-input
+                    show-word-limit
+                    placeholder="请输入"
+                    v-model="form.statusLabel"
                     clearable
-                    filterable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark" class="full-width-item">
@@ -137,7 +137,7 @@
                 <el-form-item label="单次最多采购品项数：" prop="perOrderMaxItems">
                   {{ form.perOrderMaxItems }}
                 </el-form-item>
-                <el-form-item label="状态：" prop="status">
+                <el-form-item label="状态：">
                   {{ form.statusLabel }}
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
@@ -180,6 +180,7 @@ const defaultForm = {
   perOrderMaxItems: '',
   remark: '',
   status: '',
+  statusLabel: '启用',
   createTime: '',
   updateTime: '',
   id: '',

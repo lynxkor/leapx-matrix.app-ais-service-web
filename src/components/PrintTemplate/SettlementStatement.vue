@@ -37,39 +37,39 @@
                                 <tbody>
                                     <tr>
                                         <td style="width:100px">开单时间：</td>
-                                        <td style="width:150px" id="createdon">2026/3/11 14:33</td>
+                                        <td style="width:150px" id="createdon">{{info.createTime}}</td>
                                         <td style="width:100px">单据编号：</td>
-                                        <td style="width:150px" id="mcs_name">RE-260311143302274438</td>
+                                        <td style="width:150px" id="mcs_name">{{info.code}}</td>
                                         <td style="width:100px">VIN码：</td>
-                                        <td style="width:100px;" id="mcs_vehownerid">LFZ52FL80PD018478</td>
+                                        <td style="width:100px;" id="mcs_vehownerid">{{info.vin}}</td>
                                         <td style="width:100px">结算时间：</td>
-                                        <td style="width:100px;" id="mcs_statementon">2026/4/7 13:49</td>
+                                        <td style="width:100px;" id="mcs_statementon">{{info.settlementTime}}</td>
                                     </tr>
                                     <tr>
                                         <td>车主：</td>
-                                        <td id="mcs_carcustomername">刘国梁</td>
+                                        <td id="mcs_carcustomername">{{info.customerName}}</td>
                                         <td>电话：</td>
-                                        <td id="mcs_carcustomerphone">13372566503</td>
+                                        <td id="mcs_carcustomerphone">todo</td>
                                         <td>车牌号码：</td>
-                                        <td id="mcs_carplate">新QF245</td>
+                                        <td id="mcs_carplate">{{info.plateNumber}}</td>
                                         <td>型号：</td>
-                                        <td id="_mcs_carmodel_value_formatted">C01增程-316智享版</td>
+                                        <td id="_mcs_carmodel_value_formatted">{{info.vehicleModelName}}</td>
                                     </tr>
                                     <tr>
                                         <td>客户姓名</td>
                                         <td id="mcs_customername"></td>
                                         <td>客户电话</td>
-                                        <td id="mcs_customerphone">15356106967</td>
+                                        <td id="mcs_customerphone">{{ info.customerContactInfo }}</td>
                                         <td>当前里程：</td>
-                                        <td id="mcs_nowmileage">3423430</td>
+                                        <td id="mcs_nowmileage">{{ info.customerContactInfo }}</td>
                                         <td>销售日期：</td>
-                                        <td id="mcs_saleson">2025/6/1</td>
+                                        <td id="mcs_saleson">{{ info.saleDate }}</td>
                                     </tr>
                                     <tr>
                                         <td>客户地址：</td>
                                         <td colspan="5" id="mcs_customeraddr" style="text-align:left"></td>
                                         <td>客户经理：</td>
-                                        <td id="mcs_sheetcreateduserid">向中亮</td>
+                                        <td id="mcs_sheetcreateduserid">{{ info.orderCreatorName }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -115,7 +115,7 @@
                                         <td>{{item.sparePartName}}</td>
                                         <td>{{item.qty}}</td>
                                         <td>¥{{item.price}}</td>
-                                        <td>¥0.00</td>
+                                        <td>¥{{item.discountTotalAmount}}</td>
                                         <td>¥{{item.amount}}</td>
                                     </tr>
                                 </tbody>
@@ -142,21 +142,21 @@
                                     <tr>
                                         <td rowspan="4" style="width:100px;border-bottom-width:0px">费用结算：</td>
                                         <td>费用合计：</td>
-                                        <td id="mcs_orderamount">¥54.00</td>
+                                        <td id="mcs_orderamount">¥{{info.totalAmount}}</td>
                                         <td></td>
                                         <td></td>
                                     </tr>
                                     <tr>
                                         <td>优惠金额小计：</td>
-                                        <td id="mcs_discountamount">¥0.00</td>
+                                        <td id="mcs_discountamount">¥{{info.discountTotalAmount}}</td>
                                         <td></td>
                                         <td></td>
                                     </tr>
                                     <tr>
                                         <td style="border-bottom-width:0px">应付金额合计：</td>
-                                        <td style="border-bottom-width:0px" id="mcs_payableamount_formatted">¥54.00</td>
+                                        <td style="border-bottom-width:0px" id="mcs_payableamount_formatted">¥{{info.payableTotalAmount}}</td>
                                         <td style="border-bottom-width:0px">未结金额合计：</td>
-                                        <td style="border-bottom-width:0px" id="mcs_remainpayableamount">¥54.00</td>
+                                        <td style="border-bottom-width:0px" id="mcs_remainpayableamount">¥{{info.remainingPayableAmount}}</td>
                                     </tr>
                                 </tbody>
                             </table>
