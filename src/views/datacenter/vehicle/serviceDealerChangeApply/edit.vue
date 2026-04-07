@@ -3,8 +3,6 @@
     ref="editLayout"
     title="添加车辆"
     showPaneFooter
-    @save="onAddSave"
-    @cancel="onAddCancel"
     >
     <template #left>
       <edit-base-container
@@ -189,12 +187,16 @@
     <template #right>
       <div class="page-common-edit">
         <add-vehicle-form
+          ref="addVehicleForm"
           v-if="_id"
           :applyId="_id"
-          @success="handleAddVehicleSuccess"
-          @cancel="handleAddVehicleCancel"
         />
       </div>
+    </template>
+    <template #footer>
+      <el-button size="small" type="primary" @click="handleSubmitVehicle(true)">保存&关闭</el-button>
+      <el-button size="small" type="primary" @click="handleSubmitVehicle(false)">保存&再建一个</el-button>
+      <el-button size="small" @click="handleCancelVehicle">取消</el-button>
     </template>
   </edit-page-layout>
 </template>
@@ -374,12 +376,21 @@ export default {
     checkboxChange (records) {
       this.selectedRows = records;
     },
-    onAddCancel () {
-      this.closePane();
+    handleCancelVehicle () {
+      this.$refs.addVehicleForm.resetForm();
+      this.$refs.editLayout.closePane();
     },
-    onAddSave () {
-      this.$refs.modalAddTable.getTableData();
-      this.closePane();
+    async handleSubmitVehicle (isClose) {
+      console.log(isClose);
+      try {
+        await this.$refs.addVehicleForm.onAddSave();
+        this.$refs.modalAddTable.getTableData();
+        if (isClose) {
+          this.$refs.editLayout.closePane();
+        }
+      } catch (e) {
+        // validation failed or API error
+      }
     }
   }
 };

@@ -76,6 +76,7 @@ const defaultForm = {
   salesDate: '',
   afterDealerCode: '',
   afterDealerName: '',
+  afterDealerId: '',
   applyReason: '',
 };
 export default {
@@ -107,8 +108,6 @@ export default {
         searchVin: query,
         pageSize: 20,
         pageNum: 1,
-        isSaleDateNull: false,
-        usageTypeList: ['1', '2', '4', '10', '20', '30'],
       });
     },
     vinChange (val, record) {
@@ -122,36 +121,34 @@ export default {
       });
     },
     handleDealerChange (val, record) {
-      if (val && record) {
-        this.form.afterDealerCode = record.orgCode;
-        this.form.afterDealerName = record.orgName;
-      } else {
-        this.form.afterDealerCode = '';
-        this.form.afterDealerName = '';
-      }
+      this.form.afterDealerCode = record?.orgCode;
+      this.form.afterDealerName = record?.orgName;
+      this.form.afterDealerId = record?.orgId;
     },
     handleCancel () {
       this.resetForm();
       this.$emit('cancel');
     },
-    handleSubmit () {
-      this.$refs.ruleForm.validate((valid) => {
-        if (!valid) return;
-        this.submitLoading = true;
-        addDetail({
-          applyId: this.applyId,
-          vin: this.form.vin,
-          afterDealerCode: this.form.afterDealerCode,
-          afterDealerName: this.form.afterDealerName,
-          isUserChange: 0,
-          applyReason: this.form.applyReason,
-          salesDate: this.form.salesDate,
-        }).then(() => {
-          this.$message.success('添加成功');
-          this.$emit('success');
-          this.resetForm();
-        }).finally(() => {
-          this.submitLoading = false;
+    onAddSave () {
+      return new Promise((resolve, reject) => {
+        this.$refs.ruleForm.validate((valid) => {
+          if (!valid) {
+            reject(new Error('验证失败'));
+            return;
+          }
+          this.submitLoading = true;
+          addDetail({
+            ...this.form,
+            applyId: this.applyId,
+          }).then((res) => {
+            this.$message.success('添加成功');
+            this.resetForm();
+            resolve(res);
+          }).catch((err) => {
+            reject(err);
+          }).finally(() => {
+            this.submitLoading = false;
+          });
         });
       });
     },
@@ -162,9 +159,3 @@ export default {
   },
 };
 </script>
-<style lang="scss" scoped>
-.pane-footer {
-  margin-top: 20px;
-  text-align: right;
-}
-</style>
