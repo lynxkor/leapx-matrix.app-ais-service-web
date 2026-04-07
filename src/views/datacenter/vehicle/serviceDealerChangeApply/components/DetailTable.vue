@@ -85,6 +85,12 @@
       @close="handleUploadDialogClose"
       @getData="getTableData"
     />
+    <BatchTransferDialog
+      :visible.sync="batchTransferDialogVisible"
+      :applyId="_id"
+      :selectedRows="selectedRows"
+      @success="getTableData"
+    />
   </section>
 </template>
 <script>
@@ -94,6 +100,7 @@ import {
   removeDetail,
 } from '@/api/datacenter/vehicle/serviceDealerChangeApply/index';
 import Upload from '@/libs/components/UploadDialog';
+import BatchTransferDialog from './BatchTransferDialog';
 
 export default {
   props: {
@@ -110,6 +117,7 @@ export default {
   },
   components: {
     Upload,
+    BatchTransferDialog,
   },
   data () {
     return {
@@ -121,6 +129,7 @@ export default {
       selectedRows: [],
       //
       uploadDialogVisible: false,
+      batchTransferDialogVisible: false,
     };
   },
   computed: {
@@ -202,6 +211,7 @@ export default {
       this.$emit('checkboxChange', this.selectedRows);
     },
     batchTransfer () {
+      this.batchTransferDialogVisible = true;
     },
     handleImport () {
       this.uploadDialogVisible = true;
