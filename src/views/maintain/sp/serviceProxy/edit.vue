@@ -49,7 +49,7 @@
               </h5>
             </section>
             <BasicInfo :formData.sync="form" :isEditing="isEditing" :_id="_id" ref="basicInfoRef"/>
-            <EntrustInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="entrustInfoRef" @change="submitForm"/>
+            <EntrustInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="entrustInfoRef" @change="submitForm" @refresh="handleRefresh"/>
             <BatteryInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="batteryInfoRef"/>
             <!-- <InquiryInfo :formData="form"/> -->
             <RepairInfo :formData="form"/>
