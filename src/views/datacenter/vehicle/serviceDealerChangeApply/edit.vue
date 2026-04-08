@@ -157,7 +157,7 @@
               </el-form>
             </div>
           </section>
-          <modal-add-table
+          <detail-table
             ref="modalAddTable"
             :disabled="false"
             :canAddOrUpdate="canAddOrUpdate"
@@ -168,9 +168,9 @@
           />
           <section class="common-section">
             <div class="common-section-header">
-              <h2>附件</h2>
+              <h2>附件信息</h2>
             </div>
-            <div class="common-section-body">
+            <div v-if="_id" class="common-section-body">
               <div class="common-section-table">
                 <AisAttachment
                   :businessId="_id"
@@ -179,6 +179,9 @@
                   ref="attachment"
                 />
               </div>
+            </div>
+            <div class="common-section-body not-commit" v-else>
+              提交新建后，即可添加
             </div>
           </section>
         </el-main>
@@ -225,7 +228,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import ModalAddTable from './components/ModalAddTable';
+import DetailTable from './components/DetailTable';
 import AddVehicleForm from './components/AddVehicleForm';
 import AisAttachment from '@/libs/components/AisAttachment';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -258,7 +261,7 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
-    ModalAddTable,
+    DetailTable,
     EditBaseContainer,
     AisAttachment,
     EditPageLayout,
