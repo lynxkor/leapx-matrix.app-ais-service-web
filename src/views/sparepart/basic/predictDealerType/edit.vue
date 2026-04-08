@@ -42,11 +42,14 @@
                       placeholder="请输入"
                     />
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
+                <el-form-item label="备注：" prop="remark" style="width: 100%;">
                   <el-input
                       type="textarea"
                       v-model="form.remark"
                       placeholder="请输入"
+                      maxlength="500"
+                      show-word-limit
+                      clearable
                     />
                 </el-form-item>
               </el-form>
@@ -60,58 +63,25 @@
                 <el-form-item label="是否启用：" prop="status">
                   {{ form.statusLabel }}
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
+                <el-form-item label="备注：" prop="remark" style="width: 100%;">
                   {{ form.remark }}
                 </el-form-item>
               </el-form>
             </div>
           </section>
-          <section class="common-section" v-if="_id">
+          <section class="common-section">
             <div class="common-section-header">
-              <h2>子表标题</h2>
+              <h2>规则详情</h2>
             </div>
             <div class="common-section-body">
-              <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
-                  <el-button type="primary" size="small">添加</el-button>
-                </div>
-              </div>
-              <div class="common-section-table">
-                <vxe-table
-                  ref="tableRef"
-                  stripe
-                  :data="tableData"
-                  show-overflow
-                  resizable
-                  border="inner"
-                  size="medium"
-                  min-height="0"
-                  max-height="400px"
-                >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
-                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                      </el-popconfirm>
-                    </template>
-                  </vxe-column>
-                  <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
-                  </template>
-                </vxe-table>
+              <div class="rule-builder-container">
+                <rule-group-item
+                  v-if="form.ruleDetail"
+                  :relation.sync="form.ruleDetail.relation"
+                  :rule-item-list.sync="form.ruleDetail.ruleItemList"
+                  :is-root="true"
+                  :is-editing="isEditing || !_id"
+                />
               </div>
             </div>
           </section>
@@ -136,6 +106,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import RuleGroupItem from './RuleGroupItem.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -152,7 +123,17 @@ const defaultForm = {
   modifierName: '',
   statusDesc: '',
   dataSource: '',
-  ruleDetail: '',
+  ruleDetail: {
+    relation: 'and',
+    item: null,
+    ruleItemList: [
+      {
+        relation: null,
+        item: { field: '', symbol: '', fieldValue: '' },
+        ruleItemList: []
+      }
+    ]
+  },
 };
 
 export default {
@@ -168,7 +149,7 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect
+    RuleGroupItem
   },
   computed: {
     _id () {
@@ -181,8 +162,18 @@ export default {
   watch: {
     id: {
       handler (val) {
-        if (val && this.$refs.containerRef) {
-          this.$refs.containerRef.loadDetail();
+        if (val) {
+          if (this.$refs.containerRef) {
+            this.$refs.containerRef.loadDetail();
+          }
+        } else {
+          // 当没有 id 时（新增模式），重置表单为初始状态
+          const form = this.getDefautlForm();
+          this.form = form;
+          this.originalForm = JSON.parse(JSON.stringify(form));
+          this.$nextTick(() => {
+            this.$refs.ruleForm && this.$refs.ruleForm.clearValidate();
+          });
         }
       },
       immediate: true
@@ -200,11 +191,6 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      emptyText: '若要启用此内容，请创建记录',
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
       rules: {
         code: [
           { required: false, message: '请输入编码', trigger: 'change' }
@@ -224,9 +210,6 @@ export default {
         updateTime: [
           { required: false, message: '请选择修改时间', trigger: 'change' }
         ],
-        ruleDetail: [
-          { required: true, message: '请输入规则详情', trigger: 'change' }
-        ],
       }
     };
   },
@@ -240,67 +223,23 @@ export default {
       }
     },
     submitRequest () {
-      return addOrUpdate({ ...this.form });
+      const form = { ...this.form };
+      if (form.ruleDetail && !form.ruleDetail.relation) {
+        form.ruleDetail.relation = 'and';
+      }
+      if (form.ruleDetail && form.ruleDetail.item === undefined) {
+        form.ruleDetail.item = null;
+      }
+      return addOrUpdate(form);
     },
     // 打开侧边栏
     openPane () {
       this.$refs.editLayout.openPane();
     },
-    // 删除子表数据
-    handleDeleteRow (index) {
-      const item = this.tableData[index];
-      this.tableData.splice(index, 1);
-      // 根据需求调用接口
-      // deletePartVehModel([item.id]).then(res => {
-      //   this.$message.success('删除成功');
-      //   this.tableData.splice(index, 1);
-      // });
-    },
-    // 查询新增项的列表
-    queryListData (queryString) {
-      return new Promise(resolve => {
-        // 根据需求调用接口
-        // sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
-        //   const list = res || [];
-        //   resolve(list);
-        // });
-        resolve([
-          { id: 1, name: 'test', age: 25, email: 'test@example.com' }
-        ]);
-      });
-    },
-    // 新增子表数据
-    handleAddTableData (val, record) {
-      if (!record) {
-        this.$message.warning('请先选择数据');
-        return;
-      }
-      // 检查是否已存在
-      const exists = this.tableData.some(item => item.id === record.id);
-      if (exists) {
-        this.$message.warning('请勿重复添加');
-        return;
-      }
-      // 根据需求调用接口
-      this.tableData.push(record);
-      // addPartItem({
-      //   maintenancePartId: this._id,
-      //   partsCode: record.partCode,
-      //   partsName: record.partName,
-      //   partsId: record.id,
-      // }).then(res => {
-      //   this.$message.success('添加成功');
-      //   this.detailRequest();
-      // });
-    },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
       // const userInfo = this.$store.state.user.userInfo;
-      return {
-        ...defaultForm
-        // ownerId: userInfo.userId,
-        // ownerName: userInfo.userName,
-      };
+      return JSON.parse(JSON.stringify(defaultForm));
     },
     // 审核日志
     // handleJumpAuditLog () {
@@ -315,3 +254,9 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.rule-builder-container {
+  padding: 0 50px;
+}
+</style>
