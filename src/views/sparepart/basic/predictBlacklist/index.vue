@@ -229,8 +229,8 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
-          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'partCode', label: '备件编码', visible: true, width: 200 },
+          { props: 'partName', label: '备件名称', visible: true, width: 200 },
           { props: 'filterTypeLabel', label: '名单类型 ', visible: true, width: 200 },
           { props: 'typeLabel', label: '模式 ', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
@@ -427,7 +427,7 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+        if (data[key] === '' || data[key] === null || data[key].length === 0) {
           delete data[key];
         }
       });
