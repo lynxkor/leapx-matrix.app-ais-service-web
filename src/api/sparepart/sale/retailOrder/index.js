@@ -27,11 +27,11 @@ export function addOrUpdate (data) {
 }
 
 /**
- * getVin
+ * 查询车辆档案
  * @param {Object} data
  */
-export function getVin (data) {
-  return api.jsonPost(prefix + 'getVin', data);
+export function getVehicleProfile (data) {
+  return api.jsonPost('datacenter/web/vehicle/vehicleProfile/listFull', data);
 }
 
 /**
@@ -40,6 +40,10 @@ export function getVin (data) {
  */
 export function getMileage (data) {
   return api.jsonPost(prefix + 'getMileage', data);
+}
+
+export function spareParkList (data) {
+  return api.jsonPost(prefix + 'spareParkList', data);
 }
 
 /**
