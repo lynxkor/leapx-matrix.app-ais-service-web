@@ -67,6 +67,7 @@
                 <el-input
                   v-if="item.fieldType === 'text'"
                   v-model="item.value"
+                  :key="`text-${conditionIndex}-${itemIndex}`"
                   placeholder="请输入条件值"
                   clearable
                   style="margin-right: 10px; width: 200px;"
@@ -77,6 +78,7 @@
                   :request="fetchOptions"
                   :enumCode="item.valueSource"
                   v-model="item.value"
+                  :key="`dict-${item.valueSource}-${conditionIndex}-${itemIndex}`"
                   placeholder="请选择条件值"
                   clearable
                   style="margin-right: 10px; width: 200px;"
@@ -88,6 +90,7 @@
                   value-key="id"
                   label-key="name"
                   v-model="item.value"
+                  :key="`url-${item.valueSource}-${conditionIndex}-${itemIndex}`"
                   placeholder="请选择条件值"
                   filterable
                   clearable
@@ -99,6 +102,7 @@
                 <el-input
                   v-else
                   v-model="item.value"
+                  :key="`default-${conditionIndex}-${itemIndex}`"
                   placeholder="请输入条件值"
                   clearable
                   style="margin-right: 10px; width: 200px;"
