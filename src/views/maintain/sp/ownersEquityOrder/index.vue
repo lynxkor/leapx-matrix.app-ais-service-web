@@ -93,7 +93,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="StatusEnum"
-            v-model="form.statusExcludeList"
+            v-model="form.statusIncludeList"
             placeholder="请选择"
             clearable
             multiple
