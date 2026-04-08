@@ -37,9 +37,9 @@
                   reserve-keyword
                   v-model="form.partCode"
                   :remote-method="getSparePart"
-                  labelKey="partName"
+                  labelKey="name"
                   valueKey="id"
-                  subLabelKey="partCode"
+                  subLabelKey="code"
                   @change="listSparePartChange"
                 />
               </el-form-item>
@@ -197,7 +197,7 @@ import { getDetail, addOrUpdate } from '@/api/sparepart/basic/predictBlacklist/i
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, listDealerPartWithOem, listOrgStoreInfoByParam } from '@/api/common';
+import { getEnum, sparePartListShort, listOrgStoreInfoByParam } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -326,7 +326,7 @@ export default {
   methods: {
     async getSparePart (query) {
       try {
-        const res = await listDealerPartWithOem({ partCodeLikeOrList: query });
+        const res = await sparePartListShort({ partCodeLikeOrList: query });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
@@ -334,8 +334,8 @@ export default {
     },
     listSparePartChange (val, all) {
       this.form.sparePartId = all.id;
-      this.form.partCode = all.partCode;
-      this.form.partName = all.partName;
+      this.form.partCode = all.code;
+      this.form.partName = all.name;
     },
     async getDealerList (query) {
       try {
