@@ -634,6 +634,9 @@ export default {
       }
     },
     async getVinList (query) {
+      if (!query || query.length < 6) {
+        return [];
+      }
       try {
         const res = await getVehicleProfile({ searchVin: query });
         return res;
