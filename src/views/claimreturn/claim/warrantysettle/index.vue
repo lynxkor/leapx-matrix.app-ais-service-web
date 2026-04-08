@@ -35,7 +35,7 @@
         <el-form-item label="门店状态">
           <fetch-select
             :request="fetchOptions"
-            enumCode="store_status"
+            enumCode="DealerStatusEnum"
             v-model="form.storeStatusList"
             placeholder="请选择"
             clearable
@@ -196,7 +196,7 @@ export default {
               type: 'primary',
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/warrantysettle/edit',
+                  path: '/claimreturn/claim/warrantySettle/edit',
                   query: {
                     id: row.id
                   }

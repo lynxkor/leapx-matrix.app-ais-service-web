@@ -2631,7 +2631,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/claim/warrantysettle',
+      path: '/claimreturn/claim/warrantySettle',
       name: 'warrantysettle',
       component: () => import('@/views/claimreturn/claim/warrantysettle/index.vue'),
 
@@ -2640,7 +2640,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/warrantysettle/edit',
+      path: '/claimreturn/claim/warrantySettle/edit',
       name: 'warrantysettleEdit',
       component: () => import('@/views/claimreturn/claim/warrantysettle/edit.vue'),
 
@@ -2776,6 +2776,8 @@ export function getRouter () {
       // if (true) {
         next();
       } else {
+        console.log(to.path);
+        console.log(localStorage.getItem('sourceUrl').includes(to.path));
         window.alert('你没有访问该页面的权限');
         if (store.state.user.token) {
           next({
