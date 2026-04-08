@@ -11,30 +11,30 @@
       size="medium"
       max-height="300px"
     >
-      <vxe-column field="warrantyApply" title="保修申请单" width="160"></vxe-column>
-      <vxe-column field="warrantyTypeName" title="保修类型" width="120"></vxe-column>
-      <vxe-column field="vin" title="VIN" width="180"></vxe-column>
-      <vxe-column field="workHourTotal" title="工时总额" width="120">
+      <vxe-column field="warrantyApply" title="保修申请单"></vxe-column>
+      <vxe-column field="warrantyTypeName" title="保修类型"></vxe-column>
+      <vxe-column field="vin" title="VIN"></vxe-column>
+      <vxe-column field="workHourTotal" title="工时总额">
         <template #default="{ row }">
           {{ row.workHourTotal }}
         </template>
       </vxe-column>
-      <vxe-column field="partTotal" title="零件总额" width="120">
+      <vxe-column field="partTotal" title="零件总额">
         <template #default="{ row }">
           {{ row.partTotal }}
         </template>
       </vxe-column>
-      <vxe-column field="otherTotal" title="其他总额" width="120">
+      <vxe-column field="otherTotal" title="其他总额">
         <template #default="{ row }">
           {{ row.otherTotal }}
         </template>
       </vxe-column>
-      <vxe-column field="totalAmount" title="总金额" width="120">
+      <vxe-column field="totalAmount" title="总金额">
         <template #default="{ row }">
           {{ row.totalAmount }}
         </template>
       </vxe-column>
-      <vxe-column field="determineAmount" title="判定金额" width="120">
+      <vxe-column field="determineAmount" title="判定金额">
         <template #default="{ row }">
           {{ row.determineAmount }}
         </template>

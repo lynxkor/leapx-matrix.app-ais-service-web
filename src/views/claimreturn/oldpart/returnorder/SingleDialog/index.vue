@@ -287,7 +287,7 @@ export default {
 .m-start-work-dialog {
 
   ::v-deep .el-dialog{
-    height: 560px;
+    // height: 560px;
   }
   ::v-deep .el-dialog__body {
     height: calc(100% - 112px);

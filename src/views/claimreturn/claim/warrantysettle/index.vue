@@ -113,6 +113,11 @@
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
     </div>
+    <CompleteDialog
+      :visible.sync="completeDialogVisible"
+      :id="completeRowId"
+      @success="getData"
+    />
   </div>
 </template>
 
@@ -120,7 +125,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, confirm, complete, invoiceAccept, invoiceReturn, payConfirm } from '@/api/claimreturn/claim/warrantysettle/index';
+import { getList, confirm, invoiceAccept, invoiceReturn, payConfirm } from '@/api/claimreturn/claim/warrantysettle/index';
 import { getTableConfig, tableAddOrUpdate, getEnum, listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import TagInput from '@/libs/components/TagInput';
@@ -129,6 +134,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { getEndOfDayString } from '@/libs/utils';
 import EditPage from './edit.vue';
+import CompleteDialog from './components/CompleteDialog';
 
 const defaultForm = {
   settleCodeList: [],
@@ -146,6 +152,12 @@ const pageSize = 20;
 const mockConfig = {
   data: null
 };
+// {code: '10', message: '待门店验证'}
+// {code: '60', message: '待开票'}
+// {code: '65', message: '已开票'}
+// {code: '90', message: '已验收'}
+// {code: '100', message: '已付款'}
+// {code: '110', message: '已退回'}
 
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
@@ -154,7 +166,8 @@ export default {
     LPVxeTable,
     FetchSelect,
     TagInput,
-    EditPage
+    EditPage,
+    CompleteDialog,
   },
   data () {
     return {
@@ -173,10 +186,12 @@ export default {
       tableForm: { page: 1, size: pageSize },
       // 操作按钮权限
       canConfirm: false,
-      canComplete: false,
-      canInvoiceAccept: false,
-      canInvoiceReturn: false,
-      canPayConfirm: false,
+      canComplete: true,
+      canInvoiceAccept: true,
+      canInvoiceReturn: true,
+      canPayConfirm: true,
+      completeDialogVisible: false,
+      completeRowId: '',
     };
   },
   computed: {
@@ -337,11 +352,10 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
     this.canConfirm = this.permissions.has(`${this.moduleKey}-confirm`);
-    this.canComplete = this.permissions.has(`${this.moduleKey}-complete`);
-    this.canInvoiceAccept = this.permissions.has(`${this.moduleKey}-invoiceAccept`);
-    this.canInvoiceReturn = this.permissions.has(`${this.moduleKey}-invoiceReturn`);
-    this.canPayConfirm = this.permissions.has(`${this.moduleKey}-payConfirm`);
-    console.log(this.permissions);
+    // this.canComplete = this.permissions.has(`${this.moduleKey}-complete`);
+    // this.canInvoiceAccept = this.permissions.has(`${this.moduleKey}-invoiceAccept`);
+    // this.canInvoiceReturn = this.permissions.has(`${this.moduleKey}-invoiceReturn`);
+    // this.canPayConfirm = this.permissions.has(`${this.moduleKey}-payConfirm`);
   },
   methods: {
     // 格式化金额
@@ -369,16 +383,8 @@ export default {
     },
     // 开票完成
     handleComplete (row) {
-      this.$confirm('确认开票完成?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        complete({ id: row.id }).then(() => {
-          this.$message.success('开票完成');
-          this.getData();
-        });
-      }).catch(() => {});
+      this.completeRowId = row.id;
+      this.completeDialogVisible = true;
     },
     // 发票验收
     handleInvoiceAccept (row) {
