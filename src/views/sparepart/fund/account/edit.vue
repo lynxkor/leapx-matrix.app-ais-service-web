@@ -717,7 +717,7 @@ export default {
       this._executeExport({
         paginationKey: 'pagination',
         loadingKey: 'exportLoading',
-        path: 'sparepart/web/fund/accountFlow/page',
+        path: 'sp/web/fund/accountFlow/page',
         titleMap: this.titleMap
       // fileNameSuffix 默认为空，即 "导出数据.xlsx"
       });
@@ -728,7 +728,7 @@ export default {
       this._executeExport({
         paginationKey: 'djPagination',
         loadingKey: 'exportDjLoading',
-        path: 'sparepart/web/fund/accountFlow/frozenPage',
+        path: 'sp/web/fund/accountFlow/frozenPage',
         titleMap: this.titleMapDj,
         fileNameSuffix: '_冻结' // 可选：区分文件名，如 "导出数据_冻结.xlsx"
       });

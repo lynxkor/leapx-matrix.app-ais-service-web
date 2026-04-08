@@ -81,8 +81,7 @@ export default {
       console.log('exportExcel', this.$refs.workTable);
       this.exportLoading = true;
       exportTable({
-        businessType: '不可采购清单',
-        dataFetchPath: '/sp/web/purchase/purchaseApply/listUnPurchaseDetail',
+        dataFetchPath: 'sp/web/purchase/purchaseApply/listUnPurchaseDetail',
         reqParams: {
           id: this.id
         },
