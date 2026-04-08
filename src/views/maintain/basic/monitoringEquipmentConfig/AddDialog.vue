@@ -38,7 +38,7 @@
       </el-form>
 
       <!-- 设备列表 -->
-      <div class="table-container">
+      <div class="table-container" v-loading="loading" element-loading-text="加载中...">
         <vxe-table
           ref="xTable"
           border
@@ -96,6 +96,19 @@
           </vxe-column>
         </vxe-table>
 
+        <!-- 分页 -->
+        <div class="pagination-container">
+          <el-pagination
+            :current-page.sync="pagination.page"
+            :page-sizes="[10, 20, 50, 100]"
+            :page-size="pagination.size"
+            :total="pagination.total"
+            :disabled="loading"
+            layout="total, sizes, prev, pager, next, jumper"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
+        </div>
       </div>
     </div>
 
@@ -113,7 +126,7 @@
 </template>
 
 <script>
-import { batchUpdate, getListWithoutPurpose } from '@/api/maintain/basic/monitoringEquipmentConfig/index';
+import { batchUpdate, page } from '@/api/maintain/basic/monitoringEquipmentConfig/index';
 import { getEnum } from '@/api/common';
 import { getList as getDealerStationList } from '@/api/maintain/basic/dealerStation/index';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -139,13 +152,19 @@ export default {
       searchForm: {
         deviceSerialName: '',
         channelName: '',
-        dealerCode: ''
+        dealerCode: '',
+        hasDevicePurpose: false
       },
       tableData: [],
       selectedRows: [],
       devicePurposeOptions: [],
       devicePurposeMap: {},
-      stationOptions: []
+      stationOptions: [],
+      pagination: {
+        page: 1,
+        size: 20,
+        total: 0
+      }
     };
   },
   watch: {
@@ -168,6 +187,7 @@ export default {
     },
 
     handleSearch () {
+      this.pagination.page = 1;
       this.loadData();
     },
 
@@ -175,8 +195,10 @@ export default {
       this.searchForm = {
         deviceSerialName: '',
         channelName: '',
-        dealerName: ''
+        dealerName: '',
+        hasDevicePurpose: false
       };
+      this.pagination.page = 1;
       this.loadData();
     },
 
@@ -199,8 +221,12 @@ export default {
     async loadData () {
       this.loading = true;
       try {
-        const res = await getListWithoutPurpose(this.searchForm);
-        this.tableData = (res || []).map(item => ({
+        const res = await page({
+          ...this.searchForm,
+          pageNum: this.pagination.page,
+          pageSize: this.pagination.size
+        });
+        this.tableData = (res.records || []).map(item => ({
           ...item,
           checked: false,
           devicePurpose: null,
@@ -208,12 +234,24 @@ export default {
           remark: '',
           stationOptions: [] // 每行独立的工位选项
         }));
+        this.pagination.total = res.total || 0;
       } catch (error) {
         console.error('加载数据失败:', error);
         this.$message.error('加载数据失败');
       } finally {
         this.loading = false;
       }
+    },
+
+    handleSizeChange (size) {
+      this.pagination.size = size;
+      this.pagination.page = 1;
+      this.loadData();
+    },
+
+    handleCurrentChange (page) {
+      this.pagination.page = page;
+      this.loadData();
     },
 
     handleSelectionChange ({ records }) {
@@ -297,6 +335,12 @@ export default {
 
   .table-container {
     margin-bottom: 20px;
+  }
+
+  .pagination-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
   }
 
 }
