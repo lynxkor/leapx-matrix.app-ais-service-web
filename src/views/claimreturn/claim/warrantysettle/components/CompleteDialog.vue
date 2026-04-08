@@ -12,10 +12,11 @@
         <div class="common-section-body">
           <div>
             <AttachmentList
+              ref="attachmentListRef"
               :business-id="id"
               config-code="mcs_settleaccount"
               type="card"
-              @ocr-success="getTableData"
+              @ocr-success="ocrSuccess"
               />
           </div>
           <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="120px" class="form-edit" >
@@ -178,6 +179,10 @@ export default {
     id: {
       type: String,
       required: true
+    },
+    detailData: {
+      type: Object,
+      default: () => ({})
     }
   },
   data () {
@@ -197,6 +202,9 @@ export default {
   watch: {
     visible (val) {
       this.dialogVisible = val;
+      if (val && Object.keys(this.detailData).length > 0) {
+        this.setFormFromDetail();
+      }
       if (!val) {
         this.onReset();
       }
@@ -241,6 +249,15 @@ export default {
         ...defaultForm,
       };
     },
+    setFormFromDetail () {
+      if (this.detailData) {
+        this.form.invoiceDesc = this.detailData.invoiceDesc || '';
+        this.form.expressCompany = this.detailData.expressCompany || '';
+        this.form.expressCode = this.detailData.expressCode || '';
+        this.form.expressTime = this.detailData.expressTime || '';
+        this.form.paymentMethod = this.detailData.paymentMethod || '';
+      }
+    },
     getTableData () {
       if (!this.id) {
         return;
@@ -263,6 +280,9 @@ export default {
       this.current = current;
       this.getTableData();
     },
+    ocrSuccess () {
+      this.getTableData();
+    },
     handleDelete (row) {
       if (!row.id) {
         return;
@@ -270,6 +290,7 @@ export default {
       warrantySettleInvoiceRecordDelete([row.id]).then(() => {
         this.$message.success('删除成功');
         this.getTableData();
+        this.$refs.attachmentListRef?.refresh();
       }).catch(() => {
         this.$message.error('删除失败');
       });
