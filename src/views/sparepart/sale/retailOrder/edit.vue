@@ -635,7 +635,7 @@ export default {
     },
     async getVinList (query) {
       try {
-        const res = await getVin({ vin: query });
+        const res = await getVin({ vinLike: query });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
