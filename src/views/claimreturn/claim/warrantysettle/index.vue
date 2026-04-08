@@ -14,36 +14,23 @@
           placeholder="请输入保修结算单号"
         />
       </el-form-item>
-      <el-form-item label="门店编码">
+      <el-form-item label="门店">
         <fetch-select
-          :request="fetchOptions"
+          :remote-method="getDealerList"
+          remote
           v-model="form.dealerCodeList"
-          placeholder="请选择"
+          placeholder="请输入门店编码或名称"
+          labelKey="orgName"
+          valueKey="orgCode"
+          subLabelKey="orgCode"
           clearable
-          multiple
           filterable
-        />
-      </el-form-item>
-      <el-form-item label="月度">
-        <el-date-picker
-          v-model="form.month"
-          type="month"
-          format="yyyy-MM"
-          value-format="yyyy-MM"
-          placeholder="请选择"
-          clearable
+          multiple
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="门店名称">
-          <fetch-select
-            :request="fetchOptions"
-            v-model="form.dealerNameList"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
+        <el-form-item label="月度">
+          <el-input v-model="form.month" placeholder="请输入" clearable/>
         </el-form-item>
         <el-form-item label="门店状态">
           <fetch-select
@@ -134,7 +121,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, confirm, complete, invoiceAccept, invoiceReturn, payConfirm } from '@/api/claimreturn/claim/warrantysettle/index';
-import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, getEnum, listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import TagInput from '@/libs/components/TagInput';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -267,14 +254,14 @@ export default {
           },
           {
             props: 'invoiceAmount13',
-            label: '开票金额一 13%',
+            label: '开票金额一 （13%）',
             visible: true,
             width: 160,
             formatter: (row) => this.formatAmount(row.invoiceAmount13)
           },
           {
             props: 'invoiceAmount6',
-            label: '开票金额二 6%',
+            label: '开票金额二 （6%）',
             visible: true,
             width: 160,
             formatter: (row) => this.formatAmount(row.invoiceAmount6)
@@ -354,6 +341,7 @@ export default {
     this.canInvoiceAccept = this.permissions.has(`${this.moduleKey}-invoiceAccept`);
     this.canInvoiceReturn = this.permissions.has(`${this.moduleKey}-invoiceReturn`);
     this.canPayConfirm = this.permissions.has(`${this.moduleKey}-payConfirm`);
+    console.log(this.permissions);
   },
   methods: {
     // 格式化金额
@@ -531,7 +519,12 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    getDealerList (query) {
+      return listOrgStoreInfo({
+        name: query,
+      });
+    },
   }
 };
 </script>
