@@ -32,11 +32,11 @@
             <el-form-item label="门店名称：" prop="dealerName">
               <el-input placeholder="" v-model="form.dealerName" clearable disabled />
             </el-form-item>
-            <el-form-item label="公司编码：" prop="companyCode">
-              <el-input placeholder="" v-model="form.companyCode" clearable disabled />
+            <el-form-item label="公司编码：" prop="parentOrgCode">
+              <el-input placeholder="" v-model="form.parentOrgCode" clearable disabled />
             </el-form-item>
-            <el-form-item label="公司名称：" prop="companyName">
-              <el-input placeholder="" v-model="form.companyName" clearable disabled />
+            <el-form-item label="公司名称：" prop="parentOrgName">
+              <el-input placeholder="" v-model="form.parentOrgName" clearable disabled />
             </el-form-item>
             <el-form-item label="月度：" prop="month">
               <el-input placeholder="" v-model="form.month" clearable disabled />
@@ -45,7 +45,7 @@
               <el-input placeholder="" v-model="form.paymentMethodLabel" clearable disabled />
             </el-form-item>
             <el-form-item class="form-item-full" label="备注：" prop="remark">
-              <el-input type="textarea" v-model="form.remark" clearable disabled />
+              <el-input type="textarea" v-model="form.remark" clearable />
             </el-form-item>
           </el-form>
           <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
@@ -61,11 +61,11 @@
             <el-form-item label="门店名称：" prop="dealerName">
               {{ form.dealerName }}
             </el-form-item>
-            <el-form-item label="公司编码：" prop="companyCode">
-              {{ form.companyCode }}
+            <el-form-item label="公司编码：" prop="parentOrgCode">
+              {{ form.parentOrgCode }}
             </el-form-item>
-            <el-form-item label="公司名称：" prop="companyName">
-              {{ form.companyName }}
+            <el-form-item label="公司名称：" prop="parentOrgName">
+              {{ form.parentOrgName }}
             </el-form-item>
             <el-form-item label="月度：" prop="month">
               {{ form.month }}
@@ -137,7 +137,7 @@
           <div class="common-section-sub-header">
             <h3>金额分类汇总</h3>
           </div>
-          <AmountSummaryTable :tableData="amountSummaryList" />
+          <AmountSummaryTable :_id="_id" />
         </div>
       </section>
 
@@ -280,9 +280,6 @@
             <el-form-item label="税号：" prop="invoiceTaxNo">
               <el-input placeholder="" v-model="form.invoiceTaxNo" clearable disabled />
             </el-form-item>
-            <el-form-item label="开票说明：" prop="invoiceDesc">
-              <el-input placeholder="" v-model="form.invoiceDesc" clearable disabled />
-            </el-form-item>
             <el-form-item label="开户账号：" prop="invoiceAccount">
               <el-input placeholder="" v-model="form.invoiceAccount" clearable disabled />
             </el-form-item>
@@ -294,6 +291,9 @@
             </el-form-item>
             <el-form-item class="form-item-full" label="开票地址：" prop="invoiceAddress">
               <el-input type="textarea" v-model="form.invoiceAddress" clearable disabled />
+            </el-form-item>
+            <el-form-item class="form-item-full" label="开票说明：" prop="invoiceDesc">
+              <el-input type="textarea" v-model="form.invoiceDesc" clearable disabled />
             </el-form-item>
           </el-form>
           <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
@@ -312,9 +312,6 @@
             <el-form-item label="税号：" prop="invoiceTaxNo">
               {{ form.invoiceTaxNo }}
             </el-form-item>
-            <el-form-item label="开票说明：" prop="invoiceDesc">
-              {{ form.invoiceDesc }}
-            </el-form-item>
             <el-form-item label="开户账号：" prop="invoiceAccount">
               {{ form.invoiceAccount }}
             </el-form-item>
@@ -327,21 +324,26 @@
             <el-form-item class="form-item-full" label="开票地址：" prop="invoiceAddress">
               {{ form.invoiceAddress }}
             </el-form-item>
+            <el-form-item class="form-item-full" label="开票说明：" prop="invoiceDesc">
+              {{ form.invoiceDesc }}
+            </el-form-item>
           </el-form>
 
           <div class="common-section-sub-header">
             <h3>开票信息</h3>
           </div>
-          <InvoiceInfoTable :tableData="invoiceInfoList" />
+          <InvoiceInfoTable :_id="_id" />
 
           <div class="common-section-sub-header">
             <h3>发票附件</h3>
           </div>
-          <AttachmentList
-            :business-id="_id"
-            config-code="mcs_settleaccount"
-            type="card"
-            />
+          <div>
+            <AttachmentList
+              :business-id="_id"
+              config-code="mcs_settleaccount"
+              type="card"
+              />
+          </div>
         </div>
       </section>
 
@@ -351,7 +353,7 @@
           <h2>通知书明细</h2>
         </div>
         <div class="common-section-body">
-          <NoticeDetailTable :tableData="noticeDetailList" />
+          <NoticeDetailTable :_id="_id" />
         </div>
       </section>
 
@@ -361,7 +363,7 @@
           <h2>追溯明细</h2>
         </div>
         <div class="common-section-body">
-          <TraceDetailTable :tableData="traceDetailList" />
+          <TraceDetailTable :_id="_id" />
         </div>
       </section>
     </el-main>
@@ -462,17 +464,13 @@ export default {
     return {
       pageTitle: '保修结算通知书',
       pageType: 'edit',
-      moduleKey: 'AISCR-warrantysettle',
+      moduleKey: 'AISCR-warrantySettle',
       loading: false,
       submitLoading: false,
       form: { ...form },
       originalForm: { ...form },
       rules: {
       },
-      amountSummaryList: [],
-      invoiceInfoList: [],
-      noticeDetailList: [],
-      traceDetailList: [],
     };
   },
   methods: {
@@ -498,6 +496,7 @@ export default {
 .common-section-sub-header {
   display: flex;
   margin-bottom: 8px;
+  width: 100%;
   h3 {
     color: #0A0E0A;
     font-size: 14px;

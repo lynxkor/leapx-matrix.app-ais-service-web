@@ -273,5 +273,8 @@ export default {
     align-items: center;
     height: 80%;
   }
+  .business-upload{
+    margin-top: 6px;
+  }
 }
 </style>
