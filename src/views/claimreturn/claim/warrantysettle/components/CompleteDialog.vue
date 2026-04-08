@@ -15,6 +15,7 @@
               :business-id="id"
               config-code="mcs_settleaccount"
               type="card"
+              @ocr-success="getTableData"
               />
           </div>
           <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="120px" class="form-edit" >
@@ -266,7 +267,7 @@ export default {
       if (!row.id) {
         return;
       }
-      warrantySettleInvoiceRecordDelete(row.id).then(() => {
+      warrantySettleInvoiceRecordDelete([row.id]).then(() => {
         this.$message.success('删除成功');
         this.getTableData();
       }).catch(() => {
