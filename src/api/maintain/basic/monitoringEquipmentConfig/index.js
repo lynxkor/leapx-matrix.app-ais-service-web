@@ -15,8 +15,8 @@ export function getList (data) {
  * 查询列表
  * @param {Object} data
  */
-export function pageHasDevicePurpose (data) {
-  return api.jsonPost(prefix + 'pageHasDevicePurpose', data);
+export function page (data) {
+  return api.jsonPost(prefix + 'page', data);
 };
 
 /**
@@ -49,14 +49,6 @@ export function getDetail (data) {
  */
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
-}
-
-/**
- * 查询没有设备用途的设备列表
- * @param {Object} data
- */
-export function getListWithoutPurpose (data) {
-  return api.jsonPost(prefix + 'listNoDevicePurpose', data);
 }
 
 /**

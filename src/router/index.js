@@ -2654,7 +2654,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/predictDealerType/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件预测门店分类',
         keepAlive: true
       }
     }, {
@@ -2663,7 +2663,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/predictDealerType/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件预测门店分类详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -2672,7 +2672,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/predictBlacklist/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件预测黑白名单',
         keepAlive: true
       }
     }, {
@@ -2681,7 +2681,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/predictBlacklist/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件预测黑白名单详情',
         noResourceUrl: 'true'
       }
     }, {

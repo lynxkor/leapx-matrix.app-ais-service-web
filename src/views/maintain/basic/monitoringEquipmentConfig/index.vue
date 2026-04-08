@@ -127,7 +127,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { pageHasDevicePurpose, deleteItem, enableItem } from '@/api/maintain/basic/monitoringEquipmentConfig/index';
+import { page, deleteItem, enableItem } from '@/api/maintain/basic/monitoringEquipmentConfig/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -155,6 +155,7 @@ const defaultForm = {
   createTime: '',
   channelName: '',
   dealerCode: '',
+  hasDevicePurpose: true
 };
 
 const pageSize = 20;
@@ -361,7 +362,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      pageHasDevicePurpose({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      page({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {
