@@ -118,6 +118,7 @@ export default {
     getDealerList (query) {
       return listOrgStoreInfo({
         name: query,
+        isServiceStore: 1,
       });
     },
     handleDealerChange (val, record) {

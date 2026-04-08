@@ -3,12 +3,13 @@ import api from '@/axios';
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = 'datacenter/web/vehicle/vehicleProfile/';
 
+// vin是明文
 export function vehicleListFull (data) {
   return api.jsonPost(prefix + 'listFull', data);
 };
 
 /**
- * 查询列表
+ * 查询列表 （vin是加密的）
  * @param {Object} data
  */
 export function getList (data) {
