@@ -259,6 +259,8 @@
                 </template>
               </vxe-column>
               <vxe-column field="statusLabel" title="维修项目状态" width="120px" />
+              <vxe-column field="packageTypeLabel" title="套餐类型" width="120px" />
+              <vxe-column field="packageName" title="套餐名称" width="120px" />
               <vxe-column field="packageCode" title="套餐代码" width="120px" />
               <vxe-column title="操作" width="100" align="center" fixed="right">
                 <template #default="{ row, rowIndex }">
@@ -415,6 +417,8 @@
                   </el-select>
                 </template>
               </vxe-column>
+              <vxe-column field="packageTypeLabel" title="套餐类型" width="120px" />
+              <vxe-column field="packageName" title="套餐名称" width="120px" />
               <vxe-column field="packageCode" title="套餐代码" width="120px" />
               <vxe-column title="操作" width="150" align="center" fixed="right">
                 <template #default="{ row, rowIndex }">

@@ -201,6 +201,7 @@
 <script>
 import { getActivityList, getActivityListType, getActivityDetail, useActivity, cancel } from '@/api/maintain/sp/serviceProxy/special';
 import { getEnum } from '@/api/common';
+import { PackageTypeEnum, ActivityTypeEnum } from '../../constant';
 
 export default {
   name: 'MaintainPkg',
@@ -449,7 +450,7 @@ export default {
         workHour: item.workHour || 1,
         isAddItems: 0,
         discountAmount: item.discountAmount || 0,
-        packageType: activityRes.activityResponse.activityType === 4 ? 60 : 50,
+        packageType: String(activityRes.activityType) === ActivityTypeEnum.SERVICE_CARE ? PackageTypeEnum.CARE_ACTIVITY : PackageTypeEnum.TECH_ACTIVITY,
         packageId: this.selectedPackage.activityId + '#' + this.selectedPackage.id,
         packageCode: activityRes.activityCode,
         packageName: activityRes.activityName,
@@ -492,7 +493,7 @@ export default {
             repairItemId: part.serviceActivityItemId,
             repairItemCode: repairItem.repairItemCode || '',
             repairItemName: repairItem.repairItemName || '',
-            packageType: activityRes.activityResponse.activityType === 4 ? 60 : 50,
+            packageType: String(activityRes.activityResponse.activityType) === ActivityTypeEnum.SERVICE_CARE ? PackageTypeEnum.CARE_ACTIVITY : PackageTypeEnum.TECH_ACTIVITY,
             packageId: this.selectedPackage.activityId + '#' + this.selectedPackage.id,
             packageCode: activityRes.activityCode,
             packageName: activityRes.activityName,
