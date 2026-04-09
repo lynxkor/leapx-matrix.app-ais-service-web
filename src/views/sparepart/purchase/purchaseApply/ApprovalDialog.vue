@@ -119,7 +119,6 @@ export default {
           approvalDescription: '',
         };
       } catch (error) {
-        this.$message.error('操作失败：' + (error.message || '未知错误'));
       } finally {
         this.submitLoading = false;
       }
