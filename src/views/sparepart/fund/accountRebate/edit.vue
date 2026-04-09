@@ -10,6 +10,9 @@
                 <!-- TIPS: 子标题格式如下 -->
                 <!-- <h5>活动编码：{{ form.activityCode }}</h5> -->
               </div>
+              <div>
+                <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button>
+              </div>
               <!-- <div v-if="isEditing">
                 <el-button size="small" @click="handleCancel">取消</el-button>
                 <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
@@ -610,9 +613,9 @@ export default {
       };
     },
     // 审核日志
-    // handleJumpAuditLog () {
-    //   this.$auditLog.show({ id: 123 });
-    // },
+    handleJumpAuditLog () {
+      this.$auditLog.show({ id: this.form.id });
+    },
     // 详情表格相关数据
     handleAddRow () {
       // 通过引用直接调用子组件方法
