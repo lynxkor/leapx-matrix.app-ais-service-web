@@ -37,6 +37,9 @@ import zhCN from 'vxe-table/lib/locale/lang/zh-CN';
 
 VxeUi.setI18n('zh-CN', zhCN);
 VxeUi.setLanguage('zh-CN');
+VxeUi.setConfig({
+  zIndex: 2999 // 解决弹出框表格内的提示信息被遮挡问题
+});
 
 Vue.use(VxeTable);
 Vue.use(VxeTooltip);
