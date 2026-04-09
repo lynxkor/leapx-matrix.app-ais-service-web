@@ -431,7 +431,7 @@
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
 import BaseSearch from '@/libs/components/BaseSearch';
-import { getEnum, getCCCList, updateSpFaultAlertRecord, deleteSpFaultAlertRecord, addFaultRecord } from '@/api/maintain/sp/serviceProxy/index';
+import { getEnum, getCCCList, updateSpFaultAlertRecord, deleteSpFaultAlertRecord, addFaultRecord, getDetail } from '@/api/maintain/sp/serviceProxy/index';
 import { RepairOrderStatusEnum } from '../../constant';
 
 export default {
@@ -658,8 +658,8 @@ export default {
             message: '保存成功',
             type: 'success'
           });
-          // 通知父组件刷新数据
-          this.$emit('refresh');
+          // 从后端重新获取最新的故障列表数据
+          this.refreshFaultList();
           if (res) {
             const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>故障模块消息提醒</div><div class="ais-leave-tips-sub">${res}</div>`;
             this.$confirm(message, '', {
@@ -696,8 +696,8 @@ export default {
             message: '保存成功',
             type: 'success'
           });
-          // 通知父组件刷新数据
-          this.$emit('refresh');
+          // 从后端重新获取最新的故障列表数据
+          this.refreshFaultList();
         });
       }
     },
@@ -715,6 +715,18 @@ export default {
           });
           resolve(arr);
         });
+      });
+    },
+    // 刷新故障列表数据
+    refreshFaultList () {
+      if (!this._id) return;
+      getDetail(this._id).then(res => {
+        if (res && res.faultAlertRecordRespList) {
+          // 只更新故障列表数据，不影响其他字段
+          this.$set(this.form, 'faultAlertRecordRespList', res.faultAlertRecordRespList);
+        }
+      }).catch(err => {
+        console.error('刷新故障列表失败:', err);
       });
     }
   }
