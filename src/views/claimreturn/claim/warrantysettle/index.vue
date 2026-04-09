@@ -320,7 +320,8 @@ export default {
                 },
                 type: 'info',
                 show: (row) => {
-                  return this.canInvoiceAccept && row.settleStatus === '65';
+                  // return this.canInvoiceAccept && row.settleStatus === '65';
+                  return true;
                 }
               },
               {
