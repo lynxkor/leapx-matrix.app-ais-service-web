@@ -493,7 +493,7 @@ export default {
             repairItemId: part.serviceActivityItemId,
             repairItemCode: repairItem.repairItemCode || '',
             repairItemName: repairItem.repairItemName || '',
-            packageType: String(activityRes.activityResponse.activityType) === ActivityTypeEnum.SERVICE_CARE ? PackageTypeEnum.CARE_ACTIVITY : PackageTypeEnum.TECH_ACTIVITY,
+            packageType: String(activityRes.activityType) === ActivityTypeEnum.SERVICE_CARE ? PackageTypeEnum.CARE_ACTIVITY : PackageTypeEnum.TECH_ACTIVITY,
             packageId: this.selectedPackage.activityId + '#' + this.selectedPackage.id,
             packageCode: activityRes.activityCode,
             packageName: activityRes.activityName,
