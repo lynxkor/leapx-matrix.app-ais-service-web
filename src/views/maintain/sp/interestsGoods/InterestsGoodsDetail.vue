@@ -74,7 +74,7 @@
             <vxe-column field="checkoutTypeName" title="结算类型" width="150" />
             <vxe-column field="totalAmount" title="数量" width="150">
               <template #default="{ row }">
-                <el-input-number :min="0" :step="1" step-strictly size="small" type="number" v-model="row.totalAmount" clearable @change="calculatePartsAmount(row)" />
+                <el-input-number :min="1" :max="99" :step="1" step-strictly size="small" type="number" v-model="row.totalAmount" clearable @change="calculatePartsAmount(row)" />
               </template>
             </vxe-column>
             <vxe-column field="unitPrice" title="单价" width="100" />
@@ -84,7 +84,7 @@
               </template>
             </vxe-column>
             <vxe-column field="receivableAmount" title="零件金额" width="100" />
-            <vxe-column field="claimPrice" title="索赔价格" width="150">
+            <vxe-column field="claimPrice" title="索赔金额" width="150">
               <template #default="{ row }">
                 <el-input-number :controls="false" :min="0" size="small" type="number" v-model="row.claimPrice" clearable />
               </template>
@@ -212,11 +212,11 @@ export default {
             item.checkoutTypeName = '自费';
             item.warrantyTypeName = '无';
             item.totalAmount = 1;
-            item.unitPrice = res.salePrice || 0;
+            item.unitPrice = item.price || 0;
             item.discount = 0;
             item.discountAmount = 0;
             item.claimPrice = 0;
-            item.receivableAmount = res.salePrice || 0;
+            item.receivableAmount = item.price || 0;
             this.partsTableData.push(item);
           }
           this.calculateAmount();
@@ -254,9 +254,6 @@ export default {
 
       // 应收金额 = 工时 * 单价 * (1 - 折扣率) - 优惠金额
       let receivable = workingHours * unitPrice;
-      if (discount > 0) {
-        receivable = receivable * (1 - discount / 100);
-      }
       receivable = receivable - discountAmount;
       this.repairDetail.receivableAmount = Math.max(0, receivable.toFixed(2));
     },
@@ -264,13 +261,9 @@ export default {
     calculatePartsAmount (row) {
       const totalAmount = Number(row.totalAmount) || 0;
       const unitPrice = Number(row.unitPrice) || 0;
-      const discount = Number(row.discount) || 0;
       const discountAmount = Number(row.discountAmount) || 0;
 
       let receivable = totalAmount * unitPrice;
-      if (discount > 0) {
-        receivable = receivable * (1 - discount / 100);
-      }
       receivable = receivable - discountAmount;
       row.receivableAmount = Math.max(0, receivable.toFixed(2));
     },
