@@ -9,32 +9,33 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.codeList"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="备件 ID">
-        <el-input
-          placeholder="请输入"
-          v-model="form.sparePartIdList"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="名单类型 "  v-show="this.visibleCount === 3 || show">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="PredictFilterTypeEnum"
-          v-model="form.filterTypeList"
-          placeholder="请选择"
-          clearable
-          multiple
-          filterable
-        />
-      </el-form-item>
+        <el-form-item label="备件">
+          <fetch-select
+              :remote-method="getSparePart"
+              remote
+              v-model="form.sparePartIdList"
+              placeholder="请输入编码或名称"
+              labelKey="partName"
+              valueKey="id"
+              subLabelKey="partCode"
+              clearable
+              multiple
+              collapseTags
+              filterable
+                />
+        </el-form-item>
       <template v-if="show">
+        <el-form-item label="名单类型 "  v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="PredictFilterTypeEnum"
+            v-model="form.filterTypeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
         <el-form-item label="模式 ">
           <fetch-select
             :request="fetchOptions"
@@ -46,7 +47,22 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="状态">
+        <el-form-item label="门店">
+          <fetch-select
+            :remote-method="getDealerList"
+            remote
+            v-model="form.dealerCodeList"
+            placeholder="请输入门店编码或名称"
+            labelKey="orgName"
+            valueKey="orgCode"
+            subLabelKey="orgCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
+              />
+        </el-form-item>
+        <el-form-item label="是否启用">
           <fetch-select
             :request="fetchOptions"
             enumCode="StatusEnum"
@@ -94,11 +110,11 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -136,7 +152,7 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/predictBlacklist/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listDealerPartWithOem, listOrgStoreInfoByParam } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -173,10 +189,10 @@ export default {
   },
   data () {
     return {
-      pageTitle: '新页面',
+      pageTitle: '备件预测黑白名单',
       pageType: 'list',
-      // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-predictBlacklist',
+      // TIPS: 权限前缀 AISPART，根据实际情况修改
+      moduleKey: 'AISPART-predictBlacklist',
       form: {
         ...defaultForm
       },
@@ -213,8 +229,8 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
-          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'partCode', label: '备件编码', visible: true, width: 200 },
+          { props: 'partName', label: '备件名称', visible: true, width: 200 },
           { props: 'filterTypeLabel', label: '名单类型 ', visible: true, width: 200 },
           { props: 'typeLabel', label: '模式 ', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
@@ -276,6 +292,22 @@ export default {
     this.getData();
   },
   methods: {
+    async getSparePart (query) {
+      try {
+        const res = await listDealerPartWithOem({ partCodeLikeOrList: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     // 排序
     handleSortChange (value) {
       this.sortColumns = (value || []).map(item => {
@@ -318,7 +350,7 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '新页面',
+        businessType: '备件预测黑白名单',
         dataFetchPath: 'sparepart/web/basic/predictBlacklist/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -326,7 +358,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '备件预测黑白名单.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
@@ -395,7 +427,7 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+        if (data[key] === '' || data[key] === null || data[key].length === 0) {
           delete data[key];
         }
       });

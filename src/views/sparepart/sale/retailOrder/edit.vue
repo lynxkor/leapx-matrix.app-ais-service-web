@@ -441,11 +441,11 @@
 </template>
 
 <script>
-import { getVin, getDetail, addOrUpdate, retailPaymentRecordPage, retailOrderDetailPage, addOrUpdateRetailOrderDetail, deleteRetailOrderDetail } from '@/api/sparepart/sale/retailOrder/index';
+import { spareParkList, getMileage, getVehicleProfile, getDetail, addOrUpdate, retailPaymentRecordPage, retailOrderDetailPage, addOrUpdateRetailOrderDetail, deleteRetailOrderDetail } from '@/api/sparepart/sale/retailOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, getPartDealer, getLoginUser, listDealerPart } from '@/api/common';
+import { getEnum, getPartDealer, getLoginUser } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -618,18 +618,27 @@ export default {
     this.initDealerUser();
   },
   methods: {
-    handleVinChange (val, ele) {
-      this.form.customerName = ele.customerName;
-      this.form.plateNumber = ele.plateNumber;
+    async handleVinChange (val, ele) {
+      this.form.customerName = ele.vehicleProfileOwnerResp.ownerName;
+      this.form.plateNumber = ele.vehiclePlateNo;
       this.form.vehicleModelId = ele.vehicleModelId;
       this.form.vehicleModelName = ele.vehicleModelName;
-      this.form.iotMileage = ele.iotMileage;
       this.form.saleDate = ele.saleDate;
-      this.form.latestVisitMileage = ele.latestVisitMileage;
+      try {
+        const res = await getMileage({ vin: val });
+        console.log('res', JSON.stringify(res));
+        this.form.latestVisitMileage = res.latestVisitMileage;
+        this.form.iotMileage = res.iotMileage;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     },
     async getVinList (query) {
+      if (!query || query.length < 6) {
+        return [];
+      }
       try {
-        const res = await getVin({ vin: query });
+        const res = await getVehicleProfile({ searchVin: query });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
@@ -694,7 +703,7 @@ export default {
     // 备件远程搜索
     async queryListData (query) {
       try {
-        const res = await listDealerPart({ partCodeOrNameLike: query });
+        const res = await spareParkList({ partCodeOrNameLike: query, id: this._id });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);

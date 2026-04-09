@@ -28,24 +28,32 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="编码：" prop="code">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.code"
+                <el-form-item label="备件编码：" prop="sparePartId">
+                <fetch-select
+                  prop="partCode"
+                  filterable
+                  clearable
+                  remote
+                  reserve-keyword
+                  v-model="form.partCode"
+                  :remote-method="getSparePart"
+                  labelKey="name"
+                  valueKey="id"
+                  subLabelKey="code"
+                  @change="listSparePartChange"
+                />
+              </el-form-item>
+              <el-form-item label="备件名称：" prop="partName">
+                <el-input
+                    v-model="form.partName"
                     clearable
+                    :disabled="true"
                   />
-                </el-form-item>
-                <el-form-item label="备件 ID：" prop="sparePartId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.sparePartId"
-                    clearable
-                  />
-                </el-form-item>
+              </el-form-item>
                 <el-form-item label="名单类型 ：" prop="filterType">
                   <fetch-select
                     :request="fetchOptions"
-                    enumCode="xxx"
+                    enumCode="PredictFilterTypeEnum"
                     v-model="form.filterType"
                     placeholder="请选择"
                     clearable
@@ -55,21 +63,34 @@
                 <el-form-item label="模式 ：" prop="type">
                   <fetch-select
                     :request="fetchOptions"
-                    enumCode="xxx"
+                    enumCode="PredictTypeEnum"
                     v-model="form.type"
                     placeholder="请选择"
                     clearable
                     filterable
                   />
                 </el-form-item>
-                <el-form-item label="状态：" prop="status">
+                <el-form-item label="门店编码：" prop="dealerCode" v-if="form.type==='dealer'">
                   <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.status"
-                    placeholder="请选择"
+                    :remote-method="getDealerList"
+                    remote
+                    v-model="form.dealerCode"
+                    placeholder="请输入门店编码或名称"
+                    labelKey="orgCode"
+                    valueKey="orgCode"
+                    subLabelKey="orgName"
                     clearable
+                    collapseTags
                     filterable
+                    @change="handleDealerChange"
+                  />
+                </el-form-item>
+                <el-form-item label="门店名称：" prop="dealerName" v-if="form.type==='dealer'">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.dealerName"
+                    clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
@@ -79,124 +100,34 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.createTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.updateTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.id"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creator"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creatorName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifier"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifierName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statusDesc"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dataSource"
-                    clearable
-                  />
-                </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="编码：" prop="code">
                   {{ form.code }}
                 </el-form-item>
-                <el-form-item label="备件 ID：" prop="sparePartId">
-                  {{ form.sparePartId }}
+                <el-form-item label="备件编码：" prop="sparePartId">
+                  {{ form.partCode }}
+                </el-form-item>
+                <el-form-item label="备件名称：" prop="sparePartId">
+                  {{ form.partName }}
+                </el-form-item>
+                <el-form-item label="门店编码：" v-if="form.type==='dealer'">
+                  {{ form.dealerCode }}
+                </el-form-item>
+                <el-form-item label="门店名称：" v-if="form.type==='dealer'">
+                  {{ form.dealerName }}
                 </el-form-item>
                 <el-form-item label="名单类型 ：" prop="filterType">
-                  {{ form.filterType }}
+                  {{ form.filterTypeLabel }}
                 </el-form-item>
                 <el-form-item label="模式 ：" prop="type">
-                  {{ form.type }}
+                  {{ form.typeLabel }}
                 </el-form-item>
                 <el-form-item label="状态：" prop="status">
-                  {{ form.status }}
+                  {{ form.statusLabel }}
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
                   {{ form.remark }}
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  {{ form.createTime }}
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  {{ form.updateTime }}
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  {{ form.id }}
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  {{ form.modifierName }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  {{ form.statusDesc }}
-                </el-form-item>
-                <el-form-item label="数据来源，150:新销服; 老销服:10：" prop="dataSource">
-                  {{ form.dataSource }}
                 </el-form-item>
               </el-form>
             </div>
@@ -266,7 +197,7 @@ import { getDetail, addOrUpdate } from '@/api/sparepart/basic/predictBlacklist/i
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
+import { getEnum, sparePartListShort, listOrgStoreInfoByParam } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -327,10 +258,10 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: '备件预测黑白名单',
       pageType: 'edit',
-      // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISMC-predictBlacklist',
+      // TIPS: 权限前缀 AISPART，根据实际情况修改
+      moduleKey: 'AISPART-predictBlacklist',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -393,6 +324,30 @@ export default {
   mounted () {
   },
   methods: {
+    async getSparePart (query) {
+      try {
+        const res = await sparePartListShort({ partCodeLikeOrList: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    listSparePartChange (val, all) {
+      this.form.sparePartId = all.id;
+      this.form.partCode = all.code;
+      this.form.partName = all.name;
+    },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        return [];
+      }
+    },
+    handleDealerChange (val, ele) {
+      this.form.dealerName = ele.orgName;
+    },
     detailRequest () {
       const id = this._id;
       if (id) {

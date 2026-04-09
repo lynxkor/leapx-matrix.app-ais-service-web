@@ -1330,7 +1330,8 @@ const routes = [
         name: '备件现金账户详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/fund/accountRebate',
       name: 'accountRebate',
       component: () => import('@/views/sparepart/fund/accountRebate/index.vue'),
@@ -1339,8 +1340,7 @@ const routes = [
         name: '备件返利账户',
         keepAlive: true
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/sparepart/fund/accountRebate/edit',
       name: 'accountRebateEdit',
       component: () => import('@/views/sparepart/fund/accountRebate/edit.vue'),
@@ -1349,7 +1349,8 @@ const routes = [
         name: '备件返利账户详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 门店销毁
+    {
       path: '/sparepart/warehouse/inventory',
       name: 'inventory',
       component: () => import('@/views/sparepart/warehouse/inventory/index.vue'),
@@ -1358,8 +1359,7 @@ const routes = [
         name: '门店备件库存',
         keepAlive: true
       }
-    }, // 门店销毁
-    {
+    }, {
       path: '/sparepart/warehouse/inventory/edit',
       name: 'inventoryEdit',
       component: () => import('@/views/sparepart/warehouse/inventory/edit.vue'),
@@ -2631,12 +2631,30 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/claimreturn/claim/warrantySettle',
+      name: 'warrantysettle',
+      component: () => import('@/views/claimreturn/claim/warrantysettle/index.vue'),
+
+      meta: {
+        name: '保修结算通知书',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/warrantySettle/edit',
+      name: 'warrantysettleEdit',
+      component: () => import('@/views/claimreturn/claim/warrantysettle/edit.vue'),
+
+      meta: {
+        name: '保修结算通知书详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/sparepart/basic/predictDealerType',
       name: 'predictDealerType',
       component: () => import('@/views/sparepart/basic/predictDealerType/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件预测门店分类',
         keepAlive: true
       }
     }, {
@@ -2645,7 +2663,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/predictDealerType/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件预测门店分类详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -2654,7 +2672,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/predictBlacklist/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '备件预测黑白名单',
         keepAlive: true
       }
     }, {
@@ -2663,7 +2681,7 @@ const routes = [
       component: () => import('@/views/sparepart/basic/predictBlacklist/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '备件预测黑白名单详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -2690,6 +2708,24 @@ const routes = [
 
       meta: {
         name: '数据同步记录表管理详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/datacenter/vehicle/serviceDealerChangeApply',
+      name: 'serviceDealerChangeApply',
+      component: () => import('@/views/datacenter/vehicle/serviceDealerChangeApply/index.vue'),
+
+      meta: {
+        name: '专属服务门店变更',
+        keepAlive: true
+      }
+    }, {
+      path: '/datacenter/vehicle/serviceDealerChangeApply/edit',
+      name: 'serviceDealerChangeApplyEdit',
+      component: () => import('@/views/datacenter/vehicle/serviceDealerChangeApply/edit.vue'),
+
+      meta: {
+        name: '专属服务门店变更',
         noResourceUrl: 'true'
       }
     }]
@@ -2740,6 +2776,8 @@ export function getRouter () {
       // if (true) {
         next();
       } else {
+        console.log(to.path);
+        console.log(localStorage.getItem('sourceUrl').includes(to.path));
         window.alert('你没有访问该页面的权限');
         if (store.state.user.token) {
           next({

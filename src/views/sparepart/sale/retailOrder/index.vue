@@ -516,6 +516,9 @@ export default {
               show: (row) => {
                 return row.orderStatus === '50' || row.orderStatus === '60';
               },
+              click: (rowIndex, row) => {
+                this.handlePrintSettlementStatement(row);
+              },
               type: 'info',
             }, {
               name: '反结算',
@@ -854,6 +857,14 @@ export default {
         id: val.id, // 必选，对应数据id
         template: 'SparesOutbound', // 必选，对应 ./template/文件名.vue
         title: `${val.dealerName}备件出库单`// 可选，打印标题
+      });
+    },
+    // 打印结算单
+    handlePrintSettlementStatement (val) {
+      this.$print.show({
+        id: val.id, // 必选，对应数据id
+        template: 'SettlementStatement', // 必选，对应 ./template/文件名.vue
+        title: `${val.dealerName}厅店结算单`// 可选，打印标题
       });
     },
   }

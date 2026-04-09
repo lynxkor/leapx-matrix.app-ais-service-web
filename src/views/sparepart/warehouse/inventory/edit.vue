@@ -60,6 +60,9 @@
                     clearable
                     collapseTags
                     filterable
+                    allow-create
+                    default-first-option
+                    @change="handleLocationChange"
                   />
                 </el-form-item>
                 <el-form-item label="最近入库时间：">
@@ -363,6 +366,7 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       orderTitle: '冻结订单',
+      isNewLocation: false,
       inventoryData: [],
       inventory: {
         current: 1,
@@ -456,6 +460,14 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
+    handleLocationChange (val, record) {
+      this.isNewLocation = !record && !!val;
+      if (record) {
+        this.form.locationName = record.name;
+      } else {
+        this.form.locationName = val;
+      }
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -463,7 +475,12 @@ export default {
       }
     },
     submitRequest () {
-      return addOrUpdate({ ...this.form });
+      const params = { ...this.form };
+      if (this.isNewLocation) {
+        params.locationId = null;
+        params.locationName = this.form.locationName;
+      }
+      return addOrUpdate(params);
     },
     handleFrozenQtyClick (val) {
       if (val === 0) {

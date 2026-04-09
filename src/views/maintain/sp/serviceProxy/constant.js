@@ -142,6 +142,20 @@ export const PackageTypeOptions = [
   { code: PackageTypeEnum.TECH_ACTIVITY, message: '服务活动' }
 ];
 
+// 活动类型枚举
+export const ActivityTypeEnum = {
+  /** 召回活动 */
+  RECALL: '0',
+  /** 主动活动 */
+  PROACTIVE: '1',
+  /** 被动活动 */
+  PASSIVE: '2',
+  /** 政策类活动 */
+  POLICY: '3',
+  /** 服务关爱活动 */
+  SERVICE_CARE: '4'
+};
+
 export const WorkRecordStatusEnum = {
   /** 作业未开始 */
   NOT_STARTED: 10,

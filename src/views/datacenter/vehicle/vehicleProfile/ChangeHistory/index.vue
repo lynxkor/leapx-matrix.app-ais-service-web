@@ -4,7 +4,7 @@
       <el-form-item label="业务类型" label-width="80px">
         <fetch-select
           :request="fetchOptions"
-          enumCode="claim_key_info_change_business_type"
+          enumCode="key_info_change_business_type"
           v-model="form.businessType"
           placeholder="请选择"
           clearable
