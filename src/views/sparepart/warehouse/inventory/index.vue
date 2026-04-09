@@ -614,13 +614,13 @@ export default {
       }
       // 提取所有选中项的 warehouseId
       const warehouseIds = this.selectionList.map(item => item.warehouseId);
-
       // 检查所有 warehouseId 是否相同
       const firstWarehouseId = warehouseIds[0];
       const allSame = warehouseIds.every(id => id === firstWarehouseId);
 
       if (allSame) {
         // 所有 warehouseId 相同，可以继续操作
+        this.warehouseIds = firstWarehouseId;
         this.transferDialog = true;
       } else {
         this.$message.warning('选中的数据仓库不一致，请选择相同仓库的数据进行操作');
