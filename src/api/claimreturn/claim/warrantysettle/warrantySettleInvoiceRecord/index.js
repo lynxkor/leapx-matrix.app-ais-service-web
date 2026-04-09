@@ -11,7 +11,7 @@ export function warrantySettleInvoiceRecordPage (data) {
 };
 
 /**
- * 获取详情
+ * 删除
  * @param {String} id
  */
 export function warrantySettleInvoiceRecordDelete (id) {

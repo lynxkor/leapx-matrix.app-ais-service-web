@@ -116,6 +116,7 @@
     <CompleteDialog
       :visible.sync="completeDialogVisible"
       :id="completeRowId"
+      :detailData="completeDetailData"
       @success="getData"
     />
   </div>
@@ -192,6 +193,7 @@ export default {
       canPayConfirm: true,
       completeDialogVisible: false,
       completeRowId: '',
+      completeDetailData: {},
     };
   },
   computed: {
@@ -384,6 +386,7 @@ export default {
     // 开票完成
     handleComplete (row) {
       this.completeRowId = row.id;
+      this.completeDetailData = row;
       this.completeDialogVisible = true;
     },
     // 发票验收

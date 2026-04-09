@@ -196,7 +196,11 @@ export default {
         remark: this.sparePartDetail.remark,
         purchaseQty: this.sparePartDetail.purchaseQty
       };
-      await this.getAddDetail(params);
+      try {
+        await this.getAddDetail(params);
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
       this.getSparePartDetail(this.detailId);
       this.$emit('submit');
     },

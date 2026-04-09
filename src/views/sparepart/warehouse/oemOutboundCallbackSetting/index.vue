@@ -146,7 +146,7 @@ export default {
               },
               popconfirmTitle: '确认关闭?',
               click: (rowIndex, row) => {
-                this.disable([row.id]);
+                this.disable(row.id);
               },
               type: 'danger'
             },
@@ -157,7 +157,7 @@ export default {
               },
               popconfirmTitle: '确认开启?',
               click: (rowIndex, row) => {
-                this.enable([row.id]);
+                this.enable(row.id);
               },
               type: 'danger'
             }]

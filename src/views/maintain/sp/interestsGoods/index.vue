@@ -27,7 +27,7 @@
         <fetch-select
           :request="fetchOptions"
           enumCode="InterestsGoodsServiceInterestsTypeEnum"
-          v-model="form.serviceInterestsType"
+          v-model="form.serviceInterestsTypeList"
           placeholder="请选择"
           clearable
           multiple
@@ -38,8 +38,8 @@
         <el-form-item label="状态">
           <fetch-select
             :request="whetherShelf"
-            enumCode="BooleanEnum"
-            v-model="form.whetherShelf"
+            :options="[{ code: 0, message: '下架' }, { code: 1, message: '上架' }]"
+            v-model="form.whetherShelfList"
             placeholder="请选择"
             clearable
             multiple
@@ -427,6 +427,13 @@ export default {
         if (this.form.createTime.length > 1) {
           data.createTimeStart = this.form.createTime[0];
           data.createTimeEnd = this.form.createTime[1];
+        }
+      }
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = this.form.updateTime[1];
         }
       }
       // 排序字段
