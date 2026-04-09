@@ -73,7 +73,7 @@ export default {
           this.tableData = val.map(item => ({
             ...item,
             form: {
-              qty: 1, // 默认为空
+              qty: item.operateQty, // 默认本次签收数
             }
           }));
         }
