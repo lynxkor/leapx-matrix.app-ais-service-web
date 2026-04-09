@@ -39,7 +39,7 @@
           <fetch-select
             :request="whetherShelf"
             :options="[{ code: 0, message: '下架' }, { code: 1, message: '上架' }]"
-            v-model="form.whetherShelf"
+            v-model="form.whetherShelfList"
             placeholder="请选择"
             clearable
             multiple
