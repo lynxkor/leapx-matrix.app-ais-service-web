@@ -496,9 +496,7 @@ export default {
     },
     async fetchOptions (code) {
       if (code) {
-        const enumData = await getEnum(code);
-        this.initDefaultValues(enumData, code);
-        return enumData;
+        return await getEnum(code);
       }
       return [];
     },
@@ -539,13 +537,11 @@ export default {
     /**
      * 初始化新增时的默认值
      */
-    async initDefaultValues (enumData, dictType) {
-      if (dictType === 'InterestsGoodsServiceInterestsTypeEnum') {
-        // 默认选中第一个
-        this.form.serviceInterestsType = enumData[0].code;
-        // 同时设置是否上架 默认选中第一个
-        this.form.whetherShelf = 1;
-      }
+    async initDefaultValues () {
+      const enumData = await getEnum('InterestsGoodsServiceInterestsTypeEnum');
+      this.form.serviceInterestsType = enumData[0].code;
+      // 同时设置是否上架 默认选中第一个
+      this.form.whetherShelf = 1;
     },
   }
 };
