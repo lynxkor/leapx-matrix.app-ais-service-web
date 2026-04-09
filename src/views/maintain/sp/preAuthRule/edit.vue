@@ -35,7 +35,6 @@
                 <el-form-item label="有效日期：" prop="endTime">
                   <el-date-picker
                     v-model="form.endTime"
-                    :picker-options="pickerOptions"
                     value-format="yyyy-MM-dd HH:mm:ss"
                     placeholder="请选择有效日期"
                   />
@@ -62,7 +61,7 @@
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="有效日期：" prop="endTime">
-                  {{ form.endTime }}
+                  {{ form.endTime ? formatDate(form.endTime) : '永久有效' }}
                 </el-form-item>
                 <el-form-item label="预授权额度(元)：" prop="authAmount">
                   {{ form.authAmount }}
@@ -143,7 +142,12 @@
                 >
                   <vxe-column field="partsCode" title="零件代码" min-width="200" />
                   <vxe-column field="partsName" title="零件名称" min-width="200" />
-                  <vxe-column field="remark" title="备注" min-width="200" />
+                  <vxe-column field="remark" title="备注" min-width="200">
+                    <template #default="{ row }">
+                      <el-input v-if="isEditing" v-model="row.remark" size="small" placeholder="请输入备注" />
+                      <span v-else>{{ row.remark || '-' }}</span>
+                    </template>
+                  </vxe-column>
                   <vxe-column field="creatorName" title="创建人" min-width="200" />
                   <vxe-column field="createTime" title="创建时间" min-width="200" />
                   <vxe-column title="操作" width="100" v-if="canDelete">
@@ -193,6 +197,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import ModelDialog from '@/views/maintain/basic/maintenancePartData/components/AddVehicleDialog/index.vue';
 import Upload from '@/libs/components/UploadDialog';
 import BaseSearch from '@/libs/components/BaseSearch';
+import moment from 'moment';
 
 const defaultForm = {
   code: '',
@@ -280,7 +285,17 @@ export default {
         ],
 
         authAmount: [
-          { required: true, message: '请输入预授权额度', trigger: 'change' }
+          { required: true, message: '请输入预授权额度', trigger: 'change' },
+          {
+            validator: (rule, value, callback) => {
+              if (value !== null && value !== undefined && value <= 0) {
+                callback(new Error('预授权额度必须大于0'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'blur'
+          }
         ],
         status: [
           { required: true, message: '请选择启用状态', trigger: 'change' }
@@ -412,6 +427,11 @@ export default {
           resolve(list);
         });
       });
+    },
+    // 格式化日期
+    formatDate (date) {
+      if (!date) return '';
+      return moment(date).format('YYYY-MM-DD');
     }
   }
 };
