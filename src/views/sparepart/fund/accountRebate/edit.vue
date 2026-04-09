@@ -439,7 +439,7 @@ export default {
       pageTitle: '备件返利账户',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISPART-account',
+      moduleKey: 'AISPART-accountRebate',
       isEditing: false,
       loading: false,
       submitLoading: false,
