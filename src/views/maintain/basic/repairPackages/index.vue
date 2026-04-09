@@ -281,11 +281,15 @@ export default {
                 this.$router.push({
                   path: '/maintain/basic/repairPackages/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
-              type: 'info'
+              type: 'info',
+              disabled: (row) => {
+                return (this.isDealer && row.dataSource === 20) || (!this.isDealer && row.dataSource === 10);
+              },
             }, {
               name: '下发',
               show: (row) => {
@@ -330,8 +334,8 @@ export default {
               type: 'danger'
             }, {
               name: '删除',
-              show: (row) => {
-                return (this.isDealer && row.dataSource === 10) || (!this.isDealer && row.dataSource === 20);
+              disabled: (row) => {
+                return (this.isDealer && row.dataSource === 20) || (!this.isDealer && row.dataSource === 10);
               },
               popconfirmConfirmButtonType: 'danger',
               popconfirmConfirmButtonText: '删除',
