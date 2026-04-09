@@ -8,6 +8,7 @@
     :originalForm.sync="originalForm"
     :submitRequest="submitRequest"
     :detailRequest="detailRequest"
+    :showEditBtn="showEditBtn"
   >
     <el-main>
       <section class="common-section">
@@ -465,11 +466,11 @@
           </el-form>
         </div>
       </section>
-      <section class="common-section" v-if="form.businessType">
+      <section class="common-section">
         <div class="common-section-header">
           <h2>上传附件</h2>
         </div>
-        <div class="common-section-body">
+        <div v-if="_id" class="common-section-body">
           <div class="common-section-table">
             <el-tabs v-model="activeTab" v-if="form.businessType === '10'">
               <el-tab-pane label="个人" name="1" lazy>
@@ -542,6 +543,9 @@
             </div>
           </div>
         </div>
+        <div class="common-section-body not-commit" v-else>
+          提交新建后，即可添加
+        </div>
       </section>
     </el-main>
   </edit-base-container>
@@ -603,7 +607,20 @@ const defaultForm = {
   ocrLicenseOwner: '',
   ocrLicenseVin: '',
 };
+// 申请状态，10:草稿; 20:待审批; 30:审批通过; 40:审批驳回; 50:已作废
+// 业务类型，10:二手车信息变更; 20:绑车人调整; 30:二手车+绑车人调整; 40:原车主调整（非二手车）; 50:原车主+绑车人调整（非二手车）; 60:报废灭失;
 
+// oldIdType
+// [
+//   {"code": "1", "message": "身份证"},
+//   {"code": "2", "message": "护照"},
+//   {"code": "3", "message": "驾驶证"},
+//   {"code": "4", "message": "港澳来往内地通行证"},
+//   {"code": "5", "message": "军官证"},
+//   {"code": "6", "message": "组织机构代码"},
+//   {"code": "7", "message": "统一社会信用代码"},
+//   {"code": "20", "message": "台湾通行证"}
+// ]
 export default {
   name: 'vehicleOwnerChangeApplyEdit',
   // 集中视图预留
@@ -631,6 +648,9 @@ export default {
         businessType: this.form.businessType,
       };
       return JSON.stringify(data);
+    },
+    showEditBtn () {
+      return this.form.applyStatus === '10' || this.form.applyStatus === '40';
     }
   },
   watch: {
@@ -660,14 +680,6 @@ export default {
         name: '',
       },
       emptyText: '若要启用此内容，请创建记录',
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
       columns: [
         {
           field: 'name',
@@ -769,6 +781,7 @@ export default {
       //   { "专车": "30" },
       //   { "报废灭失": "60" }
       // ]
+      // 只允许选择【销售日期】非空，且【车辆属性】不是报废灭失的车辆
       return vehicleListFull({
         searchVin: query,
         pageSize: 20,
