@@ -155,6 +155,12 @@
                     :disabled = "!canEdit"
                   />
                 </div>
+                <!-- 右侧：合计信息 -->
+                <div class="summary-box">
+                  <span class="summary-item">项目金额合计：￥{{ itemAmount }}</span>
+                  <span class="summary-item">零件金额合计：￥{{ partsAmount }}</span>
+                  <span class="summary-item">费用合计：￥{{ totalAmount }}</span>
+                </div>
               </div>
               <div class="common-section-table">
                 <vxe-table
@@ -377,6 +383,9 @@ export default {
       tableData: [],
       tablePartData: [],
       accountFlag: true,
+      itemAmount: 0,
+      partsAmount: 0,
+      totalAmount: 0,
       rules: {
         code: [
           { required: true, message: '请输入套餐代码', trigger: 'change' }
@@ -533,6 +542,11 @@ export default {
     async getProjectPackage () {
       const res = await getPackagesItem({ repairPackagesId: this._id });
       this.tableData = res.records || [];
+      // 计算项目金额
+      this.tableData.forEach(item => {
+        const actualAmount = Number(item.actualAmount) || 0;
+        this.itemAmount = this.itemAmount + actualAmount;
+      });
       // 同时刷新零件列表
       await this.getPartData();
     },
@@ -547,7 +561,9 @@ export default {
         let receivable = number * unitPrice;
         receivable = receivable - discountAmount;
         item.actualAmount = Math.max(0, receivable.toFixed(2));
+        this.partsAmount = this.partsAmount + item.actualAmount;
       });
+      this.totalAmount = this.itemAmount + this.partsAmount;
     },
     // 适配车型弹窗
     handleModel () {
@@ -606,4 +622,15 @@ export default {
   .btn-delete {
     margin-left: 5px;
   }
+.summary-box {
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--leap-color-default-light-1);
+  margin-right: 10px;
+}
+
+.summary-item {
+  white-space: nowrap;
+}
 </style>
