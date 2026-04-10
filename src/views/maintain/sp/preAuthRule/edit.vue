@@ -32,11 +32,14 @@
                     disabled
                   />
                 </el-form-item>
-                <el-form-item label="有效日期：" prop="endTime">
+                <el-form-item label="有效日期：" prop="startTime">
                   <el-date-picker
-                    v-model="form.endTime"
+                    v-model="dateRange"
+                    type="daterange"
                     value-format="yyyy-MM-dd HH:mm:ss"
-                    placeholder="请选择有效日期"
+                    range-separator="至"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
                   />
                 </el-form-item>
                 <el-form-item label="预授权额度(元)：" prop="authAmount">
@@ -60,8 +63,8 @@
                 <el-form-item label="预授权规则编号：" prop="code">
                   {{ form.code }}
                 </el-form-item>
-                <el-form-item label="有效日期：" prop="endTime">
-                  {{ form.endTime ? formatDate(form.endTime) : '永久有效' }}
+                <el-form-item label="有效日期：">
+                  {{ form.startTime && form.endTime ? `${formatDate(form.startTime)} 至 ${formatDate(form.endTime)}` : '永久有效' }}
                 </el-form-item>
                 <el-form-item label="预授权额度(元)：" prop="authAmount">
                   {{ form.authAmount }}
@@ -201,6 +204,7 @@ import moment from 'moment';
 
 const defaultForm = {
   code: '',
+  startTime: '',
   endTime: '',
   authAmount: null,
   status: 1,
@@ -255,6 +259,16 @@ export default {
         }
       },
       immediate: true
+    },
+    // 同步日期范围到表单字段
+    dateRange (val) {
+      if (val && val.length === 2) {
+        this.form.startTime = val[0];
+        this.form.endTime = val[1];
+      } else {
+        this.form.startTime = '';
+        this.form.endTime = '';
+      }
     }
   },
   data () {
@@ -274,6 +288,7 @@ export default {
       tableDataPart: [],
       modelDialogVisible: false, // 适配车型弹窗
       uploadDialogVisible: false,
+      dateRange: [],
       pickerOptions: {
         disabledDate (time) {
           return time.getTime() < Date.now() - 8.64e7;
@@ -283,7 +298,24 @@ export default {
         code: [
           { required: false, message: '请输入预授权规则编号', trigger: 'change' }
         ],
-
+     startTime: [
+              {
+                validator: (rule, value, callback) => {
+                  if (this.dateRange && this.dateRange.length === 2) {
+                    const startTime = new Date(this.dateRange[0]).getTime();
+                    const endTime = new Date(this.dateRange[1]).getTime();
+                    if (startTime > endTime) {
+                      callback(new Error('开始日期不能大于结束日期'));
+                    } else {
+                      callback();
+                    }
+                  } else {
+                    callback();
+                  }
+                },
+                trigger: 'change'
+              }
+            ],
         authAmount: [
           { required: true, message: '请输入预授权额度', trigger: 'change' },
           {
@@ -323,6 +355,12 @@ export default {
           // 加载适配车型和零件数据
           this.tableDataModel = res.vehicleModels || [];
           this.tableDataPart = res.partsResps || [];
+          // 同步日期范围
+          if (res.startTime && res.endTime) {
+            this.dateRange = [res.startTime, res.endTime];
+          } else {
+            this.dateRange = [];
+          }
           return res;
         });
       }

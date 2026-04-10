@@ -274,7 +274,7 @@ export default {
           { props: 'writeOffDate', label: '核销时间', visible: true, width: 200 },
           { props: 'unsubscribeDate', label: '退订日期', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'invalidDate', label: '失效时间', visible: true, width: 200 },
+          { props: 'validUntil', label: '有效截止时间', visible: true, width: 200 },
           { props: 'modifierName', label: '修改者名称', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           { props: 'creatorName', label: '创建者名称', visible: true, width: 200 },

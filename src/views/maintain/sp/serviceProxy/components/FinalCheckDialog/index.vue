@@ -738,7 +738,7 @@ export default {
           targetUnitCode: this.formInline.targetUnitCode,
           beforeChangeCode: this.formInline.beforeChangeCode,
           afterChangeCode: this.formInline.afterChangeCode,
-          currentFault: this.faultForm.faultFlag === 1 ? 0 : 1,
+          currentFault: this.faultForm.faultFlag ? 1 : 0 ,
           finalCheckAt: this.filterForm.finalCheckTime,
           finalCheckerId: this.filterForm.finalChecker,
           finalChecker: this.filterForm.finalCheckerName
