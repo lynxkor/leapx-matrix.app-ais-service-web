@@ -265,6 +265,9 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '打印',
+              show: (row) => {
+                return this.permissions.has('AISPART-inboundOrder-print');
+              },
               click: (rowIndex, row) => {
                 this.handlePrint(row);
               },
@@ -272,7 +275,7 @@ export default {
             }, {
               name: '入库',
               show: (row) => {
-                return row.inboundStatus === '0';
+                return row.inboundStatus === '0' && this.permissions.has('AISPART-inboundOrder-inbound');
               },
               popconfirmTitle: '此操作将入库, 是否继续?',
               click: (rowIndex, row) => {

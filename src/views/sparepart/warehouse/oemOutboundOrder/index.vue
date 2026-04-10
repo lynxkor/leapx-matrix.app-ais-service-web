@@ -143,7 +143,7 @@
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchSync" :disabled="selectionList.length === 0">同步</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchSync" :disabled="selectionList.length === 0" v-permission="'AISPART-oemOutboundOrder-async'">同步</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -350,7 +350,7 @@ export default {
             buttons: [{
               name: '同步',
               show: (row) => {
-                return row.orderSyncSuccessIs === '0' || row.outboundSyncSuccessIs === '0' || row.invoiceSyncSuccessIs === '0';
+                return (row.orderSyncSuccessIs === '0' || row.outboundSyncSuccessIs === '0' || row.invoiceSyncSuccessIs === '0') && this.permissions.has('AISPART-oemOutboundOrder-async');
               },
               click: (rowIndex, row) => {
                 this.handleSync(row.id);

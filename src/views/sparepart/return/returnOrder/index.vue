@@ -260,7 +260,7 @@ export default {
             buttons: [{
               name: '同意',
               show: (row) => {
-                return row.returnStatus === '20';
+                return row.returnStatus === '20' && this.permissions.has('AISPART-returnOrder-agree');
               },
               popconfirmTitle: '是否同意退货申请?',
               click: (rowIndex, row) => {
@@ -281,7 +281,7 @@ export default {
             }, {
               name: '撤回',
               show: (row) => {
-                return row.returnStatus === '40';
+                return row.returnStatus === '40' && this.permissions.has('AISPART-returnOrder-revoke');
               },
               popconfirmTitle: '是否撤回退货申请?',
               click: (rowIndex, row) => {
@@ -335,12 +335,18 @@ export default {
             // },
             {
               name: '打印退货单',
+              show: (row) => {
+                return this.permissions.has('AISPART-returnOrder-printReturn');
+              },
               click: (rowIndex, row) => {
                 this.handlePrint(row);
               },
               type: 'info'
             }, {
               name: '打印退货标签',
+              show: (row) => {
+                return this.permissions.has('AISPART-returnOrder-printTag');
+              },
               click: (rowIndex, row) => {
                 this.handlePrintLabel(row);
               },
@@ -348,7 +354,7 @@ export default {
             }, {
               name: '提交',
               show: (row) => {
-                return row.returnStatus === '10' || row.returnStatus === '30';
+                return (row.returnStatus === '10' || row.returnStatus === '30') && this.permissions.has('AISPART-returnOrder-commit');
               },
               popconfirmTitle: '是否提交退货申请?',
               click: (rowIndex, row) => {
@@ -369,7 +375,7 @@ export default {
             }, {
               name: '作废',
               show: (row) => {
-                return row.returnStatus === '10' || row.returnStatus === '30';
+                return (row.returnStatus === '10' || row.returnStatus === '30') && this.permissions.has('AISPART-returnOrder-cancel');
               },
               click: (rowIndex, row) => {
                 this.handleVoid(row);
@@ -378,7 +384,7 @@ export default {
             }, {
               name: '驳回',
               show: (row) => {
-                return row.returnStatus === '20';
+                return row.returnStatus === '20' && this.permissions.has('AISPART-returnOrder-reject');
               },
               click: (rowIndex, row) => {
                 this.handleReject(row);
@@ -387,7 +393,7 @@ export default {
             }, {
               name: '发运',
               show: (row) => {
-                return row.returnStatus === '40';
+                return row.returnStatus === '40' && this.permissions.has('AISPART-returnOrder-shipping');
               },
               click: (rowIndex, row) => {
                 this.handleShipment(row);

@@ -280,7 +280,7 @@ export default {
             }, {
               name: '提交',
               show: (row) => {
-                return row.claimStatus === '10' || row.claimStatus === '30';
+                return (row.claimStatus === '10' || row.claimStatus === '30') && this.permissions.has('AISPART-sparePartClaim-commit');
               },
               popconfirmTitle: '是否提交?',
               click: (rowIndex, row) => {
@@ -301,7 +301,7 @@ export default {
             }, {
               name: '同意',
               show: (row) => {
-                return row.claimStatus === '20';
+                return row.claimStatus === '20' && this.permissions.has('AISPART-sparePartClaim-agree');
               },
               popconfirmTitle: '是否同意?',
               click: (rowIndex, row) => {
@@ -322,7 +322,7 @@ export default {
             }, {
               name: '驳回',
               show: (row) => {
-                return row.claimStatus === '20';
+                return row.claimStatus === '20' && this.permissions.has('AISPART-sparePartClaim-reject');
               },
               click: (rowIndex, row) => {
                 this.handleReject(row.id);
@@ -331,7 +331,7 @@ export default {
             }, {
               name: '打印标签',
               show: (row) => {
-                return row.claimStatus === '40' || row.claimStatus === '50';
+                return (row.claimStatus === '40' || row.claimStatus === '50') && this.permissions.has('AISPART-sparePartClaim-printTag');
               },
               click: (rowIndex, row) => {
                 this.handlePrint(row);

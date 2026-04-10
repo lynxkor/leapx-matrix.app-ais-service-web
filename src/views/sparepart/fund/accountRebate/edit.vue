@@ -246,7 +246,7 @@
             </section>
             <section class="common-section">
               <div class="common-section-header">
-                <h2>账户流水 <el-button size="small" :loading="exportLoading" @click="handleExport">导出账户流水</el-button></h2>
+                <h2>账户流水 <el-button size="small" :loading="exportLoading" @click="handleExport" v-permission="'AISPART-accountRebate-exportFlow'">导出账户流水</el-button></h2>
               </div>
               <div class="common-section-body">
                 <div class="common-section-table">
@@ -290,7 +290,7 @@
             </section>
             <section class="common-section">
               <div class="common-section-header">
-                <h2>冻结流水 <el-button size="small" :loading="exportDjLoading" @click="handleDjExport">导出冻结流水</el-button></h2>
+                <h2>冻结流水 <el-button size="small" :loading="exportDjLoading" @click="handleDjExport" v-permission="'AISPART-accountRebate-exportFrozen'">导出冻结流水</el-button></h2>
               </div>
               <div class="common-section-body">
                 <div class="common-section-table">
