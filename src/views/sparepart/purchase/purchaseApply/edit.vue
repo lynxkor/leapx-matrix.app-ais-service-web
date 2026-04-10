@@ -53,24 +53,23 @@
                   {{ form.warehouseName }}
                 </el-form-item>
                 <el-form-item label="是否第三方收货：" prop="thirdPartyDeliveryIs">
-                  <el-radio-group v-model="form.thirdPartyDeliveryIs">
+                  <el-radio-group v-model="form.thirdPartyDeliveryIs" :disabled="!isThirdPartyDelivery">
                     <el-radio label="1">是</el-radio>
                     <el-radio label="0">否</el-radio>
                   </el-radio-group>
                 </el-form-item>
                 <el-form-item label="收货人姓名：" prop="recipientName">
-                  <el-input placeholder="请输入" v-model="form.recipientName" clearable />
+                  <el-input placeholder="请输入" v-model="form.recipientName" clearable :disabled="isAllowOrNot" />
                 </el-form-item>
                 <el-form-item label="收货人电话：" prop="recipientPhone">
-                  <el-input placeholder="请输入" v-model="form.recipientPhone" clearable />
+                  <el-input placeholder="请输入" v-model="form.recipientPhone" clearable :disabled="isAllowOrNot" />
                 </el-form-item>
                 <el-form-item label="省市区：" prop="provinceCityCountyCode">
                   <el-cascader placeholder="请选择省市区" v-model="form.provinceCityCountyCode" :props="orgProps"
-                    :options="areaOptions" filterable clearable>
-                  </el-cascader>
+                    :options="areaOptions" filterable clearable :disabled="isAllowOrNot" />
                 </el-form-item>
                 <el-form-item label="收货地址：" prop="address">
-                  <el-input placeholder="请输入" v-model="form.address" clearable />
+                  <el-input placeholder="请输入" v-model="form.address" clearable :disabled="isAllowOrNot" />
                 </el-form-item>
               </el-form>
               <div class="common-title" v-show="isEditing || !_id">审批信息</div>
@@ -376,7 +375,7 @@ const defaultForm = {
   dataSource: '',
   backOrderId: '',
   originalPriceCouponId: '',
-  thirdPartyDeliveryIs: '',
+  thirdPartyDeliveryIs: '0',
   recipientName: '',
   recipientPhone: '',
   cashAmount: '',
@@ -411,6 +410,12 @@ export default {
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
+    },
+    isAllowOrNot () {
+      return this.form.thirdPartyDeliveryIs === '0';
+    },
+    isThirdPartyDelivery () {
+      return this.isAllowedThirdDelivered === 1;
     }
   },
   watch: {
@@ -450,8 +455,7 @@ export default {
           this.$refs.ruleForm?.clearValidate('specialCode');
         }
       },
-      immediate: true,
-      deep: true
+      immediate: true
     },
     accountPermissions: {
       handler (val) {
@@ -474,6 +478,14 @@ export default {
         }
       }
     },
+    'form.dealerCode': {
+      handler (val) {
+        if (val) {
+          this.getPartDealers(val);
+        }
+      },
+      immediate: true
+    }
   },
   data () {
     const form = this.getDefautlForm();
@@ -537,7 +549,9 @@ export default {
         specialCode: [
           { required: false, message: '请输入特殊编码', trigger: 'change' }
         ],
-      }
+      },
+      lastDealerCode: '', // 新增：记录上一次的门店编码
+      isAllowedThirdDelivered: 1, // 新增：是否第三方收货
     };
   },
   mounted () {
@@ -554,18 +568,31 @@ export default {
     },
     // 点击带出门店名称
     handleDealerChange (val, ele) {
-      this.$confirm('是否切换门店, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.form.dealerName = ele.orgName;
-        this.getPartDealer(ele.orgCode);
-      }).catch(() => {
-        this.getLoginUser();
+      this.$nextTick(() => {
+        if (!val) return; // 过滤无效事件
+
+        // 判断是首次选择还是切换
+        if (!this.lastDealerCode) {
+        // 首次选择
+          this.form.dealerName = ele.orgName;
+          this.getPartDealer(ele.orgCode);
+        } else {
+        // 切换，弹出确认
+          this.$confirm('是否切换门店, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.form.dealerName = ele.orgName;
+            this.getPartDealer(ele.orgCode);
+          }).catch(() => {
+            this.getLoginUser();
+          });
+        }
+        // 更新上一次的编码
+        this.lastDealerCode = this.form.dealerCode;
       });
     },
-
     async getPartDealer (query) {
       try {
         const res = await getPartDealer({ code: query });
@@ -574,7 +601,22 @@ export default {
         this.form.warehouseId = res.warehouseId;
         this.form.warehouseCode = res.warehouseCode;
         this.form.warehouseName = res.warehouseName;
+        this.form.recipientName = res.sparePartReceiving.partRecipient;
+        this.form.recipientPhone = res.sparePartReceiving.partPhone;
+        this.form.provinceCityCountyCode = res.sparePartReceiving.provinceCityCountyCode;
+        this.form.thirdPartyDeliveryIs = String(res.sparePartReceiving.isAllowedThirdDelivered);
+        this.form.address = res.sparePartReceiving.partAddress;
+        this.isAllowedThirdDelivered = Number(res.sparePartReceiving.isAllowedThirdDelivered);
         return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    // 编辑时 去请求此接口
+    async getPartDealers (query) {
+      try {
+        const res = await getPartDealer({ code: query });
+        this.isAllowedThirdDelivered = Number(res.sparePartReceiving.isAllowedThirdDelivered);
       } catch (error) {
         console.error('Error fetching series list:', error);
       }
