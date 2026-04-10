@@ -219,7 +219,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/maintain/sp/interestsGoods/index';
+import { getDetail, addOrUpdate, deleteGoodsRepairItem } from '@/api/maintain/sp/interestsGoods/index';
 import { getPage as getRepairItemPage } from '@/api/maintain/basic/repairItem/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import BaseSearch from '@/libs/components/BaseSearch';
@@ -445,8 +445,8 @@ export default {
         const tempList = [...this.repairItemTableData];
         tempList.splice(index, 1);
 
-        // 调用接口保存
-        await addOrUpdate({ ...this.form, goodsRepairItemList: tempList });
+        // 调用接口删除
+        await deleteGoodsRepairItem([row.id]);
 
         // 成功后更新本地数据
         // this.repairItemTableData = tempList;
@@ -568,7 +568,6 @@ export default {
   display: flex;
   gap: 8px;
   font-size: 14px;
-  color: var(--leap-color-default-light-1);
   margin-right: 10px;
 }
 

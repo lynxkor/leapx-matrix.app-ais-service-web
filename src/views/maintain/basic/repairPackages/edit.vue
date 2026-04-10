@@ -626,7 +626,6 @@ export default {
   display: flex;
   gap: 8px;
   font-size: 14px;
-  color: var(--leap-color-default-light-1);
   margin-right: 10px;
 }
 
