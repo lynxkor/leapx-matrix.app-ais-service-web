@@ -1148,8 +1148,9 @@ export default {
         // 使用提取的方法获取过滤后的保修类型选项
         const checkoutTypeObj = this.filteredRepairItemCheckoutTypes.find(item => item.checkoutTypeName === row.checkoutTypeName) || selected;
         const warrantyTypes = this.getWarrantyTypeOptions(checkoutTypeObj, 'repairItem');
-        row.warrantyTypeId = warrantyTypes?.[0]?.warrantyTypeId;
-        row.warrantyTypeName = warrantyTypes?.[0]?.warrantyTypeName;
+        const allowType = warrantyTypes.filter(el => this.checkIfWarrantyTypeEditable(row, el.warrantyTypeId));
+        row.warrantyTypeId = allowType?.[0]?.warrantyTypeId;
+        row.warrantyTypeName = allowType?.[0]?.warrantyTypeName;
       }
     },
     // 保修类型变化
@@ -1192,8 +1193,9 @@ export default {
         // 使用提取的方法获取过滤后的保修类型选项
         const checkoutTypeObj = this.filteredPartCheckoutTypes.find(item => item.checkoutTypeName === row.checkoutTypeName) || selected;
         const warrantyTypes = this.getWarrantyTypeOptions(checkoutTypeObj, 'part');
-        row.warrantyTypeId = warrantyTypes?.[0]?.warrantyTypeId;
-        row.warrantyTypeName = warrantyTypes?.[0]?.warrantyTypeName;
+        const allowType = warrantyTypes.filter(el => this.checkIfWarrantyTypeEditable(row, el.warrantyTypeId));
+        row.warrantyTypeId = allowType?.[0]?.warrantyTypeId;
+        row.warrantyTypeName = allowType?.[0]?.warrantyTypeName;
       }
     },
     // 保修类型变化
