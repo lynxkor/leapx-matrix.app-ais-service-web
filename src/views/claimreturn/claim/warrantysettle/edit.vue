@@ -351,6 +351,7 @@
               :business-id="_id"
               config-code="mcs_settleaccount"
               type="card"
+              :readonly="true"
               />
           </div>
         </div>
@@ -402,7 +403,7 @@
 </template>
 
 <script>
-import { getDetail, confirm } from '@/api/claimreturn/claim/warrantysettle/index';
+import { getDetail, confirm, addOrUpdate } from '@/api/claimreturn/claim/warrantysettle/index';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -540,7 +541,10 @@ export default {
       }
     },
     submitRequest () {
-      return Promise.resolve();
+      return addOrUpdate({
+        remark: this.form.remark,
+        id: this._id
+      });
     },
     getDefautlForm () {
       return {

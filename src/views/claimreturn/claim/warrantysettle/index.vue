@@ -94,7 +94,7 @@
       />
     </el-form>
     <div class="ais-actions">
-      <el-button v-if="exportInvoice" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button v-if="exportInvoice" :loading="exportLoading" size="small" @click="onExport">导出发票</el-button>
     </div>
     <div class="ais-table-c">
       <LPVxeTable
@@ -142,7 +142,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, confirm } from '@/api/claimreturn/claim/warrantysettle/index';
+import { getList, confirm, exportInvoiceZip } from '@/api/claimreturn/claim/warrantysettle/index';
 import { getTableConfig, tableAddOrUpdate, getEnum, listOrgStoreInfo, exportTable } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import TagInput from '@/libs/components/TagInput';
@@ -536,33 +536,26 @@ export default {
         name: query,
       });
     },
-    exportExcel () {
+    onExport () {
+      if (this.selectionList.length === 0) {
+        this.$message.warning('请选择需要导出发票的保修结算通知书记录');
+        return;
+      }
+      const invalidStatuses = ['10', '60', '110'];
+      const hasInvalidStatus = this.selectionList.some(item => invalidStatuses.includes(item.settleStatus));
+      if (hasInvalidStatus) {
+        this.$message.warning('只允许选择通知书状态为已开票或已验收或已付款的记录');
+        return;
+      }
+      const ids = this.selectionList.map(item => item.id);
       this.exportLoading = true;
-      exportTable({
-        businessType: '保修结算通知书',
-        dataFetchPath: '/claimreturn/claim/web/warrantysettle/warrantySettle/page',
-        reqParams: this.getFormData(),
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
-        httpMethod: 'POST'
-      }).then(async res => {
-        if (res && res.excelUrl) {
-          try {
-            await downloadExcel(res.excelUrl, '保修结算通知书.xlsx');
-          } catch (error) {
-            this.$message({
-              type: 'error',
-              message: '文件导出失败'
-            });
-          }
-        } else {
-          this.$message({
-            type: 'info',
-            message: '请前往导出列表中查询导出结果'
-          });
-        }
-      }).finally(() => {
-        this.exportLoading = false;
-      });
+      exportInvoiceZip({ ids })
+        .then(() => {
+          this.$message.success('导出成功');
+        })
+        .finally(() => {
+          this.exportLoading = false;
+        });
     },
   }
 };
