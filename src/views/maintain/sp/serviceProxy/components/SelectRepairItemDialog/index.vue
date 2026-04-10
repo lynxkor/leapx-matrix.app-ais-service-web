@@ -183,7 +183,7 @@
               </vxe-column>
               <vxe-column field="checkoutTypeName" title="结算类型" width="120px">
                 <template #default="{ row }">
-                  <template v-if="row.id || row.packageId">{{ row?.checkoutTypeName }}</template>
+                  <template v-if="row.packageId">{{ row?.checkoutTypeName }}</template>
                   <el-select
                     v-else
                     v-model="row.checkoutTypeName"
@@ -1001,7 +1001,7 @@ export default {
       }
       if (Number(item.salePrice) > 0) {
         // 校验是否重复添加
-        const target = this.partData.find(el => el.partsId === item.id);
+        const target = this.partData.some(el => el.partsId === item.id && !el.isOutstock);
         if (target) {
           this.$message.error('该零件已存在，请勿重复添加');
           return;
