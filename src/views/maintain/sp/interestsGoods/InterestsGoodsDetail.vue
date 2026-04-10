@@ -208,6 +208,7 @@ export default {
             remark: ''
           };
           for (const item of res.partsRespList) {
+            item.id = '';
             item.repairItemTypeName = '精品附件';
             item.checkoutTypeName = '自费';
             item.warrantyTypeName = '无';

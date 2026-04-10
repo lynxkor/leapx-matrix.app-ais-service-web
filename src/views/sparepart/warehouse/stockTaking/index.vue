@@ -329,7 +329,7 @@ export default {
             }, {
               name: '初始化',
               show: (row) => {
-                return row.stockStatus === '0';
+                return row.stockStatus === '0' && this.permissions.has('AISPART-stockTaking-initialize');
               },
               popconfirmTitle: '此操作将初始化该库存盘点, 是否继续?',
               click: (rowIndex, row) => {
@@ -350,7 +350,7 @@ export default {
             }, {
               name: '作废',
               show: (row) => {
-                return row.stockStatus === '0' || row.stockStatus === '2';
+                return (row.stockStatus === '0' || row.stockStatus === '2') && this.permissions.has('AISPART-stockTaking-cancel');
               },
               popconfirmTitle: '此操作将作废该库存盘点, 是否继续?',
               click: (rowIndex, row) => {
@@ -371,13 +371,13 @@ export default {
             }, {
               name: '盘点结果导入',
               show: (row) => {
-                return row.stockStatus === '2';
+                return row.stockStatus === '2' && this.permissions.has('AISPART-stockTaking-importRes');
               },
               type: 'info'
             }, {
               name: '生成差异单',
               show: (row) => {
-                return row.stockStatus === '2';
+                return row.stockStatus === '2' && this.permissions.has('AISPART-stockTaking-generateDifferences');
               },
               click: (rowIndex, row) => {
                 this.handleDifference(row);
@@ -385,6 +385,9 @@ export default {
               type: 'info'
             }, {
               name: '打印',
+              show: (row) => {
+                return this.permissions.has('AISPART-stockTaking-print');
+              },
               click: (rowIndex, row) => {
                 this.handlePrint(row);
               },

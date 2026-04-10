@@ -177,10 +177,10 @@
       <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
-      <el-button size="small" @click="handleBatchSubmit" :disabled="selectionList.length === 0">批量提交</el-button>
-      <el-button size="small" @click="handleBatchAgree" :disabled="selectionList.length === 0">批量同意</el-button>
-      <el-button size="small" @click="handleBatchReject" :disabled="selectionList.length === 0">批量驳回</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">铺货导入</el-button>
+      <el-button size="small" @click="handleBatchSubmit" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseApply-submit'">批量提交</el-button>
+      <el-button size="small" @click="handleBatchAgree" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseApply-agree'">批量同意</el-button>
+      <el-button size="small" @click="handleBatchReject" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseApply-reject'">批量驳回</el-button>
+      <el-button v-if="canImport" size="small" @click="handleImport" v-permission="'AISPART-purchaseApply-importDistribution'">铺货导入</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -410,7 +410,7 @@ export default {
                 }
                 // 门店账号需要额外检查订单类型
                 if (this.accountFlag) {
-                  return (row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && !row.backOrderId;
+                  return ((row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && !row.backOrderId) && this.permissions.has('AISPART-purchaseApply-submit');
                 }
                 // 主机厂账号直接显示
                 return true;
@@ -428,7 +428,7 @@ export default {
                 }
                 // 门店账号需要额外检查订单类型
                 if (this.accountFlag) {
-                  return (row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && !row.backOrderId;
+                  return ((row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && !row.backOrderId) && this.permissions.has('AISPART-purchaseApply-agree');
                 }
                 // 主机厂账号直接显示
                 return true;
@@ -446,7 +446,7 @@ export default {
                 }
                 // 门店账号需要额外检查订单类型
                 if (this.accountFlag) {
-                  return (row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && !row.backOrderId;
+                  return ((row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && !row.backOrderId) && this.permissions.has('AISPART-purchaseApply-reject');
                 }
                 // 主机厂账号直接显示
                 return true;
@@ -460,7 +460,7 @@ export default {
               show: (row) => {
                 // 门店账号需要额外检查订单类型
                 if (this.accountFlag) {
-                  return row.purchaseOrderType === '0' || row.purchaseOrderType === '1';
+                  return (row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && this.permissions.has('AISPART-purchaseApply-copy');
                 }
                 // 主机厂账号直接显示
                 return true;

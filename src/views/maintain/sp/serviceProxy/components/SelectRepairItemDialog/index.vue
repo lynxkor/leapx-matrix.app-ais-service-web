@@ -183,7 +183,7 @@
               </vxe-column>
               <vxe-column field="checkoutTypeName" title="结算类型" width="120px">
                 <template #default="{ row }">
-                  <template v-if="row.id || row.packageId">{{ row?.checkoutTypeName }}</template>
+                  <template v-if="row.packageId">{{ row?.checkoutTypeName }}</template>
                   <el-select
                     v-else
                     v-model="row.checkoutTypeName"
@@ -204,7 +204,9 @@
               </vxe-column>
               <vxe-column field="warrantyTypeName" title="保修类型" width="150px">
                 <template #default="{ row }">
+                  <template v-if="row.packageId">{{ row?.warrantyTypeName }}</template>
                   <el-select
+                    v-else
                     v-model="row.warrantyTypeName"
                     size="small"
                     placeholder="请选择"
@@ -217,7 +219,7 @@
                       :label="item.warrantyTypeName"
                       :value="item.warrantyTypeName"
                       :disabled="!checkIfWarrantyTypeEditable(row, item.warrantyTypeId)"
-                />
+                    />
                   </el-select>
                 </template>
               </vxe-column>
@@ -296,13 +298,15 @@
               <vxe-column field="partsName" title="零件名称" width="180px" />
               <vxe-column field="repairItemTypeName" title="维修类型" width="150px">
                 <template #default="{ row }">
+                  <template v-if="row.packageId">{{ row?.repairItemTypeName }}</template>
                   <el-select
+                    v-else
                     v-model="row.repairItemTypeName"
                     size="small"
                     placeholder="请选择"
                     filterable
                     :disabled="row.repairItemDisabled"
-                  @change="handlePartRepairItemTypeChange(row)"
+                    @change="handlePartRepairItemTypeChange(row)"
                   >
                     <el-option
                       v-for="item in itemOptions.repairItemTypeName"
@@ -315,12 +319,14 @@
               </vxe-column>
               <vxe-column field="checkoutTypeName" title="结算类型" width="120px">
                 <template #default="{ row }">
+                  <template v-if="row.packageId">{{ row?.checkoutTypeName }}</template>
                   <el-select
+                    v-else
                     v-model="row.checkoutTypeName"
                     size="small"
                     placeholder="请选择"
                     filterable
-                        @change="handlePartCheckoutTypeChange(row)"
+                    @change="handlePartCheckoutTypeChange(row)"
                   >
                     <el-option
                       v-for="item in filteredPartCheckoutTypes"
@@ -334,7 +340,9 @@
               </vxe-column>
               <vxe-column field="warrantyTypeName" title="保修类型" width="150px">
                 <template #default="{ row }">
+                  <template v-if="row.packageId">{{ row?.warrantyTypeName }}</template>
                   <el-select
+                    v-else
                     v-model="row.warrantyTypeName"
                     size="small"
                     placeholder="请选择"
@@ -347,7 +355,7 @@
                       :label="item.warrantyTypeName"
                       :value="item.warrantyTypeName"
                       :disabled="!checkIfWarrantyTypeEditable(row, item.warrantyTypeId)"
-                />
+                    />
                   </el-select>
                 </template>
               </vxe-column>
@@ -362,7 +370,7 @@
               </vxe-column>
               <vxe-column field="quantity" title="数量" width="160px">
                 <template #default="{ row }">
-                  <template v-if="row.isOutstock">{{ row.quantity }}</template>
+                  <template v-if="row.isOutstock || row.packageId">{{ row.quantity }}</template>
                   <el-input-number
                     v-else
                     v-model="row.quantity"
@@ -404,9 +412,9 @@
                     size="small"
                     placeholder="请选择"
                     filterable
-                    :disabled="!!row.autoImport"
+                    :disabled="!!row.autoImport || !!row.packageId"
                     clearable
-                  @change="handlePartRepairItemNameChange(row)"
+                    @change="handlePartRepairItemNameChange(row)"
                   >
                     <el-option
                       v-for="item in repairItemNameOptions"
@@ -1001,7 +1009,7 @@ export default {
       }
       if (Number(item.salePrice) > 0) {
         // 校验是否重复添加
-        const target = this.partData.find(el => el.partsId === item.id);
+        const target = this.partData.some(el => el.partsId === item.id && !el.isOutstock);
         if (target) {
           this.$message.error('该零件已存在，请勿重复添加');
           return;

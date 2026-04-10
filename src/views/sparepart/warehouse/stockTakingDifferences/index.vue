@@ -323,7 +323,7 @@ export default {
             {
               name: '申请',
               show: (row) => {
-                return row.orderStatus === '0';
+                return row.orderStatus === '0' && this.permissions.has('AISPART-stockTakingDifferences-apply');
               },
               click: (rowIndex, row) => {
                 this.handleApply(row);
@@ -332,7 +332,7 @@ export default {
             }, {
               name: '盘亏同意',
               show: (row) => {
-                return row.orderStatus === '1' && row.differencesType === '20';
+                return row.orderStatus === '1' && row.differencesType === '20' && this.permissions.has('AISPART-stockTakingDifferences-agreeLoss');
               },
               popconfirmTitle: '此操作将同意盘亏, 是否继续?',
               click: (rowIndex, row) => {
@@ -355,7 +355,7 @@ export default {
             }, {
               name: '盘亏拒绝',
               show: (row) => {
-                return row.orderStatus === '1' && row.differencesType === '20';
+                return row.orderStatus === '1' && row.differencesType === '20' && this.permissions.has('AISPART-stockTakingDifferences-rejectLoss');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入拒绝原因', '拒绝盘亏', {
@@ -384,7 +384,7 @@ export default {
             }, {
               name: '盘盈同意',
               show: (row) => {
-                return row.orderStatus === '1' && row.differencesType === '10';
+                return row.orderStatus === '1' && row.differencesType === '10' && this.permissions.has('AISPART-stockTakingDifferences-agreeProfit');
               },
               popconfirmTitle: '此操作将同意盘盈, 是否继续?',
               click: (rowIndex, row) => {
@@ -407,7 +407,7 @@ export default {
             }, {
               name: '盘盈拒绝',
               show: (row) => {
-                return row.orderStatus === '1' && row.differencesType === '10';
+                return row.orderStatus === '1' && row.differencesType === '10' && this.permissions.has('AISPART-stockTakingDifferences-rejectProfit');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入拒绝原因', '拒绝盘盈', {
@@ -436,7 +436,7 @@ export default {
             }, {
               name: '入库',
               show: (row) => {
-                return row.orderStatus === '2' && row.differencesType === '10' && row.outInboundStatus === '2';
+                return row.orderStatus === '2' && row.differencesType === '10' && row.outInboundStatus === '2' && this.permissions.has('AISPART-stockTakingDifferences-inbound');
               },
               popconfirmTitle: '确定入库吗, 是否继续?',
               click: (rowIndex, row) => {
@@ -459,7 +459,7 @@ export default {
             }, {
               name: '出库',
               show: (row) => {
-                return row.orderStatus === '2' && row.differencesType === '20' && row.outInboundStatus === '0';
+                return row.orderStatus === '2' && row.differencesType === '20' && row.outInboundStatus === '0' && this.permissions.has('AISPART-stockTakingDifferences-outbound');
               },
               popconfirmTitle: '确定出库吗, 是否继续?',
               click: (rowIndex, row) => {
