@@ -234,7 +234,7 @@ export default {
                 this.toggleSalesStatus(row.id, '0', row);
               },
               show: (row) => {
-                return row.saleableIs === '1'; // Show button only if user has permission
+                return row.saleableIs === '1' && this.permissions.has('AISPART-purchasePartSaleable-canotSale'); // Show button only if user has permission
               },
               type: 'info' // Different color for different states
             }, {
@@ -243,7 +243,7 @@ export default {
                 this.toggleSalesStatus(row.id, '1', row);
               },
               show: (row) => {
-                return row.saleableIs === '0'; // Show button only if user has permission
+                return row.saleableIs === '0' && this.permissions.has('AISPART-purchasePartSaleable-canSale'); ; // Show button only if user has permission
               },
               type: 'info' // Different color for different states
             }, {
