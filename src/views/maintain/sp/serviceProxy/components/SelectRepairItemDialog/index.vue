@@ -412,7 +412,7 @@
                     size="small"
                     placeholder="请选择"
                     filterable
-                    :disabled="!!row.autoImport || row.packageId"
+                    :disabled="!!row.autoImport || !!row.packageId"
                     clearable
                     @change="handlePartRepairItemNameChange(row)"
                   >
