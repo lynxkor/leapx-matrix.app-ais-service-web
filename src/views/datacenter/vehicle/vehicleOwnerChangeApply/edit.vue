@@ -117,7 +117,12 @@
               {{ form.businessTypeLabel }}
             </el-form-item>
             <el-form-item label="VIN：" prop="vin">
-              {{ form.vin }}
+              <LPEncrypted
+                :value.sync="form.vin"
+                :decryptMethod="() => getDecryptField(form.id, 'vin')"
+                >
+                {{ form.vin }}
+              </LPEncrypted>
             </el-form-item>
             <el-form-item label="门店编码：" prop="dealerCode">
               {{ form.dealerCode }}
@@ -126,10 +131,20 @@
              {{ form.dealerName }}
             </el-form-item>
             <el-form-item label="申请人：" prop="applierName">
-              {{ form.applierName }}
+              <LPEncrypted
+                :value.sync="form.applierName"
+                :decryptMethod="() => getDecryptField(form.id, 'applierName')"
+                >
+                {{ form.applierName }}
+              </LPEncrypted>
             </el-form-item>
             <el-form-item label="申请人 ID：" prop="applierId">
-              {{ form.applierId }}
+              <LPEncrypted
+                :value.sync="form.applierId"
+                :decryptMethod="() => getDecryptField(form.id, 'applierId')"
+                >
+                {{ form.applierId }}
+              </LPEncrypted>
             </el-form-item>
             <el-form-item label="申请时间：" prop="applyTime">
               {{ form.applyTime }}
@@ -484,6 +499,7 @@
                   :title="value"
                   :businessData="businessData"
                   @ocr-success="ocrSuccess"
+                  :readonly="attachmentDisabled"
                 />
               </el-tab-pane>
               <el-tab-pane label="企业" name="2" lazy>
@@ -497,6 +513,7 @@
                   :title="value"
                   :businessData="businessData"
                   @ocr-success="ocrSuccess"
+                  :readonly="attachmentDisabled"
                 />
               </el-tab-pane>
             </el-tabs>
@@ -512,6 +529,7 @@
                   :title="value"
                   :businessData="businessData"
                   @ocr-success="ocrSuccess"
+                  :readonly="attachmentDisabled"
                 />
               </el-tab-pane>
             </el-tabs>
@@ -527,6 +545,7 @@
                   :title="value"
                   :businessData="businessData"
                   @ocr-success="ocrSuccess"
+                  :readonly="attachmentDisabled"
                 />
               </el-tab-pane>
             </el-tabs>
@@ -539,6 +558,7 @@
                 title="报废灭失证明"
                 :businessData="businessData"
                 @ocr-success="ocrSuccess"
+                :readonly="attachmentDisabled"
               />
             </div>
           </div>
@@ -555,6 +575,7 @@
 import {
   getDetail,
   addOrUpdate,
+  getDecryptField,
 } from '@/api/datacenter/vehicle/vehicleOwnerChangeApply/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -566,6 +587,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import AisAttachment from '@/libs/components/AisAttachment';
 import { vehicleListFull } from '@/api/datacenter/vehicle/vehicleProfile';
 import { loginUserGet } from '@/libs/api/common';
+import LPEncrypted from '@/libs/components/LPEncrypted';
 
 // vehicle_profile_id_type 证件类型枚举：（身份证，军官证）
 const defaultForm = {
@@ -635,6 +657,7 @@ export default {
     EditBaseContainer,
     FetchSelect,
     AisAttachment,
+    LPEncrypted,
   },
   computed: {
     _id () {
@@ -645,12 +668,15 @@ export default {
     },
     businessData () {
       const data = {
-        businessType: this.form.businessType,
+        ...this.form,
       };
       return JSON.stringify(data);
     },
     showEditBtn () {
       return this.form.applyStatus === '10' || this.form.applyStatus === '40';
+    },
+    attachmentDisabled () {
+      return !(this.form.applyStatus === '10' || this.form.applyStatus === '40');
     }
   },
   watch: {
@@ -770,6 +796,9 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    getDecryptField (id, field) {
+      return getDecryptField(id, field);
     },
     vinSearch (query) {
       // [

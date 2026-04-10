@@ -277,7 +277,7 @@ export default {
             buttons: [{
               name: '入库',
               show: (row) => {
-                return row.returnMaterialStatus !== '1';
+                return row.returnMaterialStatus !== '1' && this.permissions.has('AISPART-maintenanceReturnInbound-inbound');
               },
               click: (rowIndex, row) => {
                 this.repairPopup(row);

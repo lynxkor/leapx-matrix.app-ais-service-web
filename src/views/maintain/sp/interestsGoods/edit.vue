@@ -33,6 +33,7 @@
                     placeholder="请输入"
                     v-model="form.code"
                     clearable
+                    @input="handleCodeInput"
                   />
                 </el-form-item>
                 <el-form-item label="权益商品名称：" prop="commodityName">
@@ -57,6 +58,7 @@
                     placeholder="请输入"
                     v-model="form.datePurchase"
                     clearable
+                    @input="handleDatePurchaseInput"
                   />
                 </el-form-item>
                 <el-form-item label="是否上架：" prop="whetherShelf">
@@ -114,6 +116,12 @@
                   label-key="name"
                   @change="handleAddRepairItem"
                 />
+                <!-- 右侧：合计信息 -->
+                <div class="summary-box">
+                  <span class="summary-item">项目索赔合计：￥{{ claimItemAmount }}</span>
+                  <span class="summary-item">零件索赔合计：￥{{ claimPartsAmount }}</span>
+                  <span class="summary-item">索赔费用合计：￥{{ totalClaimAmount }}</span>
+                </div>
               </div>
               <div class="common-section-table">
                 <vxe-table
@@ -177,6 +185,8 @@
                   <vxe-column field="totalAmount" title="数量" width="14.3%" />
                   <vxe-column field="unitPrice" title="单价" width="14.3%" />
                   <vxe-column field="discountAmount" title="优惠金额" width="14.3%" />
+                  <vxe-column field="receivableAmount" title="零件金额" width="14.3%" />
+                  <vxe-column field="claimPrice" title="索赔金额" width="14.3%" />
                   <!-- <vxe-column title="操作" width="150" fixed="right" v-if="canDelete">
                     <template #default="{ row }">
                       <span @click="handleEditRow(row)" class="action-button btn-edit">编辑</span>
@@ -209,7 +219,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/maintain/sp/interestsGoods/index';
+import { getDetail, addOrUpdate, deleteGoodsRepairItem } from '@/api/maintain/sp/interestsGoods/index';
 import { getPage as getRepairItemPage } from '@/api/maintain/basic/repairItem/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import BaseSearch from '@/libs/components/BaseSearch';
@@ -312,6 +322,9 @@ export default {
       currentDetailData: {},
       repairDetailName: '',
       tablePartData: [],
+      claimItemAmount: 0.00, // 项目索赔合计
+      claimPartsAmount: 0.00, // 零件索赔合计
+      totalClaimAmount: 0.00, // 索赔费用合计
       rules: {
         code: [
           { required: true, message: '请输入权益商品代码', trigger: 'change' }
@@ -323,12 +336,16 @@ export default {
           { required: true, message: '请选择服务权益类型', trigger: 'change' }
         ],
         datePurchase: [
-          { required: true, message: '请输入购买后有效期（月）', trigger: 'change' }
+          { required: true, message: '请输入购买后有效期（月）', trigger: 'change' },
+          { validator: this.validateDatePurchase, trigger: 'blur' } // 添加自定义校验
         ],
       }
     };
   },
   mounted () {
+    if (!this._id) {
+      this.initDefaultValues();
+    }
   },
   methods: {
     detailRequest () {
@@ -353,14 +370,32 @@ export default {
       const res = await this.detailRequest();
       if (res && res.goodsRepairItemList) {
         this.repairItemTableData = res.goodsRepairItemList;
+        let itemClaimTotal = 0;
+        let partsClaimTotal = 0;
         // 循环获取零件信息放入tablePartData
         this.tablePartData = [];
         res.goodsRepairItemList.forEach(item => {
+          const itemClaimPrice = Number(item.claimPrice) || 0;
+          itemClaimTotal = itemClaimTotal + itemClaimPrice;
           if (item.goodsPartsList) {
-            console.log(item.goodsPartsList);
+            // 计算零件金额
+            for (const part of item.goodsPartsList) {
+              const totalAmount = Number(part.totalAmount) || 0;
+              const unitPrice = Number(part.unitPrice) || 0;
+              const discountAmount = Number(part.discountAmount) || 0;
+              const partClaimPrice = Number(part.claimPrice) || 0;
+
+              let receivable = totalAmount * unitPrice;
+              receivable = receivable - discountAmount;
+              part.receivableAmount = Math.max(0, receivable.toFixed(2));
+              partsClaimTotal = partsClaimTotal + partClaimPrice;
+            }
             this.tablePartData = this.tablePartData.concat(item.goodsPartsList);
           }
         });
+        this.claimItemAmount = itemClaimTotal;
+        this.claimPartsAmount = partsClaimTotal;
+        this.totalClaimAmount = itemClaimTotal + partsClaimTotal;
       }
     },
     // 搜索维修项目
@@ -410,8 +445,8 @@ export default {
         const tempList = [...this.repairItemTableData];
         tempList.splice(index, 1);
 
-        // 调用接口保存
-        await addOrUpdate({ ...this.form, goodsRepairItemList: tempList });
+        // 调用接口删除
+        await deleteGoodsRepairItem([row.id]);
 
         // 成功后更新本地数据
         // this.repairItemTableData = tempList;
@@ -461,9 +496,52 @@ export default {
     },
     async fetchOptions (code) {
       if (code) {
-        return getEnum(code);
+        return await getEnum(code);
       }
       return [];
+    },
+    handleCodeInput (val) {
+      this.form.code = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    },
+    /**
+     * 处理购买后有效期输入，只允许输入正整数
+     */
+    handleDatePurchaseInput (val) {
+      // 移除所有非数字字符
+      const cleaned = val.replace(/\D/g, '');
+      // 如果清理后的值与原值不同，则更新模型
+      if (cleaned !== val) {
+        this.form.datePurchase = cleaned;
+      }
+    },
+
+    /**
+     * 自定义校验规则：必须为大于0的整数
+     */
+    validateDatePurchase (rule, value, callback) {
+      if (!value) {
+        return callback(new Error('请输入购买后有效期（月）'));
+      }
+      // 检查是否为整数
+      if (!Number.isInteger(Number(value))) {
+        return callback(new Error('请输入有效的整数'));
+      }
+
+      // 检查是否大于0
+      if (Number(value) <= 0) {
+        return callback(new Error('有效期必须大于0'));
+      }
+
+      callback();
+    },
+    /**
+     * 初始化新增时的默认值
+     */
+    async initDefaultValues () {
+      const enumData = await getEnum('InterestsGoodsServiceInterestsTypeEnum');
+      this.form.serviceInterestsType = enumData[0].code;
+      // 同时设置是否上架 默认选中第一个
+      this.form.whetherShelf = 1;
     },
   }
 };
@@ -485,4 +563,16 @@ export default {
   cursor: pointer;
   color: #b91919;
 }
+
+.summary-box {
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+.summary-item {
+  white-space: nowrap;
+}
+
 </style>

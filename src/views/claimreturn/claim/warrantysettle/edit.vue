@@ -1,4 +1,5 @@
 <template>
+<div>
   <edit-base-container
     ref="containerRef"
     :id="_id"
@@ -9,6 +10,13 @@
     :submitRequest="submitRequest"
     :detailRequest="detailRequest"
   >
+    <template #extraButtons>
+      <el-button v-if="canConfirm && form.settleStatus === '10'" type="primary" size="small" @click="handleConfirm">确认</el-button>
+      <el-button v-if="canComplete && (form.settleStatus === '60' || form.settleStatus === '110')" type="primary" size="small" @click="handleComplete">开票完成</el-button>
+      <el-button v-if="canInvoiceAccept && form.settleStatus === '65'" type="primary" size="small" @click="handleInvoiceAccept">发票验收</el-button>
+      <el-button v-if="canInvoiceReturn && form.settleStatus === '65'" type="primary" size="small" @click="handleInvoiceReturn">发票退回</el-button>
+      <el-button v-if="canPayConfirm && form.settleStatus === '90'" type="primary" size="small" @click="handlePayConfirm">确认付款</el-button>
+    </template>
     <el-main>
       <!-- 基础信息 -->
       <section class="common-section">
@@ -332,13 +340,14 @@
           <div class="common-section-sub-header">
             <h3>开票信息</h3>
           </div>
-          <InvoiceInfoTable :_id="_id" />
+          <InvoiceInfoTable :_id="_id" @success="invoiceSuccess" />
 
           <div class="common-section-sub-header">
             <h3>发票附件</h3>
           </div>
           <div>
             <AttachmentList
+              ref="attachmentListRef"
               :business-id="_id"
               config-code="mcs_settleaccount"
               type="card"
@@ -368,10 +377,32 @@
       </section>
     </el-main>
   </edit-base-container>
+  <CompleteDialog
+    :visible.sync="completeDialogVisible"
+    :id="currentRowId"
+    :detailData="form"
+    @success="handleDialogSuccess"
+  />
+  <InvoiceAcceptDialog
+    :visible.sync="invoiceAcceptDialogVisible"
+    :id="currentRowId"
+    @success="handleDialogSuccess"
+  />
+  <InvoiceReturnDialog
+    :visible.sync="invoiceReturnDialogVisible"
+    :id="currentRowId"
+    @success="handleDialogSuccess"
+  />
+  <PayConfirmDialog
+    :visible.sync="payConfirmDialogVisible"
+    :id="currentRowId"
+    @success="handleDialogSuccess"
+  />
+</div>
 </template>
 
 <script>
-import { getDetail } from '@/api/claimreturn/claim/warrantysettle/index';
+import { getDetail, confirm } from '@/api/claimreturn/claim/warrantysettle/index';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -381,10 +412,15 @@ import InvoiceInfoTable from './components/InvoiceInfoTable';
 import NoticeDetailTable from './components/NoticeDetailTable';
 import TraceDetailTable from './components/TraceDetailTable';
 import AttachmentList from '@/libs/components/AttachmentList';
+import CompleteDialog from './components/CompleteDialog';
+import InvoiceAcceptDialog from './components/InvoiceAcceptDialog';
+import InvoiceReturnDialog from './components/InvoiceReturnDialog';
+import PayConfirmDialog from './components/PayConfirmDialog';
 
 const defaultForm = {
   id: '',
   settleCode: '',
+  settleStatus: '',
   settleStatusLabel: '',
   dealerCode: '',
   dealerName: '',
@@ -440,6 +476,10 @@ export default {
     NoticeDetailTable,
     TraceDetailTable,
     AttachmentList,
+    CompleteDialog,
+    InvoiceAcceptDialog,
+    InvoiceReturnDialog,
+    PayConfirmDialog,
   },
   computed: {
     _id () {
@@ -471,7 +511,26 @@ export default {
       originalForm: { ...form },
       rules: {
       },
+      // 操作按钮权限
+      canConfirm: false,
+      canComplete: false,
+      canInvoiceAccept: false,
+      canInvoiceReturn: false,
+      canPayConfirm: false,
+      // 对话框状态
+      currentRowId: '',
+      completeDialogVisible: false,
+      invoiceAcceptDialogVisible: false,
+      invoiceReturnDialogVisible: false,
+      payConfirmDialogVisible: false,
     };
+  },
+  created () {
+    this.canConfirm = this.permissions.has(`${this.moduleKey}-confirm`);
+    this.canComplete = this.permissions.has(`${this.moduleKey}-completeInvoice`);
+    this.canInvoiceAccept = this.permissions.has(`${this.moduleKey}-acceptInvoice`);
+    this.canInvoiceReturn = this.permissions.has(`${this.moduleKey}-returnInvoice`);
+    this.canPayConfirm = this.permissions.has(`${this.moduleKey}-confirmPay`);
   },
   methods: {
     detailRequest () {
@@ -488,6 +547,46 @@ export default {
         ...defaultForm
       };
     },
+    // 确认
+    handleConfirm () {
+      this.$confirm('确认保修结算通知书?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        confirm(this._id).then(() => {
+          this.$message.success('确认成功');
+          this.$refs.containerRef.loadDetail();
+        });
+      }).catch(() => {});
+    },
+    // 开票完成
+    handleComplete () {
+      this.currentRowId = this._id;
+      this.completeDialogVisible = true;
+    },
+    // 发票验收
+    handleInvoiceAccept () {
+      this.currentRowId = this._id;
+      this.invoiceAcceptDialogVisible = true;
+    },
+    // 发票退回
+    handleInvoiceReturn () {
+      this.currentRowId = this._id;
+      this.invoiceReturnDialogVisible = true;
+    },
+    // 确认付款
+    handlePayConfirm () {
+      this.currentRowId = this._id;
+      this.payConfirmDialogVisible = true;
+    },
+    // 对话框成功回调
+    handleDialogSuccess () {
+      this.$refs.containerRef.loadDetail();
+    },
+    invoiceSuccess () {
+      this.$refs.attachmentListRef?.refresh();
+    }
   }
 };
 </script>

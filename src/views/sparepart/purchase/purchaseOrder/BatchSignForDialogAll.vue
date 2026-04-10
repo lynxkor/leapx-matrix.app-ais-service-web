@@ -3,10 +3,12 @@
     <!-- 数据表格 -->
     <div class="table-section">
       <vxe-table ref="workTable" :data="tableData" stripe show-overflow resizable border="inner" size="medium">
-        <vxe-column field="purchaseOrderCode" title="采购订单号" />
+        <vxe-column field="purchaseOrderCode" title="采购订单" />
         <vxe-column field="sparePartCode" title="备件编码" />
         <vxe-column field="sparePartName" title="备件名称" />
-        <vxe-column field="qty" title="签收数量">
+        <vxe-column field="outboundQty" title="已发运数" />
+        <vxe-column field="signedQty" title="已签收数" />
+        <vxe-column field="qty" title="本次签收数">
           <template #default="{ row }">
             <!-- 绑定到当前行的 form.claimQty -->
             <el-input v-model="row.form.qty" type="number" placeholder="请输入签收数量" />

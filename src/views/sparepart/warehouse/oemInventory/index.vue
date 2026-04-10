@@ -54,6 +54,7 @@
         is-page
         centralized
         :option-obj="optionObj"
+        :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
         @sortChange="handleSortChange"
