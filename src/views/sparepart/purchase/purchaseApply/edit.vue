@@ -233,7 +233,7 @@
               </el-form>
             </div>
           </section>
-          <section class="common-section" v-show="!(isEditing || !_id)">
+          <section class="common-section" v-if="_id">
             <div class="common-section-header">
               <h2>备件信息</h2>
             </div>
@@ -274,7 +274,7 @@
                           <el-link type="success" target="_blank" :href="`/service/sparepart/basic/sparePartPurchasePrice/detail?id=${row.originalPriceSource}`">{{ row.originalPriceSource }}</el-link>
                         </template>
                       </vxe-column>
-                      <vxe-column title="操作" >
+                      <vxe-column title="操作" fixed="right"  v-if="routeQueryType">
                           <template #default="{ row }">
                               <el-popconfirm
                                   title="确定删除此备件吗？"
