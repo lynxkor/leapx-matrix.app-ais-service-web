@@ -70,7 +70,7 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="服务门店">
+        <el-form-item label="服务门店" v-if="!this.isDealer">
           <el-select
             v-model="form.dealerCodeList"
             multiple
@@ -164,6 +164,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -227,6 +228,7 @@ export default {
       uploadDialogVisible: false,
       clickItemId: '',
       storeOptions: [],
+      isDealer: '',
       optionObj: {
         id: 'ownersEquityOrderTable',
         dataList: [],
@@ -237,7 +239,7 @@ export default {
         dataProp: [
           {
             props: 'mallOrderNumber',
-            label: '商城订单编号',
+            label: '商城订单号',
             visible: true,
             width: 200,
             fixed: 'left',
@@ -253,17 +255,17 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'goodInterestsTypeLabel', label: '权益商品类型', visible: true, width: 200 },
-          { props: 'interestsGoodsCode', label: '权益商品代码', visible: true, width: 200 },
-          { props: 'interestsGoodsName', label: '权益商品名称', visible: true, width: 200 },
+          { props: 'goodInterestsTypeLabel', label: '服务权益类型', visible: true, width: 200 },
+          { props: 'interestsGoodsCode', label: '商品代码', visible: true, width: 200 },
+          { props: 'interestsGoodsName', label: '商品名称', visible: true, width: 200 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店编码', visible: true, width: 200 },
+          { props: 'statusLabel', label: '启用状态', visible: true, width: 200 },
+          { props: 'dealerName', label: '服务门店', visible: true, width: 200 },
           { props: 'serviceProxyCode', label: '施工单号', visible: true, width: 200 },
-          { props: 'vehProfileVin', label: 'VIN码', visible: true, width: 200 },
+          { props: 'vehProfileVin', label: 'VIN', visible: true, width: 200 },
           { props: 'purchaser', label: '购买人', visible: true, width: 200 },
           { props: 'purchaserPhone', label: '购买人电话', visible: true, width: 200 },
-          { props: 'saleDate', label: '购买日期', visible: true, width: 200 },
+          { props: 'saleDate', label: '购买时间', visible: true, width: 200 },
           { props: 'referralCode', label: '推荐码', visible: true, width: 200 },
           { props: 'logisticsCompanies', label: '物流商', visible: true, width: 200 },
           { props: 'logisticsOrder', label: '物流单号', visible: true, width: 200 },
@@ -272,12 +274,12 @@ export default {
           { props: 'claimAmount', label: '索赔合计', visible: true, width: 200 },
           { props: 'writeOffUserName', label: '核销人', visible: true, width: 200 },
           { props: 'writeOffDate', label: '核销时间', visible: true, width: 200 },
-          { props: 'unsubscribeDate', label: '退订日期', visible: true, width: 200 },
+          { props: 'unsubscribeDate', label: '退订时间', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'validUntil', label: '有效截止时间', visible: true, width: 200 },
-          { props: 'modifierName', label: '修改者名称', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-          { props: 'creatorName', label: '创建者名称', visible: true, width: 200 },
+          { props: 'modifierName', label: '更新人', visible: true, width: 200 },
+          { props: 'updateTime', label: '更新时间', visible: true, width: 200 },
+          { props: 'creatorName', label: '创建人', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
             props: 'operate',
@@ -333,6 +335,9 @@ export default {
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    loginUserGet().then(data => {
+      this.isDealer = data.accountFlag;
+    });
     this.getData();
   },
   methods: {
