@@ -16,8 +16,8 @@
       <el-button v-if="canReject && ['20', '25', '30'].includes(form.applyStatus)" type="primary" size="small" @click="handleReject(false)">驳回</el-button>
       <el-button v-if="canApplyReject && ['20', '25', '30'].includes(form.applyStatus)" type="primary" size="small" @click="handleReject(true)">申请驳回</el-button>
       <el-button v-if="canWithdraw && ['60', '50'].includes(form.applyStatus)" type="primary" size="small" @click="handleWithdraw">撤回</el-button>
-      <el-button v-if="canDeny && ['20', '25', '30'].includes(form.applyStatus)" type="primary" size="small" @click="handleDeny">拒赔</el-button>
-      <el-button v-if="canCancel && (form.applyStatus === '10' || form.applyStatus === '40')" type="primary" size="small" @click="handleCancel">作废</el-button>
+      <el-button v-if="canDeny && ['20', '25', '30'].includes(form.applyStatus)" type="danger" plain size="small" @click="handleDeny">拒赔</el-button>
+      <el-button v-if="canCancel && (form.applyStatus === '10' || form.applyStatus === '40')" type="danger" plain size="small" @click="handleCancel">作废</el-button>
       <el-button :loading="printLoading" size="small" @click="handlePrint">打印标签</el-button>
       <el-button size="small" @click="handleViewRights">查看权益</el-button>
     </template>

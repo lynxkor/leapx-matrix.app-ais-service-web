@@ -234,6 +234,11 @@ export default {
       // 驳回
       rejectVisible: false,
       rejectId: '',
+      //
+      canSubmit: false,
+      canCancel: false,
+      canApprove: false,
+      canReject: false,
     };
   },
   computed: {
@@ -327,6 +332,7 @@ export default {
                 },
                 type: 'info',
                 show: (row) => {
+                  if (!this.canSubmit) { return false; }
                   // 草稿,审批驳回
                   if (row.applyStatus === '10' || row.applyStatus === '40') {
                     return true;
@@ -340,8 +346,9 @@ export default {
                   this.visible = true;
                   this.cancelId = row.id;
                 },
-                type: 'info',
+                type: 'danger',
                 show: (row) => {
+                  if (!this.canCancel) { return false; }
                   // 草稿,审批驳回
                   if (row.applyStatus === '10' || row.applyStatus === '40') {
                     return true;
@@ -361,6 +368,7 @@ export default {
                 },
                 type: 'info',
                 show: (row) => {
+                  if (!this.canApprove) { return false; }
                   if (row.applyStatus === '20') {
                     return true;
                   }
@@ -373,8 +381,9 @@ export default {
                   this.rejectVisible = true;
                   this.rejectId = row.id;
                 },
-                type: 'info',
+                type: 'danger',
                 show: (row) => {
+                  if (!this.canReject) { return false; }
                   if (row.applyStatus === '20') {
                     return true;
                   }
@@ -391,6 +400,10 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    this.canSubmit = this.permissions.has(`${this.moduleKey}-submit`);
+    this.canCancel = this.permissions.has(`${this.moduleKey}-cancel`);
+    this.canApprove = this.permissions.has(`${this.moduleKey}-approve`);
+    this.canReject = this.permissions.has(`${this.moduleKey}-reject`);
   },
   methods: {
     // 排序

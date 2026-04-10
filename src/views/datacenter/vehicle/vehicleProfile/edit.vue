@@ -1,4 +1,5 @@
 <template>
+  <div class="container">
   <edit-page-layout ref="editLayout" :title="paneTitle">
     <template #left>
       <edit-base-container
@@ -11,6 +12,9 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
+        <template #extraButtons>
+          <el-button v-if="canReturn" size="small" type="primary" @click="onReturn">退车</el-button>
+        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
@@ -810,6 +814,13 @@
       </div>
     </template>
   </edit-page-layout>
+  <return-dialog
+    v-if="returnDialogVisible"
+    :visible.sync="returnDialogVisible"
+    :id="form.id"
+    @update="onReturnSuccess"
+  />
+  </div>
 </template>
 
 <script>
@@ -828,6 +839,7 @@ import ServiceHistory from './ServiceHistory';
 import NextTable from './NextTable.vue';
 import BenefitDialog from './BenefitDialog';
 import InfoDialog from './InfoDialog';
+import ReturnDialog from './ReturnDialog';
 
 const defaultForm = {
   // 基础信息
@@ -989,6 +1001,7 @@ export default {
     ServiceHistory,
     BenefitDialog,
     InfoDialog,
+    ReturnDialog,
   },
   computed: {
     _id () {
@@ -1034,16 +1047,26 @@ export default {
       paneTitle: '',
       //
       visible: false,
+      // 退车弹窗
+      returnDialogVisible: false,
       // 调整保养信息弹窗
       infoDialogVisible: false,
       infoDialogData: {},
+      // 权限
+      canReturn: false,
     };
+  },
+  created () {
+    this.canReturn = this.permissions.has(`${this.moduleKey}-return`);
   },
   mounted () {
   },
   methods: {
     onBenefit () {
       this.visible = true;
+    },
+    onReturn () {
+      this.returnDialogVisible = true;
     },
     onWarranty () {
       if (!this.form.usageType) {
@@ -1135,6 +1158,9 @@ export default {
     onInfoSuccess () {
       this.$refs?.nextTable?.getDetailPageApi();
     },
+    onReturnSuccess () {
+      this.$refs.containerRef.loadDetail();
+    },
   }
 };
 </script>
@@ -1149,6 +1175,10 @@ export default {
     line-height: 30px;
     margin-right: 15px;
   }
+}
+.container{
+  width: 100%;
+  height: 100%;
 }
 
 </style>
