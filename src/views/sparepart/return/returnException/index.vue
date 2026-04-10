@@ -250,7 +250,7 @@ export default {
             buttons: [{
               name: '入库',
               show: (row) => {
-                return row.warehousingStatus === '20';
+                return row.warehousingStatus === '20' && this.permissions.has('AISPART-returnOrder-inboundExceptional');
               },
               click: (rowIndex, row) => {
                 this.handleSubmit(row);

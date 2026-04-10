@@ -290,10 +290,10 @@
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="采购订单号：" prop="purchaseOrderCode">
-                  <el-link type="success" :href="`/service/sparepart/purchase/purchaseOrder/edit?id=${form.purchaseOrderCode}`" target="_blank">{{ form.purchaseOrderCode }}</el-link>
+                  <el-link type="success" :href="`/service/sparepart/purchase/purchaseOrder/edit?id=${form.purchaseOrderId}`" target="_blank">{{ form.purchaseOrderCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="采购申请单：" prop="purchaseApplyCode">
-                  <el-link type="success" :href="`/service/sparepart/purchase/purchaseApply/edit?id=${form.purchaseApplyCode}`" target="_blank">{{ form.purchaseApplyCode }}</el-link>
+                  <el-link type="success" :href="`/service/sparepart/purchase/purchaseApply/edit?id=${form.purchaseApplyId}`" target="_blank">{{ form.purchaseApplyCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="发货仓库：" prop="deliveryWarehouse">
                   {{ form.deliveryWarehouseName }}

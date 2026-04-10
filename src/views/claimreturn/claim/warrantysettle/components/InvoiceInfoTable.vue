@@ -35,21 +35,6 @@
         </template>
       </vxe-column>
       <vxe-column field="createTime" title="创建时间"></vxe-column>
-      <vxe-column title="操作" width="100" align="center" fixed="right" :resizable="false">
-        <template #default="{ row }">
-          <el-popconfirm
-            title="确定要删除这条记录吗？"
-            @confirm="handleDelete(row)"
-          >
-            <el-button
-              class="action-button btn-delete"
-              slot="reference"
-              type="text">
-              删除
-            </el-button>
-          </el-popconfirm>
-        </template>
-      </vxe-column>
       <template #empty>
         <div class="m-vxe-table-empty-text">
           暂无数据
@@ -72,7 +57,7 @@
 </template>
 
 <script>
-import { warrantySettleInvoiceRecordPage, warrantySettleInvoiceRecordDelete } from '@/api/claimreturn/claim/warrantysettle/warrantySettleInvoiceRecord';
+import { warrantySettleInvoiceRecordPage } from '@/api/claimreturn/claim/warrantysettle/warrantySettleInvoiceRecord';
 
 export default {
   name: 'InvoiceInfoTable',
@@ -120,18 +105,6 @@ export default {
     currentPageChange (current) {
       this.current = current;
       this.getTableData();
-    },
-    handleDelete (row) {
-      if (!row.id) {
-        return;
-      }
-      warrantySettleInvoiceRecordDelete(row.id).then(() => {
-        this.$message.success('删除成功');
-        this.getTableData();
-        this.$emit('success');
-      }).catch(() => {
-        this.$message.error('删除失败');
-      });
     },
   }
 };

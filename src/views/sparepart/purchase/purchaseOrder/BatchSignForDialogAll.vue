@@ -27,7 +27,7 @@
     <template v-slot:footer>
       <div class="dialog-footer">
         <el-button size="small" @click="close">关 闭</el-button>
-        <el-button size="small" type="primary" @click="submit">签 收</el-button>
+        <el-button size="small" type="primary" @click="submit">{{btnText}}</el-button>
       </div>
     </template>
   </el-dialog>
@@ -56,7 +56,8 @@ export default {
     return {
       dialogVisible: this.visible,
       tableData: [],
-      title: '批量签收'
+      title: '批量签收',
+      btnText: '签收'
     };
   },
   watch: {
@@ -64,9 +65,8 @@ export default {
       this.dialogVisible = val;
     },
     inbound (val) {
-      if (val) {
-        this.title = val ? '批量入库签收' : '批量签收';
-      }
+      this.title = val ? '批量入库签收' : '批量签收';
+      this.btnText = val ? '入库签收' : '签收';
     },
     signForList: {
       handler (val) {

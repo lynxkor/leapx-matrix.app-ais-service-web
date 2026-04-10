@@ -116,7 +116,7 @@
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd('10')"><i class="iconfont icon-lxppc-plus"></i>新增（车主）</el-button>
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd('20')"><i class="iconfont icon-lxppc-plus"></i>新建（对公）</el-button>
-      <el-button size="small" @click="excelSetting">出库单打印设置</el-button>
+      <el-button size="small" @click="excelSetting" v-permission="'AISPART-retailOrder-print'">出库单打印设置</el-button>
       <!-- <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
@@ -340,7 +340,7 @@ export default {
               name: '确认',
               popconfirmTitle: '是否确认该订单?',
               show: (row) => {
-                return row.orderStatus === '10';
+                return row.orderStatus === '10' && this.permissions.has('AISPART-retailOrder-confirm');
               },
               click: (rowIndex, row) => {
                 confirmOrder({ id: row.id }).then(() => {
@@ -360,7 +360,7 @@ export default {
             }, {
               name: '作废',
               show: (row) => {
-                return row.orderStatus === '10' || row.orderStatus === '20';
+                return (row.orderStatus === '10' || row.orderStatus === '20') && this.permissions.has('AISPART-retailOrder-cancel');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入作废备注', '作废', {
@@ -380,7 +380,7 @@ export default {
             }, {
               name: '出库',
               show: (row) => {
-                return row.orderStatus === '20';
+                return row.orderStatus === '20' && this.permissions.has('AISPART-retailOrder-ship');
               },
               click: (rowIndex, row) => {
                 this.handleOutbound(row, '1');
@@ -396,7 +396,7 @@ export default {
                 if (!row.orderStatus) return false;
 
                 // 判断 orderStatus 是否包含列表中的任意一个值
-                return validStatuses.some(status => row.orderStatus.includes(status));
+                return validStatuses.some(status => row.orderStatus.includes(status)) && this.permissions.has('AISPART-retailOrder-printOut');
               },
               click: (rowIndex, row) => {
                 this.handlePrint(row);
@@ -406,7 +406,7 @@ export default {
               name: '签收',
               popconfirmTitle: '是否签收该订单?',
               show: (row) => {
-                return row.orderStatus === '30';
+                return row.orderStatus === '30' && this.permissions.has('AISPART-retailOrder-sign');
               },
               click: (rowIndex, row) => {
                 signOrder({ id: row.id }).then(() => {
@@ -427,7 +427,7 @@ export default {
               name: '取消签收',
               popconfirmTitle: '是否取消签收该订单?',
               show: (row) => {
-                return row.orderStatus === '40';
+                return row.orderStatus === '40' && this.permissions.has('AISPART-retailOrder-cancelSign');
               },
               click: (rowIndex, row) => {
                 cancelSignOrder({ id: row.id }).then(() => {
@@ -447,7 +447,7 @@ export default {
             }, {
               name: '退料申请',
               show: (row) => {
-                return row.orderStatus === '30';
+                return row.orderStatus === '30' && this.permissions.has('AISPART-retailOrder-applyReturnMaterial');
               },
               click: (rowIndex, row) => {
                 this.handleReturnMaterial(row);
@@ -456,7 +456,7 @@ export default {
             }, {
               name: '退料入库',
               show: (row) => {
-                return row.orderStatus === '30' && row.applyReturnMaterialIs === '1';
+                return (row.orderStatus === '30' && row.applyReturnMaterialIs === '1') && this.permissions.has('AISPART-retailOrder-returnMaterialInbound');
               },
               click: (rowIndex, row) => {
                 this.handleOutbound(row, '2');
@@ -465,7 +465,7 @@ export default {
             }, {
               name: '结算',
               show: (row) => {
-                return row.orderStatus === '40';
+                return row.orderStatus === '40' && this.permissions.has('AISPART-retailOrder-settle');
               },
               click: (rowIndex, row) => {
                 settleOrder({ id: row.id }).then(() => {
@@ -485,7 +485,7 @@ export default {
             }, {
               name: '取消结算',
               show: (row) => {
-                return row.orderStatus === '50';
+                return row.orderStatus === '50' && this.permissions.has('AISPART-retailOrder-cancelSettle');
               },
               click: (rowIndex, row) => {
                 cancelSettleOrder({ id: row.id }).then(() => {
@@ -505,7 +505,7 @@ export default {
             }, {
               name: '收款',
               show: (row) => {
-                return row.orderStatus === '50';
+                return row.orderStatus === '50' && this.permissions.has('AISPART-retailOrder-collectPayment');
               },
               click: (rowIndex, row) => {
                 this.handleHarvest(row);
@@ -514,7 +514,7 @@ export default {
             }, {
               name: '打印结算单',
               show: (row) => {
-                return row.orderStatus === '50' || row.orderStatus === '60';
+                return (row.orderStatus === '50' || row.orderStatus === '60') && this.permissions.has('AISPART-retailOrder-printSettle');
               },
               click: (rowIndex, row) => {
                 this.handlePrintSettlementStatement(row);
@@ -523,7 +523,7 @@ export default {
             }, {
               name: '反结算',
               show: (row) => {
-                return row.orderStatus === '60';
+                return row.orderStatus === '60' && this.permissions.has('AISPART-retailOrder-reverseSettle');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入备注', '反结算', {
@@ -543,7 +543,7 @@ export default {
             }, {
               name: '退订入库',
               show: (row) => {
-                return row.orderStatus === '100';
+                return row.orderStatus === '100' && this.permissions.has('AISPART-retailOrder-cancelOrderInbound');
               },
               click: (rowIndex, row) => {
                 this.handleOutbound(row, '3');
@@ -552,7 +552,7 @@ export default {
             }, {
               name: '退款',
               show: (row) => {
-                return row.orderStatus === '70';
+                return row.orderStatus === '70' && this.permissions.has('AISPART-retailOrder-refund');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入退款备注', '退款', {
