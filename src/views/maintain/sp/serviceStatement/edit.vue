@@ -406,9 +406,9 @@ export default {
         // 完成收款：结算类型为自费/保险/内部结算，状态为待收款
         success: baseType.includes(statementType) && statementStatus === 30,
         // 1）【结算单类型】为自费、保险、内部结算 且 【结算单状态】为【已收款】 且 该结算单未创建反结算申请，展示该按钮支持创建反结算；
-        reCreate: baseType.includes(statementType) && [40].includes(statementStatus) && !this.form.createReStatement,
+        reCreate: baseType.includes(statementType) && [40].includes(statementStatus),
         // 2）【结算单类型】为保修、合同 且 【结算单状态】为【待收款】、【已收款】且 该结算单未创建反结算申请 ，展示该按钮支持创建反结算；
-        reCreate1: baseType2.includes(statementType) && [40, 30].includes(statementStatus) && !this.form.createReStatement,
+        reCreate1: baseType2.includes(statementType) && [40, 30].includes(statementStatus),
         // 添加收款记录：结算类型为自费/保险/内部结算，状态为待收款
         addRecord: baseType.includes(statementType) && statementStatus === 30,
       };
@@ -609,25 +609,53 @@ export default {
         try {
           this.refundLoading = true;
           const response = await createCounterSettlement(this._id);
-          if (response.code === 200) {
+
+          // 由于 axios 封装层成功时直接返回 data 字段
+          const restatementId = response;
+
+          if (restatementId) {
             this.$message.success('反结算申请创建成功');
             // 跳转至反结算编辑页面
-            if (response.data) {
-              this.$router.push({
-                path: '/maintain/sp/restatement/edit',
-                query: {
-                  id: response.data
-                }
-              });
-            } else {
-              this.$message.warning('未找到反结算申请单 ID');
-            }
+            this.$router.push({
+              path: '/maintain/sp/restatement/edit',
+              query: {
+                id: restatementId
+              }
+            });
             this.handleRefresh();
           } else {
-            this.$message.error(response.msg || '反结算申请创建失败');
+            this.$message.warning('未找到反结算申请单 ID');
           }
         } catch (error) {
-          console.error('创建反结算申请失败:', error);
+          if (error && error.data) {
+            // 如果返回了反结算单ID,显示可点击的链接
+            this.$alert(
+              `<div style="margin-bottom: 10px;">${error.msg || '反结算申请创建失败'}</div>
+               <div><a href="javascript:void(0)" style="color: #409EFF; cursor: pointer; text-decoration: underline;" id="restatementLink">去审核</a></div>`,
+              '提示',
+              {
+                dangerouslyUseHTMLString: true,
+                confirmButtonText: '确定',
+                callback: () => {},
+                customClass: 'restatement-fail-dialog'
+              }
+            );
+            // 等待 DOM 更新后绑定点击事件
+            this.$nextTick(() => {
+              const link = document.getElementById('restatementLink');
+              if (link) {
+                link.onclick = () => {
+                  // 先关闭弹窗
+                  document.querySelector('.restatement-fail-dialog .el-message-box__headerbtn').click();
+                  // 再跳转
+                  this.$router.push({
+                    path: '/maintain/sp/restatement/edit',
+                    query: { id: error.data }
+                  });
+                };
+              }
+            });
+          }
         } finally {
           this.refundLoading = false;
         }

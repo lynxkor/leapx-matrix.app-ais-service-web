@@ -98,6 +98,7 @@ import permissions from '@/libs/mixins/permissions';
 import { downloadExcel, handleBatchStatusChange } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import moment from 'moment';
 
 const defaultForm = {
   vehicleSeriesId: '',
@@ -335,7 +336,8 @@ export default {
             return {
               ...item,
               deleteLoading: false,
-              statusLabel: item.status === 1 ? '启用' : '停用'
+              statusLabel: item.status === 1 ? '启用' : '停用',
+              endTime: (item.startTime && item.endTime) ? `${moment(item.startTime).format('YYYY/MM/DD')} - ${moment(item.endTime).format('YYYY/MM/DD')}` : '永久有效'
             };
           });
           this.optionObj.total = res.total;

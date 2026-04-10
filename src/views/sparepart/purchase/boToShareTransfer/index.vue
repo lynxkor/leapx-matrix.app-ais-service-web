@@ -120,7 +120,7 @@
       :visible.sync="transferDialogVisible"
       :transferId="transferId"
       @update:visible="val => transferDialogVisible = val"
-      @submit="getData"
+      @getData="getData"
     />
   </div>
 </template>

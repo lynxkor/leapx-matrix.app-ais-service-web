@@ -98,15 +98,13 @@ export default {
     async submit () {
       this.submitLoading = true;
       const params = {
-        id: this.id,
         ...this.form,
+        id: this.id,
       };
       try {
         const res = await purchaseApplyAgree(params);
         if (res.length > 0 && this.id) {
           this.$emit('failure', this.id);
-        } else if (res.length > 0) {
-          this.$message.warning('操作失败：缺少采购单ID');
         } else {
           this.$emit('success');
           this.$message({

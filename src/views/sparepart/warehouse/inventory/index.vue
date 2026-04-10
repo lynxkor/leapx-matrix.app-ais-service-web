@@ -137,9 +137,9 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button size="small" @click="handleTransfer">转移库位</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchLaunch" :disabled="selectionList.length === 0">上架共享</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchShelves" :disabled="selectionList.length === 0">下架共享</el-button>
+      <el-button size="small" @click="handleTransfer" v-permission="'AISPART-inventory-changeLocation'">转移库位</el-button>
+      <el-button v-if="canDelete" size="small" @click="handleBatchLaunch" :disabled="selectionList.length === 0" v-permission="'AISPART-inventory-sharedShelves'">上架共享</el-button>
+      <el-button v-if="canDelete" size="small" @click="handleBatchShelves" :disabled="selectionList.length === 0" v-permission="'AISPART-inventory-sharedRemove'">下架共享</el-button>
       <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>

@@ -50,3 +50,11 @@ export function enableItem (data) {
 export function changeWhetherShelf (data) {
   return api.jsonPost(prefix + 'changeWhetherShelf', data);
 }
+
+/**
+ * 删除维修项目
+ * @param {Object} data
+ */
+export function deleteGoodsRepairItem (data) {
+  return api.jsonPost('maintain/web/sp/goodsRepairItem/delete', data);
+}

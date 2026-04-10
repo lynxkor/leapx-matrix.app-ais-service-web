@@ -279,6 +279,9 @@ export default {
               type: 'info'
             }, {
               name: '打印出库单',
+              show: (row) => {
+                return this.permissions.has('AISPART-dealerReturnOrder-outbound');
+              },
               click: (rowIndex, row) => {
                 this.handlePrint(row);
               },
@@ -286,7 +289,7 @@ export default {
             }, {
               name: '通过',
               show: (row) => {
-                return row.orderStatus === '10';
+                return row.orderStatus === '10' && this.permissions.has('AISPART-dealerReturnOrder-agree');
               },
               popconfirmTitle: '此操作将通过订单, 是否继续?',
               click: (rowIndex, row) => {
@@ -307,7 +310,7 @@ export default {
             }, {
               name: '作废',
               show: (row) => {
-                return row.orderStatus === '10';
+                return row.orderStatus === '10' && this.permissions.has('AISPART-dealerReturnOrder-cancel');
               },
               click: (rowIndex, row) => {
                 this.handleVoid(row);
@@ -316,7 +319,7 @@ export default {
             }, {
               name: '出库',
               show: (row) => {
-                return row.orderStatus === '20' && row.outboundStatus === '10';
+                return row.orderStatus === '20' && row.outboundStatus === '10' && this.permissions.has('AISPART-dealerReturnOrder-outbound');
               },
               popconfirmTitle: '此操作将出库订单, 是否继续?',
               click: (rowIndex, row) => {
