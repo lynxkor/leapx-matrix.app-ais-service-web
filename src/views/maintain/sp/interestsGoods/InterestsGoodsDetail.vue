@@ -129,6 +129,7 @@ export default {
   data () {
     return {
       repairDetail: {
+        id: '',
         repairItemName: '',
         repairItemCode: '',
         repairItemId: '',
@@ -229,6 +230,7 @@ export default {
     // 初始化数据（编辑模式 - 传了detailData，不传repairItemId）
     initData (data) {
       this.repairDetail = {
+        id: data.id || '',
         repairItemName: data.repairItemName || '',
         repairItemCode: data.repairItemCode || '',
         repairItemId: data.repairItemId || '',
