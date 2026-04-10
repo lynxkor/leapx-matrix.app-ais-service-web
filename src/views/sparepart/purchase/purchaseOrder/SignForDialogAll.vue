@@ -1,7 +1,22 @@
 <template>
     <el-dialog class="m-start-work-dialog" :title="title" width="500px" :visible.sync="dialogVisible" @close="close">
-        <el-form :inline="true" :model="formData" size="small" label-width="70px">
-            <el-form-item label="签收数量" prop="qty">
+        <el-form :model="formData" size="small" label-width="120px">
+            <el-form-item label="采购订单：">
+                {{ detail.purchaseOrderCode }}
+            </el-form-item>
+            <el-form-item label="备件编码：">
+                {{ detail.sparePartCode }}
+            </el-form-item>
+            <el-form-item label="备件名称：">
+                {{ detail.sparePartName }}
+            </el-form-item>
+            <el-form-item label="已发运数：">
+                {{ detail.outboundQty }}
+            </el-form-item>
+            <el-form-item label="已签收数：">
+                {{ detail.signedQty }}
+            </el-form-item>
+            <el-form-item label="本次签收数：" prop="qty">
                 <el-input v-model="formData.qty" type="number" placeholder="请输入签收数量" />
             </el-form-item>
         </el-form>
@@ -9,7 +24,7 @@
         <template v-slot:footer>
             <div class="dialog-footer">
                 <el-button size="small" @click="close">关 闭</el-button>
-                <el-button size="small" type="primary" @click="submit">签 收</el-button>
+                <el-button size="small" type="primary" @click="submit">{{title}}</el-button>
             </div>
         </template>
     </el-dialog>
@@ -36,6 +51,7 @@ export default {
       formData: {
         qty: 0
       },
+      detail: {},
       title: '签收'
     };
   },
@@ -47,6 +63,7 @@ export default {
       if (val) {
         this.title = val.inbound ? '入库签收' : '签收';
         this.formData.qty = Number(val.operateQty) || 0;
+        this.detail = val;
       }
     }
   },
