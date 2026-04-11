@@ -745,7 +745,7 @@ export default {
         selectedItem.partsRespList.forEach(part => {
           const discountAmount = Number(part.price || 0) * (Number(this.selectedDiscount?.discountPartRate || 0) || 0);
           const newPart = {
-            partsId: part.id,
+            partsId: part.partsId,
             partsCode: part.partsCode || '',
             partsName: part.partsName || '',
             repairItemTypeId: selectedItem.repairItemTypeId || this.repairType,
