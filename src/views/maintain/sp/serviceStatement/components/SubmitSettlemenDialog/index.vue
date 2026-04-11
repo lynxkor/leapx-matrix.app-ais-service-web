@@ -176,7 +176,9 @@
                   </template>
                 </vxe-column>
                 <vxe-column field="repairAmount" title="应收金额" width="110" />
-                <vxe-column field="packageCode" title="套餐代码" width="140" />
+                <vxe-column field="packageTypeLabel" title="套餐类型" width="120px" />
+                <vxe-column field="packageName" title="套餐名称" width="120px" />
+                <vxe-column field="packageCode" title="套餐代码" width="120px" />
                 <template #empty>
                   <div class="m-vxe-table-empty-text">暂无数据</div>
                 </template>
@@ -239,7 +241,9 @@
                   </template>
                 </vxe-column>
                 <vxe-column field="partsAmount" title="应收金额" width="110" />
-                <vxe-column field="packageCode" title="套餐代码" width="140" />
+                <vxe-column field="packageTypeLabel" title="套餐类型" width="120px" />
+                <vxe-column field="packageName" title="套餐名称" width="120px" />
+                <vxe-column field="packageCode" title="套餐代码" width="120px" />
                 <template #empty>
                   <div class="m-vxe-table-empty-text">暂无数据</div>
                 </template>

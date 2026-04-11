@@ -52,7 +52,9 @@
             title="维修项目金额"
             min-width="150"
           />
-          <vxe-column field="packageCode" title="套餐代码" min-width="150" />
+          <vxe-column field="packageTypeLabel" title="套餐类型" width="120px" />
+          <vxe-column field="packageName" title="套餐名称" width="120px" />
+          <vxe-column field="packageCode" title="套餐代码" width="120px" />
 
           <template #empty>
             <div class="m-vxe-table-empty-text">暂无数据</div>
