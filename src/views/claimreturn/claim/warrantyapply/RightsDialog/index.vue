@@ -1,7 +1,9 @@
 <template>
   <simple-table-dialog
     :visible.sync="dialogVisible"
-    :title="'VIN：' + vin" >
+    :title="'VIN：' + decryptedVin"
+    @close="handleClose"
+  >
     <vxe-table
       ref="table"
       :data="tableData"
@@ -25,7 +27,7 @@
 </template>
 
 <script>
-import { queryRights } from '@/api/claimreturn/claim/warrantyapply';
+import { queryRights, getDetailDecryptField } from '@/api/claimreturn/claim/warrantyapply';
 import SimpleTableDialog from '@/libs/components/dialogs/SimpleTableDialog.vue';
 
 export default {
@@ -42,9 +44,9 @@ export default {
       type: String,
       default: ''
     },
-    vin: {
+    id: {
       type: String,
-    },
+    }
   },
   data () {
     return {
@@ -54,6 +56,7 @@ export default {
       // 表格数据
       tableData: [],
       total: 0,
+      decryptedVin: '',
     };
   },
   watch: {
@@ -65,16 +68,26 @@ export default {
     }
   },
   methods: {
+    handleClose () {
+      this.$emit('update:visible', false);
+    },
     getData () {
+      this.decryptedVin = '';
+      this.tableData = [];
       this.loading = true;
-      let data = {
-        vin: this.vin,
-        vehicleProfileId: this.vehicleProfileId,
-      };
-      queryRights(data)
+      if (this.id) {
+        getDetailDecryptField(this.id, 'vin').then(decryptedVin => {
+          this.decryptedVin = decryptedVin;
+        }).catch(() => {});
+      }
+      queryRights({ vehicleProfileId: this.vehicleProfileId })
         .then(res => {
-          this.tableData = res;
-        }).finally(() => {
+          this.tableData = res || [];
+        })
+        .catch(() => {
+          this.tableData = [];
+        })
+        .finally(() => {
           this.loading = false;
         });
     },

@@ -15,6 +15,13 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
+        <template #extraButtons>
+          <el-button v-if="canSubmit && (form.applyStatus === '10' || form.applyStatus === '50')" type="primary" size="small" @click="handleSubmit">提交</el-button>
+          <el-button v-if="canFirstApprove && form.applyStatus === '20'" type="primary" size="small" @click="handleFirstApprovePass">一级审批通过</el-button>
+          <el-button v-if="canFirstApprove && form.applyStatus === '20'" type="danger" size="small" @click="handleFirstApproveReject">一级审批驳回</el-button>
+          <el-button v-if="canFinalApprove && form.applyStatus === '30'" type="primary" size="small" @click="handleFinalApprovePass">最终审批通过</el-button>
+          <el-button v-if="canFinalApprove && form.applyStatus === '30'" type="danger" size="small" @click="handleFinalApproveReject">最终审批驳回</el-button>
+        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
@@ -201,6 +208,16 @@
       <el-button size="small" type="primary" @click="handleSubmitVehicle(false)">保存&再建一个</el-button>
       <el-button size="small" @click="handleCancelVehicle">取消</el-button>
     </template>
+    <FirstApproveRejectDialog
+      :visible.sync="firstApproveDialogVisible"
+      :id="currentApproveId"
+      @success="handleDialogSuccess"
+    />
+    <FinalApproveRejectDialog
+      :visible.sync="finalApproveDialogVisible"
+      :id="currentApproveId"
+      @success="handleDialogSuccess"
+    />
   </edit-page-layout>
 </template>
 
@@ -221,6 +238,9 @@
 import {
   getDetail,
   addOrUpdate,
+  submit,
+  firstApprovePass,
+  finalApprovePass,
 } from '@/api/datacenter/vehicle/serviceDealerChangeApply/index';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -233,6 +253,8 @@ import AddVehicleForm from './components/AddVehicleForm';
 import AisAttachment from '@/libs/components/AisAttachment';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import BaseInput from '@/libs/components/BaseInput';
+import FirstApproveRejectDialog from './FirstApproveRejectDialog/index.vue';
+import FinalApproveRejectDialog from './FinalApproveRejectDialog/index.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -267,6 +289,8 @@ export default {
     EditPageLayout,
     AddVehicleForm,
     BaseInput,
+    FirstApproveRejectDialog,
+    FinalApproveRejectDialog,
   },
   computed: {
     _id () {
@@ -340,7 +364,17 @@ export default {
         ],
       },
       selectedRows: [],
+      // 一级审批弹窗
+      firstApproveDialogVisible: false,
+      currentApproveId: '',
+      // 最终审批弹窗
+      finalApproveDialogVisible: false,
     };
+  },
+  created () {
+    this.canSubmit = this.permissions.has(`${this.moduleKey}-submit`);
+    this.canFirstApprove = this.permissions.has(`${this.moduleKey}-firstApprove`);
+    this.canFinalApprove = this.permissions.has(`${this.moduleKey}-finalApprove`);
   },
   mounted () {
   },
@@ -378,6 +412,41 @@ export default {
     },
     checkboxChange (records) {
       this.selectedRows = records;
+    },
+    // 提交
+    handleSubmit () {
+      submit({ id: this._id }).then(() => {
+        this.$message.success('提交成功');
+        this.$refs.containerRef.loadDetail();
+      });
+    },
+    // 一级审批通过
+    handleFirstApprovePass () {
+      firstApprovePass({ id: this._id }).then(() => {
+        this.$message.success('操作成功');
+        this.$refs.containerRef.loadDetail();
+      });
+    },
+    // 一级审批驳回
+    handleFirstApproveReject () {
+      this.currentApproveId = this._id;
+      this.firstApproveDialogVisible = true;
+    },
+    // 最终审批通过
+    handleFinalApprovePass () {
+      finalApprovePass({ id: this._id }).then(() => {
+        this.$message.success('操作成功');
+        this.$refs.containerRef.loadDetail();
+      });
+    },
+    // 最终审批驳回
+    handleFinalApproveReject () {
+      this.currentApproveId = this._id;
+      this.finalApproveDialogVisible = true;
+    },
+    // 对话框成功回调
+    handleDialogSuccess () {
+      this.$refs.containerRef.loadDetail();
     },
     handleCancelVehicle () {
       this.$refs.addVehicleForm.resetForm();
