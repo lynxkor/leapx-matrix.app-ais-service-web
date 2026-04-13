@@ -69,3 +69,19 @@ export function removeDetail (data) {
 export function detailSearchApi (data) {
   return api.jsonPost('claimreturn/claim/web/warrantyapply/warrantyApply/page', data);
 }
+
+/**
+ * 发布
+ * @param {Object} data
+ */
+export function publish (data) {
+  return api.jsonPost('claimreturn/claim/web/warrantyaudit/warrantyAudit/publish', data);
+}
+
+/**
+ * 签署总结
+ * @param {Object} data
+ */
+export function signSummary (data) {
+  return api.jsonPost('claimreturn/claim/web/warrantyaudit/warrantyAudit/signSummary', data);
+}
