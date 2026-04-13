@@ -1321,7 +1321,8 @@ const routes = [
         name: '备件现金账户',
         keepAlive: true
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/fund/account/edit',
       name: 'accountEdit',
       component: () => import('@/views/sparepart/fund/account/edit.vue'),
@@ -1330,8 +1331,7 @@ const routes = [
         name: '备件现金账户详情',
         noResourceUrl: 'true'
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/sparepart/fund/accountRebate',
       name: 'accountRebate',
       component: () => import('@/views/sparepart/fund/accountRebate/index.vue'),
@@ -1340,7 +1340,8 @@ const routes = [
         name: '备件返利账户',
         keepAlive: true
       }
-    }, {
+    }, // 门店销毁
+    {
       path: '/sparepart/fund/accountRebate/edit',
       name: 'accountRebateEdit',
       component: () => import('@/views/sparepart/fund/accountRebate/edit.vue'),
@@ -1349,8 +1350,7 @@ const routes = [
         name: '备件返利账户详情',
         noResourceUrl: 'true'
       }
-    }, // 门店销毁
-    {
+    }, {
       path: '/sparepart/warehouse/inventory',
       name: 'inventory',
       component: () => import('@/views/sparepart/warehouse/inventory/index.vue'),
@@ -2728,6 +2728,24 @@ const routes = [
         name: '专属服务门店变更',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/claim/warrantyAudit',
+      name: 'warrantyAudit',
+      component: () => import('@/views/claimreturn/claim/warrantyaudit/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/warrantyAudit/edit',
+      name: 'warrantyAuditEdit',
+      component: () => import('@/views/claimreturn/claim/warrantyaudit/edit.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
@@ -2776,8 +2794,6 @@ export function getRouter () {
       // if (true) {
         next();
       } else {
-        console.log(to.path);
-        console.log(localStorage.getItem('sourceUrl').includes(to.path));
         window.alert('你没有访问该页面的权限');
         if (store.state.user.token) {
           next({
