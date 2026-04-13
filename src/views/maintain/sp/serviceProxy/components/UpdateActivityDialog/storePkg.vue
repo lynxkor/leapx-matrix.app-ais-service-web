@@ -54,7 +54,7 @@
         <div class="detail-header">商品明细</div>
 
         <!-- 项目列表 -->
-        <div class="project-list">
+        <div class="project-list" v-if="projectList.length">
           <div
             v-for="(project, index) in projectList"
             :key="index"
@@ -133,13 +133,17 @@
           </div>
         </div>
 
+        <div v-else class="empty-state">
+          <span>暂无数据</span>
+        </div>
+
         <!-- 底部操作栏 -->
         <div class="footer-bar">
           <el-popconfirm
             :title="!selectedPackage?.used ? '确定取消使用该商城订单？' : '确定选择使用该商城订单？'"
             @confirm="handleConfirm"
           >
-            <el-button :type="selectedPackage?.used ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
+            <el-button :disabled="projectList.length === 0" :type="selectedPackage?.used ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
           </el-popconfirm>
         </div>
       </div>
