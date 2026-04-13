@@ -76,7 +76,7 @@ export default {
   },
   computed: {
     showPreAuthBtn () {
-      return !this.vehicleInfo.isPreAuth || !this.vehicleInfo.isCreatePreAuth;
+      return !this.vehicleInfo.isCreatePreAuth;
     },
   },
   data () {
@@ -154,6 +154,7 @@ export default {
         };
         await addOrUpdate(params);
         this.$message.success('生成预授权成功');
+        this.$emit('refresh');
         // 刷新提醒信息列表
         await this.loadData();
       } catch (error) {
