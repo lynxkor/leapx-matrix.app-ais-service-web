@@ -159,7 +159,7 @@
                 <vxe-column field="discountRate" title="折扣率" width="100" />
                 <vxe-column field="discountAmount" title="优惠金额" width="160">
                   <template #default="{ row }">
-                    <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">
+                    <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || String(row.packageType) === PackageTypeEnum.STORE">
                       {{ row.discountAmount | tofixed2 }}
                     </template>
                     <el-input-number
@@ -326,7 +326,7 @@
 import { getDiscountType } from '@/api/maintain/sp/serviceProxy/index';
 import { submitSettlement, queryIsLastConfirm } from '@/api/maintain/sp/serviceStatement/index';
 import SignDialog from '../SignDialog';
-import { CheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
+import { CheckoutTypeEnum, PackageTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
 
 export default {
   name: 'SubmitSettlemenDialog',
@@ -367,6 +367,7 @@ export default {
       signDialogVisible: false,
       settlemenDialogVisible: false,
       totalData: {},
+      PackageTypeEnum
     };
   },
   filters: {
