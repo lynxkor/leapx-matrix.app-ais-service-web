@@ -1030,7 +1030,7 @@ export default {
 
       // 更新维修项目的折扣率
       this.itemData.forEach(item => {
-        if (!this.checkoutTypeIncluded(item.checkoutTypeId)) {
+        if (!this.checkoutTypeIncluded(item.checkoutTypeId) && !this.packageTypeIncluded(item.packageType)) {
           item.discountRate = discountWorkhourRate || 0;
           // 重新计算优惠金额和项目金额
           const originalAmount = item.workHour * item.price;
@@ -1041,7 +1041,7 @@ export default {
 
       // 更新维修配件的折扣率
       this.partData.forEach(part => {
-        if (!this.checkoutTypeIncluded(part.checkoutTypeId)) {
+        if (!this.checkoutTypeIncluded(part.checkoutTypeId) && !this.packageTypeIncluded(part.packageType)) {
           part.discountRate = discountPartRate || 0;
           // 重新计算优惠金额和配件金额
           const originalAmount = part.quantity * part.price;
@@ -1240,6 +1240,11 @@ export default {
     // 结算类型是否为合同、保修
     checkoutTypeIncluded (type) {
       return type === CheckoutTypeEnum.WARRANTY || type === CheckoutTypeEnum.CONTRACT;
+    },
+
+    // 套餐类型是否为商城订单
+    packageTypeIncluded (type) {
+      return (type || '').toString() === PackageTypeEnum.STORE;
     },
 
     // 【结算类型】为保修，【保修类型】为：技术服务活动 选不到
