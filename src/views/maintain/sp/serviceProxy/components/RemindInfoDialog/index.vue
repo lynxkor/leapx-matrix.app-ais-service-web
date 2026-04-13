@@ -36,7 +36,7 @@
         <template v-else-if="item.type === RemindInfoTypeEnum.PRE_AUTH">
           <div class="info-title">
             {{ item.typeLabel }}
-            <el-button size="small" type="primary" :loading="submitLoading" @click="handleGeneratePreAuth">生成预授权</el-button>
+            <el-button size="small" type="primary" :loading="submitLoading" @click="handleGeneratePreAuth" v-if="showPreAuthBtn">生成预授权</el-button>
           </div>
           <div class="info-content">{{ item.content || '暂无提醒信息'}}</div>
         </template>
@@ -72,6 +72,11 @@ export default {
       default: () => {
         return {};
       }
+    },
+  },
+  computed: {
+    showPreAuthBtn () {
+      return !this.vehicleInfo.isCreatePreAuth;
     },
   },
   data () {
@@ -149,11 +154,11 @@ export default {
         };
         await addOrUpdate(params);
         this.$message.success('生成预授权成功');
+        this.$emit('refresh');
         // 刷新提醒信息列表
         await this.loadData();
       } catch (error) {
         console.error('生成预授权失败:', error);
-        this.$message.error('生成预授权失败');
       } finally {
         this.submitLoading = false;
       }
@@ -166,7 +171,6 @@ export default {
         this.remindList = res || [];
       } catch (error) {
         console.error('获取提醒信息失败:', error);
-        this.$message.error('获取提醒信息失败');
       } finally {
         this.loading = false;
       }

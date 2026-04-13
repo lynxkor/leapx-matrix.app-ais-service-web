@@ -80,7 +80,6 @@ export default {
     },
   },
   data () {
-    console.log(this.visible);
     return {
       dialogVisible: this.visible,
       submitLoading: false,

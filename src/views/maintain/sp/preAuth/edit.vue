@@ -16,7 +16,7 @@
           <!-- <span class="status primary" v-if="form.statusDesc">{{ form.statusDesc }}</span> -->
         </template>
         <template #extraButtons>
-          <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && form.approvalStatus === AUDIT_STATUS.IN_PROGRESS">审批</el-button>
+          <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && form.approvalStatus === AUDIT_STATUS.IN_PROGRESS && !form.isGoodWarranty">审批</el-button>
           <el-button size="small" type="primary" plain @click="handleCancel" v-if="_id && form.approvalStatus === AUDIT_STATUS.REJECTED">作废</el-button>
           <el-button size="small" type="primary" @click="handleSubmit(1)" v-if="_id && form.approvalStatus === AUDIT_STATUS.TODO">提交</el-button>
         </template>
@@ -137,13 +137,13 @@
                   <span>{{ serviceProxyDetail?.carPlate || form.serviceProxyResp.carPlate || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="车辆用途：">
-                  <span>{{ preAuthInfoDetail.carPropertyLabel || form.carPropertyStrLabel || '-' }}</span>
+                  <span>{{ preAuthInfoDetail.carPropertyLabel || form.carPropertyLabel || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="进店里程数：">
                   <span>{{ serviceProxyDetail?.mileage || form.serviceProxyResp.mileage || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="生产日期：">
-                  <span>{{ preAuthInfoDetail?.productionTime || form.productionTime || '-' }}</span>
+                  <span>{{ formatDate(preAuthInfoDetail?.productionTime || form.productionTime) }}</span>
                 </el-form-item>
                 <el-form-item label="终身免保：">
                   <span>{{ preAuthInfoDetail?.warrantyLifeLabel || form.warrantyLifeLabel || '-' }}</span>
@@ -152,10 +152,10 @@
                   <span>{{ preAuthInfoDetail?.isLifetimeLabel || form.isLifetimeLabel || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="保修开始日期：">
-                  <span>{{ preAuthInfoDetail?.guaranteeStartDate || form.guaranteeStartDate || '-' }}</span>
+                  <span>{{ formatDate(preAuthInfoDetail?.guaranteeStartDate || form.guaranteeStartDate) }}</span>
                 </el-form-item>
                 <el-form-item label="保修结束日期：">
-                  <span>{{ preAuthInfoDetail?.warrantyEndTime ||  form.warrantyEndTime || '-' }}</span>
+                  <span>{{ formatDate(preAuthInfoDetail?.warrantyEndTime || form.warrantyEndTime) }}</span>
                 </el-form-item>
                 <el-form-item label="服务月份：">
                   <span>{{ preAuthInfoDetail?.serviceMonth || form.serviceMonth || '-' }}</span>
@@ -260,7 +260,7 @@
                     </template>
                   </vxe-column>
                   <vxe-column field="repairItemName" title="维修项目名称" min-width="150" />
-                  <vxe-column field="repairItemTypeName" title="维修类型" min-width="100" />
+
                   <vxe-column field="checkoutTypeName" title="结算类型" min-width="100" />
                   <vxe-column field="warrantyTypeName" title="保修类型" min-width="100" />
                   <vxe-column field="isAddItems" title="是否增项" min-width="80">
@@ -663,6 +663,25 @@ export default {
     };
   },
   methods: {
+    /**
+     * 格式化日期为 yyyy-MM-dd 格式
+     * @param {string|number|Date} date - 日期值
+     * @returns {string} 格式化后的日期字符串
+     */
+    formatDate (date) {
+      if (!date) return '-';
+      try {
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return '-';
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      } catch (error) {
+        console.error('日期格式化失败:', error);
+        return '-';
+      }
+    },
     detailRequest () {
       const id = this._id;
       if (id) {

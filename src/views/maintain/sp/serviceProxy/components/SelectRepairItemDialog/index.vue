@@ -241,7 +241,7 @@
               <vxe-column field="discountRate" title="折扣率" width="120px" />
               <vxe-column field="discountAmount" title="优惠金额" width="160px">
                 <template #default="{ row }">
-                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount | tofixed2 }}</template>
+                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE">{{ row?.discountAmount | tofixed2 }}</template>
                   <el-input-number
                     v-else
                     v-model="row.discountAmount"
@@ -385,7 +385,7 @@
               <vxe-column field="discountRate" title="折扣率" width="120px" />
               <vxe-column field="discountAmount" title="优惠金额" width="160px">
                 <template #default="{ row }">
-                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount | tofixed2 }}</template>
+                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE">{{ row?.discountAmount | tofixed2 }}</template>
                   <el-input-number
                     v-else
                     v-model="row.discountAmount"
@@ -516,6 +516,7 @@ export default {
 
       // 常量
       universalLaborHourItemId: UNIVERSAL_LABOR_HOUR_ITEM_ID,
+      PackageTypeEnum,
 
       // 维修项目表格配置
       itemData: [],
@@ -745,7 +746,7 @@ export default {
         selectedItem.partsRespList.forEach(part => {
           const discountAmount = Number(part.price || 0) * (Number(this.selectedDiscount?.discountPartRate || 0) || 0);
           const newPart = {
-            partsId: part.id,
+            partsId: part.partsId,
             partsCode: part.partsCode || '',
             partsName: part.partsName || '',
             repairItemTypeId: selectedItem.repairItemTypeId || this.repairType,
@@ -1029,7 +1030,7 @@ export default {
 
       // 更新维修项目的折扣率
       this.itemData.forEach(item => {
-        if (!this.checkoutTypeIncluded(item.checkoutTypeId)) {
+        if (!this.checkoutTypeIncluded(item.checkoutTypeId) && !this.packageTypeIncluded(item.packageType)) {
           item.discountRate = discountWorkhourRate || 0;
           // 重新计算优惠金额和项目金额
           const originalAmount = item.workHour * item.price;
@@ -1040,7 +1041,7 @@ export default {
 
       // 更新维修配件的折扣率
       this.partData.forEach(part => {
-        if (!this.checkoutTypeIncluded(part.checkoutTypeId)) {
+        if (!this.checkoutTypeIncluded(part.checkoutTypeId) && !this.packageTypeIncluded(part.packageType)) {
           part.discountRate = discountPartRate || 0;
           // 重新计算优惠金额和配件金额
           const originalAmount = part.quantity * part.price;
@@ -1148,8 +1149,9 @@ export default {
         // 使用提取的方法获取过滤后的保修类型选项
         const checkoutTypeObj = this.filteredRepairItemCheckoutTypes.find(item => item.checkoutTypeName === row.checkoutTypeName) || selected;
         const warrantyTypes = this.getWarrantyTypeOptions(checkoutTypeObj, 'repairItem');
-        row.warrantyTypeId = warrantyTypes?.[0]?.warrantyTypeId;
-        row.warrantyTypeName = warrantyTypes?.[0]?.warrantyTypeName;
+        const allowType = warrantyTypes.filter(el => this.checkIfWarrantyTypeEditable(row, el.warrantyTypeId));
+        row.warrantyTypeId = allowType?.[0]?.warrantyTypeId;
+        row.warrantyTypeName = allowType?.[0]?.warrantyTypeName;
       }
     },
     // 保修类型变化
@@ -1192,8 +1194,9 @@ export default {
         // 使用提取的方法获取过滤后的保修类型选项
         const checkoutTypeObj = this.filteredPartCheckoutTypes.find(item => item.checkoutTypeName === row.checkoutTypeName) || selected;
         const warrantyTypes = this.getWarrantyTypeOptions(checkoutTypeObj, 'part');
-        row.warrantyTypeId = warrantyTypes?.[0]?.warrantyTypeId;
-        row.warrantyTypeName = warrantyTypes?.[0]?.warrantyTypeName;
+        const allowType = warrantyTypes.filter(el => this.checkIfWarrantyTypeEditable(row, el.warrantyTypeId));
+        row.warrantyTypeId = allowType?.[0]?.warrantyTypeId;
+        row.warrantyTypeName = allowType?.[0]?.warrantyTypeName;
       }
     },
     // 保修类型变化
@@ -1237,6 +1240,11 @@ export default {
     // 结算类型是否为合同、保修
     checkoutTypeIncluded (type) {
       return type === CheckoutTypeEnum.WARRANTY || type === CheckoutTypeEnum.CONTRACT;
+    },
+
+    // 套餐类型是否为商城订单
+    packageTypeIncluded (type) {
+      return (type || '').toString() === PackageTypeEnum.STORE;
     },
 
     // 【结算类型】为保修，【保修类型】为：技术服务活动 选不到

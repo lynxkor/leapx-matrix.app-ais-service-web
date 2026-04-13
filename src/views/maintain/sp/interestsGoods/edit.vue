@@ -446,12 +446,17 @@ export default {
         tempList.splice(index, 1);
 
         // 调用接口删除
-        await deleteGoodsRepairItem([row.id]);
+        await deleteGoodsRepairItem([row.id]).then(() => {
+          // 成功后更新本地数据
+          // this.repairItemTableData = tempList;
+          this.$message.success('删除成功');
+          this.getRepairItemList();
+        });
 
         // 成功后更新本地数据
         // this.repairItemTableData = tempList;
-        this.$message.success('删除成功');
-        this.getRepairItemList();
+        // this.$message.success('删除成功');
+        // this.getRepairItemList();
       } catch (error) {
         this.$message.error('删除失败');
         console.error('删除维修项目失败:', error);

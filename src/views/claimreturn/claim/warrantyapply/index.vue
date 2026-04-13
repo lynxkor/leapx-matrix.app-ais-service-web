@@ -234,10 +234,25 @@
       :denyIds="denyIds"
       @success="getData"
       />
+    <ApproveDialog
+      :visible.sync="approveDialogVisible"
+      :approveIds="approveIds"
+      @success="getData"
+      />
+    <CancelDialog
+      :visible.sync="cancelDialogVisible"
+      :cancelIds="cancelIds"
+      @success="getData"
+      />
+    <WithdrawDialog
+      :visible.sync="withdrawDialogVisible"
+      :withdrawIds="withdrawIds"
+      @success="getData"
+      />
     <RightsDialog
       :visible.sync="rightsDialogVisible"
       :vehicleProfileId="vehicleProfileId"
-      :vin="vin"
+      :id="rowId"
     />
   </div>
 </template>
@@ -271,6 +286,9 @@ import { getList as repairGetList } from '@/api/maintain/basic/repairItemType';
 import RejectDialog from './RejectDialog/index.vue';
 import DenyDialog from './DenyDialog/index.vue';
 import RightsDialog from './RightsDialog/index.vue';
+import ApproveDialog from './ApproveDialog/index.vue';
+import CancelDialog from './CancelDialog/index.vue';
+import WithdrawDialog from './WithdrawDialog/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -317,6 +335,9 @@ export default {
     RejectDialog,
     DenyDialog,
     RightsDialog,
+    ApproveDialog,
+    CancelDialog,
+    WithdrawDialog,
   },
   data () {
     return {
@@ -351,6 +372,13 @@ export default {
       denyDialogVisible: false,
       denyIds: [],
       //
+      approveDialogVisible: false,
+      approveIds: [],
+      cancelDialogVisible: false,
+      cancelIds: [],
+      withdrawDialogVisible: false,
+      withdrawIds: [],
+      //
       cancel: false,
       applyReject: false,
       withdraw: false,
@@ -361,7 +389,7 @@ export default {
       //
       rightsDialogVisible: false,
       vehicleProfileId: '',
-      vin: '',
+      rowId: '',
     };
   },
   computed: {
@@ -620,8 +648,8 @@ export default {
                 name: '查看权益',
                 click: (rowIndex, row) => {
                   this.rightsDialogVisible = true;
-                  this.vin = row.vin;
                   this.vehicleProfileId = row.vehicleProfileId;
+                  this.rowId = row.id;
                 },
                 type: 'info',
               },
@@ -703,24 +731,9 @@ export default {
         });
         return;
       }
-      this.$prompt('审批说明', '同意', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputPlaceholder: '请输入审批说明',
-      }).then(({ value }) => {
-        const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
-        approve({
-          ids,
-          approvalRemark: value
-        }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '审批成功!'
-          });
-          this.getData();
-        }).catch(() => {
-        });
-      }).catch(() => {});
+      const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
+      this.approveIds = ids;
+      this.approveDialogVisible = true;
     },
     handleDeny (paramIds) {
       const isRow = Array.isArray(paramIds);
@@ -744,31 +757,9 @@ export default {
         });
         return;
       }
-      this.$prompt('作废', '作废原因', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputPlaceholder: '请输入作废原因',
-        inputValidator: (value) => {
-          if (!value || value.trim() === '') {
-            return '请输入作废原因';
-          }
-          return true;
-        },
-        iconClass: 'ais-required',
-      }).then(({ value }) => {
-        const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
-        batchCancel({
-          applyIds: ids,
-          cancelReason: value
-        }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '作废成功!'
-          });
-          this.getData();
-        }).catch(() => {
-        });
-      }).catch(() => {});
+      const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
+      this.cancelIds = ids;
+      this.cancelDialogVisible = true;
     },
     handleWithdraw (paramIds) {
       const isRow = Array.isArray(paramIds);
@@ -779,34 +770,9 @@ export default {
         });
         return;
       }
-      this.$prompt('审核撤回', '撤回说明', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputPlaceholder: '请输入撤回说明',
-        inputValidator: (value) => {
-          if (!value || value.trim() === '') {
-            return '请输入撤回说明';
-          }
-          return true;
-        },
-        iconClass: 'ais-required',
-      }).then(({ value }) => {
-        const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
-        withdraw({
-          ids,
-          withdrawRemark: value
-        }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '撤回成功!'
-          });
-          this.getData();
-        }).catch(() => {
-        });
-      }).catch(() => {});
-    },
-    handleMark () {
-
+      const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
+      this.withdrawIds = ids;
+      this.withdrawDialogVisible = true;
     },
     handleAdd () {
       this.$router.push({
@@ -835,6 +801,7 @@ export default {
               deleteLoading: false
             };
           });
+          console.log(this.tableDataList);
           this.tableTotal = res.total;
         }).finally(() => {
           this.loading = false;
