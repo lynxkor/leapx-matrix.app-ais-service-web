@@ -241,7 +241,7 @@
               <vxe-column field="discountRate" title="折扣率" width="120px" />
               <vxe-column field="discountAmount" title="优惠金额" width="160px">
                 <template #default="{ row }">
-                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount | tofixed2 }}</template>
+                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE">{{ row?.discountAmount | tofixed2 }}</template>
                   <el-input-number
                     v-else
                     v-model="row.discountAmount"
@@ -385,7 +385,7 @@
               <vxe-column field="discountRate" title="折扣率" width="120px" />
               <vxe-column field="discountAmount" title="优惠金额" width="160px">
                 <template #default="{ row }">
-                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount | tofixed2 }}</template>
+                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE">{{ row?.discountAmount | tofixed2 }}</template>
                   <el-input-number
                     v-else
                     v-model="row.discountAmount"
@@ -516,6 +516,7 @@ export default {
 
       // 常量
       universalLaborHourItemId: UNIVERSAL_LABOR_HOUR_ITEM_ID,
+      PackageTypeEnum,
 
       // 维修项目表格配置
       itemData: [],
@@ -745,7 +746,7 @@ export default {
         selectedItem.partsRespList.forEach(part => {
           const discountAmount = Number(part.price || 0) * (Number(this.selectedDiscount?.discountPartRate || 0) || 0);
           const newPart = {
-            partsId: part.id,
+            partsId: part.partsId,
             partsCode: part.partsCode || '',
             partsName: part.partsName || '',
             repairItemTypeId: selectedItem.repairItemTypeId || this.repairType,

@@ -1,4 +1,5 @@
 <template>
+  <div class="container">
   <edit-base-container
     ref="containerRef"
     :id="_id"
@@ -10,6 +11,12 @@
     :detailRequest="detailRequest"
     :showEditBtn="showEditBtn"
   >
+    <template #extraButtons>
+      <el-button v-if="canSubmit && (form.applyStatus === '10' || form.applyStatus === '40')" type="primary" size="small" @click="handleSubmit">提交</el-button>
+      <el-button v-if="canCancel && (form.applyStatus === '10' || form.applyStatus === '40')" type="danger" plain size="small" @click="handleCancel">作废</el-button>
+      <el-button v-if="canApprove && form.applyStatus === '20'" type="primary" size="small" @click="handleApprove">审批通过</el-button>
+      <el-button v-if="canReject && form.applyStatus === '20'" type="danger" plain size="small" @click="handleReject">审批驳回</el-button>
+    </template>
     <el-main>
       <section class="common-section">
         <div class="common-section-header">
@@ -569,6 +576,17 @@
       </section>
     </el-main>
   </edit-base-container>
+  <FormCancelDialog
+    :visible.sync="cancelDialogVisible"
+    :id="cancelId"
+    @update="handleDialogSuccess"
+  />
+  <FormRejectDialog
+    :visible.sync="rejectDialogVisible"
+    :id="rejectId"
+    @update="handleDialogSuccess"
+  />
+  </div>
 </template>
 
 <script>
@@ -576,6 +594,8 @@ import {
   getDetail,
   addOrUpdate,
   getDecryptField,
+  submit,
+  approve,
 } from '@/api/datacenter/vehicle/vehicleOwnerChangeApply/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -588,6 +608,8 @@ import AisAttachment from '@/libs/components/AisAttachment';
 import { vehicleListFull } from '@/api/datacenter/vehicle/vehicleProfile';
 import { loginUserGet } from '@/libs/api/common';
 import LPEncrypted from '@/libs/components/LPEncrypted';
+import FormCancelDialog from './FormCancelDialog';
+import FormRejectDialog from './FormRejectDialog';
 
 // vehicle_profile_id_type 证件类型枚举：（身份证，军官证）
 const defaultForm = {
@@ -658,6 +680,8 @@ export default {
     FetchSelect,
     AisAttachment,
     LPEncrypted,
+    FormCancelDialog,
+    FormRejectDialog,
   },
   computed: {
     _id () {
@@ -749,7 +773,24 @@ export default {
           }
         ]
       },
+      // 权限
+      canSubmit: false,
+      canCancel: false,
+      canApprove: false,
+      canReject: false,
+      // 作废弹窗
+      cancelDialogVisible: false,
+      cancelId: '',
+      // 驳回弹窗
+      rejectDialogVisible: false,
+      rejectId: '',
     };
+  },
+  created () {
+    this.canSubmit = this.permissions.has(`${this.moduleKey}-submit`);
+    this.canCancel = this.permissions.has(`${this.moduleKey}-cancel`);
+    this.canApprove = this.permissions.has(`${this.moduleKey}-approve`);
+    this.canReject = this.permissions.has(`${this.moduleKey}-reject`);
   },
   mounted () {
     loginUserGet().then(data => {
@@ -777,6 +818,34 @@ export default {
     },
     submitRequest () {
       return addOrUpdate({ ...this.form });
+    },
+    // 提交
+    handleSubmit () {
+      submit({ id: this._id }).then(() => {
+        this.$message.success('提交成功');
+        this.$refs.containerRef.loadDetail();
+      });
+    },
+    // 作废
+    handleCancel () {
+      this.cancelId = this._id;
+      this.cancelDialogVisible = true;
+    },
+    // 审批通过
+    handleApprove () {
+      approve({ id: this._id }).then(() => {
+        this.$message.success('审批通过');
+        this.$refs.containerRef.loadDetail();
+      });
+    },
+    // 审批驳回
+    handleReject () {
+      this.rejectId = this._id;
+      this.rejectDialogVisible = true;
+    },
+    // 对话框成功回调
+    handleDialogSuccess () {
+      this.$refs.containerRef.loadDetail();
     },
     // 打开侧边栏
     openPane () {
@@ -848,6 +917,10 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.container{
+  width: 100%;
+  height: 100%;
+}
 .common-section-sub-header{
   display: flex;
   margin-bottom: 8px;
