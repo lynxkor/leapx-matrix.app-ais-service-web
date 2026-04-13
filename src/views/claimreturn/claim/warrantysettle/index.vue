@@ -14,19 +14,8 @@
           placeholder="请输入保修结算单号"
         />
       </el-form-item>
-      <el-form-item label="门店">
-        <fetch-select
-          :remote-method="getDealerList"
-          remote
-          v-model="form.dealerCodeList"
-          placeholder="请输入门店编码或名称"
-          labelKey="orgName"
-          valueKey="orgCode"
-          subLabelKey="orgCode"
-          clearable
-          filterable
-          multiple
-        />
+      <el-form-item label="门店：">
+        <dealer-select v-model="form.dealerCodeList" multiple/>
       </el-form-item>
       <template v-if="show">
         <el-form-item label="月度">
@@ -143,18 +132,19 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, confirm, exportInvoiceZip } from '@/api/claimreturn/claim/warrantysettle/index';
-import { getTableConfig, tableAddOrUpdate, getEnum, listOrgStoreInfo, exportTable } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import TagInput from '@/libs/components/TagInput';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { getEndOfDayString, downloadExcel } from '@/libs/utils';
+import { getEndOfDayString } from '@/libs/utils';
 import EditPage from './edit.vue';
 import CompleteDialog from './components/CompleteDialog';
 import InvoiceAcceptDialog from './components/InvoiceAcceptDialog';
 import InvoiceReturnDialog from './components/InvoiceReturnDialog';
 import PayConfirmDialog from './components/PayConfirmDialog';
+import DealerSelect from '@/components/dealer-select';
 
 const defaultForm = {
   settleCodeList: [],
@@ -191,6 +181,7 @@ export default {
     InvoiceAcceptDialog,
     InvoiceReturnDialog,
     PayConfirmDialog,
+    DealerSelect,
   },
   data () {
     return {
@@ -530,11 +521,6 @@ export default {
         return getEnum(code);
       }
       return [];
-    },
-    getDealerList (query) {
-      return listOrgStoreInfo({
-        name: query,
-      });
     },
     onExport () {
       if (this.selectionList.length === 0) {

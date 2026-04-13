@@ -260,7 +260,7 @@
                     </template>
                   </vxe-column>
                   <vxe-column field="repairItemName" title="维修项目名称" min-width="150" />
-                  <vxe-column field="repairItemTypeName" title="维修类型" min-width="100" />
+
                   <vxe-column field="checkoutTypeName" title="结算类型" min-width="100" />
                   <vxe-column field="warrantyTypeName" title="保修类型" min-width="100" />
                   <vxe-column field="isAddItems" title="是否增项" min-width="80">

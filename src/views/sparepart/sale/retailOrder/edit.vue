@@ -3,7 +3,7 @@
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container ref="containerRef" :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form"
-        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest">
+        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" :showEditBtn="isEditSpare">
         <template #extraButtons>
           <!-- <el-button size="small">按钮1</el-button>
           <el-button size="small">按钮2</el-button> -->
@@ -373,7 +373,7 @@
               <div class="common-section-header">
                 <div class="ais-select-group">
                   <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请输入编码或名称" clearable
-                    value-key="id" label-key="partName" subLabelKey="partCode" @change="handleAddTableData" filterable />
+                    value-key="id" label-key="partName" subLabelKey="partCode" @change="handleAddTableData" filterable :disabled="!isOrderStatus" />
                   <el-button type="primary" size="small">添加</el-button>
                 </div>
               </div>
@@ -397,11 +397,12 @@
                     <template #default="{ row }">
                       <span
                         class="btn-edit"
+                        v-if="(isDelete && row.outboundIs === '0') || (isEditSpare)"
                         @click="handleEdit(row)"
                       >
                         编辑
                       </span>
-                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(row)">
+                      <el-popconfirm title="确定要删除吗？" v-if="isDelete && row.outboundIs === '0'" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(row)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
@@ -434,6 +435,9 @@
         <SparePartsDetail
           ref="detailRef"
           :sparePartId="sparePartId"
+          :isEditSpare="isEditSpare"
+          :isNumber="isDelete"
+          :outboundIs="outboundIs"
         />
       </div>
     </template>
@@ -546,7 +550,16 @@ export default {
     },
     title () {
       return '应付总金额：' + this.form.payableTotalAmount;
-    }
+    },
+    isOrderStatus () { // 是够可添加备件
+      return ['10', '20', '330'].includes(this.form.orderStatus);
+    },
+    isDelete () { // 是否可删除 备件   可以编辑备件的【销售数量】
+      return ['10', '20'].includes(this.form.orderStatus);
+    },
+    isEditSpare () { // 是否可编辑备件 【价格类型】【优惠金额】
+      return ['10', '20', '30', '40', '50'].includes(this.form.orderStatus);
+    },
   },
   watch: {
     id: {
@@ -575,7 +588,6 @@ export default {
         }
       },
       immediate: false,
-      deep: false
     }
   },
   data () {
@@ -612,6 +624,7 @@ export default {
       total: 0,
       paymentData: [], // 收款明细
       sparePartId: '', // 备件详情ID
+      outboundIs: '', // 是否出库
     };
   },
   mounted () {
@@ -671,6 +684,8 @@ export default {
         this.routeCustomerType = res.customerType;
         this.getPayment();
         this.getData();
+
+        return res;
       } catch (error) {
         console.log('error', error);
       }
@@ -690,6 +705,7 @@ export default {
     // 编辑详情
     handleEdit (row) {
       this.sparePartId = row.id;
+      this.outboundIs = row.outboundIs;
       this.openPane();
     },
     // 删除子表数据

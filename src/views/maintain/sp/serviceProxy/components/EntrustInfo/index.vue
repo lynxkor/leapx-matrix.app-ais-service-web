@@ -317,8 +317,8 @@
         <el-form-item label="实际作业时间：" prop="startAt">
           {{ form.startAt }}
         </el-form-item>
-        <el-form-item label="预授权信息：" prop="preAuthTypeLabel">
-          {{ form.preAuthTypeLabel }}
+        <el-form-item label="预授权信息：" prop="preAuthId">
+          {{ form.preAuthId }}
         </el-form-item>
         <el-form-item label="完成作业时间：" prop="finishAt">
           {{ form.finishAt }}
@@ -481,6 +481,9 @@ export default {
           if (this.form._prevCurrentFault === undefined) {
             this.form._prevCurrentFault = val.currentFault;
           }
+          // 处理预授权字段：为空时显示"否"
+          this.$set(this.form, 'isPreAuthLabel', val.isPreAuthLabel || '否');
+          this.$set(this.form, 'isCreatePreAuthLabel', val.isCreatePreAuthLabel || '否');
         }
       },
       immediate: true
