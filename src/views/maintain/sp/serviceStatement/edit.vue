@@ -394,7 +394,7 @@ export default {
     // 商城订单已收款且超过结算时间30天
     isOverSettlement30Days () {
       if (!this.form.statementTime) return false;
-      const statementDate = new Date(this.form.createTime);
+      const statementDate = new Date(this.form.statementTime);
       const now = new Date();
       const diffDays = (now - statementDate) / (1000 * 60 * 60 * 24);
       return diffDays > 30;
