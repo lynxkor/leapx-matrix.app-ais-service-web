@@ -243,6 +243,9 @@ export default {
       // 最终审批弹窗
       finalApproveDialogVisible: false,
       //
+      canSubmit: false,
+      canFirstApprove: false,
+      canFinalApprove: false,
       tableDataList: [],
       tableTotal: 0,
       tableForm: { page: 1, size: pageSize },
@@ -311,6 +314,7 @@ export default {
               },
               type: 'info',
               show: (row) => {
+                if (!this.canSubmit) { return false; }
                 // 【申请状态】为草稿，审批驳回
                 if (row.applyStatus === '10' || row.applyStatus === '50') {
                   return true;
@@ -324,6 +328,7 @@ export default {
               },
               type: 'success',
               show: (row) => {
+                if (!this.canFirstApprove) { return false; }
                 // 【申请状态】为待一级审批
                 if (row.applyStatus === '20') {
                   return true;
@@ -337,6 +342,7 @@ export default {
               },
               type: 'danger',
               show: (row) => {
+                if (!this.canFirstApprove) { return false; }
                 // 【申请状态】为待一级审批
                 if (row.applyStatus === '20') {
                   return true;
@@ -350,6 +356,7 @@ export default {
               },
               type: 'success',
               show: (row) => {
+                if (!this.canFinalApprove) { return false; }
                 // 【申请状态】为待最终审批
                 if (row.applyStatus === '30') {
                   return true;
@@ -363,6 +370,7 @@ export default {
               },
               type: 'danger',
               show: (row) => {
+                if (!this.canFinalApprove) { return false; }
                 // 【申请状态】为待最终审批
                 if (row.applyStatus === '30') {
                   return true;
@@ -379,6 +387,9 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    this.canSubmit = this.permissions.has(`${this.moduleKey}-submit`);
+    this.canFirstApprove = this.permissions.has(`${this.moduleKey}-firstApprove`);
+    this.canFinalApprove = this.permissions.has(`${this.moduleKey}-finalApprove`);
   },
   methods: {
     // 排序

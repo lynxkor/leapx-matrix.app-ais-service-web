@@ -274,7 +274,7 @@ import { getDetail, addOrUpdate, reject, receiptCompletion, createCounterSettlem
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
-import { CheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
+import { CheckoutTypeEnum, PackageTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
 import CreateWarrantyApplyDialog from './components/CreateWarrantyApplyDialog';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -387,6 +387,19 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
 
+    // 是否为商城订单
+    isStoreOrder () {
+      return (this.form.repairItemResps || []).some(item => String(item.packageType) === PackageTypeEnum.STORE);
+    },
+    // 商城订单已收款且超过结算时间30天
+    isOverSettlement30Days () {
+      if (!this.form.statementTime) return false;
+      const statementDate = new Date(this.form.createTime);
+      const now = new Date();
+      const diffDays = (now - statementDate) / (1000 * 60 * 60 * 24);
+      return diffDays > 30;
+    },
+
     // 按钮权限控制 - 使用计算属性确保响应式更新
     buttonPermissions () {
       // 驳回按钮：自费、保险、内部结算类型，且状态为待收款
@@ -394,8 +407,8 @@ export default {
       const baseType2 = [CheckoutTypeEnum.WARRANTY, CheckoutTypeEnum.CONTRACT];
       const { statementType, statementStatus, isCheck } = this.form;
       return {
-        // 权益核销：结算类型为自费/保险/内部结算，状态为待结算
-        rights: baseType.includes(statementType) && statementStatus === 10,
+        // 权益核销：结算类型为自费/保险/内部结算，状态为待结算，商城订单不显示
+        rights: baseType.includes(statementType) && statementStatus === 10 && !this.isStoreOrder,
 
         // 提交结算并签字：签字状态为未签字，且结算状态为待结算
         sign: statementStatus === 10 && !isCheck,
@@ -405,10 +418,10 @@ export default {
 
         // 完成收款：结算类型为自费/保险/内部结算，状态为待收款
         success: baseType.includes(statementType) && statementStatus === 30,
-        // 1）【结算单类型】为自费、保险、内部结算 且 【结算单状态】为【已收款】 且 该结算单未创建反结算申请，展示该按钮支持创建反结算；
-        reCreate: baseType.includes(statementType) && [40].includes(statementStatus),
-        // 2）【结算单类型】为保修、合同 且 【结算单状态】为【待收款】、【已收款】且 该结算单未创建反结算申请 ，展示该按钮支持创建反结算；
-        reCreate1: baseType2.includes(statementType) && [40, 30].includes(statementStatus),
+        // 1）【结算单类型】为自费、保险、内部结算 且 【结算单状态】为【已收款】 且 该结算单未创建反结算申请，展示该按钮支持创建反结算；商城订单已收款超30天不显示
+        reCreate: baseType.includes(statementType) && [40].includes(statementStatus) && !(this.isStoreOrder && this.isOverSettlement30Days),
+        // 2）【结算单类型】为保修、合同 且 【结算单状态】为【待收款】、【已收款】且 该结算单未创建反结算申请 ，展示该按钮支持创建反结算；商城订单已收款超30天不显示
+        reCreate1: baseType2.includes(statementType) && [40, 30].includes(statementStatus) && !(this.isStoreOrder && this.isOverSettlement30Days),
         // 添加收款记录：结算类型为自费/保险/内部结算，状态为待收款
         addRecord: baseType.includes(statementType) && statementStatus === 30,
       };

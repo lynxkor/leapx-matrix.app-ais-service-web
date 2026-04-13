@@ -1,7 +1,7 @@
 import api from '@/axios';
 
 const prefix = 'claimreturn/claim/web/warrantysettle/warrantySettle/';
-
+// 保修结算通知书
 /**
  * 分页查询列表
  * @param {Object} data
@@ -16,6 +16,18 @@ export function getList (data) {
  */
 export function getDetail (id) {
   return api.jsonPost(prefix + 'get', id);
+};
+
+/**
+ * 保修结算通知书编辑
+ * @param {String} id
+ */
+export function addOrUpdate (id) {
+  return api.jsonPost(prefix + 'addOrUpdate', id);
+};
+
+export function exportInvoiceZip (id) {
+  return api.jsonPost(prefix + 'exportInvoiceZip', id);
 };
 
 /**

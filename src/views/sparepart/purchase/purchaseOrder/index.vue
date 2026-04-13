@@ -899,6 +899,7 @@ export default {
     // 签收  签收并入库
     handleSignFor (val, type, returnError) {
       this.signForm = {
+        ...val,
         purchaseOrderDetailId: val.id,
         inbound: type,
         returnError: returnError,
