@@ -710,7 +710,6 @@ export default {
       drawerVisible2: false,
       // 权限
       canViewLifetimeBenefits: false,
-      canViewMaintenanceHistory: false,
       canReturn: false,
       serviceProxyHis: false,
       canKeyInfoChangeLog: false,
@@ -720,7 +719,6 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
     this.canViewLifetimeBenefits = this.permissions.has(`${this.moduleKey}-viewLifetimeBenefits`);
-    this.canViewMaintenanceHistory = this.permissions.has(`${this.moduleKey}-viewMaintenanceHistory`);
     this.canReturn = this.permissions.has(`${this.moduleKey}-return`);
     this.canKeyInfoChangeLog = this.permissions.has(`${this.moduleKey}-keyInfoChangeLog`);
     this.serviceProxyHis = !!(this.$store.state.pageSource?.aisPageSource || []).find(item => (item === 'AISMC-serviceProxyHis-page'));

@@ -23,7 +23,7 @@
             <div class="common-section-body">
               <div class="common-section-sub-header">
                 <h3>归属信息</h3>
-                <el-button size="small" @click="onBenefit">查看终身权益</el-button>
+                <el-button v-if="canViewLifetimeBenefits" size="small" @click="onBenefit">查看终身权益</el-button>
                 <el-button v-if="form.warrantyStartdate" size="small" @click="onWarranty">重新预测质保期</el-button>
               </div>
               <!-- <el-form :inline="true" :model="form" label-width="150px" class="form-detail"> -->
@@ -175,8 +175,8 @@
               </el-form>
               <div class="common-section-sub-header">
                 <h3>保养信息</h3>
-                <el-button size="small" @click="onSync">同步车机</el-button>
-                <el-button size="small" @click="onInfo">调整保养信息</el-button>
+                <el-button v-if="syncPad" size="small" @click="onSync">同步车机</el-button>
+                <el-button v-if="modifyMaintenanceRecord" size="small" @click="onInfo">调整保养信息</el-button>
               </div>
               <el-form label-width="150px" :inline="true" :model="form" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="下次保养时间：" prop="nextMaintainDate">
@@ -290,7 +290,7 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>车主信息<el-button style="margin-left: 6px;" size="small" @click="onHistory">查看关键信息变更日志</el-button></h2>
+              <h2>车主信息<el-button v-if="canKeyInfoChangeLog" style="margin-left: 6px;" size="small" @click="onHistory">查看关键信息变更日志</el-button></h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-sub-header">
@@ -571,7 +571,7 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>车辆信息<el-button @click="onService" style="margin-left: 6px;" size="small">查看维修履历</el-button></h2>
+              <h2>车辆信息<el-button v-if="serviceProxyHis" @click="onService" style="margin-left: 6px;" size="small">查看维修履历</el-button></h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-sub-header">
@@ -1054,10 +1054,20 @@ export default {
       infoDialogData: {},
       // 权限
       canReturn: false,
+      canViewLifetimeBenefits: false,
+      syncPad: false,
+      modifyMaintenanceRecord: false,
+      canKeyInfoChangeLog: false,
+      serviceProxyHis: false,
     };
   },
   created () {
     this.canReturn = this.permissions.has(`${this.moduleKey}-return`);
+    this.canViewLifetimeBenefits = this.permissions.has(`${this.moduleKey}-viewLifetimeBenefits`);
+    this.syncPad = this.permissions.has(`${this.moduleKey}-syncPad`);
+    this.modifyMaintenanceRecord = this.permissions.has(`${this.moduleKey}-modifyMaintenanceRecord`);
+    this.canKeyInfoChangeLog = this.permissions.has(`${this.moduleKey}-keyInfoChangeLog`);
+    this.serviceProxyHis = !!(this.$store.state.pageSource?.aisPageSource || []).find(item => (item === 'AISMC-serviceProxyHis-page'));
   },
   mounted () {
   },
