@@ -55,11 +55,11 @@ export default {
       immediate: true
     }
   },
-  mounted () {
-    if (this._id) {
-      this.loadAttachmentList();
-    }
-  },
+  // mounted () {
+  //   if (this._id) {
+  //     this.loadAttachmentList();
+  //   }
+  // },
   methods: {
     async loadAttachmentList () {
       if (!this._id) return;

@@ -126,11 +126,11 @@ export default {
       immediate: true
     }
   },
-  mounted () {
-    if (this._id) {
-      this.loadAttachmentList();
-    }
-  },
+  // mounted () {
+  //   if (this._id) {
+  //     this.loadAttachmentList();
+  //   }
+  // },
   methods: {
     // 加载附件列表
     async loadAttachmentList () {
