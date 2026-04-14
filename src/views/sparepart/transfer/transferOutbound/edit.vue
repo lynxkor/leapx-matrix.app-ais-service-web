@@ -16,6 +16,22 @@
           <span v-if="form.status" class="status primary">{{ form.status }}</span>
         </template>
         <template #extraButtons>
+          <el-button
+            v-for="btn in visibleButtons"
+            :key="btn.key"
+            type="primary"
+            size="small"
+            @click="handleExtraButtonClick(btn.action)"
+          >
+            {{ btn.label }}
+          </el-button>
+          <el-button
+            type="primary"
+            size="small"
+            @click="handlePrint"
+          >
+            打印
+          </el-button>
         </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
@@ -131,7 +147,7 @@
               </el-form>
             </div>
           </section>
-                <section class="common-section" v-show="isEditing || !_id">
+          <section class="common-section" v-show="isEditing || !_id">
             <div class="common-section-header">
               <h2>撤销信息</h2>
             </div>
@@ -170,7 +186,7 @@
               </el-form>
             </div>
           </section>
-                <section class="common-section" v-show="!(isEditing || !_id)">
+          <section class="common-section" v-show="!(isEditing || !_id)">
             <div class="common-section-header">
               <h2>基础信息</h2>
             </div>
@@ -212,7 +228,7 @@
               </el-form>
             </div>
           </section>
-                <section class="common-section" v-show="!(isEditing || !_id)">
+          <section class="common-section" v-show="!(isEditing || !_id)">
             <div class="common-section-header">
               <h2>调拨信息</h2>
             </div>
@@ -251,7 +267,7 @@
               </el-form>
             </div>
           </section>
-                <section class="common-section" v-show="!(isEditing || !_id)">
+          <section class="common-section" v-show="!(isEditing || !_id)">
             <div class="common-section-header">
               <h2>撤销信息</h2>
             </div>
@@ -378,7 +394,10 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, transferOutboundPage, transferOutboundAddOrUpdate, transferOutboundDelete } from '@/api/sparepart/transfer/transferOutbound/index';
+import {
+  getDetail, addOrUpdate, transferOutboundPage, transferOutboundAddOrUpdate, transferOutboundDelete,
+  getSubmit, getApprove, getReject, getRevoke, applyCancel, approveCancel, rejectCancel, getInbound
+} from '@/api/sparepart/transfer/transferOutbound/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -388,6 +407,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
+import { handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
 
 const defaultForm = {
   code: '',
@@ -422,6 +442,14 @@ const defaultForm = {
   inboundTime: '',
 };
 
+const ACTION_CONFIG = { // 按钮配置
+  submit: { title: '此操作将提交, 是否继续?', success: '提交成功' },
+  approve: { title: '此操作将同意, 是否继续?', success: '同意成功' },
+  revoke: { title: '此操作将撤回该出库单, 是否继续?', success: '撤回成功' },
+  approveCancel: { title: '此操作将同意撤销, 是否继续?', success: '同意撤销成功' },
+  inbound: { title: '此操作将入库, 是否继续?', success: '入库成功' },
+};
+
 export default {
   name: 'transferOutboundEdit',
   props: {
@@ -443,6 +471,68 @@ export default {
     },
     title () {
       return '调拨出库单号：' + this.form.code;
+    },
+    extraButtons () {
+      const buttons = [
+        {
+          key: 'submit',
+          label: '提交',
+          action: 'submit',
+          visible: this._id && (this.form.transferStatus === '0' || this.form.transferStatus === '3')
+        },
+        {
+          key: 'approve',
+          label: '同意',
+          action: 'approve',
+          visible: this._id && this.form.transferStatus === '1'
+        },
+        {
+          key: 'reject',
+          label: '驳回',
+          action: 'reject',
+          visible: this._id && this.form.transferStatus === '1'
+        },
+        {
+          key: 'revoke',
+          label: '撤回',
+          action: 'revoke',
+          visible: this._id && this.form.transferStatus === '2' && this.form.outboundStatus === '0'
+        },
+        {
+          key: 'ship',
+          label: '发运',
+          action: 'ship',
+          visible: this._id && this.form.transferStatus === '2' && this.form.outboundStatus === '0'
+        },
+        {
+          key: 'applyCancel',
+          label: '申请撤销',
+          action: 'applyCancel',
+          visible: this._id && (this.form.cancelStatus === '10' || this.form.cancelStatus === '40') && this.form.outboundStatus === '1'
+        },
+        {
+          key: 'approveCancel',
+          label: '同意撤销',
+          action: 'approveCancel',
+          visible: this._id && this.form.cancelStatus === '20'
+        },
+        {
+          key: 'rejectCancel',
+          label: '驳回撤销',
+          action: 'rejectCancel',
+          visible: this._id && this.form.cancelStatus === '20'
+        },
+        {
+          key: 'inbound',
+          label: '入库',
+          action: 'inbound',
+          visible: this._id && this.form.cancelStatus === '30' && this.form.inboundStatus === '0'
+        },
+      ];
+      return buttons;
+    },
+    visibleButtons () {
+      return this.extraButtons.filter(btn => btn.visible);
     }
   },
   watch: {
@@ -652,6 +742,89 @@ export default {
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
       this.getData();
+    },
+    // 处理额外按钮点击事件
+    handleExtraButtonClick (action) {
+      const actionMap = {
+        submit: 'handleSubmit',
+        approve: 'handleApprove',
+        reject: 'handleReject',
+        revoke: 'handleRevoke',
+        ship: 'handleShip',
+        applyCancel: 'handleApplyCancel',
+        approveCancel: 'handleApproveCancel',
+        rejectCancel: 'handleRejectCancel',
+        inbound: 'handleInbound',
+      };
+      const handlerName = actionMap[action];
+      if (handlerName && typeof this[handlerName] === 'function') {
+        this[handlerName]();
+      } else {
+        console.warn(`未找到处理方法: ${handlerName}`);
+      }
+    },
+    // 刷新接口
+    handleRefresh () {
+      this.$refs.containerRef.loadDetail();
+    },
+    // 调用二次确认弹框
+    _handleAction (apiFn, config) {
+      handleCommonAction({
+        $confirm: this.$confirm,
+        $message: this.$message,
+        apiFn,
+        id: this._id,
+        config,
+        onSuccess: () => this.$refs.containerRef.loadDetail()
+      });
+    },
+    // --- 业务方法调用 ---
+    handleSubmit () {
+      this._handleAction(getSubmit, ACTION_CONFIG.submit);
+    },
+    handleApprove () {
+      this._handleAction(getApprove, ACTION_CONFIG.approve);
+    },
+    handleRevoke () {
+      this._handleAction(getRevoke, ACTION_CONFIG.revoke);
+    },
+    handleApproveCancel () {
+      this._handleAction(approveCancel, ACTION_CONFIG.approveCancel);
+    },
+    handleInbound () {
+      this._handleAction(getInbound, ACTION_CONFIG.inbound);
+    },
+    // 通用 备注弹窗
+    _execPrompt (api, title, placeholder, successMsg) {
+      handleCommonPrompt({
+        $prompt: this.$prompt,
+        $message: this.$message,
+        apiFn: api,
+        id: this._id,
+        config: {
+          title,
+          placeholder,
+          success: successMsg
+        },
+        onSuccess: () => this.$refs.containerRef.loadDetail()
+      });
+    },
+    handleReject () {
+      this._execPrompt(getReject, '驳回', '请输入驳回原因！', '驳回成功!');
+    },
+    handleApplyCancel () {
+      this._execPrompt(applyCancel, '申请撤销', '请输入申请撤销原因！', '申请撤销成功!');
+    },
+    handleRejectCancel () {
+      this._execPrompt(rejectCancel, '驳回撤销', '请输入驳回撤销原因！', '驳回撤销成功!');
+    },
+    // 打印调拨出库单
+    handlePrint () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'TransferOutbound', // 必选，对应 ./template/文件名.vue
+        title: `${this.form.dealerName}厅店调拨出库单`// 可选，打印标题
+      });
     },
   }
 };
