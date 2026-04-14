@@ -494,6 +494,7 @@ import SparePartsDetail from './SparePartsDetail';
 import OutboundDialog from './OutboundDialog.vue';
 import ReturnMateriaDialog from './ReturnMateriaDialog.vue';
 import HarvestDialog from './HarvestDialog.vue';
+import { handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -977,32 +978,14 @@ export default {
     handleRefresh () {
       this.$refs.containerRef.loadDetail();
     },
-    /**
-     * 通用操作处理函数
-     * @param {Function} apiFn - 需要执行的 API 函数
-     * @param {Object} config - 配置对象 { title, successMsg }
-     */
     _handleAction (apiFn, config) {
-      const message = `<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>${config.title}</div>`;
-
-      this.$confirm(message, '提示', { // 建议补充标题文本，提升体验
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        dangerouslyUseHTMLString: true,
-        customClass: 'ais-leave-tips',
-        showClose: false
-      }).then(() => {
-        // 调用传入的 API
-        return apiFn({ id: this._id });
-      }).then(() => {
-        // API 调用成功后的统一处理
-        this.$message.success(config.success);
-        this.$refs.containerRef.loadDetail();
-      }).catch((err) => {
-        // 统一处理错误（可选：区分取消操作和真实错误）
-        if (err !== 'cancel') {
-          console.error(err);
-        }
+      handleCommonAction({
+        $confirm: this.$confirm,
+        $message: this.$message,
+        apiFn,
+        id: this._id,
+        config,
+        onSuccess: () => this.$refs.containerRef.loadDetail()
       });
     },
     // --- 业务方法调用 ---
@@ -1020,16 +1003,17 @@ export default {
     },
     // 通用 备注弹窗
     _execPrompt (api, title, placeholder, successMsg) {
-      this.$prompt(placeholder, title, {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputPattern: /.+/,
-        inputErrorMessage: '必填项',
-      }).then(({ value }) => {
-        return api({ id: this._id, description: value });
-      }).then(() => {
-        this.$message.success(successMsg);
-        this.$refs.containerRef.loadDetail();
+      handleCommonPrompt({
+        $prompt: this.$prompt,
+        $message: this.$message,
+        apiFn: api,
+        id: this._id,
+        config: {
+          title,
+          placeholder,
+          success: successMsg
+        },
+        onSuccess: () => this.$refs.containerRef.loadDetail()
       });
     },
 
@@ -1069,7 +1053,7 @@ export default {
       this.returnMaterialDialogVisible = true;
     },
     // 收款
-    handleHarvest () {
+    handleCollectPayment () {
       this.harvestForm = this.form;
       this.harvestDialogVisible = true;
     },
