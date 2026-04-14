@@ -388,7 +388,7 @@
                   <vxe-column field="approvalOn" title="执行时间" min-width="160" />
                   <vxe-column field="approvalResult" title="审批结果" min-width="120" />
                   <vxe-column field="content" title="审批意见" min-width="150" />
-                  <vxe-column field="errorContent" title="错误代码及内容" min-width="120" />
+                  <vxe-column field="remark" title="错误代码及内容" min-width="120" />
                   <vxe-column title="附件信息" min-width="200">
                     <template #default="{ row }">
                       <div class="approval-attachments">
