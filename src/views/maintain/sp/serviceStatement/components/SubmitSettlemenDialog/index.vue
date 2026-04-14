@@ -33,6 +33,7 @@
                 size="small"
                 style="width: 150px"
                 clearable
+                :disabled="isStoreOrder"
                 @change="handleDiscountModeChange"
               >
                 <el-option
@@ -66,6 +67,7 @@
                   size="small"
                   v-model="roundAmount"
                   @change="handleRoundAmountChange"
+                  :disabled="isStoreOrder"
                 ></el-input-number>
               </span>
             </div>
@@ -224,7 +226,7 @@
                 <vxe-column field="discountRate" title="折扣率" width="100" />
                 <vxe-column field="discountAmount" title="优惠金额" width="160">
                   <template #default="{ row }">
-                    <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">
+                    <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || String(row.packageType) === PackageTypeEnum.STORE">
                       {{ row.discountAmount | tofixed2 }}
                     </template>
                     <el-input-number
@@ -376,6 +378,12 @@ export default {
         return parseFloat(v).toFixed(2);
       }
       return v;
+    },
+  },
+  computed: {
+    // 是否为商城订单，商城订单会单独生成结算
+    isStoreOrder () {
+      return (this.info.repairItemResps || []).some(item => String(item.packageType) === PackageTypeEnum.STORE);
     },
   },
   watch: {

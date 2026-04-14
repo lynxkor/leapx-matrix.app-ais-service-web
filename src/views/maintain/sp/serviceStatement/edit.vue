@@ -11,7 +11,7 @@
           <el-button size="small" @click="reject" v-if="buttonPermissions.reject">驳回</el-button>
           <el-button size="small" @click="addInvoiceRecord" v-if="buttonPermissions.addRecord">添加收款记录</el-button>
           <el-button size="small" @click="paySuccess" v-if="buttonPermissions.success">完成收款</el-button>
-          <el-button size="small" @click="createRefund" v-if="buttonPermissions.reCreate || buttonPermissions.reCreate1">创建反结算单</el-button>
+          <el-button size="small" @click="createRefund" v-if="buttonPermissions.reCreate || buttonPermissions.reCreate1" :style="{'opacity': isStoreOrder && isOverSettlement30Days ? '0.5': 1}">创建反结算单</el-button>
           <el-button size="small" @click="createWarrantyApply"
             v-if="canCreateWarrantyApply">创建保修申请单</el-button>
           <el-button size="small" @click="handlePrint">打印结算单</el-button>
@@ -419,9 +419,9 @@ export default {
         // 完成收款：结算类型为自费/保险/内部结算，状态为待收款
         success: baseType.includes(statementType) && statementStatus === 30,
         // 1）【结算单类型】为自费、保险、内部结算 且 【结算单状态】为【已收款】 且 该结算单未创建反结算申请，展示该按钮支持创建反结算；商城订单已收款超30天不显示
-        reCreate: baseType.includes(statementType) && [40].includes(statementStatus) && !(this.isStoreOrder && this.isOverSettlement30Days),
+        reCreate: baseType.includes(statementType) && [40].includes(statementStatus),
         // 2）【结算单类型】为保修、合同 且 【结算单状态】为【待收款】、【已收款】且 该结算单未创建反结算申请 ，展示该按钮支持创建反结算；商城订单已收款超30天不显示
-        reCreate1: baseType2.includes(statementType) && [40, 30].includes(statementStatus) && !(this.isStoreOrder && this.isOverSettlement30Days),
+        reCreate1: baseType2.includes(statementType) && [40, 30].includes(statementStatus),
         // 添加收款记录：结算类型为自费/保险/内部结算，状态为待收款
         addRecord: baseType.includes(statementType) && statementStatus === 30,
       };
@@ -617,6 +617,10 @@ export default {
     },
 
     async createRefund () {
+      if (this.isStoreOrder && this.isOverSettlement30Days) {
+        this.$message.warning('结算超过30天的商城订单结算单不可以反结算，请知悉');
+        return;
+      }
       const result = await this.showMsg('确定要创建反结算申请？<br><strong style="color: var(--leap-color-danger);">该施工单对应的结算单均需反结算,才可回退施工单进行修改</strong>');
       if (result) {
         try {

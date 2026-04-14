@@ -144,6 +144,18 @@
       @close="handleUploadDialogClose"
       @getData="getData"
     />
+    <!-- 发布弹窗 -->
+    <PublishDialog
+      :visible.sync="publishDialogVisible"
+      :audit-id="currentPublishId"
+      @success="getData"
+    />
+    <!-- 签署总结弹窗 -->
+    <SignSummaryDialog
+      :visible.sync="signSummaryDialogVisible"
+      :audit-id="currentSignSummaryId"
+      @success="getData"
+    />
   </div>
 </template>
 
@@ -166,6 +178,8 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select';
+import PublishDialog from './components/PublishDialog';
+import SignSummaryDialog from './components/SignSummaryDialog';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -194,6 +208,8 @@ export default {
     EditPage,
     Upload,
     DealerSelect,
+    PublishDialog,
+    SignSummaryDialog,
   },
   data () {
     return {
@@ -211,6 +227,12 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      //
+      publishDialogVisible: false,
+      currentPublishId: '',
+      //
+      signSummaryDialogVisible: false,
+      currentSignSummaryId: '',
       //
       tableDataList: [],
       tableTotal: 0,
@@ -275,39 +297,71 @@ export default {
             type: 'operate',
             visible: true,
             fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/claimreturn/claim/warrantyAudit/edit',
-                  query: {
-                    id: row.id,
-                    isEditing: true,
-                  }
-                });
-              },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmConfirmButtonType: 'danger',
-              popconfirmConfirmButtonText: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
+            buttons: [
+              {
+                name: '编辑',
+                click: (rowIndex, row) => {
+                  this.$router.push({
+                    path: '/claimreturn/claim/warrantyAudit/edit',
+                    query: {
+                      id: row.id,
+                      isEditing: true,
+                    }
                   });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
+                },
+                type: 'info'
               },
-              type: 'danger'
-            }]
+              {
+                name: '发布',
+                click: (rowIndex, row) => {
+                  this.handlePublish(row);
+                },
+                type: 'info'
+              },
+              {
+                name: '签署总结',
+                click: (rowIndex, row) => {
+                  this.currentSignSummaryId = row.id;
+                  this.signSummaryDialogVisible = true;
+                },
+                type: 'info'
+              },
+              {
+                name: '同意总结',
+                click: (rowIndex, row) => {
+                  //
+                },
+                type: 'info'
+              },
+              {
+                name: '驳回总结',
+                click: (rowIndex, row) => {
+                  //
+                },
+                type: 'info'
+              },
+              {
+                name: '签署整改',
+                click: (rowIndex, row) => {
+                  //
+                },
+                type: 'info'
+              },
+              {
+                name: '同意整改',
+                click: (rowIndex, row) => {
+                  //
+                },
+                type: 'info'
+              },
+              {
+                name: '驳回整改',
+                click: (rowIndex, row) => {
+                  //
+                },
+                type: 'info'
+              },
+            ]
           }
         ],
         total: this.tableTotal
@@ -317,7 +371,6 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
-    console.log(this.permissions);
   },
   methods: {
     // 排序
@@ -543,6 +596,11 @@ export default {
       //     });
       //   });
       // });
+    },
+    // 打开发布弹窗
+    handlePublish (row) {
+      this.currentPublishId = row.id;
+      this.publishDialogVisible = true;
     },
   }
 };

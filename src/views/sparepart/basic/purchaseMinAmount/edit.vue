@@ -101,7 +101,7 @@
 <script>
 import { getDetail, addOrUpdate } from '@/api/sparepart/basic/purchaseMinAmount/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getEnum, listOrgStoreInfo } from '@/api/common';
+import { getEnum, listOrgStoreInfoByParam } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -294,8 +294,8 @@ export default {
     },
     // 门店
     getStoreByName (query) {
-      listOrgStoreInfo({
-        name: query
+      listOrgStoreInfoByParam({
+        orgCodeOrName: query
       }).then(res => {
         this.storeOptions = res?.map(item => {
           return {
