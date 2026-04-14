@@ -51,7 +51,7 @@
             <BasicInfo :formData.sync="form" :isEditing="isEditing" :_id="_id" ref="basicInfoRef" @refresh="handleRefresh"/>
             <EntrustInfo :formData="form" :isEditing.sync="isEditing" :_id="_id" ref="entrustInfoRef" @change="submitForm" @refresh="handleRefresh"/>
             <BatteryInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="batteryInfoRef"/>
-            <!-- <InquiryInfo :formData="form"/> -->
+            <InquiryInfo :formData="form" :_id="_id"/>
             <RepairInfo :formData="form"/>
             <SparepartsInfo :formData="form"/>
             <section class="common-section">
@@ -59,7 +59,7 @@
                 <h2>资料附件</h2>
               </div>
               <div class="common-section-body">
-                <Attachment :_id="_id" :show-upload="false" ref="attachmentRef"/>
+                <Attachment :_id="_id" :show-upload="false" ref="attachmentRef" attachType="附件资料"/>
               </div>
             </section>
             <MaintainInfo :formData="form"/>
@@ -170,6 +170,7 @@ import MaintainInfo from './components/MaintainInfo';
 import BasicInfo from './components/BasicInfo';
 import EntrustInfo from './components/EntrustInfo';
 import BatteryInfo from './components/BatteryInfo';
+import InquiryInfo from './components/InquiryInfo';
 import SparepartsInfo from './components/SparepartsInfo';
 import Attachment from './components/Attachment';
 import RepairInfo from './components/RepairInfo';
@@ -342,7 +343,7 @@ export default {
     BasicInfo,
     EntrustInfo,
     BatteryInfo,
-    // InquiryInfo,
+    InquiryInfo,
     SparepartsInfo,
     Attachment,
     RepairInfo,
@@ -650,7 +651,6 @@ export default {
               this.$message.error('创建留车清单失败');
               console.error(err);
             }
-
           }).catch(() => {
             // this.$message.info('已取消操作');
             this.confirmDocDialogVisible = true;
@@ -747,7 +747,7 @@ export default {
         // 调用接口
         cancelFinal({ id: this._id }).then(res => {
           this.$message.success('取消终检成功');
-           this.getDetailData();
+          this.getDetailData();
         });
       }).catch(() => {
       });
