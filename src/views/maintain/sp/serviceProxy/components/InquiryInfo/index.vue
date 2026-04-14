@@ -1,16 +1,16 @@
 <template>
-  <section class="common-section">
+  <section class="common-section" v-if="externalFiles.length && internalFiles.length">
     <div class="common-section-header">
       <h2>问诊信息</h2>
     </div>
     <div class="common-section-body">
-      <div class="table-section">
+      <div class="table-section" v-if="externalFiles.length">
         <div class="table-section-header">
           <h3>外部检查</h3>
         </div>
         <FileDisplay :fileList="externalFiles" @delete="handleDelete" @update="loadAttachmentList" />
       </div>
-      <div class="table-section">
+      <div class="table-section" v-if="internalFiles.length">
         <div class="table-section-header">
           <h3>内部检查</h3>
         </div>
