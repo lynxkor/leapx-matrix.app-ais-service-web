@@ -107,6 +107,9 @@
                 <el-form-item label="申请原因：">
                   <span>{{ form.reason || '-' }}</span>
                 </el-form-item>
+                   <el-form-item label="审批单号 ：">
+                    <span>{{ form.auditNo || '-' }}</span>
+                  </el-form-item>
               </el-form>
             </div>
           </section>
@@ -346,7 +349,7 @@
               <h2>审批信息</h2>
             </div>
             <div class="common-section-body" >
-              <el-form :inline="true" class="form-detail" v-show="form.isGoodWarranty === 1 ">
+              <el-form :inline="true" class="form-detail" v-show="form.isGoodWarranty">
                 <el-form-item label="审批单号：">
                   <span>{{ form.auditNo || '-' }}</span>
                 </el-form-item>
