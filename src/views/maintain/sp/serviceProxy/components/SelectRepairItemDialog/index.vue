@@ -853,6 +853,16 @@ export default {
           return;
         }
       }
+
+      const preSaleItem2 = this.itemData.filter(item => item.warrantyTypeId === WarrantyTypeEnum.GOODWILL_WARRANTY) || [];
+      const preSalePart2 = this.partData.filter(item => item.warrantyTypeId === WarrantyTypeEnum.GOODWILL_WARRANTY) || [];
+      if (preSaleItem2.length > 0 || preSalePart2.length > 0) {
+        if ((this.itemData.length && preSaleItem2.length < this.itemData.length) || (this.partData.length && preSalePart2.length < this.partData.length)) {
+          this.$message.warning('善意保修只能单独开单');
+          return;
+        }
+      }
+
       this.submitLoading = true;
 
       const data = {
