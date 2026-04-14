@@ -32,7 +32,14 @@
                         {{ sparePartDetail.reminderContent }}
                     </el-form-item>
                     <el-form-item label="本次采购：" prop="purchaseQty">
-                        <el-input type="number" @change="updateSparePartDetail" clearable v-model="sparePartDetail.purchaseQty"></el-input>
+                        <el-input-number
+                            v-model="sparePartDetail.purchaseQty"
+                            :step="sparePartDetail.minOrderQuantity || 1"
+                            :min="sparePartDetail.minOrderQuantity || 0"
+                            @change="updateSparePartDetail"
+                            controls-position="right"
+                            style="width: 100%;"
+                        ></el-input-number>
                     </el-form-item>
                     <el-form-item label="OEM库存：" prop="oemInventoryIs">
                         {{ sparePartDetail.oemInventoryIs }}
