@@ -76,7 +76,7 @@ export default {
   },
   computed: {
     showPreAuthBtn () {
-      return !this.vehicleInfo.isCreatePreAuth;
+      return !this.vehicleInfo.isCreatePreAuth && !this.hasGeneratedPreAuth;
     },
   },
   data () {
@@ -84,6 +84,7 @@ export default {
       dialogVisible: this.visible,
       loading: false,
       submitLoading: false,
+      hasGeneratedPreAuth: false,
       remindList: [],
       RemindInfoTypeEnum
     };
@@ -92,6 +93,7 @@ export default {
     visible (val) {
       this.dialogVisible = val;
       if (val) {
+        this.hasGeneratedPreAuth = false;
         this.loadData();
       }
     }
@@ -153,6 +155,7 @@ export default {
           // preAuthType: 1, // 1-技术预授权，2-保修预授权
         };
         await addOrUpdate(params);
+        this.hasGeneratedPreAuth = true;
         this.$message.success('生成预授权成功');
         this.$emit('refresh');
         // 刷新提醒信息列表
