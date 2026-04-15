@@ -572,7 +572,7 @@ export default {
     },
     // 提交
     async handleSubmit () {
-      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确认提交吗？</div>';
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确认入库吗？</div>';
       this.$confirm(message, '', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -584,7 +584,7 @@ export default {
         await returnExceptionInbound({ id: this._id });
         this.$message({
           type: 'success',
-          message: '提交成功!'
+          message: '入库成功!'
         });
         this.$refs.containerRef.loadDetail();
       }).catch(() => {
