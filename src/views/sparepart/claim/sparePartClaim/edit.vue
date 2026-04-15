@@ -17,6 +17,10 @@
           <!-- <span class="status primary">状态</span> -->
         </template>
         <template #extraButtons>
+          <el-button v-if="_id && ['10', '30'].includes(form.claimStatus) && permissions.has('AISPART-sparePartClaim-commit')" type="primary" size="small" @click="handleCommit">提交</el-button>
+          <el-button v-if="_id && form.claimStatus === '20' && permissions.has('AISPART-sparePartClaim-agree')" type="primary" size="small" @click="handleAgree">同意</el-button>
+          <el-button v-if="_id && form.claimStatus === '20' && permissions.has('AISPART-sparePartClaim-reject')" type="primary" size="small" @click="handleReject">驳回</el-button>
+          <el-button v-if="_id && ['40', '50'].includes(form.claimStatus) && permissions.has('AISPART-sparePartClaim-printTag')" type="primary" size="small" @click="handlePrint">打印标签</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -27,7 +31,7 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="备件索赔单号：" prop="code">
-                  {{ form.code }}
+                  <el-input v-model="form.code" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="索赔类型：" prop="claimType">
                   <fetch-select
@@ -41,46 +45,46 @@
                   />
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode }}
+                  <el-input v-model="form.dealerCode" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
+                  <el-input v-model="form.dealerName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="采购订单号：" prop="purchaseOrderCode">
-                  {{ form.purchaseOrderCode }}
+                  <el-input v-model="form.purchaseOrderCode" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="提交人：" prop="submitter">
-                  {{ form.submitterName }}
+                  <el-input v-model="form.submitterName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="提交时间：" prop="submitTime">
-                  {{ form.submitTime }}
+                  <el-input v-model="form.submitTime" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="确认人：" prop="confirmer">
-                  {{ form.confirmerName }}
+                  <el-input v-model="form.confirmerName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="确认时间：" prop="confirmTime">
-                  {{ form.confirmTime }}
+                  <el-input v-model="form.confirmTime" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="驳回原因：" prop="rejectionDescription">
-                  {{ form.rejectionDescription }}
+                  <el-input v-model="form.rejectionDescription" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="索赔状态：" prop="claimStatus">
-                  {{ form.claimStatusLabel }}
+                  <el-input v-model="form.claimStatusLabel" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="责任方：" prop="responsibleParty">
-                  {{ form.responsibleParty }}
+                  <el-input v-model="form.responsibleParty" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
-                  {{ form.approvalTime }}
+                  <el-input v-model="form.approvalTime" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="审批说明：" prop="approvalDescription">
-                  {{ form.approvalDescription }}
+                  <el-input v-model="form.approvalDescription" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="审批节点：" prop="approvalNode">
-                  {{ form.approvalNode }}
+                  <el-input v-model="form.approvalNode" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="理赔方式：" prop="compensationMethod">
-                  {{ form.compensationMethod }}
+                  <el-input v-model="form.compensationMethod" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark" style="width: 100%;">
                   <el-input
@@ -140,22 +144,22 @@
             <div class="common-title" v-show="isEditing || !_id">采购单发货方</div>
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="仓库编码：" prop="deliveryWarehouseCode">
-                  {{ form.deliveryWarehouseCode }}
+                  <el-input v-model="form.deliveryWarehouseCode" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="仓库名称：" prop="deliveryWarehouseName">
-                  {{ form.deliveryWarehouseName }}
+                  <el-input v-model="form.deliveryWarehouseName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="省：" prop="deliveryProvinceName">
-                  {{ form.deliveryProvinceName }}
+                  <el-input v-model="form.deliveryProvinceName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="市：" prop="deliveryCityName">
-                  {{ form.deliveryCityName }}
+                  <el-input v-model="form.deliveryCityName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="区：" prop="deliveryDistrictName">
-                  {{ form.deliveryDistrictName }}
+                  <el-input v-model="form.deliveryDistrictName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="地址：" prop="deliveryAddress">
-                  {{ form.deliveryAddress }}
+                  <el-input v-model="form.deliveryAddress" placeholder="请输入" disabled />
                 </el-form-item>
               </el-form>
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id"></el-form>
@@ -451,7 +455,8 @@ import {
   historyPage, // 索赔历史
   claimOrderDetailUpdate,
   claimOrderLogisticsClaim,
-  claimOrderLogisticsPurchase
+  claimOrderLogisticsPurchase,
+  getCommit, getAgree, getReject
 } from '@/api/sparepart/claim/sparePartClaim/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 // import EditTable from '@/libs/components/EditTable';
@@ -464,6 +469,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import AisAttachment from '@/libs/components/AisAttachment';
 import ComponentTable from './ComponentTable.vue';
+import { handleCommonAction } from '@/libs/utils/index';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -496,6 +502,12 @@ const defaultForm = {
   provinceId: '',
   cityId: '',
   deliveryAddress: '',
+};
+
+const ACTION_CONFIG = { // 按钮配置
+  commit: { title: '是否提交?', success: '提交成功' },
+  agree: { title: '是否同意?', success: '同意成功' },
+  reject: { title: '是否驳回?', success: '驳回成功' },
 };
 
 export default {
@@ -849,7 +861,38 @@ export default {
       const res = await val({ id: this._id });
       this.logisticsData = res || [];
       this.loadingLogistics = false;
-    }
+    },
+    // 打印索赔回运单
+    handlePrint () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'SparesClaim', // 必选，对应 ./template/文件名.vue
+        title: `${this.form.dealerName}备件索赔单`// 可选，打印标题
+      });
+    },
+    // 调用二次确认弹框
+    _handleAction (apiFn, config) {
+      handleCommonAction({
+        $confirm: this.$confirm,
+        $message: this.$message,
+        apiFn,
+        id: this._id,
+        config,
+        onSuccess: () => this.$refs.containerRef.loadDetail()
+      });
+    },
+    // 提交
+    handleCommit () {
+      this._handleAction(getCommit, ACTION_CONFIG.commit);
+    },
+    // 同意
+    handleAgree () {
+      this._handleAction(getAgree, ACTION_CONFIG.agree);
+    },
+    // 驳回
+    handleReject () {
+      this._handleAction(getReject, ACTION_CONFIG.reject);
+    },
   }
 };
 </script>

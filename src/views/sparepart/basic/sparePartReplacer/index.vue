@@ -12,25 +12,25 @@
       <el-form-item label="替换前备件编码">
         <tag-input v-model="form.beforePartCodeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="替换后前备件编码">
+      <el-form-item label="替换后备件编码">
         <tag-input v-model="form.afterPartCodeList" placeholder="请输入" />
       </el-form-item>
+      <el-form-item label="替换前备件名称" v-show="this.visibleCount === 3 || show">
+        <el-input
+          placeholder="请输入"
+          v-model="form.beforePartNameLike"
+          clearable
+        />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="替换前备件名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.beforePartNameLike"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="替换后前备件名称">
+        <el-form-item label="替换后备件名称">
           <el-input
             placeholder="请输入"
             v-model="form.afterPartNameLike"
             clearable
           />
         </el-form-item>
-        <el-form-item label="替换类型"  v-show="this.visibleCount === 3 || show">
+        <el-form-item label="替换类型"  >
           <fetch-select
             :request="fetchOptions"
             enumCode="ReplacementTypeEnum"
@@ -214,7 +214,7 @@ export default {
           { props: 'replacementTypeLabel', label: '替换类型', visible: true, width: 200 },
           {
             props: 'afterPartCode',
-            label: '替换后前备件编码',
+            label: '替换前备件编码',
             visible: true,
             width: 200,
             fixed: 'left',
@@ -230,7 +230,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'afterPartName', label: '替换后前备件名称', visible: true, width: 200 },
+          { props: 'afterPartName', label: '替换后备件名称', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 120 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },

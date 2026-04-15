@@ -319,3 +319,13 @@ export function cityListByName (data) {
 export function getScopeTypeOrg (data) {
   return api.jsonPost('/users/scope/type/org', data);
 }
+
+/**
+ * 门店备件仓库表列表查询
+ * @export
+ * @param
+ * @returns
+ */
+export function listOemFull (data) {
+  return api.jsonPost('/sp/web/warehouse/warehouse/listOemFull', data);
+}

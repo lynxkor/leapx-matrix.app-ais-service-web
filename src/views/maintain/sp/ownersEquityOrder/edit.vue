@@ -543,7 +543,7 @@
                       <vxe-table
                         ref="tableRef"
                         stripe
-                        :data="item.goodsPartsList"
+                        :data="item.ownersEquityOrderPartsList"
                         show-overflow
                         resizable
                         border="inner"
@@ -969,7 +969,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.itemDetails[itemIndex].goodsPartsList.splice(partIndex, 1);
+        this.itemDetails[itemIndex].ownersEquityOrderPartsList.splice(partIndex, 1);
         this.$message.success('删除成功');
       }).catch(() => {
         this.$message.info('已取消删除');
@@ -986,7 +986,7 @@ export default {
         console.log('项目索赔金额' + item.claimPrice);
         const claimPrice = Number(item.claimPrice) || 0;
         claimItemsTotal += claimPrice;
-        item.goodsPartsList.forEach(part => {
+        item.ownersEquityOrderPartsList.forEach(part => {
           // partsTotal += part.unitPrice * part.totalAmount;
           const partClaimPrice = Number(part.claimPrice) || 0;
           claimPartsTotal += partClaimPrice;
@@ -1001,8 +1001,8 @@ export default {
     // 获取维修项目列表
     async getRepairItemList () {
       const res = await this.detailRequest();
-      if (res && res.interestsGoodsResp && res.interestsGoodsResp.goodsRepairItemList) {
-        this.itemDetails = res.interestsGoodsResp.goodsRepairItemList;
+      if (res && res.ownersEquityOrderItemList) {
+        this.itemDetails = res.ownersEquityOrderItemList;
         // 计算合计金额
         this.calculateTotals();
       }
