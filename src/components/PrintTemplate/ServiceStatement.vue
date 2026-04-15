@@ -365,15 +365,10 @@ export default {
     processCheckoutTypeData () {
       if (!this.info) return;
 
-      let repairDeduction = 0; // 维修项目扣除金额
-      let partsDeduction = 0; // 零件扣除金额
-
       // 处理维修项目数据
       if (this.info.repairItemResps && this.info.repairItemResps.length > 0) {
         this.info.repairItemResps.forEach(item => {
           if (this.checkoutTypeIncluded(item.checkoutTypeId)) {
-            const amount = Number(item.repairAmount) || 0;
-            repairDeduction += amount;
             item.price = 0;
             item.discountAmount = 0;
             item.repairAmount = 0;
@@ -385,8 +380,6 @@ export default {
       if (this.info.partResps && this.info.partResps.length > 0) {
         this.info.partResps.forEach(item => {
           if (this.checkoutTypeIncluded(item.checkoutTypeId)) {
-            const amount = Number(item.partsAmount) || 0;
-            partsDeduction += amount;
             item.price = 0;
             item.discountAmount = 0;
             item.partsAmount = 0;
@@ -394,17 +387,15 @@ export default {
         });
       }
 
-      // 更新总金额
-      // 项目和零件的优惠金额需要从优惠金额小计中扣除,同时从应付金额合计中扣除
-      const totalDiscountDeduction = parseFloat((repairDeduction + partsDeduction).toFixed(2));
-      if (this.info.discountAmount !== null && this.info.discountAmount !== undefined) {
-        this.info.discountAmount = parseFloat((parseFloat(this.info.discountAmount) + totalDiscountDeduction).toFixed(2));
-      }
-      if (this.info.payableAmount !== null && this.info.payableAmount !== undefined) {
-        this.info.payableAmount = parseFloat((parseFloat(this.info.payableAmount) - totalDiscountDeduction).toFixed(2));
-      }
-      if (this.info.remainAmount !== null && this.info.remainAmount !== undefined) {
-        this.info.remainAmount = parseFloat((parseFloat(this.info.remainAmount) - totalDiscountDeduction).toFixed(2));
+      const { statementType } = this.info;
+      if (this.checkoutTypeIncluded(statementType)) {
+        this.info.repairItemAmount = 0;
+        this.info.partAmount = 0;
+        this.info.totalAmount = 0;
+        this.info.discountAmount = 0;
+        this.info.noFractionAmount = 0;
+        this.info.payableAmount = 0;
+        this.info.remainAmount = 0;
       }
     }
   }
