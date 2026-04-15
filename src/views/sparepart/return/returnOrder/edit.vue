@@ -35,7 +35,7 @@
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
                   <fetch-select :remote-method="getDealerList" remote v-model="form.dealerCode" placeholder="请输入门店编码或名称"
-                    labelKey="orgName" valueKey="orgCode" subLabelKey="orgCode" clearable collapseTags filterable :disabled="accountFlag"
+                    labelKey="orgName" valueKey="orgCode" subLabelKey="orgCode" clearable collapseTags filterable :disabled="isDealerCode"
                     @change="handleDealerChange" />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
@@ -48,7 +48,7 @@
                   <el-input v-model="form.returnStatusLabel" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark" style="width: 100%;">
-                  <el-input type="textarea" maxlength="500" show-word-limit placeholder="请输入" v-model="form.remark" clearable :disabled="!canEditReturnType" />
+                  <el-input type="textarea" maxlength="500" show-word-limit placeholder="请输入" v-model="form.remark" clearable :disabled="accountFlag && !isEditable" />
                 </el-form-item>
               </el-form>
             </div>
@@ -104,7 +104,7 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="退货价格比例：" prop="returnPriceRatio">
-                  <el-input v-model="form.returnPriceRatio" placeholder="请输入" type="number" :disabled="!!_id"></el-input>
+                  <el-input v-model="form.returnPriceRatio" placeholder="请输入" type="number" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="退款完成时间：" prop="refundCompleteTime">
                   <el-input v-model="form.refundCompleteTime" placeholder="请输入" disabled></el-input>
@@ -322,7 +322,7 @@
                     <vxe-column field="estimatedReturnRebateAmount" title="预计退货返利金额" width="160" />
                     <vxe-column field="actualReturnRebateAmount" title="实际退货返利金额" width="160" />
                     <vxe-column field="remark" title="备注" width="120" />
-                    <vxe-column title="操作" width="100" >
+                    <vxe-column title="操作" width="100" fixed="right">
                         <template #default="{ row }">
                             <el-popconfirm
                                 title="确定删除此出库明细吗？"
@@ -519,6 +519,19 @@ export default {
       const isStatus20 = this.form.returnStatus === '20' || this.form.returnStatus === 20;
       // 编辑时：厂端+20可编辑(返回false)，其他禁用(返回true)
       return hasId && !(isFactory && isStatus20);
+    },
+    // 新增时 门店账号禁用  然后 看是否在编辑时 是直接禁用
+    isDealerCode () {
+      // 1. 判断是否为编辑模式（任意位置有 ID 即为编辑）
+      const hasId = this.id || this.$route.query.id || this.form.id;
+
+      // 2. 如果是编辑模式，直接禁用
+      if (hasId) {
+        return true;
+      }
+
+      // 3. 如果是新增模式，看 accountFlag 决定（假设 accountFlag 为 false 时禁用）
+      return this.accountFlag;
     }
   },
   watch: {
@@ -747,30 +760,31 @@ export default {
     },
     // 点击带出门店名称
     handleDealerChange (val, ele) {
-      this.$nextTick(() => {
-        if (!val) return; // 过滤无效事件
+      this.form.dealerName = ele.orgName;
+      this.getWarehouseByDealer(ele.orgCode);
+      // this.$nextTick(() => {
+      //   if (!val) return; // 过滤无效事件
 
-        // 判断是首次选择还是切换
-        if (!this.lastDealerCode) {
-        // 首次选择
-          this.form.dealerName = ele.orgName;
-          this.getWarehouseByDealer(ele.orgCode);
-        } else {
-        // 切换，弹出确认
-          this.$confirm('切换门店,将清空所有退货信息,是否继续?', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
-            this.form.dealerName = ele.orgName;
-            this.getWarehouseByDealer(ele.orgCode);
-          }).catch(() => {
-            // 取消操作
-          });
-        }
-        // 更新上一次的编码
-        this.lastDealerCode = this.form.dealerCode;
-      });
+      //   // 新增页面：首次选择直接赋值
+      //   if (!this._id && !this.lastDealerCode) {
+      //     this.form.dealerName = ele.orgName;
+      //     this.getWarehouseByDealer(ele.orgCode);
+      //   } else {
+      //   // 编辑页面或非首次选择：弹出确认
+      //     this.$confirm('切换门店,将清空所有退货信息,是否继续?', '提示', {
+      //       confirmButtonText: '确定',
+      //       cancelButtonText: '取消',
+      //       type: 'warning'
+      //     }).then(() => {
+      //       this.form.dealerName = ele.orgName;
+      //       this.getWarehouseByDealer(ele.orgCode);
+      //     }).catch(() => {
+      //       // 取消操作
+      //     });
+      //   }
+      //   // 更新上一次的编码
+      //   this.lastDealerCode = this.form.dealerCode;
+      // });
     },
     detailRequest () {
       const id = this._id;
