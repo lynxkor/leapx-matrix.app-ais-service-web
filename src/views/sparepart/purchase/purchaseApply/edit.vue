@@ -278,6 +278,8 @@
                           <template #default="{ row }">
                               <el-popconfirm
                                   title="确定删除此备件吗？"
+                                  confirm-button-text="删除"
+                                  confirm-button-type="danger"
                                   @confirm="handleDel(row)"
                               >
                                   <span
