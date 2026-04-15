@@ -86,7 +86,7 @@
             <vxe-column field="repairItemTypeName" title="维修类型" width="120" />
             <vxe-column field="checkoutTypeName" title="结算类型" width="120" />
             <vxe-column field="warrantyTypeName" title="保修类型" width="120" />
-            <vxe-column field="workHour" title="工时" width="100" />
+            <vxe-column field="quantity" title="数量" width="100" />
             <vxe-column field="price" title="单价" width="100" />
             <vxe-column field="discountRate" title="折扣率" width="100" />
             <vxe-column field="discountAmount" title="优惠金额" width="100" />
