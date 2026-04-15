@@ -59,6 +59,10 @@
             <vxe-column field="checkoutTypeName" title="结算类型" width="120" />
             <vxe-column field="warrantyTypeName" title="保修类型" width="120" />
             <vxe-column field="workHour" title="工时" width="100" />
+            <vxe-column field="price" title="单价" width="100" />
+            <vxe-column field="discountRate" title="折扣率" width="100" />
+            <vxe-column field="discountAmount" title="优惠金额" width="100" />
+            <vxe-column field="repairAmount" title="项目金额" width="100" />
           </vxe-table>
         </div>
 
@@ -83,6 +87,10 @@
             <vxe-column field="checkoutTypeName" title="结算类型" width="120" />
             <vxe-column field="warrantyTypeName" title="保修类型" width="120" />
             <vxe-column field="workHour" title="工时" width="100" />
+            <vxe-column field="price" title="单价" width="100" />
+            <vxe-column field="discountRate" title="折扣率" width="100" />
+            <vxe-column field="discountAmount" title="优惠金额" width="100" />
+            <vxe-column field="partsAmount" title="项目金额" width="100" />
           </vxe-table>
         </div>
 

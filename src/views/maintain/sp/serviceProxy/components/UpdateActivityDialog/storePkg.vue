@@ -274,7 +274,7 @@ export default {
         this.projectList = res?.ownersEquityOrderItemList?.map(item => ({
           ...item,
           expanded: true,
-        }));
+        })) || [];
       } catch (error) {
         console.error('获取套餐详情失败', error);
         this.projectList = [];
