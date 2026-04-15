@@ -109,7 +109,7 @@
               <div class="parts-section">
                 <div class="section-title">维修零件</div>
                 <vxe-table
-                  :data="project.goodsPartsList"
+                  :data="project.ownersEquityOrderPartsList"
                   stripe
                   resizable
                   border="inner"
@@ -271,7 +271,7 @@ export default {
           id: this.vehicleInfo.id
         };
         const res = await getEoDetail(params);
-        this.projectList = res?.interestsGoodsResp?.goodsRepairItemList?.map(item => ({
+        this.projectList = res?.ownersEquityOrderItemList?.map(item => ({
           ...item,
           expanded: true,
         }));

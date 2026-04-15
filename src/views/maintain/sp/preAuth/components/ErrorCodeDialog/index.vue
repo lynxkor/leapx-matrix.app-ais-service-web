@@ -24,7 +24,7 @@
         <vxe-column type="seq" title="序号" width="60" />
         <vxe-column field="code" title="错误代码" min-width="120">
           <template #default="{ row }">
-            <el-input v-if="row.editing" :ref="'codeInput_' + row.id" v-model="row.code" size="small" placeholder="请输入错误代码" />
+            <el-input v-if="row.editing" :ref="'codeInput_' + row.id" v-model="row.code" size="small" placeholder="请输入错误代码" @input="handleCodeInput(row)" />
             <span v-else>{{ row.code }}</span>
           </template>
         </vxe-column>
@@ -167,13 +167,17 @@ export default {
         isNew: true,
         sort: this.pagination.total,
       };
-      this.tableData.push(newRow);
+      // 插入到最上面
+      this.tableData.unshift(newRow);
       this.editingRow = newRow;
-      // 滚动到底部
+      // 聚焦到第一行的错误代码输入框
       this.$nextTick(() => {
-        const tableRef = this.$refs.tableRef;
-        if (tableRef && tableRef.scrollTable) {
-          tableRef.scrollTable();
+        const inputRef = this.$refs['codeInput_' + newRow.id];
+        if (inputRef && inputRef.$el) {
+          const input = inputRef.$el.querySelector('input');
+          if (input) {
+            input.focus();
+          }
         }
       });
     },
@@ -345,6 +349,12 @@ export default {
         this.$message.error('下移失败');
       } finally {
         this.loading = false;
+      }
+    },
+    handleCodeInput (row) {
+      // 自动转换为大写
+      if (row.code) {
+        row.code = row.code.toUpperCase();
       }
     }
   }

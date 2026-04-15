@@ -236,13 +236,13 @@
               <div class="common-section-table">
                 <el-form :inline="true" class="form-detail">
                   <el-form-item label="工时索赔合计：">
-                    <span>{{ form.approvedLaborClaimTotal || '-' }}</span>
+                    <span>{{ serviceProxyDetail?.claimItemAmount || form.serviceProxyResp?.claimItemAmount || '-' }}</span>
                   </el-form-item>
                   <el-form-item label="零件索赔合计：">
-                    <span>{{ form.approvedPartsClaimTotal || '-' }}</span>
+                    <span>{{ serviceProxyDetail?.claimPartsAmount || form.serviceProxyResp?.claimPartsAmount || '-' }}</span>
                   </el-form-item>
                   <el-form-item label="其他索赔费用：">
-                    <span>{{ form.approvedOtherClaimTotal || '-' }}</span>
+                    <span>{{ serviceProxyDetail?.claimOtherAmount || form.serviceProxyResp?.claimOtherAmount || '-' }}</span>
                   </el-form-item>
                 </el-form>
                 <vxe-table
@@ -349,7 +349,7 @@
               <h2>审批信息</h2>
             </div>
             <div class="common-section-body" >
-              <el-form :inline="true" class="form-detail" v-show="form.isGoodWarranty === 1 ">
+              <el-form :inline="true" class="form-detail" v-show="form.isGoodWarranty">
                 <el-form-item label="审批单号：">
                   <span>{{ form.auditNo || '-' }}</span>
                 </el-form-item>

@@ -52,7 +52,8 @@
         ref="tableRef"
         v-loading="loading"
         is-page
-        centralized
+        :centralized="false"
+        :showTableSetting="false"
         :option-obj="optionObj"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
@@ -287,17 +288,6 @@ export default {
           visible: true,
           width: 200,
           fixed: 'left',
-          buttons: [{
-            click: (rowIndex, row) => {
-              this.$router.push({
-                path: '/sparepart/warehouse/inventory/edit',
-                query: {
-                  id: row.id
-                }
-              });
-            },
-            type: 'primary'
-          }]
         },
         {
           props: 'partName',
