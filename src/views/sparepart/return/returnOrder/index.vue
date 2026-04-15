@@ -141,11 +141,12 @@
       :id="'1'"
       @close="handleUploadDialogClose"
     />
+    <!-- 发运 -->
     <ShipmentDialog
-      :visible="shipmentDialogVisible"
+      :visible.sync="shipmentDialogVisible"
       :id="shipmentId"
-      @success="handleShipmentDialogSuccess"
-      @close="handleShipmentDialogClose"
+      @update:visible="val => shipmentDialogVisible = val"
+      @success="getData"
     />
   </div>
 </template>
@@ -623,13 +624,6 @@ export default {
     handleShipment (val) {
       this.shipmentId = val.id;
       this.shipmentDialogVisible = true;
-    },
-    handleShipmentDialogClose () {
-      this.shipmentDialogVisible = false;
-    },
-    handleShipmentDialogSuccess () {
-      this.shipmentDialogVisible = false;
-      this.getData();
     },
     // 作废
     async handleVoid (val) {

@@ -4,6 +4,16 @@
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :isEditing.sync="isEditing" :form.sync="form"
         :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest">
+        <template #extraButtons>
+          <el-button v-if="_id && permissions.has('AISPART-returnOrder-printReturn')" type="primary" size="small" @click="handlePrint">打印退货单</el-button>
+          <el-button v-if="_id && permissions.has('AISPART-returnOrder-printTag')" type="primary" size="small" @click="handlePrintLabel">打印退货标签</el-button>
+          <el-button v-if="_id && form.returnStatus === '20' && permissions.has('AISPART-returnOrder-agree')" type="primary" size="small" @click="handleAgree">同意</el-button>
+          <el-button v-if="_id && form.returnStatus === '40' && permissions.has('AISPART-returnOrder-revoke')" type="primary" size="small" @click="handleRevoke">撤回</el-button>
+          <el-button v-if="_id && ['10', '30'].includes(form.returnStatus) && permissions.has('AISPART-returnOrder-commit')" type="primary" size="small" @click="handleCommit">提交</el-button>
+          <el-button v-if="_id && ['10', '30'].includes(form.returnStatus) && permissions.has('AISPART-returnOrder-cancel')" type="primary" size="small" @click="handleCancel">作废</el-button>
+          <el-button v-if="_id && form.returnStatus === '20' && permissions.has('AISPART-returnOrder-reject')" type="primary" size="small" @click="handleReject">驳回</el-button>
+          <el-button v-if="_id && form.returnStatus === '40' && permissions.has('AISPART-returnOrder-shipping')" type="primary" size="small" @click="handleShipping">发运</el-button>
+        </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
             <div class="common-section-header">
@@ -379,11 +389,21 @@
       id="sparePartPurchaseReturnDetailImport"
       @close="handleUploadDialogClose"
     />
+    <!-- 发运 -->
+    <ShipmentDialog
+      :visible.sync="shipmentDialogVisible"
+      :id="shipmentId"
+      @update:visible="val => shipmentDialogVisible = val"
+      @success="handleRefresh"
+    />
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate, returnOrderPage, exceptionPage, returnOrderDel } from '@/api/sparepart/return/returnOrder/index';
+import {
+  getDetail, addOrUpdate, returnOrderPage, exceptionPage, returnOrderDel,
+  returnOrderCancel, returnOrderAgree, returnOrderRevoke, returnOrderCommit, returnOrderReject
+} from '@/api/sparepart/return/returnOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -395,6 +415,8 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import AddSpareParts from './AddSpareParts.vue';
 import Upload from '@/libs/components/UploadDialog';
+import { handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
+import ShipmentDialog from './ShipmentDialog.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -445,6 +467,12 @@ const defaultForm = {
   warehousingTime: '',
 };
 
+const ACTION_CONFIG = { // 按钮配置
+  agree: { title: '是否同意退货申请?', success: '同意成功' },
+  revoke: { title: '是否撤回退货申请?', success: '撤回成功' },
+  commit: { title: '是否提交退货申请?', success: '提交成功' },
+};
+
 export default {
   name: 'returnOrderEdit',
   // 集中视图预留
@@ -461,7 +489,8 @@ export default {
     EditTable,
     FetchSelect,
     AddSpareParts,
-    Upload
+    Upload,
+    ShipmentDialog
   },
   computed: {
     _id () {
@@ -542,6 +571,8 @@ export default {
       sparePartsVisible: false,
       warehouseId: '', // 备件仓库ID
       uploadDialogVisible: false,
+      shipmentDialogVisible: false, // 发运弹窗
+      shipmentId: '', // 发运弹窗id
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       abnormalColumns: [
         {
@@ -847,7 +878,117 @@ export default {
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
-    }
+    },
+    // 打印退货单
+    handlePrint () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'SparePartsReturn', // 必选，对应 ./template/文件名.vue
+        title: `${this.form.dealerName}备件退货单`// 可选，打印标题
+      });
+    },
+    // 打印退货标签
+    handlePrintLabel () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'SparePartsReturnLabel', // 必选，对应 ./template/文件名.vue
+        title: '备件退货标签'// 可选，打印标题
+      });
+    },
+    // 调用二次确认弹框
+    _handleAction (apiFn, config) {
+      handleCommonAction({
+        $confirm: this.$confirm,
+        $message: this.$message,
+        apiFn,
+        id: this._id,
+        config,
+        onSuccess: () => this.$refs.containerRef.loadDetail()
+      });
+    },
+    // 同意退货
+    async handleAgree () {
+      await this._handleAction(returnOrderAgree, ACTION_CONFIG.agree);
+    },
+    // 撤回退货
+    async handleRevoke () {
+      await this._handleAction(returnOrderRevoke, ACTION_CONFIG.revoke);
+    },
+    // 提交退货
+    async handleCommit () {
+      await this._handleAction(returnOrderCommit, ACTION_CONFIG.commit);
+    },
+    // 通用 备注弹窗
+    _execPrompt (api, title, placeholder, successMsg) {
+      handleCommonPrompt({
+        $prompt: this.$prompt,
+        $message: this.$message,
+        apiFn: api,
+        id: this._id,
+        config: {
+          title,
+          placeholder,
+          success: successMsg
+        },
+        onSuccess: () => this.$refs.containerRef.loadDetail()
+      });
+    },
+    // 作废退货
+    // async handleCancel () {
+    //   this.$prompt('请输入作废说明', '作废', {
+    //     confirmButtonText: '确定',
+    //     cancelButtonText: '取消',
+    //     inputPattern: /.+/, // 校验非空
+    //     inputErrorMessage: '请输入备注',
+    //   }).then(async ({ value }) => {
+    //     // 调用 API，并传入用户输入的备注
+    //     await returnOrderCancel({ id: this._id, reviewDescription: value });
+    //     this.$message.success('作废成功');
+    //     // 执行额外回调（比如刷新列表）
+    //     this.$refs.containerRef.loadDetail();
+    //   }).catch(() => {
+    //     // 用户取消或校验失败，静默处理
+    //   });
+    // },
+    // 作废
+    async handleCancel () {
+      const result = await this.$prompt('请输入作废说明', '作废', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      });
+      const reviewDescription = result.value;
+      if (!reviewDescription) {
+        return this.$message.warning('请输入作废说明');
+      }
+      const params = { id: this._id, reviewDescription };
+      await returnOrderCancel(params);
+      this.handleRefresh();
+    },
+    // 驳回
+    async handleReject () {
+      const result = await this.$prompt('请输入审批意见', '驳回', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      });
+      const reviewDescription = result.value;
+      if (!reviewDescription) {
+        return this.$message.warning('请输入审批意见');
+      }
+      const params = { id: this._id, reviewDescription };
+      await returnOrderReject(params);
+      this.handleRefresh();
+    },
+    // 刷新接口
+    handleRefresh () {
+      this.$refs.containerRef.loadDetail();
+    },
+    // 发运
+    handleShipping () {
+      this.shipmentId = this._id;
+      this.shipmentDialogVisible = true;
+    },
   }
 };
 </script>
