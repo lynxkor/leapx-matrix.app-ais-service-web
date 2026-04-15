@@ -31,6 +31,7 @@
             style="width: 120px;"
             @change="handleDiscountModeChange"
             @clear="handleDiscountModeChange"
+            :disabled="disabled"
             clearable
           >
             <el-option :label="item.name" :value="item.id" v-for="item in discountType" :key="item.id"></el-option>
@@ -83,6 +84,7 @@
               @select="handleSelect"
               size="small"
               :trigger-on-focus="false"
+              :disabled="disabled"
               clearable
             >
               <template #suffix>
@@ -103,6 +105,7 @@
               @select="handleSelectPart"
               size="small"
               :trigger-on-focus="false"
+              :disabled="disabled"
               clearable
             >
               <template #suffix>
@@ -266,7 +269,8 @@
               <vxe-column field="packageCode" title="套餐代码" width="120px" />
               <vxe-column title="操作" width="100" align="center" fixed="right">
                 <template #default="{ row, rowIndex }">
-                  <span v-if="row.packageId" :class="['btn-delete', {'disabled': row.workRecordStatus === 40}]" @click="handleRemoveItemRow(rowIndex, row)">删除</span>
+                  <span class="btn-delete disabled" v-if="disabled">删除</span>
+                  <span v-else-if="row.packageId" :class="['btn-delete', {'disabled': row.workRecordStatus === 40}]" @click="handleRemoveItemRow(rowIndex, row)">删除</span>
                   <el-popconfirm v-else title="确定要删除这条记录吗？" @confirm="handleRemoveItemRow(rowIndex, row)">
                     <span slot="reference" :class="['btn-delete'/*, {'disabled': row.workRecordStatus === 40}*/]">删除</span>
                   </el-popconfirm>
@@ -430,7 +434,8 @@
               <vxe-column field="packageCode" title="套餐代码" width="120px" />
               <vxe-column title="操作" width="150" align="center" fixed="right">
                 <template #default="{ row, rowIndex }">
-                  <span slot="reference" v-if="row.packageId" :class="['btn-delete', {'disabled': !!row.isOutstock}]" @click="handleRemovePartRow(rowIndex, row)">删除</span>
+                  <span class="btn-delete disabled" v-if="disabled">删除</span>
+                  <span slot="reference" v-else-if="row.packageId" :class="['btn-delete', {'disabled': !!row.isOutstock}]" @click="handleRemovePartRow(rowIndex, row)">删除</span>
                   <el-popconfirm v-else title="确定要删除这条记录吗？" @confirm="handleRemovePartRow(rowIndex, row)" :disabled="!!!!row.isOutstock">
                     <span slot="reference" :class="['btn-delete', {'disabled': !!row.isOutstock}]">删除</span>
                   </el-popconfirm>
@@ -454,7 +459,7 @@
       <template v-slot:footer>
         <div class="dialog-footer">
           <el-button size="small" @click="close">取 消</el-button>
-          <el-button size="small" :loading="submitLoading" type="primary" @click="submit">保 存</el-button>
+          <el-button size="small" :loading="submitLoading" type="primary" @click="submit" :disabled="disabled">保 存</el-button>
         </div>
       </template>
     </el-dialog>
@@ -605,6 +610,10 @@ export default {
       return this.itemOptions.warrantyTypeName.filter(item =>
         allowedIds.includes(item.warrantyTypeId)
       );
+    },
+    disabled () {
+      // 禁用条件：订单审核完成（目前后端会根据善意保修过滤）
+      return this.vehicleInfo.isAuditComplete;
     }
   },
   watch: {
@@ -665,6 +674,7 @@ export default {
       });
     },
     handleOpenDialog (type) {
+      if (this.disabled) return;
       this.currentPackageType = type;
       this.updateDialogVisible = true;
     },
