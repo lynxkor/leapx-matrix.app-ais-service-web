@@ -647,7 +647,7 @@
                   :defaultNewRow="defaultNewRowFault"
                   :show-toolbar="false"
                   :delTitle="delTitleFault"
-                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                  :auth="{edit: canAddOrUpdate && canEdit, delete: canDelete && canEdit}"
                   :enableSingleRowSave="true"
                   @save-row-edit="saveRowEdit"
                 />
