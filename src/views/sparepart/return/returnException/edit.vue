@@ -5,7 +5,7 @@
         <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :isEditing.sync="isEditing" :form.sync="form"
           :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" :showEditBtn="false">
           <template #extraButtons>
-            <el-button v-if="_id && form.warehousingStatus === '20' && permissions.has('AISPART-returnOrder-inboundExceptional')" type="primary" @click="handleSubmit">入库</el-button>
+            <el-button v-if="_id && form.warehousingStatus === '20' && permissions.has('AISPART-returnOrder-inboundExceptional')" type="primary" size="small" @click="handleSubmit">入库</el-button>
           </template>
           <el-main>
             <section class="common-section" v-show="!(isEditing || !_id)">
