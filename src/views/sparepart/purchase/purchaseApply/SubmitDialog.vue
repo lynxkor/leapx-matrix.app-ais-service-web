@@ -64,7 +64,7 @@ export default {
     },
     // 删除不可采购备件
     async deleteUnPurchaseDetail () {
-      await purchaseApplyDeleteUnPurchaseDetail(this.id);
+      await purchaseApplyDeleteUnPurchaseDetail({ id: this.id });
       this.close();
     },
     // 获取列标题映射

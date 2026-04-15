@@ -47,13 +47,6 @@
             />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="起订金额">
-          <el-input
-            placeholder="请输入"
-            v-model="form.minimumAmount"
-            clearable
-          />
-        </el-form-item>
         <el-form-item label="生效开始日期">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
