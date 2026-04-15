@@ -4,6 +4,9 @@
         <!-- TIPS: 如果需要竖排，direction="vertical" -->
         <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :isEditing.sync="isEditing" :form.sync="form"
           :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" :showEditBtn="false">
+          <template #extraButtons>
+            <el-button v-if="_id && form.warehousingStatus === '20' && permissions.has('AISPART-returnOrder-inboundExceptional')" type="primary" @click="handleSubmit">入库</el-button>
+          </template>
           <el-main>
             <section class="common-section" v-show="!(isEditing || !_id)">
               <div class="common-section-header">
@@ -218,7 +221,7 @@
   </template>
 
 <script>
-import { getDetail, addOrUpdate, returnOrderPage, exceptionPage, returnOrderDel } from '@/api/sparepart/return/returnOrder/index';
+import { getDetail, addOrUpdate, returnOrderPage, exceptionPage, returnOrderDel, returnExceptionInbound } from '@/api/sparepart/return/returnOrder/index';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -566,6 +569,26 @@ export default {
     abnormalCurrentPageChange (current) {
       this.abnormal.current = current;
       this.getList();
+    },
+    // 提交
+    async handleSubmit () {
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确认提交吗？</div>';
+      this.$confirm(message, '', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(async () => {
+        // 调用接口
+        await returnExceptionInbound({ id: this._id });
+        this.$message({
+          type: 'success',
+          message: '提交成功!'
+        });
+        this.$refs.containerRef.loadDetail();
+      }).catch(() => {
+      });
     },
   }
 };
