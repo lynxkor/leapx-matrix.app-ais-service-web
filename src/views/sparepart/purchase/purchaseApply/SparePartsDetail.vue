@@ -178,15 +178,21 @@ export default {
         purchaseApplyId: this.purchaseApplyId
       };
       addDetail(params).then(res => {
-        this.detailId = res || '';
-        this.getSparePartDetail(res); // 拿到获取的 备件列表id 去查询详情
+        this.detailId = res.id || '';
+        this.getSparePartDetail(res.id); // 拿到获取的 备件列表id 去查询详情
+        if (res.add) {
+          this.$message.success('添加成功');
+        }
         this.$emit('submit');
       });
     },
     // 备件采购申请明细表新增/编辑
     async getAddDetail (params) {
       const res = await addDetail(params);
-      this.detailId = res || '';
+      this.detailId = res.id || '';
+      if (!res.add) {
+        this.$message.success('修改成功');
+      }
     },
     // 获取备件详情信息
     async getSparePartDetail (id) {

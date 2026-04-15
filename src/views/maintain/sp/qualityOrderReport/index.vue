@@ -27,7 +27,7 @@
         <fetch-select
           :request="fetchOptions"
           enumCode="QualityReportTypeEnum"
-          v-model="form.reportType"
+          v-model="form.reportTypeList"
           placeholder="请选择"
           clearable
           multiple
