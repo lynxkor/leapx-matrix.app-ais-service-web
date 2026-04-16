@@ -198,7 +198,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import SearchAddTable from './components/SearchAddTable';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
+import { getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 
 const defaultForm = {
@@ -257,23 +257,6 @@ const defaultForm = {
   techManager: '',
 };
 
-const AUDIT_TYPE_OPTIONS = [
-  { label: '正式审计', value: '10' },
-  { label: '跟进审计', value: '20' },
-];
-
-const AUDIT_STATUS_OPTIONS = [
-  { label: '草稿', value: '10' },
-  { label: '审计中', value: '20' },
-  { label: '总结报告签署中', value: '30' },
-  { label: '总结报告审批中', value: '40' },
-  { label: '总结报告已驳回', value: '50' },
-  { label: '整改报告签署中', value: '60' },
-  { label: '整改报告审批中', value: '70' },
-  { label: '整改报告已驳回', value: '80' },
-  { label: '已完成', value: '90' },
-];
-
 export default {
   name: 'warrantyAuditEdit',
   props: {
@@ -314,8 +297,6 @@ export default {
       moduleKey: 'AISCR-warrantyAudit',
       loading: false,
       submitLoading: false,
-      auditTypeOptions: AUDIT_TYPE_OPTIONS,
-      auditStatusOptions: AUDIT_STATUS_OPTIONS,
       form: { ...form },
       originalForm: { ...form },
       rules: {
