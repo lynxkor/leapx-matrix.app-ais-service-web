@@ -274,7 +274,7 @@
                     <el-form-item label="电机序列号：" prop="motorSerialNumber">
                       {{ form.motorSerialNumber }}
                     </el-form-item>
-                    <el-form-item label="VFG名称：" prop="vrtName">
+                    <el-form-item label="VRT名称：" prop="vrtName">
                       {{ form.vrtName }}
                     </el-form-item>
                     <el-form-item label="VFG名称：" prop="vfgName">
@@ -647,7 +647,7 @@
                   :defaultNewRow="defaultNewRowFault"
                   :show-toolbar="false"
                   :delTitle="delTitleFault"
-                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                  :auth="{edit: canAddOrUpdate && canEdit, delete: canDelete && canEdit}"
                   :enableSingleRowSave="true"
                   @save-row-edit="saveRowEdit"
                 />

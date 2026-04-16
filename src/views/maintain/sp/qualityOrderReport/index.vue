@@ -27,7 +27,7 @@
         <fetch-select
           :request="fetchOptions"
           enumCode="QualityReportTypeEnum"
-          v-model="form.reportType"
+          v-model="form.reportTypeList"
           placeholder="请选择"
           clearable
           multiple
@@ -300,7 +300,7 @@ export default {
           },
           {
             props: 'vrtName',
-            label: 'VFG名称',
+            label: 'VRT名称',
             visible: true,
             width: 200,
             buttons: [{
@@ -312,7 +312,7 @@ export default {
           },
           {
             props: 'vfgName',
-            label: 'vfgName',
+            label: 'VFG名称',
             visible: true,
             width: 200,
             buttons: [{
