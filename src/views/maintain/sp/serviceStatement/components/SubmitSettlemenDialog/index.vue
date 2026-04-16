@@ -111,7 +111,7 @@
             <div class="info-item">
               <span class="label">已收款总金额：</span>
               <span class="value">{{
-                baseInfo.totalAmount - baseInfo.remainAmount
+                (totalReceivedAmount).toFixed(2)
               }}</span>
             </div>
           </div>
@@ -385,6 +385,11 @@ export default {
     isStoreOrder () {
       return (this.info.repairItemResps || []).some(item => String(item.packageType) === PackageTypeEnum.STORE);
     },
+    // 已收款总金额
+    totalReceivedAmount () {
+      return (this.info.invoiceRecordResps || [])
+        .reduce((a, b) => a + Number(b.payAmount), 0);
+    },
   },
   watch: {
     settlemenDialogVisible: {
@@ -507,7 +512,7 @@ export default {
       const totalAmount = price * workHour;
       row.repairAmount = parseFloat((totalAmount - discountAmount).toFixed(2));
       row.discountRate = parseFloat(
-        (discountAmount / totalAmount).toFixed(8)
+        (discountAmount / totalAmount).toFixed(2)
       );
 
       // 重新计算汇总金额
@@ -522,7 +527,7 @@ export default {
       const totalAmount = price * quantity;
       row.partsAmount = Math.max(0, totalAmount - discountAmount);
       row.discountRate = parseFloat(
-        (discountAmount / totalAmount).toFixed(8)
+        (discountAmount / totalAmount).toFixed(2)
       );
       // 重新计算汇总金额
       this.calculateSummaryAmounts();
@@ -565,7 +570,7 @@ export default {
               (totalAmount - row.discountAmount).toFixed(2)
             );
             row.discountRate = parseFloat(
-              (row.discountAmount / totalAmount).toFixed(8)
+              (row.discountAmount / totalAmount).toFixed(2)
             );
           }
         });
@@ -582,7 +587,7 @@ export default {
               (totalAmount - row.discountAmount).toFixed(2)
             );
             row.discountRate = parseFloat(
-              (row.discountAmount / totalAmount).toFixed(8)
+              (row.discountAmount / totalAmount).toFixed(2)
             );
           }
         });
