@@ -338,6 +338,7 @@ export default {
           { props: 'firstAuditResultsLabel', label: '首次审核结果', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'applicationTime', label: '提交审核时间', visible: true, width: 200 },
+          { props: 'vdcInboundOn', label: 'VDC入库日期', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',

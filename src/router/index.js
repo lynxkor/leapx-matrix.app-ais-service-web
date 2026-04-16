@@ -2746,6 +2746,24 @@ const routes = [
         name: '新页面详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/claimreturn/claim/warrantyaudit/warrantyAuditDetail',
+      name: 'warrantyAuditDetail',
+      component: () => import('@/views/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index.vue'),
+
+      meta: {
+        name: '保修审计明细',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/warrantyaudit/warrantyAuditDetail/edit',
+      name: 'warrantyAuditDetailEdit',
+      component: () => import('@/views/claimreturn/claim/warrantyaudit/warrantyAuditDetail/edit.vue'),
+
+      meta: {
+        name: '保修审计明细详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
