@@ -1251,6 +1251,8 @@ export default {
         row.repairItemTypeId = selectedItem.repairItemTypeId;
         row.checkoutTypeName = selectedItem.checkoutTypeName;
         row.checkoutTypeId = selectedItem.checkoutTypeId;
+        row.warrantyTypeId = selectedItem.warrantyTypeId;
+        row.warrantyTypeName = selectedItem.warrantyTypeName;
         row.isBindltem = 1;
       } else {
         row.repairItemId = null;
