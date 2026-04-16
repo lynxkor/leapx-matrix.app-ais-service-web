@@ -1,7 +1,7 @@
 <template>
   <section class="common-section">
     <div class="common-section-header">
-      <h2>子表标题</h2>
+      <h2>审计明细</h2>
     </div>
     <div class="common-section-body">
       <div class="common-section-header">
@@ -14,21 +14,25 @@
           :remote-method="queryListData"
           @change="handleAddTableData"
           value-key="id"
-          label-key="name"
-          subLabelKey="code"
+          label-key="schemeName"
+          subLabelKey="schemeId"
           placeholder="请输入"
         />
       </div>
       <div class="common-section-table">
-        <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
+        <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner"
           min-height="0" max-height="400px">
-          <vxe-column field="auditCode" title="保修审计单编码" width="" />
-          <vxe-column field="auditStatus" title="审计状态 字典 warranty_audit_detail_status" width="" />
-          <vxe-column field="vin" title="VIN码" width="" />
-          <vxe-column field="laborDeduct" title="工时扣款" width="" />
-          <vxe-column field="partDeduct" title="备件扣款" width="" />
-          <vxe-column field="otherDeduct" title="其他扣款" width="" />
-          <vxe-column field="planDeductTotal" title="计划扣款总金额，=工时扣款+备件扣款+其他扣款" width="" />
+          <vxe-column field="warrantyApplyCode" title="保修申请单" width="150" />
+          <vxe-column field="auditStatusLabel" title="审计状态" width="150" />
+          <vxe-column field="vin" title="VIN" width="250" />
+          <vxe-column field="totalClaimAmount" title="索赔总金额" width="150" />
+          <vxe-column field="laborClaimTotal" title="索赔工时小计" width="150" />
+          <vxe-column field="partsClaimTotal" title="索赔零件小计" width="150" />
+          <vxe-column field="otherClaimTotal" title="索赔其他小计" width="150" />
+          <vxe-column field="laborDeduct" title="工时扣款" width="150" />
+          <vxe-column field="partDeduct" title="备件扣款" width="150" />
+          <vxe-column field="otherDeduct" title="其他扣款" width="150" />
+          <vxe-column field="auditDesc" title="错误项" width="300" />
           <vxe-column title="操作" width="100">
             <template #default="{ row }">
               <el-popconfirm title="确定要删除吗？" @confirm="handleRemoveRow(row)">
