@@ -2,11 +2,12 @@
   <edit-page-layout ref="editLayout" :title="detailTitle">
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
-      <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :form.sync="form" :submitRequest="submitRequest"
-        :isEditing.sync="isEditing" :originalForm.sync="originalForm" :detailRequest="detailRequest"  :showEditBtn="routeQueryType">
+      <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :form.sync="form"
+        :submitRequest="submitRequest" :isEditing.sync="isEditing" :originalForm.sync="originalForm"
+        :detailRequest="detailRequest" :showEditBtn="routeQueryType">
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
-          <span class="status primary">{{form.orderStatusLabel}}</span>
+          <span class="status primary">{{ form.orderStatusLabel }}</span>
         </template>
         <el-main>
           <section class="common-section">
@@ -20,15 +21,17 @@
                 v-show="isEditing || !_id">
                 <el-form-item label="门店编码：" prop="dealerCode">
                   <fetch-select :remote-method="getDealerList" remote v-model="form.dealerCode" placeholder="请输入门店编码或名称"
-                    labelKey="orgCode" valueKey="orgCode" subLabelKey="orgName" clearable filterable :disabled="isEditing"
-                    @change="handleDealerChange" />
+                    labelKey="orgCode" valueKey="orgCode" subLabelKey="orgName" clearable filterable
+                    :disabled="isEditing" @change="handleDealerChange" />
                 </el-form-item>
                 <el-form-item label="采购申请单：" prop="code">
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="订单类型：" prop="purchaseOrderType">
-                  <el-select v-model="form.purchaseOrderType" placeholder="请选择" clearable filterable @change="handleOrderTypeChange">
-                    <el-option v-for="item in purchaseOrderTypeOptions" :key="item.code" :label="item.message" :value="item.code"></el-option>
+                  <el-select v-model="form.purchaseOrderType" placeholder="请选择" clearable filterable
+                    @change="handleOrderTypeChange">
+                    <el-option v-for="item in purchaseOrderTypeOptions" :key="item.code" :label="item.message"
+                      :value="item.code"></el-option>
                   </el-select>
                 </el-form-item>
                 <el-form-item label="订单状态：" prop="orderStatus">
@@ -144,7 +147,9 @@
                   {{ form.companyName }}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  <el-link type="success" :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`" target="_blank">{{ form.dealerName }}</el-link>
+                  <el-link type="success"
+                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                    target="_blank">{{ form.dealerName }}</el-link>
                 </el-form-item>
                 <el-form-item label="仓库名称：" prop="warehouseName">
                   {{ form.warehouseName }}
@@ -219,7 +224,9 @@
               <div class="common-title" v-show="!(isEditing || !_id)">其他信息</div>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="缺货单号：" prop="backOrderCode">
-                  <el-link type="success" v-if="form.backOrderCode" :href="`/service/sparepart/purchase/backOrder/edit?id=${form.backOrderId}`" target="_blank">{{ form.backOrderCode }}</el-link>
+                  <el-link type="success" v-if="form.backOrderCode"
+                    :href="`/service/sparepart/purchase/backOrder/edit?id=${form.backOrderId}`" target="_blank">{{
+                      form.backOrderCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="原价券：" prop="originalPriceCouponId">
                   {{ form.originalPriceCouponId }}
@@ -239,7 +246,8 @@
             </div>
             <div class="common-section-body">
               <div class="ais-select-group">
-                <el-button size="small" @click="handleAdd" :disabled="!['0', '3'].includes(form.orderStatus)"><i class="iconfont icon-lxppc-plus"></i>添加备件</el-button>
+                <el-button size="small" @click="handleAdd" :disabled="!['0', '3'].includes(form.orderStatus)"><i
+                    class="iconfont icon-lxppc-plus"></i>添加备件</el-button>
                 <el-button class="ais-button" size="small">
                   补货预测
                 </el-button>
@@ -247,63 +255,46 @@
               </div>
               <div class="common-title">备件列表</div>
               <div class="common-section-table">
-                  <vxe-table
-                      ref="editTableRight"
-                      :data="tableData"
-                      stripe
-                      show-overflow
-                      resizable
-                      border="inner"
-                      size="medium"
-                  >
-                      <vxe-column field="partCode" title="备件编码">
-                        <template v-slot="{ row }">
-                          <span class="clickable" @click="handleEdit(row)">{{ row.partCode }}</span>
-                        </template>
-                      </vxe-column>
-                      <vxe-column field="partName" title="备件名称" />
-                      <vxe-column field="originalPrice" title="原价" />
-                      <vxe-column field="purchasePrice" title="采购价" />
-                      <vxe-column field="purchaseAmount" title="采购金额" />
-                      <vxe-column field="cashUnitPrice" title="现金单价" />
-                      <vxe-column field="cashAmount" title="现金金额" />
-                      <vxe-column field="purchaseQty" title="采购数" />
-                      <vxe-column field="remark" title="备注" />
-                      <vxe-column field="originalPriceSource" title="原价来源">
-                        <template v-slot="{ row }">
-                          <el-link type="success" target="_blank" :href="`/service/sparepart/basic/sparePartPurchasePrice/detail?id=${row.originalPriceSource}`">{{ row.originalPriceSource }}</el-link>
-                        </template>
-                      </vxe-column>
-                      <vxe-column title="操作" fixed="right"  v-if="routeQueryType">
-                          <template #default="{ row }">
-                              <el-popconfirm
-                                  title="确定删除此备件吗？"
-                                  confirm-button-text="删除"
-                                  confirm-button-type="danger"
-                                  @confirm="handleDel(row)"
-                              >
-                                  <span
-                                  class="action-button btn-delete"
-                                  slot="reference"
-                                  type="text">
-                                  删除
-                                  </span>
-                              </el-popconfirm>
-                          </template>
-                      </vxe-column>
-                  </vxe-table>
-                  <div class="table-pagination">
-                      <el-pagination
-                          @size-change="(val) => pageSizeChange(val)"
-                          @current-change="(val) => currentPageChange(val)"
-                          :current-page="current"
-                          :page-sizes="[10, 20, 50, 100]"
-                          :page-size="pageSize"
-                          layout="total, sizes, prev, pager, next, jumper"
-                          :total="total"
-                      >
-                      </el-pagination>
-                  </div>
+                <vxe-table ref="editTableRight" :data="tableData" stripe show-overflow resizable border="inner"
+                  size="medium">
+                  <vxe-column field="partCode" title="备件编码">
+                    <template v-slot="{ row }">
+                      <span class="clickable" @click="handleEdit(row)">{{ row.partCode }}</span>
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="partName" title="备件名称" />
+                  <vxe-column field="originalPrice" title="原价" />
+                  <vxe-column field="purchasePrice" title="采购价" />
+                  <vxe-column field="purchaseAmount" title="采购金额" />
+                  <vxe-column field="cashUnitPrice" title="现金单价" />
+                  <vxe-column field="cashAmount" title="现金金额" />
+                  <vxe-column field="purchaseQty" title="采购数" />
+                  <vxe-column field="remark" title="备注" />
+                  <vxe-column field="originalPriceSource" title="原价来源">
+                    <template v-slot="{ row }">
+                      <el-link type="success" target="_blank"
+                        :href="`/service/sparepart/basic/sparePartPurchasePrice/detail?id=${row.originalPriceSource}`">{{
+                          row.originalPriceSource }}</el-link>
+                    </template>
+                  </vxe-column>
+                  <vxe-column title="操作" fixed="right" v-if="routeQueryType">
+                    <template #default="{ row }">
+                      <el-popconfirm title="确定删除此备件吗？" confirm-button-text="删除" confirm-button-type="danger"
+                        @confirm="handleDel(row)">
+                        <span class="action-button btn-delete" slot="reference" type="text">
+                          删除
+                        </span>
+                      </el-popconfirm>
+                    </template>
+                  </vxe-column>
+                </vxe-table>
+                <div class="table-pagination">
+                  <el-pagination @size-change="(val) => pageSizeChange(val)"
+                    @current-change="(val) => currentPageChange(val)" :current-page="current"
+                    :page-sizes="[10, 20, 50, 100]" :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper" :total="total">
+                  </el-pagination>
+                </div>
               </div>
             </div>
           </section>
@@ -313,20 +304,12 @@
     <template #right>
       <div class="page-common-edit">
         <!-- 右侧栏组件，自行开发 -->
-        <SparePartsDetail
-          :purchase-apply-id="_id"
-          :purchaseApplyDeleteId="purchaseApplyDeleteId"
-          @submit="getDetailData"
-        />
+        <SparePartsDetail :purchase-apply-id="_id" :purchaseApplyDeleteId="purchaseApplyDeleteId"
+          @submit="getDetailData" />
       </div>
     </template>
-    <Upload
-      :visible="uploadDialogVisible"
-      :businessParams="_id"
-      id="sparePartPurchaseApplyDetailImport"
-      @close="handleUploadDialogClose"
-      @submit="getDetailData"
-    />
+    <Upload :visible="uploadDialogVisible" :businessParams="_id" id="sparePartPurchaseApplyDetailImport"
+      @close="handleUploadDialogClose" @submit="getDetailData" />
   </edit-page-layout>
 </template>
 
@@ -573,13 +556,13 @@ export default {
       this.$nextTick(() => {
         if (!val) return; // 过滤无效事件
 
-        // 判断是首次选择还是切换
-        if (!this.lastDealerCode) {
-        // 首次选择
+        // 新增页面：首次选择直接赋值
+        if (!this._id && !this.lastDealerCode) {
+          // 首次选择
           this.form.dealerName = ele.orgName;
           this.getPartDealer(ele.orgCode);
         } else {
-        // 切换，弹出确认
+          // 切换，弹出确认
           this.$confirm('是否切换门店, 是否继续?', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
@@ -653,8 +636,10 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
-    submitRequest () {
-      return addOrUpdate({ ...this.form });
+    async submitRequest () {
+      const result = await addOrUpdate({ ...this.form });
+      await this.getDetailData();
+      return result;
     },
     async getDealerList (query) {
       try {
@@ -777,24 +762,29 @@ export default {
   font-weight: 500;
   color: #0A0E0A;
 }
+
 .ais-select-group {
   margin-bottom: 12px;
 }
+
 .ais-button {
   margin-left: 12px;
   border-radius: 4px;
 }
+
 .common-title {
   font-size: 16px;
   font-weight: 600;
   color: #0A0E0A;
   margin-bottom: 10px;
 }
+
 .table-pagination {
   margin-top: 15px;
   display: flex;
   justify-content: flex-end;
 }
+
 .clickable {
   cursor: pointer;
   color: #009100;

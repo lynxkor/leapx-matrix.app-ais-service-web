@@ -274,7 +274,7 @@
                     <el-form-item label="电机序列号：" prop="motorSerialNumber">
                       {{ form.motorSerialNumber }}
                     </el-form-item>
-                    <el-form-item label="VFG名称：" prop="vrtName">
+                    <el-form-item label="VRT名称：" prop="vrtName">
                       {{ form.vrtName }}
                     </el-form-item>
                     <el-form-item label="VFG名称：" prop="vfgName">
