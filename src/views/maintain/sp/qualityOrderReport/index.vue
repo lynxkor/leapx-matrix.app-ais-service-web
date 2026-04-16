@@ -300,7 +300,7 @@ export default {
           },
           {
             props: 'vrtName',
-            label: 'VFG名称',
+            label: 'VRT名称',
             visible: true,
             width: 200,
             buttons: [{
@@ -312,7 +312,7 @@ export default {
           },
           {
             props: 'vfgName',
-            label: 'vfgName',
+            label: 'VFG名称',
             visible: true,
             width: 200,
             buttons: [{
