@@ -143,9 +143,9 @@
     <RepairDialog
       ref="repairDialogRef"
       :id="maintenanceId"
-      :visible="repairDialogVisible"
-      @close="handleRepairDialogClose"
-      @success="handleRepairDialogSuccess"
+      :visible.sync="repairDialogVisible"
+      @update:visible="val => repairDialogVisible = val"
+      @success="getData"
     />
     <PrintSettings
       ref="printSettingsRef"
@@ -494,14 +494,6 @@ export default {
     repairPopup (val) {
       this.maintenanceId = val.id;
       this.repairDialogVisible = true;
-    },
-    // 关闭弹窗
-    handleRepairDialogClose () {
-      this.repairDialogVisible = false;
-    },
-    handleRepairDialogSuccess () {
-      this.repairDialogVisible = false;
-      this.getData();
     },
     // 打印设置弹窗
     handlePringConfig () {

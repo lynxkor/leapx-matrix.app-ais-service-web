@@ -17,6 +17,10 @@
               <div v-else>
                 <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
               </div> -->
+              <ButtonGroup maxWidth="50%">
+                <el-button v-if="form.outboundStatus !== '1' && form.outboundStatus !== '2' && permissions.has('AISPART-maintenanceOutboundOrder-outbound')" size="small" @click="repairPopup">出库</el-button>
+                <el-button v-if="permissions.has('AISPART-maintenanceOutboundOrder-print')" size="small" type="primary" @click="handlePrint">打印</el-button>
+              </ButtonGroup>
             </section>
             <section class="common-section">
               <div class="common-section-header">
@@ -164,6 +168,14 @@
     <template #right>
       <!-- 右侧栏组件，自行开发 -->
     </template>
+    <!-- 出库弹窗组件 -->
+    <RepairDialog
+      ref="repairDialogRef"
+      :id="maintenanceId"
+      :visible.sync="repairDialogVisible"
+      @update:visible="val => repairDialogVisible = val"
+      @success="refreshDetail"
+    />
   </edit-page-layout>
 </template>
 
@@ -177,6 +189,8 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import ButtonGroup from '@/libs/components/ButtonGroup';
+import RepairDialog from './RepairDialog.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -215,7 +229,9 @@ export default {
   components: {
     EditPageLayout,
     EditTable,
-    FetchSelect
+    FetchSelect,
+    ButtonGroup,
+    RepairDialog
   },
   computed: {
     _id () {
@@ -369,7 +385,7 @@ export default {
           width: '9%',
         },
         {
-          field: 'returnApplicationReason',
+          field: 'returnApplicationTime',
           title: '退料申请时间',
           width: '9%',
         },
@@ -422,7 +438,9 @@ export default {
         remark: [
           { required: true, message: '请输入备注', trigger: 'change' }
         ],
-      }
+      },
+      repairDialogVisible: false, // 维修出库弹窗
+      maintenanceId: '', // 维修出库id
     };
   },
   mounted () {
@@ -533,7 +551,7 @@ export default {
       }
       return [];
     },
-    // 入库明细信息
+    // 出库明细信息
     async getCollar () {
       const params = {
         pageNum: this.collarParams.current,
@@ -553,7 +571,7 @@ export default {
       this.collarParams.current = current;
       this.getCollar();
     },
-    // 出库明细信息
+    // 退料明细信息
     async getOut () {
       const params = {
         pageNum: this.goParams.current,
@@ -571,6 +589,25 @@ export default {
     },
     goCurrentPage (current) {
       this.goParams.current = current;
+      this.getOut();
+    },
+    // 维修出库弹窗
+    repairPopup () {
+      this.maintenanceId = this._id;
+      this.repairDialogVisible = true;
+    },
+    // 维修出库单打印
+    handlePrint (val) {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'MaintenanceOutbound', // 必选，对应 ./template/文件名.vue
+        title: `${this.form.dealerName}维修出库单`// 可选，打印标题
+      });
+    },
+    // 刷新详情数据
+    refreshDetail () {
+      this.getDetailData();
+      this.getCollar();
       this.getOut();
     },
   }

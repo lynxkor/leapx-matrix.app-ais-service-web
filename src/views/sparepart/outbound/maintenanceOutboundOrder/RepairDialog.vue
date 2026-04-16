@@ -97,9 +97,7 @@ export default {
   watch: {
     visible (val) {
       this.dialogVisible = val;
-      if (val) {
-        this.initData();
-      }
+      this.initData();
     },
   },
   methods: {
@@ -115,7 +113,7 @@ export default {
       });
     },
     close () {
-      this.$emit('close');
+      this.$emit('update:visible', false);
     },
     closed () {
       this.$refs.workTable && this.$refs.workTable.clearCheckboxRow();
@@ -151,9 +149,9 @@ export default {
         this.$message.success('出库成功');
         this.submitLoading = false;
         this.selectedRows = [];
+        this.close();
         this.$emit('success');
       } catch (error) {
-        this.$message.error('出库失败');
         this.submitLoading = false;
       }
     },
