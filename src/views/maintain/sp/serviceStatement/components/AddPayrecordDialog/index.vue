@@ -24,13 +24,13 @@
         </div>
         <!-- 新增按钮 -->
         <div class="action-section">
-          <el-button size="small" type="primary" @click="handleAdd">添加收款记录</el-button>
+          <el-button size="small" type="primary" @click="handleAdd" :disabled="loading">添加收款记录</el-button>
         </div>
 
         <!-- 表格区域 -->
         <div class="table-section">
           <vxe-table ref="payRecordTable" :data="tableData" stripe show-overflow :row-config="{ isHover: true }"
-            resizable border="inner" size="medium" min-height="0" max-height="400px">
+            resizable border="inner" size="medium" min-height="0" max-height="400px" v-loading="loading">
             <vxe-column type="seq" title="序号" width="70" />
             <vxe-column field="payType" title="支付方式" width="150">
               <template #default="{ row }">
@@ -115,6 +115,7 @@ export default {
   data () {
     return {
       tableData: [],
+      loading: false,
       // 支付方式选项
       payTypeOptions: [
         // { id: 1, name: '现金' },
@@ -162,12 +163,15 @@ export default {
       this.getPayList();
     },
     getPayList () {
+      this.loading = true;
       getStatementPayRecord({
         statementId: this.info.id || '',
         page: 1,
         pageSize: 500,
       }).then((res) => {
         this.tableData = res.records || [];
+      }).finally(() => {
+        this.loading = false;
       });
     },
     async fetchOptions (code) {
