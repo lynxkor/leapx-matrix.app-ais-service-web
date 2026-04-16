@@ -1,0 +1,666 @@
+<template>
+  <div class="page-common m-warranty-audit-detail-list">
+    <el-form
+      :inline="true"
+      :model="form"
+      size="small"
+      label-position="right"
+      label-width="150px"
+      class="ais-search-form"
+    >
+      <el-form-item label="保修申请单">
+        <el-input
+          placeholder="请输入，支持批量"
+          v-model="form.warrantyApplyCodeList"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="VIN码">
+        <el-input
+          placeholder="请输入，支持批量"
+          v-model="form.vinList"
+          clearable
+        />
+      </el-form-item>
+      <template v-if="show">
+        <el-form-item label="保修审计明细">
+          <el-input
+            placeholder="请输入，支持批量"
+            v-model="form.auditDetailCodeList"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="保修审计单">
+          <el-input
+            placeholder="请输入"
+            v-model="form.auditCode"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="接车施工单">
+          <el-input
+            placeholder="请输入，支持批量"
+            v-model="form.serviceProxyCodeList"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="审计状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="warranty_audit_detail_status"
+            v-model="form.auditStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="门店编码">
+          <el-input
+            placeholder="请输入，支持批量"
+            v-model="form.dealerCodeList"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="门店名称">
+          <el-input
+            placeholder="请输入，支持批量"
+            v-model="form.dealerNameList"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="保修类型">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="repair_item_type"
+            v-model="form.repairItemTypeIdList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="主因零件编码">
+          <el-input
+            placeholder="请输入，支持批量"
+            v-model="form.mainPartCodeList"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="主因零件名称">
+          <el-input
+            placeholder="请输入"
+            v-model="form.mainPartNameLike"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="错误项">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="warranty_audit_error_type"
+            v-model="form.errorTypeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="创建时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.createTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="修改时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.updateTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+      </template>
+      <page-search-action
+        v-if="canList"
+        v-model="show"
+        is-expandable
+        :loading="loading"
+        @submit="onSubmit"
+        @reset="onReset"
+      />
+    </el-form>
+    <div class="ais-actions">
+      <el-button v-if="canSupplyMaterial" size="small" type="primary" @click="handleSupplyMaterial">补充材料</el-button>
+      <el-button v-if="canAuditPass" size="small" type="primary" @click="handleAuditPass">审计通过</el-button>
+      <el-button v-if="canAuditReject" size="small" type="danger" @click="handleAuditReject">审计驳回</el-button>
+      <el-button v-if="canAppeal" size="small" type="warning" @click="handleAppeal">申诉</el-button>
+      <el-button v-if="canAgree" size="small" type="success" @click="handleAgree">同意</el-button>
+      <el-button v-if="canAgreeAppeal" size="small" type="success" @click="handleAgreeAppeal">同意申诉</el-button>
+      <el-button v-if="canRejectAppeal" size="small" type="danger" @click="handleRejectAppeal">拒绝申诉</el-button>
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+    </div>
+    <div class="ais-table-c">
+      <LPVxeTable
+        ref="tableRef"
+        v-loading="loading"
+        is-checkbox
+        is-page
+        checkboxFixed
+        centralized
+        :option-obj="optionObj"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+        @listSelect="handleListSelect"
+        @sortChange="handleSortChange"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
+    </div>
+    <!-- 补充材料弹窗 -->
+    <!-- <SupplyMaterialDialog
+      :visible.sync="supplyMaterialDialogVisible"
+      :selection-list="selectionList"
+      @success="getData"
+    /> -->
+    <!-- 审计通过弹窗 -->
+    <!-- <AuditPassDialog
+      :visible.sync="auditPassDialogVisible"
+      :selection-list="selectionList"
+      @success="getData"
+    /> -->
+    <!-- 审计驳回弹窗 -->
+    <!-- <AuditRejectDialog
+      :visible.sync="auditRejectDialogVisible"
+      :selection-list="selectionList"
+      @success="getData"
+    /> -->
+    <!-- 申诉弹窗 -->
+    <!-- <AppealDialog
+      :visible.sync="appealDialogVisible"
+      :selection-list="selectionList"
+      @success="getData"
+    /> -->
+    <!-- 同意申诉弹窗 -->
+    <!-- <AgreeAppealDialog
+      :visible.sync="agreeAppealDialogVisible"
+      :selection-list="selectionList"
+      @success="getData"
+    /> -->
+    <!-- 拒绝申诉弹窗 -->
+    <!-- <RejectAppealDialog
+      :visible.sync="rejectAppealDialogVisible"
+      :selection-list="selectionList"
+      @success="getData"
+    /> -->
+  </div>
+</template>
+
+<script>
+import debounce from 'lodash.debounce';
+import { LPVxeTable } from '@leapmotor/design';
+import PageSearchAction from '@/libs/components/AisPageSearchAction';
+import {
+  getList,
+  agree,
+} from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import FetchSelect from '@/libs/components/FetchSelect';
+import { YES_NO_ENUM } from '@/libs/constants';
+import responsiveSearchForm from '@/libs/mixins/responsive';
+import permissions from '@/libs/mixins/permissions';
+import { downloadExcel } from '@/libs/utils';
+import commonMixins from '@/libs/mixins/commonMixins';
+import EditPage from './edit.vue';
+
+const defaultForm = {
+  warrantyApplyCodeList: '',
+  vinList: '',
+  auditDetailCodeList: '',
+  auditCode: '',
+  serviceProxyCodeList: '',
+  auditStatusList: '',
+  dealerCodeList: '',
+  dealerNameList: '',
+  repairItemTypeIdList: '',
+  mainPartCodeList: '',
+  mainPartNameLike: '',
+  errorTypeList: '',
+  createTime: '',
+  updateTime: '',
+};
+
+const pageSize = 20;
+const mockConfig = {
+  data: null
+};
+
+// 审计状态枚举值
+const AUDIT_STATUS = {
+  WAIT_SUPPLY: '10', // 待门店补充材料
+  WAIT_AUDIT: '20', // 待审计
+  PASS: '30', // 通过
+  ERROR_WAIT_CONFIRM: '40', // 错误待确认
+  APPEAL: '50', // 申诉
+  ERROR_CONFIRMED: '60', // 错误已确认
+};
+
+export default {
+  mixins: [responsiveSearchForm, permissions, commonMixins],
+  components: {
+    PageSearchAction,
+    LPVxeTable,
+    FetchSelect,
+    EditPage,
+  },
+  data () {
+    return {
+      pageTitle: '保修审计明细',
+      pageType: 'list',
+      moduleKey: 'AISCR-warrantyAuditDetail',
+      form: {
+        ...defaultForm
+      },
+      selectionList: [],
+      yes_no_enum: YES_NO_ENUM,
+      show: false,
+      loading: false,
+      exportLoading: false,
+      clickItemId: '',
+      // 弹窗控制
+      supplyMaterialDialogVisible: false,
+      auditPassDialogVisible: false,
+      auditRejectDialogVisible: false,
+      appealDialogVisible: false,
+      agreeAppealDialogVisible: false,
+      rejectAppealDialogVisible: false,
+      //
+      tableDataList: [],
+      tableTotal: 0,
+      tableForm: { page: 1, size: pageSize },
+      sortColumns: [],
+    };
+  },
+  computed: {
+    optionObj () {
+      return {
+        id: 'warrantyAuditDetailTable',
+        dataList: this.tableDataList,
+        form: this.tableForm,
+        dataProp: [
+          {
+            props: 'auditDetailCode',
+            label: '保修审计明细',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/claim/warrantyaudit/warrantyAuditDetail/edit',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'warrantyApplyCode', label: '保修申请单', visible: true, width: 200 },
+          {
+            props: 'auditCode',
+            label: '保修审计单',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/claim/warrantyAudit/edit',
+                  query: {
+                    id: row.auditId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'vin',
+            label: 'VIN码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/datacenter/vehicle/vehicleProfile/edit',
+                  query: {
+                    vin: row.vin
+                  }
+                });
+              },
+              type: 'primary'
+            }],
+            formatter: ({ cellValue }) => {
+              // VIN脱敏显示
+              if (cellValue && cellValue.length > 6) {
+                return cellValue.substring(0, 3) + '***' + cellValue.substring(cellValue.length - 3);
+              }
+              return cellValue;
+            }
+          },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 150 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 150 },
+          { props: 'totalClaimAmount', label: '索赔总金额', visible: true, width: 150 },
+          { props: 'laborClaimTotal', label: '索赔工时小计', visible: true, width: 150 },
+          { props: 'partsClaimTotal', label: '索赔备件小计', visible: true, width: 150 },
+          { props: 'otherClaimTotal', label: '索赔其他小计', visible: true, width: 150 },
+          { props: 'laborDeduct', label: '工时扣款', visible: true, width: 150 },
+          { props: 'partDeduct', label: '备件扣款', visible: true, width: 150 },
+          { props: 'otherDeduct', label: '其他扣款', visible: true, width: 150 },
+          { props: 'planDeductTotal', label: '计划扣款总金额', visible: true, width: 150 },
+          { props: 'deductedAmount', label: '已扣款金额', visible: true, width: 150 },
+          { props: 'undeductAmount', label: '未扣款金额', visible: true, width: 150 },
+          { props: 'auditDesc', label: '审计说明', visible: true, width: 200 },
+          { props: 'errorTypeLabel', label: '错误项', visible: true, width: 150 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 180 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
+            buttons: [{
+              name: '详情',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/claim/warrantyaudit/warrantyAuditDetail/edit',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'info'
+            }]
+          }
+        ],
+        total: this.tableTotal
+      };
+    },
+    // 根据选中行的审计状态判断按钮是否可用
+    canSupplyMaterial () {
+      return this.selectionList.length > 0 && this.selectionList.every(item => item.auditStatus === AUDIT_STATUS.WAIT_SUPPLY);
+    },
+    canAuditPass () {
+      return this.selectionList.length > 0 && this.selectionList.every(item => item.auditStatus === AUDIT_STATUS.WAIT_AUDIT);
+    },
+    canAuditReject () {
+      return this.selectionList.length > 0 && this.selectionList.every(item => item.auditStatus === AUDIT_STATUS.WAIT_AUDIT);
+    },
+    canAppeal () {
+      return this.selectionList.length > 0 && this.selectionList.every(item => item.auditStatus === AUDIT_STATUS.ERROR_WAIT_CONFIRM);
+    },
+    canAgree () {
+      return this.selectionList.length > 0 && this.selectionList.every(item => item.auditStatus === AUDIT_STATUS.ERROR_WAIT_CONFIRM);
+    },
+    canAgreeAppeal () {
+      return this.selectionList.length > 0 && this.selectionList.every(item => item.auditStatus === AUDIT_STATUS.APPEAL);
+    },
+    canRejectAppeal () {
+      return this.selectionList.length > 0 && this.selectionList.every(item => item.auditStatus === AUDIT_STATUS.APPEAL);
+    },
+  },
+  created () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    this.getData();
+  },
+  methods: {
+    handleSortChange (value) {
+      this.sortColumns = (value || []).map(item => {
+        return {
+          column: (item.field || '').replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, ''),
+          sort: (item.order || '').toUpperCase()
+        };
+      });
+      this.getData();
+    },
+    handleListSelect (row) {
+      this.clickItemId = row.id;
+    },
+    onSubmit () {
+      this.tableForm.page = 1;
+      this.getData();
+    },
+    onReset () {
+      this.form = { ...defaultForm };
+      this.tableForm.page = 1;
+      this.tableForm.pageSize = pageSize;
+      this.getData();
+    },
+    exportExcel () {
+      this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
+      exportTable({
+        businessType: '保修审计明细',
+        dataFetchPath: 'claimreturn/claim/web/warrantyaudit/warrantyAuditDetail/page',
+        reqParams,
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '保修审计明细.xlsx');
+          } catch (error) {
+            this.$message({
+              type: 'error',
+              message: '文件导出失败'
+            });
+          }
+        } else {
+          this.$message({
+            type: 'info',
+            message: '请前往导出列表中查询导出结果'
+          });
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
+    },
+    getData () {
+      this.loading = true;
+      this.selectionList = [];
+
+      getList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
+        .then(res => {
+          this.tableDataList = res.records.map(item => {
+            return {
+              ...item,
+              deleteLoading: false
+            };
+          });
+          this.tableTotal = res.total;
+        }).finally(() => {
+          this.loading = false;
+        });
+    },
+    debouncedGetData: debounce(function () {
+      this.getData();
+    }, 300),
+    getConfig () {
+      return new Promise((resolve, reject) => {
+        getTableConfig(this.optionObj.id).then(data => {
+          resolve({ data });
+        }).catch(err => {
+          console.error(err);
+          resolve(mockConfig);
+        });
+      });
+    },
+    saveOrUpdate (data) {
+      return tableAddOrUpdate(data);
+    },
+    paginationChange (type, num) {
+      if (type === 'page') {
+        this.tableForm.page = num;
+      } else {
+        this.tableForm.size = num;
+      }
+      this.debouncedGetData();
+    },
+    handleSelectionChange (selection) {
+      this.selectionList = selection;
+    },
+    getFormData () {
+      const data = { ...this.form };
+
+      // 固定查询条件：审计状态 in（待门店补充材料，待审计，通过，错误待确认，申诉，错误已确认）
+      if (!data.auditStatusList || data.auditStatusList.length === 0) {
+        data.auditStatusList = [
+          AUDIT_STATUS.WAIT_SUPPLY,
+          AUDIT_STATUS.WAIT_AUDIT,
+          AUDIT_STATUS.PASS,
+          AUDIT_STATUS.ERROR_WAIT_CONFIRM,
+          AUDIT_STATUS.APPEAL,
+          AUDIT_STATUS.ERROR_CONFIRMED,
+        ];
+      }
+
+      Object.keys(this.form).forEach(key => {
+        if (data[key] === '' || data[key] === null) {
+          delete data[key];
+        }
+      });
+
+      // 处理批量输入字段（逗号分隔转为数组）
+      const batchFields = [
+        'warrantyApplyCodeList',
+        'vinList',
+        'auditDetailCodeList',
+        'serviceProxyCodeList',
+        'dealerCodeList',
+        'dealerNameList',
+        'mainPartCodeList',
+      ];
+      batchFields.forEach(field => {
+        if (data[field] && typeof data[field] === 'string') {
+          data[field] = data[field].split(',').map(s => s.trim()).filter(s => s);
+        }
+      });
+
+      // 处理日期范围字段
+      if (this.form.createTime) {
+        delete data.createTime;
+        if (this.form.createTime.length > 1) {
+          data.createTimeStart = this.form.createTime[0];
+          data.createTimeEnd = this.form.createTime[1];
+        }
+      }
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = this.form.updateTime[1];
+        }
+      }
+
+      data.sortColumns = this.sortColumns;
+      return data;
+    },
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
+    },
+    // 补充材料
+    handleSupplyMaterial () {
+      if (this.selectionList.length === 0) {
+        this.$message.warning('请选择需要补充材料的数据');
+        return;
+      }
+      this.supplyMaterialDialogVisible = true;
+    },
+    // 审计通过
+    handleAuditPass () {
+      if (this.selectionList.length === 0) {
+        this.$message.warning('请选择需要审计通过的数据');
+        return;
+      }
+      this.auditPassDialogVisible = true;
+    },
+    // 审计驳回
+    handleAuditReject () {
+      if (this.selectionList.length === 0) {
+        this.$message.warning('请选择需要审计驳回的数据');
+        return;
+      }
+      this.auditRejectDialogVisible = true;
+    },
+    // 申诉
+    handleAppeal () {
+      if (this.selectionList.length === 0) {
+        this.$message.warning('请选择需要申诉的数据');
+        return;
+      }
+      this.appealDialogVisible = true;
+    },
+    // 同意
+    handleAgree () {
+      if (this.selectionList.length === 0) {
+        this.$message.warning('请选择需要同意的数据');
+        return;
+      }
+      const ids = this.selectionList.map(item => item.id);
+      this.$confirm('确定同意选中的审计结果吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        agree({ ids }).then(() => {
+          this.$message.success('操作成功');
+          this.getData();
+        }).catch(() => {
+          this.$message.error('操作失败');
+        });
+      }).catch(() => {});
+    },
+    // 同意申诉
+    handleAgreeAppeal () {
+      if (this.selectionList.length === 0) {
+        this.$message.warning('请选择需要同意申诉的数据');
+        return;
+      }
+      this.agreeAppealDialogVisible = true;
+    },
+    // 拒绝申诉
+    handleRejectAppeal () {
+      if (this.selectionList.length === 0) {
+        this.$message.warning('请选择需要拒绝申诉的数据');
+        return;
+      }
+      this.rejectAppealDialogVisible = true;
+    },
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+.m-warranty-audit-detail-list {
+}
+</style>
