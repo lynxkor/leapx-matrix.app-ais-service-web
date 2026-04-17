@@ -21,7 +21,7 @@
             @click="handleSelectItem(item)"
           >
             <div class="list-item__content">
-              <div class="list-item__name">{{ item.rightsName }}({{ item.usedTimes }}/{{ item.totalRemainTimes }})</div>
+              <div class="list-item__name">{{ item.rightsName }}({{ item.remainTimes }}/{{ item.totalRemainTimes }})</div>
               <div class="list-item__code">{{ item.rightsCode }}</div>
             </div>
             <!-- <i v-if="selectedItem.useId === item.useId" class="el-icon-success selected-icon"></i> -->
