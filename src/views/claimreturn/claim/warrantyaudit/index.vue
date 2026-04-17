@@ -148,12 +148,31 @@
     <PublishDialog
       :visible.sync="publishDialogVisible"
       :audit-id="currentPublishId"
+      :actual-audit-count="currentPublishActualCount"
       @success="getData"
     />
     <!-- 签署总结弹窗 -->
     <SignSummaryDialog
       :visible.sync="signSummaryDialogVisible"
       :audit-id="currentSignSummaryId"
+      @success="getData"
+    />
+    <!-- 驳回总结弹窗 -->
+    <RejectSummaryDialog
+      :visible.sync="rejectSummaryDialogVisible"
+      :audit-id="currentRejectSummaryId"
+      @success="getData"
+    />
+    <!-- 签署整改弹窗 -->
+    <SignRectifyDialog
+      :visible.sync="signRectifyDialogVisible"
+      :audit-id="currentSignRectifyId"
+      @success="getData"
+    />
+    <!-- 驳回整改弹窗 -->
+    <RejectRectifyDialog
+      :visible.sync="rejectRectifyDialogVisible"
+      :audit-id="currentRejectRectifyId"
       @success="getData"
     />
   </div>
@@ -167,6 +186,10 @@ import {
   getList,
   deleteItem,
   enableItem,
+  agreeSummary,
+  agreeRectify,
+  regenerateUnsignedSummary,
+  regenerateUnsignedRectify,
 } from '@/api/claimreturn/claim/warrantyaudit/warrantyAudit/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -178,8 +201,12 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select';
+import { getListVisibleButtons } from './constant';
 import PublishDialog from './components/PublishDialog';
 import SignSummaryDialog from './components/SignSummaryDialog';
+import RejectSummaryDialog from './components/RejectSummaryDialog';
+import SignRectifyDialog from './components/SignRectifyDialog';
+import RejectRectifyDialog from './components/RejectRectifyDialog';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -210,6 +237,9 @@ export default {
     DealerSelect,
     PublishDialog,
     SignSummaryDialog,
+    RejectSummaryDialog,
+    SignRectifyDialog,
+    RejectRectifyDialog,
   },
   data () {
     return {
@@ -230,9 +260,19 @@ export default {
       //
       publishDialogVisible: false,
       currentPublishId: '',
+      currentPublishActualCount: 0,
       //
       signSummaryDialogVisible: false,
       currentSignSummaryId: '',
+      //
+      rejectSummaryDialogVisible: false,
+      currentRejectSummaryId: '',
+      //
+      signRectifyDialogVisible: false,
+      currentSignRectifyId: '',
+      //
+      rejectRectifyDialogVisible: false,
+      currentRejectRectifyId: '',
       //
       tableDataList: [],
       tableTotal: 0,
@@ -297,9 +337,11 @@ export default {
             type: 'operate',
             visible: true,
             fixed: 'right',
+            width: 200,
             buttons: [
               {
                 name: '编辑',
+                show: (row) => getListVisibleButtons(row.auditStatus).includes('编辑'),
                 click: (rowIndex, row) => {
                   this.$router.push({
                     path: '/claimreturn/claim/warrantyAudit/edit',
@@ -313,6 +355,7 @@ export default {
               },
               {
                 name: '发布',
+                show: (row) => getListVisibleButtons(row.auditStatus).includes('发布'),
                 click: (rowIndex, row) => {
                   this.handlePublish(row);
                 },
@@ -320,6 +363,7 @@ export default {
               },
               {
                 name: '签署总结',
+                show: (row) => getListVisibleButtons(row.auditStatus).includes('签署总结'),
                 click: (rowIndex, row) => {
                   this.currentSignSummaryId = row.id;
                   this.signSummaryDialogVisible = true;
@@ -328,36 +372,44 @@ export default {
               },
               {
                 name: '同意总结',
+                show: (row) => getListVisibleButtons(row.auditStatus).includes('同意总结'),
                 click: (rowIndex, row) => {
-                  //
+                  this.handleAgreeSummary(row);
                 },
                 type: 'info'
               },
               {
                 name: '驳回总结',
+                show: (row) => getListVisibleButtons(row.auditStatus).includes('驳回总结'),
                 click: (rowIndex, row) => {
-                  //
+                  this.currentRejectSummaryId = row.id;
+                  this.rejectSummaryDialogVisible = true;
                 },
                 type: 'info'
               },
               {
                 name: '签署整改',
+                show: (row) => getListVisibleButtons(row.auditStatus).includes('签署整改'),
                 click: (rowIndex, row) => {
-                  //
+                  this.currentSignRectifyId = row.id;
+                  this.signRectifyDialogVisible = true;
                 },
                 type: 'info'
               },
               {
                 name: '同意整改',
+                show: (row) => getListVisibleButtons(row.auditStatus).includes('同意整改'),
                 click: (rowIndex, row) => {
-                  //
+                  this.handleAgreeRectify(row);
                 },
                 type: 'info'
               },
               {
                 name: '驳回整改',
+                show: (row) => getListVisibleButtons(row.auditStatus).includes('驳回整改'),
                 click: (rowIndex, row) => {
-                  //
+                  this.currentRejectRectifyId = row.id;
+                  this.rejectRectifyDialogVisible = true;
                 },
                 type: 'info'
               },
@@ -600,7 +652,34 @@ export default {
     // 打开发布弹窗
     handlePublish (row) {
       this.currentPublishId = row.id;
+      this.currentPublishActualCount = row.actualAuditCount || 0;
       this.publishDialogVisible = true;
+    },
+    // 同意总结
+    handleAgreeSummary (row) {
+      this.$confirm('确定同意总结？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        agreeSummary(row.id).then(() => {
+          this.$message.success('同意总结成功');
+          this.getData();
+        });
+      }).catch(() => {});
+    },
+    // 同意整改
+    handleAgreeRectify (row) {
+      this.$confirm('确定同意整改？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        agreeRectify(row.id).then(() => {
+          this.$message.success('同意整改成功');
+          this.getData();
+        });
+      }).catch(() => {});
     },
   }
 };

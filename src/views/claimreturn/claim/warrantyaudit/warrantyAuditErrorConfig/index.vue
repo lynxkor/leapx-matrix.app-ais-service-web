@@ -154,7 +154,7 @@ export default {
                   }
                 });
               },
-              type: 'primary'
+              type: 'info'
             }]
           }
         ],

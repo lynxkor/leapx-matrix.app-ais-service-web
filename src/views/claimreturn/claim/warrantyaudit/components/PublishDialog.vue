@@ -7,18 +7,17 @@
   >
     <div class="page-common-edit vertical">
       <section class="common-section">
-        <div class="common-section-body">
-          <el-form :inline="true" :model="form" :rules="rules" label-width="120px" class="form-edit">
-            <el-form-item prop="submitDeadline" class="form-item-full" label="提交截止日期：">
-              <el-date-picker
-                v-model="form.submitDeadline"
-                type="date"
-                placeholder="请选择日期"
-                value-format="yyyy-MM-dd"
-              />
-            </el-form-item>
-          </el-form>
-        </div>
+        <el-form :inline="true" :model="form" :rules="rules" label-width="120px" class="form-edit"  style="padding-right: 16px;">
+          <el-form-item prop="submitDeadline" class="form-item-full" label="提交截止日期：">
+            <el-date-picker
+              v-model="form.submitDeadline"
+              type="date"
+              placeholder="请选择日期"
+              value-format="yyyy-MM-dd"
+              :picker-options="pickerOptions"
+            />
+          </el-form-item>
+        </el-form>
       </section>
     </div>
     <template v-slot:footer>
@@ -43,6 +42,10 @@ export default {
     auditId: {
       type: [String, Number],
       default: ''
+    },
+    actualAuditCount: {
+      type: Number,
+      default: 0
     }
   },
   data () {
@@ -53,6 +56,11 @@ export default {
       },
       submitLoading: false,
       dialogVisible: this.visible,
+      pickerOptions: {
+        disabledDate (time) {
+          return time.getTime() < new Date(new Date().toLocaleDateString()).getTime();
+        }
+      },
       rules: {
         submitDeadline: [{ required: true, message: '请选择', trigger: 'change' }],
       },
@@ -75,6 +83,10 @@ export default {
     submit () {
       if (!this.form.submitDeadline) {
         this.$message.warning('请选择提交截止日期');
+        return;
+      }
+      if (!this.actualAuditCount || this.actualAuditCount <= 0) {
+        this.$message.warning('请添加审计明细信息之后，再执行发布');
         return;
       }
       this.submitLoading = true;

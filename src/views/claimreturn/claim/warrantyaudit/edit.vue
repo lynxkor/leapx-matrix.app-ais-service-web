@@ -1,5 +1,6 @@
 <template>
-      <edit-base-container
+  <div>
+    <edit-base-container
         ref="containerRef"
         :id="_id"
         :title="title"
@@ -9,6 +10,19 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
+        <template #extraButtons>
+          <el-button v-if="detailButtons.includes('发布')" size="small" type="primary" @click="handlePublish">发布</el-button>
+          <el-button v-if="detailButtons.includes('签署总结')" size="small" @click="handleSignSummary">签署总结</el-button>
+          <el-button v-if="detailButtons.includes('同意总结')" size="small" @click="handleAgreeSummary">同意总结</el-button>
+          <el-button v-if="detailButtons.includes('驳回总结')" size="small" @click="handleRejectSummary">驳回总结</el-button>
+          <el-button v-if="detailButtons.includes('签署整改')" size="small" @click="handleSignRectify">签署整改</el-button>
+          <el-button v-if="detailButtons.includes('同意整改')" size="small" @click="handleAgreeRectify">同意整改</el-button>
+          <el-button v-if="detailButtons.includes('驳回整改')" size="small" @click="handleRejectRectify">驳回整改</el-button>
+          <el-button v-if="detailButtons.includes('重新生成待签署总结报告')" size="small" @click="handleRegenerateUnsignedSummary">重新生成待签署总结报告</el-button>
+          <el-button v-if="detailButtons.includes('上传待签署总结报告')" size="small" @click="handleUploadUnsignedSummary">上传待签署总结报告</el-button>
+          <el-button v-if="detailButtons.includes('重新生成待签署整改报告')" size="small" @click="handleRegenerateUnsignedRectify">重新生成待签署整改报告</el-button>
+          <el-button v-if="detailButtons.includes('上传待签署整改报告')" size="small" @click="handleUploadUnsignedRectify">上传待签署整改报告</el-button>
+        </template>
         <el-main>
           <!-- 基础信息 -->
           <section class="common-section">
@@ -186,12 +200,60 @@
           />
         </el-main>
       </edit-base-container>
+    <!-- 发布弹窗 -->
+    <PublishDialog
+      :visible.sync="publishDialogVisible"
+      :audit-id="_id"
+      :actual-audit-count="form.actualAuditCount || 0"
+      @success="refreshDetail"
+    />
+    <!-- 签署总结弹窗 -->
+    <SignSummaryDialog
+      :visible.sync="signSummaryDialogVisible"
+      :audit-id="_id"
+      @success="refreshDetail"
+    />
+    <!-- 驳回总结弹窗 -->
+    <RejectSummaryDialog
+      :visible.sync="rejectSummaryDialogVisible"
+      :audit-id="_id"
+      @success="refreshDetail"
+    />
+    <!-- 签署整改弹窗 -->
+    <SignRectifyDialog
+      :visible.sync="signRectifyDialogVisible"
+      :audit-id="_id"
+      @success="refreshDetail"
+    />
+    <!-- 驳回整改弹窗 -->
+    <RejectRectifyDialog
+      :visible.sync="rejectRectifyDialogVisible"
+      :audit-id="_id"
+      @success="refreshDetail"
+    />
+    <!-- 上传待签署总结报告弹窗 -->
+    <UploadUnsignedSummaryDialog
+      :visible.sync="uploadUnsignedSummaryDialogVisible"
+      :audit-id="_id"
+      @success="refreshDetail"
+    />
+    <!-- 上传待签署整改报告弹窗 -->
+    <UploadUnsignedRectifyDialog
+      :visible.sync="uploadUnsignedRectifyDialogVisible"
+      :audit-id="_id"
+      @success="refreshDetail"
+    />
+  </div>
 </template>
 
 <script>
 import {
   getDetail,
   addOrUpdate,
+  agreeSummary,
+  agreeRectify,
+  regenerateUnsignedSummary,
+  regenerateUnsignedRectify,
 } from '@/api/claimreturn/claim/warrantyaudit/warrantyAudit/index';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -200,6 +262,14 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import SearchAddTable from './components/SearchAddTable';
 import { getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
+import { getDetailVisibleButtons } from './constant';
+import PublishDialog from './components/PublishDialog';
+import SignSummaryDialog from './components/SignSummaryDialog';
+import RejectSummaryDialog from './components/RejectSummaryDialog';
+import SignRectifyDialog from './components/SignRectifyDialog';
+import RejectRectifyDialog from './components/RejectRectifyDialog';
+import UploadUnsignedSummaryDialog from './components/UploadUnsignedSummaryDialog';
+import UploadUnsignedRectifyDialog from './components/UploadUnsignedRectifyDialog';
 
 const defaultForm = {
   id: null,
@@ -269,7 +339,14 @@ export default {
   components: {
     SearchAddTable,
     EditBaseContainer,
-    FetchSelect
+    FetchSelect,
+    PublishDialog,
+    SignSummaryDialog,
+    RejectSummaryDialog,
+    SignRectifyDialog,
+    RejectRectifyDialog,
+    UploadUnsignedSummaryDialog,
+    UploadUnsignedRectifyDialog,
   },
   computed: {
     _id () {
@@ -277,6 +354,9 @@ export default {
     },
     title () {
       return '保修审计单：' + (this.form.auditCode || '');
+    },
+    detailButtons () {
+      return getDetailVisibleButtons(this.form.auditStatus);
     }
   },
   watch: {
@@ -347,6 +427,14 @@ export default {
         ],
       },
       selectedRows: [],
+      //
+      publishDialogVisible: false,
+      signSummaryDialogVisible: false,
+      rejectSummaryDialogVisible: false,
+      signRectifyDialogVisible: false,
+      rejectRectifyDialogVisible: false,
+      uploadUnsignedSummaryDialogVisible: false,
+      uploadUnsignedRectifyDialogVisible: false,
     };
   },
   methods: {
@@ -370,6 +458,84 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    refreshDetail () {
+      if (this.$refs.containerRef) {
+        this.$refs.containerRef.loadDetail();
+      }
+    },
+    handlePublish () {
+      if (!this.form.actualAuditCount || this.form.actualAuditCount <= 0) {
+        this.$message.warning('请添加审计明细信息之后，再执行发布');
+        return;
+      }
+      this.publishDialogVisible = true;
+    },
+    handleSignSummary () {
+      this.signSummaryDialogVisible = true;
+    },
+    handleRejectSummary () {
+      this.rejectSummaryDialogVisible = true;
+    },
+    handleSignRectify () {
+      this.signRectifyDialogVisible = true;
+    },
+    handleRejectRectify () {
+      this.rejectRectifyDialogVisible = true;
+    },
+    handleAgreeSummary () {
+      this.$confirm('确定同意总结？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        agreeSummary(this._id).then(() => {
+          this.$message.success('同意总结成功');
+          this.refreshDetail();
+        });
+      }).catch(() => {});
+    },
+    handleAgreeRectify () {
+      this.$confirm('确定同意整改？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        agreeRectify(this._id).then(() => {
+          this.$message.success('同意整改成功');
+          this.refreshDetail();
+        });
+      }).catch(() => {});
+    },
+    handleRegenerateUnsignedSummary () {
+      this.$confirm('确定重新生成待签署总结报告？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        regenerateUnsignedSummary(this._id).then(() => {
+          this.$message.success('重新生成成功');
+          this.refreshDetail();
+        });
+      }).catch(() => {});
+    },
+    handleUploadUnsignedSummary () {
+      this.uploadUnsignedSummaryDialogVisible = true;
+    },
+    handleRegenerateUnsignedRectify () {
+      this.$confirm('确定重新生成待签署整改报告？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        regenerateUnsignedRectify(this._id).then(() => {
+          this.$message.success('重新生成成功');
+          this.refreshDetail();
+        });
+      }).catch(() => {});
+    },
+    handleUploadUnsignedRectify () {
+      this.uploadUnsignedRectifyDialogVisible = true;
     },
   }
 };

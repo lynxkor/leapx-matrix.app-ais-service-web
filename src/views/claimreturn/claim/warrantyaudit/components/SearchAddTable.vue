@@ -33,7 +33,7 @@
           <vxe-column field="partDeduct" title="备件扣款" width="150" />
           <vxe-column field="otherDeduct" title="其他扣款" width="150" />
           <vxe-column field="auditDesc" title="错误项" width="300" />
-          <vxe-column title="操作" width="100">
+          <vxe-column title="操作" width="100" fixed="right">
             <template #default="{ row }">
               <el-popconfirm title="确定要删除吗？" @confirm="handleRemoveRow(row)">
                 <span slot="reference" type="text" size="small" class="btn-delete" fixed="right">删除</span>
