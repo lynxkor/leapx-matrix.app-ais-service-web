@@ -64,10 +64,10 @@
                     filterable
                   />
                 </el-form-item>
-                <el-form-item label="门店编码：" prop="baseUnit">
+                <el-form-item label="门店编码：" prop="dealerCode">
                   {{ form.dealerCode  }}
                 </el-form-item>
-                <el-form-item label="门店名称：" prop="baseUnit">
+                <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName  }}
                 </el-form-item>
                 <el-form-item label="采购价格：" prop="purchasePrice">
@@ -116,10 +116,10 @@
                 <el-form-item label="基本计量单位：" prop="baseUnit">
                   {{ form.baseUnitLabel  }}
                 </el-form-item>
-                <el-form-item label="门店编码：" prop="baseUnit">
+                <el-form-item label="门店编码：" prop="dealerCode">
                   {{ form.dealerCode  }}
                 </el-form-item>
-                <el-form-item label="门店名称：" prop="baseUnit">
+                <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName  }}
                 </el-form-item>
                 <el-form-item label="采购价格：" prop="purchasePrice">
@@ -274,167 +274,20 @@ export default {
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
       rules: {
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        remark: [
-          { required: false, message: '请输入备注', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
         partCode: [
-          { required: true, message: '请输入备件编码', trigger: 'change' }
+          { required: true, message: '请输入备件编码', trigger: 'blur' }
         ],
         partName: [
-          { required: true, message: '请输入备件名称', trigger: 'change' }
-        ],
-        oemPart: [
-          { required: true, message: '请输入是否OEM件', trigger: 'change' }
-        ],
-        oemRemark: [
-          { required: true, message: '请输入OEM备注', trigger: 'change' }
-        ],
-        pinyinCode: [
-          { required: false, message: '请输入拼音简码', trigger: 'change' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码（组织code）', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称（组织名称）', trigger: 'change' }
-        ],
-        categorySpareEngineeringId: [
-          { required: true, message: '请输入物料分类（工程）ID', trigger: 'change' }
-        ],
-        categorySpareSalesId: [
-          { required: true, message: '请输入物料分类（销售）ID', trigger: 'change' }
-        ],
-        categorySpareSupplyId: [
-          { required: true, message: '请输入物料分类（供应）ID', trigger: 'change' }
-        ],
-        vrtId: [
-          { required: true, message: '请输入VRT', trigger: 'change' }
-        ],
-        vfgId: [
-          { required: true, message: '请输入VFG', trigger: 'change' }
-        ],
-        marketingType: [
-          { required: true, message: '请选择营销分类', trigger: 'change' }
-        ],
-        purchaseType: [
-          { required: true, message: '请选择采购状态', trigger: 'change' }
-        ],
-        oldReturnType: [
-          { required: true, message: '请选择旧件返还类型', trigger: 'change' }
-        ],
-        materialSourceType: [
-          { required: true, message: '请选择物料来源', trigger: 'change' }
-        ],
-        saleableIs: [
-          { required: true, message: '请输入是否可销售', trigger: 'change' }
-        ],
-        keyPartIs: [
-          { required: true, message: '请输入是否关键件', trigger: 'change' }
-        ],
-        needRepackIs: [
-          { required: true, message: '请输入是否翻包', trigger: 'change' }
-        ],
-        expressAvailableIs: [
-          { required: true, message: '请输入是否可快递', trigger: 'change' }
-        ],
-        standingInventoryIs: [
-          { required: true, message: '请输入是否常备库存件', trigger: 'change' }
-        ],
-        traceableIs: [
-          { required: true, message: '请输入是否追溯件', trigger: 'change' }
-        ],
-        boTransferIs: [
-          { required: true, message: '请输入BO调拨 允许，禁止；默认禁止', trigger: 'change' }
-        ],
-        technicalIs: [
-          { required: true, message: '请输入技术是否启用', trigger: 'change' }
-        ],
-        maintenanceSplitQuantityIs: [
-          { required: true, message: '请输入保修是否拆分数量', trigger: 'change' }
-        ],
-        domesticPrePackageWeightKg: [
-          { required: true, message: '请输入国内包装前重量（kg）', trigger: 'change' }
-        ],
-        domesticPrePackageLengthMm: [
-          { required: true, message: '请输入国内包装前长（mm）', trigger: 'change' }
-        ],
-        domesticPrePackageWidthMm: [
-          { required: true, message: '请输入国内包装前宽（mm）', trigger: 'change' }
-        ],
-        domesticPrePackageHeightMm: [
-          { required: true, message: '请输入国内包装前高（mm）', trigger: 'change' }
-        ],
-        domesticPrePackageVolumeCm3: [
-          { required: true, message: '请输入国内包装前体积（cm³）', trigger: 'change' }
-        ],
-        domesticPostPackageWeightKg: [
-          { required: true, message: '请输入国内包装后重量（kg）', trigger: 'change' }
-        ],
-        domesticPostPackageLengthMm: [
-          { required: true, message: '请输入国内包装后长（mm）', trigger: 'change' }
-        ],
-        domesticPostPackageWidthMm: [
-          { required: true, message: '请输入国内包装后宽（mm）', trigger: 'change' }
-        ],
-        domesticPostPackageHeightMm: [
-          { required: true, message: '请输入国内包装后高（mm）', trigger: 'change' }
-        ],
-        domesticPostPackageVolumeCm3: [
-          { required: true, message: '请输入国内包装后体积（cm³）', trigger: 'change' }
-        ],
-        minOrderQuantity: [
-          { required: true, message: '请输入最小订购量', trigger: 'change' }
+          { required: true, message: '请输入备件名称', trigger: 'blur' }
         ],
         baseUnit: [
-          { required: true, message: '请输入基本计量单位', trigger: 'change' }
-        ],
-        supplierMinOrderQuantity: [
-          { required: true, message: '请输入供应商起订量', trigger: 'change' }
+          { required: true, message: '请选择基本计量单位', trigger: 'change' }
         ],
         purchasePrice: [
-          { required: true, message: '请输入采购价格', trigger: 'change' }
+          { required: true, message: '请输入采购价格', trigger: 'blur' }
         ],
         salePrice: [
-          { required: true, message: '请输入销售价格', trigger: 'change' }
-        ],
-        partsEngineer: [
-          { required: true, message: '请输入备件工程师', trigger: 'change' }
-        ],
-        sparePartSupplierRespList: [
-          { required: true, message: '请输入供应商信息', trigger: 'change' }
-        ],
-        sparePartVehicleModelRespList: [
-          { required: true, message: '请输入车型', trigger: 'change' }
-        ],
-        sparePartReplacerRespList: [
-          { required: true, message: '请输入替换件信息', trigger: 'change' }
+          { required: true, message: '请输入销售价格', trigger: 'blur' }
         ],
       }
     };
