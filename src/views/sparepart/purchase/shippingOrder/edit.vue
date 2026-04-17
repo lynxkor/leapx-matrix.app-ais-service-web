@@ -178,7 +178,7 @@
                   <vxe-column field="packingCategory" title="箱单类别" min-width="11%" />
                   <vxe-column field="qty" title="数量" min-width="11%" />
                   <vxe-column field="snNumber" title="SN编号" min-width="11%" />
-                  <vxe-column field="snNumber" title="销售订单" min-width="11%"/>
+                  <vxe-column field="salesOrderCode" title="销售订单" min-width="11%"/>
                   <vxe-column field="remark" title="备注" min-width="11%"/>
                   <vxe-column field="createTime" title="创建时间" min-width="11%" />
                   <template #empty>

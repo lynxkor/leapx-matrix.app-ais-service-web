@@ -423,6 +423,7 @@ export default {
         this.$message.success('删除成功');
         // this.tableData.splice(index, 1);
         this.getData();
+        this.$refs.containerRef.loadDetail();
       });
     },
     // 查询新增项的列表
@@ -470,6 +471,7 @@ export default {
       await dealerInboundOrderDetailAdd(params);
       this.$message.success('操作成功');
       this.getData();
+      this.$refs.containerRef.loadDetail();
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
