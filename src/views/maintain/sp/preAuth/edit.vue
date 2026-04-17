@@ -107,9 +107,6 @@
                 <el-form-item label="申请原因：">
                   <span>{{ form.reason || '-' }}</span>
                 </el-form-item>
-                   <el-form-item label="审批单号 ：">
-                    <span>{{ form.auditNo || '-' }}</span>
-                  </el-form-item>
               </el-form>
             </div>
           </section>

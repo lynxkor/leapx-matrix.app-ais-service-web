@@ -69,13 +69,13 @@
                   {{ form.latestInboundTime }}
                 </el-form-item>
                 <el-form-item label="成本单价：" prop="costUnitPrice">
-                  {{ form.transactionUnitPrice }}
+                  {{ form.costUnitPrice }}
                 </el-form-item>
                 <el-form-item label="最近出库时间：">
                   {{ form.latestOutboundTime }}
                 </el-form-item>
                 <el-form-item label="成本金额：" prop="costAmount">
-                  {{ form.transactionAmount }}
+                  {{ form.costAmount }}
                 </el-form-item>
                 <el-form-item label="采购单价：" prop="costAmount">
                   {{ form.purchasePrice }}

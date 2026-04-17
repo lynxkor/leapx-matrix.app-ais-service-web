@@ -207,8 +207,12 @@ export default {
     handleAdd () {
       // 计算剩余需付款金额
       const remainingAmount =
-        (this.info.payableAmount || 0) - this.totalPayAmount;
-      if (remainingAmount <= 0) {
+        (this.info.remainAmount || 0);
+      console.log('remainingAmount:', remainingAmount);
+      console.log('this.info.remainAmount:', this.info.remainAmount);
+      console.log('this.totalPayAmount:', this.totalPayAmount);
+
+      if (remainingAmount < 0) {
         this.$message.warning('剩余可添加的收款记录金额为0,暂时无法添加新的收款记录');
         return;
       }

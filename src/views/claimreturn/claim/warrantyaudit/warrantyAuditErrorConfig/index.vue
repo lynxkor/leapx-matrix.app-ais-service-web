@@ -153,7 +153,8 @@ export default {
                     isEditing: true
                   }
                 });
-              }
+              },
+              type: 'primary'
             }]
           }
         ],
