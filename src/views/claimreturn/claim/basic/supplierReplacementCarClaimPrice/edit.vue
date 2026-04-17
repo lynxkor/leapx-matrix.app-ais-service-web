@@ -59,6 +59,14 @@
                     clearable
                   />
                 </el-form-item>
+                <el-form-item label="索赔天数调整：" prop="claimDaysAdjustment">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.claimDaysAdjustment"
+                    :disabled="cannotEditPrice"
+                    clearable
+                  />
+                </el-form-item>
                 <el-form-item label="生效开始日期：" prop="effectiveStartTime">
                   <el-date-picker
                     v-model="form.effectiveStartTime"
@@ -98,6 +106,9 @@
                 </el-form-item>
                 <el-form-item label="供应商索赔价格：" prop="supplierClaimPrice">
                   {{ form.supplierClaimPrice }}
+                </el-form-item>
+                <el-form-item label="索赔天数调整：" prop="claimDaysAdjustment">
+                  {{ form.claimDaysAdjustment }}
                 </el-form-item>
                 <el-form-item label="生效开始日期：" prop="effectiveStartTime">
                   {{ form.effectiveStartTime }}
@@ -147,6 +158,7 @@ const defaultForm = {
   priceSerialNo: '',
   vehicleSeriesName: '',
   supplierClaimPrice: '',
+  claimDaysAdjustment: 0,
   effectiveStartTime: '',
   status: '1',
   remark: '',
@@ -246,6 +258,9 @@ export default {
         effectiveStartTime: [
           { required: true, message: '请选择生效开始日期', trigger: 'change' },
           { validator: this.validateEffectiveStartTime, trigger: 'change' }
+        ],
+        claimDaysAdjustment: [
+          { required: true, message: '请输入索赔天数调整', trigger: 'change' }
         ],
       },
       startDatePickerOptions: {
