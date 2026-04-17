@@ -35,6 +35,14 @@ export function getDetail (data) {
 }
 
 /**
+ * 保修审计明细详情（含关联数据）
+ * @param {Object} data
+ */
+export function getDetailWithRelated (data) {
+  return api.jsonPost(prefix + 'getDetailWithRelated', data);
+}
+
+/**
  * 补充材料
  * @param {Object} data
  */
@@ -102,6 +110,6 @@ export function getErrorConfigList (data) {
  * 计算扣款金额
  * @param {Object} data
  */
-export function calculateDeduct (data) {
-  return api.jsonPost(prefix + 'calculateDeduct', data);
+export function calculateDeduction (data) {
+  return api.jsonPost(prefix + 'calculateDeduction', data);
 }

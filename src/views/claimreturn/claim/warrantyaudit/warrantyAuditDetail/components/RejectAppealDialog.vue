@@ -1,104 +1,46 @@
 <template>
-  <el-dialog
-    title="拒绝申诉"
-    :visible="visible"
-    width="900px"
-    :close-on-click-modal="false"
-    @close="handleClose"
-  >
-    <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-      <el-form-item label="错误代码：" prop="errorCodes">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="warranty_audit_error_type"
-          v-model="form.errorCodes"
-          placeholder="请选择"
-          clearable
-          multiple
-          filterable
-        />
+  <el-dialog class="m-start-work-dialog" title="拒绝申诉" :visible.sync="dialogVisible" width="60%" @close="handleClose">
+    <el-form :model="form" :rules="rules" ref="auditForm" label-width="120px" size="small" inline
+      label-position="right">
+      <!-- 公共信息区域 -->
+      <el-form-item label="审计说明：" prop="appealHandleDesc" class="full-width-item">
+        <el-input type="textarea" maxlength="500" show-word-limit placeholder="请输入审计说明" v-model="form.appealHandleDesc" style="width: 100%;" />
       </el-form-item>
-      <el-form-item label="扣款计算方式：">
-        <el-radio-group v-model="form.calcType" @change="handleCalcTypeChange">
-          <el-radio label="auto">自动计算</el-radio>
-          <el-radio label="manual">手工调整</el-radio>
-        </el-radio-group>
+      <el-form-item label="错误代码：" prop="errorConfigIds">
+        <fetch-select :remote-method="getErrorItemList" remote v-model="form.errorConfigIds" placeholder="请选择"
+          labelKey="checkItem" valueKey="id" subLabelKey="errorCode" clearable multiple collapseTags filterable
+          @change="handleErrorConfigChange" />
       </el-form-item>
-      <!-- 自动计算页签 -->
-      <div v-if="form.calcType === 'auto'" class="deduct-section">
-        <el-table :data="autoDeductList" border size="small">
-          <el-table-column prop="errorTypeLabel" label="错误代码" width="150" />
-          <el-table-column prop="laborDeductRate" label="工时扣款比例(%)" width="150" />
-          <el-table-column prop="laborDeduct" label="工时扣款金额" width="150" />
-          <el-table-column prop="partDeductRate" label="备件扣款比例(%)" width="150" />
-          <el-table-column prop="partDeduct" label="备件扣款金额" width="150" />
-          <el-table-column prop="otherDeductRate" label="其他扣款比例(%)" width="150" />
-          <el-table-column prop="otherDeduct" label="其他扣款金额" width="150" />
-        </el-table>
-        <div class="deduct-summary">
-          <span>工时扣款合计：{{ formatMoney(form.laborDeduct) }}</span>
-          <span>备件扣款合计：{{ formatMoney(form.partDeduct) }}</span>
-          <span>其他扣款合计：{{ formatMoney(form.otherDeduct) }}</span>
-          <span>计划扣款总金额：{{ formatMoney(form.planDeductTotal) }}</span>
-        </div>
-      </div>
-      <!-- 手工调整页签 -->
-      <div v-if="form.calcType === 'manual'" class="deduct-section">
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <el-form-item label="工时扣款：" prop="laborDeduct">
-              <el-input-number
-                v-model="form.laborDeduct"
-                :min="0"
-                :precision="2"
-                placeholder="请输入"
-                @change="handleManualDeductChange"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="备件扣款：" prop="partDeduct">
-              <el-input-number
-                v-model="form.partDeduct"
-                :min="0"
-                :precision="2"
-                placeholder="请输入"
-                @change="handleManualDeductChange"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="其他扣款：" prop="otherDeduct">
-              <el-input-number
-                v-model="form.otherDeduct"
-                :min="0"
-                :precision="2"
-                placeholder="请输入"
-                @change="handleManualDeductChange"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <div class="deduct-summary">
-          <span>计划扣款总金额：{{ formatMoney(form.planDeductTotal) }}</span>
-        </div>
-      </div>
-      <el-form-item label="金额调整原因：" prop="amountAdjustReason" v-if="form.calcType === 'manual'">
-        <el-input
-          type="textarea"
-          :rows="2"
-          placeholder="请输入金额调整原因"
-          v-model="form.amountAdjustReason"
-        />
-      </el-form-item>
-      <el-form-item label="申诉处理说明：" prop="appealHandleDesc">
-        <el-input
-          type="textarea"
-          :rows="3"
-          placeholder="请输入申诉处理说明"
-          v-model="form.appealHandleDesc"
-        />
-      </el-form-item>
+      <!-- 2. Tab 切换区域 -->
+      <el-tabs v-model="activeName" @tab-click="handleTabClick">
+        <!-- Tab 1: 自动计算 (只读模式) -->
+        <el-tab-pane label="自动计算" name="isAutoCalc">
+          <div class="readonly-deducts">
+            <span class="label">工时扣款：</span><span class="value">{{ form.laborDeduct }}</span>
+            <span class="label">备件扣款：</span><span class="value">{{ form.partDeduct }}</span>
+            <span class="label">其他扣款：</span><span class="value">{{ form.otherDeduct }}</span>
+          </div>
+        </el-tab-pane>
+
+        <!-- Tab 2: 手工调整 (编辑模式) -->
+        <el-tab-pane label="手工调整" name="isManualCalc">
+          <el-form-item label="工时扣款：" prop="laborDeduct">
+            <el-input v-model="form.laborDeduct" type="number" placeholder="请输入" />
+          </el-form-item>
+
+          <el-form-item label="备件扣款：" prop="partDeduct">
+            <el-input v-model="form.partDeduct" type="number" placeholder="请输入" />
+          </el-form-item>
+
+          <el-form-item label="其他扣款：" prop="otherDeduct">
+            <el-input v-model="form.otherDeduct" type="number" placeholder="请输入" />
+          </el-form-item>
+
+          <el-form-item label="金额调整原因：" prop="amountAdjustReason">
+            <el-input placeholder="请输入金额调整原因" v-model="form.amountAdjustReason" />
+          </el-form-item>
+        </el-tab-pane>
+      </el-tabs>
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="handleClose">取消</el-button>
@@ -108,24 +50,23 @@
 </template>
 
 <script>
-import { rejectAppeal, getErrorConfigList } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index';
-import { getEnum } from '@/api/common';
+import { getList as getErrorConfigList } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditErrorConfig/index';
+import { rejectAppeal, calculateDeduction } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 
 const defaultForm = {
-  errorCodes: [],
-  calcType: 'auto',
+  errorConfigIds: [],
   laborDeduct: 0,
   partDeduct: 0,
   otherDeduct: 0,
   planDeductTotal: 0,
   amountAdjustReason: '',
   appealHandleDesc: '',
-  isAutoCalc: '1',
+  isAutoCalc: 0,
 };
 
 export default {
-  name: 'RejectAppealDialog',
+  name: 'ReviewRejectDialog',
   components: {
     FetchSelect,
   },
@@ -134,144 +75,84 @@ export default {
       type: Boolean,
       default: false
     },
-    selectionList: {
-      type: Array,
-      default: () => []
+    id: {
+      type: String,
+      default: ''
     },
   },
   data () {
     return {
       form: { ...defaultForm },
-      autoDeductList: [],
       submitLoading: false,
+      dialogVisible: false,
+      activeName: 'isAutoCalc',
       rules: {
-        errorCodes: [
-          { required: true, message: '请选择错误代码', trigger: 'change' }
+        auditDesc: [
+          { required: true, message: '请输入审计说明' }
+        ],
+        errorConfigIds: [
+          { required: true, message: '请选择错误代码' }
         ],
         amountAdjustReason: [
-          { required: true, message: '请输入金额调整原因', trigger: 'blur' }
-        ],
-        appealHandleDesc: [
-          { required: true, message: '请输入申诉处理说明', trigger: 'blur' }
+          { required: true, message: '请输入金额调整原因' }
         ],
       },
     };
   },
   watch: {
     visible (val) {
-      if (val) {
-        this.initForm();
-      }
+      this.dialogVisible = val;
+      this.$refs.auditForm.clearValidate();
     },
-    'form.errorCodes': {
-      handler (val) {
-        if (val && val.length > 0 && this.form.calcType === 'auto') {
-          this.calculateAutoDeduct();
-        }
-      },
-      deep: true
-    }
   },
   methods: {
-    initForm () {
-      this.form = { ...defaultForm };
-      this.autoDeductList = [];
-      // 根据第一条数据的isAutoCalc判断默认显示哪个页签
-      if (this.selectionList.length > 0 && this.selectionList[0].isAutoCalc === '0') {
-        this.form.calcType = 'manual';
-      }
-    },
     handleClose () {
+      this.form = { ...defaultForm };
       this.$emit('update:visible', false);
     },
-    handleCalcTypeChange (val) {
-      if (val === 'auto') {
-        if (this.form.errorCodes && this.form.errorCodes.length > 0) {
-          this.calculateAutoDeduct();
-        }
-      } else if (val === 'manual') {
-        if (this.autoDeductList.length > 0) {
-          this.form.laborDeduct = this.autoDeductList.reduce((sum, item) => sum + (item.laborDeduct || 0), 0);
-          this.form.partDeduct = this.autoDeductList.reduce((sum, item) => sum + (item.partDeduct || 0), 0);
-          this.form.otherDeduct = this.autoDeductList.reduce((sum, item) => sum + (item.otherDeduct || 0), 0);
-          this.handleManualDeductChange();
-        }
+    // 错误代码处理
+    async getErrorItemList (query) {
+      try {
+        const res = await getErrorConfigList({ errorCategoryLike: query || '' });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
       }
     },
-    async calculateAutoDeduct () {
-      if (!this.form.errorCodes || this.form.errorCodes.length === 0) {
-        return;
-      }
-      const errorConfigRes = await getErrorConfigList({
-        errorTypeList: this.form.errorCodes,
-        pageNum: 1,
-        pageSize: 100,
-      });
-      const errorConfigList = errorConfigRes.records || [];
-      const firstItem = this.selectionList[0] || {};
-      const laborClaimTotal = firstItem.laborClaimTotal || 0;
-      const partsClaimTotal = firstItem.partsClaimTotal || 0;
-      const otherClaimTotal = firstItem.otherClaimTotal || 0;
-      this.autoDeductList = errorConfigList.map(config => {
-        const laborDeduct = Math.round(laborClaimTotal * (config.laborDeductRate || 0) / 100 * 100) / 100;
-        const partDeduct = Math.round(partsClaimTotal * (config.partDeductRate || 0) / 100 * 100) / 100;
-        const otherDeduct = Math.round(otherClaimTotal * (config.otherDeductRate || 0) / 100 * 100) / 100;
-        return {
-          errorType: config.errorType,
-          errorTypeLabel: config.errorTypeLabel,
-          laborDeductRate: config.laborDeductRate,
-          laborDeduct,
-          partDeductRate: config.partDeductRate,
-          partDeduct,
-          otherDeductRate: config.otherDeductRate,
-          otherDeduct,
-        };
-      });
-      this.form.laborDeduct = Math.max(...this.autoDeductList.map(item => item.laborDeduct || 0), 0);
-      this.form.partDeduct = Math.max(...this.autoDeductList.map(item => item.partDeduct || 0), 0);
-      this.form.otherDeduct = Math.max(...this.autoDeductList.map(item => item.otherDeduct || 0), 0);
-      this.handleManualDeductChange();
+    handleTabClick (tab) {
+      // 可选：切换 Tab 时清除校验结果，提升体验
+      this.$refs.auditForm.clearValidate();
     },
-    handleManualDeductChange () {
-      this.form.planDeductTotal = Math.round((this.form.laborDeduct + this.form.partDeduct + this.form.otherDeduct) * 100) / 100;
-    },
-    formatMoney (value) {
-      if (value === null || value === undefined) {
-        return '0.00 元';
-      }
-      return Number(value).toFixed(2) + ' 元';
-    },
-    async fetchOptions (code) {
-      if (code) {
-        return getEnum(code);
-      }
-      return [];
+    // 自动计算金额
+    async handleErrorConfigChange () {
+      const params = {
+        detailId: this.id,
+        errorConfigIds: this.form.errorConfigIds,
+      };
+      const res = await calculateDeduction(params);
+      this.form.laborDeduct = res.laborDeduct || 0;
+      this.form.partDeduct = res.partDeduct || 0;
+      this.form.otherDeduct = res.otherDeduct || 0;
     },
     handleSubmit () {
-      this.$refs.ruleForm.validate(valid => {
+      if (this.activeName === 'isAutoCalc') {
+        this.rules.amountAdjustReason[0].required = false;
+      } else {
+        this.rules.amountAdjustReason[0].required = true;
+      }
+      this.$refs.auditForm.validate(valid => {
         if (valid) {
-          if (this.form.planDeductTotal <= 0) {
-            this.$message.warning('计划扣款总金额必需大于0');
-            return;
-          }
           this.submitLoading = true;
-          const ids = this.selectionList.map(item => item.id);
           rejectAppeal({
-            ids,
-            errorCodes: this.form.errorCodes,
-            laborDeduct: this.form.laborDeduct,
-            partDeduct: this.form.partDeduct,
-            otherDeduct: this.form.otherDeduct,
-            planDeductTotal: this.form.planDeductTotal,
-            amountAdjustReason: this.form.amountAdjustReason,
-            appealHandleDesc: this.form.appealHandleDesc,
-            isAutoCalc: this.form.calcType === 'auto' ? '1' : '0',
+            detailId: this.id,
+            ...this.form,
+            isAutoCalc: this.activeName === 'isAutoCalc' ? 0 : 1,
           }).then(() => {
             this.$message.success('拒绝申诉成功');
-            this.$emit('success');
             this.handleClose();
+            this.$emit('success');
+            this.form = { ...defaultForm };
           }).catch(() => {
-            this.$message.error('拒绝申诉失败');
           }).finally(() => {
             this.submitLoading = false;
           });
@@ -283,16 +164,58 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.m-start-work-dialog {
+
+  ::v-deep .vxe-table--render-default.size--medium .vxe-header--column.is--padding .vxe-cell,
+  ::v-deep .vxe-table--render-default .vxe-body--column:not(.col--active).col--ellipsis>.vxe-cell,
+  ::v-deep .vxe-table--render-default.size--medium .vxe-body--column.is--padding .vxe-cell {
+    padding: 8px 12px !important;
+  }
+}
+
 .deduct-section {
   margin-bottom: 20px;
   padding: 10px;
   background: #f5f7fa;
   border-radius: 4px;
 }
+
 .deduct-summary {
   margin-top: 10px;
   display: flex;
   gap: 20px;
   font-weight: bold;
+}
+
+/* 简单的样式优化，让只读数据看起来整齐 */
+.readonly-deducts {
+  padding: 10px 0;
+  line-height: 32px;
+  /* 与 input 高度对齐 */
+}
+
+.readonly-deducts .label {
+  width: 120px;
+  /* 对应 label-width */
+  display: inline-block;
+  text-align: right;
+  margin-right: 10px;
+  color: #606266;
+}
+
+.readonly-deducts .value {
+  margin-right: 20px;
+  font-weight: bold;
+}
+
+/* 让审计说明在 inline 表单中占据 100% 宽度 */
+.full-width-item {
+  width: 100%;
+  margin-bottom: 20px;
+  display: block !important;
+}
+
+.full-width-item .el-input {
+  width: 100% !important;
 }
 </style>
