@@ -28,7 +28,7 @@
             placeholder="请输入门店编码或名称"
             labelKey="orgName"
             valueKey="orgCode"
-            subLabelKey="orgName"
+            subLabelKey="orgCode"
             clearable
             multiple
             collapseTags

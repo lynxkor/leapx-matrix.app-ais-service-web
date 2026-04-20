@@ -281,6 +281,61 @@ export default {
   },
   data () {
     const form = this.getDefautlForm();
+    const validateManufactureDateStart = (rule, value, callback) => {
+      if (this.form.manufactureStartOn && this.form.manufactureEndOn) {
+        const start = new Date(this.form.manufactureStartOn).getTime();
+        const end = new Date(this.form.manufactureEndOn).getTime();
+        if (end <= start) {
+          callback(new Error('制造开始日期必须大于制造结束日期'));
+        } else {
+          callback();
+        }
+      } else {
+        // 如果其中一个为空，由 required 规则处理，这里直接通过
+        callback();
+      }
+    };
+    const validateManufactureDateEnd = (rule, value, callback) => {
+      if (this.form.manufactureStartOn && this.form.manufactureEndOn) {
+        const start = new Date(this.form.manufactureStartOn).getTime();
+        const end = new Date(this.form.manufactureEndOn).getTime();
+        if (end <= start) {
+          callback(new Error('制造结束日期必须大于制造开始日期'));
+        } else {
+          callback();
+        }
+      } else {
+        // 如果其中一个为空，由 required 规则处理，这里直接通过
+        callback();
+      }
+    };
+
+    const validateEffectiveDateStart = (rule, value, callback) => {
+      if (this.form.effectiveOn && this.form.ineffectiveOn) {
+        const start = new Date(this.form.effectiveOn).getTime();
+        const end = new Date(this.form.ineffectiveOn).getTime();
+        if (end <= start) {
+          callback(new Error('配置有效开始日期必须小于配置有效结束日期'));
+        } else {
+          callback();
+        }
+      } else {
+        callback();
+      }
+    };
+    const validateEffectiveDateEnd = (rule, value, callback) => {
+      if (this.form.effectiveOn && this.form.ineffectiveOn) {
+        const start = new Date(this.form.effectiveOn).getTime();
+        const end = new Date(this.form.ineffectiveOn).getTime();
+        if (end <= start) {
+          callback(new Error('配置有效结束日期必须大于配置有效开始日期'));
+        } else {
+          callback();
+        }
+      } else {
+        callback();
+      }
+    };
     return {
       pageTitle: '留车项配置',
       pageType: 'edit',
@@ -319,16 +374,20 @@ export default {
           { required: true, message: '请选择状态', trigger: 'change' }
         ],
         manufactureStartOn: [
-          { required: true, message: '请输入制造开始日期', trigger: 'change' }
+          { required: true, message: '请输入制造开始日期', trigger: 'change' },
+          { validator: validateManufactureDateStart, trigger: 'change' }
         ],
         manufactureEndOn: [
-          { required: true, message: '请输入制造结束日期', trigger: 'change' }
+          { required: true, message: '请输入制造结束日期', trigger: 'change' },
+          { validator: validateManufactureDateEnd, trigger: 'change' }
         ],
         effectiveOn: [
-          { required: true, message: '请输入配置有效开始日期', trigger: 'change' }
+          { required: true, message: '请输入配置有效开始日期', trigger: 'change' },
+          { validator: validateEffectiveDateStart, trigger: 'change' }
         ],
         ineffectiveOn: [
-          { required: true, message: '请输入配置有效结束日期', trigger: 'change' }
+          { required: true, message: '请输入配置有效结束日期', trigger: 'change' },
+          { validator: validateEffectiveDateEnd, trigger: 'change' }
         ],
         createTime: [
           { required: true, message: '请选择创建时间', trigger: 'change' }

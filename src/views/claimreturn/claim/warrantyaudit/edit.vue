@@ -1,5 +1,4 @@
 <template>
-  <div>
     <edit-base-container
         ref="containerRef"
         :id="_id"
@@ -75,7 +74,7 @@
                 <el-form-item label="审计专员1：" prop="auditor1Id">
                   <div class="form-item-sign">
                     <fetch-select
-                      v-model="form.auditor1Id"
+                      v-model="form.auditor1Name"
                       :remote-method="searchUser"
                       value-key="userId"
                       label-key="username"
@@ -87,7 +86,6 @@
                       @change="(val, record) => handleAuditor1Change(val, record)"
                     />
                     <AisAttachment
-                      configCode="warrantyAudit"
                       ref="auditor1SignRef"
                       v-if="_id"
                       :businessId="_id"
@@ -98,7 +96,7 @@
                       title="审计专员1签名"
                       :buttonText="sign1Label"
                       :showFilelist="false"
-                      @update="data => handleUpdate(data, 'auditor1Sign')"
+                      @addParam="data => handleUpdate(data, 'auditor1Sign')"
                     />
                   </div>
                 </el-form-item>
@@ -114,7 +112,7 @@
                 <el-form-item label="审计专员2：" prop="auditor2Id">
                   <div class="form-item-sign">
                     <fetch-select
-                      v-model="form.auditor2Id"
+                      v-model="form.auditor2Name"
                       :remote-method="searchUser"
                       value-key="userId"
                       label-key="username"
@@ -126,7 +124,6 @@
                       @change="(val, record) => handleAuditor2Change(val, record)"
                     />
                     <AisAttachment
-                      configCode="warrantyAudit"
                       ref="auditor2SignRef"
                       v-if="_id"
                       :businessId="_id"
@@ -137,7 +134,7 @@
                       title="审计专员2签名"
                       :buttonText="sign2Label"
                       :showFilelist="false"
-                      @update="data => handleUpdate(data, 'auditor2Sign')"
+                      @addParam="data => handleUpdate(data, 'auditor2Sign')"
                     />
                   </div>
                 </el-form-item>
@@ -247,6 +244,7 @@
             </div>
           </section>
           <search-add-table
+            v-if="_id"
             :_id="_id"
             :canAddOrUpdate="canAddOrUpdate"
             :canImport="canImport"
@@ -362,52 +360,51 @@
               </div>
             </div>
           </section>
+          <PublishDialog
+            :visible.sync="publishDialogVisible"
+            :audit-id="_id"
+            :actual-audit-count="form.actualAuditCount || 0"
+            @success="refreshDetail"
+          />
+          <!-- 签署总结弹窗 -->
+          <SignSummaryDialog
+            :visible.sync="signSummaryDialogVisible"
+            :audit-id="_id"
+            @success="refreshDetail"
+          />
+          <!-- 驳回总结弹窗 -->
+          <RejectSummaryDialog
+            :visible.sync="rejectSummaryDialogVisible"
+            :audit-id="_id"
+            @success="refreshDetail"
+          />
+          <!-- 签署整改弹窗 -->
+          <SignRectifyDialog
+            :visible.sync="signRectifyDialogVisible"
+            :audit-id="_id"
+            @success="refreshDetail"
+          />
+          <!-- 驳回整改弹窗 -->
+          <RejectRectifyDialog
+            :visible.sync="rejectRectifyDialogVisible"
+            :audit-id="_id"
+            @success="refreshDetail"
+          />
+          <!-- 上传待签署总结报告弹窗 -->
+          <UploadUnsignedSummaryDialog
+            :visible.sync="uploadUnsignedSummaryDialogVisible"
+            :audit-id="_id"
+            @success="refreshDetail"
+          />
+          <!-- 上传待签署整改报告弹窗 -->
+          <UploadUnsignedRectifyDialog
+            :visible.sync="uploadUnsignedRectifyDialogVisible"
+            :audit-id="_id"
+            @success="refreshDetail"
+          />
         </el-main>
       </edit-base-container>
     <!-- 发布弹窗 -->
-    <PublishDialog
-      :visible.sync="publishDialogVisible"
-      :audit-id="_id"
-      :actual-audit-count="form.actualAuditCount || 0"
-      @success="refreshDetail"
-    />
-    <!-- 签署总结弹窗 -->
-    <SignSummaryDialog
-      :visible.sync="signSummaryDialogVisible"
-      :audit-id="_id"
-      @success="refreshDetail"
-    />
-    <!-- 驳回总结弹窗 -->
-    <RejectSummaryDialog
-      :visible.sync="rejectSummaryDialogVisible"
-      :audit-id="_id"
-      @success="refreshDetail"
-    />
-    <!-- 签署整改弹窗 -->
-    <SignRectifyDialog
-      :visible.sync="signRectifyDialogVisible"
-      :audit-id="_id"
-      @success="refreshDetail"
-    />
-    <!-- 驳回整改弹窗 -->
-    <RejectRectifyDialog
-      :visible.sync="rejectRectifyDialogVisible"
-      :audit-id="_id"
-      @success="refreshDetail"
-    />
-    <!-- 上传待签署总结报告弹窗 -->
-    <UploadUnsignedSummaryDialog
-      :visible.sync="uploadUnsignedSummaryDialogVisible"
-      :audit-id="_id"
-      @success="refreshDetail"
-    />
-    <!-- 上传待签署整改报告弹窗 -->
-    <UploadUnsignedRectifyDialog
-      :visible.sync="uploadUnsignedRectifyDialogVisible"
-      :audit-id="_id"
-      @success="refreshDetail"
-    />
-  </div>
 </template>
 
 <script>
@@ -628,14 +625,9 @@ export default {
     this.getTraceTableData();
   },
   methods: {
-    handleUpdate (_data, key) {
-      const refMap = { auditor1Sign: 'auditor1SignRef', auditor2Sign: 'auditor2SignRef' };
-      const ref = this.$refs[refMap[key]];
-      if (ref) {
-        const attachList = ref.getAttachment();
-        if (attachList && attachList.length) {
-          this.form[key] = attachList[0].fileId;
-        }
+    handleUpdate (data, key) {
+      if (data?.addOrUpdateParams?.fileId) {
+        this.form[key] = data.addOrUpdateParams.fileId;
       }
     },
     handleRefresh () {
