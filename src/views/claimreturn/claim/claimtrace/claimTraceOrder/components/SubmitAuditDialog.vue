@@ -1,0 +1,107 @@
+<template>
+  <el-dialog
+    title="提交审核"
+    width="600px"
+    :visible.sync="dialogVisible"
+    :close-on-click-modal="false"
+    @close="close"
+  >
+    <div class="page-common-edit vertical">
+      <section class="common-section">
+        <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="100px" class="form-edit" style="padding-right: 16px;">
+          <el-form-item prop="traceDesc" class="form-item-full" label="追溯说明：">
+            <el-input type="textarea" v-model="form.traceDesc" placeholder="请输入" :rows="3" />
+          </el-form-item>
+          <el-form-item class="form-item-full" label="追溯凭证：">
+            <AisAttachment
+              style="padding-top: 5px;"
+              ref="attachment"
+              :business-id="traceOrderId"
+              attachType="追溯凭证"
+              :uploadConfig="uploadConfig"
+              :noEcho="true"
+            />
+          </el-form-item>
+        </el-form>
+      </section>
+    </div>
+    <template v-slot:footer>
+      <div class="dialog-footer">
+        <el-button size="small" @click="close">取消</el-button>
+        <el-button size="small" type="primary" :loading="submitLoading" @click="submit">确定</el-button>
+      </div>
+    </template>
+  </el-dialog>
+</template>
+
+<script>
+import { submitAudit } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
+import AisAttachment from '@/libs/components/AisAttachment';
+
+export default {
+  name: 'SubmitAuditDialog',
+  components: { AisAttachment },
+  props: {
+    visible: {
+      type: Boolean,
+      default: false
+    },
+    traceOrderId: {
+      type: [String, Number],
+      default: ''
+    },
+    formData: {
+      type: Object,
+      default: () => ({})
+    }
+  },
+  data () {
+    return {
+      form: {
+        id: '',
+        traceDesc: '',
+      },
+      submitLoading: false,
+      dialogVisible: this.visible,
+      rules: {
+        traceDesc: [{ required: true, message: '请输入追溯说明', trigger: 'blur' }],
+      },
+      uploadConfig: {
+        acceptSuffix: '.rar,.zip,.doc,.docx,.pdf,.jpg,.jpeg,.xlsx,.xls,.mp4',
+        maxSize: 50,
+        maxNum: 9,
+      },
+    };
+  },
+  watch: {
+    visible (val) {
+      this.dialogVisible = val;
+      if (val) {
+        this.form.id = this.traceOrderId;
+        this.form.traceDesc = this.formData.traceDesc || '';
+      }
+    }
+  },
+  methods: {
+    close () {
+      this.$emit('update:visible', false);
+    },
+    submit () {
+      this.$refs.ruleForm.validate((valid) => {
+        if (!valid) return;
+        this.submitLoading = true;
+        submitAudit(this.form).then(() => {
+          this.$message.success('提交审核成功');
+          this.close();
+          this.$emit('success');
+        }).finally(() => {
+          this.submitLoading = false;
+        });
+      });
+    }
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+</style>
