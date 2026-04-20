@@ -328,7 +328,7 @@
       :businessParams="_id"
       id="sparepartDealerOutboundOrderDetail"
       @close="handleUploadDialogClose"
-      @submit="getDetailData"
+      @getData="getData"
     />
   </edit-page-layout>
 </template>
@@ -479,7 +479,6 @@ export default {
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
-      this.getData();
     },
     detailRequest () {
       const id = this._id;

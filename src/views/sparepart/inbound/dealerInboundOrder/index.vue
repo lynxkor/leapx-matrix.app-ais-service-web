@@ -620,6 +620,10 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
       }).then(({ value }) => {
+        if (!value || value.length > 100) {
+          this.$message.warning('请输入不超过 100 字的审批原因');
+          return; // 阻止后续代码执行
+        }
         // 调用驳回接口
         dealerInboundOrderReject({ id: val.id, description: value }).then(() => {
           this.$message({
