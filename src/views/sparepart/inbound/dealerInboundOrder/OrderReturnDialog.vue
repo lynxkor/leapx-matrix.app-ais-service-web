@@ -86,6 +86,8 @@ export default {
   },
   methods: {
     close () {
+      this.form.description = '';
+      this.selectedRows = [];
       this.$emit('update:visible', false);
     },
     handleSelectionChange ({ records }) {
