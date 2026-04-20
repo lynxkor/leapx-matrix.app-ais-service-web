@@ -232,8 +232,8 @@
                   <AisAttachmentList
                     v-if="_id"
                     :businessId="_id"
+                    configCode="warrantyAudit"
                     attachType="已签署总结报告"
-                    :readonly="true"
                     :show-pagination="false"
                     :uploadConfig="uploadConfig"
                     title="已签署总结报告"
@@ -264,8 +264,8 @@
                   <AisAttachmentList
                     v-if="_id"
                     :businessId="_id"
+                    configCode="warrantyAudit"
                     attachType="已签署整改报告"
-                    :readonly="true"
                     :show-pagination="false"
                     :uploadConfig="uploadConfig"
                     title="已签署整改报告"
@@ -384,6 +384,7 @@ import {
   agreeRectify,
   regenerateUnsignedSummary,
   regenerateUnsignedRectify,
+  getClaimTraceOrderDetail
 } from '@/api/claimreturn/claim/warrantyaudit/warrantyAudit/index';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -515,7 +516,7 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       uploadConfig: {
-        acceptSuffix: '.pdf,.doc,.docx,.xlsx,.xls',
+        acceptSuffix: '.png,.jpg,.jpeg,.xlsx,.xls,.docx,.doc,.rar,.zip',
         maxSize: 50,
         maxNum: 1,
         required: '1',
@@ -582,6 +583,9 @@ export default {
       tracePageSize: 10,
       traceTotal: 0,
     };
+  },
+  mounted () {
+    this.getTraceTableData();
   },
   methods: {
     detailRequest () {
@@ -702,7 +706,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        regenerateUnsignedSummary(this._id).then(() => {
+        regenerateUnsignedSummary({ auditId: this._id }).then(() => {
           this.$message.success('重新生成成功');
           this.refreshDetail();
         });
@@ -717,7 +721,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        regenerateUnsignedRectify(this._id).then(() => {
+        regenerateUnsignedRectify({ auditId: this._id }).then(() => {
           this.$message.success('重新生成成功');
           this.refreshDetail();
         });
@@ -735,9 +739,14 @@ export default {
       this.$message.info('下载未签署整改报告（接口待对接）');
     },
     getTraceTableData () {
-      // TODO: 替换为实际追溯明细接口
-      // this.traceTableData = [];
-      // this.traceTotal = 0;
+      getClaimTraceOrderDetail({
+        businessId: this._id,
+        pageNum: 1,
+        pageSize: 20,
+      }).then(res => {
+        this.traceTableData = res.data?.records || [];
+        this.traceTotal = res.total;
+      });
     },
     tracePageSizeChange (pageSize) {
       this.tracePageSize = pageSize;
@@ -759,7 +768,7 @@ export default {
 
   .report-attachment {
     flex-shrink: 0;
-    width: 240px;
+    width: 500px;
 
     .report-attachment-label {
       font-size: 14px;

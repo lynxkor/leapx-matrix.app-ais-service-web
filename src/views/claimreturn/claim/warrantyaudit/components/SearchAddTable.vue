@@ -15,8 +15,7 @@
             :remote-method="queryListData"
             @change="handleAddTableData"
             value-key="id"
-            label-key="warrantyApplyCode"
-            subLabelKey="auditDesc"
+            label-key="applyNo"
             placeholder="请输入保修申请单"
           />
           <el-button size="small" @click="handleImport">导入</el-button>
@@ -56,6 +55,7 @@
       downloadTitle="保修审计明细导入"
       @close="handleUploadDialogClose"
       @getData="getTableData"
+      :businessParams="_id"
     />
   </section>
 </template>
@@ -175,13 +175,13 @@ export default {
         return;
       }
       // 根据需求调用接口
-      this.tableData.push(record);
+      // this.tableData.push(record);
       addDetail({
         auditId: this._id,
         warrantyApplyId: record.id
       }).then(res => {
         this.$message.success('添加成功');
-        this.detailRequest();
+        this.getTableData();
       });
     },
     async fetchOptions (code) {

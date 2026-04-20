@@ -84,12 +84,12 @@ export default {
       this.$emit('close');
     },
     submit () {
-      const fileList = this.$refs.attachment.getFileList();
-      if (!fileList || fileList.length === 0) {
+      const attachList = this.$refs.attachment.getAttachment();
+      if (!attachList || attachList.length === 0) {
         this.$message.warning('请上传待签署整改报告');
         return;
       }
-      this.form.fileId = fileList[0].id;
+      this.form.fileId = attachList[0].fileId;
       this.submitLoading = true;
       uploadUnsignedRectify(this.form).then(() => {
         this.$message.success('上传成功');

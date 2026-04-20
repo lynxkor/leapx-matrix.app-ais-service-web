@@ -67,7 +67,7 @@ export function removeDetail (data) {
   return api.jsonPost('claimreturn/claim/web/warrantyaudit/warrantyAuditDetail/delete', data);
 }
 export function detailSearchApi (data) {
-  return api.jsonPost('claimreturn/claim/web/warrantyaudit/warrantyAuditDetail/page', data);
+  return api.jsonPost('claimreturn/claim/web/warrantyapply/warrantyApply/page', data);
 }
 
 /**
@@ -156,4 +156,11 @@ export function regenerateUnsignedRectify (data) {
  */
 export function uploadUnsignedRectify (data) {
   return api.jsonPost(prefix + 'uploadPendingRectifyReport', data);
+}
+
+/**
+ * 上传待签署整改报告
+ */
+export function getClaimTraceOrderDetail (data) {
+  return api.jsonPost('claimreturn/claim/web/claimtrace/claimTraceOrderDetail/page', data);
 }
