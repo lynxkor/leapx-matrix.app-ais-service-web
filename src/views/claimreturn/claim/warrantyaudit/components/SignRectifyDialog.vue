@@ -16,7 +16,7 @@
               :business-id="form.auditId"
               :uploadConfig="uploadConfig"
               :noEcho="true"
-              businessType="待签署整改报告"
+              businessType="已签署整改报告"
             />
           </el-form-item>
         </el-form>
@@ -84,12 +84,12 @@ export default {
       this.$emit('close');
     },
     submit () {
-      const fileList = this.$refs.attachment.getFileList();
+      const fileList = this.$refs.attachment.getAttachment();
       if (!fileList || fileList.length === 0) {
         this.$message.warning('请上传已签署整改报告');
         return;
       }
-      this.form.fileId = fileList[0].id;
+      this.form.fileId = fileList[0].fileId;
       this.submitLoading = true;
       signRectify(this.form).then(() => {
         this.$message.success('签署整改成功');

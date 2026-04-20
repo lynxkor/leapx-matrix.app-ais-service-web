@@ -72,19 +72,35 @@
                 <el-form-item label="门店编码：" prop="dealerCode">
                   <dealer-select ref="dealerSelectRef" v-model="form.dealerCode" @change="handleDealerChange" />
                 </el-form-item>
-                <el-form-item label="审计专员1：" prop="auditor1Name">
-                  <fetch-select
-                    v-model="form.auditor1Id"
-                    :remote-method="searchUser"
-                    value-key="userId"
-                    label-key="username"
-                    filterable
-                    remote
-                    clearable
-                    reserve-keyword
-                    placeholder="请选择审计专员1"
-                    @change="(val, record) => handleAuditor1Change(val, record)"
-                  />
+                <el-form-item label="审计专员1：" prop="auditor1Id">
+                  <div class="form-item-sign">
+                    <fetch-select
+                      v-model="form.auditor1Id"
+                      :remote-method="searchUser"
+                      value-key="userId"
+                      label-key="username"
+                      filterable
+                      remote
+                      clearable
+                      reserve-keyword
+                      placeholder="请选择审计专员1"
+                      @change="(val, record) => handleAuditor1Change(val, record)"
+                    />
+                    <AisAttachment
+                      configCode="warrantyAudit"
+                      ref="auditor1SignRef"
+                      v-if="_id"
+                      :businessId="_id"
+                      attachType="审计专员1签名"
+                      :show-pagination="false"
+                      :noEcho="true"
+                      :uploadConfig="uploadConfig"
+                      title="审计专员1签名"
+                      :buttonText="sign1Label"
+                      :showFilelist="false"
+                      @update="data => handleUpdate(data, 'auditor1Sign')"
+                    />
+                  </div>
                 </el-form-item>
                 <!-- <el-form-item label="审计专员1签名：" prop="auditor1Sign">
                   <el-input v-model="form.auditor1Sign" clearable placeholder="请输入" />
@@ -95,19 +111,35 @@
                 <el-form-item label="门店名称：">
                   <el-input v-model="form.dealerName" disabled />
                 </el-form-item>
-                <el-form-item label="审计专员2：" prop="auditor2Name">
-                  <fetch-select
-                    v-model="form.auditor2Id"
-                    :remote-method="searchUser"
-                    value-key="userId"
-                    label-key="username"
-                    filterable
-                    remote
-                    clearable
-                    reserve-keyword
-                    placeholder="请选择审计专员2"
-                    @change="(val, record) => handleAuditor2Change(val, record)"
-                  />
+                <el-form-item label="审计专员2：" prop="auditor2Id">
+                  <div class="form-item-sign">
+                    <fetch-select
+                      v-model="form.auditor2Id"
+                      :remote-method="searchUser"
+                      value-key="userId"
+                      label-key="username"
+                      filterable
+                      remote
+                      clearable
+                      reserve-keyword
+                      placeholder="请选择审计专员2"
+                      @change="(val, record) => handleAuditor2Change(val, record)"
+                    />
+                    <AisAttachment
+                      configCode="warrantyAudit"
+                      ref="auditor2SignRef"
+                      v-if="_id"
+                      :businessId="_id"
+                      attachType="审计专员2签名"
+                      :show-pagination="false"
+                      :noEcho="true"
+                      :uploadConfig="uploadConfig"
+                      title="审计专员2签名"
+                      :buttonText="sign2Label"
+                      :showFilelist="false"
+                      @update="data => handleUpdate(data, 'auditor2Sign')"
+                    />
+                  </div>
                 </el-form-item>
                 <!-- <el-form-item label="审计专员2签名：" prop="auditor2Sign">
                   <el-input v-model="form.auditor2Sign" clearable placeholder="请输入" />
@@ -125,7 +157,7 @@
                   </el-date-picker>
                 </el-form-item>
                 <el-form-item label="计划审计数量：" prop="planAuditCount">
-                  <el-input-number v-model="form.planAuditCount" :min="1" :precision="0" controls-position="right" placeholder="请输入" />
+                  <el-input-number size="small" v-model="form.planAuditCount" :min="1" :precision="0" controls-position="right" placeholder="请输入" />
                 </el-form-item>
                 <el-form-item label="未扣款金额：">
                   <el-input v-model="form.undeductAmount" disabled />
@@ -140,7 +172,7 @@
                   </el-date-picker>
                 </el-form-item>
                 <el-form-item label="实际审计数量：" prop="actualAuditCount">
-                  <el-input-number v-model="form.actualAuditCount" :min="0" :precision="0" controls-position="right" disabled placeholder="请输入" />
+                  <el-input-number size="small" v-model="form.actualAuditCount" :min="0" :precision="0" controls-position="right" disabled placeholder="请输入" />
                 </el-form-item>
                 <el-form-item label="保修审批区间金额：">
                   <el-input v-model="form.warrantyApprovalAmount" disabled />
@@ -218,8 +250,10 @@
             :_id="_id"
             :canAddOrUpdate="canAddOrUpdate"
             :canImport="canImport"
+            :formData="form"
             @data-change="() => {}"
             @checkboxChange="checkboxChange"
+            @refresh="handleRefresh"
           />
           <!-- 总结报告 -->
           <section class="common-section" v-if="_id">
@@ -229,7 +263,7 @@
             <div class="common-section-body">
               <div class="report-section">
                 <div class="report-attachment">
-                  <AisAttachmentList
+                  <AisAttachment
                     v-if="_id"
                     :businessId="_id"
                     configCode="warrantyAudit"
@@ -261,7 +295,7 @@
             <div class="common-section-body">
               <div class="report-section">
                 <div class="report-attachment">
-                  <AisAttachmentList
+                  <AisAttachment
                     v-if="_id"
                     :businessId="_id"
                     configCode="warrantyAudit"
@@ -401,7 +435,7 @@ import SignRectifyDialog from './components/SignRectifyDialog';
 import RejectRectifyDialog from './components/RejectRectifyDialog';
 import UploadUnsignedSummaryDialog from './components/UploadUnsignedSummaryDialog';
 import UploadUnsignedRectifyDialog from './components/UploadUnsignedRectifyDialog';
-import AisAttachmentList from '@/libs/components/AisAttachment';
+import AisAttachment from '@/libs/components/AisAttachment';
 import DealerSelect from '@/components/dealer-select';
 import { getUserByNameOrNo } from '@/libs/api/common';
 
@@ -481,7 +515,7 @@ export default {
     RejectRectifyDialog,
     UploadUnsignedSummaryDialog,
     UploadUnsignedRectifyDialog,
-    AisAttachmentList,
+    AisAttachment,
     DealerSelect,
   },
   computed: {
@@ -493,7 +527,13 @@ export default {
     },
     detailButtons () {
       return getDetailVisibleButtons(this.form.auditStatus);
-    }
+    },
+    sign1Label () {
+      return this.form.auditor1Sign ? '已上传签名' : '上传签名';
+    },
+    sign2Label () {
+      return this.form.auditor2Sign ? '已上传签名' : '上传签名';
+    },
   },
   watch: {
     id: {
@@ -588,6 +628,19 @@ export default {
     this.getTraceTableData();
   },
   methods: {
+    handleUpdate (_data, key) {
+      const refMap = { auditor1Sign: 'auditor1SignRef', auditor2Sign: 'auditor2SignRef' };
+      const ref = this.$refs[refMap[key]];
+      if (ref) {
+        const attachList = ref.getAttachment();
+        if (attachList && attachList.length) {
+          this.form[key] = attachList[0].fileId;
+        }
+      }
+    },
+    handleRefresh () {
+      this.$refs.containerRef.loadDetail();
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -682,7 +735,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        agreeSummary(this._id).then(() => {
+        agreeSummary({ auditId: this._id }).then(() => {
           this.$message.success('同意总结成功');
           this.refreshDetail();
         });
@@ -694,7 +747,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        agreeRectify(this._id).then(() => {
+        agreeRectify({ auditId: this._id }).then(() => {
           this.$message.success('同意整改成功');
           this.refreshDetail();
         });
@@ -789,5 +842,16 @@ export default {
 .download-link{
   margin-left: 8px;
   color: var(--leap-color-primary);
+}
+.form-item-sign{
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  &::v-deep .business-upload{
+    width: 100px;
+  }
+  &::v-deep .business-upload-area{
+    margin-bottom: 0;
+  }
 }
 </style>

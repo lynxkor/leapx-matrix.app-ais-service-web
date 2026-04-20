@@ -83,6 +83,10 @@ export default {
     },
     canImport: {
       type: Boolean,
+    },
+    formData: {
+      type: Object,
+      default: () => ({})
     }
   },
   components: {
@@ -160,7 +164,15 @@ export default {
       });
     },
     queryListData (query) {
-      return detailSearchApi({ limitSize: 20, query: query });
+      return detailSearchApi({
+        limitSize: 20,
+        isClaimTrackIdNull: true,
+        isWarrantyAuditDetailIdNull: true,
+        approvalTimeStart: this.formData.warrantyApprovalStartDate,
+        approvalTimeEnd: this.formData.warrantyApprovalEndDate,
+        applyStatusList: ['70', '80'],
+        dealerCode: this.formData.dealerCode
+      });
     },
     // 新增子表数据
     handleAddTableData (val, record) {
@@ -182,6 +194,7 @@ export default {
       }).then(res => {
         this.$message.success('添加成功');
         this.getTableData();
+        this.$emit('refresh');
       });
     },
     async fetchOptions (code) {

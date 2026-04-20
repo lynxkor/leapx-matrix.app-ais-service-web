@@ -13,7 +13,6 @@
           </el-form-item>
           <el-form-item class="form-item-full" label="未签署总结报告：">
             <AisAttachment
-              ref="attachment"
               :business-id="form.auditId"
               :uploadConfig="uploadConfig"
               :readonly="true"
@@ -27,7 +26,7 @@
               :business-id="form.auditId"
               :uploadConfig="uploadConfig"
               :noEcho="true"
-              businessType="待签署整改报告"
+              businessType="已签署总结报告"
             />
           </el-form-item>
         </el-form>
@@ -96,12 +95,12 @@ export default {
       this.$emit('close');
     },
     submit () {
-      const fileList = this.$refs.attachment.getFileList();
+      const fileList = this.$refs.attachment.getAttachment();
       if (!fileList || fileList.length === 0) {
         this.$message.warning('请上传已签署总结报告');
         return;
       }
-      this.form.fileId = fileList[0].id;
+      this.form.fileId = fileList[0].fileId;
       this.submitLoading = true;
       signSummary(this.form).then(() => {
         this.$message.success('签署总结成功');

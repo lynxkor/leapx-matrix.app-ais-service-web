@@ -662,7 +662,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        agreeSummary(row.id).then(() => {
+        agreeSummary({ auditId: row.id }).then(() => {
           this.$message.success('同意总结成功');
           this.getData();
         });
@@ -675,7 +675,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        agreeRectify(row.id).then(() => {
+        agreeRectify({ auditId: row.id }).then(() => {
           this.$message.success('同意整改成功');
           this.getData();
         });
