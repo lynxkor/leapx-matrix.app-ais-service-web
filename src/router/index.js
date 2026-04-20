@@ -2734,7 +2734,7 @@ const routes = [
       component: () => import('@/views/claimreturn/claim/warrantyaudit/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '保修审计发布',
         keepAlive: true
       }
     }, {
@@ -2743,7 +2743,7 @@ const routes = [
       component: () => import('@/views/claimreturn/claim/warrantyaudit/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '保修审计发布详情',
         noResourceUrl: 'true'
       }
     }, {
