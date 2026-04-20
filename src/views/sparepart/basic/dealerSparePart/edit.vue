@@ -84,10 +84,11 @@
                     type="number"
                     v-model="form.salePrice"
                     clearable
+                    @input="val => form.salePrice = formatNumberInput(val)"
                   />
                 </el-form-item>
                 <el-form-item label="是否OEM件：" prop="oemPart">
-                  是
+                  否
                 </el-form-item>
                 <el-form-item label="是否启用：" prop="status">
                   {{ form.statusLabel  }}
@@ -162,6 +163,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { formatNumberInput } from '@/libs/utils/index';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -296,6 +298,7 @@ export default {
     this.initDealerUser();
   },
   methods: {
+    formatNumberInput,
     detailRequest () {
       const id = this._id;
       if (id) {
