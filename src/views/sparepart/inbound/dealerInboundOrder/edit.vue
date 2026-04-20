@@ -186,7 +186,7 @@
                   <vxe-column field="purchaseUnitPrice" title="采购单价" min-width="10%" />
                   <vxe-column field="inboundQty" title="入库数量" min-width="10%">
                     <template #default="{ row }">
-                      <el-input v-model="row.inboundQty" type="number" :disabled="!orderStatusType" min="1" @blur="handleBlur(row)"/>
+                      <el-input v-model="row.inboundQty" type="number" @input="val => row.inboundQty = formatNumberInput(val)" :disabled="!orderStatusType" @blur="handleBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="inboundAmount" title="入库金额" min-width="10%" />
@@ -247,6 +247,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
+import { formatNumberInput } from '@/libs/utils/index';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -375,6 +376,7 @@ export default {
     this.getLoginUser();
   },
   methods: {
+    formatNumberInput,
     handleImport () {
       this.uploadDialogVisible = true;
     },
@@ -457,6 +459,13 @@ export default {
     },
     // 修改备件清单
     handleBlur (val) {
+      // 清理末尾小数点并确保是有效数字
+      let qty = String(val.inboundQty || '').replace(/\.$/, '');
+      if (!qty || isNaN(qty) || Number(qty) <= 0) {
+        qty = '1';
+      }
+      val.inboundQty = qty;
+
       const params = {
         dealerInboundOrderId: this._id,
         dealerInboundOrderCode: this.form.code,
