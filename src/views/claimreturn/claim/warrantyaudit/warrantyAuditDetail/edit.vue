@@ -300,7 +300,7 @@
               <div class="common-title">基础信息</div>
               <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
                 <el-form-item label="保修审计单：">
-                  <el-link type="primary" :href="`/claimreturn/claim/warrantyApply/edit?id=${form.warrantyAuditDetail?.auditId}`" target="_blank" @click="handleClick">{{ form.warrantyAuditDetail?.auditCode }}</el-link>
+                  <el-link type="primary" :href="`/claimreturn/claim/warrantyApply/edit?id=${form.warrantyAuditDetail?.auditId}`" target="_blank">{{ form.warrantyAuditDetail?.auditCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="保修审计明细：">
                   {{ form.warrantyAuditDetail?.auditDetailCode }}
@@ -406,6 +406,7 @@
               <h2>审计补充材料</h2>
             </div>
             <div class="common-section-body">
+              <AisAttachment :businessId="form.warrantyAudit?.id" />
             </div>
           </section>
           <section class="common-section">
@@ -413,6 +414,7 @@
               <h2>原保修单材料</h2>
             </div>
             <div class="common-section-body">
+              <AisAttachment :businessId="form.warrantyApply?.id" />
             </div>
           </section>
           <section class="common-section">
@@ -521,6 +523,8 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import AuditRejectDialog from './components/AuditRejectDialog.vue';
 import AgreeAppealDialog from './components/AgreeAppealDialog.vue';
 import RejectAppealDialog from './components/RejectAppealDialog.vue';
+import AisAttachment from './components/AisAttachment.vue';
+
 const defaultForm = {
   vehicleProfile: {}, // 车辆档案信息
   vehicleProfileOwner: {}, // 车辆档案-车主信息
@@ -550,6 +554,7 @@ export default {
     AuditRejectDialog,
     AgreeAppealDialog,
     RejectAppealDialog,
+    AisAttachment
   },
   computed: {
     _id () {
@@ -613,6 +618,7 @@ export default {
     };
   },
   mounted () {
+    this.loadRowFiles();
   },
   methods: {
     async detailRequest () {
