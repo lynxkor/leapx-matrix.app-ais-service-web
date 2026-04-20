@@ -680,18 +680,19 @@ export default {
         //     this.popoverVisible = true;
         //   });
         // } else if (this.$refs.basicForm) {
-        this.$refs.basicForm.validate((valid, invalidFields) => {
-          if (valid) {
-            resolve(this.form);
-          } else {
-            this.$nextTick(() => {
-              this.scrollToError(invalidFields);
-            });
-          }
-        });
-        // } else {
-        //   resolve(this.form);
-        // }
+        if (this.$refs.basicForm) {
+          this.$refs.basicForm.validate((valid, invalidFields) => {
+            if (valid) {
+              resolve(this.form);
+            } else {
+              this.$nextTick(() => {
+                this.scrollToError(invalidFields);
+              });
+            }
+          });
+        } else {
+          resolve(this.form);
+        }
       });
     },
     handleApply () {

@@ -67,7 +67,16 @@ export function removeDetail (data) {
   return api.jsonPost('claimreturn/claim/web/warrantyaudit/warrantyAuditDetail/delete', data);
 }
 export function detailSearchApi (data) {
-  return api.jsonPost('claimreturn/claim/web/warrantyapply/warrantyApply/page', data);
+  return api.jsonPost('claimreturn/claim/web/warrantyaudit/warrantyAuditDetail/page', data);
+}
+
+/**
+ * 审计明细表格接口
+ * @param {Object} data
+ * @returns
+ */
+export function getDetailTableList (data) {
+  return api.jsonPost('claimreturn/claim/web/warrantyaudit/warrantyAuditDetail/pageInAuditDetail', data);
 }
 
 /**

@@ -70,10 +70,21 @@
                   <el-input v-model="form.submitDeadline" disabled />
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  <el-input v-model="form.dealerCode" clearable placeholder="请输入" />
+                  <dealer-select ref="dealerSelectRef" v-model="form.dealerCode" @change="handleDealerChange" />
                 </el-form-item>
                 <el-form-item label="审计专员1：" prop="auditor1Name">
-                  <el-input v-model="form.auditor1Name" clearable placeholder="请输入" />
+                  <fetch-select
+                    v-model="form.auditor1Id"
+                    :remote-method="searchUser"
+                    value-key="userId"
+                    label-key="username"
+                    filterable
+                    remote
+                    clearable
+                    reserve-keyword
+                    placeholder="请选择审计专员1"
+                    @change="(val, record) => handleAuditor1Change(val, record)"
+                  />
                 </el-form-item>
                 <!-- <el-form-item label="审计专员1签名：" prop="auditor1Sign">
                   <el-input v-model="form.auditor1Sign" clearable placeholder="请输入" />
@@ -85,7 +96,18 @@
                   <el-input v-model="form.dealerName" disabled />
                 </el-form-item>
                 <el-form-item label="审计专员2：" prop="auditor2Name">
-                  <el-input v-model="form.auditor2Name" clearable placeholder="请输入" />
+                  <fetch-select
+                    v-model="form.auditor2Id"
+                    :remote-method="searchUser"
+                    value-key="userId"
+                    label-key="username"
+                    filterable
+                    remote
+                    clearable
+                    reserve-keyword
+                    placeholder="请选择审计专员2"
+                    @change="(val, record) => handleAuditor2Change(val, record)"
+                  />
                 </el-form-item>
                 <!-- <el-form-item label="审计专员2签名：" prop="auditor2Sign">
                   <el-input v-model="form.auditor2Sign" clearable placeholder="请输入" />
@@ -379,6 +401,8 @@ import RejectRectifyDialog from './components/RejectRectifyDialog';
 import UploadUnsignedSummaryDialog from './components/UploadUnsignedSummaryDialog';
 import UploadUnsignedRectifyDialog from './components/UploadUnsignedRectifyDialog';
 import AisAttachmentList from '@/libs/components/AisAttachment';
+import DealerSelect from '@/components/dealer-select';
+import { getUserByNameOrNo } from '@/libs/api/common';
 
 const defaultForm = {
   id: null,
@@ -457,6 +481,7 @@ export default {
     UploadUnsignedSummaryDialog,
     UploadUnsignedRectifyDialog,
     AisAttachmentList,
+    DealerSelect,
   },
   computed: {
     _id () {
@@ -500,7 +525,7 @@ export default {
           { required: true, message: '请输入保修审计主题', trigger: 'blur' }
         ],
         dealerCode: [
-          { required: true, message: '请输入门店编码', trigger: 'blur' }
+          { required: true, message: '请选择门店编码', trigger: 'change' }
         ],
         warrantyApprovalStartDate: [
           { required: true, message: '请选择保修审批开始日期', trigger: 'change' }
@@ -515,7 +540,7 @@ export default {
           { required: true, message: '请选择审计开始日期', trigger: 'change' }
         ],
         auditor1Name: [
-          { required: true, message: '请输入审计专员1', trigger: 'blur' }
+          { required: true, message: '请选择审计专员1', trigger: 'change' }
         ],
         auditor1Sign: [
           { required: true, message: '请输入审计专员1签名', trigger: 'blur' }
@@ -579,6 +604,49 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    async searchUser (query) {
+      if (!query) return [];
+      try {
+        const res = await getUserByNameOrNo({ name: query });
+        return res || [];
+      } catch (error) {
+        return [];
+      }
+    },
+    handleAuditor1Change (val, record) {
+      if (record) {
+        this.form.auditor1Id = record.userId;
+        this.form.auditor1Name = record.username;
+      } else {
+        this.form.auditor1Id = null;
+        this.form.auditor1Name = '';
+      }
+    },
+    handleAuditor2Change (val, record) {
+      if (record) {
+        this.form.auditor2Id = record.userId;
+        this.form.auditor2Name = record.username;
+      } else {
+        this.form.auditor2Id = null;
+        this.form.auditor2Name = '';
+      }
+    },
+    handleDealerChange (val) {
+      if (!val) {
+        this.form.dealerCode = '';
+        this.form.dealerName = '';
+        this.form.ownerOrgId = null;
+        return;
+      }
+      const dealerSelect = this.$refs.dealerSelectRef;
+      if (dealerSelect && dealerSelect.selectedOptions) {
+        const selected = dealerSelect.selectedOptions.find(item => item.orgCode === val);
+        if (selected) {
+          this.form.dealerName = selected.orgName;
+          this.form.ownerOrgId = selected.orgId;
+        }
+      }
     },
     refreshDetail () {
       if (this.$refs.containerRef) {
