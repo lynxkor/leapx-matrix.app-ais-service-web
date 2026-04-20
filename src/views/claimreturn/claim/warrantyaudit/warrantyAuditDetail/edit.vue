@@ -139,9 +139,6 @@
                 <el-form-item label="车辆用途：">
                   {{ form.warrantyApply?.vehiclePropertyLabel }}
                 </el-form-item>
-                <el-form-item label="开单预警信息：">
-                  {{  form.warrantyApply?.spRemindInfo }}
-                </el-form-item>
                 <el-form-item label="保修预警信息：">
                   {{ form.warrantyApply?.warrantyWarningMsg }}
                 </el-form-item>
@@ -150,6 +147,9 @@
                 </el-form-item>
                 <el-form-item label="三包预警：">
                   {{ form.warrantyApply?.alarmLevelLabel }}
+                </el-form-item>
+                <el-form-item label="开单预警信息：" style="width: 100%;">
+                  {{ remindContent }}
                 </el-form-item>
               </el-form>
             </div>
@@ -558,6 +558,29 @@ export default {
     title () {
       return '保修审计明细：' + (this.form.auditDetailCode || '');
     },
+    // 开单预警信息
+    remindContent () {
+      let result = '';
+      let last = false;
+      const remindList = this.form.warrantyApply?.spRemindInfo || [];
+      remindList?.forEach((item, index) => {
+        if (index === remindList.length - 1) {
+          last = true;
+        }
+        if (item.type === '2') { // 三包预警
+          item.content?.forEach(contentItem => {
+            result += contentItem.title + '，';
+            result += contentItem.contents.join('，');
+          });
+        } else {
+          result += item.content;
+          if (!last) {
+            result += ' ';
+          }
+        }
+      });
+      return result;
+    }
   },
   watch: {
     id: {
