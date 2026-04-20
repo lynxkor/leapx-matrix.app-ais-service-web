@@ -32,10 +32,10 @@
             <div class="common-section-body">
               <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
                 <el-form-item label="保修申请单号：">
-                  <el-link type="primary" @click="jumpToWarrantyApply(form.warrantyApply?.id)" target="_blank">{{ form.warrantyApply?.applyNo }}</el-link>
+                  <el-link type="primary" :href="`/claimreturn/claim/warrantyapply/edit?id=${form.warrantyApply?.id}`" target="_blank">{{ form.warrantyApply?.applyNo }}</el-link>
                 </el-form-item>
                 <el-form-item label="接车施工单号：">
-                  <el-link type="primary" @click="jumpToServiceProxy(form.warrantyApply?.serviceProxyId)" target="_blank">{{ form.warrantyApply?.serviceProxyNo }}</el-link>
+                  <el-link type="primary" :href="`/maintain/sp/serviceproxy/edit?id=${form.warrantyApply?.serviceProxyId}`" target="_blank">{{ form.warrantyApply?.serviceProxyNo }}</el-link>
                 </el-form-item>
                 <el-form-item label="首次提交时间：">
                   {{ form.warrantyApply?.firstSubmitTime }}
@@ -47,7 +47,7 @@
                   {{ form.warrantyApply?.checkoutTypeName }}
                 </el-form-item>
                 <el-form-item label="结算单号：">
-                  <el-link type="primary" @click="jumpToSettlement(form.warrantyApply?.statementId)" target="_blank">{{ form.warrantyApply?.statementCode }}</el-link>
+                  <el-link type="primary" :href="`/maintain/sp/serviceStatement/edit?id=${form.warrantyApply?.statementId}`" target="_blank">{{ form.warrantyApply?.statementCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="当前提交时间：" prop="currentSubmitTime">
                   {{ form.warrantyApply?.currentSubmitTime }}
@@ -65,8 +65,7 @@
                   {{ form.warrantyApply?.approvalTime }}
                 </el-form-item>
                 <el-form-item label="预授权单：">
-                  {{ form.warrantyApply?.preAuthorizationId }}
-                  <el-link type="primary" @click="jumpToPreAuthorization(form.warrantyApply?.preAuthId)" target="_blank">{{ form.warrantyApply?.preAuthCode }}</el-link>
+                  <el-link type="primary" :href="`/maintain/sp/preAuth/edit?id=${form.warrantyApply?.preAuthId}`" target="_blank">{{ form.warrantyApply?.preAuthCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="维修开始时间：">
                   {{ form.warrantyApply?.repairStartTime }}
@@ -87,8 +86,7 @@
                   {{ form.warrantyApply?.paymentTime }}
                 </el-form-item>
                 <el-form-item label="索赔追溯单：">
-                  {{ form.warrantyApply?.claimTrackNo }}
-                  <el-link type="primary" @click="jumpToClaimTrack(form.warrantyApply?.claimTrackId)" target="_blank">{{ form.warrantyApply?.claimTrackNo }}</el-link>
+                  <el-link type="primary" :href="`/claimreturn/claim/claimtrace/claimTraceOrder/edit?id=${form.warrantyApply?.claimTrackId}`" target="_blank">{{ form.warrantyApply?.claimTrackNo }}</el-link>
                 </el-form-item>
                 <el-form-item label="审批说明：" style="width: 100%;">
                   {{ form.warrantyApply?.approvalRemark }}
@@ -103,7 +101,7 @@
             <div class="common-section-body">
               <el-form :inline="true" :model="form" label-width="170px" class="form-detail">
                 <el-form-item label="vin：">
-                  <el-link type="primary" @click="jumpToVehicle(form.vehicleProfile?.vin)">{{ formatVin(form.vehicleProfile?.vin) }}</el-link>
+                  <el-link type="primary" :href="`/datacenter/vehicle/vehicleprofile/edit?id=${form.vehicleProfile?.vin}`" target="_blank">{{ formatVin(form.vehicleProfile?.vin) }}</el-link>
                 </el-form-item>
                 <el-form-item label="车牌号：">
                   {{ form.vehicleProfile?.vehiclePlateNo }}
@@ -633,42 +631,6 @@ export default {
         return vin.substring(0, 3) + '***' + vin.substring(vin.length - 3);
       }
       return vin || '-';
-    },
-    // 跳转到保修申请单
-    jumpToWarrantyApply (id) {
-      if (id) {
-        this.$router.push({
-          path: '/claimreturn/claim/warrantyapply/edit',
-          query: { id }
-        });
-      }
-    },
-    // 跳转到保修审计单
-    jumpToWarrantyAudit (id) {
-      if (id) {
-        this.$router.push({
-          path: '/claimreturn/claim/warrantyAudit/edit',
-          query: { id }
-        });
-      }
-    },
-    // 跳转到接车施工单
-    jumpToServiceProxy (id) {
-      if (id) {
-        this.$router.push({
-          path: '/maintain/sp/serviceproxy/edit',
-          query: { id }
-        });
-      }
-    },
-    // 跳转到车辆详情
-    jumpToVehicle (vin) {
-      if (vin) {
-        this.$router.push({
-          path: '/datacenter/vehicle/vehicleprofile/edit',
-          query: { vin }
-        });
-      }
     },
     // 补充材料
     handleSupplyMaterial () {
