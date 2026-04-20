@@ -328,7 +328,7 @@
       :businessParams="_id"
       id="sparepartDealerOutboundOrderDetail"
       @close="handleUploadDialogClose"
-      @submit="getDetailData"
+      @getData="getData"
     />
   </edit-page-layout>
 </template>
