@@ -186,7 +186,7 @@
                   <vxe-column field="purchaseUnitPrice" title="采购单价" min-width="10%" />
                   <vxe-column field="inboundQty" title="入库数量" min-width="10%">
                     <template #default="{ row }">
-                      <el-input v-model="row.inboundQty" type="number" @input="val => row.inboundQty = formatNumberInput(val)" :disabled="!orderStatusType" @blur="handleBlur(row)"/>
+                      <el-input v-model="row.inboundQty" type="number" @input="val => row.inboundQty = formatNumberInput(val)" :disabled="!orderStatusType" @change="handleBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="inboundAmount" title="入库金额" min-width="10%" />
