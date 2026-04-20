@@ -15,8 +15,7 @@
             :remote-method="queryListData"
             @change="handleAddTableData"
             value-key="id"
-            label-key="schemeName"
-            subLabelKey="schemeId"
+            label-key="applyNo"
             placeholder="请输入保修申请单"
           />
           <el-button size="small" @click="handleImport">导入</el-button>
@@ -44,7 +43,7 @@
             </template>
           </vxe-column>
           <template #empty>
-            <div class="m-vxe-table-empty-text"></div>
+            <div class="m-vxe-table-empty-text">暂无数据</div>
           </template>
         </vxe-table>
       </div>
@@ -56,6 +55,7 @@
       downloadTitle="保修审计明细导入"
       @close="handleUploadDialogClose"
       @getData="getTableData"
+      :businessParams="_id"
     />
   </section>
 </template>
@@ -64,7 +64,7 @@
 import {
   addDetail,
   removeDetail,
-  getDetailList,
+  getDetailTableList,
   detailSearchApi,
 } from '@/api/claimreturn/claim/warrantyaudit/warrantyAudit/index';
 import BaseSearch from '@/libs/components/BaseSearch';
@@ -115,9 +115,6 @@ export default {
       immediate: true
     }
   },
-  mounted () {
-    this.getTableData();
-  },
   methods: {
     handleImport () {
       this.uploadDialogVisible = true;
@@ -129,10 +126,11 @@ export default {
       if (!this._id) {
         return;
       }
-      getDetailList({
+      getDetailTableList({
         // TODO 根据需求进行替换
         // xxxId: this._id,
         //
+        auditId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {
@@ -177,12 +175,13 @@ export default {
         return;
       }
       // 根据需求调用接口
-      this.tableData.push(record);
+      // this.tableData.push(record);
       addDetail({
-        //
+        auditId: this._id,
+        warrantyApplyId: record.id
       }).then(res => {
         this.$message.success('添加成功');
-        this.detailRequest();
+        this.getTableData();
       });
     },
     async fetchOptions (code) {

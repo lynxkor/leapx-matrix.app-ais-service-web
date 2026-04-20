@@ -71,6 +71,15 @@ export function detailSearchApi (data) {
 }
 
 /**
+ * 审计明细表格接口
+ * @param {Object} data
+ * @returns
+ */
+export function getDetailTableList (data) {
+  return api.jsonPost('claimreturn/claim/web/warrantyaudit/warrantyAuditDetail/pageInAuditDetail', data);
+}
+
+/**
  * 发布
  * @param {Object} data
  */
@@ -147,4 +156,11 @@ export function regenerateUnsignedRectify (data) {
  */
 export function uploadUnsignedRectify (data) {
   return api.jsonPost(prefix + 'uploadPendingRectifyReport', data);
+}
+
+/**
+ * 上传待签署整改报告
+ */
+export function getClaimTraceOrderDetail (data) {
+  return api.jsonPost('claimreturn/claim/web/claimtrace/claimTraceOrderDetail/page', data);
 }
