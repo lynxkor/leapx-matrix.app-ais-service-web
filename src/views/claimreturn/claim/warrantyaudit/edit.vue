@@ -195,9 +195,117 @@
           <search-add-table
             :_id="_id"
             :canAddOrUpdate="canAddOrUpdate"
+            :canImport="canImport"
             @data-change="() => {}"
             @checkboxChange="checkboxChange"
           />
+          <!-- 总结报告 -->
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>总结报告<el-button type="text" class="download-link" @click="handleDownloadUnsignedSummary" v-if="form.summarySignTime">下载未签署总结报告</el-button></h2>
+            </div>
+            <div class="common-section-body">
+              <div class="report-section">
+                <div class="report-attachment">
+                  <AisAttachmentList
+                    v-if="_id"
+                    :businessId="_id"
+                    attachType="已签署总结报告"
+                    :readonly="true"
+                    :show-pagination="false"
+                    :uploadConfig="uploadConfig"
+                    title="已签署总结报告"
+                    type="card"
+                  />
+                </div>
+                <div class="report-info">
+                  <el-form label-width="120px" :inline="true" class="form-detail">
+                    <el-form-item label="总结签署人：">{{ form.summarySignerName || '--' }}</el-form-item>
+                    <el-form-item label="总结签署时间：">{{ form.summarySignTime || '--' }}</el-form-item>
+                    <el-form-item label="总结签署说明：">{{ form.summarySignDesc || '--' }}</el-form-item>
+                    <el-form-item label="总结审批人：">{{ form.summaryApproverName || '--' }}</el-form-item>
+                    <el-form-item label="总结审批时间：">{{ form.summaryApproveTime || '--' }}</el-form-item>
+                    <el-form-item label="总结审批说明：">{{ form.summaryApproveDesc || '--' }}</el-form-item>
+                  </el-form>
+                </div>
+              </div>
+            </div>
+          </section>
+          <!-- 整改报告 -->
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>整改报告<el-button type="text" class="download-link" @click="handleDownloadUnsignedRectify" v-if="form.rectifySignTime">下载未签署整改报告</el-button></h2>
+            </div>
+            <div class="common-section-body">
+              <div class="report-section">
+                <div class="report-attachment">
+                  <AisAttachmentList
+                    v-if="_id"
+                    :businessId="_id"
+                    attachType="已签署整改报告"
+                    :readonly="true"
+                    :show-pagination="false"
+                    :uploadConfig="uploadConfig"
+                    title="已签署整改报告"
+                    type="card"
+                  />
+                </div>
+                <div class="report-info">
+                  <el-form label-width="120px" :inline="true" class="form-detail">
+                    <el-form-item label="整改签署人：">{{ form.rectifySignerName || '--' }}</el-form-item>
+                    <el-form-item label="整改签署时间：">{{ form.rectifySignTime || '--' }}</el-form-item>
+                    <el-form-item label="整改签署说明：">{{ form.rectifySignDesc || '--' }}</el-form-item>
+                    <el-form-item label="整改审批人：">{{ form.rectifyApproverName || '--' }}</el-form-item>
+                    <el-form-item label="整改审批时间：">{{ form.rectifyApproveTime || '--' }}</el-form-item>
+                    <el-form-item label="整改审批说明：">{{ form.rectifyApproveDesc || '--' }}</el-form-item>
+                  </el-form>
+                </div>
+              </div>
+            </div>
+          </section>
+          <!-- 追溯明细 -->
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>追溯明细</h2>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-table">
+                <vxe-table
+                  ref="traceTable"
+                  :data="traceTableData"
+                  stripe
+                  show-overflow
+                  resizable
+                  :row-config="{ isHover: true }"
+                  border="inner"
+                  size="medium"
+                  min-height="0"
+                  max-height="300px"
+                >
+                  <vxe-column field="traceDetailCode" title="追溯明细" />
+                  <vxe-column field="auditDetailCode" title="保修审计明细" />
+                  <vxe-column field="warrantyApplyCode" title="保修申请单" />
+                  <vxe-column field="warrantySettleCode" title="保修结算单" />
+                  <vxe-column field="currentTraceAmount" title="本次追溯金额" />
+                  <vxe-column field="createTime" title="创建时间" />
+                  <template #empty>
+                    <div class="m-vxe-table-empty-text">暂无数据</div>
+                  </template>
+                </vxe-table>
+                <div class="table-pagination" v-if="traceTotal > 0">
+                  <el-pagination
+                    @size-change="tracePageSizeChange"
+                    @current-change="traceCurrentPageChange"
+                    :current-page="traceCurrent"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="tracePageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="traceTotal"
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
         </el-main>
       </edit-base-container>
     <!-- 发布弹窗 -->
@@ -270,6 +378,7 @@ import SignRectifyDialog from './components/SignRectifyDialog';
 import RejectRectifyDialog from './components/RejectRectifyDialog';
 import UploadUnsignedSummaryDialog from './components/UploadUnsignedSummaryDialog';
 import UploadUnsignedRectifyDialog from './components/UploadUnsignedRectifyDialog';
+import AisAttachmentList from '@/libs/components/AisAttachment';
 
 const defaultForm = {
   id: null,
@@ -347,6 +456,7 @@ export default {
     RejectRectifyDialog,
     UploadUnsignedSummaryDialog,
     UploadUnsignedRectifyDialog,
+    AisAttachmentList,
   },
   computed: {
     _id () {
@@ -379,6 +489,12 @@ export default {
       submitLoading: false,
       form: { ...form },
       originalForm: { ...form },
+      uploadConfig: {
+        acceptSuffix: '.pdf,.doc,.docx,.xlsx,.xls',
+        maxSize: 50,
+        maxNum: 1,
+        required: '1',
+      },
       rules: {
         auditTheme: [
           { required: true, message: '请输入保修审计主题', trigger: 'blur' }
@@ -435,6 +551,11 @@ export default {
       rejectRectifyDialogVisible: false,
       uploadUnsignedSummaryDialogVisible: false,
       uploadUnsignedRectifyDialogVisible: false,
+      // 追溯明细
+      traceTableData: [],
+      traceCurrent: 1,
+      tracePageSize: 10,
+      traceTotal: 0,
     };
   },
   methods: {
@@ -537,6 +658,59 @@ export default {
     handleUploadUnsignedRectify () {
       this.uploadUnsignedRectifyDialogVisible = true;
     },
+    handleDownloadUnsignedSummary () {
+      // TODO: 替换为实际下载接口
+      this.$message.info('下载未签署总结报告（接口待对接）');
+    },
+    handleDownloadUnsignedRectify () {
+      // TODO: 替换为实际下载接口
+      this.$message.info('下载未签署整改报告（接口待对接）');
+    },
+    getTraceTableData () {
+      // TODO: 替换为实际追溯明细接口
+      // this.traceTableData = [];
+      // this.traceTotal = 0;
+    },
+    tracePageSizeChange (pageSize) {
+      this.tracePageSize = pageSize;
+      this.traceCurrent = 1;
+      this.getTraceTableData();
+    },
+    traceCurrentPageChange (current) {
+      this.traceCurrent = current;
+      this.getTraceTableData();
+    },
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.report-section {
+  display: flex;
+  gap: 24px;
+
+  .report-attachment {
+    flex-shrink: 0;
+    width: 240px;
+
+    .report-attachment-label {
+      font-size: 14px;
+      color: #303133;
+      margin-bottom: 8px;
+    }
+  }
+
+  .report-info {
+    flex: 1;
+    min-width: 0;
+  }
+  ::v-deep .business-upload.card {
+    width: 100%;
+    min-width: auto;
+  }
+}
+.download-link{
+  margin-left: 8px;
+  color: var(--leap-color-primary);
+}
+</style>
