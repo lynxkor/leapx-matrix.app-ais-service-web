@@ -87,7 +87,7 @@
                   />
                 </el-form-item>
                 <el-form-item label="是否OEM件：" prop="oemPart">
-                  是
+                  否
                 </el-form-item>
                 <el-form-item label="是否启用：" prop="status">
                   {{ form.statusLabel  }}
