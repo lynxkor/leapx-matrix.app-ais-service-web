@@ -504,12 +504,17 @@ export default {
         const basicInfo = await this.$refs.basicInfoRef.getFormData();
         const entrustInfo = await this.$refs.entrustInfoRef.getFormData();
         const batteryInfo = await this.$refs.batteryInfoRef.getFormData();
-        this.submitLoading = true;
         const data = { ...this.form, ...basicInfo, ...entrustInfo, ...batteryInfo };
         // 后端要求新开单增加isAddItems字段
         if (!this._id) {
           data.isAddItems = 0;
         }
+        if (data.currentFault && data.faultAlertRecordRespList.length === 0) {
+          this.$message.warning('请先添加故障模块');
+          this.isEditing = true;
+          return;
+        }
+        this.submitLoading = true;
         addOrUpdate(data).then(res => {
           this.$message({
             message: '保存成功',
