@@ -5,19 +5,22 @@
     </div>
     <div class="common-section-body">
       <div class="common-section-header">
-        <base-search
-          v-if="canAddOrUpdate"
-          filterable
-          clearable
-          remote
-          reserve-keyword
-          :remote-method="queryListData"
-          @change="handleAddTableData"
-          value-key="id"
-          label-key="schemeName"
-          subLabelKey="schemeId"
-          placeholder="请输入"
-        />
+        <div style="display: flex;gap: 8px;">
+          <base-search
+            v-if="canAddOrUpdate"
+            filterable
+            clearable
+            remote
+            reserve-keyword
+            :remote-method="queryListData"
+            @change="handleAddTableData"
+            value-key="id"
+            label-key="schemeName"
+            subLabelKey="schemeId"
+            placeholder="请输入保修申请单"
+          />
+          <el-button size="small" @click="handleImport">导入</el-button>
+        </div>
       </div>
       <div class="common-section-table">
         <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner"
@@ -46,6 +49,14 @@
         </vxe-table>
       </div>
     </div>
+    <!-- TIPS: 填入项目id即可 -->
+    <Upload
+      :visible="uploadDialogVisible"
+      :id="'warrantyAuditDetail'"
+      downloadTitle="保修审计明细导入"
+      @close="handleUploadDialogClose"
+      @getData="getTableData"
+    />
   </section>
 </template>
 
@@ -58,6 +69,7 @@ import {
 } from '@/api/claimreturn/claim/warrantyaudit/warrantyAudit/index';
 import BaseSearch from '@/libs/components/BaseSearch';
 import { getEnum } from '@/api/common';
+import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 
 export default {
@@ -68,10 +80,14 @@ export default {
     },
     canAddOrUpdate: {
       type: Boolean,
+    },
+    canImport: {
+      type: Boolean,
     }
   },
   components: {
     BaseSearch,
+    Upload
   },
   computed: {
   },
@@ -83,6 +99,7 @@ export default {
       pageSize: 10,
       total: 0,
       tableData: [],
+      uploadDialogVisible: false,
       options: {
         // 对应表格里选型枚举
         // 如 type: [{label: 'xxx', value: 'xxx'}]
@@ -102,6 +119,12 @@ export default {
     this.getTableData();
   },
   methods: {
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
+    },
     getTableData () {
       if (!this._id) {
         return;
