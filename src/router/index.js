@@ -2764,6 +2764,15 @@ const routes = [
         name: '保修审计明细详情',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/file/download',
+      name: 'fileDownload',
+      component: () => import('@/views/file/zipRecord/index.vue'),
+
+      meta: {
+        name: '文件下载',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
