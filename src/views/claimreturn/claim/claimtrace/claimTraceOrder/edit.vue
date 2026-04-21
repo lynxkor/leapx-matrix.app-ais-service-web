@@ -190,9 +190,9 @@
             <div class="common-section-body">
               <AisAttachment
                 :business-id="_id"
-                attachType="追溯凭证"
+                attachType="不合格凭证"
                 configCode="mcs_claimtrack_form"
-                emptyText="暂无追溯凭证"
+                emptyText="暂无不合格凭证"
                 :readonly="!detailButtons.includes('编辑')"
               />
             </div>
@@ -223,7 +223,7 @@
                   size="medium" min-height="0" max-height="300px">
                   <vxe-column field="traceDetailCode" title="追溯明细" min-width="150" />
                   <!-- <vxe-column field="warrantyApplyCode" title="保修申请单" min-width="150" /> -->
-                  <vxe-column field="warrantySettleCode" title="保修结算单" min-width="150" />
+                  <vxe-column field="settleCode" title="保修结算单" min-width="150" />
                   <vxe-column field="currentTraceAmount" title="本次追溯金额" min-width="120" />
                   <vxe-column field="createTime" title="创建时间" min-width="160" />
                   <template #empty>
@@ -482,7 +482,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        agreeIssue({ id: this._id }).then(() => {
+        agreeIssue(this._id).then(() => {
           this.$message.success('同意下发成功');
           this.refreshDetail();
         });
@@ -494,7 +494,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        agreeTrace({ id: this._id }).then(() => {
+        agreeTrace(this._id).then(() => {
           this.$message.success('同意追溯成功');
           this.refreshDetail();
         });
@@ -516,7 +516,6 @@ export default {
     getTraceTableData () {
       claimTraceOrderDetailList({
         businessId: this._id,
-        traceType: '索赔追溯',
         pageNum: this.traceCurrent,
         pageSize: this.tracePageSize,
       }).then(res => {
