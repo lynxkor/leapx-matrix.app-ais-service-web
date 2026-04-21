@@ -179,13 +179,30 @@ export default {
     },
     // 确认操作
     async handleConfirm () {
-      await this.handleUseEquity();
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>本操作视为您进行核销本次权益套餐，请确认？</div>';
+      this.$confirm(message, '', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(() => {
+        this.handleUseEquity();
+      }).catch(() => {
+      });
     },
     // 核销使用
     async handleUseEquity () {
       try {
         await useEquity({
           id: this.vehicleInfo.id,
+          verificationCityLevel: this.selectedItem.writeOffCityLevel,
+          purchaseCityLevel: this.selectedItem.cityLevel,
+          verificationEquityCode: this.selectedItem.rightsGrantCode,
+          totalRemainingUsage: this.selectedItem.totalRemainTimes,
+          remainingUsageCount: this.selectedItem.remainTimes,
+          totalUsedCount: this.selectedItem.usedTimes,
+          spreadType: this.selectedItem.compensationMode,
           equityUseId: this.selectedItem.useId,
           equityCode: this.selectedItem.rightsCode,
           equityName: this.selectedItem.rightsName,

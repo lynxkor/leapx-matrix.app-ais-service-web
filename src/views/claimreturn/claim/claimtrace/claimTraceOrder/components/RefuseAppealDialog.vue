@@ -9,8 +9,8 @@
     <div class="page-common-edit vertical">
       <section class="common-section">
         <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="100px" class="form-edit" style="padding-right: 16px;">
-          <el-form-item prop="appealAuditOpinion" class="form-item-full" label="审核意见：">
-            <el-input type="textarea" v-model="form.appealAuditOpinion" placeholder="请输入" :rows="3" />
+          <el-form-item prop="auditOpinion" class="form-item-full" label="审核意见：">
+            <el-input type="textarea" v-model="form.auditOpinion" placeholder="请输入" :rows="3" />
           </el-form-item>
           <el-form-item class="form-item-full" label="申诉凭证：">
             <AisAttachment
@@ -19,6 +19,7 @@
               attachType="申诉凭证"
               configCode="mcs_claimtrack_form"
               :readonly="true"
+              emptyText="暂无申诉凭证"
             />
           </el-form-item>
         </el-form>
@@ -54,12 +55,12 @@ export default {
     return {
       form: {
         id: '',
-        appealAuditOpinion: '',
+        auditOpinion: '',
       },
       submitLoading: false,
       dialogVisible: this.visible,
       rules: {
-        appealAuditOpinion: [{ required: true, message: '请输入审核意见', trigger: 'blur' }],
+        auditOpinion: [{ required: true, message: '请输入审核意见', trigger: 'blur' }],
       },
     };
   },
@@ -68,7 +69,7 @@ export default {
       this.dialogVisible = val;
       if (val) {
         this.form.id = this.traceOrderId;
-        this.form.appealAuditOpinion = '';
+        this.form.auditOpinion = '';
       }
     }
   },

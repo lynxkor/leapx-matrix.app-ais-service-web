@@ -27,6 +27,7 @@
               :uploadConfig="uploadConfig"
               :noEcho="true"
               businessType="已签署总结报告"
+              @upload-loading-change="handleUploadLoadingChange"
             />
           </el-form-item>
         </el-form>
@@ -90,6 +91,9 @@ export default {
     }
   },
   methods: {
+    handleUploadLoadingChange (loading) {
+      this.submitLoading = loading;
+    },
     close () {
       this.$emit('update:visible', false);
       this.$emit('close');
