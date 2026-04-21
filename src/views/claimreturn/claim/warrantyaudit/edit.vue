@@ -51,6 +51,7 @@
                     placeholder="请选择"
                     clearable
                     filterable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="保修审计主题：" prop="auditTheme">
@@ -457,7 +458,7 @@ const defaultForm = {
   auditor2Sign: '',
   planAuditCount: null,
   actualAuditCount: 0,
-  auditStatus: '',
+  auditStatus: '10',
   auditStatusLabel: '',
   issuerId: null,
   issuerName: '',

@@ -110,3 +110,20 @@ const otherPrefix = 'claimreturn/claim/web/warrantyapply/warrantyApplyOther/';
 export function getOtherPage (data) {
   return api.jsonPost(otherPrefix + 'page', data);
 }
+
+/**
+ * 查询加密数据
+ * @param {String} id
+ * @param {String} field
+ */
+export function getDetailDecryptField (id, field) {
+  let param = {
+    id,
+    decryptFields: [field]
+  };
+  return new Promise(resolve => {
+    api.jsonPost(prefix + 'getDecrypt', param).then(res => {
+      resolve(res[field]);
+    });
+  });
+}
