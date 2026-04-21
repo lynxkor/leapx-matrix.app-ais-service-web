@@ -12,13 +12,14 @@
           <el-form-item prop="appealDesc" class="form-item-full" label="申诉说明：">
             <el-input type="textarea" v-model="form.appealDesc" placeholder="请输入" :rows="3" />
           </el-form-item>
-          <el-form-item class="form-item-full" label="申诉凭证：">
+          <el-form-item class="form-item-full" label="申诉凭证：" required>
             <AisAttachment
               style="padding-top: 5px;"
               ref="attachment"
               :business-id="traceOrderId"
               attachType="申诉凭证"
               :uploadConfig="uploadConfig"
+              @upload-loading-change="handleUploadLoadingChange"
             />
           </el-form-item>
         </el-form>
@@ -78,14 +79,22 @@ export default {
     }
   },
   methods: {
+    handleUploadLoadingChange (loading) {
+      this.submitLoading = loading;
+    },
     close () {
       this.$emit('update:visible', false);
     },
     submit () {
       this.$refs.ruleForm.validate((valid) => {
         if (!valid) return;
+        const attachFileList = this.$refs.attachment.getAttachment();
+        if (!attachFileList || attachFileList.length === 0) {
+          this.$message.warning('请上传申诉凭证');
+          return;
+        }
         this.submitLoading = true;
-        submitAppeal(this.form).then(() => {
+        submitAppeal({ ...this.form, attachFileList }).then(() => {
           this.$message.success('申诉成功');
           this.close();
           this.$emit('success');
