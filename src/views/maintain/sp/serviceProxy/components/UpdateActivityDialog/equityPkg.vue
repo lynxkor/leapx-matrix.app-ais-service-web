@@ -196,6 +196,13 @@ export default {
       try {
         await useEquity({
           id: this.vehicleInfo.id,
+          verificationCityLevel: this.selectedItem.writeOffCityLevel,
+          purchaseCityLevel: this.selectedItem.cityLevel,
+          verificationEquityCode: this.selectedItem.rightsGrantCode,
+          totalRemainingUsage: this.selectedItem.totalRemainTimes,
+          remainingUsageCount: this.selectedItem.remainTimes,
+          totalUsedCount: this.selectedItem.usedTimes,
+          spreadType: this.selectedItem.compensationMode,
           equityUseId: this.selectedItem.useId,
           equityCode: this.selectedItem.rightsCode,
           equityName: this.selectedItem.rightsName,
