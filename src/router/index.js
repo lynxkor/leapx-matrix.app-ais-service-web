@@ -2773,6 +2773,15 @@ const routes = [
         name: '文件下载',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/file/downloadLog',
+      name: 'fileDownloadLog',
+      component: () => import('@/views/file/fileDownloadLog/index.vue'),
+
+      meta: {
+        name: '文件下载',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
