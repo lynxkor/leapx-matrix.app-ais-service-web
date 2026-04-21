@@ -19,7 +19,6 @@
               :business-id="traceOrderId"
               attachType="申诉凭证"
               :uploadConfig="uploadConfig"
-              :noEcho="true"
             />
           </el-form-item>
         </el-form>
