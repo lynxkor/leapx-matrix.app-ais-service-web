@@ -22,16 +22,16 @@ export function getListVisibleButtons (traceStatus) {
     [S.PENDING_CONFIRM]: ['同意追溯', '申诉'],
     [S.APPEALING]: ['同意申诉', '驳回申诉', '拒绝申诉'],
   };
-  return map[traceStatus] || ['查看'];
+  return map[traceStatus] || [];
 }
 
 // 详情页按钮可见性
 export function getDetailVisibleButtons (traceStatus) {
   const S = TRACE_STATUS;
   const map = {
-    [S.DRAFT]: ['提交审核', '作废', '调整追溯金额'],
+    [S.DRAFT]: ['编辑', '提交审核', '作废', '调整追溯金额'],
     [S.AUDITING]: ['同意下发', '驳回修改'],
-    [S.REJECTED]: ['提交审核', '作废', '调整追溯金额'],
+    [S.REJECTED]: ['编辑', '提交审核', '作废', '调整追溯金额'],
     [S.PENDING_CONFIRM]: ['同意追溯', '申诉'],
     [S.APPEALING]: ['同意申诉', '驳回申诉', '拒绝申诉', '调整追溯金额'],
   };

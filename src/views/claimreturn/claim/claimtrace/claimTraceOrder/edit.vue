@@ -3,7 +3,7 @@
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container ref="containerRef" :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form"
-        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest">
+        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" :showEditBtn="detailButtons.includes('编辑')">
         <template #status>
           <span v-if="form.traceStatusLabel" class="status primary">{{ form.traceStatusLabel }}</span>
         </template>
@@ -42,10 +42,18 @@
                     clearable filterable disabled />
                 </el-form-item>
                 <el-form-item label="保修申请单：" prop="warrantyCode">
-                  <list-select listUrl="claimreturn/claim/web/warrantyapply/warrantyApply/getList"
-                    placeholder="请输入保修申请单" v-model="form.warrantyCode" query-key="applyNo"
-                    filterable clearable label-key="applyNo" value-key="applyNo" @change="handleWarrantyApplyChange"
-                    :params="{}" />
+                  <fetch-select
+                    v-model="form.warrantyCode"
+                    filterable
+                    clearable
+                    remote
+                    reserve-keyword
+                    :remote-method="queryListData"
+                    :params="form.warrantyCode"
+                    value-key="applyNo"
+                    label-key="applyNo"
+                    placeholder="请输入保修申请单"
+                  />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerCode">
                   <dealer-select v-model="form.dealerCode" disabled />
@@ -174,6 +182,36 @@
               </el-form>
             </div>
           </section>
+           <!-- 追溯凭证 -->
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>追溯凭证</h2>
+            </div>
+            <div class="common-section-body">
+              <AisAttachment
+                :business-id="_id"
+                attachType="追溯凭证"
+                configCode="mcs_claimtrack_form"
+                emptyText="暂无追溯凭证"
+                :readonly="!detailButtons.includes('编辑')"
+              />
+            </div>
+          </section>
+          <!-- 申诉凭证 -->
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>申诉凭证</h2>
+            </div>
+            <div class="common-section-body">
+              <AisAttachment
+                :business-id="_id"
+                attachType="申诉凭证"
+                configCode="mcs_claimtrack_form"
+                emptyText="暂无申诉凭证"
+                :readonly="!detailButtons.includes('编辑')"
+              />
+            </div>
+          </section>
           <!-- 追溯明细 -->
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
@@ -226,6 +264,7 @@
 <script>
 import { getDetail, addOrUpdate, agreeIssue, agreeTrace } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
 import { claimTraceOrderDetailList } from '@/api/claimreturn/claim/claimtrace/claimTraceOrderDetail/index';
+import { getList } from '@/api/claimreturn/claim/warrantyapply/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -234,7 +273,6 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import FetchSelect from '@/libs/components/FetchSelect';
 import DealerSelect from '@/components/dealer-select/index.vue';
-import ListSelect from '@/libs/components/list-select/index.vue';
 import { getDetailVisibleButtons } from './constant';
 import SubmitAuditDialog from './components/SubmitAuditDialog';
 import CancelOrderDialog from './components/CancelOrderDialog';
@@ -244,6 +282,7 @@ import AppealDialog from './components/AppealDialog';
 import AgreeAppealDialog from './components/AgreeAppealDialog';
 import RejectAppealDialog from './components/RejectAppealDialog';
 import RefuseAppealDialog from './components/RefuseAppealDialog';
+import AisAttachment from '@/libs/components/AisAttachment';
 
 const defaultForm = {
   claimTraceCode: '',
@@ -299,7 +338,6 @@ export default {
     EditBaseContainer,
     FetchSelect,
     DealerSelect,
-    ListSelect,
     SubmitAuditDialog,
     CancelOrderDialog,
     AdjustAmountDialog,
@@ -308,6 +346,7 @@ export default {
     AgreeAppealDialog,
     RejectAppealDialog,
     RefuseAppealDialog,
+    AisAttachment
   },
   computed: {
     _id () {
@@ -371,6 +410,17 @@ export default {
     }
   },
   methods: {
+    queryListData (query) {
+      return getList({
+        limitSize: 20,
+        // isClaimTrackIdNull: true,
+        isWarrantyAuditDetailIdNull: true,
+        // approvalTimeStart: this.formData.warrantyApprovalStartDate,
+        // approvalTimeEnd: this.formData.warrantyApprovalEndDate,
+        applyStatusList: ['70', '80'],
+        dealerCode: this.form.dealerCode
+      });
+    },
     detailRequest () {
       const id = this._id;
       if (id) {

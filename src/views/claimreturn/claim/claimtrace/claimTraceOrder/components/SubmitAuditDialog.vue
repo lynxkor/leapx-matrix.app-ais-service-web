@@ -19,7 +19,6 @@
               :business-id="traceOrderId"
               attachType="追溯凭证"
               :uploadConfig="uploadConfig"
-              :noEcho="true"
             />
           </el-form-item>
         </el-form>

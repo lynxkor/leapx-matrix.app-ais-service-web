@@ -19,6 +19,7 @@
               attachType="申诉凭证"
               :readonly="true"
               configCode="mcs_claimtrack_form"
+              emptyText="暂无申诉凭证"
             />
           </el-form-item>
           <el-form-item prop="sysAutoAgreeDate" label="系统自动同意日期：">

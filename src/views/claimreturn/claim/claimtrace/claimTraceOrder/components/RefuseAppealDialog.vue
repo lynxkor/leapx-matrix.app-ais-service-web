@@ -19,6 +19,7 @@
               attachType="申诉凭证"
               configCode="mcs_claimtrack_form"
               :readonly="true"
+              emptyText="暂无申诉凭证"
             />
           </el-form-item>
         </el-form>
