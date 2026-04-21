@@ -633,7 +633,7 @@ export default {
 
       // 检查是否已存在相同的记录（根据 vrtId 判断）
       const isExist = this.form.faultAlertRecordRespList.some(
-        item => item.id === record.id
+        item => item.cccId === record.id
       );
 
       // 如果不存在才添加
