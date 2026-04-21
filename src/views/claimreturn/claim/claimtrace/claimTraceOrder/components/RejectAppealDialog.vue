@@ -9,8 +9,8 @@
     <div class="page-common-edit vertical">
       <section class="common-section">
         <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="140px" class="form-edit" style="padding-right: 16px;">
-          <el-form-item prop="appealAuditOpinion" class="form-item-full" label="审核意见：">
-            <el-input type="textarea" v-model="form.appealAuditOpinion" placeholder="请输入" :rows="3" />
+          <el-form-item prop="auditOpinion" class="form-item-full" label="审核意见：">
+            <el-input type="textarea" v-model="form.auditOpinion" placeholder="请输入" :rows="3" />
           </el-form-item>
           <el-form-item class="form-item-full" label="申诉凭证：">
             <AisAttachment
@@ -69,7 +69,7 @@ export default {
     return {
       form: {
         id: '',
-        appealAuditOpinion: '',
+        auditOpinion: '',
         sysAutoAgreeDate: '',
       },
       submitLoading: false,
@@ -80,7 +80,7 @@ export default {
         }
       },
       rules: {
-        appealAuditOpinion: [{ required: true, message: '请输入审核意见', trigger: 'blur' }],
+        auditOpinion: [{ required: true, message: '请输入审核意见', trigger: 'blur' }],
         sysAutoAgreeDate: [{ required: true, message: '请选择系统自动同意日期', trigger: 'change' }],
       },
     };
@@ -90,7 +90,7 @@ export default {
       this.dialogVisible = val;
       if (val) {
         this.form.id = this.traceOrderId;
-        this.form.appealAuditOpinion = '';
+        this.form.auditOpinion = '';
         this.form.sysAutoAgreeDate = this.formData.sysAutoAgreeDate || '';
       }
     }

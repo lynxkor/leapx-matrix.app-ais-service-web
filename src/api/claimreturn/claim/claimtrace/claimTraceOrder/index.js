@@ -92,3 +92,21 @@ export function rejectAppeal (data) {
 export function refuseAppeal (data) {
   return api.jsonPost(prefix + 'rejectForAppeal', data);
 }
+
+// 保修工时清单分页查询
+const workhourPrefix = 'claimreturn/claim/web/warrantyapply/warrantyApplyWorkhour/';
+export function getWorkhourPage (data) {
+  return api.jsonPost(workhourPrefix + 'page', data);
+}
+
+// 保修备件清单分页查询
+const partPrefix = 'claimreturn/claim/web/warrantyapply/warrantyApplyPart/';
+export function getPartPage (data) {
+  return api.jsonPost(partPrefix + 'page', data);
+}
+
+// 保修其他清单分页查询
+const otherPrefix = 'claimreturn/claim/web/warrantyapply/warrantyApplyOther/';
+export function getOtherPage (data) {
+  return api.jsonPost(otherPrefix + 'page', data);
+}
