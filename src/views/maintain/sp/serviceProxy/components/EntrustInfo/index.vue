@@ -363,24 +363,22 @@
           {{ form.anomalyDescription }}
         </el-form-item>
       </el-form>
-      <div class="table-section" v-if="form.currentFault && _id">
+      <div class="table-section">
         <div class="table-section-header">
           <h3>添加故障模块</h3>
-          <div class="ais-select-group">
-            <base-search
-              style="width: 350px;"
-              filterable
-              clearable
-              remote
-              placeholder="请输入VRT/VFG/CCC模糊搜索"
-              :remote-method="getAlertModule"
-              @change="handleAlertModuleChange"
-              collapse-tags
-              value-key="id"
-              label-key="name"
-              :disabled="formDisabled"
-            />
-          </div>
+          <base-search
+            style="width: 450px;"
+            filterable
+            clearable
+            remote
+            :placeholder="form.currentFault && _id ? '请输入VRT/VFG/CCC模糊搜索' : '当前工单为已提交结算或者不存在故障，无需添加CCC'"
+            :remote-method="getAlertModule"
+            @change="handleAlertModuleChange"
+            collapse-tags
+            value-key="id"
+            label-key="name"
+            :disabled="formDisabled || !form.currentFault"
+          />
         </div>
         <vxe-table
           ref="faultTable"
@@ -487,19 +485,6 @@ export default {
         }
       },
       immediate: true
-    },
-    'form.currentFault': {
-      handler (val) {
-        if (val) {
-          this.rules.customerContent = [
-            { required: true, message: '请输入故障描述', trigger: 'change' }
-          ];
-        } else {
-          this.rules.customerContent = [
-            { required: false, message: '请输入故障描述', trigger: 'change' }
-          ];
-        }
-      }
     },
     'formData.orderStatus': {
       handler (val) {
@@ -716,7 +701,14 @@ export default {
               name: `${item.vrtName}-${item.vfgName}-${item.cccName}`
             };
           });
-          resolve(arr);
+          if (arr.length === 0) {
+            resolve([{
+              name: '您当前搜索的CCC不存在，请联系服务部技术支持',
+              disabled: true
+            }]);
+          } else {
+            resolve(arr);
+          }
         });
       });
     },
