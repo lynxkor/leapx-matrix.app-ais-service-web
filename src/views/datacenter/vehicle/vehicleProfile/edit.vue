@@ -457,6 +457,33 @@
                   <el-input clearable v-model="form.realnameRejectreason" placeholder="请输入" disabled />
                 </el-form-item>
               </el-form>
+              <div class="common-section-table" v-if="!(isEditing || !_id)">
+                <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
+                  min-height="0" max-height="400px">
+                  <vxe-column field="code" title="记录编号" min-width="10%" />
+                  <vxe-column field="vin" title="VIN" min-width="10%" />
+                  <vxe-column field="realnameStatusLabel" title="实名状态" min-width="10%" />
+                  <vxe-column field="operateTime" title="操作时间" min-width="10%" />
+                  <vxe-column field="desc" title="描述" min-width="10%" />
+                  <vxe-column field="iccid" title="卡ICCID" min-width="10%" />
+                  <vxe-column field="operatore" title="运营商" min-width="10%" />
+                  <template #empty>
+                    <div class="m-vxe-table-empty-text">暂无数据</div>
+                  </template>
+                </vxe-table>
+                <div class="table-pagination">
+                  <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="pageNum"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total"
+                  >
+                  </el-pagination>
+                </div>
+              </div>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="实名状态：">
                   {{ form.realnameStatusLabel }}
@@ -824,7 +851,7 @@
 </template>
 
 <script>
-import { getDetail, getDetailDecryptField, syncMaintenance, updateFlat, warrantyForecast } from '@/api/datacenter/vehicle/vehicleProfile/index';
+import { getDetail, getDetailDecryptField, syncMaintenance, updateFlat, warrantyForecast, realnameRecordPage } from '@/api/datacenter/vehicle/vehicleProfile/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -1059,6 +1086,10 @@ export default {
       modifyMaintenanceRecord: false,
       canKeyInfoChangeLog: false,
       serviceProxyHis: false,
+      pageNum: 1, // 实名认证记录分页
+      pageSize: 10,
+      total: 0,
+      tableData: [],
     };
   },
   created () {
@@ -1170,6 +1201,26 @@ export default {
     },
     onReturnSuccess () {
       this.$refs.containerRef.loadDetail();
+    },
+    // 获取实名认证记录
+    async getData () {
+      const params = {
+        vehicleProfileId: this._id,
+        pageNum: this.pageNum,
+        pageSize: this.pageSize,
+      };
+      const res = await realnameRecordPage(params);
+      this.total = res.total || 0;
+      this.tableData = res.records || [];
+    },
+    handleCurrentChange (pageNum) {
+      this.pageNum = pageNum;
+      this.getData();
+    },
+    handleSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.pageNum = 1;
+      this.getData();
     },
   }
 };
