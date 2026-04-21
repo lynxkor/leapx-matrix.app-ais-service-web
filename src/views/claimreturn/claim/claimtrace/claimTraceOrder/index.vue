@@ -234,6 +234,12 @@
       :traceOrderId="currentRow.id"
       @success="getData"
     />
+    <AdjustAmountDialog
+      :visible.sync="adjustAmountDialogVisible"
+      :traceOrderId="currentRow.id"
+      :formData="currentRow"
+      @success="getData"
+    />
   </div>
 </template>
 
@@ -241,7 +247,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, agreeIssue, agreeTrace } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
+import { getList, deleteItem, enableItem, agreeIssue, agreeTrace, getDetailDecryptField } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -261,6 +267,7 @@ import AppealDialog from './components/AppealDialog';
 import AgreeAppealDialog from './components/AgreeAppealDialog';
 import RejectAppealDialog from './components/RejectAppealDialog';
 import RefuseAppealDialog from './components/RefuseAppealDialog';
+import AdjustAmountDialog from './components/AdjustAmountDialog';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   claimTraceCode: '',
@@ -305,6 +312,7 @@ export default {
     AgreeAppealDialog,
     RejectAppealDialog,
     RefuseAppealDialog,
+    AdjustAmountDialog,
   },
   data () {
     return {
@@ -330,6 +338,7 @@ export default {
       agreeAppealDialogVisible: false,
       rejectAppealDialogVisible: false,
       refuseAppealDialogVisible: false,
+      adjustAmountDialogVisible: false,
       optionObj: {
         id: 'claimTraceOrderTable',
         dataList: [],
@@ -358,7 +367,7 @@ export default {
           },
           { props: 'traceStatusLabel', label: '追溯状态', visible: true, width: 200 },
           { props: 'warrantyCode', label: '保修申请单', visible: true, width: 200 },
-          { props: 'vin', label: 'VIN 码', visible: true, width: 200 },
+          { props: 'vin', label: 'VIN 码', visible: true, width: 200, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'vin') },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'laborClaimTotal', label: '保修工时金额', visible: true, width: 200 },
@@ -408,6 +417,15 @@ export default {
                 click: (rowIndex, row) => {
                   this.currentRow = row;
                   this.cancelOrderDialogVisible = true;
+                },
+                type: 'info'
+              },
+              {
+                name: '调整索赔金额',
+                show: (row) => [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED, TRACE_STATUS.APPEALING].includes(row.traceStatus),
+                click: (rowIndex, row) => {
+                  this.currentRow = row;
+                  this.adjustAmountDialogVisible = true;
                 },
                 type: 'info'
               },
@@ -708,7 +726,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        agreeIssue({ id: row.id }).then(() => {
+        agreeIssue(row.id).then(() => {
           this.$message.success('同意下发成功');
           this.getData();
         });
@@ -720,7 +738,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        agreeTrace({ id: row.id }).then(() => {
+        agreeTrace(row.id).then(() => {
           this.$message.success('同意追溯成功');
           this.getData();
         });
