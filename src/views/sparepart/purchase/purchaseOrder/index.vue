@@ -157,9 +157,9 @@
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button> -->
-      <el-button v-if="activeName === 'allSpareParts'" size="small" @click="handleBatchClaim" :disabled="selectionList.length === 0">提交索赔</el-button>
-      <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchSignFor(false)" :disabled="selectionList.length === 0">批量签收</el-button>
-      <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchSignFor(true)" :disabled="selectionList.length === 0">签收并入库</el-button>
+      <el-button v-if="activeName === 'allSpareParts'" size="small" @click="handleBatchClaim" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseOrder-claim'">提交索赔</el-button>
+      <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchSignFor(false)" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseOrder-sign'">批量签收</el-button>
+      <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchSignFor(true)" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseOrder-signIn'">签收并入库</el-button>
     </div>
     <div class="ais-tabs">
       <el-tabs v-model="activeName" @tab-click="handleClick">
@@ -538,7 +538,7 @@ export default {
             buttons: [{
               name: '提交索赔',
               show: (row) => {
-                return row.inboundQty !== '0';
+                return row.inboundQty !== '0' && this.permissions.has('AISPART-purchaseOrder-claim');
               },
               click: (rowIndex, row) => {
                 this.handleClaim(row);
@@ -616,12 +616,18 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '签收',
+              show: (row) => {
+                return this.permissions.has('AISPART-purchaseOrder-sign');
+              },
               click: (rowIndex, row) => {
                 this.handleSignFor(row, false, true);
               },
               type: 'info'
             }, {
               name: '签收并入库',
+              show: (row) => {
+                return this.permissions.has('AISPART-purchaseOrder-signIn');
+              },
               click: (rowIndex, row) => {
                 this.handleSignFor(row, true, true);
               },
@@ -893,6 +899,7 @@ export default {
     // 签收  签收并入库
     handleSignFor (val, type, returnError) {
       this.signForm = {
+        ...val,
         purchaseOrderDetailId: val.id,
         inbound: type,
         returnError: returnError,

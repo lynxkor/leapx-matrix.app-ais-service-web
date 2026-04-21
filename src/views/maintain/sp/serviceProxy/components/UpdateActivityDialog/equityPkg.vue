@@ -21,7 +21,7 @@
             @click="handleSelectItem(item)"
           >
             <div class="list-item__content">
-              <div class="list-item__name">{{ item.rightsName }}({{ item.usedTimes }}/{{ item.totalRemainTimes }})</div>
+              <div class="list-item__name">{{ item.rightsName }}({{ item.remainTimes }}/{{ item.totalRemainTimes }})</div>
               <div class="list-item__code">{{ item.rightsCode }}</div>
             </div>
             <!-- <i v-if="selectedItem.useId === item.useId" class="el-icon-success selected-icon"></i> -->
@@ -59,6 +59,10 @@
             <vxe-column field="checkoutTypeName" title="结算类型" width="120" />
             <vxe-column field="warrantyTypeName" title="保修类型" width="120" />
             <vxe-column field="workHour" title="工时" width="100" />
+            <vxe-column field="price" title="单价" width="100" />
+            <vxe-column field="discountRate" title="折扣率" width="100" />
+            <vxe-column field="discountAmount" title="优惠金额" width="100" />
+            <vxe-column field="repairAmount" title="项目金额" width="100" />
           </vxe-table>
         </div>
 
@@ -82,7 +86,11 @@
             <vxe-column field="repairItemTypeName" title="维修类型" width="120" />
             <vxe-column field="checkoutTypeName" title="结算类型" width="120" />
             <vxe-column field="warrantyTypeName" title="保修类型" width="120" />
-            <vxe-column field="workHour" title="工时" width="100" />
+            <vxe-column field="quantity" title="数量" width="100" />
+            <vxe-column field="price" title="单价" width="100" />
+            <vxe-column field="discountRate" title="折扣率" width="100" />
+            <vxe-column field="discountAmount" title="优惠金额" width="100" />
+            <vxe-column field="partsAmount" title="项目金额" width="100" />
           </vxe-table>
         </div>
 
@@ -171,7 +179,17 @@ export default {
     },
     // 确认操作
     async handleConfirm () {
-      await this.handleUseEquity();
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>本操作视为您进行核销本次权益套餐，请确认？</div>';
+      this.$confirm(message, '', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(() => {
+        this.handleUseEquity();
+      }).catch(() => {
+      });
     },
     // 核销使用
     async handleUseEquity () {

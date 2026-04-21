@@ -106,7 +106,7 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handlePringConfig"><i class="iconfont icon-lxppc-plus"></i>打印设置</el-button>
+      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handlePringConfig" v-permission="'AISPART-maintenanceOutboundOrder-printSetting'"><i class="iconfont icon-lxppc-plus"></i>打印设置</el-button>
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
@@ -143,9 +143,9 @@
     <RepairDialog
       ref="repairDialogRef"
       :id="maintenanceId"
-      :visible="repairDialogVisible"
-      @close="handleRepairDialogClose"
-      @success="handleRepairDialogSuccess"
+      :visible.sync="repairDialogVisible"
+      @update:visible="val => repairDialogVisible = val"
+      @success="getData"
     />
     <PrintSettings
       ref="printSettingsRef"
@@ -284,7 +284,7 @@ export default {
             buttons: [{
               name: '出库',
               show: (row) => {
-                return row.outboundStatus !== '1' && row.outboundStatus !== '2';
+                return row.outboundStatus !== '1' && row.outboundStatus !== '2' && this.permissions.has('AISPART-maintenanceOutboundOrder-outbound');
               },
               click: (rowIndex, row) => {
                 this.repairPopup(row);
@@ -292,6 +292,9 @@ export default {
               type: 'info'
             }, {
               name: '打印',
+              show: (row) => {
+                return this.permissions.has('AISPART-maintenanceOutboundOrder-print');
+              },
               click: (rowIndex, row) => {
                 this.handlePrint(row);
               },
@@ -491,14 +494,6 @@ export default {
     repairPopup (val) {
       this.maintenanceId = val.id;
       this.repairDialogVisible = true;
-    },
-    // 关闭弹窗
-    handleRepairDialogClose () {
-      this.repairDialogVisible = false;
-    },
-    handleRepairDialogSuccess () {
-      this.repairDialogVisible = false;
-      this.getData();
     },
     // 打印设置弹窗
     handlePringConfig () {

@@ -218,7 +218,7 @@
                   <vxe-column field="creatorName" title="审核人" min-width="150px" />
                   <vxe-column field="approvalOn" title="审核时间" min-width="180px" />
                   <vxe-column field="approvalResult" title="审核动作" min-width="120px" />
-                  <vxe-column field="statusDesc" title="审核状态" min-width="120px" />
+                  <vxe-column field="remark" title="审核状态" min-width="120px" />
                   <vxe-column field="content" title="审核意见" min-width="200px" />
                   <template #empty>
                     <div class="m-vxe-table-empty-text">暂无审核记录</div>

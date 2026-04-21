@@ -703,9 +703,23 @@ export default {
     },
     // 故障模块相关方法
     handleFaultExistenceChange (val) {
-      if (val === 0) {
-        // 如果选择不存在故障，清空故障列表
-        this.faultTableData = [];
+      if (val === false) {
+        // 从是变到否时弹确认
+        const message = '<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>提醒</div><div class="ais-leave-tips-sub">若本次无故障，将自动清空【故障模块】信息，请确认是否操作！</div>';
+        this.$confirm(message, '', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true,
+          customClass: 'ais-leave-tips',
+          showClose: false
+        }).then(() => {
+          // 点击确定，清空故障列表
+          this.faultTableData = [];
+          this.$message.success('故障模块信息已清空');
+        }).catch(() => {
+          // 点击取消，恢复为是
+          this.faultForm.faultFlag = true;
+        });
       }
     },
     handleDeleteFault (row) {
@@ -738,7 +752,7 @@ export default {
           targetUnitCode: this.formInline.targetUnitCode,
           beforeChangeCode: this.formInline.beforeChangeCode,
           afterChangeCode: this.formInline.afterChangeCode,
-          currentFault: this.faultForm.faultFlag === 1 ? 0 : 1,
+          currentFault: this.faultForm.faultFlag ? 1 : 0 ,
           finalCheckAt: this.filterForm.finalCheckTime,
           finalCheckerId: this.filterForm.finalChecker,
           finalChecker: this.filterForm.finalCheckerName

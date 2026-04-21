@@ -24,7 +24,7 @@
         <vxe-column type="seq" title="序号" width="60" />
         <vxe-column field="code" title="错误代码" min-width="120">
           <template #default="{ row }">
-            <el-input v-if="row.editing" v-model="row.code" size="small" placeholder="请输入错误代码" />
+            <el-input v-if="row.editing" :ref="'codeInput_' + row.id" v-model="row.code" size="small" placeholder="请输入错误代码" @input="handleCodeInput(row)" />
             <span v-else>{{ row.code }}</span>
           </template>
         </vxe-column>
@@ -65,7 +65,7 @@
         </template>
       </vxe-table>
       <!-- 注释分页 -->
-      <!-- <div class="pagination-container">
+      <div class="pagination-container">
         <el-pagination
           :current-page="pagination.pageNum"
           :page-size="pagination.pageSize"
@@ -75,7 +75,7 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
-      </div> -->
+      </div>
     </div>
     <template #footer>
       <el-button size="small" @click="dialogVisible = false">关闭</el-button>
@@ -101,7 +101,7 @@ export default {
       tableData: [],
       pagination: {
         pageNum: 1,
-        pageSize: 500,
+        pageSize: 20,
         total: 0
       },
       editingRow: null
@@ -117,6 +117,20 @@ export default {
   },
   methods: {
     handleClose () {
+      // 如果有编辑中的行，先取消编辑
+      if (this.editingRow) {
+        const index = this.tableData.findIndex(item => item === this.editingRow);
+        if (index > -1) {
+          if (this.editingRow.isNew) {
+            this.tableData.splice(index, 1);
+          } else {
+            Object.assign(this.editingRow, this.editingRow._originalData);
+            delete this.editingRow._originalData;
+            this.$set(this.editingRow, 'editing', false);
+          }
+        }
+        this.editingRow = null;
+      }
       this.dialogVisible = false;
       this.$emit('update:visible', false);
     },
@@ -153,13 +167,17 @@ export default {
         isNew: true,
         sort: this.pagination.total,
       };
-      this.tableData.push(newRow);
+      // 插入到最上面
+      this.tableData.unshift(newRow);
       this.editingRow = newRow;
-      // 滚动到底部
+      // 聚焦到第一行的错误代码输入框
       this.$nextTick(() => {
-        const tableRef = this.$refs.tableRef;
-        if (tableRef && tableRef.scrollTable) {
-          tableRef.scrollTable();
+        const inputRef = this.$refs['codeInput_' + newRow.id];
+        if (inputRef && inputRef.$el) {
+          const input = inputRef.$el.querySelector('input');
+          if (input) {
+            input.focus();
+          }
         }
       });
     },
@@ -171,6 +189,19 @@ export default {
       row._originalData = { ...row };
       this.$set(row, 'editing', true);
       this.editingRow = row;
+      // 聚焦到错误代码输入框并将光标移到末尾
+      this.$nextTick(() => {
+        const inputRef = this.$refs['codeInput_' + row.id];
+        if (inputRef && inputRef.$el) {
+          const input = inputRef.$el.querySelector('input');
+          if (input) {
+            input.focus();
+            // 将光标移动到末尾
+            const len = input.value.length;
+            input.setSelectionRange(len, len);
+          }
+        }
+      });
     },
     async handleSave (row) {
       if (!row.code) {
@@ -318,6 +349,12 @@ export default {
         this.$message.error('下移失败');
       } finally {
         this.loading = false;
+      }
+    },
+    handleCodeInput (row) {
+      // 自动转换为大写
+      if (row.code) {
+        row.code = row.code.toUpperCase();
       }
     }
   }

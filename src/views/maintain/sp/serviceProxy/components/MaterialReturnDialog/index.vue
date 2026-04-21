@@ -49,13 +49,11 @@
               />
             </template>
           </vxe-column>
-          <vxe-column title="退料状态" width="120" align="center">
+          <!-- <vxe-column title="退料状态" width="120" align="center">
             <template #default="{ row }">
               {{ getReturnStatusText(row) }}
-              <!-- <el-tag :type="getReturnStatusType(row)" size="small">
-              </el-tag> -->
             </template>
-          </vxe-column>
+          </vxe-column> -->
           <vxe-column title="操作" width="100" align="center" fixed="right" :resizable="false">
             <template #default="{ row }">
               <el-popconfirm

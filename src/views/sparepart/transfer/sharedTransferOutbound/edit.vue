@@ -7,6 +7,8 @@
           <span v-if="form.status" class="status primary">{{ form.status }}</span>
         </template>
         <template #extraButtons>
+          <el-button v-if="_id" type="primary" size="small" @click="handlePrint">打印</el-button>
+          <el-button v-if="_id && form.outboundStatus === '0'" type="primary" size="small" @click="handleShipment">发运</el-button>
         </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
@@ -245,6 +247,13 @@
       <div class="page-common-edit">
       </div>
     </template>
+    <!-- 发运弹窗 -->
+    <ShipmentDialog
+      :visible="shipmentDialogVisible"
+      :id="shipmentId"
+      @update:visible="val => shipmentDialogVisible = val"
+      @success="handleRefresh"
+    />
   </edit-page-layout>
 </template>
 
@@ -256,6 +265,7 @@ import { getEnum, getLogistics } from '@/api/common';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import ShipmentDialog from './ShipmentDialog.vue';
 
 const defaultForm = {
   code: '',
@@ -286,7 +296,8 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     EditPageLayout,
-    EditBaseContainer
+    EditBaseContainer,
+    ShipmentDialog
   },
   computed: {
     _id () {
@@ -331,7 +342,9 @@ export default {
       originalForm: { ...form },
       emptyText: '若要启用此内容，请创建记录',
       tableData: [],
-      rules: {}
+      rules: {},
+      shipmentDialogVisible: false, // 发运弹窗
+      shipmentId: '',
     };
   },
   methods: {
@@ -398,7 +411,24 @@ export default {
       } finally {
         this.loadingLogistics = false;
       }
-    }
+    },
+    // 刷新接口
+    handleRefresh () {
+      this.$refs.containerRef.loadDetail();
+    },
+    // 打印备件调拨出库单
+    handlePrint () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'SharedTransferOutbound', // 必选，对应 ./template/文件名.vue
+        title: `${this.form.dealerName}厅店共享备件调拨出库单`// 可选，打印标题
+      });
+    },
+    // 发运
+    handleShipment () {
+      this.shipmentId = this._id;
+      this.shipmentDialogVisible = true;
+    },
   }
 };
 </script>

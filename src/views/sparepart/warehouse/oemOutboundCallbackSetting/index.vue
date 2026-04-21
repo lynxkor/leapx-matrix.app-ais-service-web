@@ -142,7 +142,7 @@ export default {
             buttons: [{
               name: '关闭',
               show: (row) => {
-                return row.status === 1;
+                return row.status === 1 && this.permissions.has('AISPART-oemOutboundCallbackSetting-close');
               },
               popconfirmTitle: '确认关闭?',
               click: (rowIndex, row) => {
@@ -153,7 +153,7 @@ export default {
             {
               name: '开启',
               show: (row) => {
-                return row.status === 0;
+                return row.status === 0 && this.permissions.has('AISPART-oemOutboundCallbackSetting-open');
               },
               popconfirmTitle: '确认开启?',
               click: (rowIndex, row) => {
@@ -197,7 +197,8 @@ export default {
       this.optionObj.form.pageSize = pageSize;
       this.getData();
     },
-    exportExcel () {
+    // 导出(防抖)
+    exportExcel: debounce(function () {
       this.exportLoading = true;
       exportTable({
         businessType: 'OEM出库单回传SAP开关',
@@ -224,7 +225,7 @@ export default {
       }).finally(() => {
         this.exportLoading = false;
       });
-    },
+    }, 300),
     getData () {
       this.loading = true;
       this.selectionList = [];
@@ -305,8 +306,8 @@ export default {
       }
       return [];
     },
-    // 批量删除
-    handleBatchDelete () {
+    // 批量删除(防抖)
+    handleBatchDelete: debounce(function () {
       const ids = this.selectionList.map(item => item.id) || [];
       this.$confirm('此操作将永久删除, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -326,40 +327,18 @@ export default {
           });
         });
       }).catch(() => {});
-    },
-    // 批量启用停用
-    handleBatchEnable (status) {
+    }, 300),
+    // 批量启用停用(防抖)
+    handleBatchEnable: debounce(function (status) {
       handleBatchStatusChange.call(this, {
         selectionList: this.selectionList,
         targetStatus: status,
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
-    },
-    // 关闭
-    disable (id) {
+    }, 300),
+    // 关闭(防抖)
+    disable: debounce(function (id) {
       enableItem({ id: id, status: 0 }).then(() => {
         this.$message({
           type: 'success',
@@ -372,9 +351,9 @@ export default {
           message: '关闭失败!'
         });
       });
-    },
-    // 开启
-    enable (id) {
+    }, 300),
+    // 开启(防抖)
+    enable: debounce(function (id) {
       enableItem({ id: id, status: 1 }).then(() => {
         this.$message({
           type: 'success',
@@ -387,7 +366,7 @@ export default {
           message: '启用失败!'
         });
       });
-    },
+    }, 300),
   }
 };
 </script>

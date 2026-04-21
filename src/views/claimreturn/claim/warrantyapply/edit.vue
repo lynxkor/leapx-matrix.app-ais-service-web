@@ -1,4 +1,5 @@
 <template>
+  <div>
   <edit-base-container
     ref="containerRef"
     :id="_id"
@@ -9,6 +10,17 @@
     :submitRequest="submitRequest"
     :detailRequest="detailRequest"
   >
+    <template #extraButtons>
+      <el-button v-if="canSubmit && (form.applyStatus === '10' || form.applyStatus === '40')" type="primary" size="small" @click="handleSubmit">提交</el-button>
+      <el-button v-if="canApprove && ['20', '25', '30'].includes(form.applyStatus)" type="primary" size="small" @click="handleApprove">同意</el-button>
+      <el-button v-if="canReject && ['20', '25', '30'].includes(form.applyStatus)" type="primary" size="small" @click="handleReject(false)">驳回</el-button>
+      <el-button v-if="canApplyReject && ['20', '25', '30'].includes(form.applyStatus)" type="primary" size="small" @click="handleReject(true)">申请驳回</el-button>
+      <el-button v-if="canWithdraw && ['60', '50'].includes(form.applyStatus)" type="primary" size="small" @click="handleWithdraw">撤回</el-button>
+      <el-button v-if="canDeny && ['20', '25', '30'].includes(form.applyStatus)" type="danger" plain size="small" @click="handleDeny">拒赔</el-button>
+      <el-button v-if="canCancel && (form.applyStatus === '10' || form.applyStatus === '40')" type="danger" plain size="small" @click="handleCancel">作废</el-button>
+      <el-button :loading="printLoading" size="small" @click="handlePrint">打印标签</el-button>
+      <el-button size="small" @click="handleViewRights">查看权益</el-button>
+    </template>
     <el-main>
       <section class="common-section">
         <div class="common-section-header">
@@ -569,6 +581,38 @@
       </section>
     </el-main>
   </edit-base-container>
+  <RejectDialog
+    :visible.sync="rejectDialogVisible"
+    :rejectIds="rejectIds"
+    :isApplyReject="isApplyReject"
+    @success="handleDialogSuccess"
+  />
+  <DenyDialog
+    :visible.sync="denyDialogVisible"
+    :denyIds="denyIds"
+    @success="handleDialogSuccess"
+  />
+  <ApproveDialog
+    :visible.sync="approveDialogVisible"
+    :approveIds="approveIds"
+    @success="handleDialogSuccess"
+  />
+  <CancelDialog
+    :visible.sync="cancelDialogVisible"
+    :cancelIds="cancelIds"
+    @success="handleDialogSuccess"
+  />
+  <WithdrawDialog
+    :visible.sync="withdrawDialogVisible"
+    :withdrawIds="withdrawIds"
+    @success="handleDialogSuccess"
+  />
+  <RightsDialog
+    :visible.sync="rightsDialogVisible"
+    :vehicleProfileId="form.vehicleProfileId"
+    :id="_id"
+  />
+</div>
 </template>
 
 <script>
@@ -576,6 +620,11 @@ import {
   getDetail,
   addOrUpdate,
   getDetailDecryptField,
+  submit,
+  withdraw,
+  approve,
+  batchCancel,
+  print,
 } from '@/api/claimreturn/claim/warrantyapply/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -594,6 +643,12 @@ import ActivityTable from './ActivityTable.vue';
 import ApprovalRecordTable from './ApprovalRecordTable.vue';
 import PartTable from './PartTable.vue';
 import WarrantyApplyFile from './WarrantyApplyFile.vue';
+import RejectDialog from './RejectDialog/index.vue';
+import DenyDialog from './DenyDialog/index.vue';
+import RightsDialog from './RightsDialog/index.vue';
+import ApproveDialog from './ApproveDialog/index.vue';
+import CancelDialog from './CancelDialog/index.vue';
+import WithdrawDialog from './WithdrawDialog/index.vue';
 // 旧件供应商
 import { getList } from '@/api/sparepart/basic/sparePartSupplier/index';
 
@@ -750,6 +805,12 @@ export default {
     PartTable,
     WarrantyApplyFile,
     LPEncrypted,
+    RejectDialog,
+    DenyDialog,
+    RightsDialog,
+    ApproveDialog,
+    CancelDialog,
+    WithdrawDialog,
   },
   computed: {
     _id () {
@@ -807,42 +868,40 @@ export default {
         name: '',
       },
       emptyText: '若要启用此内容，请创建记录',
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
-      columns: [
-        {
-          field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
-        },
-        {
-          field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
-        },
-        {
-          field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
-        },
-      ],
       rules: {
       },
+      // 操作按钮权限
+      canSubmit: false,
+      canApprove: false,
+      canReject: false,
+      canApplyReject: false,
+      canWithdraw: false,
+      canDeny: false,
+      canCancel: false,
+      printLoading: false,
+      // 对话框状态
+      rejectDialogVisible: false,
+      rejectIds: [],
+      isApplyReject: false,
+      denyDialogVisible: false,
+      denyIds: [],
+      approveDialogVisible: false,
+      approveIds: [],
+      cancelDialogVisible: false,
+      cancelIds: [],
+      withdrawDialogVisible: false,
+      withdrawIds: [],
+      rightsDialogVisible: false,
     };
+  },
+  created () {
+    this.canSubmit = this.permissions.has(`${this.moduleKey}-submit`);
+    this.canApprove = this.permissions.has(`${this.moduleKey}-approve`);
+    this.canReject = this.permissions.has(`${this.moduleKey}-reject`);
+    this.canApplyReject = this.permissions.has(`${this.moduleKey}-applyReject`);
+    this.canWithdraw = this.permissions.has(`${this.moduleKey}-withdraw`);
+    this.canDeny = this.permissions.has(`${this.moduleKey}-deny`);
+    this.canCancel = this.permissions.has(`${this.moduleKey}-cancel`);
   },
   mounted () {
     // 571005W202603271622250001
@@ -955,6 +1014,69 @@ export default {
       this.form.mainPartSupplierCode = row?.supplierCode;
       this.form.mainPartSupplierName = row?.supplierName;
       this.form.mainPartSupplierId = row?.supplierInfoId;
+    },
+    // 提交
+    handleSubmit () {
+      submit({ id: this._id }).then(() => {
+        this.$message.success('提交成功');
+        this.$refs.containerRef.loadDetail();
+      });
+    },
+    // 同意
+    handleApprove () {
+      this.approveIds = [this._id];
+      this.approveDialogVisible = true;
+    },
+    // 驳回/申请驳回
+    handleReject (isApplyReject) {
+      this.rejectIds = [this._id];
+      this.isApplyReject = isApplyReject;
+      this.rejectDialogVisible = true;
+    },
+    // 撤回
+    handleWithdraw () {
+      this.withdrawIds = [this._id];
+      this.withdrawDialogVisible = true;
+    },
+    // 拒赔
+    handleDeny () {
+      this.denyIds = [this._id];
+      this.denyDialogVisible = true;
+    },
+    // 作废
+    handleCancel () {
+      this.cancelIds = [this._id];
+      this.cancelDialogVisible = true;
+    },
+    // 打印标签
+    handlePrint () {
+      this.printLoading = true;
+      print({ ids: [this._id] })
+        .then(res => {
+          if (res && res.length > 0) {
+            this.$print.show({
+              id: new Date().getTime() + '',
+              template: 'OldPartMark',
+              title: '保修旧件标签',
+              data: res,
+              width: 1122,
+              isWarrantyApply: true,
+            });
+          } else {
+            this.$message.warning('未查询到打印数据');
+          }
+        })
+        .finally(() => {
+          this.printLoading = false;
+        });
+    },
+    // 查看权益
+    handleViewRights () {
+      this.rightsDialogVisible = true;
+    },
+    // 对话框成功回调
+    handleDialogSuccess () {
+      this.$refs.containerRef.loadDetail();
     }
   }
 };

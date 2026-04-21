@@ -42,3 +42,53 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+// 提交审核
+export function submitAudit (data) {
+  return api.jsonPost(prefix + 'submitForAudit', data);
+}
+
+// 作废
+export function cancelOrder (data) {
+  return api.jsonPost(prefix + 'cancel', data);
+}
+
+// 调整追溯金额
+export function adjustTraceAmount (data) {
+  return api.jsonPost(prefix + 'adjustTraceAmount', data);
+}
+
+// 同意下发
+export function agreeIssue (data) {
+  return api.jsonPost(prefix + 'agreeIssue', data);
+}
+
+// 驳回修改
+export function rejectModify (data) {
+  return api.jsonPost(prefix + 'rejectForModify', data);
+}
+
+// 同意追溯
+export function agreeTrace (data) {
+  return api.jsonPost(prefix + 'agreeTrace', data);
+}
+
+// 申诉
+export function submitAppeal (data) {
+  return api.jsonPost(prefix + 'appeal', data);
+}
+
+// 同意申诉
+export function agreeAppeal (data) {
+  return api.jsonPost(prefix + 'agreeAppeal', data);
+}
+
+// 驳回申诉
+export function rejectAppeal (data) {
+  return api.jsonPost(prefix + 'rejectAppeal', data);
+}
+
+// 拒绝申诉
+export function refuseAppeal (data) {
+  return api.jsonPost(prefix + 'rejectForAppeal', data);
+}

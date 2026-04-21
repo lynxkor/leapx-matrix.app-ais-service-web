@@ -161,7 +161,7 @@
                         disabled
                       />
                     </el-form-item>
-                    <el-form-item label="动力电池号：" prop="powerBatteryNumber">
+                    <el-form-item label="电池序列号：" prop="powerBatteryNumber">
                       <el-input
                         placeholder="请输入"
                         v-model="form.powerBatteryNumber"
@@ -169,7 +169,7 @@
                         disabled
                       />
                     </el-form-item>
-                    <el-form-item label="驱动电机号：" prop="motorSerialNumber">
+                    <el-form-item label="电机序列号：" prop="motorSerialNumber">
                       <el-input
                         placeholder="请输入"
                         v-model="form.motorSerialNumber"
@@ -268,13 +268,13 @@
                     <el-form-item label="里程数（KM)：" prop="mileage">
                       {{ form.mileage }}
                     </el-form-item>
-                    <el-form-item label="动力电池号：" prop="powerBatteryNumber">
+                    <el-form-item label="电池序列号：" prop="powerBatteryNumber">
                       {{ form.powerBatteryNumber }}
                     </el-form-item>
-                    <el-form-item label="驱动电机号：" prop="motorSerialNumber">
+                    <el-form-item label="电机序列号：" prop="motorSerialNumber">
                       {{ form.motorSerialNumber }}
                     </el-form-item>
-                    <el-form-item label="VFG名称：" prop="vrtName">
+                    <el-form-item label="VRT名称：" prop="vrtName">
                       {{ form.vrtName }}
                     </el-form-item>
                     <el-form-item label="VFG名称：" prop="vfgName">
@@ -636,7 +636,7 @@
               <h2>故障代码</h2>
             </div>
             <div class="common-section-body">
-              <div class="common-section-header">
+              <div class="common-section-header" v-show="canEdit">
                 <el-button size="small" type="primary" @click="handleAddRow()">添加</el-button>
               </div>
               <div class="common-section-table">
@@ -647,7 +647,7 @@
                   :defaultNewRow="defaultNewRowFault"
                   :show-toolbar="false"
                   :delTitle="delTitleFault"
-                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                  :auth="{edit: canAddOrUpdate && canEdit, delete: canDelete && canEdit}"
                   :enableSingleRowSave="true"
                   @save-row-edit="saveRowEdit"
                 />
@@ -659,7 +659,7 @@
               <h2>附件材料</h2>
             </div>
             <div class="common-section-body">
-              <Attachment v-if="_id" :_id="_id" :show-upload="true" ref="attachmentRef"/>
+              <Attachment v-if="_id" :_id="_id" :show-upload="canEdit" ref="attachmentRef"/>
             </div>
           </section>
           <section class="common-section" v-if="_id">
@@ -812,7 +812,7 @@ const defaultForm = {
   remark: '',
   status: '',
   statusDesc: '',
-  carIsVehicle: '',
+  carIsVehicle: 0,
   vehModelId: '',
   comments: '',
   customerContent: '',
@@ -823,11 +823,11 @@ const defaultForm = {
   diagnosisContent: '',
   faultPhenomena: '',
   feedbackDate: '',
-  ifDrive: '',
+  ifDrive: 0,
   ifHaveDtc: '',
-  isModifiedParts: '',
-  isPresent: '',
-  isQuestionOk: '',
+  isModifiedParts: 0,
+  isPresent: 0,
+  isQuestionOk: 0,
   malfunctionFrequency: '',
   malfunctionLocations: '',
   malfunctions: '',
@@ -1220,6 +1220,30 @@ export default {
     },
     // 项目维修代码
     handleServiceProxyChange (val, record) {
+      if (record.createTime) {
+        const createTime = new Date(record.createTime);
+        const now = new Date();
+        // 计算两个日期的月份差
+        const monthDiff = (now.getFullYear() - createTime.getFullYear()) * 12 + (now.getMonth() - createTime.getMonth());
+
+        // 如果月份差大于等于2，或者虽然月份差小于2但具体天数导致实际超过2个月（更精确的判断）
+        // 这里使用简单的时间戳比较：2个月约为 60天 (30*2) 或更精确的日期计算
+        // 更严谨的做法是设置一个2个月前的时间点进行比较
+        const twoMonthsAgo = new Date();
+        twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+
+        if (createTime < twoMonthsAgo) {
+          this.$message({
+            type: 'error',
+            message: '施工单开单时间超过2个月，不能创建!'
+          });
+          // 清空已选择的施工单相关数据，防止用户继续操作
+          this.form.serviceProxyCode = '';
+          this.form.serviceProxyId = '';
+          return;
+        }
+      }
+
       if (record) {
         this.form.serviceProxyId = record.id;
         this.form.serviceProxyCode = record.code;

@@ -31,6 +31,7 @@
             style="width: 120px;"
             @change="handleDiscountModeChange"
             @clear="handleDiscountModeChange"
+            :disabled="disabled"
             clearable
           >
             <el-option :label="item.name" :value="item.id" v-for="item in discountType" :key="item.id"></el-option>
@@ -83,6 +84,7 @@
               @select="handleSelect"
               size="small"
               :trigger-on-focus="false"
+              :disabled="disabled"
               clearable
             >
               <template #suffix>
@@ -103,6 +105,7 @@
               @select="handleSelectPart"
               size="small"
               :trigger-on-focus="false"
+              :disabled="disabled"
               clearable
             >
               <template #suffix>
@@ -183,7 +186,7 @@
               </vxe-column>
               <vxe-column field="checkoutTypeName" title="结算类型" width="120px">
                 <template #default="{ row }">
-                  <template v-if="row.id || row.packageId">{{ row?.checkoutTypeName }}</template>
+                  <template v-if="row.packageId">{{ row?.checkoutTypeName }}</template>
                   <el-select
                     v-else
                     v-model="row.checkoutTypeName"
@@ -204,7 +207,9 @@
               </vxe-column>
               <vxe-column field="warrantyTypeName" title="保修类型" width="150px">
                 <template #default="{ row }">
+                  <template v-if="row.packageId">{{ row?.warrantyTypeName }}</template>
                   <el-select
+                    v-else
                     v-model="row.warrantyTypeName"
                     size="small"
                     placeholder="请选择"
@@ -217,7 +222,7 @@
                       :label="item.warrantyTypeName"
                       :value="item.warrantyTypeName"
                       :disabled="!checkIfWarrantyTypeEditable(row, item.warrantyTypeId)"
-                />
+                    />
                   </el-select>
                 </template>
               </vxe-column>
@@ -239,7 +244,7 @@
               <vxe-column field="discountRate" title="折扣率" width="120px" />
               <vxe-column field="discountAmount" title="优惠金额" width="160px">
                 <template #default="{ row }">
-                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount | tofixed2 }}</template>
+                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE">{{ row?.discountAmount | tofixed2 }}</template>
                   <el-input-number
                     v-else
                     v-model="row.discountAmount"
@@ -264,7 +269,8 @@
               <vxe-column field="packageCode" title="套餐代码" width="120px" />
               <vxe-column title="操作" width="100" align="center" fixed="right">
                 <template #default="{ row, rowIndex }">
-                  <span v-if="row.packageId" :class="['btn-delete', {'disabled': row.workRecordStatus === 40}]" @click="handleRemoveItemRow(rowIndex, row)">删除</span>
+                  <span class="btn-delete disabled" v-if="disabled">删除</span>
+                  <span v-else-if="row.packageId" :class="['btn-delete', {'disabled': row.workRecordStatus === 40}]" @click="handleRemoveItemRow(rowIndex, row)">删除</span>
                   <el-popconfirm v-else title="确定要删除这条记录吗？" @confirm="handleRemoveItemRow(rowIndex, row)">
                     <span slot="reference" :class="['btn-delete'/*, {'disabled': row.workRecordStatus === 40}*/]">删除</span>
                   </el-popconfirm>
@@ -296,13 +302,15 @@
               <vxe-column field="partsName" title="零件名称" width="180px" />
               <vxe-column field="repairItemTypeName" title="维修类型" width="150px">
                 <template #default="{ row }">
+                  <template v-if="row.packageId">{{ row?.repairItemTypeName }}</template>
                   <el-select
+                    v-else
                     v-model="row.repairItemTypeName"
                     size="small"
                     placeholder="请选择"
                     filterable
                     :disabled="row.repairItemDisabled"
-                  @change="handlePartRepairItemTypeChange(row)"
+                    @change="handlePartRepairItemTypeChange(row)"
                   >
                     <el-option
                       v-for="item in itemOptions.repairItemTypeName"
@@ -315,12 +323,14 @@
               </vxe-column>
               <vxe-column field="checkoutTypeName" title="结算类型" width="120px">
                 <template #default="{ row }">
+                  <template v-if="row.packageId">{{ row?.checkoutTypeName }}</template>
                   <el-select
+                    v-else
                     v-model="row.checkoutTypeName"
                     size="small"
                     placeholder="请选择"
                     filterable
-                        @change="handlePartCheckoutTypeChange(row)"
+                    @change="handlePartCheckoutTypeChange(row)"
                   >
                     <el-option
                       v-for="item in filteredPartCheckoutTypes"
@@ -334,7 +344,9 @@
               </vxe-column>
               <vxe-column field="warrantyTypeName" title="保修类型" width="150px">
                 <template #default="{ row }">
+                  <template v-if="row.packageId">{{ row?.warrantyTypeName }}</template>
                   <el-select
+                    v-else
                     v-model="row.warrantyTypeName"
                     size="small"
                     placeholder="请选择"
@@ -347,7 +359,7 @@
                       :label="item.warrantyTypeName"
                       :value="item.warrantyTypeName"
                       :disabled="!checkIfWarrantyTypeEditable(row, item.warrantyTypeId)"
-                />
+                    />
                   </el-select>
                 </template>
               </vxe-column>
@@ -362,7 +374,7 @@
               </vxe-column>
               <vxe-column field="quantity" title="数量" width="160px">
                 <template #default="{ row }">
-                  <template v-if="row.isOutstock">{{ row.quantity }}</template>
+                  <template v-if="row.isOutstock || row.packageId">{{ row.quantity }}</template>
                   <el-input-number
                     v-else
                     v-model="row.quantity"
@@ -377,7 +389,7 @@
               <vxe-column field="discountRate" title="折扣率" width="120px" />
               <vxe-column field="discountAmount" title="优惠金额" width="160px">
                 <template #default="{ row }">
-                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">{{ row?.discountAmount | tofixed2 }}</template>
+                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE">{{ row?.discountAmount | tofixed2 }}</template>
                   <el-input-number
                     v-else
                     v-model="row.discountAmount"
@@ -404,9 +416,9 @@
                     size="small"
                     placeholder="请选择"
                     filterable
-                    :disabled="!!row.autoImport"
+                    :disabled="!!row.autoImport || !!row.packageId"
                     clearable
-                  @change="handlePartRepairItemNameChange(row)"
+                    @change="handlePartRepairItemNameChange(row)"
                   >
                     <el-option
                       v-for="item in repairItemNameOptions"
@@ -422,7 +434,8 @@
               <vxe-column field="packageCode" title="套餐代码" width="120px" />
               <vxe-column title="操作" width="150" align="center" fixed="right">
                 <template #default="{ row, rowIndex }">
-                  <span slot="reference" v-if="row.packageId" :class="['btn-delete', {'disabled': !!row.isOutstock}]" @click="handleRemovePartRow(rowIndex, row)">删除</span>
+                  <span class="btn-delete disabled" v-if="disabled">删除</span>
+                  <span slot="reference" v-else-if="row.packageId" :class="['btn-delete', {'disabled': !!row.isOutstock}]" @click="handleRemovePartRow(rowIndex, row)">删除</span>
                   <el-popconfirm v-else title="确定要删除这条记录吗？" @confirm="handleRemovePartRow(rowIndex, row)" :disabled="!!!!row.isOutstock">
                     <span slot="reference" :class="['btn-delete', {'disabled': !!row.isOutstock}]">删除</span>
                   </el-popconfirm>
@@ -446,7 +459,7 @@
       <template v-slot:footer>
         <div class="dialog-footer">
           <el-button size="small" @click="close">取 消</el-button>
-          <el-button size="small" :loading="submitLoading" type="primary" @click="submit">保 存</el-button>
+          <el-button size="small" :loading="submitLoading" type="primary" @click="submit" :disabled="disabled">保 存</el-button>
         </div>
       </template>
     </el-dialog>
@@ -508,6 +521,7 @@ export default {
 
       // 常量
       universalLaborHourItemId: UNIVERSAL_LABOR_HOUR_ITEM_ID,
+      PackageTypeEnum,
 
       // 维修项目表格配置
       itemData: [],
@@ -596,6 +610,10 @@ export default {
       return this.itemOptions.warrantyTypeName.filter(item =>
         allowedIds.includes(item.warrantyTypeId)
       );
+    },
+    disabled () {
+      // 禁用条件：订单审核完成（目前后端会根据善意保修过滤）
+      return this.vehicleInfo.isAuditComplete;
     }
   },
   watch: {
@@ -656,6 +674,7 @@ export default {
       });
     },
     handleOpenDialog (type) {
+      if (this.disabled) return;
       this.currentPackageType = type;
       this.updateDialogVisible = true;
     },
@@ -737,7 +756,7 @@ export default {
         selectedItem.partsRespList.forEach(part => {
           const discountAmount = Number(part.price || 0) * (Number(this.selectedDiscount?.discountPartRate || 0) || 0);
           const newPart = {
-            partsId: part.id,
+            partsId: part.partsId,
             partsCode: part.partsCode || '',
             partsName: part.partsName || '',
             repairItemTypeId: selectedItem.repairItemTypeId || this.repairType,
@@ -844,6 +863,16 @@ export default {
           return;
         }
       }
+
+      const preSaleItem2 = this.itemData.filter(item => item.warrantyTypeId === WarrantyTypeEnum.GOODWILL_WARRANTY) || [];
+      const preSalePart2 = this.partData.filter(item => item.warrantyTypeId === WarrantyTypeEnum.GOODWILL_WARRANTY) || [];
+      if (preSaleItem2.length > 0 || preSalePart2.length > 0) {
+        if ((this.itemData.length && preSaleItem2.length < this.itemData.length) || (this.partData.length && preSalePart2.length < this.partData.length)) {
+          this.$message.warning('善意保修只能单独开单');
+          return;
+        }
+      }
+
       this.submitLoading = true;
 
       const data = {
@@ -1001,7 +1030,7 @@ export default {
       }
       if (Number(item.salePrice) > 0) {
         // 校验是否重复添加
-        const target = this.partData.find(el => el.partsId === item.id);
+        const target = this.partData.some(el => el.partsId === item.id && !el.isOutstock);
         if (target) {
           this.$message.error('该零件已存在，请勿重复添加');
           return;
@@ -1021,7 +1050,7 @@ export default {
 
       // 更新维修项目的折扣率
       this.itemData.forEach(item => {
-        if (!this.checkoutTypeIncluded(item.checkoutTypeId)) {
+        if (!this.checkoutTypeIncluded(item.checkoutTypeId) && !this.packageTypeIncluded(item.packageType)) {
           item.discountRate = discountWorkhourRate || 0;
           // 重新计算优惠金额和项目金额
           const originalAmount = item.workHour * item.price;
@@ -1032,7 +1061,7 @@ export default {
 
       // 更新维修配件的折扣率
       this.partData.forEach(part => {
-        if (!this.checkoutTypeIncluded(part.checkoutTypeId)) {
+        if (!this.checkoutTypeIncluded(part.checkoutTypeId) && !this.packageTypeIncluded(part.packageType)) {
           part.discountRate = discountPartRate || 0;
           // 重新计算优惠金额和配件金额
           const originalAmount = part.quantity * part.price;
@@ -1140,8 +1169,9 @@ export default {
         // 使用提取的方法获取过滤后的保修类型选项
         const checkoutTypeObj = this.filteredRepairItemCheckoutTypes.find(item => item.checkoutTypeName === row.checkoutTypeName) || selected;
         const warrantyTypes = this.getWarrantyTypeOptions(checkoutTypeObj, 'repairItem');
-        row.warrantyTypeId = warrantyTypes?.[0]?.warrantyTypeId;
-        row.warrantyTypeName = warrantyTypes?.[0]?.warrantyTypeName;
+        const allowType = warrantyTypes.filter(el => this.checkIfWarrantyTypeEditable(row, el.warrantyTypeId));
+        row.warrantyTypeId = allowType?.[0]?.warrantyTypeId;
+        row.warrantyTypeName = allowType?.[0]?.warrantyTypeName;
       }
     },
     // 保修类型变化
@@ -1184,8 +1214,9 @@ export default {
         // 使用提取的方法获取过滤后的保修类型选项
         const checkoutTypeObj = this.filteredPartCheckoutTypes.find(item => item.checkoutTypeName === row.checkoutTypeName) || selected;
         const warrantyTypes = this.getWarrantyTypeOptions(checkoutTypeObj, 'part');
-        row.warrantyTypeId = warrantyTypes?.[0]?.warrantyTypeId;
-        row.warrantyTypeName = warrantyTypes?.[0]?.warrantyTypeName;
+        const allowType = warrantyTypes.filter(el => this.checkIfWarrantyTypeEditable(row, el.warrantyTypeId));
+        row.warrantyTypeId = allowType?.[0]?.warrantyTypeId;
+        row.warrantyTypeName = allowType?.[0]?.warrantyTypeName;
       }
     },
     // 保修类型变化
@@ -1220,6 +1251,8 @@ export default {
         row.repairItemTypeId = selectedItem.repairItemTypeId;
         row.checkoutTypeName = selectedItem.checkoutTypeName;
         row.checkoutTypeId = selectedItem.checkoutTypeId;
+        row.warrantyTypeId = selectedItem.warrantyTypeId;
+        row.warrantyTypeName = selectedItem.warrantyTypeName;
         row.isBindltem = 1;
       } else {
         row.repairItemId = null;
@@ -1229,6 +1262,11 @@ export default {
     // 结算类型是否为合同、保修
     checkoutTypeIncluded (type) {
       return type === CheckoutTypeEnum.WARRANTY || type === CheckoutTypeEnum.CONTRACT;
+    },
+
+    // 套餐类型是否为商城订单
+    packageTypeIncluded (type) {
+      return (type || '').toString() === PackageTypeEnum.STORE;
     },
 
     // 【结算类型】为保修，【保修类型】为：技术服务活动 选不到

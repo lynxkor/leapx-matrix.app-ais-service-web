@@ -139,8 +139,8 @@
         <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
         <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
         <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-        <el-button size="small" @click="handleBatchAgree" :disabled="selectionList.length === 0">批量通过</el-button>
-        <el-button size="small" @click="handleBatchReject" :disabled="selectionList.length === 0">批量驳回</el-button>
+        <el-button size="small" @click="handleBatchAgree" :disabled="selectionList.length === 0" v-permission="'AISPART-accountOperateDeductionApply-agree'">批量通过</el-button>
+        <el-button size="small" @click="handleBatchReject" :disabled="selectionList.length === 0" v-permission="'AISPART-accountOperateDeductionApply-reject'">批量驳回</el-button>
       </div>
       <div
         class="ais-table-c"
@@ -324,7 +324,7 @@ export default {
             }, {
               name: '提交',
               show: (row) => {
-                return row.approvalStatus === '10' || row.approvalStatus === '40';
+                return (row.approvalStatus === '10' || row.approvalStatus === '40') && this.permissions.has('AISPART-accountOperateDeductionApply-commit');
               },
               click: (rowIndex, row) => {
                 this.handleSubmit(row.id);
@@ -333,7 +333,7 @@ export default {
             }, {
               name: '通过',
               show: (row) => {
-                return row.approvalStatus === '20';
+                return row.approvalStatus === '20' && this.permissions.has('AISPART-accountOperateDeductionApply-agree');
               },
               click: (rowIndex, row) => {
                 this.handleAgree(row.id);
@@ -342,7 +342,7 @@ export default {
             }, {
               name: '驳回',
               show: (row) => {
-                return row.approvalStatus === '20';
+                return row.approvalStatus === '20' && this.permissions.has('AISPART-accountOperateDeductionApply-reject');
               },
               click: (rowIndex, row) => {
                 this.handleReject(row.id);

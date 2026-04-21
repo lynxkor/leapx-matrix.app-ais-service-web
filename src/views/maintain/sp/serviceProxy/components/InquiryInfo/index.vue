@@ -1,94 +1,118 @@
 <template>
-	<section class="common-section">
-		<div class="common-section-header fold">
-			<h2>问诊信息</h2>
-		</div>
-		<div class="common-section-body">
-			<div class="common-section-table table-section">
-				<vxe-table
-          ref="faultTable"
-          :data="form.faultAlertRecordRespList"
-          stripe
-          show-overflow
-          :row-config="{ isHover: true }"
-          resizable
-          min-height="0"
-          max-height="500px"
-          border="inner"
-          size="medium"
-        >
-          <vxe-column field="vrtName" title="VRT名称" min-width="150"/>
-          <vxe-column field="vfgName" title="VFG名称" min-width="150"/>
-          <vxe-column field="cccName" title="CCC名称" min-width="150"/>
-          <vxe-column field="alertModule" title="是否提醒模块" width="150" align="center">
-            <template #default="{ row }">
-              <span>{{ row.alertModule === 1 ? '是' : '否' }}</span>
-            </template>
-          </vxe-column>
-          <vxe-column field="currentSituationText" title="本次进店情况(周期内)" min-width="150"/>
-          <vxe-column field="faultAlert" title="故障提醒内容" min-width="150"/>
-          <vxe-column title="操作" width="100" align="center" fixed="right" :resizable="false">
-            <template #default="{ row }">
-              <el-popconfirm
-                title="确定删除此故障吗？"
-                @confirm="handleDeleteFault(row)"
-              >
-                <span
-                  class="action-button btn-delete"
-                  slot="reference"
-                  type="text">
-                  删除故障
-                </span>
-              </el-popconfirm>
-            </template>
-          </vxe-column>
-          <template #empty>
-            <div class="m-vxe-table-empty-text">若要启用此内容，请创建记录</div>
-          </template>
-        </vxe-table>
-			</div>
-		</div>
-	</section>
+  <section class="common-section" v-if="externalFiles.length && internalFiles.length">
+    <div class="common-section-header">
+      <h2>问诊信息</h2>
+    </div>
+    <div class="common-section-body">
+      <div class="table-section" v-if="externalFiles.length">
+        <div class="table-section-header">
+          <h3>外部检查</h3>
+        </div>
+        <FileDisplay :fileList="externalFiles" @delete="handleDelete" @update="loadAttachmentList" />
+      </div>
+      <div class="table-section" v-if="internalFiles.length">
+        <div class="table-section-header">
+          <h3>内部检查</h3>
+        </div>
+        <FileDisplay :fileList="internalFiles" @delete="handleDelete" @update="loadAttachmentList" />
+      </div>
+    </div>
+  </section>
 </template>
 <script>
+import FileDisplay from '@/libs/components/AisAttachment/FileDisplay/index.vue';
+import { deleteFile, getFileList } from '@/libs/api/attachment';
+import { isFileType } from '@/libs/utils/file';
+
 export default {
+  components: {
+    FileDisplay
+  },
   props: {
-    formData: {
-      type: Object,
-      default: () => {}
-    },
     _id: {
       type: [String, Number],
-      default: null
+      required: true
+    },
+    formData: {
+      type: Object,
+      default: () => ({})
     }
   },
-  components: {
-    // FetchSelect
+  data () {
+    return {
+      externalFiles: [],
+      internalFiles: [],
+      loading: false
+    };
   },
   watch: {
-    formData: {
+    _id: {
       handler (val) {
         if (val) {
-          this.form = val;
+          this.loadAttachmentList();
         }
       },
       immediate: true
     }
   },
-  data () {
-    return {
-      form: {},
-    };
-  },
+  // mounted () {
+  //   if (this._id) {
+  //     this.loadAttachmentList();
+  //   }
+  // },
   methods: {
+    async loadAttachmentList () {
+      if (!this._id) return;
+      this.loading = true;
+      try {
+        const [extRes, intRes] = await Promise.all([
+          getFileList({ businessId: this._id, attachType: '车外照片' }),
+          getFileList({ businessId: this._id, attachType: '车内照片' })
+        ]);
+        this.externalFiles = this.normalizeFiles(extRes && extRes.data ? extRes.data : []);
+        this.internalFiles = this.normalizeFiles(intRes && intRes.data ? intRes.data : []);
+      } catch (error) {
+        console.error('加载附件列表失败:', error);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    normalizeFiles (list) {
+      return list.map(file => ({
+        ...file,
+        url: file.fileUrl,
+        name: file.fileName,
+        isImage: isFileType(file, 'image'),
+        isVideo: isFileType(file, 'video'),
+        isPdf: isFileType(file, 'pdf'),
+        isExcel: isFileType(file, 'excel'),
+        isWord: isFileType(file, 'word'),
+        isPPT: isFileType(file, 'ppt'),
+        isZip: isFileType(file, 'zip'),
+        isRar: isFileType(file, 'rar')
+      }));
+    },
+
+    async handleDelete ({ file }) {
+      try {
+        await deleteFile([file.id]);
+        this.$message.success('删除成功');
+        this.loadAttachmentList();
+        this.$emit('refresh');
+      } catch (error) {
+        this.$message.error('删除失败');
+      }
+    }
   }
 };
-
 </script>
 <style scoped lang="scss">
-.table-section{
+.table-section {
+  margin-top: 16px;
+
   &-header {
-    h3{
+    h3 {
       font-size: 14px;
     }
     margin: 8px 0;
@@ -96,13 +120,8 @@ export default {
     align-items: center;
     gap: 10px;
   }
-  .m-vxe-table-empty-text {
-    text-align: left;
-  }
-  ::v-deep .vxe-table--empty-content {
-    color: var(--leap-color-default-light-2);
-    width: 100%;
-    padding: 0 16px;
+  ::v-deep .file-item .desc {
+    display: none;
   }
 }
 </style>

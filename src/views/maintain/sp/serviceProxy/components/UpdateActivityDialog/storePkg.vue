@@ -54,7 +54,7 @@
         <div class="detail-header">商品明细</div>
 
         <!-- 项目列表 -->
-        <div class="project-list">
+        <div class="project-list" v-if="projectList.length">
           <div
             v-for="(project, index) in projectList"
             :key="index"
@@ -109,7 +109,7 @@
               <div class="parts-section">
                 <div class="section-title">维修零件</div>
                 <vxe-table
-                  :data="project.goodsPartsList"
+                  :data="project.ownersEquityOrderPartsList"
                   stripe
                   resizable
                   border="inner"
@@ -133,13 +133,17 @@
           </div>
         </div>
 
+        <div v-else class="empty-state">
+          <span>暂无数据</span>
+        </div>
+
         <!-- 底部操作栏 -->
         <div class="footer-bar">
           <el-popconfirm
             :title="!selectedPackage?.used ? '确定取消使用该商城订单？' : '确定选择使用该商城订单？'"
             @confirm="handleConfirm"
           >
-            <el-button :type="selectedPackage?.used ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
+            <el-button :disabled="projectList.length === 0" :type="selectedPackage?.used ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
           </el-popconfirm>
         </div>
       </div>
@@ -267,10 +271,10 @@ export default {
           id: this.vehicleInfo.id
         };
         const res = await getEoDetail(params);
-        this.projectList = res?.interestsGoodsResp?.goodsRepairItemList?.map(item => ({
+        this.projectList = res?.ownersEquityOrderItemList?.map(item => ({
           ...item,
           expanded: true,
-        }));
+        })) || [];
       } catch (error) {
         console.error('获取套餐详情失败', error);
         this.projectList = [];

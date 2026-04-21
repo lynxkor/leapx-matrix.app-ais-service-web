@@ -12,6 +12,10 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
+        <template #extraButtons>
+          <el-button v-if="_id" type="primary" size="small" @click="handlePrint">打印</el-button>
+          <el-button v-if="_id && form.signStatus === '0'" type="primary" size="small" @click="handleSign">签收</el-button>
+        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
@@ -187,7 +191,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, sharedTransferInboundDetailPage } from '@/api/sparepart/transfer/sharedTransferInbound/index';
+import { getDetail, addOrUpdate, sharedTransferInboundDetailPage, getSign } from '@/api/sparepart/transfer/sharedTransferInbound/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, getLogistics } from '@/api/common';
@@ -410,7 +414,35 @@ export default {
       } finally {
         this.loadingLogistics = false;
       }
-    }
+    },
+    // 打印备件调拨入库单
+    handlePrint () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'SharedTransferReceipt', // 必选，对应 ./template/文件名.vue
+        title: `${this.form.dealerName}厅店共享备件调拨入库单`// 可选，打印标题
+      });
+    },
+    // 签收
+    async handleSign () {
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确定签收吗?</div>';
+      this.$confirm(message, '', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(async () => {
+        // 调用接口
+        await getSign({ id: this._id });
+        this.$message({
+          type: 'success',
+          message: '签收成功!'
+        });
+        this.$refs.containerRef.loadDetail();
+      }).catch(() => {
+      });
+    },
   }
 };
 </script>

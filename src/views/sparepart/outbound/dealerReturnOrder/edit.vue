@@ -10,8 +10,10 @@
           <!-- <span class="status primary">状态</span> -->
         </template>
         <template #extraButtons>
-          <!-- <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button> -->
+          <el-button v-if="permissions.has('AISPART-dealerReturnOrder-outbound')" type="primary" size="small" @click="handlePrint">打印出库单</el-button>
+          <el-button v-if="form.orderStatus === '10' && permissions.has('AISPART-dealerReturnOrder-agree')" type="primary" size="small" @click="handleAgree">通过</el-button>
+          <el-button v-if="form.orderStatus === '10' && permissions.has('AISPART-dealerReturnOrder-cancel')" type="primary" size="small" @click="handleCancel">作废</el-button>
+          <el-button v-if="form.orderStatus === '20' && form.outboundStatus === '10' && permissions.has('AISPART-dealerReturnOrder-outbound')" type="primary" size="small" @click="handleOutbound">出库</el-button>
         </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
@@ -22,22 +24,22 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="外购退货单号：" prop="code">
-                  {{ form.code }}
+                  <el-input v-model="form.code" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="备件仓库：" prop="warehouseId">
-                  {{ form.warehouseName }}
+                  <el-input v-model="form.warehouseName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="订单状态：" prop="orderStatus">
-                  {{ form.orderStatusLabel }}
+                  <el-input v-model="form.orderStatusLabel" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="外购件入库单：" prop="dealerInboundOrderCode">
-                  {{ form.dealerInboundOrderCode }}
+                  <el-input v-model="form.dealerInboundOrderCode" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="供应商名称：" prop="supplierInfoId">
-                  {{ form.supplierInfoName }}
+                  <el-input v-model="form.supplierInfoName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
+                  <el-input v-model="form.dealerName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark" style="width: 100%;">
                   <el-input placeholder="请输入" v-model="form.remark" type="textarea" clearable maxLength="500" show-word-limit />
@@ -53,22 +55,22 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="提交人：" prop="submitterName">
-                  {{ form.submitterName }}
+                  <el-input v-model="form.submitterName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="提交时间：" prop="submitTime">
-                  {{ form.submitTime }}
+                  <el-input v-model="form.submitTime" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="退货说明：" prop="returnDescription">
-                  {{ form.returnDescription }}
+                  <el-input v-model="form.returnDescription" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="审批人：" prop="approverName">
-                  {{ form.approverName }}
+                  <el-input v-model="form.approverName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
-                  {{ form.approvalTime }}
+                  <el-input v-model="form.approvalTime" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="审批说明：" prop="approvalDescription">
-                  {{ form.approvalDescription }}
+                  <el-input v-model="form.approvalDescription" placeholder="请输入" disabled />
                 </el-form-item>
               </el-form>
             </div>
@@ -81,16 +83,16 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="出库状态：" prop="outboundStatus">
-                  {{ form.outboundStatusLabel }}
+                  <el-input v-model="form.outboundStatusLabel" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="出库操作人：" prop="outboundOperatorName">
-                  {{ form.outboundOperatorName }}
+                  <el-input v-model="form.outboundOperatorName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="出库总金额：" prop="totalAmount">
-                  {{ form.totalAmount }}
+                  <el-input v-model="form.totalAmount" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="出库时间：" prop="outboundTime">
-                  {{ form.outboundTime }}
+                  <el-input v-model="form.outboundTime" placeholder="请输入" disabled />
                 </el-form-item>
               </el-form>
             </div>
@@ -196,13 +198,6 @@
                   <vxe-column field="outboundQty" title="出库数量" min-width="10%" />
                   <vxe-column field="outboundAmount" title="出库金额" min-width="10%" />
                   <vxe-column field="createTime" title="创建时间" min-width="10%" />
-                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
-                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                      </el-popconfirm>
-                    </template>
-                  </vxe-column>
                   <template #empty>
                     <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
                   </template>
@@ -234,7 +229,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, dealerReturnOrderDetailPage } from '@/api/sparepart/outbound/dealerReturnOrder/index';
+import { getDetail, addOrUpdate, dealerReturnOrderDetailPage, dealerReturnOrderAgree, dealerReturnOrderCancel, dealerReturnOrderOutbound } from '@/api/sparepart/outbound/dealerReturnOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -243,6 +238,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { handleCommonAction } from '@/libs/utils/index';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -453,6 +449,52 @@ export default {
       this.pageSize = pageSize;
       this.pageNum = 1;
       this.getData();
+    },
+    // 打印外购件退货单
+    handlePrint () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'ReturnOrderPurchased', // 必选，对应 ./template/文件名.vue
+        title: `${this.form.dealerName}厅店外购件退货单`// 可选，打印标题
+      });
+    },
+    // 执行通用操作
+    _handleAction (apiFn, config) {
+      handleCommonAction({
+        $confirm: this.$confirm,
+        $message: this.$message,
+        apiFn,
+        id: this._id,
+        config,
+        onSuccess: () => this.$refs.containerRef.loadDetail()
+      });
+    },
+    // 通过
+    async handleAgree () {
+      await this._handleAction(dealerReturnOrderAgree, { title: '此操作将通过订单, 是否继续?', success: '通过成功' });
+    },
+    // 作废
+    async handleCancel () {
+      this.$prompt('请输入审批原因！', '作废', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /.+/, // 校验非空
+        inputErrorMessage: '请输入备注',
+      }).then(({ value }) => {
+        // 调用 API，并传入用户输入的备注
+        return dealerReturnOrderCancel({ id: this._id, description: value });
+      }).then(() => {
+        // 提示成功
+        this.$message.success('作废成功');
+        // 执行额外回调（比如刷新列表）
+        this.$refs.containerRef.loadDetail();
+      }).catch(() => {
+        // 用户取消或校验失败，静默处理
+      });
+    },
+    // 出库
+    async handleOutbound () {
+      await this._handleAction(dealerReturnOrderOutbound, { title: '此操作将出库订单, 是否继续?', success: '出库成功' });
     },
   }
 };

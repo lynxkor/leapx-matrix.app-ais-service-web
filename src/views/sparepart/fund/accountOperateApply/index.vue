@@ -139,8 +139,8 @@
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button size="small" @click="handleBatchAgree" :disabled="selectionList.length === 0">批量通过</el-button>
-      <el-button size="small" @click="handleBatchReject" :disabled="selectionList.length === 0">批量驳回</el-button>
+      <el-button size="small" @click="handleBatchAgree" :disabled="selectionList.length === 0" v-permission="'AISPART-accountOperateApply-agree'">批量通过</el-button>
+      <el-button size="small" @click="handleBatchReject" :disabled="selectionList.length === 0" v-permission="'AISPART-accountOperateApply-reject'">批量驳回</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -325,7 +325,7 @@ export default {
             }, {
               name: '提交',
               show: (row) => {
-                return row.approvalStatus === '10' || row.approvalStatus === '40';
+                return (row.approvalStatus === '10' || row.approvalStatus === '40') && this.permissions.has('AISPART-accountOperateApply-commit');
               },
               click: (rowIndex, row) => {
                 this.handleSubmit(row.id);
@@ -334,7 +334,7 @@ export default {
             }, {
               name: '通过',
               show: (row) => {
-                return row.approvalStatus === '20';
+                return row.approvalStatus === '20' && this.permissions.has('AISPART-accountOperateApply-agree');
               },
               click: (rowIndex, row) => {
                 this.handleAgree(row.id);
@@ -343,7 +343,7 @@ export default {
             }, {
               name: '驳回',
               show: (row) => {
-                return row.approvalStatus === '20';
+                return row.approvalStatus === '20' && this.permissions.has('AISPART-accountOperateApply-reject');
               },
               click: (rowIndex, row) => {
                 this.handleReject(row.id);
@@ -558,7 +558,7 @@ export default {
     },
     // 提交
     handleSubmit (val) {
-      let title =  '充值说明';
+      let title = '充值说明';
       this.$prompt(`请输入${title}`, '提交', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

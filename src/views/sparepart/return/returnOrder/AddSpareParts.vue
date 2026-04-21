@@ -15,11 +15,11 @@
                 <tag-input v-model="form.inboundOrderCodeList" placeholder="请输入" />
             </el-form-item>
             <el-form-item label="可用库存数量大于0">
-                <el-switch v-model="form.availableQtyGreater">
+                <el-switch v-model="form.availableQtyGreater" disabled>
                 </el-switch>
             </el-form-item>
             <el-form-item label="可退库存数量大于0">
-                <el-switch v-model="form.returnableQtyGreater">
+                <el-switch v-model="form.returnableQtyGreater" disabled>
                 </el-switch>
             </el-form-item>
             <page-search-action v-model="show" :isExpandable="false" :loading="loading" @submit="onSubmit"
@@ -145,8 +145,8 @@ export default {
         sparePartIdList: [],
         purchaseOrderCodeList: [],
         inboundOrderCodeList: [],
-        availableQtyGreater: false,
-        returnableQtyGreater: false
+        availableQtyGreater: true,
+        returnableQtyGreater: true
       };
       this.initData();
     },
@@ -240,6 +240,7 @@ export default {
       this.submitLoading = true;
       try {
         await returnOrderUpdate(params);
+        this.selectedRows = [];
         this.$message.success('操作成功');
         this.submitLoading = false;
         this.$emit('success'); // 触发成功事件

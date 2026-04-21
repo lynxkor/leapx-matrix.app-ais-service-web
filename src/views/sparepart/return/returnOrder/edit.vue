@@ -4,6 +4,16 @@
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :isEditing.sync="isEditing" :form.sync="form"
         :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest">
+        <template #extraButtons>
+          <el-button v-if="_id && permissions.has('AISPART-returnOrder-printReturn')" type="primary" size="small" @click="handlePrint">打印退货单</el-button>
+          <el-button v-if="_id && permissions.has('AISPART-returnOrder-printTag')" type="primary" size="small" @click="handlePrintLabel">打印退货标签</el-button>
+          <el-button v-if="_id && form.returnStatus === '20' && permissions.has('AISPART-returnOrder-agree')" type="primary" size="small" @click="handleAgree">同意</el-button>
+          <el-button v-if="_id && form.returnStatus === '40' && permissions.has('AISPART-returnOrder-revoke')" type="primary" size="small" @click="handleRevoke">撤回</el-button>
+          <el-button v-if="_id && ['10', '30'].includes(form.returnStatus) && permissions.has('AISPART-returnOrder-commit')" type="primary" size="small" @click="handleCommit">提交</el-button>
+          <el-button v-if="_id && ['10', '30'].includes(form.returnStatus) && permissions.has('AISPART-returnOrder-cancel')" type="primary" size="small" @click="handleCancel">作废</el-button>
+          <el-button v-if="_id && form.returnStatus === '20' && permissions.has('AISPART-returnOrder-reject')" type="primary" size="small" @click="handleReject">驳回</el-button>
+          <el-button v-if="_id && form.returnStatus === '40' && permissions.has('AISPART-returnOrder-shipping')" type="primary" size="small" @click="handleShipping">发运</el-button>
+        </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
             <div class="common-section-header">
@@ -13,11 +23,11 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="退货单号：" prop="code">
-                  {{ form.code }}
+                  <el-input v-model="form.code" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="退货类型：" prop="returnType">
                   <fetch-select :request="fetchOptions" enumCode="ReturnTypeEnum" v-model="form.returnType"
-                    placeholder="请选择" clearable filterable :disabled="!canEditReturnType" />
+                    placeholder="请选择" clearable filterable :disabled="!!_id && !canEditReturnType" />
                 </el-form-item>
                 <el-form-item label="退货原因：" prop="returnReason">
                   <fetch-select :request="fetchOptions" enumCode="ReturnReasonEnum" v-model="form.returnReason"
@@ -25,20 +35,20 @@
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
                   <fetch-select :remote-method="getDealerList" remote v-model="form.dealerCode" placeholder="请输入门店编码或名称"
-                    labelKey="orgName" valueKey="orgCode" subLabelKey="orgCode" clearable collapseTags filterable :disabled="accountFlag"
+                    labelKey="orgName" valueKey="orgCode" subLabelKey="orgCode" clearable collapseTags filterable :disabled="isDealerCode"
                     @change="handleDealerChange" />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
+                  <el-input v-model="form.dealerName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="备件仓库：" prop="warehouseId">
-                  {{ form.warehouseName }}
+                  <el-input v-model="form.warehouseName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
-                <el-form-item label="退货状态:" prop="returnStatus">
-                  {{ form.returnStatusLabel }}
+                <el-form-item label="退货状态：" prop="returnStatus">
+                  <el-input v-model="form.returnStatusLabel" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark" style="width: 100%;">
-                  <el-input type="textarea" maxlength="500" show-word-limit placeholder="请输入" v-model="form.remark" clearable :disabled="!canEditReturnType" />
+                  <el-input type="textarea" maxlength="500" show-word-limit placeholder="请输入" v-model="form.remark" clearable :disabled="accountFlag && !isEditable" />
                 </el-form-item>
               </el-form>
             </div>
@@ -51,37 +61,37 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="物流单号：" prop="logisticsOrderNo">
-                  {{ form.logisticsOrderNo }}
+                  <el-input v-model="form.logisticsOrderNo" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="物流商：" prop="logisticsProvider">
-                  {{ form.logisticsProvider }}
+                  <el-input v-model="form.logisticsProvider" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="发货时间：" prop="deliveryTime">
-                  {{ form.deliveryTime }}
+                  <el-input v-model="form.deliveryTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="物流备注：" prop="logisticsRemark">
-                  {{ form.logisticsRemark }}
+                  <el-input v-model="form.logisticsRemark" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="收货主机厂仓库：" prop="receiveWarehouseId">
                   <fetch-select :remote-method="getReceiveWarehouse" remote v-model="form.receiveWarehouseId"
-                    placeholder="请选择" labelKey="name" valueKey="id" subLabelKey="code" clearable collapseTags
-                    filterable :disabled="isReceiveWarehouseDisabled" />
+                    placeholder="请选择" labelKey="warehouseName" valueKey="id" subLabelKey="warehouseCode" clearable
+                    filterable @change="handleReceiveWarehouseChange" :disabled="isReceiveWarehouseDisabled" />
                 </el-form-item>
                 <el-form-item label="收货人：" prop="receiver">
-                  <el-input placeholder="请输入" v-model="form.receiver" clearable :disabled="!canEditReceiver" />
+                  <el-input placeholder="请输入" v-model="form.receiver" clearable :disabled="_id && isReceiveWarehouseDisabled" />
                 </el-form-item>
                 <el-form-item label="收货人联系电话：" prop="receiverPhone">
-                  <el-input placeholder="请输入" v-model="form.receiverPhone" clearable :disabled="!canEditReceiver" />
+                  <el-input placeholder="请输入" v-model="form.receiverPhone" clearable :disabled="_id && isReceiveWarehouseDisabled" />
                 </el-form-item>
                 <el-form-item label="收货地址：" prop="receiveAddress">
-                  <el-input placeholder="请输入" v-model="form.receiveAddress" clearable :disabled="!canEditReceiver" />
+                  <el-input placeholder="请输入" v-model="form.receiveAddress" clearable :disabled="_id && isReceiveWarehouseDisabled" />
                 </el-form-item>
                 <el-form-item label="物流支付方式：" prop="logisticsPaymentMethod">
                   <fetch-select :request="fetchOptions" enumCode="PurchaseLogisticsPaymentMethodEnum"
                     v-model="form.logisticsPaymentMethod" placeholder="请选择" clearable filterable :disabled="isReceiveWarehouseDisabled" />
                 </el-form-item>
                 <el-form-item label="退货完成时间：" prop="returnCompleteTime">
-                  {{ form.returnCompleteTime }}
+                  <el-input v-model="form.returnCompleteTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
               </el-form>
             </div>
@@ -94,22 +104,22 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="退货价格比例：" prop="returnPriceRatio">
-                  {{ form.returnPriceRatio }}
+                  <el-input v-model="form.returnPriceRatio" placeholder="请输入" type="number" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="退款完成时间：" prop="refundCompleteTime">
-                  {{ form.refundCompleteTime }}
+                  <el-input v-model="form.refundCompleteTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="预计退货返利总金额：" prop="estimatedReturnRebateAmount">
-                  {{ form.estimatedReturnRebateAmount }}
+                  <el-input v-model="form.estimatedReturnRebateAmount" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="实际退货返利总金额：" prop="actualReturnRebateAmount">
-                  {{ form.actualReturnRebateAmount }}
+                  <el-input v-model="form.actualReturnRebateAmount" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="预计退货现金总金额：" prop="estimatedReturnCashAmount">
-                  {{ form.estimatedReturnCashAmount }}
+                  <el-input v-model="form.estimatedReturnCashAmount" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="实际退货现金总金额：" prop="actualReturnCashAmount">
-                  {{ form.actualReturnCashAmount }}
+                  <el-input v-model="form.actualReturnCashAmount" placeholder="请输入" disabled></el-input>
                 </el-form-item>
               </el-form>
             </div>
@@ -122,28 +132,28 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="提交人：" prop="submitter">
-                  {{ form.submitterName }}
+                  <el-input v-model="form.submitterName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="提交时间：" prop="submitTime">
-                  {{ form.submitTime }}
+                  <el-input v-model="form.submitTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="审核人：" prop="reviewer">
-                  {{ form.reviewerName }}
+                  <el-input v-model="form.reviewerName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="审核时间：" prop="reviewTime">
-                  {{ form.reviewTime }}
+                  <el-input v-model="form.reviewTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="审核说明：" prop="reviewDescription">
-                  {{ form.reviewDescription }}
+                  <el-input v-model="form.reviewDescription" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="作废人：" prop="cancelOperator">
-                  {{ form.cancelOperatorName }}
+                  <el-input v-model="form.cancelOperatorName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="作废时间：" prop="cancelTime">
-                  {{ form.cancelTime }}
+                  <el-input v-model="form.cancelTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="作废说明：" prop="cancelDescription">
-                  {{ form.cancelDescription }}
+                  <el-input v-model="form.cancelDescription" placeholder="请输入" disabled></el-input>
                 </el-form-item>
               </el-form>
             </div>
@@ -312,7 +322,7 @@
                     <vxe-column field="estimatedReturnRebateAmount" title="预计退货返利金额" width="160" />
                     <vxe-column field="actualReturnRebateAmount" title="实际退货返利金额" width="160" />
                     <vxe-column field="remark" title="备注" width="120" />
-                    <vxe-column title="操作" width="100" >
+                    <vxe-column title="操作" width="100" fixed="right">
                         <template #default="{ row }">
                             <el-popconfirm
                                 title="确定删除此出库明细吗？"
@@ -379,22 +389,34 @@
       id="sparePartPurchaseReturnDetailImport"
       @close="handleUploadDialogClose"
     />
+    <!-- 发运 -->
+    <ShipmentDialog
+      :visible.sync="shipmentDialogVisible"
+      :id="shipmentId"
+      @update:visible="val => shipmentDialogVisible = val"
+      @success="handleRefresh"
+    />
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate, returnOrderPage, exceptionPage, returnOrderDel } from '@/api/sparepart/return/returnOrder/index';
+import {
+  getDetail, addOrUpdate, returnOrderPage, exceptionPage, returnOrderDel,
+  returnOrderCancel, returnOrderAgree, returnOrderRevoke, returnOrderCommit, returnOrderReject
+} from '@/api/sparepart/return/returnOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, listOrgStoreInfoByParam, listWarehouse, listOemWarehouse, getLoginUser, getPartDealer } from '@/api/common';
+import { getEnum, listOrgStoreInfoByParam, listWarehouse, listOemWarehouse, getLoginUser, getPartDealer, listOemFull } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import AddSpareParts from './AddSpareParts.vue';
 import Upload from '@/libs/components/UploadDialog';
+import { handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
+import ShipmentDialog from './ShipmentDialog.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -417,15 +439,15 @@ const defaultForm = {
   dataSource: '',
   purchaseOrderType: '',
   warehousingStatus: '',
-  returnType: '',
+  returnType: '20',
   logisticsRemark: '',
   receiveWarehouseId: '',
   receiver: '',
   receiverPhone: '',
   receiveAddress: '',
-  logisticsPaymentMethod: '',
+  logisticsPaymentMethod: '20',
   returnCompleteTime: '',
-  returnPriceRatio: '',
+  returnPriceRatio: 1,
   refundCompleteTime: '',
   estimatedReturnRebateAmount: '',
   actualReturnRebateAmount: '',
@@ -445,6 +467,12 @@ const defaultForm = {
   warehousingTime: '',
 };
 
+const ACTION_CONFIG = { // 按钮配置
+  agree: { title: '是否同意退货申请?', success: '同意成功' },
+  revoke: { title: '是否撤回退货申请?', success: '撤回成功' },
+  commit: { title: '是否提交退货申请?', success: '提交成功' },
+};
+
 export default {
   name: 'returnOrderEdit',
   // 集中视图预留
@@ -461,7 +489,8 @@ export default {
     EditTable,
     FetchSelect,
     AddSpareParts,
-    Upload
+    Upload,
+    ShipmentDialog
   },
   computed: {
     _id () {
@@ -483,13 +512,26 @@ export default {
     canEditReceiver () {
       return this.accountFlag && this.isEditable;
     },
-    // 仓库、支付方式 编辑权限：新增都可填，编辑时厂端+20才可编辑
+    // 仓库、支付方式 收货人信息 编辑权限：新增都可填，编辑时厂端+20才可编辑
     isReceiveWarehouseDisabled () {
       const hasId = !!(this.id || this.$route.query.id || this.form.id);
       const isFactory = !this.accountFlag; // 厂端账号
       const isStatus20 = this.form.returnStatus === '20' || this.form.returnStatus === 20;
       // 编辑时：厂端+20可编辑(返回false)，其他禁用(返回true)
       return hasId && !(isFactory && isStatus20);
+    },
+    // 新增时 门店账号禁用  然后 看是否在编辑时 是直接禁用
+    isDealerCode () {
+      // 1. 判断是否为编辑模式（任意位置有 ID 即为编辑）
+      const hasId = this.id || this.$route.query.id || this.form.id;
+
+      // 2. 如果是编辑模式，直接禁用
+      if (hasId) {
+        return true;
+      }
+
+      // 3. 如果是新增模式，看 accountFlag 决定（假设 accountFlag 为 false 时禁用）
+      return this.accountFlag;
     }
   },
   watch: {
@@ -504,6 +546,16 @@ export default {
       },
       immediate: true
     },
+    'form.returnType': {
+      handler (val) {
+        if (val === '20') {
+          this.form.returnPriceRatio = 1;
+        } else if (val === '10') {
+          this.form.returnPriceRatio = 0.75;
+        }
+      },
+      immediate: true
+    }
   },
   data () {
     const form = this.getDefautlForm();
@@ -532,6 +584,8 @@ export default {
       sparePartsVisible: false,
       warehouseId: '', // 备件仓库ID
       uploadDialogVisible: false,
+      shipmentDialogVisible: false, // 发运弹窗
+      shipmentId: '', // 发运弹窗id
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       abnormalColumns: [
         {
@@ -623,11 +677,16 @@ export default {
         logisticsPaymentMethod: [
           { required: true, message: '请输入物流支付方式', trigger: 'change' }
         ],
-      }
+      },
+      lastDealerCode: '', // 新增：记录上一次的门店编码
     };
   },
-  mounted () {
-    this.initDealerUser();
+  async mounted () {
+    await this.initDealerUser();
+    // 新增页面默认加载 LS02 仓库并赋值
+    if (!this._id) {
+      await this.loadDefaultWarehouse();
+    }
   },
   methods: {
     async getDealerList (query) {
@@ -653,11 +712,31 @@ export default {
 
     async getReceiveWarehouse (query) {
       try {
-        const res = await listOemWarehouse({ codeOrName: query });
+        const res = await listOemFull({ codeOrName: query });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
       }
+    },
+    // 新增页面默认加载 LS02 仓库并赋值
+    async loadDefaultWarehouse () {
+      try {
+        const res = await listOemFull({ warehouseCode: 'LS02' });
+        if (res && res.length > 0) {
+          const defaultWarehouse = res[0];
+          this.form.receiveWarehouseId = defaultWarehouse.id;
+          this.handleReceiveWarehouseChange(defaultWarehouse.id, defaultWarehouse);
+        }
+      } catch (error) {
+        console.error('Error loading default warehouse:', error);
+      }
+    },
+    // 点击选择收货主机厂仓库，带出收货人、联系电话、地址、仓库名称、
+    handleReceiveWarehouseChange (val, ele) {
+      this.form.receiver = ele.contactName;
+      this.form.receiverPhone = ele.contactPhone;
+      this.form.receiveAddress = ele.address;
+      this.form.receiveWarehouseName = ele.warehouseName;
     },
     async getWarehouse (query) {
       try {
@@ -681,23 +760,31 @@ export default {
     },
     // 点击带出门店名称
     handleDealerChange (val, ele) {
-      // 判断当前是否有门店编码
-      if (!this.form.dealerCode) {
-        // 第一次选择，直接赋值
-        this.form.dealerName = ele.orgName;
-        this.getWarehouseByDealer(ele.orgCode);
-      } else {
-        this.$confirm('切换门店,将清空所有退货信息,是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.form.dealerName = ele.orgName;
-          this.getWarehouseByDealer(ele.orgCode);
-        }).catch(() => {
-        // 取消操作
-        });
-      }
+      this.form.dealerName = ele.orgName;
+      this.getWarehouseByDealer(ele.orgCode);
+      // this.$nextTick(() => {
+      //   if (!val) return; // 过滤无效事件
+
+      //   // 新增页面：首次选择直接赋值
+      //   if (!this._id && !this.lastDealerCode) {
+      //     this.form.dealerName = ele.orgName;
+      //     this.getWarehouseByDealer(ele.orgCode);
+      //   } else {
+      //   // 编辑页面或非首次选择：弹出确认
+      //     this.$confirm('切换门店,将清空所有退货信息,是否继续?', '提示', {
+      //       confirmButtonText: '确定',
+      //       cancelButtonText: '取消',
+      //       type: 'warning'
+      //     }).then(() => {
+      //       this.form.dealerName = ele.orgName;
+      //       this.getWarehouseByDealer(ele.orgCode);
+      //     }).catch(() => {
+      //       // 取消操作
+      //     });
+      //   }
+      //   // 更新上一次的编码
+      //   this.lastDealerCode = this.form.dealerCode;
+      // });
     },
     detailRequest () {
       const id = this._id;
@@ -805,7 +892,117 @@ export default {
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
-    }
+    },
+    // 打印退货单
+    handlePrint () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'SparePartsReturn', // 必选，对应 ./template/文件名.vue
+        title: `${this.form.dealerName}备件退货单`// 可选，打印标题
+      });
+    },
+    // 打印退货标签
+    handlePrintLabel () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'SparePartsReturnLabel', // 必选，对应 ./template/文件名.vue
+        title: '备件退货标签'// 可选，打印标题
+      });
+    },
+    // 调用二次确认弹框
+    _handleAction (apiFn, config) {
+      handleCommonAction({
+        $confirm: this.$confirm,
+        $message: this.$message,
+        apiFn,
+        id: this._id,
+        config,
+        onSuccess: () => this.$refs.containerRef.loadDetail()
+      });
+    },
+    // 同意退货
+    async handleAgree () {
+      await this._handleAction(returnOrderAgree, ACTION_CONFIG.agree);
+    },
+    // 撤回退货
+    async handleRevoke () {
+      await this._handleAction(returnOrderRevoke, ACTION_CONFIG.revoke);
+    },
+    // 提交退货
+    async handleCommit () {
+      await this._handleAction(returnOrderCommit, ACTION_CONFIG.commit);
+    },
+    // 通用 备注弹窗
+    _execPrompt (api, title, placeholder, successMsg) {
+      handleCommonPrompt({
+        $prompt: this.$prompt,
+        $message: this.$message,
+        apiFn: api,
+        id: this._id,
+        config: {
+          title,
+          placeholder,
+          success: successMsg
+        },
+        onSuccess: () => this.$refs.containerRef.loadDetail()
+      });
+    },
+    // 作废退货
+    // async handleCancel () {
+    //   this.$prompt('请输入作废说明', '作废', {
+    //     confirmButtonText: '确定',
+    //     cancelButtonText: '取消',
+    //     inputPattern: /.+/, // 校验非空
+    //     inputErrorMessage: '请输入备注',
+    //   }).then(async ({ value }) => {
+    //     // 调用 API，并传入用户输入的备注
+    //     await returnOrderCancel({ id: this._id, reviewDescription: value });
+    //     this.$message.success('作废成功');
+    //     // 执行额外回调（比如刷新列表）
+    //     this.$refs.containerRef.loadDetail();
+    //   }).catch(() => {
+    //     // 用户取消或校验失败，静默处理
+    //   });
+    // },
+    // 作废
+    async handleCancel () {
+      const result = await this.$prompt('请输入作废说明', '作废', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      });
+      const reviewDescription = result.value;
+      if (!reviewDescription) {
+        return this.$message.warning('请输入作废说明');
+      }
+      const params = { id: this._id, reviewDescription };
+      await returnOrderCancel(params);
+      this.handleRefresh();
+    },
+    // 驳回
+    async handleReject () {
+      const result = await this.$prompt('请输入审批意见', '驳回', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      });
+      const reviewDescription = result.value;
+      if (!reviewDescription) {
+        return this.$message.warning('请输入审批意见');
+      }
+      const params = { id: this._id, reviewDescription };
+      await returnOrderReject(params);
+      this.handleRefresh();
+    },
+    // 刷新接口
+    handleRefresh () {
+      this.$refs.containerRef.loadDetail();
+    },
+    // 发运
+    handleShipping () {
+      this.shipmentId = this._id;
+      this.shipmentDialogVisible = true;
+    },
   }
 };
 </script>

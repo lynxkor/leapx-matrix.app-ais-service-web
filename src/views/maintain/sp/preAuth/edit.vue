@@ -16,7 +16,7 @@
           <!-- <span class="status primary" v-if="form.statusDesc">{{ form.statusDesc }}</span> -->
         </template>
         <template #extraButtons>
-          <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && form.approvalStatus === AUDIT_STATUS.IN_PROGRESS">审批</el-button>
+          <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && form.approvalStatus === AUDIT_STATUS.IN_PROGRESS && !form.isGoodWarranty">审批</el-button>
           <el-button size="small" type="primary" plain @click="handleCancel" v-if="_id && form.approvalStatus === AUDIT_STATUS.REJECTED">作废</el-button>
           <el-button size="small" type="primary" @click="handleSubmit(1)" v-if="_id && form.approvalStatus === AUDIT_STATUS.TODO">提交</el-button>
         </template>
@@ -137,13 +137,13 @@
                   <span>{{ serviceProxyDetail?.carPlate || form.serviceProxyResp.carPlate || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="车辆用途：">
-                  <span>{{ preAuthInfoDetail.carPropertyLabel || form.carPropertyStrLabel || '-' }}</span>
+                  <span>{{ preAuthInfoDetail.carPropertyLabel || form.carPropertyLabel || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="进店里程数：">
                   <span>{{ serviceProxyDetail?.mileage || form.serviceProxyResp.mileage || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="生产日期：">
-                  <span>{{ preAuthInfoDetail?.productionTime || form.productionTime || '-' }}</span>
+                  <span>{{ formatDate(preAuthInfoDetail?.productionTime || form.productionTime) }}</span>
                 </el-form-item>
                 <el-form-item label="终身免保：">
                   <span>{{ preAuthInfoDetail?.warrantyLifeLabel || form.warrantyLifeLabel || '-' }}</span>
@@ -152,10 +152,10 @@
                   <span>{{ preAuthInfoDetail?.isLifetimeLabel || form.isLifetimeLabel || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="保修开始日期：">
-                  <span>{{ preAuthInfoDetail?.guaranteeStartDate || form.guaranteeStartDate || '-' }}</span>
+                  <span>{{ formatDate(preAuthInfoDetail?.guaranteeStartDate || form.guaranteeStartDate) }}</span>
                 </el-form-item>
                 <el-form-item label="保修结束日期：">
-                  <span>{{ preAuthInfoDetail?.warrantyEndTime ||  form.warrantyEndTime || '-' }}</span>
+                  <span>{{ formatDate(preAuthInfoDetail?.warrantyEndTime || form.warrantyEndTime) }}</span>
                 </el-form-item>
                 <el-form-item label="服务月份：">
                   <span>{{ preAuthInfoDetail?.serviceMonth || form.serviceMonth || '-' }}</span>
@@ -233,13 +233,13 @@
               <div class="common-section-table">
                 <el-form :inline="true" class="form-detail">
                   <el-form-item label="工时索赔合计：">
-                    <span>{{ form.approvedLaborClaimTotal || '-' }}</span>
+                    <span>{{ serviceProxyDetail?.claimItemAmount || form.serviceProxyResp?.claimItemAmount || '-' }}</span>
                   </el-form-item>
                   <el-form-item label="零件索赔合计：">
-                    <span>{{ form.approvedPartsClaimTotal || '-' }}</span>
+                    <span>{{ serviceProxyDetail?.claimPartsAmount || form.serviceProxyResp?.claimPartsAmount || '-' }}</span>
                   </el-form-item>
                   <el-form-item label="其他索赔费用：">
-                    <span>{{ form.approvedOtherClaimTotal || '-' }}</span>
+                    <span>{{ serviceProxyDetail?.claimOtherAmount || form.serviceProxyResp?.claimOtherAmount || '-' }}</span>
                   </el-form-item>
                 </el-form>
                 <vxe-table
@@ -260,7 +260,7 @@
                     </template>
                   </vxe-column>
                   <vxe-column field="repairItemName" title="维修项目名称" min-width="150" />
-                  <vxe-column field="repairItemTypeName" title="维修类型" min-width="100" />
+
                   <vxe-column field="checkoutTypeName" title="结算类型" min-width="100" />
                   <vxe-column field="warrantyTypeName" title="保修类型" min-width="100" />
                   <vxe-column field="isAddItems" title="是否增项" min-width="80">
@@ -346,7 +346,7 @@
               <h2>审批信息</h2>
             </div>
             <div class="common-section-body" >
-              <el-form :inline="true" class="form-detail" v-show="form.isGoodWarranty === 1 ">
+              <el-form :inline="true" class="form-detail" v-show="form.isGoodWarranty">
                 <el-form-item label="审批单号：">
                   <span>{{ form.auditNo || '-' }}</span>
                 </el-form-item>
@@ -388,7 +388,7 @@
                   <vxe-column field="approvalOn" title="执行时间" min-width="160" />
                   <vxe-column field="approvalResult" title="审批结果" min-width="120" />
                   <vxe-column field="content" title="审批意见" min-width="150" />
-                  <vxe-column field="errorContent" title="错误代码及内容" min-width="120" />
+                  <vxe-column field="remark" title="错误代码及内容" min-width="120" />
                   <vxe-column title="附件信息" min-width="200">
                     <template #default="{ row }">
                       <div class="approval-attachments">
@@ -663,6 +663,25 @@ export default {
     };
   },
   methods: {
+    /**
+     * 格式化日期为 yyyy-MM-dd 格式
+     * @param {string|number|Date} date - 日期值
+     * @returns {string} 格式化后的日期字符串
+     */
+    formatDate (date) {
+      if (!date) return '-';
+      try {
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return '-';
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      } catch (error) {
+        console.error('日期格式化失败:', error);
+        return '-';
+      }
+    },
     detailRequest () {
       const id = this._id;
       if (id) {

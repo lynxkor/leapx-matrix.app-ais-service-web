@@ -32,7 +32,14 @@
                         {{ sparePartDetail.reminderContent }}
                     </el-form-item>
                     <el-form-item label="本次采购：" prop="purchaseQty">
-                        <el-input type="number" @change="updateSparePartDetail" clearable v-model="sparePartDetail.purchaseQty"></el-input>
+                        <el-input-number
+                            v-model="sparePartDetail.purchaseQty"
+                            :step="sparePartDetail.minOrderQuantity || 1"
+                            :min="sparePartDetail.minOrderQuantity || 0"
+                            @change="updateSparePartDetail"
+                            controls-position="right"
+                            style="width: 100%;"
+                        ></el-input-number>
                     </el-form-item>
                     <el-form-item label="OEM库存：" prop="oemInventoryIs">
                         {{ sparePartDetail.oemInventoryIs }}
@@ -171,15 +178,21 @@ export default {
         purchaseApplyId: this.purchaseApplyId
       };
       addDetail(params).then(res => {
-        this.detailId = res || '';
-        this.getSparePartDetail(res); // 拿到获取的 备件列表id 去查询详情
+        this.detailId = res.id || '';
+        this.getSparePartDetail(res.id); // 拿到获取的 备件列表id 去查询详情
+        if (res.add) {
+          this.$message.success('添加成功');
+        }
         this.$emit('submit');
       });
     },
     // 备件采购申请明细表新增/编辑
     async getAddDetail (params) {
       const res = await addDetail(params);
-      this.detailId = res || '';
+      this.detailId = res.id || '';
+      if (!res.add) {
+        this.$message.success('修改成功');
+      }
     },
     // 获取备件详情信息
     async getSparePartDetail (id) {

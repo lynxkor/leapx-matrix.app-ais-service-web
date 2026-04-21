@@ -1,5 +1,5 @@
 <template>
-  <el-select :remote="true" v-bind="$attrs" v-model="orgId" filterable placeholder="请选择" :remote-method="storeSearch" :multiple="multiple" clearable @change="handleChange" collapse-tags>
+  <el-select :remote="true" v-bind="$attrs" v-model="orgId" filterable placeholder="请输入门店编码/名称" :remote-method="storeSearch" :multiple="multiple" clearable @change="handleChange" collapse-tags>
     <el-option
       v-for="item in options"
       :key="item.orgId"
@@ -35,7 +35,7 @@ export default {
     defaultDealerName: {
       type: String,
       default: null
-    }
+    },
   },
   data () {
     return {

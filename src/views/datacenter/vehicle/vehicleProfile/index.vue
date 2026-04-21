@@ -334,7 +334,7 @@
       @close="handleUploadDialogClose"
     />
     <return-dialog
-      :visible.sync="visible"
+      :visible.sync="retrunVisible"
       @update="getData"
     />
     <el-drawer
@@ -653,9 +653,13 @@ export default {
               {
                 name: '退车',
                 click: (rowIndex, row) => {
-                  this.visible = true;
+                  this.retrunVisible = true;
                 },
-                type: 'info'
+                type: 'info',
+                show: (row) => {
+                  if (this.canReturn) { return true; }
+                  return false;
+                },
               },
               {
                 name: '关键日志',
@@ -663,7 +667,11 @@ export default {
                   this.clickItemId = row.id;
                   this.drawerVisible = true;
                 },
-                type: 'info'
+                type: 'info',
+                show: (row) => {
+                  if (this.canKeyInfoChangeLog) { return true; }
+                  return false;
+                },
               },
               {
                 name: '维修履历',
@@ -671,7 +679,11 @@ export default {
                   this.clickItemId = row.id;
                   this.drawerVisible2 = true;
                 },
-                type: 'info'
+                type: 'info',
+                show: (row) => {
+                  if (this.serviceProxyHis) { return true; }
+                  return false;
+                },
               },
               {
                 name: '终身权益',
@@ -679,7 +691,11 @@ export default {
                   this.benefitVisible = true;
                   this.benefitId = row.id;
                 },
-                type: 'info'
+                type: 'info',
+                show: (row) => {
+                  if (this.canViewLifetimeBenefits) { return true; }
+                  return false;
+                },
               }
             ]
           }
@@ -687,16 +703,25 @@ export default {
         total: 0
       },
       // 退车
-      visible: false,
+      retrunVisible: false,
       // 关键日志
       drawerVisible: false,
       // 维修履历
       drawerVisible2: false,
+      // 权限
+      canViewLifetimeBenefits: false,
+      canReturn: false,
+      serviceProxyHis: false,
+      canKeyInfoChangeLog: false,
     };
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    this.canViewLifetimeBenefits = this.permissions.has(`${this.moduleKey}-viewLifetimeBenefits`);
+    this.canReturn = this.permissions.has(`${this.moduleKey}-return`);
+    this.canKeyInfoChangeLog = this.permissions.has(`${this.moduleKey}-keyInfoChangeLog`);
+    this.serviceProxyHis = !!(this.$store.state.pageSource?.aisPageSource || []).find(item => (item === 'AISMC-serviceProxyHis-page'));
   },
   methods: {
     onBenefit () {

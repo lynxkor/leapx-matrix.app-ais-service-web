@@ -33,6 +33,7 @@
                 size="small"
                 style="width: 150px"
                 clearable
+                :disabled="isStoreOrder"
                 @change="handleDiscountModeChange"
               >
                 <el-option
@@ -66,6 +67,7 @@
                   size="small"
                   v-model="roundAmount"
                   @change="handleRoundAmountChange"
+                  :disabled="isStoreOrder"
                 ></el-input-number>
               </span>
             </div>
@@ -109,7 +111,7 @@
             <div class="info-item">
               <span class="label">已收款总金额：</span>
               <span class="value">{{
-                baseInfo.totalAmount - baseInfo.remainAmount
+                (totalReceivedAmount).toFixed(2)
               }}</span>
             </div>
           </div>
@@ -159,7 +161,7 @@
                 <vxe-column field="discountRate" title="折扣率" width="100" />
                 <vxe-column field="discountAmount" title="优惠金额" width="160">
                   <template #default="{ row }">
-                    <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">
+                    <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || String(row.packageType) === PackageTypeEnum.STORE">
                       {{ row.discountAmount | tofixed2 }}
                     </template>
                     <el-input-number
@@ -176,7 +178,9 @@
                   </template>
                 </vxe-column>
                 <vxe-column field="repairAmount" title="应收金额" width="110" />
-                <vxe-column field="packageCode" title="套餐代码" width="140" />
+                <vxe-column field="packageTypeLabel" title="套餐类型" width="120px" />
+                <vxe-column field="packageName" title="套餐名称" width="120px" />
+                <vxe-column field="packageCode" title="套餐代码" width="120px" />
                 <template #empty>
                   <div class="m-vxe-table-empty-text">暂无数据</div>
                 </template>
@@ -222,7 +226,7 @@
                 <vxe-column field="discountRate" title="折扣率" width="100" />
                 <vxe-column field="discountAmount" title="优惠金额" width="160">
                   <template #default="{ row }">
-                    <template v-if="checkoutTypeIncluded(row.checkoutTypeId)">
+                    <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || String(row.packageType) === PackageTypeEnum.STORE">
                       {{ row.discountAmount | tofixed2 }}
                     </template>
                     <el-input-number
@@ -239,7 +243,9 @@
                   </template>
                 </vxe-column>
                 <vxe-column field="partsAmount" title="应收金额" width="110" />
-                <vxe-column field="packageCode" title="套餐代码" width="140" />
+                <vxe-column field="packageTypeLabel" title="套餐类型" width="120px" />
+                <vxe-column field="packageName" title="套餐名称" width="120px" />
+                <vxe-column field="packageCode" title="套餐代码" width="120px" />
                 <template #empty>
                   <div class="m-vxe-table-empty-text">暂无数据</div>
                 </template>
@@ -322,7 +328,7 @@
 import { getDiscountType } from '@/api/maintain/sp/serviceProxy/index';
 import { submitSettlement, queryIsLastConfirm } from '@/api/maintain/sp/serviceStatement/index';
 import SignDialog from '../SignDialog';
-import { CheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
+import { CheckoutTypeEnum, PackageTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
 
 export default {
   name: 'SubmitSettlemenDialog',
@@ -363,6 +369,7 @@ export default {
       signDialogVisible: false,
       settlemenDialogVisible: false,
       totalData: {},
+      PackageTypeEnum
     };
   },
   filters: {
@@ -371,6 +378,17 @@ export default {
         return parseFloat(v).toFixed(2);
       }
       return v;
+    },
+  },
+  computed: {
+    // 是否为商城订单，商城订单会单独生成结算
+    isStoreOrder () {
+      return (this.info.repairItemResps || []).some(item => String(item.packageType) === PackageTypeEnum.STORE);
+    },
+    // 已收款总金额
+    totalReceivedAmount () {
+      return (this.info.invoiceRecordResps || [])
+        .reduce((a, b) => a + Number(b.payAmount), 0);
     },
   },
   watch: {

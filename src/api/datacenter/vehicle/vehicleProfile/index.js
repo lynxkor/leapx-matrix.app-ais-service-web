@@ -128,3 +128,11 @@ export function syncMaintenance (data) {
 export function editMaintenanceRecord (data) {
   return api.jsonPost(vePrefix + 'edit', data);
 }
+
+/**
+ * 实名认证记录分页查询
+ * @param {Object} data
+ */
+export function realnameRecordPage (data) {
+  return api.jsonPost('/datacenter/web/vehicle/realnameRecord/page', data);
+}

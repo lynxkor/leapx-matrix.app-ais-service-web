@@ -14,19 +14,8 @@
           placeholder="请输入保修结算单号"
         />
       </el-form-item>
-      <el-form-item label="门店">
-        <fetch-select
-          :remote-method="getDealerList"
-          remote
-          v-model="form.dealerCodeList"
-          placeholder="请输入门店编码或名称"
-          labelKey="orgName"
-          valueKey="orgCode"
-          subLabelKey="orgCode"
-          clearable
-          filterable
-          multiple
-        />
+      <el-form-item label="门店：">
+        <dealer-select v-model="form.dealerCodeList" multiple/>
       </el-form-item>
       <template v-if="show">
         <el-form-item label="月度">
@@ -94,6 +83,7 @@
       />
     </el-form>
     <div class="ais-actions">
+      <el-button v-if="exportInvoice" :loading="exportLoading" size="small" @click="onExport">导出发票</el-button>
     </div>
     <div class="ais-table-c">
       <LPVxeTable
@@ -119,6 +109,21 @@
       :detailData="completeDetailData"
       @success="getData"
     />
+    <InvoiceAcceptDialog
+      :visible.sync="invoiceAcceptDialogVisible"
+      :id="invoiceAcceptRowId"
+      @success="getData"
+    />
+    <InvoiceReturnDialog
+      :visible.sync="invoiceReturnDialogVisible"
+      :id="invoiceReturnRowId"
+      @success="getData"
+    />
+    <PayConfirmDialog
+      :visible.sync="payConfirmDialogVisible"
+      :id="payConfirmRowId"
+      @success="getData"
+    />
   </div>
 </template>
 
@@ -126,8 +131,8 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, confirm, invoiceAccept, invoiceReturn, payConfirm } from '@/api/claimreturn/claim/warrantysettle/index';
-import { getTableConfig, tableAddOrUpdate, getEnum, listOrgStoreInfo } from '@/api/common';
+import { getList, confirm, exportInvoiceZip } from '@/api/claimreturn/claim/warrantysettle/index';
+import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import TagInput from '@/libs/components/TagInput';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -136,6 +141,10 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import { getEndOfDayString } from '@/libs/utils';
 import EditPage from './edit.vue';
 import CompleteDialog from './components/CompleteDialog';
+import InvoiceAcceptDialog from './components/InvoiceAcceptDialog';
+import InvoiceReturnDialog from './components/InvoiceReturnDialog';
+import PayConfirmDialog from './components/PayConfirmDialog';
+import DealerSelect from '@/components/dealer-select';
 
 const defaultForm = {
   settleCodeList: [],
@@ -169,6 +178,10 @@ export default {
     TagInput,
     EditPage,
     CompleteDialog,
+    InvoiceAcceptDialog,
+    InvoiceReturnDialog,
+    PayConfirmDialog,
+    DealerSelect,
   },
   data () {
     return {
@@ -187,13 +200,22 @@ export default {
       tableForm: { page: 1, size: pageSize },
       // 操作按钮权限
       canConfirm: false,
-      canComplete: true,
-      canInvoiceAccept: true,
-      canInvoiceReturn: true,
-      canPayConfirm: true,
+      canComplete: false,
+      canInvoiceAccept: false,
+      canInvoiceReturn: false,
+      canPayConfirm: false,
+      exportInvoice: false,
+      exportLoading: false,
+      //
       completeDialogVisible: false,
       completeRowId: '',
       completeDetailData: {},
+      invoiceAcceptDialogVisible: false,
+      invoiceAcceptRowId: '',
+      invoiceReturnDialogVisible: false,
+      invoiceReturnRowId: '',
+      payConfirmDialogVisible: false,
+      payConfirmRowId: '',
     };
   },
   computed: {
@@ -300,6 +322,7 @@ export default {
                 },
                 type: 'info',
                 show: (row) => {
+                  // 待门店验证
                   return this.canConfirm && row.settleStatus === '10';
                 }
               },
@@ -310,6 +333,7 @@ export default {
                 },
                 type: 'info',
                 show: (row) => {
+                  // 待开票 已退回
                   return this.canComplete && (row.settleStatus === '60' || row.settleStatus === '110');
                 }
               },
@@ -320,8 +344,8 @@ export default {
                 },
                 type: 'info',
                 show: (row) => {
-                  // return this.canInvoiceAccept && row.settleStatus === '65';
-                  return true;
+                  // 已开票
+                  return this.canInvoiceAccept && row.settleStatus === '65';
                 }
               },
               {
@@ -331,6 +355,7 @@ export default {
                 },
                 type: 'info',
                 show: (row) => {
+                  // 已开票
                   return this.canInvoiceReturn && row.settleStatus === '65';
                 }
               },
@@ -341,6 +366,7 @@ export default {
                 },
                 type: 'info',
                 show: (row) => {
+                  // 已验收
                   return this.canPayConfirm && row.settleStatus === '90';
                 }
               }
@@ -355,10 +381,12 @@ export default {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
     this.canConfirm = this.permissions.has(`${this.moduleKey}-confirm`);
-    // this.canComplete = this.permissions.has(`${this.moduleKey}-complete`);
-    // this.canInvoiceAccept = this.permissions.has(`${this.moduleKey}-invoiceAccept`);
-    // this.canInvoiceReturn = this.permissions.has(`${this.moduleKey}-invoiceReturn`);
-    // this.canPayConfirm = this.permissions.has(`${this.moduleKey}-payConfirm`);
+    this.canComplete = this.permissions.has(`${this.moduleKey}-completeInvoice`);
+    this.canInvoiceAccept = this.permissions.has(`${this.moduleKey}-acceptInvoice`);
+    this.canInvoiceReturn = this.permissions.has(`${this.moduleKey}-returnInvoice`);
+    this.canPayConfirm = this.permissions.has(`${this.moduleKey}-confirmPay`);
+    this.exportInvoice = this.permissions.has(`${this.moduleKey}-exportInvoice`);
+    console.log(this.permissions);
   },
   methods: {
     // 格式化金额
@@ -392,54 +420,18 @@ export default {
     },
     // 发票验收
     handleInvoiceAccept (row) {
-      this.$confirm('确认发票验收?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        invoiceAccept({ id: row.id }).then(() => {
-          this.$message.success('发票验收成功');
-          this.getData();
-        });
-      }).catch(() => {});
+      this.invoiceAcceptRowId = row.id;
+      this.invoiceAcceptDialogVisible = true;
     },
     // 发票退回
     handleInvoiceReturn (row) {
-      this.$prompt('发票退回', '请输入退回原因', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputPlaceholder: '请输入退回原因',
-        inputValidator: (value) => {
-          if (!value || value.trim() === '') {
-            return '请输入退回原因';
-          }
-          return true;
-        }
-      }).then(({ value }) => {
-        invoiceReturn({
-          id: row.id,
-          returnReason: value
-        }).then(() => {
-          this.$message.success('发票退回成功');
-          this.getData();
-        });
-      }).catch(() => {});
+      this.invoiceReturnRowId = row.id;
+      this.invoiceReturnDialogVisible = true;
     },
     // 确认付款
     handlePayConfirm (row) {
-      this.$prompt('确认付款', '请输入付款说明', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputPlaceholder: '请输入付款说明'
-      }).then(({ value }) => {
-        payConfirm({
-          id: row.id,
-          payRemark: value
-        }).then(() => {
-          this.$message.success('确认付款成功');
-          this.getData();
-        });
-      }).catch(() => {});
+      this.payConfirmRowId = row.id;
+      this.payConfirmDialogVisible = true;
     },
     onSubmit () {
       this.tableForm.page = 1;
@@ -530,10 +522,26 @@ export default {
       }
       return [];
     },
-    getDealerList (query) {
-      return listOrgStoreInfo({
-        name: query,
-      });
+    onExport () {
+      if (this.selectionList.length === 0) {
+        this.$message.warning('请选择需要导出发票的保修结算通知书记录');
+        return;
+      }
+      const invalidStatuses = ['10', '60', '110'];
+      const hasInvalidStatus = this.selectionList.some(item => invalidStatuses.includes(item.settleStatus));
+      if (hasInvalidStatus) {
+        this.$message.warning('只允许选择通知书状态为已开票或已验收或已付款的记录');
+        return;
+      }
+      const ids = this.selectionList.map(item => item.id);
+      this.exportLoading = true;
+      exportInvoiceZip({ ids })
+        .then(() => {
+          this.$message.success('导出成功');
+        })
+        .finally(() => {
+          this.exportLoading = false;
+        });
     },
   }
 };

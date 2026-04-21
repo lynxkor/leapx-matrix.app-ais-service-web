@@ -51,7 +51,7 @@
             <BasicInfo :formData.sync="form" :isEditing="isEditing" :_id="_id" ref="basicInfoRef" @refresh="handleRefresh"/>
             <EntrustInfo :formData="form" :isEditing.sync="isEditing" :_id="_id" ref="entrustInfoRef" @change="submitForm" @refresh="handleRefresh"/>
             <BatteryInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="batteryInfoRef"/>
-            <!-- <InquiryInfo :formData="form"/> -->
+            <InquiryInfo :formData="form" :_id="_id"/>
             <RepairInfo :formData="form"/>
             <SparepartsInfo :formData="form"/>
             <section class="common-section">
@@ -59,7 +59,7 @@
                 <h2>资料附件</h2>
               </div>
               <div class="common-section-body">
-                <Attachment :_id="_id" :show-upload="false" ref="attachmentRef"/>
+                <Attachment :_id="_id" :show-upload="false" ref="attachmentRef" attachType="附件资料"/>
               </div>
             </section>
             <MaintainInfo :formData="form"/>
@@ -170,6 +170,7 @@ import MaintainInfo from './components/MaintainInfo';
 import BasicInfo from './components/BasicInfo';
 import EntrustInfo from './components/EntrustInfo';
 import BatteryInfo from './components/BatteryInfo';
+import InquiryInfo from './components/InquiryInfo';
 import SparepartsInfo from './components/SparepartsInfo';
 import Attachment from './components/Attachment';
 import RepairInfo from './components/RepairInfo';
@@ -342,7 +343,7 @@ export default {
     BasicInfo,
     EntrustInfo,
     BatteryInfo,
-    // InquiryInfo,
+    InquiryInfo,
     SparepartsInfo,
     Attachment,
     RepairInfo,
@@ -503,12 +504,17 @@ export default {
         const basicInfo = await this.$refs.basicInfoRef.getFormData();
         const entrustInfo = await this.$refs.entrustInfoRef.getFormData();
         const batteryInfo = await this.$refs.batteryInfoRef.getFormData();
-        this.submitLoading = true;
         const data = { ...this.form, ...basicInfo, ...entrustInfo, ...batteryInfo };
         // 后端要求新开单增加isAddItems字段
         if (!this._id) {
           data.isAddItems = 0;
         }
+        if (data.currentFault && data.faultAlertRecordRespList.length === 0) {
+          this.$message.warning('请先添加故障模块');
+          this.isEditing = true;
+          return;
+        }
+        this.submitLoading = true;
         addOrUpdate(data).then(res => {
           this.$message({
             message: '保存成功',
@@ -693,31 +699,46 @@ export default {
         });
       }
     },
-    handleSettlementConfirm (faultData) {
-      // faultData 包含：isProblemResolved、unresolvedReason
-      // 先保存故障解决情况
-      addOrUpdate({
-        ...this.form,
-        faultSolve: faultData.faultSolve,
-        reason: faultData.reason
-      }).then(() => {
-        // 再调用结算接口
-        addStatement({ serviceProxyId: this._id }).then(res => {
-          this.$message.success('结算成功');
-          this.getDetailData();
-          // 跳转到结算单页面
-          if (res) {
-            this.$router.push({
-              path: '/maintain/sp/serviceStatement/edit',
-              query: { id: res }
-            });
-          }
-        });
-      }).catch((error) => {
-        console.error('保存故障解决情况失败:', error);
-        this.$message.error(error.msg || '保存故障解决情况失败');
-      });
+    async handleSettlementConfirm (faultData) {
+      // 如果存在故障数据，先保存故障解决情况
+      if (faultData) {
+        const basicInfo = await this.$refs.basicInfoRef.getFormData();
+        const entrustInfo = await this.$refs.entrustInfoRef.getFormData();
+        const batteryInfo = await this.$refs.batteryInfoRef.getFormData();
+
+        const data = {
+          ...this.form,
+          ...basicInfo,
+          ...entrustInfo,
+          ...batteryInfo,
+          faultSolve: faultData.faultSolve,
+          reason: faultData.reason
+        };
+
+        try {
+          await addOrUpdate(data);
+        } catch (error) {
+          return;
+        }
+      }
+
+      // 调用结算接口
+      try {
+        const res = await addStatement({ serviceProxyId: this._id });
+        this.$message.success('结算成功');
+        this.getDetailData();
+        if (res) {
+          this.$router.push({
+            path: '/maintain/sp/serviceStatement/edit',
+            query: { id: res }
+          });
+        }
+      } catch (error) {
+        console.error('结算失败:', error);
+        this.$message.error(error.msg || '结算失败');
+      }
     },
+
     // 取消终检
     handleCancelFinal () {
       const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>您确定要取消终检吗？</div>';
@@ -729,8 +750,9 @@ export default {
         showClose: false
       }).then(() => {
         // 调用接口
-        cancelFinal({ serviceProxyId: this._id }).then(res => {
+        cancelFinal({ id: this._id }).then(res => {
           this.$message.success('取消终检成功');
+          this.getDetailData();
         });
       }).catch(() => {
       });

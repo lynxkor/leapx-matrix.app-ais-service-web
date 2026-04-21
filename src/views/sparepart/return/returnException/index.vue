@@ -250,7 +250,7 @@ export default {
             buttons: [{
               name: '入库',
               show: (row) => {
-                return row.warehousingStatus === '20';
+                return row.warehousingStatus === '20' && this.permissions.has('AISPART-returnOrder-inboundExceptional');
               },
               click: (rowIndex, row) => {
                 this.handleSubmit(row);
@@ -270,13 +270,13 @@ export default {
   methods: {
     // 提交
     async handleSubmit (val) {
-      this.$confirm('确认提交吗？', '提示', {
+      this.$confirm('确认入库吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(async () => {
         await returnExceptionInbound({ id: val.id });
-        this.$message.success('提交成功!');
+        this.$message.success('入库成功!');
         this.getData();
       }).catch(() => {});
     },

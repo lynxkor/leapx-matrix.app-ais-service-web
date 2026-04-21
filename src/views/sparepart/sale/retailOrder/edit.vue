@@ -3,10 +3,17 @@
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container ref="containerRef" :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form"
-        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest">
+        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" :showEditBtn="isEditSpare">
         <template #extraButtons>
-          <!-- <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button> -->
+          <el-button
+            v-for="btn in visibleButtons"
+            :key="btn.key"
+            type="primary"
+            size="small"
+            @click="handleExtraButtonClick(btn.action)"
+          >
+            {{ btn.label }}
+          </el-button>
         </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
@@ -373,7 +380,7 @@
               <div class="common-section-header">
                 <div class="ais-select-group">
                   <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请输入编码或名称" clearable
-                    value-key="id" label-key="partName" subLabelKey="partCode" @change="handleAddTableData" filterable />
+                    value-key="id" label-key="partName" subLabelKey="partCode" @change="handleAddTableData" filterable :disabled="!isOrderStatus" />
                   <el-button type="primary" size="small">添加</el-button>
                 </div>
               </div>
@@ -397,11 +404,12 @@
                     <template #default="{ row }">
                       <span
                         class="btn-edit"
+                        v-if="(isDelete && row.outboundIs === '0') || (isEditSpare)"
                         @click="handleEdit(row)"
                       >
                         编辑
                       </span>
-                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(row)">
+                      <el-popconfirm title="确定要删除吗？" v-if="isDelete && row.outboundIs === '0'" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(row)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
@@ -434,14 +442,46 @@
         <SparePartsDetail
           ref="detailRef"
           :sparePartId="sparePartId"
+          :isEditSpare="isEditSpare"
+          :isNumber="isDelete"
+          :outboundIs="outboundIs"
         />
       </div>
     </template>
+    <!-- 销售出库, 退料入库, 退订入库 -->
+    <OutboundDialog
+      ref="outboundDialogRef"
+      :id="outboundId"
+      :titleDialog="titleDialog"
+      :visible.sync="outboundDialogVisible"
+      @update:visible="val => outboundDialogVisible = val"
+      @success="handleRefresh"
+    />
+    <!-- 退料申请 -->
+     <ReturnMateriaDialog
+      ref="returnDialogRef"
+      :id="returnMaterialId"
+      :visible.sync="returnMaterialDialogVisible"
+      @update:visible="val => returnMaterialDialogVisible = val"
+      @success="handleRefresh"
+    />
+    <!-- 收款 -->
+    <HarvestDialog
+     ref="harvestDialogRef"
+     :form="harvestForm"
+     :visible.sync="harvestDialogVisible"
+     @update:visible="val => harvestDialogVisible = val"
+     @success="handleRefresh"
+    />
   </edit-page-layout>
 </template>
 
 <script>
-import { spareParkList, getMileage, getVehicleProfile, getDetail, addOrUpdate, retailPaymentRecordPage, retailOrderDetailPage, addOrUpdateRetailOrderDetail, deleteRetailOrderDetail } from '@/api/sparepart/sale/retailOrder/index';
+import {
+  spareParkList, getMileage, getVehicleProfile, getDetail, addOrUpdate, retailPaymentRecordPage,
+  retailOrderDetailPage, addOrUpdateRetailOrderDetail, deleteRetailOrderDetail, confirmOrder,
+  cancelOrder, signOrder, cancelSignOrder, settleOrder, cancelSettleOrder, reverseSettleOrder, refundOrder
+} from '@/api/sparepart/sale/retailOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -451,6 +491,10 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import SparePartsDetail from './SparePartsDetail';
+import OutboundDialog from './OutboundDialog.vue';
+import ReturnMateriaDialog from './ReturnMateriaDialog.vue';
+import HarvestDialog from './HarvestDialog.vue';
+import { handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -524,6 +568,13 @@ const defaultForm = {
   updateTime: '',
 };
 
+const ACTION_CONFIG = { // 按钮配置
+  sign: { title: '是否签收该订单?', success: '签收成功' },
+  cancelSign: { title: '是否取消签收该订单?', success: '取消签收成功' },
+  settle: { title: '是否结算该订单?', success: '结算成功' },
+  cancelSettle: { title: '是否取消结算该订单?', success: '取消结算成功' }
+};
+
 export default {
   name: 'retailOrderEdit',
   // 集中视图预留
@@ -538,7 +589,10 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    SparePartsDetail
+    SparePartsDetail,
+    OutboundDialog,
+    ReturnMateriaDialog,
+    HarvestDialog
   },
   computed: {
     _id () {
@@ -546,6 +600,113 @@ export default {
     },
     title () {
       return '应付总金额：' + this.form.payableTotalAmount;
+    },
+    isOrderStatus () { // 是够可添加备件
+      return ['10', '20', '330'].includes(this.form.orderStatus);
+    },
+    isDelete () { // 是否可删除 备件   可以编辑备件的【销售数量】
+      return ['10', '20'].includes(this.form.orderStatus);
+    },
+    isEditSpare () { // 是否可编辑备件 【价格类型】【优惠金额】
+      return ['10', '20', '30', '40', '50'].includes(this.form.orderStatus);
+    },
+    extraButtons () {
+      const buttons = [
+        {
+          key: 'confirm',
+          label: '确认',
+          action: 'confirm',
+          visible: this._id && this.form.orderStatus === '10' && this.permissions.has('AISPART-retailOrder-confirm')
+        },
+        {
+          key: 'cancel',
+          label: '作废',
+          action: 'cancel',
+          visible: this._id && ['10', '20'].includes(this.form.orderStatus) && this.permissions.has('AISPART-retailOrder-cancel')
+        },
+        {
+          key: 'ship',
+          label: '出库',
+          action: 'ship',
+          visible: this._id && this.form.orderStatus === '20' && this.permissions.has('AISPART-retailOrder-ship')
+        },
+        {
+          key: 'printOut',
+          label: '打印出库单',
+          action: 'printOut',
+          visible: this._id && ['20', '30', '40', '50', '60', '100'].includes(this.form.orderStatus) && this.permissions.has('AISPART-retailOrder-printOut')
+        },
+        {
+          key: 'sign',
+          label: '签收',
+          action: 'sign',
+          visible: this._id && this.form.orderStatus === '30' && this.permissions.has('AISPART-retailOrder-sign')
+        },
+        {
+          key: 'cancelSign',
+          label: '取消签收',
+          action: 'cancelSign',
+          visible: this._id && this.form.orderStatus === '40' && this.permissions.has('AISPART-retailOrder-cancelSign')
+        },
+        {
+          key: 'applyReturnMaterial',
+          label: '退料申请',
+          action: 'applyReturnMaterial',
+          visible: this._id && this.form.orderStatus === '30' && this.permissions.has('AISPART-retailOrder-applyReturnMaterial')
+        },
+        {
+          key: 'returnMaterialInbound',
+          label: '退料入库',
+          action: 'returnMaterialInbound',
+          visible: this._id && this.form.orderStatus === '30' && this.form.applyReturnMaterialIs === '1' && this.permissions.has('AISPART-retailOrder-returnMaterialInbound')
+        },
+        {
+          key: 'settle',
+          label: '结算',
+          action: 'settle',
+          visible: this._id && this.form.orderStatus === '40' && this.permissions.has('AISPART-retailOrder-settle')
+        },
+        {
+          key: 'cancelSettle',
+          label: '取消结算',
+          action: 'cancelSettle',
+          visible: this._id && this.form.orderStatus === '50' && this.permissions.has('AISPART-retailOrder-cancelSettle')
+        },
+        {
+          key: 'collectPayment',
+          label: '收款',
+          action: 'collectPayment',
+          visible: this._id && this.form.orderStatus === '50' && this.permissions.has('AISPART-retailOrder-collectPayment')
+        },
+        {
+          key: 'printSettle',
+          label: '打印结算单',
+          action: 'printSettle',
+          visible: this._id && ['50', '60'].includes(this.form.orderStatus) && this.permissions.has('AISPART-retailOrder-printSettle')
+        },
+        {
+          key: 'reverseSettle',
+          label: '反结算',
+          action: 'reverseSettle',
+          visible: this._id && this.form.orderStatus === '60' && this.permissions.has('AISPART-retailOrder-reverseSettle')
+        },
+        {
+          key: 'cancelOrderInbound',
+          label: '退订入库',
+          action: 'cancelOrderInbound',
+          visible: this._id && this.form.orderStatus === '100' && this.permissions.has('AISPART-retailOrder-cancelOrderInbound')
+        },
+        {
+          key: 'refund',
+          label: '退款',
+          action: 'refund',
+          visible: this._id && this.form.orderStatus === '70' && this.permissions.has('AISPART-retailOrder-refund')
+        }
+      ];
+      return buttons;
+    },
+    visibleButtons () {
+      return this.extraButtons.filter(btn => btn.visible);
     }
   },
   watch: {
@@ -575,7 +736,6 @@ export default {
         }
       },
       immediate: false,
-      deep: false
     }
   },
   data () {
@@ -612,6 +772,15 @@ export default {
       total: 0,
       paymentData: [], // 收款明细
       sparePartId: '', // 备件详情ID
+      outboundIs: '', // 是否出库
+      printSettingsVisible: false, // 打印设置
+      outboundDialogVisible: false, // 销售出库单 退料入库 退订入库
+      titleDialog: '1',
+      outboundId: '', // 销售出库单id 备附件销售单ID
+      returnMaterialDialogVisible: false, // 退料申请
+      returnMaterialId: '', // 退料申请id 备附件销售单ID
+      harvestDialogVisible: false, // 收款
+      harvestForm: {}, // 收款表单
     };
   },
   mounted () {
@@ -671,6 +840,8 @@ export default {
         this.routeCustomerType = res.customerType;
         this.getPayment();
         this.getData();
+
+        return res;
       } catch (error) {
         console.log('error', error);
       }
@@ -690,6 +861,7 @@ export default {
     // 编辑详情
     handleEdit (row) {
       this.sparePartId = row.id;
+      this.outboundIs = row.outboundIs;
       this.openPane();
     },
     // 删除子表数据
@@ -775,7 +947,132 @@ export default {
       this.$refs.detailRef.handleSave();
       this.$refs.containerRef.loadDetail();
       this.$refs.editLayout.closePane();
-    }
+    },
+    // 处理额外按钮点击事件
+    handleExtraButtonClick (action) {
+      const actionMap = {
+        confirm: 'handleConfirm',
+        cancel: 'handleCancel',
+        ship: 'handleShip',
+        printOut: 'handlePrintOut',
+        sign: 'handleSign',
+        cancelSign: 'handleCancelSign',
+        applyReturnMaterial: 'handleApplyReturnMaterial',
+        returnMaterialInbound: 'handleReturnMaterialInbound',
+        settle: 'handleSettle',
+        cancelSettle: 'handleCancelSettle',
+        collectPayment: 'handleCollectPayment',
+        printSettle: 'handlePrintSettle',
+        reverseSettle: 'handleReverseSettle',
+        cancelOrderInbound: 'handleCancelOrderInbound',
+        refund: 'handleRefund'
+      };
+      const handlerName = actionMap[action];
+      if (handlerName && typeof this[handlerName] === 'function') {
+        this[handlerName]();
+      } else {
+        console.warn(`未找到处理方法: ${handlerName}`);
+      }
+    },
+    // 刷新接口
+    handleRefresh () {
+      this.$refs.containerRef.loadDetail();
+    },
+    _handleAction (apiFn, config) {
+      handleCommonAction({
+        $confirm: this.$confirm,
+        $message: this.$message,
+        apiFn,
+        id: this._id,
+        config,
+        onSuccess: () => this.$refs.containerRef.loadDetail()
+      });
+    },
+    // --- 业务方法调用 ---
+    handleSign () {
+      this._handleAction(signOrder, ACTION_CONFIG.sign);
+    },
+    handleCancelSign () {
+      this._handleAction(cancelSignOrder, ACTION_CONFIG.cancelSign);
+    },
+    handleSettle () {
+      this._handleAction(settleOrder, ACTION_CONFIG.settle);
+    },
+    handleCancelSettle () {
+      this._handleAction(cancelSettleOrder, ACTION_CONFIG.cancelSettle);
+    },
+    // 通用 备注弹窗
+    _execPrompt (api, title, placeholder, successMsg) {
+      handleCommonPrompt({
+        $prompt: this.$prompt,
+        $message: this.$message,
+        apiFn: api,
+        id: this._id,
+        config: {
+          title,
+          placeholder,
+          success: successMsg
+        },
+        onSuccess: () => this.$refs.containerRef.loadDetail()
+      });
+    },
+
+    // 作废
+    handleCancel () {
+      this._execPrompt(cancelOrder, '作废', '请输入作废备注', '作废成功!');
+    },
+    // 反结算
+    handleReverseSettle () {
+      this._execPrompt(reverseSettleOrder, '反结算', '请输入反结算备注', '反结算成功!');
+    },
+    // 退款
+    handleRefund () {
+      this._execPrompt(refundOrder, '退款', '请输入退款备注', '退款成功!');
+    },
+    // 销售出库
+    handleShip () {
+      this.handleAll('1');
+    },
+    // 退料入库
+    handleReturnMaterialInbound () {
+      this.handleAll('2');
+    },
+    // 退订入库
+    handleCancelOrderInbound () {
+      this.handleAll('3');
+    },
+    // 销售出库, 退料入库, 退订入库
+    handleAll (num) {
+      this.returnMaterialId = this._id;
+      this.titleDialog = num;
+      this.returnMaterialDialogVisible = true;
+    },
+    // 退料申请
+    handleApplyReturnMaterial () {
+      this.returnMaterialId = this._id;
+      this.returnMaterialDialogVisible = true;
+    },
+    // 收款
+    handleCollectPayment () {
+      this.harvestForm = this.form;
+      this.harvestDialogVisible = true;
+    },
+    // 打印出库单
+    handlePrintOut () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'SparesOutbound', // 必选，对应 ./template/文件名.vue
+        title: `${this.form.dealerName}备件出库单`// 可选，打印标题
+      });
+    },
+    // 打印结算单
+    handlePrintSettle () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'SettlementStatement', // 必选，对应 ./template/文件名.vue
+        title: `${this.form.dealerName}厅店结算单`// 可选，打印标题
+      });
+    },
   }
 };
 </script>

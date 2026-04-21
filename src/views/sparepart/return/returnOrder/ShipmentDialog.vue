@@ -69,13 +69,14 @@ export default {
           type: 'success',
         });
         this.submitLoading = false;
+        this.close();
         this.$emit('success');
       } catch (error) {
         this.submitLoading = false;
       }
     },
     close () {
-      this.$emit('close');
+      this.$emit('update:visible', false);
     },
   }
 };

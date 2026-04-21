@@ -27,7 +27,7 @@
                         <el-input v-model="row.contactInfo" />
                     </template>
                 </vxe-column>
-                <vxe-column title="操作" width="100">
+                <vxe-column title="操作" width="100" fixed="right">
                     <template #default="{ row }">
                         <el-button size="small" type="text" @click="handleApplyTransfer(row)">申请调拨</el-button>
                     </template>
@@ -79,6 +79,7 @@ export default {
   methods: {
     close () {
       this.$emit('update:visible', false);
+      this.$emit('getData');
     },
     async getData (val) {
       const res = await boToTransferPage({ id: val });
@@ -154,7 +155,6 @@ export default {
         this.getData(this.transferId);
         this.$message.success('调拨成功');
       } catch (error) {
-        this.$message.error('调拨失败');
       }
     },
 

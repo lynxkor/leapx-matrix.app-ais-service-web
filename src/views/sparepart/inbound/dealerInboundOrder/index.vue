@@ -290,6 +290,9 @@ export default {
               type: 'danger'
             }, {
               name: '打印入库单',
+              show: (row) => {
+                return this.permissions.has('AISPART-dealerInboundOrder-printInbound');
+              },
               click: (rowIndex, row) => {
                 this.handlePrint(row);
               },
@@ -297,7 +300,7 @@ export default {
             }, {
               name: '提交',
               show: (row) => {
-                return row.orderStatus === '10' || row.orderStatus === '40';
+                return (row.orderStatus === '10' || row.orderStatus === '40') && this.permissions.has('AISPART-dealerInboundOrder-commit');
               },
               popconfirmTitle: '此操作将提交订单, 是否继续?',
               click: (rowIndex, row) => {
@@ -318,7 +321,7 @@ export default {
             }, {
               name: '通过',
               show: (row) => {
-                return row.orderStatus === '20';
+                return row.orderStatus === '20' && this.permissions.has('AISPART-dealerInboundOrder-agree');
               },
               popconfirmTitle: '此操作将通过订单, 是否继续?',
               click: (rowIndex, row) => {
@@ -339,7 +342,7 @@ export default {
             }, {
               name: '驳回',
               show: (row) => {
-                return row.orderStatus === '20';
+                return row.orderStatus === '20' && this.permissions.has('AISPART-dealerInboundOrder-reject');
               },
               click: (rowIndex, row) => {
                 this.handleReject(row);
@@ -348,7 +351,7 @@ export default {
             }, {
               name: '入库',
               show: (row) => {
-                return row.orderStatus === '30' && row.inboundStatus === '10';
+                return row.orderStatus === '30' && row.inboundStatus === '10' && this.permissions.has('AISPART-dealerInboundOrder-inbound');
               },
               popconfirmTitle: '此操作将入库订单, 是否继续?',
               click: (rowIndex, row) => {
@@ -369,7 +372,7 @@ export default {
             }, {
               name: '申请退货',
               show: (row) => {
-                return row.orderStatus === '30' && row.inboundStatus === '20';
+                return row.orderStatus === '30' && row.inboundStatus === '20' && this.permissions.has('AISPART-dealerInboundOrder-returnApply');
               },
               click: (rowIndex, row) => {
                 this.handleReturn(row);
@@ -617,6 +620,10 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
       }).then(({ value }) => {
+        if (!value || value.length > 100) {
+          this.$message.warning('请输入不超过 100 字的审批原因');
+          return; // 阻止后续代码执行
+        }
         // 调用驳回接口
         dealerInboundOrderReject({ id: val.id, description: value }).then(() => {
           this.$message({

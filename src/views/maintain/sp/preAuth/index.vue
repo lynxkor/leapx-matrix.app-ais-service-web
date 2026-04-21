@@ -30,7 +30,7 @@
         <el-form-item label="车牌号">
           <el-input
             placeholder="请输入"
-            v-model="form.licensePlateNo"
+            v-model="form.carPlate"
             clearable
           />
         </el-form-item>
@@ -45,7 +45,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="AuditStatusEnum"
-            v-model="form.statusIncludeList"
+            v-model="form.approvalStatusList"
             placeholder="请选择"
             clearable
             multiple
@@ -464,7 +464,12 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+        // 删除空字符串、null、undefined
+        if (data[key] === '' || data[key] === null || data[key] === undefined) {
+          delete data[key];
+        }
+        // 删除空数组
+        if (Array.isArray(data[key]) && data[key].length === 0) {
           delete data[key];
         }
       });

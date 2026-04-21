@@ -143,6 +143,7 @@ const defaultForm = {
   status: '',
   createTime: '',
   updateTime: '',
+  claimDaysAdjustment: '',
 };
 
 const pageSize = 20;
@@ -203,6 +204,7 @@ export default {
           },
           { props: 'vehicleSeriesName', label: '车系名称', visible: true, width: 200 },
           { props: 'supplierClaimPrice', label: '供应商索赔价格', visible: true, width: 200 },
+          { props: 'claimDaysAdjustment', label: '索赔天数调整', visible: true, width: 200 },
           { props: 'effectiveStartTime', label: '生效开始日期', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },

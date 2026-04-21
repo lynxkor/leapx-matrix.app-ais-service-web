@@ -15,6 +15,8 @@
           <span v-if="form.status" class="status primary">{{ form.status }}</span>
         </template>
         <template #extraButtons>
+          <el-button v-if="_id" size="small" type="primary" @click="handlePrint">打印</el-button>
+          <el-button v-if="_id && form.signStatus === '0'" size="small" type="primary" @click="handleSign">签收</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -163,7 +165,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, transferInboundDetailPage } from '@/api/sparepart/transfer/transferInbound/index';
+import { getDetail, addOrUpdate, transferInboundDetailPage, getSign } from '@/api/sparepart/transfer/transferInbound/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -295,6 +297,34 @@ export default {
       this.pageSize = pageSize;
       this.pageNum = 1;
       this.getData();
+    },
+    // 打印调拨入库单
+    handlePrint () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'TransferInventory', // 必选，对应 ./template/文件名.vue
+        title: `${this.form.dealerName}厅店调拨入库单`// 可选，打印标题
+      });
+    },
+    // 签收调拨入库单
+    async handleSign () {
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>此操作将签收调拨入库单, 是否继续?</div>';
+      this.$confirm(message, '', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(async () => {
+        // 调用接口
+        await getSign({ id: this._id });
+        this.$message({
+          type: 'success',
+          message: '签收成功!'
+        });
+        this.$refs.containerRef.loadDetail();
+      }).catch(() => {
+      });
     },
   }
 };

@@ -69,13 +69,13 @@
                   {{ form.latestInboundTime }}
                 </el-form-item>
                 <el-form-item label="成本单价：" prop="costUnitPrice">
-                  {{ form.transactionUnitPrice }}
+                  {{ form.costUnitPrice }}
                 </el-form-item>
                 <el-form-item label="最近出库时间：">
                   {{ form.latestOutboundTime }}
                 </el-form-item>
                 <el-form-item label="成本金额：" prop="costAmount">
-                  {{ form.transactionAmount }}
+                  {{ form.costAmount }}
                 </el-form-item>
                 <el-form-item label="采购单价：" prop="costAmount">
                   {{ form.purchasePrice }}
@@ -345,11 +345,19 @@ export default {
   watch: {
     id: {
       handler (val) {
-        if (val) {
-          this.getDetailData();
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
         }
       },
       immediate: true
+    },
+    'form.locationId': {
+      handler (val) {
+        if (val && this.form.warehouseId) {
+          // 当locationId变化时，手动加载库位数据，确保回显name
+          this.getLocaltion('');
+        }
+      }
     }
   },
   data () {
@@ -455,6 +463,13 @@ export default {
     async getLocaltion (query) {
       try {
         const res = await locationList({ codeOrName: query, warehouseId: this.form.warehouseId });
+        // 检查当前的locationId是否在返回的列表中，如果在，则更新locationName
+        if (this.form.locationId && res && res.length > 0) {
+          const location = res.find(item => item.id === this.form.locationId);
+          if (location) {
+            this.form.locationName = location.name;
+          }
+        }
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);

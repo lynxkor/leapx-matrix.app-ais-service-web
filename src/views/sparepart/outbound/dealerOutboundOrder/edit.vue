@@ -151,9 +151,6 @@
                 <el-form-item label="领料申请时间：" prop="requestTime">
                   {{ form.requestTime }}
                 </el-form-item>
-                <el-form-item label="领料申请说明：" prop="requestDescription">
-                  {{ form.requestDescription }}
-                </el-form-item>
                 <el-form-item label="领料审批人：" prop="approver">
                   {{ form.approverName }}
                 </el-form-item>
@@ -328,7 +325,7 @@
       :businessParams="_id"
       id="sparepartDealerOutboundOrderDetail"
       @close="handleUploadDialogClose"
-      @submit="getDetailData"
+      @getData="getData"
     />
   </edit-page-layout>
 </template>
@@ -479,7 +476,6 @@ export default {
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
-      this.getData();
     },
     detailRequest () {
       const id = this._id;
