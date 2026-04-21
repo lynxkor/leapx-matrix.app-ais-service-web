@@ -100,6 +100,14 @@ export function useEquity (data) {
 };
 
 /**
+ * 特殊开单--权益套餐--提醒
+ * @param {Object} data
+ */
+export function equityRemind (data) {
+  return api.jsonPost(prefix + 'equity/remind', data);
+};
+
+/**
  * 特殊开单--免保项目--列表查询
  * @param {Object} data
  */
