@@ -119,6 +119,7 @@ export default {
       handler (val) {
         if (val) {
           this.info = {};
+          this.tableData = [];
           this.getData();
         }
       },
