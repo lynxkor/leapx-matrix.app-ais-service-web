@@ -178,6 +178,7 @@ export default {
       try {
         await useEquity({
           id: this.vehicleInfo.id,
+          verificationCityLevel: this.selectedItem.writeOffCityLevel,
           equityUseId: this.selectedItem.useId,
           equityCode: this.selectedItem.rightsCode,
           equityName: this.selectedItem.rightsName,
