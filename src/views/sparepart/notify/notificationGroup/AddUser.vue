@@ -3,7 +3,7 @@
         <el-form ref="form" :model="formData" label-width="70px">
             <el-form-item label="用户名称" prop="userId">
                 <fetch-select
-                    v-model="formData.userId"
+                    v-model="formData.userName"
                     :remote-method="searchUser"
                     value-key="userId"
                     label-key="username"
@@ -57,14 +57,20 @@ export default {
       default: ''
     },
     notificationForm: { // 通知对象列表
-      type: Array,
-      default: () => {}
+      type: Object,
+      default: () => ({})
     }
   },
   components: { FetchSelect },
   data () {
     return {
-      formData: {},
+      formData: {
+        userId: '',
+        userName: '',
+        provinceList: [],
+        cityList: [],
+        cityName: ''
+      },
     };
   },
   watch: {
@@ -79,6 +85,21 @@ export default {
     }
   },
   methods: {
+    // 改变用户名称时，更新用户ID和用户名
+    handleQualityCheckerChange (val, record) {
+      this.formData.userId = record.userId;
+      this.formData.userName = record.username;
+    },
+    // 清空表单数据
+    clearForm () {
+      this.formData = {
+        userId: '',
+        userName: '',
+        provinceList: [],
+        cityList: [],
+        cityName: ''
+      };
+    },
     async getCityList (params) {
       return cityListByName({ cityName: params });
     },
@@ -117,6 +138,7 @@ export default {
         ...this.formData,
       };
       await notificationGroupAdd(params);
+      this.clearForm();
       this.$emit('submit');
     }
   }
