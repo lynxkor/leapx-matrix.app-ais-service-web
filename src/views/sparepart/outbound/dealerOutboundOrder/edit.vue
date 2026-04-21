@@ -151,9 +151,6 @@
                 <el-form-item label="领料申请时间：" prop="requestTime">
                   {{ form.requestTime }}
                 </el-form-item>
-                <el-form-item label="领料申请说明：" prop="requestDescription">
-                  {{ form.requestDescription }}
-                </el-form-item>
                 <el-form-item label="领料审批人：" prop="approver">
                   {{ form.approverName }}
                 </el-form-item>
