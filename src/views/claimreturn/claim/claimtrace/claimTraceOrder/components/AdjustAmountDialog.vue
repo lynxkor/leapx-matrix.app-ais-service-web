@@ -90,7 +90,7 @@
             @checkbox-all="handleCheckboxChange"
           >
             <vxe-column type="checkbox" width="50" />
-            <vxe-column field="repairItemId" title="其他代码" min-width="150" />
+            <vxe-column field="repairItemCode" title="其他代码" min-width="150" />
             <vxe-column field="repairItemName" title="其他名称" min-width="150" />
             <vxe-column field="totalCostAmount" title="总金额" min-width="120" />
           </vxe-table>

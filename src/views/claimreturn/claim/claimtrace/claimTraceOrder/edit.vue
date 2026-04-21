@@ -42,27 +42,27 @@
                     clearable filterable disabled />
                 </el-form-item>
                 <el-form-item label="保修申请单：" prop="warrantyCode">
-                  <fetch-select
+                 <list-select
+                    listUrl="claimreturn/claim/web/warrantyapply/warrantyApply/selectableList"
+                    placeholder="请输入保修申请单"
                     v-model="form.warrantyCode"
+                    :disabled="Boolean(_id)"
+                    query-key="applyNo"
                     filterable
                     clearable
-                    remote
-                    reserve-keyword
-                    :remote-method="queryListData"
-                    :params="form.warrantyCode"
-                    value-key="applyNo"
                     label-key="applyNo"
-                    placeholder="请输入保修申请单"
-                  />
+                    value-key="applyNo"
+                    @change="handleWarrantyApplyChange"
+                  :params="{}" />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerCode">
-                  <dealer-select v-model="form.dealerCode" disabled />
+                  <dealer-select v-model="form.dealerCode" :disabled="!!_id" />
                 </el-form-item>
                 <el-form-item label="首次下发时间：">
                   <el-input v-model="form.firstIssueTime" disabled />
                 </el-form-item>
                 <el-form-item label="追溯说明：" prop="traceDesc">
-                  <el-input placeholder="请输入" v-model="form.traceDesc" clearable type="textarea" :rows="1" disabled />
+                  <el-input placeholder="请输入" v-model="form.traceDesc" clearable type="textarea" :rows="1" :disabled="!!_id" />
                 </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
                   <el-input placeholder="请输入" v-model="form.vin" clearable disabled />
@@ -71,7 +71,7 @@
                   <el-input v-model="form.latestIssueTime" disabled />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
-                  <el-input placeholder="请输入" v-model="form.remark" clearable type="textarea" :rows="1" disabled />
+                  <el-input placeholder="请输入" v-model="form.remark" clearable type="textarea" :rows="1" :disabled="!!_id && (![TRACE_STATUS.DRAFT, TRACE_STATUS.DRAFT.PENDING_CONFIRM].includes(form.traceStatus))" />
                 </el-form-item>
                 <el-form-item label="系统自动同意时间：">
                   <el-input v-model="form.sysAutoAgreeDate" disabled />
@@ -113,7 +113,7 @@
               </el-form>
             </div>
           </section>
-          <section class="common-section">
+          <section class="common-section" v-if="_id">
             <div class="common-section-header">
               <h2>处理信息</h2>
             </div>
@@ -190,9 +190,9 @@
             <div class="common-section-body">
               <AisAttachment
                 :business-id="_id"
-                attachType="追溯凭证"
+                attachType="不合格凭证"
                 configCode="mcs_claimtrack_form"
-                emptyText="暂无追溯凭证"
+                emptyText="暂无不合格凭证"
                 :readonly="!detailButtons.includes('编辑')"
               />
             </div>
@@ -223,7 +223,7 @@
                   size="medium" min-height="0" max-height="300px">
                   <vxe-column field="traceDetailCode" title="追溯明细" min-width="150" />
                   <!-- <vxe-column field="warrantyApplyCode" title="保修申请单" min-width="150" /> -->
-                  <vxe-column field="warrantySettleCode" title="保修结算单" min-width="150" />
+                  <vxe-column field="settleCode" title="保修结算单" min-width="150" />
                   <vxe-column field="currentTraceAmount" title="本次追溯金额" min-width="120" />
                   <vxe-column field="createTime" title="创建时间" min-width="160" />
                   <template #empty>
@@ -273,7 +273,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import FetchSelect from '@/libs/components/FetchSelect';
 import DealerSelect from '@/components/dealer-select/index.vue';
-import { getDetailVisibleButtons } from './constant';
+import { getDetailVisibleButtons, TRACE_STATUS } from './constant';
 import SubmitAuditDialog from './components/SubmitAuditDialog';
 import CancelOrderDialog from './components/CancelOrderDialog';
 import AdjustAmountDialog from './components/AdjustAmountDialog';
@@ -283,6 +283,7 @@ import AgreeAppealDialog from './components/AgreeAppealDialog';
 import RejectAppealDialog from './components/RejectAppealDialog';
 import RefuseAppealDialog from './components/RefuseAppealDialog';
 import AisAttachment from '@/libs/components/AisAttachment';
+import ListSelect from '@/libs/components/list-select';
 
 const defaultForm = {
   claimTraceCode: '',
@@ -346,7 +347,8 @@ export default {
     AgreeAppealDialog,
     RejectAppealDialog,
     RefuseAppealDialog,
-    AisAttachment
+    AisAttachment,
+    ListSelect
   },
   computed: {
     _id () {
@@ -380,6 +382,7 @@ export default {
       submitLoading: false,
       form: { ...form },
       originalForm: { ...form },
+      TRACE_STATUS,
       rules: {
         dealerCode: [
           { required: true, message: '请输入门店编码或名称', trigger: 'change' }
@@ -435,6 +438,7 @@ export default {
     handleWarrantyApplyChange (val, record) {
       if (record) {
         this.form.warrantyId = record.id;
+        this.form.vin = record.vin;
       } else {
         this.form.warrantyId = '';
       }
@@ -478,7 +482,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        agreeIssue({ id: this._id }).then(() => {
+        agreeIssue(this._id).then(() => {
           this.$message.success('同意下发成功');
           this.refreshDetail();
         });
@@ -490,7 +494,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        agreeTrace({ id: this._id }).then(() => {
+        agreeTrace(this._id).then(() => {
           this.$message.success('同意追溯成功');
           this.refreshDetail();
         });
@@ -512,7 +516,6 @@ export default {
     getTraceTableData () {
       claimTraceOrderDetailList({
         businessId: this._id,
-        traceType: '索赔追溯',
         pageNum: this.traceCurrent,
         pageSize: this.tracePageSize,
       }).then(res => {

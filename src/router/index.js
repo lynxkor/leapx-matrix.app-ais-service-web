@@ -2810,7 +2810,7 @@ function toLoginPage (to, next) {
   }
 }
 
-const appPrefix = process.env.VUE_APP_ROUTER_BASE;
+const appPrefix = window.APP_AIS_WEB_CONFIG.VUE_APP_ROUTER_BASE;
 
 export function getRouter () {
   const router = new VueRouter({

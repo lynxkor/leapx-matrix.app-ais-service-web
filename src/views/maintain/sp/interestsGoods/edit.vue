@@ -396,6 +396,12 @@ export default {
         this.claimItemAmount = itemClaimTotal;
         this.claimPartsAmount = partsClaimTotal;
         this.totalClaimAmount = itemClaimTotal + partsClaimTotal;
+      } else {
+        this.repairItemTableData = [];
+        this.tablePartData = [];
+        this.claimItemAmount = 0;
+        this.claimPartsAmount = 0;
+        this.totalClaimAmount = 0;
       }
     },
     // 搜索维修项目

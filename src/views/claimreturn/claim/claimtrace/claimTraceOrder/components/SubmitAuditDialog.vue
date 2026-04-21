@@ -17,7 +17,7 @@
               style="padding-top: 5px;"
               ref="attachment"
               :business-id="traceOrderId"
-              attachType="追溯凭证"
+              attachType="不合格凭证"
               :uploadConfig="uploadConfig"
               @upload-loading-change="handleUploadLoadingChange"
             />
