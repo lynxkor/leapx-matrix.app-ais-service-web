@@ -10,13 +10,9 @@
                   <!-- TIPS: 子标题格式如下 -->
                   <!-- <h5>活动编码：{{ form.activityCode }}</h5> -->
                 </div>
-                <!-- <div v-if="isEditing">
-                  <el-button size="small" @click="handleCancel">取消</el-button>
-                  <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
+                <div>
+                  <el-button v-if="form.returnMaterialStatus !== '1' && permissions.has('AISPART-maintenanceReturnInbound-inbound')" size="small" type="primary" @click="repairPopup">入库</el-button>
                 </div>
-                <div v-else>
-                  <el-button v-if="canAddOrUpdate" size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
-                </div> -->
               </section>
               <section class="common-section">
                 <div class="common-section-header">
@@ -98,11 +94,11 @@
                     <el-form-item label="接车施工单：" prop="serviceProxyId">
                       {{ form.serviceProxyId }}
                     </el-form-item>
-                    <el-form-item label="备注：" prop="remark">
-                      {{ form.remark }}
-                    </el-form-item>
                     <el-form-item label="客户经理：" prop="remark">
                       {{ form.username }}
+                    </el-form-item>
+                    <el-form-item label="备注：" prop="remark" style="width: 100%;">
+                      {{ form.remark }}
                     </el-form-item>
                   </el-form>
                 </div>
@@ -164,6 +160,14 @@
       <template #right>
         <!-- 右侧栏组件，自行开发 -->
       </template>
+      <!-- 入库 -->
+      <warehousingDialog
+        ref="warehousingDialogRef"
+        :id="_id"
+        :visible="warehousingDialogVisible"
+        @close="handleWarehousingDialogClose"
+        @success="handleWarehousingDialogSuccess"
+      />
     </edit-page-layout>
   </template>
 
@@ -177,6 +181,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import warehousingDialog from './warehousingDialog.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -215,7 +220,8 @@ export default {
   components: {
     EditPageLayout,
     EditTable,
-    FetchSelect
+    FetchSelect,
+    warehousingDialog
   },
   computed: {
     _id () {
@@ -422,7 +428,8 @@ export default {
         remark: [
           { required: true, message: '请输入备注', trigger: 'change' }
         ],
-      }
+      },
+      warehousingDialogVisible: false, // 维修退料入库弹窗
     };
   },
   mounted () {
@@ -572,6 +579,18 @@ export default {
     goCurrentPage (current) {
       this.goParams.current = current;
       this.getOut();
+    },
+    // 维修出库弹窗
+    repairPopup () {
+      this.warehousingDialogVisible = true;
+    },
+    // 关闭弹窗
+    handleWarehousingDialogClose () {
+      this.warehousingDialogVisible = false;
+    },
+    handleWarehousingDialogSuccess () {
+      this.warehousingDialogVisible = false;
+      this.getDetailData();
     },
   }
 };
