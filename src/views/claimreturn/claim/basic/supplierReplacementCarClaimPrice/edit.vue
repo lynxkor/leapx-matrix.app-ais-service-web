@@ -38,11 +38,11 @@
                 </el-form-item>
                 <el-form-item label="车系名称：" prop="vehicleSeriesName">
                   <list-select
-                    listUrl="/datacenter/web/materials/vehicleModel/list"
+                    listUrl="/datacenter/web/materials/vehicleSeries/list"
                     placeholder="请输入车系名称"
                     v-model="form.vehicleSeriesId"
                     :disabled="Boolean(_id)"
-                    query-key="modelNameLike"
+                    query-key="seriesNameLike"
                     auto-load-options
                     filterable
                     clearable
