@@ -2734,7 +2734,7 @@ const routes = [
       component: () => import('@/views/claimreturn/claim/warrantyaudit/index.vue'),
 
       meta: {
-        name: '新页面',
+        name: '保修审计发布',
         keepAlive: true
       }
     }, {
@@ -2743,7 +2743,34 @@ const routes = [
       component: () => import('@/views/claimreturn/claim/warrantyaudit/edit.vue'),
 
       meta: {
-        name: '新页面详情',
+        name: '保修审计发布详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/claimreturn/claim/warrantyaudit/warrantyAuditDetail',
+      name: 'warrantyAuditDetail',
+      component: () => import('@/views/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index.vue'),
+
+      meta: {
+        name: '保修审计明细',
+        keepAlive: true
+      }
+    }, {
+      path: '/claimreturn/claim/warrantyaudit/warrantyAuditDetail/edit',
+      name: 'warrantyAuditDetailEdit',
+      component: () => import('@/views/claimreturn/claim/warrantyaudit/warrantyAuditDetail/edit.vue'),
+
+      meta: {
+        name: '保修审计明细详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/file/download',
+      name: 'fileDownload',
+      component: () => import('@/views/file/zipRecord/index.vue'),
+
+      meta: {
+        name: '文件下载',
         noResourceUrl: 'true'
       }
     }]
@@ -2774,7 +2801,7 @@ function toLoginPage (to, next) {
   }
 }
 
-const appPrefix = process.env.VUE_APP_ROUTER_BASE;
+const appPrefix = window.APP_AIS_WEB_CONFIG.VUE_APP_ROUTER_BASE;
 
 export function getRouter () {
   const router = new VueRouter({

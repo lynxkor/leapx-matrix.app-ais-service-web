@@ -13,13 +13,16 @@
         :detailRequest="detailRequest"
         :showEditBtn="orderStatusType"
       >
-        <template #status>
-          <!-- 支持primary,warning,success,danger等状态 -->
-          <!-- <span class="status primary">状态</span> -->
-        </template>
         <template #extraButtons>
-          <!-- <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button> -->
+          <el-button
+            v-for="btn in visibleButtons"
+            :key="btn.key"
+            type="primary"
+            size="small"
+            @click="handleExtraButtonClick(btn.action)"
+          >
+            {{ btn.label }}
+          </el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -150,9 +153,6 @@
                 </el-form-item>
                 <el-form-item label="领料申请时间：" prop="requestTime">
                   {{ form.requestTime }}
-                </el-form-item>
-                <el-form-item label="领料申请说明：" prop="requestDescription">
-                  {{ form.requestDescription }}
                 </el-form-item>
                 <el-form-item label="领料审批人：" prop="approver">
                   {{ form.approverName }}
@@ -285,11 +285,11 @@
                   <vxe-column field="costUnitPrice" title="成本单价" min-width="11%" />
                   <vxe-column field="qty" title="数量" min-width="11%">
                     <template #default="{ row }">
-                      <el-input v-model="row.qty" type="number" :disabled="!(isEditing || !_id)" min="1" @blur="handleBlur(row)"/>
+                      <el-input v-model="row.qty" @input="val => row.qty = formatNumberInput(val, { allowDecimal: false })" :disabled="!(isEditing || !_id || isOrderType)" @blur="handleBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="11%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete && isEditing || !_id">
+                  <vxe-column title="操作" width="100" v-if="(canDelete && isEditing || !_id) || isOrderType">
                     <template #default="{ rowIndex }">
                       <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
@@ -328,13 +328,16 @@
       :businessParams="_id"
       id="sparepartDealerOutboundOrderDetail"
       @close="handleUploadDialogClose"
-      @submit="getDetailData"
+      @getData="getData"
     />
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate, orderDetailPage, orderDetailDelete, orderDetailAddOrUpdate } from '@/api/sparepart/outbound/dealerOutboundOrder/index';
+import {
+  getDetail, addOrUpdate, orderDetailPage, orderDetailDelete, orderDetailAddOrUpdate,
+  applyRequest, agreeRequest, rejectRequest, outbound, applyReturn, rejectReturn, inbound, agreeReturn
+} from '@/api/sparepart/outbound/dealerOutboundOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -344,6 +347,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
+import { handleCommonAction, handleCommonPrompt, formatNumberInput } from '@/libs/utils/index';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -418,6 +422,73 @@ export default {
     },
     title () {
       return '内部领料单号：' + this.form.code;
+    },
+    // 订单状态 领料同意 / 出库状态 未出库
+    isOrderType () {
+      return this.form.orderStatus === '40' && this.form.outboundStatus === '0';
+    },
+    // 按钮配置
+    extraButtons () {
+      const buttons = [
+        {
+          key: 'print',
+          label: '打印出库单',
+          action: 'print',
+          visible: this._id
+        },
+        {
+          key: 'applyMaterial',
+          label: '申请领料',
+          action: 'applyMaterial',
+          visible: this._id && ['10', '30'].includes(this.form.orderStatus)
+        },
+        {
+          key: 'approvalMaterial',
+          label: '同意领料',
+          action: 'approvalMaterial',
+          visible: this._id && this.form.orderStatus === '20'
+        },
+        {
+          key: 'rejectMaterialApproval',
+          label: '驳回领料',
+          action: 'rejectMaterialApproval',
+          visible: this._id && this.form.orderStatus === '20'
+        },
+        {
+          key: 'ship',
+          label: '出库',
+          action: 'ship',
+          visible: this._id && this.form.orderStatus === '40' && this.form.outboundStatus === '0'
+        },
+        {
+          key: 'applyReturnMaterial',
+          label: '申请退料',
+          action: 'applyReturnMaterial',
+          visible: this._id && (this.form.orderStatus === '40' || this.form.outboundStatus === '60') && this.form.outboundStatus === '1'
+        },
+        {
+          key: 'approveReturnMaterialApproval',
+          label: '同意退料',
+          action: 'approveReturnMaterialApproval',
+          visible: this._id && this.form.orderStatus === '50'
+        },
+        {
+          key: 'rejectReturnMaterialApproval',
+          label: '驳回退料',
+          action: 'rejectReturnMaterialApproval',
+          visible: this._id && this.form.orderStatus === '50'
+        },
+        {
+          key: 'inbound',
+          label: '入库',
+          action: 'inbound',
+          visible: this._id && this.form.orderStatus === '70' && this.form.inboundStatus === '0'
+        }
+      ];
+      return buttons;
+    },
+    visibleButtons () {
+      return this.extraButtons.filter(btn => btn.visible);
     }
   },
   watch: {
@@ -474,12 +545,12 @@ export default {
     this.getLoginUser();
   },
   methods: {
+    formatNumberInput,
     handleImport () {
       this.uploadDialogVisible = true;
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
-      this.getData();
     },
     detailRequest () {
       const id = this._id;
@@ -578,6 +649,13 @@ export default {
     },
     // 修改备件清单
     handleBlur (val) {
+      // 清理末尾小数点并确保是有效数字
+      let qty = String(val.qty || '').replace(/\.$/, '');
+      if (!qty || isNaN(qty) || Number(qty) <= 0) {
+        qty = '1';
+      }
+      val.qty = qty;
+
       const params = {
         id: val.id,
         dealerOutboundOrderId: this._id,
@@ -631,6 +709,84 @@ export default {
       this.pageSize = pageSize;
       this.pageNum = 1;
       this.getData();
+    },
+    // 打印内部领料入库单
+    handlePrint () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'InternalMaterialRequisition', // 必选，对应 ./template/文件名.vue
+        title: `${this.form.dealerName}厅店内部领料入库单`// 可选，打印标题
+      });
+    },
+    // 处理额外按钮点击事件
+    handleExtraButtonClick (action) {
+      const actionMap = {
+        print: 'handlePrint',
+        applyMaterial: 'handleApplyMaterial',
+        approvalMaterial: 'handleApprovalMaterial',
+        rejectMaterialApproval: 'handleRejectMaterialApproval',
+        ship: 'handleShip',
+        applyReturnMaterial: 'handleApplyReturnMaterial',
+        approveReturnMaterialApproval: 'handleApproveReturnMaterialApproval',
+        rejectReturnMaterialApproval: 'handleRejectReturnMaterialApproval',
+        inbound: 'handleInbound',
+      };
+      const handlerName = actionMap[action];
+      if (handlerName && typeof this[handlerName] === 'function') {
+        this[handlerName]();
+      } else {
+        console.warn(`未找到处理方法: ${handlerName}`);
+      }
+    },
+    // 二次确认
+    _handleAction (apiFn, config) {
+      handleCommonAction({
+        $confirm: this.$confirm,
+        $message: this.$message,
+        apiFn,
+        id: this._id,
+        config,
+        onSuccess: () => this.$refs.containerRef.loadDetail()
+      });
+    },
+    handleApplyMaterial () {
+      this._handleAction(applyRequest, { title: '是否申请领料?', success: '申请成功!' });
+    },
+    handleApprovalMaterial () {
+      this._handleAction(agreeRequest, { title: '是否同意领料?', success: '同意成功!' });
+    },
+    handleShip () {
+      this._handleAction(outbound, { title: '是否出库?', success: '出库成功!' });
+    },
+    handleApproveReturnMaterialApproval () {
+      this._handleAction(agreeReturn, { title: '是否同意退料?', success: '同意退料成功!' });
+    },
+    handleInbound () {
+      this._handleAction(inbound, { title: '是否入库?', success: '入库成功!' });
+    },
+    // 通用 备注弹窗
+    _execPrompt (api, title, placeholder, successMsg) {
+      handleCommonPrompt({
+        $prompt: this.$prompt,
+        $message: this.$message,
+        apiFn: api,
+        id: this._id,
+        config: {
+          title,
+          placeholder,
+          success: successMsg
+        },
+        onSuccess: () => this.$refs.containerRef.loadDetail()
+      });
+    },
+    handleRejectMaterialApproval () {
+      this._execPrompt(rejectRequest, '驳回领料', '请输入驳回原因', '驳回成功!');
+    },
+    handleApplyReturnMaterial () {
+      this._execPrompt(applyReturn, '申请退料', '请输入申请退料原因', '申请退料成功!');
+    },
+    handleRejectReturnMaterialApproval () {
+      this._execPrompt(rejectReturn, '驳回退料', '请输入驳回退料原因', '驳回退料成功!');
     },
   }
 };

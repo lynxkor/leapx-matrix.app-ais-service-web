@@ -1,35 +1,41 @@
 <template>
   <section class="common-section">
     <div class="common-section-header">
-      <h2>子表标题</h2>
+      <h2>审计明细</h2>
     </div>
     <div class="common-section-body">
       <div class="common-section-header">
-        <base-search
-          v-if="canAddOrUpdate"
-          filterable
-          clearable
-          remote
-          reserve-keyword
-          :remote-method="queryListData"
-          @change="handleAddTableData"
-          value-key="id"
-          label-key="name"
-          subLabelKey="code"
-          placeholder="请输入"
-        />
+        <div style="display: flex;gap: 8px;">
+          <base-search
+            v-if="canAddOrUpdate"
+            filterable
+            clearable
+            remote
+            reserve-keyword
+            :remote-method="queryListData"
+            @change="handleAddTableData"
+            value-key="id"
+            label-key="applyNo"
+            placeholder="请输入保修申请单"
+          />
+          <el-button size="small" @click="handleImport">导入</el-button>
+        </div>
       </div>
       <div class="common-section-table">
-        <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner" size="medium"
+        <vxe-table ref="tableRef" stripe :data="tableData" show-overflow resizable border="inner"
           min-height="0" max-height="400px">
-          <vxe-column field="auditCode" title="保修审计单编码" width="" />
-          <vxe-column field="auditStatus" title="审计状态 字典 warranty_audit_detail_status" width="" />
-          <vxe-column field="vin" title="VIN码" width="" />
-          <vxe-column field="laborDeduct" title="工时扣款" width="" />
-          <vxe-column field="partDeduct" title="备件扣款" width="" />
-          <vxe-column field="otherDeduct" title="其他扣款" width="" />
-          <vxe-column field="planDeductTotal" title="计划扣款总金额，=工时扣款+备件扣款+其他扣款" width="" />
-          <vxe-column title="操作" width="100">
+          <vxe-column field="warrantyApplyCode" title="保修申请单" width="150" />
+          <vxe-column field="auditStatusLabel" title="审计状态" width="150" />
+          <vxe-column field="vin" title="VIN" width="250" />
+          <vxe-column field="totalClaimAmount" title="索赔总金额" width="150" />
+          <vxe-column field="laborClaimTotal" title="索赔工时小计" width="150" />
+          <vxe-column field="partsClaimTotal" title="索赔零件小计" width="150" />
+          <vxe-column field="otherClaimTotal" title="索赔其他小计" width="150" />
+          <vxe-column field="laborDeduct" title="工时扣款" width="150" />
+          <vxe-column field="partDeduct" title="备件扣款" width="150" />
+          <vxe-column field="otherDeduct" title="其他扣款" width="150" />
+          <vxe-column field="auditDesc" title="错误项" width="300" />
+          <vxe-column title="操作" width="100" fixed="right">
             <template #default="{ row }">
               <el-popconfirm title="确定要删除吗？" @confirm="handleRemoveRow(row)">
                 <span slot="reference" type="text" size="small" class="btn-delete" fixed="right">删除</span>
@@ -37,11 +43,20 @@
             </template>
           </vxe-column>
           <template #empty>
-            <div class="m-vxe-table-empty-text"></div>
+            <div class="m-vxe-table-empty-text">暂无数据</div>
           </template>
         </vxe-table>
       </div>
     </div>
+    <!-- TIPS: 填入项目id即可 -->
+    <Upload
+      :visible="uploadDialogVisible"
+      :id="'warrantyAuditDetail'"
+      downloadTitle="保修审计明细导入"
+      @close="handleUploadDialogClose"
+      @getData="getTableData"
+      :businessParams="_id"
+    />
   </section>
 </template>
 
@@ -49,11 +64,12 @@
 import {
   addDetail,
   removeDetail,
-  getDetailList,
+  getDetailTableList,
   detailSearchApi,
 } from '@/api/claimreturn/claim/warrantyaudit/warrantyAudit/index';
 import BaseSearch from '@/libs/components/BaseSearch';
 import { getEnum } from '@/api/common';
+import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 
 export default {
@@ -64,10 +80,18 @@ export default {
     },
     canAddOrUpdate: {
       type: Boolean,
+    },
+    canImport: {
+      type: Boolean,
+    },
+    formData: {
+      type: Object,
+      default: () => ({})
     }
   },
   components: {
     BaseSearch,
+    Upload
   },
   computed: {
   },
@@ -79,6 +103,7 @@ export default {
       pageSize: 10,
       total: 0,
       tableData: [],
+      uploadDialogVisible: false,
       options: {
         // 对应表格里选型枚举
         // 如 type: [{label: 'xxx', value: 'xxx'}]
@@ -94,18 +119,22 @@ export default {
       immediate: true
     }
   },
-  mounted () {
-    this.getTableData();
-  },
   methods: {
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
+    },
     getTableData () {
       if (!this._id) {
         return;
       }
-      getDetailList({
+      getDetailTableList({
         // TODO 根据需求进行替换
         // xxxId: this._id,
         //
+        auditId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {
@@ -135,7 +164,15 @@ export default {
       });
     },
     queryListData (query) {
-      return detailSearchApi({ limitSize: 20, query: query });
+      return detailSearchApi({
+        limitSize: 20,
+        isClaimTrackIdNull: true,
+        isWarrantyAuditDetailIdNull: true,
+        approvalTimeStart: this.formData.warrantyApprovalStartDate,
+        approvalTimeEnd: this.formData.warrantyApprovalEndDate,
+        applyStatusList: ['70', '80'],
+        dealerCode: this.formData.dealerCode
+      });
     },
     // 新增子表数据
     handleAddTableData (val, record) {
@@ -150,12 +187,14 @@ export default {
         return;
       }
       // 根据需求调用接口
-      this.tableData.push(record);
+      // this.tableData.push(record);
       addDetail({
-        //
+        auditId: this._id,
+        warrantyApplyId: record.id
       }).then(res => {
         this.$message.success('添加成功');
-        this.detailRequest();
+        this.getTableData();
+        this.$emit('refresh');
       });
     },
     async fetchOptions (code) {

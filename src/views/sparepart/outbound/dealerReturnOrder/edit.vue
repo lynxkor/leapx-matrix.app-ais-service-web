@@ -13,7 +13,7 @@
           <el-button v-if="permissions.has('AISPART-dealerReturnOrder-outbound')" type="primary" size="small" @click="handlePrint">打印出库单</el-button>
           <el-button v-if="form.orderStatus === '10' && permissions.has('AISPART-dealerReturnOrder-agree')" type="primary" size="small" @click="handleAgree">通过</el-button>
           <el-button v-if="form.orderStatus === '10' && permissions.has('AISPART-dealerReturnOrder-cancel')" type="primary" size="small" @click="handleCancel">作废</el-button>
-          <el-button v-if="form.orderStatus === '20' && form.outboundStatus === '10' && this.permissions.has('AISPART-dealerReturnOrder-outbound')" type="primary" size="small" @click="handleOutbound">出库</el-button>
+          <el-button v-if="form.orderStatus === '20' && form.outboundStatus === '10' && permissions.has('AISPART-dealerReturnOrder-outbound')" type="primary" size="small" @click="handleOutbound">出库</el-button>
         </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
@@ -198,13 +198,6 @@
                   <vxe-column field="outboundQty" title="出库数量" min-width="10%" />
                   <vxe-column field="outboundAmount" title="出库金额" min-width="10%" />
                   <vxe-column field="createTime" title="创建时间" min-width="10%" />
-                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
-                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                      </el-popconfirm>
-                    </template>
-                  </vxe-column>
                   <template #empty>
                     <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
                   </template>

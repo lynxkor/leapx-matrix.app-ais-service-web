@@ -71,6 +71,15 @@ export function detailSearchApi (data) {
 }
 
 /**
+ * 审计明细表格接口
+ * @param {Object} data
+ * @returns
+ */
+export function getDetailTableList (data) {
+  return api.jsonPost('claimreturn/claim/web/warrantyaudit/warrantyAuditDetail/pageInAuditDetail', data);
+}
+
+/**
  * 发布
  * @param {Object} data
  */
@@ -84,4 +93,74 @@ export function publish (data) {
  */
 export function signSummary (data) {
   return api.jsonPost('claimreturn/claim/web/warrantyaudit/warrantyAudit/signSummary', data);
+}
+
+/**
+ * 同意总结
+ */
+export function agreeSummary (data) {
+  return api.jsonPost(prefix + 'agreeSummary', data);
+}
+
+/**
+ * 驳回总结
+ */
+export function rejectSummary (data) {
+  return api.jsonPost(prefix + 'rejectSummary', data);
+}
+
+/**
+ * 签署整改
+ */
+export function signRectify (data) {
+  return api.jsonPost(prefix + 'signRectify', data);
+}
+
+/**
+ * 同意整改
+ */
+export function agreeRectify (data) {
+  return api.jsonPost(prefix + 'agreeRectify', data);
+}
+
+/**
+ * 驳回整改
+ */
+export function rejectRectify (data) {
+  return api.jsonPost(prefix + 'rejectRectify', data);
+}
+
+/**
+ * 重新生成待签署总结报告
+ */
+export function regenerateUnsignedSummary (data) {
+  return api.jsonPost(prefix + 'regenerateSummaryReport', data);
+}
+
+/**
+ * 上传待签署总结报告
+ */
+export function uploadUnsignedSummary (data) {
+  return api.jsonPost(prefix + 'uploadPendingSummaryReport', data);
+}
+
+/**
+ * 重新生成待签署整改报告
+ */
+export function regenerateUnsignedRectify (data) {
+  return api.jsonPost(prefix + 'regenerateRectifyReport', data);
+}
+
+/**
+ * 上传待签署整改报告
+ */
+export function uploadUnsignedRectify (data) {
+  return api.jsonPost(prefix + 'uploadPendingRectifyReport', data);
+}
+
+/**
+ * 上传待签署整改报告
+ */
+export function getClaimTraceOrderDetail (data) {
+  return api.jsonPost('claimreturn/claim/web/claimtrace/claimTraceOrderDetail/page', data);
 }

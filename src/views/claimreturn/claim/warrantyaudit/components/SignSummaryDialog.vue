@@ -7,30 +7,30 @@
   >
     <div class="page-common-edit vertical">
       <section class="common-section">
-        <div class="common-section-body">
-          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="140px" class="form-edit">
-            <el-form-item prop="remark" class="form-item-full" label="签署说明：">
-              <el-input type="textarea" v-model="form.remark" placeholder="请输入"/>
-            </el-form-item>
-            <el-form-item prop="remark" class="form-item-full" label="未签署总结报告：">
-              <AisAttachment
-                ref="attachment"
-                :business-id="form.auditId"
-                :uploadConfig="uploadConfig"
-                :noEcho="true"
-                :readonly="true"
-              />
-            </el-form-item>
-            <el-form-item prop="fileId" class="form-item-full" label="已签署总结报告：">
-              <AisAttachment
-                ref="attachment"
-                :business-id="form.auditId"
-                :uploadConfig="uploadConfig"
-                :noEcho="true"
-              />
-            </el-form-item>
-          </el-form>
-        </div>
+        <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="140px" class="form-edit" style="padding-right: 16px;">
+          <el-form-item prop="rectifySignDesc" class="form-item-full" label="签署说明：">
+            <el-input type="textarea" v-model="form.rectifySignDesc" placeholder="请输入"/>
+          </el-form-item>
+          <el-form-item class="form-item-full" label="未签署总结报告：">
+            <AisAttachment
+              :business-id="form.auditId"
+              :uploadConfig="uploadConfig"
+              :readonly="true"
+              businessType="待签署总结报告"
+            />
+          </el-form-item>
+          <el-form-item prop="fileId" class="form-item-full" label="已签署总结报告：">
+            <AisAttachment
+              style="padding-top: 5px;"
+              ref="attachment"
+              :business-id="form.auditId"
+              :uploadConfig="uploadConfig"
+              :noEcho="true"
+              businessType="已签署总结报告"
+              @upload-loading-change="handleUploadLoadingChange"
+            />
+          </el-form-item>
+        </el-form>
       </section>
     </div>
     <template v-slot:footer>
@@ -66,7 +66,7 @@ export default {
       form: {
         auditId: '',
         fileId: '',
-        remark: '',
+        rectifySignDesc: '',
       },
       submitLoading: false,
       dialogVisible: this.visible,
@@ -74,7 +74,7 @@ export default {
         fileId: [{ required: true, message: '请上传已签署总结报告', trigger: 'change' }],
       },
       uploadConfig: {
-        acceptSuffix: '.pdf,.doc,.docx,.xlsx,.xls',
+        acceptSuffix: '.xlsx,.xls',
         maxSize: 50,
         maxNum: 1,
         required: '1',
@@ -91,17 +91,20 @@ export default {
     }
   },
   methods: {
+    handleUploadLoadingChange (loading) {
+      this.submitLoading = loading;
+    },
     close () {
       this.$emit('update:visible', false);
       this.$emit('close');
     },
     submit () {
-      const fileList = this.$refs.attachment.getFileList();
+      const fileList = this.$refs.attachment.getAttachment();
       if (!fileList || fileList.length === 0) {
         this.$message.warning('请上传已签署总结报告');
         return;
       }
-      this.form.fileId = fileList[0].id;
+      this.form.fileId = fileList[0].fileId;
       this.submitLoading = true;
       signSummary(this.form).then(() => {
         this.$message.success('签署总结成功');

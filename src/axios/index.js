@@ -4,8 +4,8 @@ import { paramsFilter, decrypt } from '@/utils';
 import { Message } from 'element-ui';
 import store from '../store';
 
-const root = process.env.VUE_APP_WORK_ORDER_URL;
-const leapx = process.env.VUE_APP_LEAPX_URL;
+const root = window.APP_AIS_WEB_CONFIG.VUE_APP_WORK_ORDER_URL;
+const leapx = window.APP_AIS_WEB_CONFIG.VUE_APP_LEAPX_URL;
 
 // 请求拦截器
 axios.interceptors.request.use(config => {

@@ -666,19 +666,21 @@ export default {
     },
     getFormData () {
       return new Promise((resolve, reject) => {
-        if (+this.form.mileage < +this.form.lastMileage) {
-          this.$message.error(`本次进店里程数：${this.form.mileage}需要大于等于上次进店里程数${this.form.lastMileage},请重新填写进店里程数`);
-        } else if (+this.form.mileage >= +this.form.netMileage + 100) {
-          this.popconfirmTitle = '进店里程数大于车联网里程数，请确认是否清空重新录入';
-          this.$nextTick(() => {
-            this.popoverVisible = true;
-          });
-        } else if (+this.form.mileage + 100 < +this.form.netMileage) {
-          this.popconfirmTitle = '进店里程数小于车联网里程数，请确认是否清空重新录入';
-          this.$nextTick(() => {
-            this.popoverVisible = true;
-          });
-        } else if (this.$refs.basicForm) {
+        // 4.0去掉相关校验
+        // if (+this.form.mileage < +this.form.lastMileage) {
+        //   this.$message.error(`本次进店里程数：${this.form.mileage}需要大于等于上次进店里程数${this.form.lastMileage},请重新填写进店里程数`);
+        // } else if (+this.form.mileage >= +this.form.netMileage + 100) {
+        //   this.popconfirmTitle = '进店里程数大于车联网里程数，请确认是否清空重新录入';
+        //   this.$nextTick(() => {
+        //     this.popoverVisible = true;
+        //   });
+        // } else if (+this.form.mileage + 100 < +this.form.netMileage) {
+        //   this.popconfirmTitle = '进店里程数小于车联网里程数，请确认是否清空重新录入';
+        //   this.$nextTick(() => {
+        //     this.popoverVisible = true;
+        //   });
+        // } else if (this.$refs.basicForm) {
+        if (this.$refs.basicForm) {
           this.$refs.basicForm.validate((valid, invalidFields) => {
             if (valid) {
               resolve(this.form);

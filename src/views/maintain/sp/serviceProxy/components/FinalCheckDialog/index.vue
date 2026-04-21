@@ -374,7 +374,7 @@
 </template>
 
 <script>
-import { getFinalInspectionDetail, finalInspection, qualityInspection, repaired, getCCCList } from '@/api/maintain/sp/serviceProxy/index';
+import { getFinalInspectionDetail, finalInspection, qualityInspection, repaired, getCCCList, updateSpFaultAlertRecord, deleteSpFaultAlertRecord, addFaultRecord } from '@/api/maintain/sp/serviceProxy/index';
 import { getUserByNameOrNo } from '@/libs/api/common';
 import { getListData } from '@/api/maintain/basic/batteryUnit/index';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -703,16 +703,36 @@ export default {
     },
     // 故障模块相关方法
     handleFaultExistenceChange (val) {
-      if (val === 0) {
-        // 如果选择不存在故障，清空故障列表
-        this.faultTableData = [];
+      if (val === false) {
+        const message = '<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>提醒</div><div class="ais-leave-tips-sub">若本次无故障，将自动清空【故障模块】信息，请确认是否操作！</div>';
+        this.$confirm(message, '', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true,
+          customClass: 'ais-leave-tips',
+          showClose: false
+        }).then(() => {
+          addFaultRecord({ id: this.vehicleInfo.id, currentFault: 0 }).then(() => {
+            this.faultTableData = [];
+            this.$message.success('故障模块信息已清空');
+            this.$emit('refresh');
+            this.close();
+          });
+        }).catch(() => {
+          this.faultForm.faultFlag = true;
+        });
       }
     },
     handleDeleteFault (row) {
-      const index = this.faultTableData.findIndex(
-        item => item.vrtId === row.vrtId
-      );
-      this.faultTableData.splice(index, 1);
+      deleteSpFaultAlertRecord([row.id]).then(() => {
+        const index = this.faultTableData.findIndex(item => item.id === row.id);
+        if (index > -1) {
+          this.faultTableData.splice(index, 1);
+          this.$set(this, 'faultTableData', [...this.faultTableData]);
+        }
+        this.$message({ message: '保存成功', type: 'success' });
+        this.initData();
+      });
     },
     async submit () {
       this.submitLoading = true;
@@ -732,13 +752,12 @@ export default {
         const submitData = {
           id: this.recordId,
           repairWorkRecordResps: this.tableData,
-          faultAlertRecordParams: this.faultTableData,
           traceRecordParams: this.partsTraceRecordResps,
           batteryUnitId: this.formInline.batteryUnitId,
           targetUnitCode: this.formInline.targetUnitCode,
           beforeChangeCode: this.formInline.beforeChangeCode,
           afterChangeCode: this.formInline.afterChangeCode,
-          currentFault: this.faultForm.faultFlag ? 1 : 0 ,
+          currentFault: this.faultForm.faultFlag ? 1 : 0,
           finalCheckAt: this.filterForm.finalCheckTime,
           finalCheckerId: this.filterForm.finalChecker,
           finalChecker: this.filterForm.finalCheckerName
@@ -771,19 +790,27 @@ export default {
       });
     },
     handleAlertModuleChange (val, record) {
-      // 检查是否已存在相同的记录（根据 vrtId 判断）
       const isExist = this.faultTableData.some(
-        item => item.id === record.id
+        item => item.cccId === record.id
       );
 
-      // 如果不存在才添加
       if (!isExist && record) {
-        this.faultTableData.push(record);
-      } else {
-        this.$message({
-          message: '请勿重复添加',
-          type: 'warning'
+        updateSpFaultAlertRecord({ serviceProxyId: this.vehicleInfo.id, ...record }).then(res => {
+          this.$message({ message: '保存成功', type: 'success' });
+          this.initData();
+          if (res) {
+            const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>故障模块消息提醒</div><div class="ais-leave-tips-sub">${res}</div>`;
+            this.$confirm(message, '', {
+              confirmButtonText: '确定',
+              showCancelButton: false,
+              dangerouslyUseHTMLString: true,
+              customClass: 'ais-leave-tips',
+              showClose: false
+            }).catch(() => {});
+          }
         });
+      } else {
+        this.$message({ message: '请勿重复添加', type: 'warning' });
       }
     },
   }

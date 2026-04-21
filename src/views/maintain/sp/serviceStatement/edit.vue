@@ -565,7 +565,7 @@ export default {
     },
     addInvoiceRecord () {
       // 实现添加收款记录功能
-      if (this.form.payableAmount <= 0) {
+      if (this.form.remainAmount <= 0) {
         this.$message.warning('剩余可添加的收款记录金额为0,暂时无法添加新的收款记录');
         return;
       }

@@ -599,7 +599,7 @@ export default {
         let path = info.resourceUri;
         // 因为router配置了base, router.push时需要去掉base
         // 只影响单独运行时菜单行为
-        const appPrefix = process.env.VUE_APP_ROUTER_BASE;
+        const appPrefix = window.APP_AIS_WEB_CONFIG.VUE_APP_ROUTER_BASE;
         if (appPrefix && path.startsWith(appPrefix)) {
           path = path.substring(appPrefix.length);
         }

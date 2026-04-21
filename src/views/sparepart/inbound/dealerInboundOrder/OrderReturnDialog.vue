@@ -7,7 +7,19 @@
     </el-form>
     <!-- 数据表格 -->
     <div class="table-section">
-      <vxe-table ref="workTable" :data="tableData" stripe show-overflow resizable border="inner" size="medium">
+      <vxe-table
+        ref="workTable"
+        :data="tableData"
+        :checkbox-config="{ checkField: 'checked' }"
+        @checkbox-change="handleSelectionChange"
+        @checkbox-all="handleSelectionChange"
+        stripe
+        show-overflow
+        resizable
+        border="inner"
+        size="medium"
+      >
+        <vxe-column type="checkbox" width="50" align="center" fixed="left" />
         <vxe-column field="sparePartCode" title="备件编码" />
         <vxe-column field="sparePartName" title="备件名称" />
         <vxe-column field="locationName" title="库位编码" />
@@ -58,6 +70,7 @@ export default {
       dialogVisible: this.visible,
       tableData: [],
       submitLoading: false,
+      selectedRows: [],
       form: {
         description: ''
       }
@@ -65,15 +78,20 @@ export default {
   },
   watch: {
     visible (val) {
+      this.dialogVisible = val;
       if (val) {
-        this.dialogVisible = val;
         this.getData();
       }
     },
   },
   methods: {
     close () {
+      this.form.description = '';
+      this.selectedRows = [];
       this.$emit('update:visible', false);
+    },
+    handleSelectionChange ({ records }) {
+      this.selectedRows = records;
     },
     // 获取最大可退数量
     getMaxQty (row) {
@@ -107,12 +125,17 @@ export default {
       }));
     },
     async submit () {
+      if (!this.selectedRows.length) {
+        this.$message.warning('请选择需退货的备件清单后，再操作！');
+        return;
+      }
+
       if (!this.form.description) {
         this.$message.warning('请填写退货原因！');
         return;
       }
       // 验证所有数量
-      for (const item of this.tableData) {
+      for (const item of this.selectedRows) {
         const maxQty = this.getMaxQty(item);
         if (item.qty < 1) {
           this.$message.warning('退货数量必须大于 0！');
@@ -127,7 +150,7 @@ export default {
       const params = {
         dealerInboundOrderId: this.orderId,
         description: this.form.description,
-        details: this.tableData.map(item => ({
+        details: this.selectedRows.map(item => ({
           sparePartId: item.sparePartId,
           qty: item.qty
         }))

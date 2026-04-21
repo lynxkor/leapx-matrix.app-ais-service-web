@@ -280,6 +280,7 @@ export default {
               type: 'danger'
             }, {
               name: '申请领料',
+              popconfirmTitle: '是否申请领料?',
               show: (row) => {
                 return row.orderStatus === '10' || row.orderStatus === '30';
               },
@@ -291,15 +292,12 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '申请失败!'
-                  });
                 });
               },
               type: 'info'
             }, {
               name: '同意领料',
+              popconfirmTitle: '是否同意领料?',
               show: (row) => {
                 return row.orderStatus === '20';
               },
@@ -311,10 +309,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '同意失败!'
-                  });
                 });
               },
               type: 'info'
@@ -336,10 +330,6 @@ export default {
                     });
                     this.getData();
                   }).catch(() => {
-                    this.$message({
-                      type: 'error',
-                      message: '驳回失败!'
-                    });
                   });
                 }).catch(() => {
                   this.$message({
@@ -351,6 +341,7 @@ export default {
               type: 'info'
             }, {
               name: '出库',
+              popconfirmTitle: '是否出库?',
               show: (row) => {
                 return row.orderStatus === '40' && row.outboundStatus === '0';
               },
@@ -362,10 +353,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '出库失败!'
-                  });
                 });
               },
               type: 'info'
@@ -387,10 +374,6 @@ export default {
                     });
                     this.getData();
                   }).catch(() => {
-                    this.$message({
-                      type: 'error',
-                      message: '申请退料失败!'
-                    });
                   });
                 }).catch(() => {
                   this.$message({
@@ -402,6 +385,7 @@ export default {
               type: 'info'
             }, {
               name: '同意退料',
+              popconfirmTitle: '是否同意退料?',
               show: (row) => {
                 return row.orderStatus === '50';
               },
@@ -413,10 +397,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '同意退料失败!'
-                  });
                 });
               },
               type: 'info'
@@ -438,10 +418,6 @@ export default {
                     });
                     this.getData();
                   }).catch(() => {
-                    this.$message({
-                      type: 'error',
-                      message: '驳回退料失败!'
-                    });
                   });
                 }).catch(() => {
                   this.$message({
@@ -453,6 +429,7 @@ export default {
               type: 'info'
             }, {
               name: '入库',
+              popconfirmTitle: '是否入库?',
               show: (row) => {
                 return row.orderStatus === '70' && row.inboundStatus === '0';
               },
@@ -464,10 +441,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '入库失败!'
-                  });
                 });
               },
               type: 'info'
