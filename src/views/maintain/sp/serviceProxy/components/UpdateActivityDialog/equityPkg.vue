@@ -111,7 +111,7 @@
 </template>
 
 <script>
-import { getEquityList, useEquity } from '@/api/maintain/sp/serviceProxy/special';
+import { getEquityList, useEquity, equityRemind } from '@/api/maintain/sp/serviceProxy/special';
 
 export default {
   name: 'EquityPkg',
@@ -214,6 +214,23 @@ export default {
         this.$emit('refresh');
         // 刷新列表
         await this.fetchEquityList();
+        // 权益使用提醒
+        try {
+          const remindRes = await equityRemind({ id: this.vehicleInfo.id });
+          if (Array.isArray(remindRes) && remindRes.length > 0) {
+            const content = remindRes.join('<br/>');
+            const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>提醒</div><div class="ais-leave-tips-sub">${content}</div>`;
+            this.$confirm(message, '', {
+              confirmButtonText: '确定',
+              showCancelButton: false,
+              dangerouslyUseHTMLString: true,
+              customClass: 'ais-leave-tips',
+              showClose: false
+            }).catch(() => {});
+          }
+        } catch (e) {
+          console.error('权益提醒接口失败:', e);
+        }
       } catch (error) {
         console.error('核销失败:', error);
       }

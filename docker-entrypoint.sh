@@ -18,7 +18,7 @@ fi
 # 使用 awk 一次性处理整个文件
 awk '
 BEGIN { 
-    print "window.APP_AIS_H5_CONFIG = {"
+    print "window.APP_AIS_WEB_CONFIG = {"
     first = 1
 }
 # 跳过注释行和空行

@@ -540,7 +540,7 @@ export default {
       }
       return [];
     },
-    // 入库明细信息
+    // 退料明细信息
     async getCollar () {
       const params = {
         pageNum: this.collarParams.current,
@@ -549,7 +549,7 @@ export default {
       };
       const res = await collarPage(params);
       this.tableData = res.records || [];
-      this.total = res.total || 0;
+      this.collarParams.total = res.total || 0;
     },
     pageSizeChange (pageSize) { // 多个相同方法 没优化 等后端给我提供数据 再来优化
       this.collarParams.pageSize = pageSize;
@@ -569,7 +569,7 @@ export default {
       };
       const res = await goPage(params);
       this.goTableData = res.records || [];
-      this.total = res.total || 0;
+      this.goParams.total = res.total || 0;
     },
     goPageSize (pageSize) {
       this.goParams.pageSize = pageSize;
