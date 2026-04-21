@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-# CONFIG_DIR="/etc/config/"
-# HTML_DIR="/usr/share/nginx/html"
-CONFIG_DIR="./"
-HTML_DIR="./"
+CONFIG_DIR="/etc/config/"
+HTML_DIR="/usr/share/nginx/html"
+# CONFIG_DIR="./"
+# HTML_DIR="./"
 
 echo "Generating configuration for environment: ${APP_ENV:-sit}"
 
