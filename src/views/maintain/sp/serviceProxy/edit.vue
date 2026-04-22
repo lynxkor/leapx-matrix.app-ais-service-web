@@ -52,7 +52,7 @@
             <EntrustInfo :formData="form" :isEditing.sync="isEditing" :_id="_id" ref="entrustInfoRef" @change="submitForm" @refresh="handleRefresh"/>
             <BatteryInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="batteryInfoRef"/>
             <InquiryInfo :formData="form" :_id="_id"/>
-            <RepairInfo :formData="form"/>
+            <RepairInfo :formData="form" :_id="_id"/>
             <SparepartsInfo :formData="form"/>
             <section class="common-section">
               <div class="common-section-header">
@@ -509,7 +509,7 @@ export default {
         if (!this._id) {
           data.isAddItems = 0;
         }
-        if (data.currentFault && data.faultAlertRecordRespList.length === 0) {
+        if (data.currentFault && (data.faultAlertRecordRespList || []).length === 0 && (data.faultAlertRecordParams || []).length === 0) {
           this.$message.warning('请先添加故障模块');
           this.isEditing = true;
           return;

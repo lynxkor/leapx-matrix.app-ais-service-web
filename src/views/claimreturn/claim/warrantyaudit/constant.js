@@ -31,7 +31,8 @@ export function getListVisibleButtons (auditStatus) {
 export function getDetailVisibleButtons (auditStatus) {
   const S = AUDIT_STATUS;
   const map = {
-    [S.DRAFT]: ['发布'],
+    [S.DRAFT]: ['编辑', '发布'],
+    [S.AUDITING]: ['编辑'],
     [S.SUMMARY_SIGNING]: ['签署总结', '重新生成待签署总结报告', '上传待签署总结报告'],
     [S.SUMMARY_APPROVING]: ['同意总结', '驳回总结'],
     [S.SUMMARY_REJECTED]: ['签署总结', '重新生成待签署总结报告', '上传待签署总结报告'],

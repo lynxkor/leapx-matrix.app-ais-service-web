@@ -162,5 +162,5 @@ export function uploadUnsignedRectify (data) {
  * 上传待签署整改报告
  */
 export function getClaimTraceOrderDetail (data) {
-  return api.jsonPost('claimreturn/claim/web/claimtrace/claimTraceOrderDetail/page', data);
+  return api.jsonPost(prefix + 'claimTraceList', data);
 }

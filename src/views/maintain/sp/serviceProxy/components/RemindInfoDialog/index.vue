@@ -41,7 +41,7 @@
           <div class="info-content">{{ item.content || '暂无提醒信息'}}</div>
         </template>
         <!-- 服务活动提醒 -->
-        <template v-else-if="item.type === RemindInfoTypeEnum.SERVICE_ACTIVITY">
+        <template v-else>
           <div class="info-title">{{ item.typeLabel }}</div>
           <div class="info-content">{{ item.content || '暂无提醒信息'}}</div>
         </template>
