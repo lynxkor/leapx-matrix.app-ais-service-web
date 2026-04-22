@@ -306,7 +306,7 @@ export default {
       }
       exportTable({
         businessType: '反结算申请单管理',
-        dataFetchPath: 'sp/web/restatement/page',
+        dataFetchPath: 'maintain/web/sp/restatement/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

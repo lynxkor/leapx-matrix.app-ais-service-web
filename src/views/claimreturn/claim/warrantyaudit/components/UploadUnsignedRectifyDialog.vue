@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="上传待签署整改报告"
+    title="上传整改报告"
     width="600px"
     :visible.sync="dialogVisible"
     :close-on-click-modal="false"

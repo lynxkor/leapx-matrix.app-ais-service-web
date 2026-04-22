@@ -28,6 +28,7 @@
           multiple
         />
       </el-form-item>
+      <template v-if="show">
       <el-form-item label="文件序号">
         <tag-input
           v-model="form.seqList"
@@ -72,6 +73,8 @@
           clearable
         />
       </el-form-item>
+      </template>
+
       <page-search-action
         v-if="canList"
         v-model="show"
@@ -80,8 +83,11 @@
         @submit="onSubmit"
         @reset="onReset"
       />
+
     </el-form>
     <div class="ais-actions">
+      <!--  TIPS:根据产品增删功能按钮  -->
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -108,13 +114,13 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, download } from '@/api/file/zipRecord';
-import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, getEnum, exportTable } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import TagInput from '@/libs/components/TagInput';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { getEndOfDayString } from '@/libs/utils';
+import { downloadExcel, getEndOfDayString } from '@/libs/utils';
 
 const defaultForm = {
   bizTypeList: '',
@@ -150,6 +156,7 @@ export default {
       selectionList: [],
       show: false,
       loading: false,
+      exportLoading: false,
       optionObj: {
         id: 'zipRecordTable',
         dataList: [],
@@ -250,6 +257,34 @@ export default {
         }).finally(() => {
           this.loading = false;
         });
+    },
+    exportExcel () {
+      this.exportLoading = true;
+      exportTable({
+        businessType: 'zipRecord',
+        dataFetchPath: '/file/web/attachment/zipRecord/page',
+        reqParams: this.getFormData(),
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '文件下载.xlsx');
+          } catch (error) {
+            this.$message({
+              type: 'error',
+              message: '文件导出失败'
+            });
+          }
+        } else {
+          this.$message({
+            type: 'info',
+            message: '请前往导出列表中查询导出结果'
+          });
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
     },
     debouncedGetData: debounce(function () {
       this.getData();
