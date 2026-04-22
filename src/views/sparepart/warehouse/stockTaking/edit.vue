@@ -21,13 +21,13 @@
                   <el-input placeholder="自动生成" v-model="form.code" clearable disabled />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
+                  <el-input placeholder="请输入" v-model="form.dealerName" disabled />
                 </el-form-item>
                 <el-form-item label="备件仓库：" prop="warehouseId">
-                  {{ form.warehouseName }}
+                  <el-input placeholder="请输入" v-model="form.warehouseName" disabled />
                 </el-form-item>
                 <el-form-item label="母公司名称：" prop="companyCode">
-                  {{ form.companyName }}
+                  <el-input placeholder="请输入" v-model="form.companyName" disabled />
                 </el-form-item>
                 <el-form-item label="盘点类型：" prop="stockType">
                   <fetch-select :request="fetchOptions" enumCode="StockTakingTypeEnum" v-model="form.stockType"
@@ -95,7 +95,7 @@
                     @change="handleAddTableData" />
                   <el-button type="primary" size="small">添加</el-button>
                   <el-button size="small" @click="handleImport('sparepartStockTakingDetail')" :disabled="form.stockStatus !== '0'">导入备件清单</el-button>
-                  <el-button size="small" @click="handleImport('sparepartStockTakingDetailRes')" :disabled="form.stockStatus !== '0'">盘点结果导入</el-button>
+                  <el-button size="small" @click="handleImport('sparepartStockTakingDetailRes')" :disabled="form.stockStatus !== '2'">盘点结果导入</el-button>
                 </div>
               </div>
               <div class="common-section-table">
@@ -113,13 +113,13 @@
                   </vxe-column>
                   <vxe-column field="remark" title="备注" min-width="12.5%">
                     <template #default="{ row }">
-                      <el-input v-model="row.remark" @change="handleRemarkBlur(row)" :disabled="!row.stockStatusType" />
+                      <el-input v-model="row.remark" @blur="handleRemarkBlur(row)" :disabled="!row.stockStatusType" />
                     </template>
                   </vxe-column>
-                  <vxe-column field="operator" title="操作人" min-width="12.5%">
+                  <vxe-column field="operatorName" title="操作人" min-width="12.5%">
                     <template #default="{ row }">
                       <el-select
-                        v-model="row.operator"
+                        v-model="row.operatorName"
                         size="mini"
                         placeholder="请选择"
                         filterable
@@ -171,7 +171,7 @@
       :businessParams="_id"
       :id="importType"
       @close="handleUploadDialogClose"
-      @submit="getDetailData"
+      @submit="refreshForm"
     />
   </edit-page-layout>
 </template>
@@ -182,7 +182,7 @@ import { listDealerPartWithOem } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, getPartDealer, getLoginUser, getUserByNameOrNo } from '@/api/common';
+import { getEnum, getPartDealer, getLoginUser, userQuery } from '@/api/common';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -314,6 +314,9 @@ export default {
         return getDetail(id);
       }
     },
+    refreshForm () { // 刷新表单
+      this.$refs.containerRef.loadDetail();
+    },
     submitRequest () {
       return addOrUpdate({ ...this.form });
     },
@@ -412,14 +415,13 @@ export default {
           id: val.id,
           actualQty: val.actualQty,
         };
-        this.handleAddOrUpdate(params);
-        // if (val.actualQty > val.totalQty) {
-        //   if (val.remark) {
-        //     this.$message.warning('实盘库存大于库存总数,请填写备注!');
-        //   }
-        // } else {
-        //   this.handleAddOrUpdate(params);
-        // }
+        if (val.actualQty > val.totalQty) {
+          if (!val.remark) {
+            this.$message.warning('实盘库存大于库存总数,请填写备注!');
+          }
+        } else {
+          this.handleAddOrUpdate(params);
+        }
       }
     },
     // 失焦以后 输入的备注 判断是否 实盘库存是否超过库存总数
@@ -439,7 +441,7 @@ export default {
     },
     // 远程搜索方法，接收行索引参数
     querySearchAsync (queryString) {
-      getUserByNameOrNo({ name: queryString }).then(res => {
+      userQuery({ name: queryString }).then(res => {
         const list = res?.map(item => {
           return {
             value: item.userId,
@@ -454,6 +456,7 @@ export default {
       });
     },
     handleOperatorChange (row, val) {
+      row.operator = this.userList.find(item => item.value === val)?.value;
       row.operatorName = this.userList.find(item => item.value === val)?.label;
       const params = {
         id: row.id,
