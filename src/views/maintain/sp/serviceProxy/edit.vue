@@ -509,7 +509,7 @@ export default {
         if (!this._id) {
           data.isAddItems = 0;
         }
-        if (data.currentFault && data.faultAlertRecordRespList.length === 0) {
+        if (data.currentFault && (data.faultAlertRecordRespList || []).length === 0 && (data.faultAlertRecordParams || []).length === 0) {
           this.$message.warning('请先添加故障模块');
           this.isEditing = true;
           return;
