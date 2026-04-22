@@ -8,6 +8,7 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :showEditBtn="detailButtons.includes('编辑')"
       >
         <template #extraButtons>
           <el-button v-if="detailButtons.includes('发布')" size="small" type="primary" @click="handlePublish">发布</el-button>
@@ -29,7 +30,7 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id" :disabled="![AUDIT_STATUS.DRAFT].includes(form.auditStatus)">
                 <el-form-item label="保修审计单号：" prop="auditCode">
                   <el-input v-model="form.auditCode" disabled placeholder="系统自动生成" />
                 </el-form-item>
@@ -51,6 +52,7 @@
                     placeholder="请选择"
                     clearable
                     filterable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="保修审计主题：" prop="auditTheme">
@@ -69,7 +71,7 @@
                   <el-input v-model="form.submitDeadline" disabled />
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  <dealer-select ref="dealerSelectRef" v-model="form.dealerCode" @change="handleDealerChange" />
+                  <dealer-select ref="dealerSelectRef" v-model="form.dealerCode" :disabled="isDraftWithDetails" @change="handleDealerChange" />
                 </el-form-item>
                 <el-form-item label="审计专员1：" prop="auditor1Id">
                   <div class="form-item-sign">
@@ -147,6 +149,7 @@
                 <el-form-item label="保修审批开始日期：" prop="warrantyApprovalStartDate">
                   <el-date-picker
                     v-model="form.warrantyApprovalStartDate"
+                    :disabled="isDraftWithDetails"
                     type="date"
                     format="yyyy-MM-dd"
                     value-format="yyyy-MM-dd"
@@ -154,7 +157,7 @@
                   </el-date-picker>
                 </el-form-item>
                 <el-form-item label="计划审计数量：" prop="planAuditCount">
-                  <el-input-number size="small" v-model="form.planAuditCount" :min="1" :precision="0" controls-position="right" placeholder="请输入" />
+                  <el-input-number size="small" v-model="form.planAuditCount" :min="1" :precision="0" controls-position="right" :disabled="isDraftWithDetails" placeholder="请输入" />
                 </el-form-item>
                 <el-form-item label="未扣款金额：">
                   <el-input v-model="form.undeductAmount" disabled />
@@ -162,6 +165,7 @@
                 <el-form-item label="保修审批结束日期：" prop="warrantyApprovalEndDate">
                   <el-date-picker
                     v-model="form.warrantyApprovalEndDate"
+                    :disabled="isDraftWithDetails"
                     type="date"
                     format="yyyy-MM-dd"
                     value-format="yyyy-MM-dd"
@@ -270,6 +274,7 @@
                     :uploadConfig="uploadConfig"
                     title="已签署总结报告"
                     type="card"
+                    readonly
                   />
                 </div>
                 <div class="report-info">
@@ -302,6 +307,7 @@
                     :uploadConfig="uploadConfig"
                     title="已签署整改报告"
                     type="card"
+                    readonly
                   />
                 </div>
                 <div class="report-info">
@@ -424,7 +430,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import SearchAddTable from './components/SearchAddTable';
 import { getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getDetailVisibleButtons } from './constant';
+import { getDetailVisibleButtons, AUDIT_STATUS } from './constant';
 import PublishDialog from './components/PublishDialog';
 import SignSummaryDialog from './components/SignSummaryDialog';
 import RejectSummaryDialog from './components/RejectSummaryDialog';
@@ -457,7 +463,7 @@ const defaultForm = {
   auditor2Sign: '',
   planAuditCount: null,
   actualAuditCount: 0,
-  auditStatus: '',
+  auditStatus: '10',
   auditStatusLabel: '',
   issuerId: null,
   issuerName: '',
@@ -531,6 +537,9 @@ export default {
     sign2Label () {
       return this.form.auditor2Sign ? '已上传签名' : '上传签名';
     },
+    isDraftWithDetails () {
+      return this.form.auditStatus === AUDIT_STATUS.DRAFT && this._id && this.form.actualAuditCount > 0;
+    },
   },
   watch: {
     id: {
@@ -552,6 +561,7 @@ export default {
       submitLoading: false,
       form: { ...form },
       originalForm: { ...form },
+      AUDIT_STATUS,
       uploadConfig: {
         acceptSuffix: '.png,.jpg,.jpeg,.xlsx,.xls,.docx,.doc,.rar,.zip',
         maxSize: 50,
@@ -785,9 +795,7 @@ export default {
     },
     getTraceTableData () {
       getClaimTraceOrderDetail({
-        businessId: this._id,
-        pageNum: 1,
-        pageSize: 20,
+        auditId: this._id,
       }).then(res => {
         this.traceTableData = res.data?.records || [];
         this.traceTotal = res.total;

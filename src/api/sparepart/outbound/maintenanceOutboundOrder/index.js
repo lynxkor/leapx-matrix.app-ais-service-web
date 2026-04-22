@@ -82,3 +82,11 @@ export function getCurrentUserSet (data) {
 export function settingUpdate (data) {
   return api.jsonPost('sp/web/maintenance/maintenanceOutboundPrintSetting/addOrUpdate', data);
 }
+
+/**
+ * 维修出库单打印设置表查询
+ * @param {Object} data
+ */
+export function outboundPrint (data) {
+  return api.jsonPost('sp/web/maintenance/maintenanceOutboundOrder/print', data);
+}

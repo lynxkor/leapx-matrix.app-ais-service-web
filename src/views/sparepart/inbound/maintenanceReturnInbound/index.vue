@@ -165,7 +165,7 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
-import warehousingDialog from '@/views/sparepart/inbound/maintenanceReturnInbound/warehousingDialog.vue';
+import warehousingDialog from './warehousingDialog.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对

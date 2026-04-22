@@ -12,9 +12,9 @@ export function login (params) {
 /**
  * 用户中心登录
  */
-export function loginUserCenter (params) {
-  return api.post(process.env.VUE_APP_USERCENTER + '/auth/login', params);
-};
+// export function loginUserCenter (params) {
+//   return api.post(window.APP_AIS_WEB_CONFIG.VUE_APP_USERCENTER + '/auth/login', params);
+// };
 
 /**
  * 登录者修改密码

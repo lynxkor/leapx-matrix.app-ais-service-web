@@ -9,6 +9,17 @@
     <div class="page-common-edit vertical">
       <section class="common-section">
         <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="140px" class="form-edit" style="padding-right: 16px;">
+          <el-form-item prop="rectifySignDesc" class="form-item-full" label="签署说明：">
+            <el-input type="textarea" v-model="form.rectifySignDesc" placeholder="请输入"/>
+          </el-form-item>
+          <el-form-item class="form-item-full" label="未签署整改报告：">
+            <AisAttachment
+              :business-id="form.auditId"
+              :uploadConfig="uploadConfig"
+              :readonly="true"
+              businessType="待签署整改报告"
+            />
+          </el-form-item>
           <el-form-item prop="fileId" class="form-item-full" label="已签署整改报告：">
             <AisAttachment
               style="padding-top: 5px;"
@@ -17,6 +28,7 @@
               :uploadConfig="uploadConfig"
               :noEcho="true"
               businessType="已签署整改报告"
+              @upload-loading-change="handleUploadLoadingChange"
             />
           </el-form-item>
         </el-form>
@@ -55,6 +67,7 @@ export default {
       form: {
         auditId: '',
         fileId: '',
+        rectifySignDesc: '',
       },
       submitLoading: false,
       dialogVisible: this.visible,
@@ -79,6 +92,9 @@ export default {
     }
   },
   methods: {
+    handleUploadLoadingChange (loading) {
+      this.submitLoading = loading;
+    },
     close () {
       this.$emit('update:visible', false);
       this.$emit('close');

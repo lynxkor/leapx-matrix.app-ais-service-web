@@ -255,7 +255,7 @@ export default {
     },
     // 编辑子表数据
     handleEdit (row) {
-      this.notificationForm = row;
+      this.notificationForm = { ...row };
       this.openPane();
     },
     // 删除子表数据
@@ -347,11 +347,16 @@ export default {
     // 打开侧边栏  添加用户
     addUser () {
       this.openPane();
+      this.$nextTick(() => {
+        if (this.$refs.addUserRef) {
+          this.$refs.addUserRef.clearForm();
+        }
+      });
     },
     // 保存侧边栏数据
     handleSave () {
       this.$refs.addUserRef.handleSave();
-    }
+    },
   }
 };
 </script>

@@ -29,7 +29,7 @@
                 </div>
                 <div class="el-col-12">
                     <label>车主：</label>
-                    <span id="info_customername">{{info.vehProfileCustomerName}}</span>
+                    <span id="info_customername">{{info.customerName}}</span>
                 </div>
             </div>
         </div>
@@ -94,7 +94,7 @@
 
 <script>
 // 对应业务的接口
-import { getDetail, collarPage } from '@/api/sparepart/outbound/maintenanceOutboundOrder/index';
+import { outboundPrint } from '@/api/sparepart/outbound/maintenanceOutboundOrder/index';
 
 export default {
   props: {
@@ -102,9 +102,9 @@ export default {
       type: String,
       default: ''
     },
-    data: {
-      type: Object,
-      default: () => { }
+    selectedList: {
+      type: Array,
+      default: () => []
     }
   },
   data () {
@@ -119,8 +119,8 @@ export default {
       handler (val) {
         if (val) {
           this.info = {};
+          this.tableData = [];
           this.getData();
-          this.getList();
         }
       },
       immediate: true
@@ -132,18 +132,14 @@ export default {
   },
   methods: {
     getData () {
-      getDetail(this.id).then(res => {
-        this.info = res;
-      });
-    },
-    async getList () {
       const params = {
-        pageNum: 1,
-        pageSize: 1000,
-        maintenanceOutboundOrderId: this.id
+        id: this.id,
+        detailIdList: this.selectedList || []
       };
-      const res = await collarPage(params);
-      this.tableData = res.records || [];
+      outboundPrint(params).then(res => {
+        this.info = res;
+        this.tableData = res.maintenanceOutboundOrderDetailList || [];
+      });
     },
     getCurrentTime () {
       const now = new Date();

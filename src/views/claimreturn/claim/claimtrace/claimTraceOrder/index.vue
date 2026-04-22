@@ -196,6 +196,50 @@
       @close="handleUploadDialogClose"
       @getData="getData"
     />
+    <!-- 列表页弹窗 -->
+    <SubmitAuditDialog
+      :visible.sync="submitAuditDialogVisible"
+      :traceOrderId="currentRow.id"
+      :formData="currentRow"
+      @success="getData"
+    />
+    <CancelOrderDialog
+      :visible.sync="cancelOrderDialogVisible"
+      :traceOrderId="currentRow.id"
+      @success="getData"
+    />
+    <RejectModifyDialog
+      :visible.sync="rejectModifyDialogVisible"
+      :traceOrderId="currentRow.id"
+      @success="getData"
+    />
+    <AppealDialog
+      :visible.sync="appealDialogVisible"
+      :traceOrderId="currentRow.id"
+      @success="getData"
+    />
+    <AgreeAppealDialog
+      :visible.sync="agreeAppealDialogVisible"
+      :traceOrderId="currentRow.id"
+      @success="getData"
+    />
+    <RejectAppealDialog
+      :visible.sync="rejectAppealDialogVisible"
+      :traceOrderId="currentRow.id"
+      :formData="currentRow"
+      @success="getData"
+    />
+    <RefuseAppealDialog
+      :visible.sync="refuseAppealDialogVisible"
+      :traceOrderId="currentRow.id"
+      @success="getData"
+    />
+    <AdjustAmountDialog
+      :visible.sync="adjustAmountDialogVisible"
+      :traceOrderId="currentRow.id"
+      :formData="currentRow"
+      @success="getData"
+    />
   </div>
 </template>
 
@@ -203,7 +247,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
+import { getList, deleteItem, enableItem, agreeIssue, agreeTrace, getDetailDecryptField } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -215,6 +259,15 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput/index.vue';
 import DealerSelect from '@/components/dealer-select/index.vue';
+import { TRACE_STATUS } from './constant';
+import SubmitAuditDialog from './components/SubmitAuditDialog';
+import CancelOrderDialog from './components/CancelOrderDialog';
+import RejectModifyDialog from './components/RejectModifyDialog';
+import AppealDialog from './components/AppealDialog';
+import AgreeAppealDialog from './components/AgreeAppealDialog';
+import RejectAppealDialog from './components/RejectAppealDialog';
+import RefuseAppealDialog from './components/RefuseAppealDialog';
+import AdjustAmountDialog from './components/AdjustAmountDialog';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   claimTraceCode: '',
@@ -251,7 +304,15 @@ export default {
     EditPage,
     TagInput,
     DealerSelect,
-    Upload
+    Upload,
+    SubmitAuditDialog,
+    CancelOrderDialog,
+    RejectModifyDialog,
+    AppealDialog,
+    AgreeAppealDialog,
+    RejectAppealDialog,
+    RefuseAppealDialog,
+    AdjustAmountDialog,
   },
   data () {
     return {
@@ -269,6 +330,15 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      currentRow: {},
+      submitAuditDialogVisible: false,
+      cancelOrderDialogVisible: false,
+      rejectModifyDialogVisible: false,
+      appealDialogVisible: false,
+      agreeAppealDialogVisible: false,
+      rejectAppealDialogVisible: false,
+      refuseAppealDialogVisible: false,
+      adjustAmountDialogVisible: false,
       optionObj: {
         id: 'claimTraceOrderTable',
         dataList: [],
@@ -297,7 +367,7 @@ export default {
           },
           { props: 'traceStatusLabel', label: '追溯状态', visible: true, width: 200 },
           { props: 'warrantyCode', label: '保修申请单', visible: true, width: 200 },
-          { props: 'vin', label: 'VIN 码', visible: true, width: 200 },
+          { props: 'vin', label: 'VIN 码', visible: true, width: 200, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'vin') },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'laborClaimTotal', label: '保修工时金额', visible: true, width: 200 },
@@ -319,19 +389,108 @@ export default {
             type: 'operate',
             visible: true,
             fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/claimreturn/claim/claimtrace/claimTraceOrder/edit',
-                  query: {
-                    id: row.id,
-                    isEditing: true
-                  }
-                });
+            width: 200,
+            buttons: [
+              {
+                name: '编辑',
+                show: (row) => [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED].includes(row.traceStatus),
+                click: (rowIndex, row) => {
+                  this.$router.push({
+                    path: '/claimreturn/claim/claimtrace/claimTraceOrder/edit',
+                    query: { id: row.id, isEditing: true }
+                  });
+                },
+                type: 'info'
               },
-              type: 'info'
-            }]
+              {
+                name: '提交审核',
+                show: (row) => [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED].includes(row.traceStatus),
+                click: (rowIndex, row) => {
+                  this.currentRow = row;
+                  this.submitAuditDialogVisible = true;
+                },
+                type: 'info'
+              },
+              {
+                name: '作废',
+                show: (row) => [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED].includes(row.traceStatus),
+                click: (rowIndex, row) => {
+                  this.currentRow = row;
+                  this.cancelOrderDialogVisible = true;
+                },
+                type: 'info'
+              },
+              {
+                name: '调整索赔金额',
+                show: (row) => [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED, TRACE_STATUS.APPEALING].includes(row.traceStatus),
+                click: (rowIndex, row) => {
+                  this.currentRow = row;
+                  this.adjustAmountDialogVisible = true;
+                },
+                type: 'info'
+              },
+              {
+                name: '同意下发',
+                show: (row) => row.traceStatus === TRACE_STATUS.AUDITING,
+                click: (rowIndex, row) => {
+                  this.handleAgreeIssue(row);
+                },
+                type: 'info'
+              },
+              {
+                name: '驳回修改',
+                show: (row) => row.traceStatus === TRACE_STATUS.AUDITING,
+                click: (rowIndex, row) => {
+                  this.currentRow = row;
+                  this.rejectModifyDialogVisible = true;
+                },
+                type: 'info'
+              },
+              {
+                name: '同意追溯',
+                show: (row) => row.traceStatus === TRACE_STATUS.PENDING_CONFIRM,
+                click: (rowIndex, row) => {
+                  this.handleAgreeTrace(row);
+                },
+                type: 'info'
+              },
+              {
+                name: '申诉',
+                show: (row) => row.traceStatus === TRACE_STATUS.PENDING_CONFIRM,
+                click: (rowIndex, row) => {
+                  this.currentRow = row;
+                  this.appealDialogVisible = true;
+                },
+                type: 'info'
+              },
+              {
+                name: '同意申诉',
+                show: (row) => row.traceStatus === TRACE_STATUS.APPEALING,
+                click: (rowIndex, row) => {
+                  this.currentRow = row;
+                  this.agreeAppealDialogVisible = true;
+                },
+                type: 'info'
+              },
+              {
+                name: '驳回申诉',
+                show: (row) => row.traceStatus === TRACE_STATUS.APPEALING,
+                click: (rowIndex, row) => {
+                  this.currentRow = row;
+                  this.rejectAppealDialogVisible = true;
+                },
+                type: 'info'
+              },
+              {
+                name: '拒绝申诉',
+                show: (row) => row.traceStatus === TRACE_STATUS.APPEALING,
+                click: (rowIndex, row) => {
+                  this.currentRow = row;
+                  this.refuseAppealDialogVisible = true;
+                },
+                type: 'info'
+              }
+            ]
           }
         ],
         total: 0
@@ -560,6 +719,30 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
+    },
+    handleAgreeIssue (row) {
+      this.$confirm('确定同意下发？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        agreeIssue(row.id).then(() => {
+          this.$message.success('同意下发成功');
+          this.getData();
+        });
+      }).catch(() => {});
+    },
+    handleAgreeTrace (row) {
+      this.$confirm('确定同意追溯？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        agreeTrace(row.id).then(() => {
+          this.$message.success('同意追溯成功');
+          this.getData();
+        });
+      }).catch(() => {});
     }
   }
 };

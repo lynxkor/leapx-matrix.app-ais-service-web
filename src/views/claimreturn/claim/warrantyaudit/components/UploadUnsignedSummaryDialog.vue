@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="上传待签署总结报告"
+    title="上传总结报告"
     width="600px"
     :visible.sync="dialogVisible"
     :close-on-click-modal="false"
@@ -17,6 +17,7 @@
               :uploadConfig="uploadConfig"
               :noEcho="true"
               businessType="待签署总结报告"
+              @upload-loading-change="handleUploadLoadingChange"
             />
           </el-form-item>
         </el-form>
@@ -79,6 +80,9 @@ export default {
     }
   },
   methods: {
+    handleUploadLoadingChange (loading) {
+      this.submitLoading = loading;
+    },
     close () {
       this.$emit('update:visible', false);
       this.$emit('close');

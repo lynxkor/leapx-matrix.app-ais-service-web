@@ -542,7 +542,7 @@ export function changeRoute (routePath) {
   }
   // 菜单里配置的系统为/datacenter/xxx,这边补全菜单
   // 只影响单独运行时菜单行为
-  const appPrefix = process.env.VUE_APP_ROUTER_BASE;
+  const appPrefix = window.APP_AIS_WEB_CONFIG.VUE_APP_ROUTER_BASE;
   if (appPrefix && !strRoute.startsWith(appPrefix)) {
     return `${appPrefix}${strRoute}`;
   }

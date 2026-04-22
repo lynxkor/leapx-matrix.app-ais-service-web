@@ -8,12 +8,13 @@
     <!-- 使用CDN的CSS文件 -->
     <% for (var i in htmlWebpackPlugin.options.cdn &&
     htmlWebpackPlugin.options.cdn.css) { %>
-        <link href="<%= htmlWebpackPlugin.options.cdn.css[i] %>" rel="stylesheet" />
-        <% } %>
-            <!-- 使用CDN的CSS文件 -->
-            <!-- <link rel="icon" href="<%= BASE_URL %>favicon.ico"> -->
-            <link rel="icon" href="./favicon.ico">
-            <title>零小跑-零跑汽车</title>
+    <link href="<%= htmlWebpackPlugin.options.cdn.css[i] %>" rel="stylesheet" />
+    <% } %>
+    <!-- 使用CDN的CSS文件 -->
+    <!-- <link rel="icon" href="<%= BASE_URL %>favicon.ico"> -->
+    <link rel="icon" href="./favicon.ico">
+    <title>零小跑-零跑汽车</title>
+    <script src="/js/env.js"></script>
 </head>
 
 <body>

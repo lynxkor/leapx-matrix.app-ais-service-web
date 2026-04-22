@@ -239,6 +239,7 @@ export default {
           { props: 'partPayableAmount', label: '零件应付金额', visible: true, width: 200 },
           { props: 'totalAmount', label: '总金额', visible: true, width: 200 },
           { props: 'discountAmount', label: '优惠总金额', visible: true, width: 200 },
+          { props: 'noFractionAmount', label: '去零金额', visible: true, width: 200 },
           { props: 'rightsAmount', label: '权益金额', visible: true, width: 200 },
           { props: 'payableAmount', label: '实际应付总金额', visible: true, width: 200 },
           { props: 'statementPersonName', label: '结算人员', visible: true, width: 200 },
@@ -306,7 +307,7 @@ export default {
       }
       exportTable({
         businessType: '反结算申请单管理',
-        dataFetchPath: 'sp/web/restatement/page',
+        dataFetchPath: 'maintain/web/sp/restatement/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

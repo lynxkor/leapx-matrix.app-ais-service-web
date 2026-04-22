@@ -121,6 +121,7 @@
                     ref="editTable"
                     :columns="columns"
                     :data="tableData"
+                    :checkbox="true"
                     :show-toolbar="false"
                     :isFocusNewRow="false"
                     :showPagination="true"
@@ -129,6 +130,7 @@
                     :total="collarParams.total"
                     @page-size-change="pageSizeChange"
                     @current-page-change="currentPageChange"
+                    @checkboxChange="handleCheckboxChange"
                   />
                 </div>
               </div>
@@ -441,6 +443,7 @@ export default {
       },
       repairDialogVisible: false, // 维修出库弹窗
       maintenanceId: '', // 维修出库id
+      selectedRows: [], // 表格选中的行
     };
   },
   mounted () {
@@ -560,7 +563,7 @@ export default {
       };
       const res = await collarPage(params);
       this.tableData = res.records || [];
-      this.total = res.total || 0;
+      this.collarParams.total = res.total || 0;
     },
     pageSizeChange (pageSize) { // 多个相同方法 没优化 等后端给我提供数据 再来优化
       this.collarParams.pageSize = pageSize;
@@ -580,7 +583,7 @@ export default {
       };
       const res = await goPage(params);
       this.goTableData = res.records || [];
-      this.total = res.total || 0;
+      this.goParams.total = res.total || 0;
     },
     goPageSize (pageSize) {
       this.goParams.pageSize = pageSize;
@@ -600,6 +603,7 @@ export default {
     handlePrint (val) {
       this.$print.show({
         id: this._id, // 必选，对应数据id
+        selectedList: this.selectedRows, // 必选，对应数据
         template: 'MaintenanceOutbound', // 必选，对应 ./template/文件名.vue
         title: `${this.form.dealerName}维修出库单`// 可选，打印标题
       });
@@ -609,6 +613,11 @@ export default {
       this.getDetailData();
       this.getCollar();
       this.getOut();
+    },
+    // 处理表格勾选变化
+    handleCheckboxChange (selection) {
+      let list = selection;
+      this.selectedRows = list.map(item => item.id);
     },
   }
 };

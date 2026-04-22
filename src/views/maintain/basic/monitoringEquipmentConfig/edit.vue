@@ -275,45 +275,6 @@ export default {
         devicePurpose: [
           { required: true, message: '请输入设备用途', trigger: 'change' }
         ],
-        dealerStationName: [
-          { required: true, message: '请输入工位名称', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        ownerOrgId: [
-          { required: true, message: '请输入归属门店ID（组织ID），当数据权限归属到本组织以及本下级', trigger: 'change' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码', trigger: 'change' }
-        ],
-        dealerStationId: [
-          { required: true, message: '请输入工位ID', trigger: 'change' }
-        ],
       }
     };
   },
@@ -321,7 +282,7 @@ export default {
   },
   methods: {
     async queryDealerStations (query) {
-      return await getDealerStationList({ stationName: query });
+      return await getDealerStationList({ name: query });
     },
     handleStationChange (data, obj) {
       this.form.dealerStationId = data;

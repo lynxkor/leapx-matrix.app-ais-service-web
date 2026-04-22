@@ -174,14 +174,8 @@
                 <el-form-item label="创建时间：" prop="createTime">
                   {{ form.createTime }}
                 </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  {{ form.creator }}
-                </el-form-item>
                 <el-form-item label="创建者名称：" prop="creatorName">
                   {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  {{ form.modifier }}
                 </el-form-item>
                 <el-form-item label="修改者名称：" prop="modifierName">
                   {{ form.modifierName }}
