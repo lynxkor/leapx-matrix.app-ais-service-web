@@ -691,6 +691,7 @@ export default {
         warrantyApplyCode: detail.warrantyApplyCode,
         warrantyApplyId: detail.warrantyApplyId,
         auditDesc: detail.auditDesc,
+        errorList: this.form.errorList || [],
       };
     },
     // 补充材料
