@@ -29,7 +29,7 @@
         {{form.auditDesc}}
       </el-form-item>
       <el-form-item label="错误代码：" style="width: 100%;">
-        {{form.errorCode}}
+        {{errorCategoryText}}
       </el-form-item>
     </el-form>
     <el-tabs v-model="activeName" type="border-card">
@@ -52,13 +52,13 @@
 </template>
 
 <script>
-import { getSupplyMaterial, supplyMaterial } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index';
+import { getSupplyMaterial, appeal } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index';
 import AisAttachment from './AisAttachment.vue';
 import AttachmentList from '@/libs/components/AttachmentList/index.vue';
 import { REPAIR_ITEM_TYPES } from '@/libs/utils/repairTypes';
 const defaultForm = {
   detailId: '',
-  materialDesc: '',
+  auditDesc: '',
   warrantyApplyCode: '',
   vin: '',
   approvalTime: '',
@@ -84,6 +84,22 @@ export default {
     configCode () {
       const item = this.repairItemTypeArr.find(i => i.id === this.selectionItem.repairItemTypeId);
       return item ? item.code : '';
+    },
+    // 错误项 信息
+    errorCategoryText () {
+      // 1. 安全检查：如果列表为空或不存在，返回空字符串
+      if (!this.selectionItem?.errorList || this.selectionItem.errorList.length === 0) {
+        return '';
+      }
+      // 2. 处理数据：
+      // 使用 map 遍历，item 是当前项，index 是索引
+      // 返回格式为 "1) 内容" 的新数组
+      const list = this.selectionItem.errorList.map((item, index) => {
+        return `${index + 1}) ${item.errorCategory}`;
+      });
+
+      // 3. 拼接字符串：用逗号分隔
+      return list.join(', ');
     },
   },
   data () {
@@ -122,20 +138,22 @@ export default {
       this.form = res || {};
       this.form.warrantyApplyCode = this.selectionItem.warrantyApplyCode; // 保修材料单id
       this.form.businessId = this.selectionItem.id; // 补充材料id
+      this.form.auditDesc = this.selectionItem.auditDesc || '';
       this.loading = false;
     },
     handleClose () {
+      this.form = { ...defaultForm };
       this.$emit('update:visible', false);
     },
     handleSubmit () {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
           this.submitLoading = true;
-          supplyMaterial({
+          appeal({
             detailId: this.form.businessId,
             appealDesc: this.form.appealDesc
           }).then(() => {
-            this.$message.success('补充材料成功');
+            this.$message.success('申诉成功');
             this.handleClose();
             this.$emit('success');
           }).catch(() => {

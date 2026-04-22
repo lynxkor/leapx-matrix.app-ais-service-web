@@ -120,6 +120,7 @@ export default {
       this.loading = false;
     },
     handleClose () {
+      this.form = { ...defaultForm };
       this.$emit('update:visible', false);
     },
     handleSubmit () {

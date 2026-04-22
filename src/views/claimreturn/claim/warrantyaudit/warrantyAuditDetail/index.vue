@@ -544,8 +544,16 @@ export default {
       getWarrantyAuditDetailList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
         .then(res => {
           this.tableDataList = res.records.map(item => {
+            // 格式化错误项列表，将 errorList 转换为 errorTypeLabel 字符串
+            let errorTypeLabel = '';
+            if (item.errorList && item.errorList.length > 0) {
+              errorTypeLabel = item.errorList.map((err, index) => {
+                return `${index + 1}) ${err.errorCategory}`;
+              }).join(', ');
+            }
             return {
               ...item,
+              errorTypeLabel,
               deleteLoading: false
             };
           });
