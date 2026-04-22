@@ -1277,6 +1277,15 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/maintain/sp/spEquity/detail',
+      name: 'spEquityDetail',
+      component: () => import('@/views/maintain/sp/spEquity/detail.vue'),
+
+      meta: {
+        name: '权益套餐详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/maintain/sp/preAuthRule',
       name: 'preAuthRule',
       component: () => import('@/views/maintain/sp/preAuthRule/index.vue'),
