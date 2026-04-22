@@ -242,14 +242,14 @@
       width="500px"
       :close-on-click-modal="false"
     >
-      <el-form :model="auditForm" :rules="auditRules" ref="auditFormRef" label-width="100px" label-position="left">
+      <el-form :model="auditForm" :rules="auditRules" ref="auditFormRef" label-width="100px" label-position="right">
         <el-form-item label="审核操作" prop="auditAction" required>
           <el-select v-model="auditForm.auditAction" placeholder="请选择" style="width: 100%" @change="handleAuditActionChange">
             <el-option label="同意" :value="1" />
             <el-option label="拒绝" :value="2" />
           </el-select>
         </el-form-item>
-        <el-form-item label="审核意见" prop="auditOpinion">
+        <el-form-item label="审核意见" prop="auditOpinion" :required="auditForm.auditAction == 2">
           <el-input
             v-model="auditForm.auditOpinion"
             type="textarea"
@@ -261,8 +261,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer">
-        <el-button @click="auditDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleAuditConfirm" :loading="auditLoading">确定</el-button>
+        <el-button size="small" @click="auditDialogVisible = false">取消</el-button>
+        <el-button size="small" type="primary" @click="handleAuditConfirm" :loading="auditLoading">确定</el-button>
       </span>
     </el-dialog>
   </edit-page-layout>
@@ -363,7 +363,16 @@ export default {
           { required: true, message: '请选择审核操作', trigger: 'change' }
         ],
         auditOpinion: [
-          { required: true, message: '请输入审核意见', trigger: 'blur' }
+          {
+            validator: (rule, value, callback) => {
+              if (this.auditForm.auditAction === 2 && !value) {
+                callback(new Error('请输入审核意见'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'blur'
+          }
         ]
       },
       auditLoading: false,
@@ -410,13 +419,15 @@ export default {
       });
     },
     handleAuditActionChange (value) {
-      if (value === 2) {
-        this.$nextTick(() => {
-          if (this.$refs.auditFormRef) {
+      this.$nextTick(() => {
+        if (this.$refs.auditFormRef) {
+          if (value === 1) {
+            this.$refs.auditFormRef.clearValidate('auditOpinion');
+          } else {
             this.$refs.auditFormRef.validateField('auditOpinion');
           }
-        });
-      }
+        }
+      });
     },
     handleAuditConfirm () {
       this.$refs.auditFormRef.validate((valid) => {
