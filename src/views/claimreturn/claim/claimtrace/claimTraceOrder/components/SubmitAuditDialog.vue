@@ -93,12 +93,14 @@ export default {
       this.$refs.ruleForm.validate((valid) => {
         if (!valid) return;
         const attachFileList = this.$refs.attachment.getAttachment();
-        if (!attachFileList || attachFileList.length === 0) {
+        const files = this.$refs.attachment.getFileList();
+        const allFiles = [...files, ...attachFileList];
+        if (!allFiles || allFiles.length === 0) {
           this.$message.warning('请上传追溯凭证');
           return;
         }
         this.submitLoading = true;
-        submitAudit({ ...this.form, attachFileList }).then(() => {
+        submitAudit({ ...this.form, allFiles }).then(() => {
           this.$message.success('提交审核成功');
           this.close();
           this.$emit('success');
