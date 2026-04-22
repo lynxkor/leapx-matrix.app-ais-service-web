@@ -9,26 +9,22 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="备件">
-        <fetch-select
-            :remote-method="getSparePart"
-            remote
-            v-model="form.sparePartIdList"
-            placeholder="请输入编码或名称"
-            labelKey="partName"
-            valueKey="id"
-            subLabelKey="partCode"
-            clearable
-            multiple
-            collapseTags
-            filterable
-              />
+      <el-form-item label="备件编码">
+        <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="库存单号">
-        <tag-input v-model="form.codeList" placeholder="请输入" />
+      <el-form-item label="备件名称">
+        <el-input
+          placeholder="请输入"
+          v-model="form.sparePartNameLike"
+          clearable
+        />
       </el-form-item>
-        <el-form-item label="库位"  v-show="this.visibleCount === 3 || show">
-          <fetch-select
+        <template v-if="show">
+          <el-form-item label="库存单号">
+            <tag-input v-model="form.codeList" placeholder="请输入" />
+          </el-form-item>
+          <el-form-item label="库位"  v-show="this.visibleCount === 3 || show">
+            <fetch-select
               :remote-method="getLocaltion"
               remote
               v-model="form.locationIdList"
@@ -41,7 +37,6 @@
               filterable
                 />
         </el-form-item>
-        <template v-if="show">
         <el-form-item label="门店">
           <fetch-select
             :remote-method="getDealerList"
