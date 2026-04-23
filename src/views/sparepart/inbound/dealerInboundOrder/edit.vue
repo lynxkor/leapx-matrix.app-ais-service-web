@@ -9,8 +9,15 @@
           <!-- <span class="status primary">状态</span> -->
         </template>
         <template #extraButtons>
-          <!-- <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button> -->
+          <el-button
+            v-for="btn in visibleButtons"
+            :key="btn.key"
+            type="primary"
+            size="small"
+            @click="handleExtraButtonClick(btn.action)"
+          >
+            {{ btn.label }}
+          </el-button>
         </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
@@ -230,13 +237,24 @@
       :businessParams="_id"
       id="sparepartDealerInboundOrderDetail"
       @close="handleUploadDialogClose"
-      @submit="getDetailData"
+      @submit="handleRefresh"
+    />
+    <!-- 退货弹窗 -->
+    <OrderReturnDialog
+      ref="orderReturnDialogRef"
+      :visible.sync="orderReturnDialogVisible"
+      :orderId="_id"
+      @update:visible="val => orderReturnDialogVisible = val"
+      @confirm="handleRefresh"
     />
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate, dealerInboundOrderDetailPage, dealerInboundOrderDetailDelete, dealerInboundOrderDetailAdd } from '@/api/sparepart/inbound/dealerInboundOrder/index';
+import {
+  getDetail, addOrUpdate, dealerInboundOrderDetailPage, dealerInboundOrderDetailDelete, dealerInboundOrderDetailAdd,
+  dealerInboundOrderCommit, dealerInboundOrderAgree, dealerInboundOrderReject, dealerInboundOrderInbound
+} from '@/api/sparepart/inbound/dealerInboundOrder/index';
 import { listDealerPart } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -247,7 +265,8 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
-import { formatNumberInput } from '@/libs/utils/index';
+import { formatNumberInput, handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
+import OrderReturnDialog from './OrderReturnDialog.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -300,7 +319,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    Upload
+    Upload,
+    OrderReturnDialog
   },
   computed: {
     _id () {
@@ -308,6 +328,50 @@ export default {
     },
     title () {
       return '外购入库单号，开头OPO：' + this.form.code;
+    },
+    extraButtons () {
+      const buttons = [
+        {
+          key: 'print',
+          label: '打印入库单',
+          action: 'print',
+          visible: this._id && this.permissions.has('AISPART-dealerInboundOrder-printInbound')
+        },
+        {
+          key: 'submit',
+          label: '提交',
+          action: 'submit',
+          visible: this._id && (this.form.orderStatus === '10' || this.form.orderStatus === '40') && this.permissions.has('AISPART-dealerInboundOrder-commit')
+        },
+        {
+          key: 'pass',
+          label: '通过',
+          action: 'pass',
+          visible: this._id && this.form.orderStatus === '20' && this.permissions.has('AISPART-dealerInboundOrder-agree')
+        },
+        {
+          key: 'reject',
+          label: '驳回',
+          action: 'reject',
+          visible: this._id && this.form.orderStatus === '20' && this.permissions.has('AISPART-dealerInboundOrder-reject')
+        },
+        {
+          key: 'warehousing',
+          label: '入库',
+          action: 'warehousing',
+          visible: this._id && this.form.orderStatus === '30' && this.form.inboundStatus === '10' && this.permissions.has('AISPART-dealerInboundOrder-inbound')
+        },
+        {
+          key: 'return',
+          label: '申请退货',
+          action: 'return',
+          visible: this._id && this.form.orderStatus === '30' && this.form.inboundStatus === '20' && this.permissions.has('AISPART-dealerInboundOrder-returnApply')
+        },
+      ];
+      return buttons;
+    },
+    visibleButtons () {
+      return this.extraButtons.filter(btn => btn.visible);
     }
   },
   watch: {
@@ -346,6 +410,7 @@ export default {
       originalForm: { ...form },
       emptyText: '暂无数据',
       orderStatusType: false, // 订单状态 是否可编辑
+      orderReturnDialogVisible: false, // 申请退货弹窗
       pageNum: 1,
       pageSize: 10,
       total: 0,
@@ -537,6 +602,78 @@ export default {
       this.pageSize = pageSize;
       this.pageNum = 1;
       this.getData();
+    },
+    // 处理额外按钮点击事件
+    handleExtraButtonClick (action) {
+      const actionMap = {
+        print: 'handlePrint',
+        submit: 'handleSubmit',
+        pass: 'handleApprove',
+        reject: 'handleReject',
+        warehousing: 'handleInbound',
+        return: 'handleReturn',
+      };
+      const handlerName = actionMap[action];
+      if (handlerName && typeof this[handlerName] === 'function') {
+        this[handlerName]();
+      } else {
+        console.warn(`未找到处理方法: ${handlerName}`);
+      }
+    },
+    // 刷新接口
+    handleRefresh () {
+      this.$refs.containerRef.loadDetail();
+    },
+    // 打印外购件入库单
+    handlePrint () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'OutsourcedPartsReceipt', // 必选，对应 ./template/文件名.vue
+        title: `${this.form.dealerName}厅店外购件入库单`// 可选，打印标题
+      });
+    },
+    // 调用二次确认弹框
+    _handleAction (apiFn, config) {
+      handleCommonAction({
+        $confirm: this.$confirm,
+        $message: this.$message,
+        apiFn,
+        id: this._id,
+        config,
+        onSuccess: () => this.$refs.containerRef.loadDetail()
+      });
+    },
+    // --- 业务方法调用 ---
+    handleSubmit () {
+      this._handleAction(dealerInboundOrderCommit, { title: '此操作将提交订单, 是否继续?', success: '提交成功' });
+    },
+    handleApprove () {
+      this._handleAction(dealerInboundOrderAgree, { title: '此操作将通过订单, 是否继续?', success: '通过成功' });
+    },
+    handleInbound () {
+      this._handleAction(dealerInboundOrderInbound, { title: '此操作将入库订单, 是否继续?', success: '入库成功' });
+    },
+    // 申请退货
+    handleReturn () {
+      this.orderReturnDialogVisible = true;
+    },
+    // 通用 备注弹窗
+    _execPrompt (api, title, placeholder, successMsg) {
+      handleCommonPrompt({
+        $prompt: this.$prompt,
+        $message: this.$message,
+        apiFn: api,
+        id: this._id,
+        config: {
+          title,
+          placeholder,
+          success: successMsg
+        },
+        onSuccess: () => this.$refs.containerRef.loadDetail()
+      });
+    },
+    handleReject () {
+      this._execPrompt(dealerInboundOrderReject, '驳回', '请输入审批原因！', '驳回成功');
     },
   }
 };
