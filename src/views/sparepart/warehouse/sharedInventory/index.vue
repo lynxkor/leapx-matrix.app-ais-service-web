@@ -46,6 +46,7 @@
         v-model="show"
         is-expandable
         :loading="loading"
+        :isExpandable="false"
         @submit="onSubmit"
         @reset="onReset"
       />
