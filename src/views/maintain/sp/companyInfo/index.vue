@@ -22,7 +22,7 @@
         />
       </el-form-item>
       <el-form-item label="门店:">
-        <dealer-select v-model="form.dealerCodes" multiple />
+        <dealer-select v-model="form.dealerCodeList" multiple />
       </el-form-item>
       <el-form-item label="健康档案状态:"  v-show="this.visibleCount === 3 || show">
         <fetch-select
@@ -147,7 +147,7 @@ import {
   enableItem,
   companyList,
   getEnum,
-  addOrUpdate
+  openUpload
 } from '@/api/maintain/sp/companyInfo';
 import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
@@ -337,7 +337,7 @@ export default {
     handleSubmitApply () {
       this.applyLoading = true;
       // 调用 API 提交申请
-      addOrUpdate({
+      openUpload({
         ...this.applyForm
       }).then(res => {
         this.$message({
