@@ -86,7 +86,6 @@ export default {
         this.close();
         this.$emit('submit');
       } catch (error) {
-        this.$message.error('下架失败');
         this.submitLoading = false;
       }
     },
