@@ -100,7 +100,7 @@ export default {
           return;
         }
         this.submitLoading = true;
-        submitAudit({ ...this.form, allFiles }).then(() => {
+        submitAudit({ ...this.form, attachFileList: allFiles }).then(() => {
           this.$message.success('提交审核成功');
           this.close();
           this.$emit('success');

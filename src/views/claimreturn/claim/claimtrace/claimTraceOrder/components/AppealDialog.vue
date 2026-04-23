@@ -96,7 +96,7 @@ export default {
           return;
         }
         this.submitLoading = true;
-        submitAppeal({ ...this.form, allFiles }).then(() => {
+        submitAppeal({ ...this.form, attachFileList: allFiles }).then(() => {
           this.$message.success('申诉成功');
           this.close();
           this.$emit('success');
