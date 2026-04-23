@@ -669,6 +669,7 @@ export default {
     async handleAddOrUpdate (params) {
       await orderDetailAddOrUpdate(params);
       this.$message.success('操作成功');
+      this.$refs.containerRef.loadDetail();
       this.getData();
     },
     getDefautlForm () {
