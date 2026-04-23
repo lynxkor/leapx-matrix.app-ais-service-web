@@ -199,9 +199,6 @@
                 <el-form-item label="退料审批时间：" prop="returnApprovalTime">
                   {{ form.returnApprovalTime }}
                 </el-form-item>
-                <el-form-item label="退料审批说明：" prop="returnApprovalDescription">
-                  {{ form.returnApprovalDescription }}
-                </el-form-item>
                 <el-form-item label="入库操作人：" prop="inboundOperator">
                   {{ form.inboundOperatorName }}
                 </el-form-item>
@@ -210,6 +207,9 @@
                 </el-form-item>
                 <el-form-item label="入库状态：" prop="inboundStatus">
                   {{ form.inboundStatusLabel }}
+                </el-form-item>
+                <el-form-item label="退料审批说明：" prop="returnApprovalDescription" style="width: 100%">
+                  {{ form.returnApprovalDescription }}
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
@@ -228,9 +228,6 @@
                 <el-form-item label="退料审批时间：" prop="returnApprovalTime">
                   {{ form.returnApprovalTime }}
                 </el-form-item>
-                <el-form-item label="退料审批说明：" prop="returnApprovalDescription">
-                  {{ form.returnApprovalDescription }}
-                </el-form-item>
                 <el-form-item label="入库操作人：" prop="inboundOperator">
                   {{ form.inboundOperatorName }}
                 </el-form-item>
@@ -239,6 +236,9 @@
                 </el-form-item>
                 <el-form-item label="入库状态：" prop="inboundStatus">
                   {{ form.inboundStatusLabel }}
+                </el-form-item>
+                <el-form-item label="退料审批说明：" prop="returnApprovalDescription" style="width: 100%">
+                  {{ form.returnApprovalDescription }}
                 </el-form-item>
               </el-form>
             </div>
