@@ -317,7 +317,7 @@
         <el-form-item label="实际作业时间：" prop="startAt">
           {{ form.startAt }}
         </el-form-item>
-        <el-form-item label="预授权信息：" prop="preAuthId">
+        <el-form-item label="预授权信息：" prop="preAuthCode">
           {{ form.preAuthId }}
         </el-form-item>
         <el-form-item label="完成作业时间：" prop="finishAt">
