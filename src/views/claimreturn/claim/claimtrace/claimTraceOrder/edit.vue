@@ -56,16 +56,21 @@
                   :params="{}" />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerCode">
-                  <dealer-select v-model="form.dealerCode" :disabled="!!_id" />
+                  <dealer-select v-model="form.dealerCode" disabled />
                 </el-form-item>
                 <el-form-item label="首次下发时间：">
                   <el-input v-model="form.firstIssueTime" disabled />
                 </el-form-item>
                 <el-form-item label="追溯说明：" prop="traceDesc">
-                  <el-input placeholder="请输入" v-model="form.traceDesc" clearable type="textarea" :rows="1" :disabled="!!_id" />
+                  <el-input placeholder="请输入" v-model="form.traceDesc" clearable type="textarea" :rows="1" disabled />
                 </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
-                  <el-input placeholder="请输入" v-model="form.vin" clearable disabled />
+                  <LPEncrypted
+                    :value.sync="form.vin"
+                    :decryptMethod="getDetailDecryptField"
+                  >
+                    <el-input placeholder="请输入" v-model="form.vin" clearable disabled />
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="最新下发时间：">
                   <el-input v-model="form.latestIssueTime" disabled />
@@ -101,7 +106,14 @@
                 <el-form-item label="门店名称：">{{ form.dealerName }}</el-form-item>
                 <el-form-item label="首次下发时间：">{{ form.firstIssueTime }}</el-form-item>
                 <el-form-item label="追溯说明：">{{ form.traceDesc }}</el-form-item>
-                <el-form-item label="VIN：">{{ form.vin }}</el-form-item>
+                <el-form-item label="VIN：">
+                  <LPEncrypted
+                    :value.sync="form.vin"
+                    :decryptMethod="getDetailDecryptField"
+                  >
+                    {{ form.vin }}
+                  </LPEncrypted>
+                </el-form-item>
                 <el-form-item label="最新下发时间：">{{ form.latestIssueTime }}</el-form-item>
                 <el-form-item label="备注：">{{ form.remark }}</el-form-item>
                 <el-form-item label="系统自动同意时间：">{{ form.sysAutoAgreeDate }}</el-form-item>
@@ -262,7 +274,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, agreeIssue, agreeTrace } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
+import { getDetail, addOrUpdate, agreeIssue, agreeTrace, getDetailDecryptField } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
 import { claimTraceOrderDetailList } from '@/api/claimreturn/claim/claimtrace/claimTraceOrderDetail/index';
 import { getList } from '@/api/claimreturn/claim/warrantyapply/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -284,6 +296,7 @@ import RejectAppealDialog from './components/RejectAppealDialog';
 import RefuseAppealDialog from './components/RefuseAppealDialog';
 import AisAttachment from '@/libs/components/AisAttachment';
 import ListSelect from '@/libs/components/list-select';
+import LPEncrypted from '@/libs/components/LPEncrypted/index.vue';
 
 const defaultForm = {
   claimTraceCode: '',
@@ -348,7 +361,8 @@ export default {
     RejectAppealDialog,
     RefuseAppealDialog,
     AisAttachment,
-    ListSelect
+    ListSelect,
+    LPEncrypted
   },
   computed: {
     _id () {
@@ -384,9 +398,6 @@ export default {
       originalForm: { ...form },
       TRACE_STATUS,
       rules: {
-        dealerCode: [
-          { required: true, message: '请输入门店编码或名称', trigger: 'change' }
-        ],
         warrantyCode: [
           { required: true, message: '请输入保修申请单', trigger: 'change' }
         ],
@@ -413,6 +424,9 @@ export default {
     }
   },
   methods: {
+    getDetailDecryptField () {
+      return getDetailDecryptField(this.form.id, 'vin');
+    },
     queryListData (query) {
       return getList({
         limitSize: 20,
