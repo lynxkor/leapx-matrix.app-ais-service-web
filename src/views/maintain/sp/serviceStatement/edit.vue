@@ -639,7 +639,6 @@ export default {
                 id: restatementId
               }
             });
-            this.handleRefresh();
           } else {
             this.$message.warning('未找到反结算申请单 ID');
           }
@@ -697,6 +696,7 @@ export default {
       });
     },
     handleRefresh () {
+      this.checkCanCreate();
       this.$refs.containerRef.handleRefresh();
     },
     detailRequest () {
