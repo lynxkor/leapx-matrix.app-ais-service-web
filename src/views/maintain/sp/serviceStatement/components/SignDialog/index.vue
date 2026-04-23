@@ -19,12 +19,9 @@
         <el-col :span="22">
           <el-form-item label="" prop="signChannel">
             <el-radio-group v-model="form.signChannel">
-              <el-radio
-                v-for="item in signChannelOptions"
-                :key="item.code"
-                :label="item.code"
-                >{{ item.message }}</el-radio
-              >
+              <el-radio label="999">APP/短信/零小跑</el-radio>
+              <div v-if="form.signChannel === '999'" class="sign-channel-tip">此操作将生成待签字结算单且需要用户签字</div>
+              <el-radio label="40">纸质单据</el-radio>
             </el-radio-group>
           </el-form-item>
         </el-col>
@@ -159,6 +156,15 @@ export default {
     .el-radio {
       margin: 8px 0;
     }
+  }
+  .sign-channel-tip {
+    color: var(--leap-color-danger);
+    background-color: rgba($color:#B91919, $alpha: 0.1);
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 4px 0;
+    padding: 4px 12px;
+    border-radius: 4px;
   }
 }
 </style>
