@@ -4,6 +4,7 @@
     width="600px"
     :visible.sync="dialogVisible"
     :close-on-click-modal="false"
+    destroy-on-close
     @close="close"
   >
     <div class="page-common-edit vertical">
@@ -16,7 +17,6 @@
             <AisAttachment
               style="padding-top: 5px;"
               ref="attachment"
-              :business-id="traceOrderId"
               attachType="申诉凭证"
               :uploadConfig="uploadConfig"
               @upload-loading-change="handleUploadLoadingChange"
@@ -89,14 +89,12 @@ export default {
       this.$refs.ruleForm.validate((valid) => {
         if (!valid) return;
         const attachFileList = this.$refs.attachment.getAttachment();
-        const files = this.$refs.attachment.getFileList();
-        const allFiles = [...files, ...attachFileList];
-        if (!allFiles || allFiles.length === 0) {
-          this.$message.warning('请上传追溯凭证');
+        if (!attachFileList || attachFileList.length === 0) {
+          this.$message.warning('请上传申诉凭证');
           return;
         }
         this.submitLoading = true;
-        submitAppeal({ ...this.form, attachFileList: allFiles }).then(() => {
+        submitAppeal({ ...this.form, attachFileList }).then(() => {
           this.$message.success('申诉成功');
           this.close();
           this.$emit('success');
