@@ -5,7 +5,7 @@
         :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest"
         :showEditBtn="stockStatusType">
         <template #status>
-          <span v-if="form.status" class="status primary">{{ form.status }}</span>
+          <span v-if="form.status" class="status primary">{{ form.stockStatusLabel }}</span>
         </template>
         <template #extraButtons>
         </template>
