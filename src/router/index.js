@@ -1277,6 +1277,15 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/maintain/sp/spEquity/detail',
+      name: 'spEquityDetail',
+      component: () => import('@/views/maintain/sp/spEquity/detail.vue'),
+
+      meta: {
+        name: '权益套餐详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/maintain/sp/preAuthRule',
       name: 'preAuthRule',
       component: () => import('@/views/maintain/sp/preAuthRule/index.vue'),
@@ -2747,7 +2756,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/claim/warrantyaudit/warrantyAuditDetail',
+      path: '/claimreturn/claim/warrantyAudit/warrantyAuditDetail',
       name: 'warrantyAuditDetail',
       component: () => import('@/views/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index.vue'),
 
@@ -2756,7 +2765,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/warrantyaudit/warrantyAuditDetail/edit',
+      path: '/claimreturn/claim/warrantyAudit/warrantyAuditDetail/edit',
       name: 'warrantyAuditDetailEdit',
       component: () => import('@/views/claimreturn/claim/warrantyaudit/warrantyAuditDetail/edit.vue'),
 

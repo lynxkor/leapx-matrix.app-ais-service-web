@@ -164,7 +164,8 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="'1'"
+      :businessParams="project_id"
+      :id="'sparepartStockTakingDetailRes'"
       @close="handleUploadDialogClose"
       @getData="getData"
     />
@@ -248,6 +249,7 @@ export default {
       differenceDialogVisible: false, // 生成差异单弹窗
       differenceId: '', // 差异单id
       differenceTableData: [], // 差异单数据
+      project_id: '', // 项目id 导入
       clickItemId: '',
       optionObj: {
         id: 'stockTakingTable',
@@ -373,6 +375,9 @@ export default {
               show: (row) => {
                 return row.stockStatus === '2' && this.permissions.has('AISPART-stockTaking-importRes');
               },
+              click: (rowIndex, row) => {
+                this.handleImport(row);
+              },
               type: 'info'
             }, {
               name: '生成差异单',
@@ -474,7 +479,8 @@ export default {
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
-    handleImport () {
+    handleImport (val) {
+      this.project_id = val.id;
       this.uploadDialogVisible = true;
     },
     handleUploadDialogClose () {

@@ -15,10 +15,10 @@
       <el-form-item label="采购订单号">
         <tag-input v-model="form.purchaseOrderCodeList" placeholder="请输入" />
       </el-form-item>
+      <el-form-item label="采购申请单号"  v-show="this.visibleCount === 3 || show">
+        <tag-input v-model="form.purchaseApplyCodeList" placeholder="请输入" />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="采购申请单号"  v-show="this.visibleCount === 3 || show">
-          <tag-input v-model="form.purchaseApplyCodeList" placeholder="请输入" />
-        </el-form-item>
         <el-form-item label="发货仓库">
           <fetch-select
             :remote-method="getOemWarehouse"

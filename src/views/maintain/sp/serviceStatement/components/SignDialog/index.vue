@@ -39,7 +39,7 @@
           size="small"
           :loading="submitLoading"
           type="primary"
-          @click="submit()"
+          @click="submit"
           >确 定</el-button
         >
       </div>

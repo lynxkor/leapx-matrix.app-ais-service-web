@@ -20,6 +20,13 @@ export function addOrUpdate (data) {
 }
 
 /**
+ * 开通健康企业档案上传
+ * @param {Object} data
+ */
+export function openUpload (data) {
+  return api.jsonPost(prefix + 'openUpload', data);
+}
+/**
  * 删除
  * @param {Array<Number>} data
  */

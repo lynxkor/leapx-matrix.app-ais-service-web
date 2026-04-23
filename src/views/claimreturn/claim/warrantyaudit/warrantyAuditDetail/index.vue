@@ -28,10 +28,9 @@
       </el-form-item>
       <template v-if="show">
         <el-form-item label="保修审计单">
-          <el-input
-            placeholder="请输入"
+          <tag-input
             v-model="form.auditCodeList"
-            clearable
+            placeholder="请输入"
           />
         </el-form-item>
         <el-form-item label="接车施工单">
@@ -155,11 +154,12 @@
       </LPVxeTable>
     </div>
     <!-- 补充材料弹窗 -->
-    <!-- <SupplyMaterialDialog
+    <SupplyMaterialDialog
       :visible.sync="supplyMaterialDialogVisible"
-      :selection-list="selectionList"
+      :selectionItem="selectionItem"
+      @update:visible="supplyMaterialDialogVisible = $event"
       @success="getData"
-    /> -->
+    />
     <!-- 审计通过弹窗 -->
     <!-- <AuditPassDialog
       :visible.sync="auditPassDialogVisible"
@@ -174,11 +174,12 @@
       @success="getData"
     />
     <!-- 申诉弹窗 -->
-    <!-- <AppealDialog
+    <AppealDialog
       :visible.sync="appealDialogVisible"
-      :selection-list="selectionList"
+      :selectionItem="selectionItem"
+      @update:visible="appealDialogVisible = $event"
       @success="getData"
-    /> -->
+    />
     <!-- 同意申诉弹窗 -->
     <AgreeAppealDialog
       :visible.sync="agreeAppealDialogVisible"
@@ -219,6 +220,9 @@ import DealerSelect from '@/components/dealer-select';
 import AuditRejectDialog from './components/AuditRejectDialog.vue';
 import AgreeAppealDialog from './components/AgreeAppealDialog.vue';
 import RejectAppealDialog from './components/RejectAppealDialog.vue';
+import SupplyMaterialDialog from './components/SupplyMaterialDialog.vue';
+import AppealDialog from './components/AppealDialog.vue';
+
 const defaultForm = {
   warrantyApplyCodeList: '',
   vinList: '',
@@ -251,9 +255,11 @@ export default {
     EditPage,
     TagInput,
     DealerSelect,
+    AppealDialog,
     AuditRejectDialog,
     AgreeAppealDialog,
-    RejectAppealDialog
+    RejectAppealDialog,
+    SupplyMaterialDialog
   },
   data () {
     return {
@@ -270,10 +276,12 @@ export default {
       exportLoading: false,
       clickItemId: '',
       // 弹窗控制
-      supplyMaterialDialogVisible: false,
+      supplyMaterialDialogVisible: false, // 补充材料弹窗
+      selectionItem: {}, // 材料弹窗的保修审计明细
+      warrantyClaimId: '', // 申诉弹窗的保修单id
       auditRejectDialogVisible: false, // 审计驳回弹窗
       allId: '', // 所有弹窗  审计单id
-      appealDialogVisible: false,
+      appealDialogVisible: false, // 申诉弹窗
       agreeAppealDialogVisible: false, // 同意申诉弹窗
       rejectAppealDialogVisible: false, // 拒绝申诉弹窗
       //
@@ -299,7 +307,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/claimreturn/claim/warrantyaudit/warrantyAuditDetail/edit',
+                  path: '/claimreturn/claim/warrantyAudit/warrantyAuditDetail/edit',
                   query: {
                     id: row.id
                   }
@@ -378,6 +386,9 @@ export default {
               show: (row) => {
                 return row.auditStatus === '20';
               },
+              click: (rowIndex, row) => {
+                this.handleSupplyMaterial(row);
+              },
               type: 'info'
             }, {
               name: '审计通过',
@@ -401,6 +412,9 @@ export default {
               name: '申述',
               show: (row) => {
                 return row.auditStatus === '50';
+              },
+              click: (rowIndex, row) => {
+                this.handleAppeal(row);
               },
               type: 'info'
             }, {
@@ -530,8 +544,16 @@ export default {
       getWarrantyAuditDetailList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
         .then(res => {
           this.tableDataList = res.records.map(item => {
+            // 格式化错误项列表，将 errorList 转换为 errorTypeLabel 字符串
+            let errorTypeLabel = '';
+            if (item.errorList && item.errorList.length > 0) {
+              errorTypeLabel = item.errorList.map((err, index) => {
+                return `${index + 1}) ${err.errorCategory}`;
+              }).join(', ');
+            }
             return {
               ...item,
+              errorTypeLabel,
               deleteLoading: false
             };
           });
@@ -618,11 +640,8 @@ export default {
       return [];
     },
     // 补充材料
-    handleSupplyMaterial () {
-      if (this.selectionList.length === 0) {
-        this.$message.warning('请选择需要补充材料的数据');
-        return;
-      }
+    handleSupplyMaterial (row) {
+      this.selectionItem = row;
       this.supplyMaterialDialogVisible = true;
     },
     // 审计驳回
@@ -631,11 +650,8 @@ export default {
       this.auditRejectDialogVisible = true;
     },
     // 申诉
-    handleAppeal () {
-      if (this.selectionList.length === 0) {
-        this.$message.warning('请选择需要申诉的数据');
-        return;
-      }
+    handleAppeal (row) {
+      this.selectionItem = row;
       this.appealDialogVisible = true;
     },
     // 同意申诉

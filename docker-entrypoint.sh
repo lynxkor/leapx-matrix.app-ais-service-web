@@ -2,7 +2,7 @@
 set -e
 
 CONFIG_DIR="/etc/config/"
-HTML_DIR="/usr/share/nginx/html"
+HTML_DIR="/usr/share/nginx/html/js"
 # CONFIG_DIR="./"
 # HTML_DIR="./"
 

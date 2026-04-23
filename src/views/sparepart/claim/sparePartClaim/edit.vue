@@ -756,6 +756,7 @@ export default {
         id: this._id,
         claimDescription: this.form.claimDescription,
         claimQty: this.form.claimQty,
+        claimType: this.form.claimType,
         statusDesc: this.form.statusDesc,
       };
       return addOrUpdate({ ...params });

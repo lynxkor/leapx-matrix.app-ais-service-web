@@ -113,3 +113,11 @@ export function getErrorConfigList (data) {
 export function calculateDeduction (data) {
   return api.jsonPost(prefix + 'calculateDeduction', data);
 }
+
+/**
+ * 补充材料明细表分页查询
+ * @param {Object} data
+ */
+export function getSupplyMaterial (data) {
+  return api.jsonPost('claimreturn/claim/web/warrantyapply/warrantyApply/get', data);
+}

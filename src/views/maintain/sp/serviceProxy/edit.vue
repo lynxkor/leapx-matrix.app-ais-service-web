@@ -52,7 +52,7 @@
             <EntrustInfo :formData="form" :isEditing.sync="isEditing" :_id="_id" ref="entrustInfoRef" @change="submitForm" @refresh="handleRefresh"/>
             <BatteryInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="batteryInfoRef"/>
             <InquiryInfo :formData="form" :_id="_id"/>
-            <RepairInfo :formData="form"/>
+            <RepairInfo :formData="form" :_id="_id"/>
             <SparepartsInfo :formData="form"/>
             <section class="common-section">
               <div class="common-section-header">
@@ -419,10 +419,10 @@ export default {
     hasWorkingItems () {
       return this.form?.workRecordRespList?.some(item => item.isDispatch === 1 && item.timeSpend && !item.finishAt);
     },
-    // 是否存在已经领料但是未全部退料的维修备件记录
+    // 是否存在已经领料但是未全部退料的维修备件记录且未结算
     hasRepairItems () {
       const item = this.form?.costCountResp?.sparePartRespList?.some(item => (+item.quantity || 0) > 0 && item.isOutstock);
-      return item;
+      return item && !this.form?.isCreateStatementInfo;
     }
   },
   watch: {
@@ -509,7 +509,7 @@ export default {
         if (!this._id) {
           data.isAddItems = 0;
         }
-        if (data.currentFault && data.faultAlertRecordRespList.length === 0) {
+        if (data.currentFault && (data.faultAlertRecordRespList || []).length === 0 && (data.faultAlertRecordParams || []).length === 0) {
           this.$message.warning('请先添加故障模块');
           this.isEditing = true;
           return;
