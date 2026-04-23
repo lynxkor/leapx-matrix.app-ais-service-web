@@ -393,7 +393,7 @@ export default {
             buttons: [
               {
                 name: '编辑',
-                show: (row) => [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED].includes(row.traceStatus),
+                show: (row) => [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED, TRACE_STATUS.AUDITING].includes(row.traceStatus),
                 click: (rowIndex, row) => {
                   this.$router.push({
                     path: '/claimreturn/claim/claimtrace/claimTraceOrder/edit',
