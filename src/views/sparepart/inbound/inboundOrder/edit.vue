@@ -14,7 +14,11 @@
       >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
-          <span class="status primary">状态</span>
+          <span class="status primary">{{ form.inboundStatusLabel }}</span>
+        </template>
+        <template #extraButtons>
+          <el-button v-if="_id && permissions.has('AISPART-inboundOrder-print')" type="primary" size="small" @click="handlePrint">打印</el-button>
+          <el-button v-if="_id && form.inboundStatus === '0' && permissions.has('AISPART-inboundOrder-inbound')" type="primary" size="small" @click="handleWarehousing">入库</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -289,7 +293,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, inboundOrderDetail } from '@/api/sparepart/inbound/inboundOrder/index';
+import { getDetail, addOrUpdate, inboundOrderDetail, warehousing } from '@/api/sparepart/inbound/inboundOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -553,6 +557,31 @@ export default {
     currentPageChange (current) {
       this.current = current;
       this.getData();
+    },
+    // 打印备件入库单
+    handlePrint () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'SparePartsStorage', // 必选，对应 ./template/文件名.vue
+        title: `${this.form.dealerName}厅店备件入库单`// 可选，打印标题
+      });
+    },
+    async handleWarehousing () {
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>此操作将入库, 是否继续?</div>';
+
+      this.$confirm(message, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(async () => {
+        // 调用 API
+        await warehousing({ id: this._id });
+        this.$refs.containerRef.loadDetail();
+        this.$message.success('入库成功!');
+      }).catch(() => {
+      });
     },
   }
 };
