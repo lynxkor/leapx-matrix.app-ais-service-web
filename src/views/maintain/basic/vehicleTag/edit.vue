@@ -110,7 +110,7 @@ export default {
         {
           field: 'vin',
           title: 'VIN',
-          width: '40%',
+          width: '80%',
           editable: true,
           editRender: {
             name: 'ElSelect',
@@ -126,12 +126,6 @@ export default {
           rules: [
             { required: true, message: 'VIN不能为空', trigger: 'blur' }
           ]
-        },
-        {
-          field: 'createTime',
-          title: '创建时间',
-          editable: false,
-          width: '40%',
         },
       ],
       rules: {
@@ -234,6 +228,7 @@ export default {
       this.$refs[formName].resetFields();
       this.tableData = [];
       this.form = this.getDefautlForm();
+      this.form.vinList = [];
     },
     getDefautlForm () {
       const userInfo = this.$store.state.user.userInfo;
