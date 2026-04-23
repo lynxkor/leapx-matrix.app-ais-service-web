@@ -1,3 +1,9 @@
+// 追溯类型枚举
+export const TRACE_TYPE = {
+  CLAIM_TRACE: '10', // 索赔追溯
+  AUDIT_TRACE: '20', // 审计追溯
+};
+
 // 追溯状态枚举
 export const TRACE_STATUS = {
   DRAFT: '10',
