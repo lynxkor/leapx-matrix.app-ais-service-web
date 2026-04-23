@@ -419,10 +419,10 @@ export default {
     hasWorkingItems () {
       return this.form?.workRecordRespList?.some(item => item.isDispatch === 1 && item.timeSpend && !item.finishAt);
     },
-    // 是否存在已经领料但是未全部退料的维修备件记录
+    // 是否存在已经领料但是未全部退料的维修备件记录且未结算
     hasRepairItems () {
       const item = this.form?.costCountResp?.sparePartRespList?.some(item => (+item.quantity || 0) > 0 && item.isOutstock);
-      return item;
+      return item && !this.form?.isCreateStatementInfo;
     }
   },
   watch: {
