@@ -311,10 +311,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '提交失败!'
-                  });
                 });
               },
               type: 'info'
@@ -332,10 +328,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '通过失败!'
-                  });
                 });
               },
               type: 'info'
@@ -362,10 +354,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '入库失败!'
-                  });
                 });
               },
               type: 'info'
@@ -620,7 +608,7 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
       }).then(({ value }) => {
-        if (!value || value.length > 100) {
+        if (!value || value.length > 10) {
           this.$message.warning('请输入不超过 100 字的审批原因');
           return; // 阻止后续代码执行
         }
