@@ -28,10 +28,10 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="外购入库单号：" prop="code">
-                  {{ form.code }}
+                  <el-input v-mode="form.code" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="备件仓库：" prop="warehouseId">
-                  {{ form.warehouseName }}
+                  <el-input v-mode="form.warehouseName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="供应商名称：">
                   <fetch-select :remote-method="getSupplierList" remote v-model="form.supplierInfoId"
@@ -39,10 +39,10 @@
                     filterable />
                 </el-form-item>
                 <el-form-item label="订单状态：" prop="orderStatus">
-                  {{ form.orderStatusLabel }}
+                  <el-input v-mode="form.orderStatusLabel" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
+                  <el-input v-mode="form.dealerName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark" style="width: 100%">
                   <el-input placeholder="请输入" v-model="form.remark" clearable type="textarea" maxLength="500" show-word-limit />
@@ -58,19 +58,19 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="提交人：" prop="submitterName">
-                  {{ form.submitterName }}
+                  <el-input v-mode="form.submitterName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="提交时间：" prop="submitTime">
-                  {{ form.submitTime }}
+                  <el-input v-mode="form.submitTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="审批人：" prop="approverName">
-                  {{ form.approverName }}
+                  <el-input v-mode="form.approverName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
-                  {{ form.approvalTime }}
+                  <el-input v-mode="form.approvalTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="审批说明：" prop="approvalDescription">
-                  {{ form.approvalDescription }}
+                  <el-input v-mode="form.approvalDescription" placeholder="请输入" disabled></el-input>
                 </el-form-item>
               </el-form>
             </div>
@@ -83,16 +83,16 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="入库操作人：" prop="inboundOperatorName">
-                  {{ form.inboundOperatorName }}
+                  <el-input v-mode="form.inboundOperatorName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
-                <el-form-item label="入库状态：" prop="inboundStatus">
-                  {{ form.inboundStatusLabel }}
+                <el-form-item label="入库状态：" prop="inboundStatusLabel">
+                  <el-input v-mode="form.inboundStatusLabel" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="入库总金额：" prop="totalAmount">
-                  {{ form.totalAmount }}
+                  <el-input v-mode="form.totalAmount" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="入库时间：" prop="inboundTime">
-                  {{ form.inboundTime }}
+                  <el-input v-mode="form.inboundTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
               </el-form>
             </div>
