@@ -62,14 +62,15 @@
                   <el-input v-model="form.firstIssueTime" disabled />
                 </el-form-item>
                 <el-form-item label="追溯说明：" prop="traceDesc">
-                  <el-input placeholder="请输入" v-model="form.traceDesc" clearable type="textarea" :rows="1" disabled />
+                  <el-input v-model="form.traceDesc" clearable type="textarea" :rows="1" disabled />
                 </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
                   <LPEncrypted
                     :value.sync="form.vin"
                     :decryptMethod="getDetailDecryptField"
+                    :disabled="!_id"
                   >
-                    <el-input placeholder="请输入" v-model="form.vin" clearable disabled />
+                    <el-input  v-model="form.vin" clearable disabled />
                   </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="最新下发时间：">
@@ -285,7 +286,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import FetchSelect from '@/libs/components/FetchSelect';
 import DealerSelect from '@/components/dealer-select/index.vue';
-import { getDetailVisibleButtons, TRACE_STATUS } from './constant';
+import { getDetailVisibleButtons, TRACE_STATUS, TRACE_TYPE } from './constant';
 import SubmitAuditDialog from './components/SubmitAuditDialog';
 import CancelOrderDialog from './components/CancelOrderDialog';
 import AdjustAmountDialog from './components/AdjustAmountDialog';
@@ -530,6 +531,7 @@ export default {
     getTraceTableData () {
       claimTraceOrderDetailList({
         businessId: this._id,
+        traceType: TRACE_TYPE.CLAIM_TRACE,
         pageNum: this.traceCurrent,
         pageSize: this.tracePageSize,
       }).then(res => {

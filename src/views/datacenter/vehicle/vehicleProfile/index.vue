@@ -303,9 +303,9 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button v-if="canImportIovVehicle" size="small" @click="handleImportIovVehicle">导入车联网对接车辆</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -332,6 +332,11 @@
       :visible="uploadDialogVisible"
       id="vehicle_profile"
       @close="handleUploadDialogClose"
+    />
+    <Upload
+      :visible="uploadIovVehicleDialogVisible"
+      id="iovVehicleImport"
+      @close="handleIovVehicleUploadDialogClose"
     />
     <return-dialog
       :visible.sync="retrunVisible"
@@ -453,6 +458,7 @@ export default {
   },
   data () {
     return {
+      canImportIovVehicle: false,
       pageTitle: '车辆档案管理',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
@@ -466,6 +472,7 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      uploadIovVehicleDialogVisible: false,
       clickItemId: '',
       //
       benefitVisible: false,
@@ -642,6 +649,7 @@ export default {
           { props: 'nextMaintainMileage', label: '下次保养里程', visible: true, width: 150 },
           { props: 'createTime', label: '创建时间', visible: true, width: 180 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
+          { props: 'isIovVehicleLabel', label: '车联网对接', visible: true, width: 120 },
           {
             props: 'operate',
             label: '操作',
@@ -722,6 +730,7 @@ export default {
     this.canReturn = this.permissions.has(`${this.moduleKey}-return`);
     this.canKeyInfoChangeLog = this.permissions.has(`${this.moduleKey}-keyInfoChangeLog`);
     this.serviceProxyHis = !!(this.$store.state.pageSource?.aisPageSource || []).find(item => (item === 'AISMC-serviceProxyHis-page'));
+    this.canImportIovVehicle = this.permissions.has(`${this.moduleKey}-importIovVehicle`);
   },
   methods: {
     onBenefit () {
@@ -733,8 +742,14 @@ export default {
     handleImport () {
       this.uploadDialogVisible = true;
     },
+    handleImportIovVehicle () {
+      this.uploadIovVehicleDialogVisible = true;
+    },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
+    },
+    handleIovVehicleUploadDialogClose () {
+      this.uploadIovVehicleDialogVisible = false;
     },
     handleAdd () {
       this.$router.push({
