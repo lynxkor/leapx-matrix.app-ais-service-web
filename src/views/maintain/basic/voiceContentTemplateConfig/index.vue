@@ -9,110 +9,37 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="语音代码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.voiceCode"
+      <el-form-item label="车辆品牌">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="maintain_vehicle_brand"
+          v-model="form.vehicleBrand"
+          placeholder="请选择"
           clearable
+          filterable
         />
       </el-form-item>
-      <el-form-item label="内容">
-        <el-input
-          placeholder="请输入"
-          v-model="form.content"
+      <el-form-item label="满足条件">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="maintain_condition"
+          v-model="form.conditions"
+          placeholder="请选择"
           clearable
+          filterable
         />
       </el-form-item>
-      <el-form-item label="门店名称"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.dealerName"
+      <el-form-item label="状态">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="xxx"
+          v-model="form.status"
+          placeholder="请选择"
           clearable
+          filterable
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="状态">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="xxx"
-            v-model="form.status"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
-        <el-form-item label="枚举：10：进店语音播报">
-          <el-input
-            placeholder="请输入"
-            v-model="form.event"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="枚举：10零跑；20：非零跑">
-          <el-input
-            placeholder="请输入"
-            v-model="form.vehicleBrand"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="满足条件枚举：10：预约车辆 20：非预约车辆 30：无牌车辆">
-          <el-input
-            placeholder="请输入"
-            v-model="form.conditions"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="优先级">
-          <el-input
-            placeholder="请输入"
-            v-model="form.priorityLevel"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="开始日期">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.startTime"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="结束日期">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.endTime"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="备注">
-          <el-input
-            placeholder="请输入"
-            v-model="form.remark"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="创建时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
