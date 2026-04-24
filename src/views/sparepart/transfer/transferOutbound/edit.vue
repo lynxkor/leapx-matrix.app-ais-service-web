@@ -714,7 +714,6 @@ export default {
         this.$message.success('操作成功');
         this.getData();
       } catch (error) {
-        this.$message.error('操作失败');
       }
     },
     // 删除备件
@@ -724,7 +723,6 @@ export default {
         this.$message.success('删除成功');
         this.getData();
       } catch (error) {
-        this.$message.error('删除失败');
       }
     },
     getDefautlForm () {
