@@ -10,7 +10,6 @@
                         <th style="width:25%">调拨出库单</th>
                         <th style="width:25%">入库厅店名称</th>
                         <th style="width:25%">出库厅店名称</th>
-                        <th style="width:25%">状态</th>
                     </tr>
                 </thead>
                 <tbody id="data-main">
@@ -18,7 +17,6 @@
                         <td>{{ info.code }}</td>
                         <td>{{ info.inboundDealerName }}</td>
                         <td>{{ info.outboundDealerName }}</td>
-                        <td>{{ info.statusLabel }}</td>
                     </tr>
                 </tbody>
             </table>
