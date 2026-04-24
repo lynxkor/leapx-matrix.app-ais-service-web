@@ -135,7 +135,7 @@ export default {
       const rowsWithoutPicker = this.tableData.filter(row => !row.picker);
       if (rowsWithoutPicker.length > 0) {
         const rowNumbers = rowsWithoutPicker.map((row, index) => index + 1);
-        this.$message.warning(`第 ${rowNumbers.join('、')} 行未选择领料人`);
+        this.$message.warning(`第 ${rowNumbers.join('、')} 行未选择${this.titleDialog === '1' ? '领料人' : '入库操作人'}`);
         return;
       }
       let flanApi = shipOrder;
