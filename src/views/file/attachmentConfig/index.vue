@@ -214,14 +214,14 @@ export default {
       getConfigList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
-          const records = res.data?.records || [];
+          const records = res.records || [];
           this.optionObj.dataList = records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.data?.totals;
+          this.optionObj.total = res.totals;
         }).finally(() => {
           this.loading = false;
         });
