@@ -248,7 +248,7 @@
               <div class="ais-select-group">
                 <el-button size="small" @click="handleAdd" :disabled="!['0', '3'].includes(form.orderStatus)"><i
                     class="iconfont icon-lxppc-plus"></i>添加备件</el-button>
-                <el-button class="ais-button" size="small">
+                <el-button class="ais-button" size="small" :disabled="!['0', '3'].includes(form.orderStatus)" @click="handleRestock">
                   补货预测
                 </el-button>
                 <el-button size="small" @click="handleImport" :disabled="!routeQueryType">备件导入</el-button>
@@ -310,6 +310,9 @@
     </template>
     <Upload :visible="uploadDialogVisible" :businessParams="_id" id="sparePartPurchaseApplyDetailImport"
       @close="handleUploadDialogClose" @submit="getDetailData" />
+    <!-- 补货预测 弹窗 -->
+    <RestockDialog :visible.sync="restockDialog" :id="_id" @update:visible="val => restockDialog = val"
+    @submit="getDetailData" />
   </edit-page-layout>
 </template>
 
@@ -326,6 +329,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import SparePartsDetail from './SparePartsDetail.vue';
 import Upload from '@/libs/components/UploadDialog';
+import RestockDialog from './RestockDialog.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -390,7 +394,8 @@ export default {
     EditBaseContainer,
     FetchSelect,
     SparePartsDetail,
-    Upload
+    Upload,
+    RestockDialog
   },
   computed: {
     _id () {
@@ -500,6 +505,7 @@ export default {
       purchaseOrderTypeOptions: [], // 采购申请单 订单类型
       accountPermissions: false, // 账号权限控制 判断为主机厂还是门店账号
       orderTypeDisabled: true,
+      restockDialog: false, // 补货预测 弹窗控制
       pageSize: 10,
       current: 1,
       total: 0,
@@ -752,7 +758,11 @@ export default {
     async handleDel (val) {
       await purchaseApplyDelete([val.id]);
       this.getDetailData();
-    }
+    },
+    // 补货预测
+    handleRestock () {
+      this.restockDialog = true;
+    },
   }
 };
 </script>
