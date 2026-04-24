@@ -106,3 +106,12 @@ export function getPreAuthInfo (data) {
 export function getEnum (code) {
   return api.jsonPost(`maintain/web/common/enum/${code}`);
 }
+
+/**
+ * 预授权检查，根据施工单ID判断是否需要生成预授权
+ * @param data
+ * @returns {Promise | Promise<unknown>}
+ */
+export function checkPreAuth (data) {
+  return api.jsonPost(prefix + 'checkPreAuth', data);
+}

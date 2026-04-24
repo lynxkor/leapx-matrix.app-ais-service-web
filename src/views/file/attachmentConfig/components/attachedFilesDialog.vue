@@ -218,7 +218,7 @@ export default {
       }
       // 调用详情接口获取数据
       getConfigDetailDetail(this.currentEditId).then(res => {
-        const data = res.data || res;
+        const data = res;
         if (data) {
           this.formData = {
             ...this.formData,

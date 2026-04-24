@@ -11,13 +11,13 @@
     :detailRequest="detailRequest"
   >
     <template #extraButtons>
-      <el-button v-if="canSubmit && (form.applyStatus === '10' || form.applyStatus === '40')" type="primary" size="small" @click="handleSubmit">提交</el-button>
-      <el-button v-if="canApprove && ['20', '25', '30'].includes(form.applyStatus)" type="primary" size="small" @click="handleApprove">同意</el-button>
-      <el-button v-if="canReject && ['20', '25', '30'].includes(form.applyStatus)" type="primary" size="small" @click="handleReject(false)">驳回</el-button>
-      <el-button v-if="canApplyReject && ['20', '25', '30'].includes(form.applyStatus)" type="primary" size="small" @click="handleReject(true)">申请驳回</el-button>
-      <el-button v-if="canWithdraw && ['60', '50'].includes(form.applyStatus)" type="primary" size="small" @click="handleWithdraw">撤回</el-button>
-      <el-button v-if="canDeny && ['20', '25', '30'].includes(form.applyStatus)" type="danger" plain size="small" @click="handleDeny">拒赔</el-button>
-      <el-button v-if="canCancel && (form.applyStatus === '10' || form.applyStatus === '40')" type="danger" plain size="small" @click="handleCancel">作废</el-button>
+      <el-button v-if="canSubmit && (EDITABLE_STATUSES.includes(form.applyStatus))" type="primary" size="small" @click="handleSubmit">提交</el-button>
+      <el-button v-if="canApprove && PENDING_REVIEW_STATUSES.includes(form.applyStatus)" type="primary" size="small" @click="handleApprove">同意</el-button>
+      <el-button v-if="canReject && PENDING_REVIEW_STATUSES.includes(form.applyStatus)" type="primary" size="small" @click="handleReject(false)">驳回</el-button>
+      <el-button v-if="canApplyReject && [...PENDING_REVIEW_STATUSES, APPLY_STATUS.APPROVED].includes(form.applyStatus)" type="primary" size="small" @click="handleReject(true)">申请驳回</el-button>
+      <el-button v-if="canWithdraw && WITHDRAWABLE_STATUSES.includes(form.applyStatus)" type="primary" size="small" @click="handleWithdraw">撤回</el-button>
+      <el-button v-if="canDeny && PENDING_REVIEW_STATUSES.includes(form.applyStatus)" type="danger" plain size="small" @click="handleDeny">拒赔</el-button>
+      <el-button v-if="canCancel && (EDITABLE_STATUSES.includes(form.applyStatus))" type="danger" plain size="small" @click="handleCancel">作废</el-button>
       <el-button :loading="printLoading" size="small" @click="handlePrint">打印标签</el-button>
       <el-button size="small" @click="handleViewRights">查看权益</el-button>
     </template>
@@ -555,7 +555,7 @@
         :id="_id"
         :canAddOrUpdate="canAddOrUpdate"
         :repairItemTypeId="form.repairItemTypeId"
-        :disabled="form.applyStatus !== '10' && form.applyStatus !== '40'"
+        :disabled="!EDITABLE_STATUSES.includes(form.applyStatus)"
       />
       <section class="common-section">
         <div class="common-section-header">
@@ -626,6 +626,12 @@ import {
   batchCancel,
   print,
 } from '@/api/claimreturn/claim/warrantyapply/index';
+import {
+  APPLY_STATUS,
+  EDITABLE_STATUSES,
+  PENDING_REVIEW_STATUSES,
+  WITHDRAWABLE_STATUSES,
+} from './constants';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -864,6 +870,10 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
+      APPLY_STATUS,
+      EDITABLE_STATUSES,
+      PENDING_REVIEW_STATUSES,
+      WITHDRAWABLE_STATUSES,
       defaultNewRow: {
         name: '',
       },
