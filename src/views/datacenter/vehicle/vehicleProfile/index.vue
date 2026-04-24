@@ -10,11 +10,7 @@
       class="ais-search-form"
     >
       <el-form-item label="VIN码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.vin"
-          clearable
-        />
+        <tag-input v-model="form.vinList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="车主手机号">
         <el-input
@@ -398,6 +394,7 @@ import BenefitDialog from './BenefitDialog';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   vin: '',
+  vinList: [],
   vehicleMaterialCode: '',
   salesDate: '',
   vehiclePlateNoLike: '',

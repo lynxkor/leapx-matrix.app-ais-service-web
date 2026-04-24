@@ -109,7 +109,7 @@
                     maxLength="50"
                   />
                 </el-form-item>
-                <el-form-item label="特殊备注：" prop="remark">
+                <el-form-item label="特殊备注：" prop="remark" v-if="!accountFlag">
                   <el-input clearable v-model="form.remark" placeholder="请输入内容"></el-input>
                 </el-form-item>
               </el-form>
@@ -144,7 +144,7 @@
                 <el-form-item label="是否用户修改服务门店：">
                   {{ form.isUserChangeDealer === 0 ? '否' : '是' }}
                 </el-form-item>
-                <el-form-item label="特殊备注：" prop="remark">
+                <el-form-item label="特殊备注：" prop="remark" v-if="!accountFlag">
                   {{ form.remark }}
                 </el-form-item>
               </el-form>
@@ -867,6 +867,7 @@ import NextTable from './NextTable.vue';
 import BenefitDialog from './BenefitDialog';
 import InfoDialog from './InfoDialog';
 import ReturnDialog from './ReturnDialog';
+import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   // 基础信息
@@ -1090,6 +1091,7 @@ export default {
       pageSize: 10,
       total: 0,
       tableData: [],
+      accountFlag: false, // 是否是[店端账号]?， true:是店端账号;false:ㄏ端账号
     };
   },
   created () {
@@ -1101,6 +1103,9 @@ export default {
     this.serviceProxyHis = !!(this.$store.state.pageSource?.aisPageSource || []).find(item => (item === 'AISMC-serviceProxyHis-page'));
   },
   mounted () {
+    loginUserGet().then(data => {
+      this.accountFlag = data.accountFlag;
+    });
   },
   methods: {
     onBenefit () {

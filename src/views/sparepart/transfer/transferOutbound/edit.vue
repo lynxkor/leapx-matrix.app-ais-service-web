@@ -10,10 +10,10 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
-        :showEditBtn="orderStatusType"
+        :showEditBtn="isEdit"
       >
         <template #status>
-          <span v-if="form.status" class="status primary">{{ form.status }}</span>
+          <span class="status primary">{{ form.transferStatusLabel }}</span>
         </template>
         <template #extraButtons>
           <el-button
@@ -341,7 +341,7 @@
                   <vxe-column field="costUnitPriceTax" title="金额(含税)" min-width="10%" />
                   <vxe-column field="transferQty" title="调拨数量" min-width="10%">
                     <template #default="{ row }">
-                      <el-input v-model="row.transferQty" :disabled="!orderStatusType" :max="row.availableQuantity" type="number" min="1" @blur="handleQtyBlur(row)"/>
+                      <el-input v-model="row.transferQty" :disabled="!orderStatusType" :max="row.availableQty" type="number" min="1" @blur="handleQtyBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="remark" title="备注" min-width="10%">
@@ -388,7 +388,14 @@
       :businessParams="_id"
       id="sparepartTransferOutboundDetail"
       @close="handleUploadDialogClose"
-      @submit="getDetailData"
+      @submit="handleRefresh"
+    />
+    <!-- 发运弹窗 -->
+    <ShipmentDialog
+      :visible.sync="shipmentDialogVisible"
+      :id="_id"
+      @update:visible="val => shipmentDialogVisible = val"
+      @success="handleRefresh"
     />
   </edit-page-layout>
 </template>
@@ -408,6 +415,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
 import { handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
+import ShipmentDialog from './ShipmentDialog';
 
 const defaultForm = {
   code: '',
@@ -463,7 +471,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    Upload
+    Upload,
+    ShipmentDialog
   },
   computed: {
     _id () {
@@ -471,6 +480,9 @@ export default {
     },
     title () {
       return '调拨出库单号：' + this.form.code;
+    },
+    isEdit () {
+      return this.form.transferStatus === '0' || this.form.transferStatus === '3';
     },
     extraButtons () {
       const buttons = [
@@ -566,6 +578,7 @@ export default {
       loading: false,
       submitLoading: false,
       orderStatusType: false, // 是否可编辑
+      shipmentDialogVisible: false, // 发运弹窗是否显示
       pageNum: 1,
       pageSize: 10,
       total: 0,
@@ -668,6 +681,16 @@ export default {
     },
     // 数量输入框失去焦点时触发
     handleQtyBlur (row) {
+      // 1. 先转为数字
+      const qty = Number(row.transferQty);
+      const stock = Number(row.availableQty);
+
+      // 2. 增加 isNaN 判断，防止非法字符绕过校验
+      if (isNaN(qty) || qty === 0 || qty > stock) {
+        this.$message.warning('请输入小于等于可用库存且大于 0 的值');
+
+        return;
+      }
       const params = {
         transferOutboundId: this._id,
         id: row.id,
@@ -691,7 +714,6 @@ export default {
         this.$message.success('操作成功');
         this.getData();
       } catch (error) {
-        this.$message.error('操作失败');
       }
     },
     // 删除备件
@@ -701,7 +723,6 @@ export default {
         this.$message.success('删除成功');
         this.getData();
       } catch (error) {
-        this.$message.error('删除失败');
       }
     },
     getDefautlForm () {
@@ -826,6 +847,10 @@ export default {
         title: `${this.form.dealerName}厅店调拨出库单`// 可选，打印标题
       });
     },
+    // 发运弹窗
+    handleShip () {
+      this.shipmentDialogVisible = true;
+    }
   }
 };
 </script>

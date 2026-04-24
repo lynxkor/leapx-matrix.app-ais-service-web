@@ -2,23 +2,23 @@
     <el-dialog class="m-start-work-dialog" title="发运" width="800px" :visible.sync="dialogVisible" @close="close">
         <!-- 数据表格 -->
         <div class="common-section-body">
-            <el-form :model="formData" ref="ruleForm" label-width="150px" class="form-edit">
+            <el-form :model="formData" ref="ruleForm" size="small" label-width="150px" class="form-edit">
                 <el-form-item label="操作人：" prop="operator">
                     <el-select
-                        v-model="formData.outboundOperator"
-                        size="mini"
-                        placeholder="请选择"
-                        filterable
-                        remote
-                        :remote-method="(query) => querySearchAsync(query)"
-                        @change="handleOperatorChange($event)"
-                        >
-                        <el-option
-                            v-for="item in userList"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
-                        />
+                      v-model="formData.outboundOperator"
+                      size="mini"
+                      placeholder="请选择"
+                      filterable
+                      remote
+                      :remote-method="(query) => querySearchAsync(query)"
+                      @change="handleOperatorChange($event)"
+                    >
+                      <el-option
+                        v-for="item in userList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
                     </el-select>
                 </el-form-item>
                 <el-form-item label="物流商：">
