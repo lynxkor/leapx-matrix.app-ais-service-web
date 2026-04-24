@@ -10,10 +10,10 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
-        :showEditBtn="orderStatusType"
+        :showEditBtn="isEdit"
       >
         <template #status>
-          <span v-if="form.status" class="status primary">{{ form.status }}</span>
+          <span class="status primary">{{ form.transferStatusLabel }}</span>
         </template>
         <template #extraButtons>
           <el-button
@@ -480,6 +480,9 @@ export default {
     },
     title () {
       return '调拨出库单号：' + this.form.code;
+    },
+    isEdit () {
+      return this.form.transferStatus === '0' || this.form.transferStatus === '3';
     },
     extraButtons () {
       const buttons = [

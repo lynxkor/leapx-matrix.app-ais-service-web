@@ -308,7 +308,7 @@ export default {
             buttons: [{
               name: '编辑',
               show: (row) => {
-                return row.transferStatus === '0';
+                return row.transferStatus === '0' || row.transferStatus === '3';
               },
               click: (rowIndex, row) => {
                 this.$router.push({
