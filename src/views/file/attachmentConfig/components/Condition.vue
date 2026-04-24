@@ -199,7 +199,7 @@ export default {
       }
       attachmentConfigConditionPage(params)
         .then(res => {
-          const records = res.data?.records || [];
+          const records = res.records || [];
           this.fieldOptions = records.map(item => ({
             label: item.fieldLabel,
             value: item.fieldName,

@@ -312,9 +312,9 @@ export default {
 
       attachmentConfigConditionPage(params)
         .then(res => {
-          const records = res.data?.records || [];
+          const records = res.records || [];
           this.tableData = records;
-          this.total = res.data?.totals || 0;
+          this.total = res.totals || 0;
         })
         .catch(err => {
           console.error('获取条件列表失败', err);
@@ -344,7 +344,7 @@ export default {
       // 调用详情接口
       attachmentConfigConditionDetail(row.id)
         .then(res => {
-          const data = res.data || res;
+          const data = res;
           if (data) {
             this.formData = {
               ...defaultForm,
@@ -538,7 +538,7 @@ export default {
         // 获取所有启用的条件数据
         attachmentConfigConditionPage({ pageNum: 1, pageSize: 100 })
           .then(res => {
-            const records = res.data?.records || [];
+            const records = res.records || [];
             const options = records.map(item => ({
               label: item.fieldLabel,
               value: item.fieldName,
