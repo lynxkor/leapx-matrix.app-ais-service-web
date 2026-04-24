@@ -17,6 +17,7 @@
             <AisAttachment
               style="padding-top: 5px;"
               ref="attachment"
+              :business-id="traceOrderId"
               attachType="申诉凭证"
               :uploadConfig="uploadConfig"
               @upload-loading-change="handleUploadLoadingChange"
@@ -89,12 +90,20 @@ export default {
       this.$refs.ruleForm.validate((valid) => {
         if (!valid) return;
         const attachFileList = this.$refs.attachment.getAttachment();
-        if (!attachFileList || attachFileList.length === 0) {
+        const fileList = this.$refs.attachment.getFileList() || [];
+        const files = fileList.reduce((p, c) => {
+          if (c.response) {
+            p.push(c.response);
+          }
+          return p;
+        }, []);
+        const allFiles = [...files, ...attachFileList];
+        if (!allFiles || allFiles.length === 0) {
           this.$message.warning('请上传申诉凭证');
           return;
         }
         this.submitLoading = true;
-        submitAppeal({ ...this.form, attachFileList }).then(() => {
+        submitAppeal({ ...this.form, attachFileList: allFiles }).then(() => {
           this.$message.success('申诉成功');
           this.close();
           this.$emit('success');

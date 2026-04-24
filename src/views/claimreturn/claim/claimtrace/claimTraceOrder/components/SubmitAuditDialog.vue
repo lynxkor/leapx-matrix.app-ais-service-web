@@ -17,6 +17,7 @@
             <AisAttachment
               style="padding-top: 5px;"
               ref="attachment"
+              :business-id="traceOrderId"
               attachType="不合格凭证"
               :uploadConfig="uploadConfig"
               @upload-loading-change="handleUploadLoadingChange"
@@ -93,12 +94,20 @@ export default {
       this.$refs.ruleForm.validate((valid) => {
         if (!valid) return;
         const attachFileList = this.$refs.attachment.getAttachment();
-        if (!attachFileList || attachFileList.length === 0) {
+        const fileList = this.$refs.attachment.getFileList() || [];
+        const files = fileList.reduce((p, c) => {
+          if (c.response) {
+            p.push(c.response);
+          }
+          return p;
+        }, []);
+        const allFiles = [...files, ...attachFileList];
+        if (!allFiles || allFiles.length === 0) {
           this.$message.warning('请上传追溯凭证');
           return;
         }
         this.submitLoading = true;
-        submitAudit({ ...this.form, attachFileList }).then(() => {
+        submitAudit({ ...this.form, attachFileList: allFiles }).then(() => {
           this.$message.success('提交审核成功');
           this.close();
           this.$emit('success');
