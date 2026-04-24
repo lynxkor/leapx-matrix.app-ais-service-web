@@ -187,7 +187,7 @@
                   min-height="0" max-height="400px">
                   <vxe-column field="sparePartCode" title="备件编码" min-width="10%" />
                   <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
-                  <vxe-column field="locationCode" title="库位编码" min-width="10%" />
+                  <vxe-column field="locationName" title="库位编码" min-width="10%" />
                   <vxe-column field="availableQty" title="可用库存" min-width="10%" />
                   <vxe-column field="returnableQty" title="可退数量" min-width="10%" />
                   <vxe-column field="purchaseUnitPrice" title="采购单价" min-width="10%" />
