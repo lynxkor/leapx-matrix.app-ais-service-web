@@ -341,7 +341,7 @@
                   <vxe-column field="costUnitPriceTax" title="金额(含税)" min-width="10%" />
                   <vxe-column field="transferQty" title="调拨数量" min-width="10%">
                     <template #default="{ row }">
-                      <el-input v-model="row.transferQty" :disabled="!orderStatusType" :max="row.availableQuantity" type="number" min="1" @blur="handleQtyBlur(row)"/>
+                      <el-input v-model="row.transferQty" :disabled="!orderStatusType" :max="row.availableQty" type="number" min="1" @blur="handleQtyBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="remark" title="备注" min-width="10%">
@@ -681,6 +681,16 @@ export default {
     },
     // 数量输入框失去焦点时触发
     handleQtyBlur (row) {
+      // 1. 先转为数字
+      const qty = Number(row.transferQty);
+      const stock = Number(row.availableQty);
+
+      // 2. 增加 isNaN 判断，防止非法字符绕过校验
+      if (isNaN(qty) || qty === 0 || qty > stock) {
+        this.$message.warning('请输入小于等于可用库存且大于 0 的值');
+
+        return;
+      }
       const params = {
         transferOutboundId: this._id,
         id: row.id,
