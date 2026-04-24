@@ -569,6 +569,7 @@ const defaultForm = {
 };
 
 const ACTION_CONFIG = { // 按钮配置
+  confirm: { title: '是否确认该订单?', success: '确认成功' },
   sign: { title: '是否签收该订单?', success: '签收成功' },
   cancelSign: { title: '是否取消签收该订单?', success: '取消签收成功' },
   settle: { title: '是否结算该订单?', success: '结算成功' },
@@ -989,6 +990,10 @@ export default {
       });
     },
     // --- 业务方法调用 ---
+    // 确认订单
+    handleConfirm () {
+      this._handleAction(confirmOrder, ACTION_CONFIG.confirm);
+    },
     handleSign () {
       this._handleAction(signOrder, ACTION_CONFIG.sign);
     },

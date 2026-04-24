@@ -625,8 +625,6 @@ export default {
         this.$message.success(`${actionName}成功!`);
         this.getData(); // 刷新列表
       } catch (error) {
-        console.error(error);
-        this.$message.error(`${actionName}失败!`);
       }
     },
 
@@ -646,6 +644,7 @@ export default {
     handleBatchForbidTransfer () {
       this.executeBatchAction({
         actionName: '批量禁止 BO 调拨',
+        apiFn: forbidBoTransfer,
         rules: [
           { field: 'boTransferIs', validValue: '1', message: '不是允许调拨状态，不允许执行当前操作!' },
           { field: 'oemPart', validValue: '1', message: '为非 OEM 件，不允许执行当前操作!' }

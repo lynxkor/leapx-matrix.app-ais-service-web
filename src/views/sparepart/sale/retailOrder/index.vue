@@ -350,10 +350,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '确认失败!'
-                  });
                 });
               },
               type: 'info',
@@ -416,10 +412,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '签收失败!'
-                  });
                 });
               },
               type: 'info',
@@ -437,10 +429,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '取消签收失败!'
-                  });
                 });
               },
               type: 'info',
@@ -475,10 +463,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '结算失败!'
-                  });
                 });
               },
               type: 'info',
@@ -495,10 +479,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '取消结算失败!'
-                  });
                 });
               },
               type: 'info',
