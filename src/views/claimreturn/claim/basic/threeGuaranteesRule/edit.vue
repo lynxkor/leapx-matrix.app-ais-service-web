@@ -136,18 +136,18 @@
                       maxLength="100"
                     />
                   </el-form-item>
-                  <el-form-item label="黄色预警区间2：" prop="yellowWarning2">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.yellowWarning2"
-                      clearable
-                      maxLength="100"
-                    />
-                  </el-form-item>
                   <el-form-item label="黄色预警区间1：" prop="yellowWarning1">
                     <el-input
                       placeholder="请输入"
                       v-model="form.yellowWarning1"
+                      clearable
+                      maxLength="100"
+                    />
+                  </el-form-item>
+                  <el-form-item label="黄色预警区间2：" prop="yellowWarning2">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.yellowWarning2"
                       clearable
                       maxLength="100"
                     />
@@ -241,11 +241,11 @@
                   <el-form-item label="绿色预警区间2：" prop="greenWarning2">
                     {{ form.greenWarning2 }}
                   </el-form-item>
-                  <el-form-item label="黄色预警区间2：" prop="yellowWarning2">
-                    {{ form.yellowWarning2 }}
-                  </el-form-item>
                   <el-form-item label="黄色预警区间1：" prop="yellowWarning1">
                     {{ form.yellowWarning1 }}
+                  </el-form-item>
+                  <el-form-item label="黄色预警区间2：" prop="yellowWarning2">
+                    {{ form.yellowWarning2 }}
                   </el-form-item>
                   <el-form-item label="红色预警区间1：" prop="redWarning1">
                     {{ form.redWarning1 }}
