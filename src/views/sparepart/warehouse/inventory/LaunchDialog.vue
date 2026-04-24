@@ -14,7 +14,7 @@
                 <vxe-column field="availableQty" title="可用库存" width="100" />
                 <vxe-column title="本次上架库存" width="180">
                     <template #default="{ row }">
-                        <el-input v-model="row.operateQty" type="number" />
+                        <el-input v-model="row.operateQty" @input="val => row.operateQty = formatNumberInput(val, { allowDecimal: false })" type="number" />
                     </template>
                 </vxe-column>
                 <vxe-column title="联系人" width="150">
@@ -47,6 +47,7 @@
 
 <script>
 import { sharedShelves } from '@/api/sparepart/warehouse/inventory/index';
+import { formatNumberInput } from '@/libs/utils/index';
 
 export default {
   name: 'RepairDialog',
@@ -85,6 +86,7 @@ export default {
     }
   },
   methods: {
+    formatNumberInput,
     close () {
       this.$emit('update:visible', false);
     },
@@ -162,7 +164,6 @@ export default {
         this.close();
         this.$emit('submit');
       } catch (error) {
-        this.$message.error('上架失败');
         this.submitLoading = false;
       }
     },

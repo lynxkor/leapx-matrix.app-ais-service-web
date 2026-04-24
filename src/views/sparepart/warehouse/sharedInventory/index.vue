@@ -46,6 +46,7 @@
         v-model="show"
         is-expandable
         :loading="loading"
+        :isExpandable="false"
         @submit="onSubmit"
         @reset="onReset"
       />
@@ -148,7 +149,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/warehouse/inventory/edit',
+                  path: '/sparepart/basic/sparePart/detail',
                   query: {
                     id: row.id
                   }

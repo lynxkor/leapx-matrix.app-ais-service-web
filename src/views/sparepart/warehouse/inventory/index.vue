@@ -19,23 +19,23 @@
           clearable
         />
       </el-form-item>
-        <template v-if="show">
-          <el-form-item label="库存单号">
-            <tag-input v-model="form.codeList" placeholder="请输入" />
-          </el-form-item>
-          <el-form-item label="库位"  v-show="this.visibleCount === 3 || show">
-            <fetch-select
-              :remote-method="getLocaltion"
-              remote
-              v-model="form.locationIdList"
-              placeholder="请输入库位名称"
-              labelKey="name"
-              valueKey="id"
-              clearable
-              multiple
-              collapseTags
-              filterable
-                />
+      <el-form-item label="库存单号" v-show="this.visibleCount === 3 || show">
+        <tag-input v-model="form.codeList" placeholder="请输入" />
+      </el-form-item>
+      <template v-if="show">
+        <el-form-item label="库位">
+          <fetch-select
+            :remote-method="getLocaltion"
+            remote
+            v-model="form.locationIdList"
+            placeholder="请输入库位名称"
+            labelKey="name"
+            valueKey="id"
+            clearable
+            multiple
+            collapseTags
+            filterable
+          />
         </el-form-item>
         <el-form-item label="门店">
           <fetch-select
@@ -50,17 +50,17 @@
             multiple
             collapseTags
             filterable
-              />
+          />
         </el-form-item>
         <el-form-item label="是否常备件" v-show="visibleCount === 3 || show">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="BooleanEnum"
-          v-model="form.standingInventoryIs"
-          placeholder="请选择"
-          clearable
-          filterable
-          />
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.standingInventoryIs"
+            placeholder="请选择"
+            clearable
+            filterable
+            />
         </el-form-item>
         <el-form-item label="最近入库时间">
           <el-date-picker
