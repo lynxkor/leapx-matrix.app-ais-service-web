@@ -181,7 +181,7 @@
     />
     <!-- 发运弹窗 -->
     <ShipmentDialog
-      :visible="shipmentDialogVisible"
+      :visible.sync="shipmentDialogVisible"
       :id="shipmentId"
       @update:visible="val => shipmentDialogVisible = val"
       @success="getData"

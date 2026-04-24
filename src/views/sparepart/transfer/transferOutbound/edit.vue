@@ -388,7 +388,14 @@
       :businessParams="_id"
       id="sparepartTransferOutboundDetail"
       @close="handleUploadDialogClose"
-      @submit="getDetailData"
+      @submit="handleRefresh"
+    />
+    <!-- 发运弹窗 -->
+    <ShipmentDialog
+      :visible.sync="shipmentDialogVisible"
+      :id="_id"
+      @update:visible="val => shipmentDialogVisible = val"
+      @success="handleRefresh"
     />
   </edit-page-layout>
 </template>
@@ -408,6 +415,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
 import { handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
+import ShipmentDialog from './ShipmentDialog';
 
 const defaultForm = {
   code: '',
@@ -463,7 +471,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    Upload
+    Upload,
+    ShipmentDialog
   },
   computed: {
     _id () {
@@ -566,6 +575,7 @@ export default {
       loading: false,
       submitLoading: false,
       orderStatusType: false, // 是否可编辑
+      shipmentDialogVisible: false, // 发运弹窗是否显示
       pageNum: 1,
       pageSize: 10,
       total: 0,
@@ -826,6 +836,10 @@ export default {
         title: `${this.form.dealerName}厅店调拨出库单`// 可选，打印标题
       });
     },
+    // 发运弹窗
+    handleShip () {
+      this.shipmentDialogVisible = true;
+    }
   }
 };
 </script>
