@@ -66,7 +66,7 @@
                 </tbody>
             </table>
         </div>
-        <div style="text-align:right"><span id="WarehousePeople" style="margin-right:10px">入库人：{{ info.inboundOperator }}</span></div>
+        <div style="text-align:right"><span id="WarehousePeople" style="margin-right:10px">入库人：{{ info.inboundOperatorName }}</span></div>
     </div>
 </template>
 
