@@ -132,9 +132,14 @@ export default {
     },
     async submit () {
       // 检查所有记录是否都选择了领料人
-      const rowsWithoutPicker = this.tableData.filter(row => !row.picker);
-      if (rowsWithoutPicker.length > 0) {
-        const rowNumbers = rowsWithoutPicker.map((row, index) => index + 1);
+      const rowNumbers = [];
+      this.tableData.forEach((row, index) => {
+        if (!row.picker) {
+          rowNumbers.push(index + 1); // 在原始索引基础上加1
+        }
+      });
+
+      if (rowNumbers.length > 0) {
         this.$message.warning(`第 ${rowNumbers.join('、')} 行未选择${this.titleDialog === '1' ? '领料人' : '入库操作人'}`);
         return;
       }
