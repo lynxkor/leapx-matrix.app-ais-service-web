@@ -1,264 +1,65 @@
-# Agent Guidelines for app-ais-aftersale-front
+# app-ais-aftersale-front
 
-## Build & Development Commands
+Vue 2.6 微前端子应用 | 技术栈: Vue Router + Vuex + Element UI + VXE Table | 端口: 7779
 
-- `npm run local` - Start dev server (NODE_OPTIONS=--openssl-legacy-provider, port 7779)
-- `npm run sit` - Build for SIT environment
-- `npm run uat` - Build for UAT environment
-- `npm run build` - Production build
-- `npx eslint src/**/*.{js,vue}` - Run ESLint on staged files
-- `npx lint-staged` - Run lint on staged files (pre-commit hook)
+## 规范
+- 缩进2空格，语句加分号，函数括号前后有空格，文件最后必须有一个换行符
+- 样式变量: `@/libs/assets/style/variables.scss` | BEM命名 | 主题色 `var(--leap-color-primary)`
+- 组件优先级: `@/libs/components` > element-ui
 
-**No test framework configured** - Tests must be added separately if needed.
-
-## Code Style & Formatting
-
-### Indentation & Spacing
-- 2 spaces for indentation (enforced by .editorconfig)
-- Space before function parentheses: `function foo () {}`
-- Space around operators: `a + b`, `a === b`
-- Key spacing in objects: `{ key: value }` (no space before colon, space after)
-
-### Semicolons & Punctuation
-- Semicolons required after all statements
-- Trailing commas in multiline objects/arrays only
-- Files must end with newline character
-
-### Quotes
-- Prefer double quotes for strings: `"string"`
-- Template literals for interpolation: `${variable}`
-
-### Line Length & Structure
-- Trim trailing whitespace
-- Max line length not strictly enforced, but prefer < 120 chars
-
-## Naming Conventions
-
-### Variables & Functions
-- camelCase: `userName`, `handleSubmit()`, `getList()`
-
-### Components
-- PascalCase: `UserList`, `EditDialog`, `PageSearchAction`
-- Files: kebab-case: `user-list.vue`, `edit-dialog.vue`
-
-### Directories
-- kebab-case: `sparepart/warehouse/oemWarehouse/`
-
-### Constants
-- UPPER_SNAKE_CASE for true constants: `SPARE_PREFIX`, `VUE_APP_API_URL`
-
-### API Functions
-- Descriptive names: `getList`, `addOrUpdate`, `deleteItem`, `getDetail`, `enableItem`
-
-## Import Guidelines
-
-### Order
-1. Third-party libraries
-2. Internal libs (starting with `@/`)
-3. Relative imports
-
-### Style
+## API
 ```javascript
-import Vue from 'vue';
-import { Message } from 'element-ui';
 import api from '@/axios';
-import { paramsFilter } from '@/utils';
-import Component from '@/components/Component.vue';
-import localModule from './localModule';
+const prefix = 'module/web/api/';
+
+export function getList (data) { return api.jsonPost(prefix + 'page', data); }
+export function addOrUpdate (data) { return api.jsonPost(prefix + 'addOrUpdate', data); }
+export function deleteItem (data) { return api.jsonPost(prefix + 'delete', data); }
+export function getDetail (data) { return api.jsonPost(prefix + 'get', data); }
 ```
 
-### Alias
-- `@` points to `src/`
-- Use for all internal imports: `@/api/common.js`, `@/utils/index.js`
+请求方法: `api.post` / `api.jsonPost` / `api.get` / `api.delete` / `api.put`
+请求参数：如果是单个参数，则直接放到body中，即 `getDetail(id)`，而不是`getDetail({id})`
+响应: 使用api封装后的方法调用成功会直接返回data，不再包含code信息，无需判断code
 
-## Vue Component Guidelines
+## 路由
+path: `/业务/模块/功能` | name: `{模块名}` / `{模块名}Detail` / `{模块名}Edit`
+meta: `{ name, keepAlive, requiresAuth, noResourceUrl }`
 
-### Structure
+## 组件 (@/libs/components)
+- `FetchSelect` - 远程搜索
+- `EditTable` - 可编辑表格
+
+## 页面模板
 ```vue
-<template>
-  <!-- template content -->
-</template>
+<!-- 列表页 -->
+<div class="page-common">
+  <el-form :inline="true" :model="form" class="ais-search-form">
+    <page-search-action @submit="onSubmit" @reset="onReset" />
+  </el-form>
+  <div class="ais-actions">
+    <el-button @click="handleAdd">新增</el-button>
+  </div>
+  <LPVxeTable ref="tableRef" v-loading="loading" is-checkbox is-page :option-obj="optionObj" :get-config="getConfig" />
+</div>
 
-<script>
-export default {
-  name: 'ComponentName',
-  components: {},
-  mixins: [],
-  props: {},
-  data () {
-    return {}
-  },
-  computed: {},
-  watch: {},
-  created () {},
-  mounted () {},
-  methods: {}
-}
-</script>
-
-<style lang="scss" scoped>
-/* styles */
-</style>
+<!-- 编辑页 -->
+<edit-base-container :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form" :submitRequest="submitRequest" :detailRequest="detailRequest">
+  <el-form :model="form" :rules="rules" ref="ruleForm"></el-form>
+</edit-base-container>
 ```
 
-### Props
-- Define with types when possible: `props: { userId: { type: Number, required: true } }`
-
-### Events
-- Use kebab-case for event names: `@submit-form`, `@data-change`
-
-## API Guidelines
-
-### API File Structure
-- Location: `src/api/[module]/[feature]/index.js`
-- Pattern: Define constant prefix, export named functions
-
-```javascript
-import api from '@/axios';
-import { SPARE_PREFIX } from '../../spareurl';
-
-const prefix = SPARE_PREFIX + '/web/warehouse/oemWarehouse/';
-
-export function getList (data) {
-  return api.jsonPost(prefix + 'page', data);
-}
-
-export function addOrUpdate (data) {
-  return api.jsonPost(prefix + 'addOrUpdate', data);
-}
-
-export function deleteItem (data) {
-  return api.jsonPost(prefix + 'delete', data);
-}
-
-export function getDetail (data) {
-  return api.jsonPost(prefix + 'get', data);
-}
+## 目录
+```
+src/
+├── api/        # API接口
+├── axios/      # 请求封装
+├── libs/       # 共享库
+│   ├── components/
+│   └── utils/
+├── views/      # 页面
+└── router/     # 路由
 ```
 
-### Request Methods
-- `api.jsonPost(url, data)` - JSON POST request
-- `api.get(url, params)` - GET request with query params
-- `api.postExport(url, formData, config)` - File upload/download
-
-## Error Handling
-
-### Axios Interceptors
-- Global error handling via `src/axios/index.js`
-- Error codes: 200-299 (success), 600 (no data), 610 (token expired), 4xx/5xx (errors)
-- Token expiry: commits USER_SIGN_OUT mutation
-- Errors automatically show via Element UI Message
-
-### Async/Await
-```javascript
-try {
-  const res = await api.jsonPost(url, data);
-  // handle success
-} catch (error) {
-  // error already logged by interceptor
-  this.$message.error('Operation failed');
-}
-```
-
-### Manual Error Display
-```javascript
-this.$message.error('Error message');
-this.$message.success('Success message');
-```
-
-## State Management (Vuex)
-
-### Module Structure
-- Location: `src/store/modules/[moduleName].js`
-- Export default state, mutations, actions, getters
-
-### Usage
-```javascript
-// Component
-this.$store.state.user.token
-this.$store.commit('SET_TOKEN', newToken)
-this.$store.dispatch('fetchUserData')
-
-// Map helpers
-import { mapState, mapActions } from 'vuex'
-computed: { ...mapState('user', ['token']) }
-methods: { ...mapActions('user', ['fetchUser']) }
-```
-
-## Router Guidelines
-
-### Route Definition
-```javascript
-{
-  path: '/sparepart/warehouse/oemWarehouse',
-  name: 'oemWarehouse',
-  component: () => import('@/views/sparepart/warehouse/oemWarehouse/index.vue'),
-  meta: {
-    name: 'OEM仓管理',
-    requiresAuth: true,
-    keepAlive: true
-  }
-}
-```
-
-### Navigation
-- Programmatic: `this.$router.push('/path')`
-- With params: `this.$router.push({ name: 'routeName', params: { id } })`
-- With query: `this.$router.push({ path: '/path', query: { key: 'value' } })`
-
-## Utility Functions
-
-### Date Formatting
-- Use moment.js: `moment(date).format('YYYY-MM-DD')`
-- Or custom: `new Date().format('YYYY-MM-DD HH:mm:ss')` (Date prototype extension)
-
-### Encryption
-- `encrypt(data)`, `decrypt(data)` - for backend communication
-- `encryptUC(data)`, `decryptUC(data)` - for user center
-
-### Common Utils (src/utils/index.js)
-- `paramsFilter(params)` - Remove falsy values (keep 0 and null)
-- `formatDateTime(val, type)` - Format dates ('data', 'datetime', 'time')
-- `getSourceUrl(options)` - Get resource URLs recursively
-- `downloadFile(url, fileName)` - Trigger file download
-- `getAreaInfo(districtCode)` - Get province/city/district info
-
-## ESLint Rules (Notable)
-
-- `no-debugger`: Disabled in production
-- `no-console`: Allowed but logs stripped in production
-- `no-unused-vars`: Warning level
-- `camelcase`: Disabled
-- `vue/multi-word-component-names`: Disabled
-- `no-warning-comments`: Warn on TODO/FIXME comments
-- `prefer-const`: Off (let is allowed)
-- `no-else-return`: Off
-- `eqeqeq`: Always use strict equality
-
-## Architecture Notes
-
-### Micro-Frontend
-- Sub-app for qiankun micro-frontend
-- Entry points: `bootstrap()`, `mount(props)`, `unmount()`
-- Exports as UMD library
-- Global public path handled via `public-path.js`
-
-### Build Configuration
-- Webpack externals: Vue, Vuex, VueRouter, axios (production)
-- Filename includes app version query param
-- Moment locales: Only zh-cn kept
-- Console logs removed in production
-
-### Dependencies
-- Vue 2.6.11, Vue Router 3.1.5, Vuex 3.1.2
-- Element UI (@leapmotor/element-ui)
-- VXE Table & VXE PC UI
-- Axios 0.19.0
-- Lodash 4.17.21
-- Moment.js 2.30.1
-
-## Git Workflow
-
-- Pre-commit hook runs `npx lint-staged`
-- Lints staged `.js` and `.vue` files via ESLint
-- Always ensure code passes linting before commit
+## 运行
+`npm run local` | `npm run sit` | `npm run build`

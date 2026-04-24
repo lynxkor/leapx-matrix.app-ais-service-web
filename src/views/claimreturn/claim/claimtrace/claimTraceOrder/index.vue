@@ -269,12 +269,11 @@ import RejectAppealDialog from './components/RejectAppealDialog';
 import RefuseAppealDialog from './components/RefuseAppealDialog';
 import AdjustAmountDialog from './components/AdjustAmountDialog';
 const defaultForm = {
-  // TIPS:多选时字段名称会有变化，自行校对
-  claimTraceCode: '',
-  traceStatus: '',
-  warrantyCode: '',
-  vin: '',
-  dealerCode: '',
+  claimTraceCodes: [],
+  traceStatusList: [],
+  warrantyCodes: [],
+  vins: [],
+  dealerCodes: [],
   dealerName: '',
   planTraceAmountStart: '',
   planTraceAmountEnd: '',
@@ -380,6 +379,7 @@ export default {
           { props: 'latestIssueTime', label: '最新下发时间', visible: true, width: 200 },
           { props: 'sysAutoAgreeDate', label: '系统自动同意日期', visible: true, width: 200 },
           { props: 'agreeTraceTime', label: '同意追溯时间', visible: true, width: 200 },
+          { props: 'traceDesc', label: '追溯说明', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -627,7 +627,7 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+        if (data[key] === '' || data[key] === null || (Array.isArray(data[key]) && data[key].length === 0)) {
           delete data[key];
         }
       });

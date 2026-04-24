@@ -271,6 +271,12 @@ import {
   print,
 } from '@/api/claimreturn/claim/warrantyapply/index';
 import {
+  APPLY_STATUS,
+  EDITABLE_STATUSES,
+  PENDING_REVIEW_STATUSES,
+  WITHDRAWABLE_STATUSES,
+} from './constants';
+import {
   getTableConfig, tableAddOrUpdate, getEnum, listVehicleModel, getScopeTypeOrg,
   sparePartList
 } from '@/api/common';
@@ -529,7 +535,7 @@ export default {
                     return false;
                   }
                   // 未提交，已驳回
-                  if (row.applyStatus === '10' || row.applyStatus === '40') {
+                  if (EDITABLE_STATUSES.includes(row.applyStatus)) {
                     return true;
                   }
                   return false;
@@ -546,7 +552,7 @@ export default {
                     return false;
                   }
                   // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
-                  if (['20', '25', '30'].includes(row.applyStatus)) {
+                  if (PENDING_REVIEW_STATUSES.includes(row.applyStatus)) {
                     return true;
                   }
                   return false;
@@ -563,7 +569,7 @@ export default {
                     return false;
                   }
                   // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
-                  if (['20', '25', '30'].includes(row.applyStatus)) {
+                  if (PENDING_REVIEW_STATUSES.includes(row.applyStatus)) {
                     return true;
                   }
                   return false;
@@ -580,7 +586,7 @@ export default {
                     return false;
                   }
                   // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
-                  if (['20', '25', '30'].includes(row.applyStatus)) {
+                  if ([...PENDING_REVIEW_STATUSES, APPLY_STATUS.APPROVED].includes(row.applyStatus)) {
                     return true;
                   }
                   return false;
@@ -597,7 +603,7 @@ export default {
                     return false;
                   }
                   // 【保修单状态】为审核通过，已拒赔 显示此按钮
-                  if (['60', '50'].includes(row.applyStatus)) {
+                  if (WITHDRAWABLE_STATUSES.includes(row.applyStatus)) {
                     return true;
                   }
                   return false;
@@ -614,7 +620,7 @@ export default {
                     return false;
                   }
                   // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
-                  if (['20', '25', '30'].includes(row.applyStatus)) {
+                  if (PENDING_REVIEW_STATUSES.includes(row.applyStatus)) {
                     return true;
                   }
                   return false;
@@ -631,7 +637,7 @@ export default {
                     return false;
                   }
                   // 保修单状态】为未提交，已驳回，显示此按钮
-                  if (['10', '40'].includes(row.applyStatus)) {
+                  if (EDITABLE_STATUSES.includes(row.applyStatus)) {
                     return true;
                   }
                   return false;
