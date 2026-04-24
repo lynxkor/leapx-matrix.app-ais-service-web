@@ -424,28 +424,28 @@
             <el-form-item label="索赔总金额：" prop="totalClaimAmount">
               <el-input v-model="form.totalClaimAmount" clearable disabled />
             </el-form-item>
-            <el-form-item label="工时费用小计：" prop="workCostCount">
+            <el-form-item label="工时费用小计：" prop="workCostCount" v-if="isGoodwillWarranty">
               <el-input v-model="form.workCostCount" clearable disabled />
             </el-form-item>
-            <el-form-item label="零件费用小计：" prop="partsCostTotal">
+            <el-form-item label="零件费用小计：" prop="partsCostTotal" v-if="isGoodwillWarranty">
               <el-input v-model="form.partsCostTotal" clearable disabled />
             </el-form-item>
-            <el-form-item label="其他费用小计：" prop="otherCostTotal">
+            <el-form-item label="其他费用小计：" prop="otherCostTotal" v-if="isGoodwillWarranty">
               <el-input v-model="form.otherCostTotal" clearable disabled />
             </el-form-item>
-            <el-form-item label="费用总金额：" prop="totalCostAmount">
+            <el-form-item label="费用总金额：" prop="totalCostAmount" v-if="isGoodwillWarranty">
               <el-input v-model="form.totalCostAmount" clearable disabled />
             </el-form-item>
-            <el-form-item label="工时分担比例：" prop="laborShareRatio">
+            <el-form-item label="工时分担比例：" prop="laborShareRatio" v-if="isGoodwillWarranty">
               <el-input v-model="form.laborShareRatio" clearable disabled />
             </el-form-item>
-            <el-form-item label="零件分担比例：" prop="partsShareRatio">
+            <el-form-item label="零件分担比例：" prop="partsShareRatio" v-if="isGoodwillWarranty">
               <el-input v-model="form.partsShareRatio" clearable disabled />
             </el-form-item>
-            <el-form-item label="其他分担比例：" prop="otherShareRatio">
+            <el-form-item label="其他分担比例：" prop="otherShareRatio" v-if="isGoodwillWarranty">
               <el-input v-model="form.otherShareRatio" clearable disabled />
             </el-form-item>
-            <el-form-item label="平台单号：" prop="platformApprovalNo">
+            <el-form-item label="平台单号：" prop="platformApprovalNo" v-if="isGoodwillWarranty">
               <el-input v-model="form.platformApprovalNo" clearable disabled />
             </el-form-item>
           </el-form>
@@ -459,15 +459,15 @@
             <el-form-item label="其他索赔小计：">{{ form.otherClaimTotal }}</el-form-item>
             <el-form-item label="索赔总金额：">{{ form.totalClaimAmount }}</el-form-item>
 
-            <el-form-item label="工时费用小计：">{{ form.workCostCount }}</el-form-item>
-            <el-form-item label="备件费用小计：">{{ form.partsCostTotal }}</el-form-item>
-            <el-form-item label="其他费用小计：">{{ form.otherCostTotal }}</el-form-item>
-            <el-form-item label="费用总金额：">{{ form.totalCostAmount }}</el-form-item>
+            <el-form-item label="工时费用小计：" v-if="isGoodwillWarranty">{{ form.workCostCount }}</el-form-item>
+            <el-form-item label="备件费用小计：" v-if="isGoodwillWarranty">{{ form.partsCostTotal }}</el-form-item>
+            <el-form-item label="其他费用小计：" v-if="isGoodwillWarranty">{{ form.otherCostTotal }}</el-form-item>
+            <el-form-item label="费用总金额：" v-if="isGoodwillWarranty">{{ form.totalCostAmount }}</el-form-item>
 
-            <el-form-item label="工时分担比例：">{{ form.laborShareRatio }}</el-form-item>
-            <el-form-item label="备件分担比例：">{{ form.partsShareRatio }}</el-form-item>
-            <el-form-item label="其他分担比例：">{{ form.otherShareRatio }}</el-form-item>
-            <el-form-item label="平台单号：">{{ form.platformApprovalNo }}</el-form-item>
+            <el-form-item label="工时分担比例：" v-if="isGoodwillWarranty">{{ form.laborShareRatio }}</el-form-item>
+            <el-form-item label="备件分担比例：" v-if="isGoodwillWarranty">{{ form.partsShareRatio }}</el-form-item>
+            <el-form-item label="其他分担比例：" v-if="isGoodwillWarranty">{{ form.otherShareRatio }}</el-form-item>
+            <el-form-item label="平台单号：" v-if="isGoodwillWarranty">{{ form.platformApprovalNo }}</el-form-item>
           </el-form>
         </div>
       </section>
@@ -478,7 +478,7 @@
         <div class="common-section-body">
           <work-hour-table
             :id="_id"
-            :canAddOrUpdate="canAddOrUpdate"
+            :canAddOrUpdate="canEdit"
             @update="handleTableUpdate"
           />
         </div>
@@ -490,7 +490,7 @@
           </h2>
         </div>
         <div class="common-section-body">
-          <el-form :inline="true" ref="ruleForm5" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+          <el-form :inline="true" ref="ruleForm5" label-width="150px" class="form-edit" v-show="isEditing || !_id || canEditMainPart">
             <el-form-item label="主因零件编码：" prop="mainPartId">
               <fetch-select
                 :remote-method="partRemote"
@@ -505,7 +505,8 @@
                 filterable
               >
                 <template #option="{ item }">
-                  <span>{{ item.partCode }}/{{ item.partName }}————{{ item.supplierName }}({{ item.supplierCode }})</span>
+                  <span v-if="item.disabled">{{ item.placeholder }}</span>
+                  <span v-else>{{ item.partCode }}/{{ item.partName }}————{{ item.supplierName }}({{ item.supplierCode }})</span>
                 </template>
               </fetch-select>
             </el-form-item>
@@ -519,7 +520,7 @@
               <el-input placeholder="" v-model="form.mainPartSupplierName" clearable disabled />
             </el-form-item>
           </el-form>
-          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id) && !canEditMainPart">
             <el-form-item label="主因零件编码：" prop="mainPartCode">
               {{ form.mainPartCode }}
             </el-form-item>
@@ -536,7 +537,9 @@
           <part-table
             ref="partTableRef"
             :id="_id"
-            :canAddOrUpdate="canAddOrUpdate"
+            :canAddOrUpdate="canEdit"
+            :canEditMainPart="canEditMainPart"
+            @update="handleTableUpdate"
           />
         </div>
       </section>
@@ -547,13 +550,13 @@
         <div class="common-section-body">
           <other-table
             :id="_id"
-            :canAddOrUpdate="canAddOrUpdate"
+            :canAddOrUpdate="canEdit"
           />
         </div>
       </section>
       <warranty-apply-file
         :id="_id"
-        :canAddOrUpdate="canAddOrUpdate"
+        :canAddOrUpdate="canEdit"
         :repairItemTypeId="form.repairItemTypeId"
         :disabled="!EDITABLE_STATUSES.includes(form.applyStatus)"
       />
@@ -564,7 +567,7 @@
         <div class="common-section-body">
           <activity-table
             :vehicleProfileId="form.vehicleProfileId"
-            :canAddOrUpdate="canAddOrUpdate"
+            :canAddOrUpdate="canEdit"
           />
         </div>
       </section>
@@ -575,7 +578,7 @@
         <div class="common-section-body">
           <approval-record-table
             :id="_id"
-            :canAddOrUpdate="canAddOrUpdate"
+            :canAddOrUpdate="canEdit"
           />
         </div>
       </section>
@@ -634,7 +637,7 @@ import {
 } from './constants';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
+import { getEnum, getLoginUser } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -825,6 +828,18 @@ export default {
     title () {
       return '保修申请单号：' + (this.form.applyNo);
     },
+    canEdit () {
+      return EDITABLE_STATUSES.includes(this.form.applyStatus) && this.canAddOrUpdate;
+    },
+    isFactoryAccount () {
+      return this.accountFlag === false;
+    },
+    canEditMainPart () {
+      return this.isFactoryAccount && PENDING_REVIEW_STATUSES.includes(this.form.applyStatus);
+    },
+    isGoodwillWarranty () {
+      return this.form.repairItemTypeName === '善意保修';
+    },
     remindContent () {
       let result = '';
       let last = false;
@@ -902,6 +917,7 @@ export default {
       withdrawDialogVisible: false,
       withdrawIds: [],
       rightsDialogVisible: false,
+      accountFlag: null,
     };
   },
   created () {
@@ -912,6 +928,9 @@ export default {
     this.canWithdraw = this.permissions.has(`${this.moduleKey}-withdraw`);
     this.canDeny = this.permissions.has(`${this.moduleKey}-deny`);
     this.canCancel = this.permissions.has(`${this.moduleKey}-cancel`);
+    getLoginUser().then(res => {
+      this.accountFlag = res.accountFlag;
+    });
   },
   mounted () {
     // 571005W202603271622250001
@@ -927,6 +946,15 @@ export default {
       const id = this._id;
       if (id) {
         return getDetail(id).then(res => {
+          const warningMsg = res.warrantyWarningMsg;
+          if (warningMsg) {
+            this.$nextTick(() => {
+              this.$alert(warningMsg, '保修预警提醒', {
+                closeOnClickModal: false,
+                type: 'warning',
+              });
+            });
+          }
           return {
             ...res,
             partAndSupplierId: res.mainPartId + res.mainPartSupplierId,
@@ -970,11 +998,15 @@ export default {
       this.form.vfgName = vfgNode?.data.name;
     },
     getReportList (query) {
+      const fifteenDaysAgo = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000);
+      const dateStr = fifteenDaysAgo.toISOString().slice(0, 10);
       return getRelatedReports({
         pageNum: 1,
         pageSize: 20,
         codeOrNameLike: query,
         serviceProxyId: this.form.serviceProxyId,
+        createTimeStart: dateStr,
+        applyStatusList: ['30', '50'],
       });
     },
     onReportChange (val, row) {
@@ -999,21 +1031,37 @@ export default {
     },
     // 搜索主因零件
     partRemote (query) {
-      return getList({
-        pageNum: 1,
-        pageSize: 20,
-        partCodeOrNameLike: query,
-      }).then(res => {
-        const records = res.records?.map(item => {
-          return {
-            ...item,
-            partAndSupplierId: item.sparePartId + item.supplierInfoId,
-          };
+      return new Promise((resolve, reject) => {
+        getList({
+          pageNum: 1,
+          pageSize: 20,
+          oemPart: 1,
+          partCodeOrNameLike: query,
+        }).then(res => {
+          if (!res.records?.length) {
+            this.$message.warning();
+            resolve({
+              ...res,
+              records: [
+                {
+                  placeholder: `备件编码：${query}不存在备件供应商关系信息`,
+                  disabled: true,
+                }
+              ],
+            });
+          } else {
+            const records = res.records?.map(item => {
+              return {
+                ...item,
+                partAndSupplierId: item.sparePartId + item.supplierInfoId,
+              };
+            });
+            resolve({
+              ...res,
+              records,
+            });
+          }
         });
-        return {
-          ...res,
-          records,
-        };
       });
     },
     // 主因零件选择变更

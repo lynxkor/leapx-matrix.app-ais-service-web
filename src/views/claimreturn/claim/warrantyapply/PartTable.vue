@@ -277,6 +277,7 @@ export default {
       return getList({
         pageNum: 1,
         pageSize: 20,
+        oemPart: 1,
         partCodeOrNameLike: query,
       }).then(res => {
         const records = res.records?.map(item => {
