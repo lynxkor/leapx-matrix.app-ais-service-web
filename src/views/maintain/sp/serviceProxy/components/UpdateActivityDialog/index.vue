@@ -162,9 +162,13 @@ export default {
   ::v-deep .el-dialog__body {
     padding: 0;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(85vh - 54px);
   }
 
   .tabs-wrapper {
+    flex-shrink: 0;
     padding: 12px 20px 0;
     border-bottom: 1px solid $--leap-color-default-light-4;
   }
@@ -202,9 +206,10 @@ export default {
   }
 
   .content-wrapper {
+    flex: 1;
     display: flex;
     overflow: hidden;
-    min-height: 500px;
+    min-height: 580px;
   }
 
   .placeholder-content {
