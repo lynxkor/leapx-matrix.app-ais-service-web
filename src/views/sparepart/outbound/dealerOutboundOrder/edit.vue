@@ -64,9 +64,6 @@
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
                 </el-form-item>
-                <el-form-item label="公司名称：" prop="companyName">
-                  {{ form.companyName }}
-                </el-form-item>
                 <el-form-item label="备件仓库：" prop="warehouseId">
                   {{ form.warehouseName }}
                 </el-form-item>
@@ -93,9 +90,6 @@
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
-                </el-form-item>
-                <el-form-item label="公司名称：" prop="companyCode">
-                  {{ form.companyName }}
                 </el-form-item>
                 <el-form-item label="备件仓库：" prop="warehouseId">
                   {{ form.warehouseName }}

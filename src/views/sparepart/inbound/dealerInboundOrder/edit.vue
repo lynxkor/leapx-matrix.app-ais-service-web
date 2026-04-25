@@ -497,7 +497,7 @@ export default {
     queryListData (queryString) {
       return new Promise(resolve => {
         // 根据需求调用接口
-        listDealerPart({ partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
+        listDealerPart({ partCodeOrNameLike: queryString, status: 1, pageSize: 20, dealerCode: this.form.dealerCode, oemPart: 1 }).then(res => {
           const list = res || [];
           resolve(list);
         });

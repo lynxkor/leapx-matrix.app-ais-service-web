@@ -629,7 +629,7 @@ export default {
     },
     async getDealerList (query) {
       try {
-        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query, isPartOrder: true, authority: false });
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query, isPartOrder: true, authority: false, excludeDealerCode: this.form.outboundDealerCode });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
