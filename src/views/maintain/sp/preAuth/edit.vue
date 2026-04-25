@@ -722,7 +722,7 @@ export default {
           // attachType: this.attachmentConfig.attachType
         });
 
-        const files = (response?.data || []).map(file => ({
+        const files = (response || []).map(file => ({
           id: file.id,
           name: file.fileName,
           url: file.fileUrl,
