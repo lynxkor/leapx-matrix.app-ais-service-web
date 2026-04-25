@@ -238,44 +238,6 @@ export default {
         name: '',
       },
       tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
-      // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
-      columns: [
-        {
-          field: 'locationName',
-          title: '席位名称',
-          width: '20%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
-        },
-        {
-          field: 'remark',
-          title: '备注',
-          editable: true,
-          width: '20%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
-        },
-        {
-          field: 'createTime',
-          title: '创建时间',
-          width: '20%',
-          editRender: { name: 'ElInput' }
-        },
-        {
-          field: 'updateTime',
-          title: '修改时间',
-          width: '20%',
-          editRender: { name: 'ElInput' }
-        },
       ],
       rules: {
         status: [
@@ -417,7 +379,7 @@ export default {
     // 库位信息添加
     async addLocation () {
       if (!this.locationName) {
-        this.$message.error('请输入席位名称,再添加!');
+        this.$message.error('请输入库位名称,再添加!');
         return;
       };
       const params = {

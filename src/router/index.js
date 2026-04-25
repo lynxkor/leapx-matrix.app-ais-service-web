@@ -1601,7 +1601,7 @@ const routes = [
       component: () => import('@/views/maintain/basic/maintenancePartData/index.vue'),
 
       meta: {
-        name: '保养零件提醒表管理',
+        name: '保养零件主数据',
         keepAlive: true
       }
     }, {
@@ -1610,7 +1610,7 @@ const routes = [
       component: () => import('@/views/maintain/basic/maintenancePartData/edit.vue'),
 
       meta: {
-        name: '保养零件提醒表管理详情',
+        name: '保养零件主数据详情',
         noResourceUrl: 'true'
       }
     }, {

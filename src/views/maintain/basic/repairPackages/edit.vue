@@ -53,7 +53,7 @@
                   />
                 </el-form-item>
                 <el-form-item label="是否下发：" prop="suedDealer">
-                  <el-radio-group v-model="form.comboStatus">
+                  <el-radio-group v-model="form.comboStatus" :disabled="accountFlag">
                     <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
                   </el-radio-group>
                 </el-form-item>
@@ -298,7 +298,7 @@ const defaultForm = {
   partRespList: '',
   typeName: '',
   backoutSuedDate: '',
-  comboStatus: '',
+  comboStatus: 10,
   suedDealer: 1,
   ownerOrgId: '',
   dealerCode: '',
