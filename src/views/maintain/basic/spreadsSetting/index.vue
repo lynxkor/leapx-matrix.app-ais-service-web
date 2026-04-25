@@ -185,9 +185,10 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/maintain/basic/spreadsSetting/detail',
+                  path: '/maintain/basic/spreadsSetting/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: false
                   }
                 });
               },
@@ -213,7 +214,8 @@ export default {
                 this.$router.push({
                   path: '/maintain/basic/spreadsSetting/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
