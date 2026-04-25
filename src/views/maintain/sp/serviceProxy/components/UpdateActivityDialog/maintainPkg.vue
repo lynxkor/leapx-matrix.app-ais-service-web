@@ -390,7 +390,6 @@ export default {
       flex: 1;
       overflow-y: auto;
       padding: 0 12px;
-      max-height: 520px;
     }
 
     .list-item {
@@ -478,7 +477,6 @@ export default {
       .project-list {
         flex: 1;
         overflow-y: auto;
-        max-height: 500px;
         .project-item {
           margin-bottom: 16px;
           // border: 1px solid var(--leap-color-default-light-4);
@@ -577,7 +575,8 @@ export default {
       }
 
       .footer-bar {
-        padding: 16px 0 0;
+        flex-shrink: 0;
+        padding: 16px 0 12px;
         border-top: 1px solid var(--leap-color-default-light-4);
         text-align: right;
       }

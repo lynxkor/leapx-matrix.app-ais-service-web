@@ -1,113 +1,158 @@
 <template>
-  <div class="page-common-add">
-    <el-container>
-      <el-main>
-        <section class="common-section">
-          <div class="common-section-header">
-            <h2>基础信息</h2>
-          </div>
-          <div class="common-section-body">
-            <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px">
-              <el-form-item label="工位代码" prop="code">
-                <el-input
-                  placeholder="自动生成"
-                  v-model="form.code"
-                  clearable
-                  disabled
-                />
-              </el-form-item>
-              <el-form-item label="工位名称" prop="name">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.name"
-                  maxlength="50"
-                  show-word-limit
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="工位类型" prop="stationType">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="mc_station_type"
-                  v-model="form.stationType"
-                  placeholder="请选择"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="门店名称" prop="dealerName">
-                <InputLink
-                  v-model="form.dealerName"
-                  :link="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`"
-                  placeholder="请输入"
-                  readonly
-                />
-              </el-form-item>
-              <el-form-item label="负责人" prop="ownerUserName">
-                <InputLink
-                  v-model="form.ownerUserName"
-                  :link="`/partner/user/list/detail?&userId=${form.ownerId}`"
-                  placeholder="请输入"
-                  readonly
-                />
-              </el-form-item>
-              <el-form-item label="说明" prop="remark">
-                <el-input
-                  type="textarea"
-                  placeholder="请输入"
-                  v-model="form.remark"
-                  clearable
-                  rows="3"
-                  maxlength="500"
-                  show-word-limit
-                />
-              </el-form-item>
-            </el-form>
-          </div>
-        </section>
-      </el-main>
-      <el-footer height="60px">
-        <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-        <el-button size="small" @click="handleBack">取消</el-button>
-        <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
-      </el-footer>
-    </el-container>
-  </div>
+  <edit-page-layout ref="editLayout" :title="title" showPaneFooter>
+    <template #left>
+      <edit-base-container
+        ref="containerRef"
+        :id="_id"
+        :title="title"
+        :isEditing.sync="isEditing"
+        :form.sync="form"
+        :originalForm.sync="originalForm"
+        :submitRequest="submitRequest"
+        :detailRequest="detailRequest"
+        :showEditBtn="true"
+      >
+        <template #status>
+          <span class="status primary">{{ form.statusLabel }}</span>
+        </template>
+        <el-main>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>基础信息</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="100px" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="工位代码：" prop="code">
+                  <el-input
+                    placeholder="自动生成"
+                    v-model="form.code"
+                    disabled
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="工位名称：" prop="name">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.name"
+                    maxlength="50"
+                    show-word-limit
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="工位类型：" prop="stationType">
+                  <fetch-select
+                    :request="fetchOptions"
+                    enumCode="mc_station_type"
+                    v-model="form.stationType"
+                    placeholder="请选择"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="门店名称：" prop="dealerName">
+                  <InputLink
+                    v-model="form.dealerName"
+                    :link="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`"
+                    placeholder="请输入"
+                    readonly
+                  />
+                </el-form-item>
+                <el-form-item label="负责人：" prop="ownerUserName">
+                  <InputLink
+                    v-model="form.ownerUserName"
+                    :link="`/partner/user/list/detail?&userId=${form.ownerId}`"
+                    placeholder="请输入"
+                    readonly
+                  />
+                </el-form-item>
+                <el-form-item label="说明：" prop="remark" class="form-item-full">
+                  <el-input
+                    type="textarea"
+                    placeholder="请输入"
+                    v-model="form.remark"
+                    clearable
+                    rows="3"
+                    maxlength="500"
+                    show-word-limit
+                  />
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" label-width="100px" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="工位代码：">
+                  {{ form.code }}
+                </el-form-item>
+                <el-form-item label="工位名称：">
+                  {{ form.name }}
+                </el-form-item>
+                <el-form-item label="工位类型：">
+                  {{ form.stationTypeLabel }}
+                </el-form-item>
+                <el-form-item label="门店名称：">
+                  {{ form.dealerName }}
+                </el-form-item>
+                <el-form-item label="负责人：">
+                  {{ form.ownerUserName }}
+                </el-form-item>
+                <el-form-item label="说明：" class="form-item-full">
+                  {{ form.remark }}
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+        </el-main>
+      </edit-base-container>
+    </template>
+  </edit-page-layout>
 </template>
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/maintain/basic/dealerStation/index';
 import FetchSelect from '@/libs/components/FetchSelect';
+import InputLink from '@/libs/components/InputLink';
+import EditPageLayout from '@/libs/components/EditPageLayout';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
-import InputLink from '@/libs/components/InputLink';
+import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
-  // 多选时字段有变化，自行修复
   remark: '',
   status: '',
   code: '',
   name: '',
   stationType: '',
+  stationTypeLabel: '',
   dealerId: '',
   dealerCode: '',
   dealerName: '',
   ownerId: '',
   ownerUserName: '',
+  statusLabel: '',
 };
 
 export default {
-  name: 'testEdit',
-  mixins: [routeGuard, permissions],
+  name: 'dealerStationEdit',
+  mixins: [routeGuard, permissions, commonMixins],
   components: {
     FetchSelect,
-    InputLink
-    // EditTable
+    InputLink,
+    EditPageLayout,
+    EditBaseContainer,
+  },
+  computed: {
+    _id () {
+      return this.$route.query.id || this.form.id;
+    },
+    title () {
+      return '工位代码：' + (this.form.code || '');
+    }
   },
   data () {
     const form = this.getDefautlForm();
     return {
+      pageTitle: '厅店工位信息',
+      pageType: 'edit',
       moduleKey: 'AISMC-dealerStation',
       loading: false,
       submitLoading: false,
@@ -123,106 +168,34 @@ export default {
           { required: true, message: '请选择工位类型', trigger: 'change' }
         ],
         dealerName: [
-          { required: true, message: '', trigger: 'blur' }
+          { required: true, message: '请选择门店名称', trigger: 'blur' }
         ],
         ownerUserName: [
-          { required: true, message: '', trigger: 'blur' }
+          { required: true, message: '请选择负责人', trigger: 'blur' }
         ],
-        remark: [
-          { required: false, message: '请输入说明', trigger: 'blur' }
-        ],
-      },
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近一个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近三个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
       }
     };
   },
-  mounted () {
-    this.getDetailData();
-  },
   methods: {
-    handleBack () {
-      this.$router.back();
-    },
-    getDetailData () {
-      const id = this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店工位信息', `${id ? '编辑' : '新增'}`]);
+    detailRequest () {
+      const id = this._id;
       if (id) {
-        getDetail(id).then(res => {
-          this.loading = false;
-          Object.assign(this.form, res);
-          Object.assign(this.originalForm, res);
-        });
+        return getDetail(id);
       }
+      return {};
     },
-    submitForm (formName, rest = false) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          this.submitLoading = true;
-          addOrUpdate({ id: this.info.id, ...this.form }).then(res => {
-            this.$message({
-              message: '保存成功',
-              type: 'success'
-            });
-            const id = this.$route.query.id;
-            if (rest || !id) {
-              this.resetForm(formName);
-            } else {
-              this.getDetailData();
-            }
-          }).finally(() => {
-            this.submitLoading = false;
-          });
-        }
-      });
-    },
-    resetForm (formName) {
-      this.$refs[formName].resetFields();
-      this.tableData = [];
-      this.form = this.getDefautlForm();
+    submitRequest () {
+      return addOrUpdate({ id: this.form.id, ...this.form });
     },
     getDefautlForm () {
       const userInfo = this.$store.state.user.userInfo;
       return {
         ...defaultForm,
-        ownerUserId: userInfo.userId,
+        ownerId: userInfo.userId,
         ownerUserName: userInfo.userName,
         dealerName: userInfo.orgPostUserList.find(item => item.position === '1')?.orgName,
       };
     },
-    // handleJumpAuditLog () {
-    //   this.$router.push({
-    //     path: '/xxx/auditLog',
-    //     query: {
-    //       tableCode: '',
-    //       tableId: ''
-    //     }
-    //   });
-    // },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);
@@ -232,3 +205,10 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.status.primary {
+  color: var(--leap-color-primary);
+  font-weight: 500;
+}
+</style>

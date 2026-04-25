@@ -38,6 +38,7 @@
       <div v-if="selectedItem.useId" class="detail-content" v-loading="detailLoading">
         <div class="detail-title">{{ selectedItem.name }}</div>
 
+        <div class="detail-scroll">
         <!-- 维修项目表格 -->
         <div class="detail-section">
           <div class="section-title">维修项目</div>
@@ -94,6 +95,7 @@
           </vxe-table>
         </div>
 
+        </div>
         <!-- 底部操作栏 -->
         <div class="footer-bar">
           <el-button type="primary" size="small" @click="handleConfirm">
@@ -265,7 +267,6 @@ export default {
       flex: 1;
       overflow-y: auto;
       padding: 0 12px 12px 12px;
-      max-height: 520px;
     }
 
     .list-empty {
@@ -372,6 +373,11 @@ export default {
         margin-bottom: 16px;
       }
 
+      .detail-scroll {
+        flex: 1;
+        overflow-y: auto;
+      }
+
       .detail-section {
         margin-bottom: 28px;
 
@@ -389,7 +395,8 @@ export default {
       }
 
       .footer-bar {
-        padding: 16px 0 0;
+        flex-shrink: 0;
+        padding: 16px 0 12px;
         border-top: 1px solid var(--leap-color-default-light-4);
         text-align: right;
         margin-top: auto;

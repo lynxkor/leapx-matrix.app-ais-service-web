@@ -34,10 +34,9 @@
           />
         </el-form-item>
         <el-form-item label="接车施工单">
-          <el-input
-            placeholder="请输入"
+          <tag-input
             v-model="form.serviceProxyCodeList"
-            clearable
+            placeholder="请输入"
           />
         </el-form-item>
         <el-form-item label="审计状态">
@@ -161,11 +160,12 @@
       @success="getData"
     />
     <!-- 审计通过弹窗 -->
-    <!-- <AuditPassDialog
+    <AuditPassDialog
       :visible.sync="auditPassDialogVisible"
-      :selection-list="selectionList"
+      :id="allId"
+      @update:visible="auditPassDialogVisible = $event"
       @success="getData"
-    /> -->
+    />
     <!-- 审计驳回弹窗 -->
     <AuditRejectDialog
       :visible.sync="auditRejectDialogVisible"
@@ -203,7 +203,7 @@ import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import {
   getList as getWarrantyAuditDetailList,
-  agree, auditPass,
+  agree,
 } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index';
 import { getList as getRepairTypeList } from '@/api/maintain/basic/repairItemType/index';
 import { getList as getErrorConfigList } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditErrorConfig/index';
@@ -218,22 +218,23 @@ import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
 import DealerSelect from '@/components/dealer-select';
 import AuditRejectDialog from './components/AuditRejectDialog.vue';
+import AuditPassDialog from './components/AuditPassDialog.vue';
 import AgreeAppealDialog from './components/AgreeAppealDialog.vue';
 import RejectAppealDialog from './components/RejectAppealDialog.vue';
 import SupplyMaterialDialog from './components/SupplyMaterialDialog.vue';
 import AppealDialog from './components/AppealDialog.vue';
 
 const defaultForm = {
-  warrantyApplyCodeList: '',
-  vinList: '',
-  auditDetailCodeList: '',
+  warrantyApplyCodeList: [],
+  vinList: [],
+  auditDetailCodeList: [],
   auditCode: '',
-  serviceProxyCodeList: '',
-  auditStatusList: '',
+  serviceProxyCodeList: [],
+  auditStatusList: [],
   dealerCodeList: [],
   dealerNameList: '',
-  repairItemTypeIdList: '',
-  mainPartCodeList: '',
+  repairItemTypeIdList: [],
+  mainPartCodeList: [],
   mainPartNameLike: '',
   errorTypeList: '',
   createTime: '',
@@ -256,6 +257,7 @@ export default {
     TagInput,
     DealerSelect,
     AppealDialog,
+    AuditPassDialog,
     AuditRejectDialog,
     AgreeAppealDialog,
     RejectAppealDialog,
@@ -277,6 +279,7 @@ export default {
       clickItemId: '',
       // 弹窗控制
       supplyMaterialDialogVisible: false, // 补充材料弹窗
+      auditPassDialogVisible: false, // 审计通过弹窗
       selectionItem: {}, // 材料弹窗的保修审计明细
       warrantyClaimId: '', // 申诉弹窗的保修单id
       auditRejectDialogVisible: false, // 审计驳回弹窗
@@ -316,7 +319,40 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'warrantyApplyCode', label: '保修申请单', visible: true, width: 200 },
+          {
+            props: 'warrantyApplyCode',
+            label: '保修申请单',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/claim/warrantyapply/edit',
+                  query: {
+                    id: row.warrantyApplyId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'serviceProxyCode',
+            label: '接车施工单',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/sp/serviceProxy/edit',
+                  query: {
+                    id: row.serviceProxyId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           {
             props: 'auditCode',
             label: '保修审计单',
@@ -424,7 +460,7 @@ export default {
               },
               popconfirmTitle: '是否同意申述?',
               click: (rowIndex, row) => {
-                agree(row.id).then(() => {
+                agree({ detailId: row.id }).then(() => {
                   this.$message({
                     type: 'success',
                     message: '同意成功!'
@@ -666,22 +702,8 @@ export default {
     },
     // 审计通过
     handleAuditPass (row) {
-      this.$prompt('审计说明', '审计通过', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputPattern: /.+/, // 校验非空
-        inputErrorMessage: '请输入备注',
-      }).then(({ value }) => {
-        // 调用 API，并传入用户输入的备注
-        return auditPass({ id: row.id, auditDesc: value });
-      }).then(() => {
-        // 提示成功
-        this.$message.success('审计通过成功');
-        // 执行额外回调（比如刷新列表）
-        this.getData();
-      }).catch(() => {
-        // 用户取消或校验失败，静默处理
-      });
+      this.allId = row.id;
+      this.auditPassDialogVisible = true;
     },
   }
 };

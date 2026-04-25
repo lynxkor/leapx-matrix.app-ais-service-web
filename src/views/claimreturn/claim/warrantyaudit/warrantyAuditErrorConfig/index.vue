@@ -79,7 +79,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 const defaultForm = {
   errorCode: '',
   errorCategoryLike: '',
-  statusList: [],
+  statusIncludeList: [],
   createTime: '',
   updateTime: ''
 };
@@ -142,7 +142,7 @@ export default {
             type: 'operate',
             visible: true,
             fixed: 'right',
-            width: 120,
+            width: 200,
             buttons: [{
               name: '编辑',
               click: (rowIndex, row) => {
@@ -154,6 +154,20 @@ export default {
                   }
                 });
               },
+              type: 'info'
+            }, {
+              name: '启用',
+              click: (rowIndex, row) => {
+                this.handleSingleEnable(row, 1);
+              },
+              show: (row) => row.status === 0,
+              type: 'info'
+            }, {
+              name: '停用',
+              click: (rowIndex, row) => {
+                this.handleSingleEnable(row, 0);
+              },
+              show: (row) => row.status === 1,
               type: 'info'
             }]
           }
@@ -228,6 +242,19 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    handleSingleEnable (row, status) {
+      const statusText = status === 1 ? '启用' : '停用';
+      this.$confirm(`确认${statusText}该条数据?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        enableItem({ idSet: [row.id], status }).then(() => {
+          this.$message.success(`${statusText}成功`);
+          this.getData();
+        });
+      }).catch(() => {});
     },
     handleBatchEnable (status) {
       handleBatchStatusChange.call(this, {

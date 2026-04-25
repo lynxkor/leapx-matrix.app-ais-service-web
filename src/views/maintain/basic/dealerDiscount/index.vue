@@ -161,9 +161,10 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/maintain/basic/dealerDiscount/detail',
+                  path: '/maintain/basic/dealerDiscount/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: false
                   }
                 });
               },
@@ -204,7 +205,8 @@ export default {
                 this.$router.push({
                   path: '/maintain/basic/dealerDiscount/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

@@ -52,7 +52,7 @@
                     disabled
                   />
                 </el-form-item>
-                <el-form-item label="是否下发：" prop="suedDealer">
+                <el-form-item label="是否下发：" prop="suedDealer" v-show="!accountFlag">
                   <el-radio-group v-model="form.comboStatus">
                     <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
                   </el-radio-group>
@@ -298,7 +298,7 @@ const defaultForm = {
   partRespList: '',
   typeName: '',
   backoutSuedDate: '',
-  comboStatus: '',
+  comboStatus: 10,
   suedDealer: 1,
   ownerOrgId: '',
   dealerCode: '',
@@ -543,6 +543,7 @@ export default {
       const res = await getPackagesItem({ repairPackagesId: this._id });
       this.tableData = res.records || [];
       // 计算项目金额
+      this.itemAmount = 0;
       this.tableData.forEach(item => {
         const actualAmount = Number(item.actualAmount) || 0;
         this.itemAmount = this.itemAmount + actualAmount;
@@ -554,6 +555,7 @@ export default {
       const res = await getPackagesPartPage({ repairPackagesId: this._id, pageSize: 5000, sortColumns: [{ column: 'repair_item_id', sort: 'ASC' }] });
       this.tablePartData = res.records || [];
       // 计算零件金额
+      this.partsAmount = 0;
       this.tablePartData.forEach(item => {
         const number = Number(item.quantity) || 0;
         const unitPrice = Number(item.price) || 0;

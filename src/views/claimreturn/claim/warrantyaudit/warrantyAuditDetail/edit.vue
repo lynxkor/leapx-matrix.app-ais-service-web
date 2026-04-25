@@ -406,7 +406,7 @@
               <h2>审计补充材料</h2>
             </div>
             <div class="common-section-body">
-              <AisAttachment :businessId="form.warrantyAudit?.id" />
+              <AisAttachment :businessId="form.warrantyAuditDetail?.id" />
             </div>
           </section>
           <section class="common-section">
@@ -438,7 +438,7 @@
               </div>
             </div>
           </section>
-          <section class="common-section">
+          <section class="common-section" v-if="form.warrantyAuditDetail && form.warrantyAuditDetail.planDeductTotal > 0">
             <div class="common-section-header">
               <h2>追溯明细</h2>
             </div>
@@ -472,24 +472,31 @@
       @update:visible="supplyMaterialDialogVisible = $event"
       @success="loadDetail"
     />
-      <!-- 审计驳回弹窗 -->
+    <!-- 审计通过弹窗 -->
+    <AuditPassDialog
+      :visible.sync="auditPassDialogVisible"
+      :id="_id"
+      @update:visible="auditPassDialogVisible = $event"
+      @success="loadDetail"
+    />
+    <!-- 审计驳回弹窗 -->
     <AuditRejectDialog
       :visible.sync="auditRejectDialogVisible"
-      :id="allId"
+      :id="_id"
       @update:visible="auditRejectDialogVisible = $event"
       @success="loadDetail"
     />
       <!-- 同意申诉弹窗 -->
     <AgreeAppealDialog
       :visible.sync="agreeAppealDialogVisible"
-      :id="allId"
+      :id="_id"
       @update:visible="agreeAppealDialogVisible = $event"
       @success="loadDetail"
     />
     <!-- 拒绝申诉弹窗 -->
     <RejectAppealDialog
       :visible.sync="rejectAppealDialogVisible"
-      :id="allId"
+      :id="_id"
       @update:visible="rejectAppealDialogVisible = $event"
       @success="loadDetail"
     />
@@ -508,7 +515,6 @@ import {
   getDetailWithRelated,
   addOrUpdate,
   agree,
-  auditPass
 } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -517,6 +523,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import AuditRejectDialog from './components/AuditRejectDialog.vue';
+import AuditPassDialog from './components/AuditPassDialog.vue';
 import AgreeAppealDialog from './components/AgreeAppealDialog.vue';
 import RejectAppealDialog from './components/RejectAppealDialog.vue';
 import AisAttachment from './components/AisAttachment.vue';
@@ -549,6 +556,7 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
+    AuditPassDialog,
     AuditRejectDialog,
     AgreeAppealDialog,
     RejectAppealDialog,
@@ -630,7 +638,6 @@ export default {
       appealDialogVisible: false,
       agreeAppealDialogVisible: false,
       rejectAppealDialogVisible: false,
-      allId: '',
       formData: {}, // 弹窗需要传递的参数
     };
   },
@@ -701,26 +708,10 @@ export default {
     },
     // 审计通过
     handleAuditPass () {
-      this.$prompt('审计说明', '审计通过', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputPattern: /.+/, // 校验非空
-        inputErrorMessage: '请输入备注',
-      }).then(({ value }) => {
-        // 调用 API，并传入用户输入的备注
-        return auditPass({ id: this._id, auditDesc: value });
-      }).then(() => {
-        // 提示成功
-        this.$message.success('审计通过成功');
-        // 执行额外回调（比如刷新列表）
-        this.getData();
-      }).catch(() => {
-        // 用户取消或校验失败，静默处理
-      });
+      this.auditPassDialogVisible = true;
     },
     // 审计驳回
     handleAuditReject () {
-      this.allId = this._id;
       this.auditRejectDialogVisible = true;
     },
     // 申诉
@@ -735,7 +726,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        agree({ ids: [this.form.id] }).then(() => {
+        agree({ detailId: this._id }).then(() => {
           this.$message.success('操作成功');
           this.loadDetail();
         }).catch(() => {
@@ -745,12 +736,10 @@ export default {
     },
     // 同意申诉
     handleAgreeAppeal () {
-      this.allId = this._id;
       this.agreeAppealDialogVisible = true;
     },
     // 拒绝申诉
     handleRejectAppeal () {
-      this.allId = this._id;
       this.rejectAppealDialogVisible = true;
     },
   }

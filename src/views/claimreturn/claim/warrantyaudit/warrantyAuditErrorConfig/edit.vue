@@ -50,13 +50,13 @@
                 <el-col :span="12">
                   <el-form :model="form" :rules="rules" ref="ruleForm" class="form-edit" v-show="isEditing || !_id" style="display: block">
                     <el-form-item label="正式工时扣款比例（%）" prop="formalLaborDeductRatio">
-                      <el-input-number v-model="form.formalLaborDeductRatio" :min="0" :controls="false" placeholder="请输入" />
+                      <el-input-number v-model="form.formalLaborDeductRatio" :min="0" :precision="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
                     <el-form-item label="正式备件扣款比例（%）" prop="formalPartDeductRatio">
-                      <el-input-number v-model="form.formalPartDeductRatio" :min="0" :controls="false" placeholder="请输入" />
+                      <el-input-number v-model="form.formalPartDeductRatio" :min="0" :precision="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
                     <el-form-item label="正式其他扣款比例（%）" prop="formalOtherDeductRatio">
-                      <el-input-number v-model="form.formalOtherDeductRatio" :min="0" :controls="false" placeholder="请输入" />
+                      <el-input-number v-model="form.formalOtherDeductRatio" :min="0" :precision="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
                   </el-form>
                   <el-form :model="form" class="form-detail" v-if="!(isEditing || !_id)" style="display: block">
@@ -68,13 +68,13 @@
                 <el-col :span="12">
                   <el-form :model="form" :rules="rules" ref="ruleForm" class="form-edit" v-show="isEditing || !_id" style="display: block">
                     <el-form-item label="跟进工时扣款比例（%）" prop="followLaborDeductRatio">
-                      <el-input-number v-model="form.followLaborDeductRatio" :min="0" :controls="false" placeholder="请输入" />
+                      <el-input-number v-model="form.followLaborDeductRatio" :min="0" :precision="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
                     <el-form-item label="跟进备件扣款比例（%）" prop="followPartDeductRatio">
-                      <el-input-number v-model="form.followPartDeductRatio" :min="0" :controls="false" placeholder="请输入" />
+                      <el-input-number v-model="form.followPartDeductRatio" :min="0" :precision="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
                     <el-form-item label="跟进其他扣款比例（%）" prop="followOtherDeductRatio">
-                      <el-input-number v-model="form.followOtherDeductRatio" :min="0" :controls="false" placeholder="请输入" />
+                      <el-input-number v-model="form.followOtherDeductRatio" :min="0" :precision="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
                   </el-form>
                   <el-form :model="form" class="form-detail" v-if="!(isEditing || !_id)" style="display: block">
@@ -106,12 +106,13 @@ const defaultForm = {
   errorCategory: '',
   checkItem: '',
   remark: '',
-  formalLaborDeductRatio: null,
-  formalPartDeductRatio: null,
-  formalOtherDeductRatio: null,
-  followLaborDeductRatio: null,
-  followPartDeductRatio: null,
-  followOtherDeductRatio: null,
+  status: 1,
+  formalLaborDeductRatio: 0,
+  formalPartDeductRatio: 0,
+  formalOtherDeductRatio: 0,
+  followLaborDeductRatio: 0,
+  followPartDeductRatio: 0,
+  followOtherDeductRatio: 0,
   createTime: '',
   updateTime: ''
 };
@@ -142,8 +143,7 @@ export default {
       form: { ...defaultForm },
       originalForm: { ...defaultForm },
       rules: {
-        errorCode: [{ required: true, message: '请输入错误代码', trigger: 'change' }],
-        errorCategory: [{ required: true, message: '请输入错误类别', trigger: 'change' }]
+        errorCode: [{ required: true, message: '请输入错误代码', trigger: 'change' }]
       }
     };
   },

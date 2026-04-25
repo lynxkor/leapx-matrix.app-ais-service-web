@@ -1,125 +1,165 @@
 <template>
-  <div class="page-common-add">
-    <el-container>
-      <el-main>
-        <section class="common-section">
-          <div class="common-section-header">
-            <h2>基础信息</h2>
-          </div>
-          <div class="common-section-body">
-            <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px">
-              <el-form-item label="优惠代码" prop="code">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.code"
-                  clearable
-                  disabled
-                />
-              </el-form-item>
-              <el-form-item label="优惠名称" prop="name">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.name"
-                  clearable
-                  maxLength="50"
-                  show-word-limit
-                />
-              </el-form-item>
-              <el-form-item label="门店名称" prop="dealerName">
-                <InputLink
-                  v-model="form.dealerName"
-                  :link="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`"
-                  placeholder="请输入"
-                  readonly
-                />
-              </el-form-item>
-              <el-form-item label="工时折扣率" prop="discountWorkhourRate">
-                <el-input
-                  type="number"
-                  placeholder="请输入"
-                  v-model="form.discountWorkhourRate"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="备件折扣率" prop="discountPartRate">
-                <el-input
-                  type="number"
-                  placeholder="请输入"
-                  v-model="form.discountPartRate"
-                  clearable
-                />
-              </el-form-item>
-            </el-form>
-          </div>
-        </section>
-        <section class="common-section">
-          <div class="common-section-header">
-            <h2>可使用对象</h2>
-            <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
-          </div>
-          <div class="common-section-body">
-            <div class="common-section-table">
-              <edit-table
-                ref="editTable"
-                :columns="columns"
-                :data="tableData"
-                :defaultNewRow="defaultNewRow"
-                :show-toolbar="false"
-                :options="options"
-                :delTitle="delTitle"
-                :auth="{edit: canAddOrUpdate, delete: canDelete}"
-              />
+  <edit-page-layout ref="editLayout" :title="title" showPaneFooter>
+    <template #left>
+      <edit-base-container
+        ref="containerRef"
+        :id="_id"
+        :title="title"
+        :isEditing.sync="isEditing"
+        :form.sync="form"
+        :originalForm.sync="originalForm"
+        :submitRequest="submitRequest"
+        :detailRequest="detailRequest"
+        :showEditBtn="true"
+      >
+        <template #status>
+          <span class="status primary">{{ form.statusLabel }}</span>
+        </template>
+        <el-main>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>基础信息</h2>
             </div>
-          </div>
-        </section>
-      </el-main>
-      <el-footer height="60px">
-        <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-        <!-- <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button> -->
-        <el-button size="small" @click="handleBack">取消</el-button>
-      </el-footer>
-    </el-container>
-  </div>
+            <div class="common-section-body">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="优惠代码：" prop="code">
+                  <el-input
+                    placeholder="自动生成"
+                    v-model="form.code"
+                    disabled
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="优惠名称：" prop="name">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.name"
+                    clearable
+                    maxLength="50"
+                    show-word-limit
+                  />
+                </el-form-item>
+                <el-form-item label="门店名称：" prop="dealerName">
+                  <InputLink
+                    v-model="form.dealerName"
+                    :link="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`"
+                    placeholder="请输入"
+                    readonly
+                  />
+                </el-form-item>
+                <el-form-item label="工时折扣率：" prop="discountWorkhourRate">
+                  <el-input
+                    type="number"
+                    placeholder="请输入"
+                    v-model="form.discountWorkhourRate"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="备件折扣率：" prop="discountPartRate">
+                  <el-input
+                    type="number"
+                    placeholder="请输入"
+                    v-model="form.discountPartRate"
+                    clearable
+                  />
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" label-width="150px" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="优惠代码：">
+                  {{ form.code }}
+                </el-form-item>
+                <el-form-item label="优惠名称：">
+                  {{ form.name }}
+                </el-form-item>
+                <el-form-item label="门店名称：">
+                  {{ form.dealerName }}
+                </el-form-item>
+                <el-form-item label="工时折扣率：">
+                  {{ form.discountWorkhourRate }}
+                </el-form-item>
+                <el-form-item label="备件折扣率：">
+                  {{ form.discountPartRate }}
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>可使用对象</h2>
+              <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-table">
+                <edit-table
+                  ref="editTable"
+                  :columns="columns"
+                  :data="tableData"
+                  :defaultNewRow="defaultNewRow"
+                  :show-toolbar="false"
+                  :options="options"
+                  :delTitle="delTitle"
+                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                />
+              </div>
+            </div>
+          </section>
+        </el-main>
+      </edit-base-container>
+    </template>
+  </edit-page-layout>
 </template>
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/maintain/basic/dealerDiscount/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
+import InputLink from '@/libs/components/InputLink';
+import EditPageLayout from '@/libs/components/EditPageLayout';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, getUserByNameOrNo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
-import InputLink from '@/libs/components/InputLink';
+import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
-  // 多选时字段有变化，自行修复
   code: '',
   name: '',
   dealerName: '',
+  dealerCode: '',
   discountWorkhourRate: '',
   discountPartRate: '',
+  statusLabel: '',
 };
 
 export default {
   name: 'dealerDiscountEdit',
-  mixins: [routeGuard, permissions],
+  mixins: [routeGuard, permissions, commonMixins],
   components: {
-    // eslint-disable-next-line vue/no-unused-components
     FetchSelect,
     EditTable,
-    InputLink
+    InputLink,
+    EditPageLayout,
+    EditBaseContainer,
+  },
+  computed: {
+    _id () {
+      return this.$route.query.id || this.form.id;
+    },
+    title () {
+      return '优惠名称：' + (this.form.name || '');
+    }
   },
   data () {
     const form = this.getDefautlForm();
     return {
+      pageTitle: '门店优惠模式',
+      pageType: 'edit',
       moduleKey: 'AISMC-dealerDiscount',
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
-      form: {
-        ...form
-      },
+      form: { ...form },
       originalForm: { ...form },
       defaultNewRow: {
         userName: '',
@@ -127,11 +167,9 @@ export default {
       },
       tableData: [],
       options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
         userName: [],
       },
-      delTitle: '此操作将删除此 可使用对象信息，您无法撤消此操作，是否继续？',
+      delTitle: '此操作将删除此可使用对象信息，您无法撤消此操作，是否继续？',
       columns: [
         {
           field: 'userName',
@@ -161,9 +199,6 @@ export default {
         }
       ],
       rules: {
-        code: [
-          { required: false, message: '请输入优惠代码', trigger: 'blur' }
-        ],
         name: [
           { required: true, message: '请输入优惠名称', trigger: 'blur' }
         ],
@@ -171,30 +206,22 @@ export default {
           { required: true, message: '请输入门店名称', trigger: 'blur' }
         ],
         discountWorkhourRate: [
-          { required: true, message: '请输入工时折扣率:介入0-1之间，包含0、1', trigger: 'blur' },
+          { required: true, message: '请输入工时折扣率：介入0-1之间，包含0、1', trigger: 'blur' },
           {
             validator: (rule, value, callback) => {
-              // 处理字符串类型的值
               const numValue = Number(value);
-
               if (value === '' || value === null || value === undefined) {
                 callback(new Error('请输入工时折扣率'));
                 return;
               }
-
-              // 检查是否是有效数字
               if (isNaN(numValue)) {
                 callback(new Error('请输入有效的数字'));
                 return;
               }
-
-              // 检查范围
               if (numValue < 0 || numValue > 1) {
                 callback(new Error('工时折扣率必须在0-1之间'));
                 return;
               }
-
-              // 检查小数位数
               const strValue = value.toString();
               if (strValue.includes('.')) {
                 const decimalPart = strValue.split('.')[1];
@@ -203,36 +230,27 @@ export default {
                   return;
                 }
               }
-
               callback();
             }
           }
         ],
         discountPartRate: [
-          { required: true, message: '请输入备件折扣率:介入0-1之间，包含0、1', trigger: 'blur' },
+          { required: true, message: '请输入备件折扣率：介入0-1之间，包含0、1', trigger: 'blur' },
           {
             validator: (rule, value, callback) => {
-              // 处理字符串类型的值
               const numValue = Number(value);
-
               if (value === '' || value === null || value === undefined) {
                 callback(new Error('请输入备件折扣率'));
                 return;
               }
-
-              // 检查是否是有效数字
               if (isNaN(numValue)) {
                 callback(new Error('请输入有效的数字'));
                 return;
               }
-
-              // 检查范围
               if (numValue < 0 || numValue > 1) {
                 callback(new Error('备件折扣率必须在0-1之间'));
                 return;
               }
-
-              // 检查小数位数
               const strValue = value.toString();
               if (strValue.includes('.')) {
                 const decimalPart = strValue.split('.')[1];
@@ -241,94 +259,33 @@ export default {
                   return;
                 }
               }
-
               callback();
             }
           }
         ],
-      },
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近一个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近三个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
       }
     };
   },
-  mounted () {
-    this.getDetailData();
-  },
   methods: {
-    handleBack () {
-      this.$router.back();
-    },
-    getDetailData () {
-      const id = this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['门店优惠模式管理', `${id ? '编辑' : '新增'}`]);
+    detailRequest () {
+      const id = this._id;
       if (id) {
-        getDetail(id).then(res => {
-          this.loading = false;
-          Object.assign(this.form, res);
-          Object.assign(this.originalForm, res);
-          this.tableData = res.dealerUserDiscountRespList;
+        return getDetail(id).then(res => {
+          this.tableData = res.dealerUserDiscountRespList || [];
+          return res;
         });
       }
+      return {};
     },
-    async submitForm (formName, rest = false) {
-      try {
-        const tableData = await this.handleSaveTable();
-        // 判断是否编辑数据 是的话删除详情接口所带的字段数组 modelWorkhourPriceRespList
-        if (this.$route.query.id) {
-          this.$delete(this.form, 'dealerUserDiscountRespList');
-        }
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            this.submitLoading = true;
-            addOrUpdate({ ...this.form, dealerUserDiscountAddOrUpdateReqs: tableData }).then(res => {
-              this.$message({
-                message: '保存成功',
-                type: 'success'
-              });
-              const id = this.$route.query.id;
-              if (rest || !id) {
-                this.resetForm(formName);
-              } else {
-                this.getDetailData();
-              }
-            }).finally(() => {
-              this.submitLoading = false;
-            });
-          }
-        });
-      } catch (error) {
-        console.log(error);
+    submitRequest () {
+      const formData = { ...this.form };
+      if (this._id) {
+        delete formData.dealerUserDiscountRespList;
       }
+      return addOrUpdate({ ...formData, dealerUserDiscountAddOrUpdateReqs: this.tableData });
     },
-    resetForm (formName) {
-      this.$refs[formName].resetFields();
-      this.tableData = [];
-      this.form = this.getDefautlForm();
+    handleAddRow () {
+      this.$refs.editTable.addRow();
     },
     getDefautlForm () {
       const userInfo = this.$store.state.user.userInfo;
@@ -338,30 +295,6 @@ export default {
         ownerName: userInfo.userName,
         dealerName: userInfo.orgPostUserList.find(item => item.position === '1')?.orgName,
       };
-    },
-    // handleJumpAuditLog () {
-    //   this.$router.push({
-    //     path: '/xxx/auditLog',
-    //     query: {
-    //       tableCode: '',
-    //       tableId: ''
-    //     }
-    //   });
-    // },
-    // 详情表格相关数据
-    handleAddRow () {
-      // 通过引用直接调用子组件方法
-      this.$refs.editTable.addRow();
-    },
-    handleSaveTable (data) {
-      // 调用保存方法并处理结果
-      return new Promise((resolve, reject) => {
-        this.$refs.editTable.saveAll().then(data => {
-          resolve(data);
-        }).catch(error => {
-          reject(error);
-        });
-      });
     },
     async fetchOptions (code) {
       if (code) {
@@ -389,3 +322,10 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.status.primary {
+  color: var(--leap-color-primary);
+  font-weight: 500;
+}
+</style>
