@@ -30,10 +30,10 @@
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="通知组编码：" prop="code">
                   <el-input
-                    placeholder="自动生成"
+                    placeholder="请输入编码"
                     v-model="form.code"
                     clearable
-                    disabled
+                    :disabled="!!_id"
                   />
                 </el-form-item>
                 <el-form-item label="通知组名称：" prop="groupName">

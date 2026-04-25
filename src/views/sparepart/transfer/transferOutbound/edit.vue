@@ -338,7 +338,7 @@
                   <vxe-column field="availableQty" title="可用库存" min-width="10%" />
                   <vxe-column field="purchasePriceTax" title="采购价格(含税)" min-width="10%" />
                   <vxe-column field="purchasePriceNotax" title="采购价格(不含税)" min-width="10%" />
-                  <vxe-column field="costUnitPriceTax" title="金额(含税)" min-width="10%" />
+                  <vxe-column field="purchaseAmountTax" title="金额(含税)" min-width="10%" />
                   <vxe-column field="transferQty" title="调拨数量" min-width="10%">
                     <template #default="{ row }">
                       <el-input v-model="row.transferQty" :disabled="!orderStatusType" :max="row.availableQty" type="number" min="1" @blur="handleQtyBlur(row)"/>

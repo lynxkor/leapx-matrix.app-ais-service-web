@@ -55,6 +55,19 @@
         </el-col>
       </el-row>
 
+      <!-- OCR回调地址 -->
+      <el-row :gutter="20">
+        <el-col :span="24">
+          <el-form-item label="OCR回调地址" prop="callbackUrl">
+            <el-input
+              v-model="formData.callbackUrl"
+              placeholder="请输入OCR回调地址"
+              :disabled="formData.needOcr !== '1'"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
       <!-- 文件类型 -->
       <el-row :gutter="20">
         <el-col :span="24">
@@ -142,6 +155,7 @@ export default {
         maxNum: 1,
         maxSize: 10,
         acceptSuffix: '',
+        callbackUrl: '',
         isDefault: '0',
         conditionJson: '',
         expression: '',
@@ -258,6 +272,7 @@ export default {
         maxNum: 1,
         maxSize: 10,
         acceptSuffix: '.png,.jpg,.jpeg,.gif,.pdf,.ppt,.pptx,.xlsx,.xls,.docx,.doc,.rar,.zip,.mp4',
+        callbackUrl: '',
         isDefault: '0',
         conditionJson: '',
         expression: '',
