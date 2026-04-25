@@ -65,7 +65,7 @@ const defaultForm = {
 };
 
 export default {
-  name: 'SupplyMaterialDialog',
+  name: 'AppealDialog',
   components: {
     AisAttachment,
     AttachmentList

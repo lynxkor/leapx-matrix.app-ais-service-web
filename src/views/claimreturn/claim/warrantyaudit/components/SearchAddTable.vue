@@ -153,10 +153,7 @@ export default {
       this.removeRows([row.id]);
     },
     removeRows (ids) {
-      removeDetail({
-        id: this._id,
-        detailIdList: ids,
-      }).then((d) => {
+      removeDetail(ids).then((d) => {
         this.$message.success('删除成功');
         this.getTableData();
       }).catch(() => {
