@@ -229,13 +229,23 @@ export default {
       ],
       rules: {
         name: [
-          { required: true, message: '请输入班组名称', trigger: 'blur' }
+          { required: true, message: '请输入班组名称', trigger: 'blur' },
+          { min: 0, max: 50, message: '最多50个字符', trigger: 'blur' }
+        ],
+        teamTypeDesc: [
+          { required: true, message: '请选择班组类型描述', trigger: 'change' }
+        ],
+        statusDesc: [
+          { required: true, message: '请选择班组状态描述', trigger: 'change' }
+        ],
+        dealerName: [
+          { required: true, message: '请输入门店名称', trigger: 'blur' }
+        ],
+        status: [
+          { required: true, message: '请选择班组状态', trigger: 'change' }
         ],
         teamType: [
           { required: true, message: '请选择班组类型', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: true, message: '请选择门店名称', trigger: 'blur' }
         ],
         ownerUserName: [
           { required: true, message: '请选择负责人', trigger: 'blur' }
