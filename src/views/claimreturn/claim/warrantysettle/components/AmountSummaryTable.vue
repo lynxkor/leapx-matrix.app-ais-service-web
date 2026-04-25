@@ -9,6 +9,7 @@
       :row-config="{ isHover: true }"
       border="inner"
       size="medium"
+      min-height="0px"
       max-height="300px"
     >
       <vxe-column field="warrantyTypeName" title="保修类型"></vxe-column>
