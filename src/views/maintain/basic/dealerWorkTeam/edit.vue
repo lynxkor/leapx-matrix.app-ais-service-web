@@ -204,9 +204,6 @@ export default {
         dealerName: [
           { required: true, message: '请输入门店名称', trigger: 'blur' }
         ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
-        ],
         status: [
           { required: true, message: '请选择班组状态', trigger: 'change' }
         ],
