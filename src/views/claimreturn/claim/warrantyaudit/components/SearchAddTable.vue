@@ -7,7 +7,7 @@
       <div class="common-section-header">
         <div style="display: flex;gap: 8px;">
           <base-search
-            v-if="canAddOrUpdate"
+            v-if="canAddOrUpdate && !isDetailFull"
             filterable
             clearable
             remote
@@ -18,7 +18,7 @@
             label-key="applyNo"
             placeholder="请输入保修申请单"
           />
-          <el-button size="small" @click="handleImport">导入</el-button>
+          <el-button size="small" @click="handleImport" v-if="canImport" :disabled="isDetailFull">导入</el-button>
         </div>
       </div>
       <div class="common-section-table">
@@ -94,6 +94,9 @@ export default {
     Upload
   },
   computed: {
+    isDetailFull () {
+      return this.formData.actualAuditCount >= this.formData.planAuditCount && this.formData.planAuditCount > 0;
+    },
   },
   data () {
     return {
@@ -165,6 +168,7 @@ export default {
     },
     queryListData (query) {
       return detailSearchApi({
+        applyNo: query,
         limitSize: 20,
         isClaimTrackIdNull: true,
         isWarrantyAuditDetailIdNull: true,

@@ -295,7 +295,6 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
-    this.getTabsList();
   },
   methods: {
     handleListSelect (row) {
@@ -381,6 +380,7 @@ export default {
         }).finally(() => {
           this.loading = false;
         });
+      this.getTabsList();
     },
     // 需要防抖场景时使用
     debouncedGetData: debounce(function () {

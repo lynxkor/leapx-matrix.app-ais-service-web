@@ -298,7 +298,7 @@ const defaultForm = {
   partRespList: '',
   typeName: '',
   backoutSuedDate: '',
-  comboStatus: '',
+  comboStatus: 10,
   suedDealer: 1,
   ownerOrgId: '',
   dealerCode: '',

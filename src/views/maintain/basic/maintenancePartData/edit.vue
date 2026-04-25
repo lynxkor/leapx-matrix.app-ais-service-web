@@ -278,7 +278,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '保养零件提醒表管理',
+      pageTitle: '保养零件主数据',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-maintenancePartData',
