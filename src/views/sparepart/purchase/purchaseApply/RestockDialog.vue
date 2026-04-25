@@ -44,7 +44,6 @@
                 <vxe-column field="totalInventory" title="总库存" width="120" />
                 <vxe-column field="availableInventory" title="可用库存" width="120" />
                 <vxe-column field="inTransitQuantity" title="在途数量" width="120" />
-                <vxe-column field="sharedInventoryQuantity" title="共享库存数量" width="120" />
                 <vxe-column field="sharedInventory" title="共享库存" width="120" />
                 <vxe-column field="suggestedPurchaseQty" title="建议采购数" width="150" />
                 <vxe-column field="unitPrice" title="单价" width="100" />

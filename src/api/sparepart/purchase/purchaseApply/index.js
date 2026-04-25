@@ -4,7 +4,7 @@ import { SPARE_PREFIX } from '../../spareurl';
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/purchase/purchaseApply/';
 const prefixDetail = SPARE_PREFIX + '/web/purchase/purchaseApplyDetail/';
-
+const prefixReco = SPARE_PREFIX + '/web/purchase/dealerPartsRecommendationT/';
 /**
  * 查询列表
  * @param {Object} data
@@ -162,5 +162,5 @@ export function purchaseApplyBatchSubmit (data) {
  * @param {Object} data
  */
 export function purchaseApplyGetCouponPage (data) {
-  return api.jsonPost('/sp/web/purchase/dealerPartsRecommendationT/page', data);
+  return api.jsonPost(prefixReco + 'page', data);
 }

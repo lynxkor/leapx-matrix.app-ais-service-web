@@ -132,55 +132,6 @@
               </el-form>
             </div>
           </section>
-          <section class="common-section" v-if="_id">
-            <div class="common-section-header">
-              <h2>子表标题</h2>
-            </div>
-            <div class="common-section-body">
-              <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
-                  <el-button type="primary" size="small">添加</el-button>
-                </div>
-              </div>
-              <div class="common-section-table">
-                <vxe-table
-                  ref="tableRef"
-                  stripe
-                  :data="tableData"
-                  show-overflow
-                  resizable
-                  border="inner"
-                  size="medium"
-                  min-height="0"
-                  max-height="400px"
-                >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
-                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                      </el-popconfirm>
-                    </template>
-                  </vxe-column>
-                  <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
-                  </template>
-                </vxe-table>
-              </div>
-            </div>
-          </section>
         </el-main>
       </edit-base-container>
     </template>
