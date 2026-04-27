@@ -163,10 +163,10 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="未解决问题原因：" prop="unresolvedReason">
+        <el-form-item label="未解决问题原因：" prop="unresolvedReasonLabel">
           <el-input
             placeholder="请输入"
-            v-model="form.unresolvedReason"
+            v-model="form.unresolvedReasonLabel"
             clearable
             disabled
           />
@@ -326,8 +326,8 @@
         <el-form-item label="客户反馈故障是否全部解决：" prop="faultSolveLabel">
           {{ form.faultSolveLabel }}
         </el-form-item>
-        <el-form-item label="未解决问题原因：" prop="unresolvedReason">
-          {{ form.unresolvedReason }}
+        <el-form-item label="未解决问题原因：" prop="unresolvedReasonLabel">
+          {{ form.unresolvedReasonLabel }}
         </el-form-item>
         <el-form-item label="本次进店情况（周期内）：" prop="currentSituationLabel">
           {{ form.currentSituationLabel }}

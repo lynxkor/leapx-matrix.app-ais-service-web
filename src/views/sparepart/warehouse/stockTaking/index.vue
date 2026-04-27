@@ -671,14 +671,32 @@ export default {
     },
     // 生成差异单
     async handleDifference (row) {
-      const res = await getExceptionList({ id: row.id });
-      if (res.length > 0) {
-        this.differenceId = row.id;
-        this.differenceTableData = res;
-        this.differenceDialogVisible = true;
-      } else {
-        await initDifferences({ id: row.id });
-      }
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>此操作将生成差异单, 是否继续?</div>';
+
+      this.$confirm(message, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(async () => {
+        // 调用 API
+        const res = await getExceptionList({ id: row.id });
+        if (res.length > 0) {
+          this.differenceId = row.id;
+          this.differenceTableData = res;
+          this.differenceDialogVisible = true;
+        } else {
+          await initDifferences({ id: row.id });
+          this.$message.success('生成差异单成功!');
+          this.getData();
+        }
+      }).catch((err) => {
+        // 错误处理
+        if (err !== 'cancel') {
+          console.error('操作失败:', err);
+        }
+      });
     }
   }
 };

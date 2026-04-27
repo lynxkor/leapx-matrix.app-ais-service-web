@@ -3,7 +3,7 @@
     <div class="common-section-header">
       <h2>
         变更车辆信息
-        <div v-if="_id && !disabled" class="btns">
+        <div v-if="_id && !disabled && !processing" class="btns">
           <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="openAdd"><i class="iconfont icon-lxppc-plus"></i>添加车辆</el-button>
           <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="batchTransfer">批量转移</el-button>
           <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="handleImport">导入车辆</el-button>
@@ -44,7 +44,7 @@
               <el-popconfirm
                 title="确定要删除这条记录吗？"
                 @confirm="handleRemoveRow(row, rowIndex)"
-                v-if="canAddOrUpdate && !disabled"
+                v-if="canAddOrUpdate && !disabled && !processing"
               >
                 <el-button
                   class="action-button btn-delete"
@@ -83,13 +83,13 @@
       :businessParams="_id"
       id="serviceDealerChangeVehicle"
       @close="handleUploadDialogClose"
-      @getData="getTableData"
+      @getData="onImportComplete"
     />
     <BatchTransferDialog
       :visible.sync="batchTransferDialogVisible"
       :applyId="_id"
       :selectedRows="selectedRows"
-      @success="getTableData"
+      @success="onTransferComplete"
     />
   </section>
 </template>
@@ -113,6 +113,10 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    processing: {
+      type: Boolean,
+      default: false
     }
   },
   components: {
@@ -127,7 +131,6 @@ export default {
       tableData: [],
       visible: false,
       selectedRows: [],
-      //
       uploadDialogVisible: false,
       batchTransferDialogVisible: false,
     };
@@ -147,8 +150,6 @@ export default {
   },
   mounted () {
     this.getTableData();
-  },
-  beforeDestroy () {
   },
   methods: {
     getTableData () {
@@ -211,18 +212,27 @@ export default {
       this.$emit('checkboxChange', this.selectedRows);
     },
     batchTransfer () {
+      this.$emit('processing-change', true);
       this.batchTransferDialogVisible = true;
     },
+    onTransferComplete () {
+      this.$emit('processing-change', false);
+      this.getTableData();
+    },
     handleImport () {
+      this.$emit('processing-change', true);
       this.uploadDialogVisible = true;
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
+      this.$emit('processing-change', false);
     },
-
+    onImportComplete () {
+      this.$emit('processing-change', false);
+      this.getTableData();
+    },
   },
 };
-
 </script>
 <style lang="scss" scoped>
 .btn-delete{

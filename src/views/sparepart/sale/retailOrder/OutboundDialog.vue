@@ -121,7 +121,8 @@ export default {
         params.outboundIs = '0';
       }
       if (this.titleDialog === '2') {
-        params.applyReturnMaterialIs = '0';
+        params.applyReturnMaterialIs = '1';
+        params.outboundIs = '1';
       }
       retailOrderDetailPage(params).then(res => {
         this.tableData = res.records || [];

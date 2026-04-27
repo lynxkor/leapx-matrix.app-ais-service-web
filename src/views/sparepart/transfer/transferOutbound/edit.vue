@@ -560,7 +560,7 @@ export default {
       handler (val) {
         if (val) {
           this.getData();
-          if (this.form.transferStatus === '0') {
+          if (this.form.transferStatus === '0' || this.form.transferStatus === '3') {
             this.orderStatusType = true;
           }
         }
@@ -668,7 +668,7 @@ export default {
         return;
       }
       // 检查是否已存在
-      const exists = this.tableData.some(item => item.partCode === record.partCode);
+      const exists = this.tableData.some(item => item.id === record.id);
       if (exists) {
         this.$message.warning('请勿重复添加');
       }
