@@ -10,7 +10,12 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
-        :showEditBtn="true"
+        :showEditBtn="
+          this.permissions.has('AISPART-sparePart-vfgImport') ||
+          this.permissions.has('AISPART-sparePart-modelImport') ||
+          this.permissions.has('AISPART-sparePart-purchaseImport') ||
+          this.permissions.has('AISPART-sparePart-transportImport') ||
+          this.permissions.has('AISPART-sparePart-salesImport')"
       >
         <template #status>
           <span class="status primary">{{ form.statusLabel }}</span>
