@@ -39,7 +39,7 @@
                     {{ form.statusLabel }}
                   </el-form-item>
                   <el-form-item label="停用原因：">
-                    {{ form.statusDesc }}
+                    {{ form.disableReason }}
                   </el-form-item>
                   <el-form-item label="备注：" prop="remark">
                     <el-input placeholder="请输入" v-model="form.remark" clearable />
@@ -71,7 +71,7 @@
                     {{ form.statusLabel }}
                   </el-form-item>
                   <el-form-item label="停用原因：">
-                    {{ form.statusDesc }}
+                    {{ form.disableReason }}
                   </el-form-item>
                   <el-form-item label="备注：" prop="remark">
                     {{ form.remark }}
