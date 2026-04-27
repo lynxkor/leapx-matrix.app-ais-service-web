@@ -155,10 +155,15 @@ export default {
       //  构建参数
       const params = {
         id: this.id,
-        detailList: this.tableData.map(row => ({
-          detailId: row.id, // 行数据的唯一标识
-          operator: row.picker // 领料人ID
-        }))
+        detailList: this.tableData.map(row => {
+          // 根据 picker（userId）查找对应的用户名
+          const selectedUser = this.userList.find(user => user.value === row.picker);
+          return {
+            detailId: row.id, // 行数据的唯一标识
+            operator: row.picker, // 领料人ID
+            operatorName: selectedUser ? selectedUser.label : '' // 领料人名称
+          };
+        })
       };
       // 批量更新选中行的实际作业时间
       this.submitLoading = true;
