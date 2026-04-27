@@ -699,32 +699,10 @@ export default {
         });
       }
     },
-    async handleSettlementConfirm (faultData) {
-      // 如果存在故障数据，先保存故障解决情况
-      if (faultData) {
-        const basicInfo = await this.$refs.basicInfoRef.getFormData();
-        const entrustInfo = await this.$refs.entrustInfoRef.getFormData();
-        const batteryInfo = await this.$refs.batteryInfoRef.getFormData();
-
-        const data = {
-          ...this.form,
-          ...basicInfo,
-          ...entrustInfo,
-          ...batteryInfo,
-          faultSolve: faultData.faultSolve,
-          reason: faultData.reason
-        };
-
-        try {
-          await addOrUpdate(data);
-        } catch (error) {
-          return;
-        }
-      }
-
+    async handleSettlementConfirm (faultData = {}) {
       // 调用结算接口
       try {
-        const res = await addStatement({ serviceProxyId: this._id });
+        const res = await addStatement({ serviceProxyId: this._id, ...faultData });
         this.$message.success('结算成功');
         this.getDetailData();
         if (res) {

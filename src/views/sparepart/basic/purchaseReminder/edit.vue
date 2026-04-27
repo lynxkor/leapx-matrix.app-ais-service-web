@@ -1,136 +1,144 @@
 <template>
-  <!-- TIPS: 如果填写项大于15项，使用类名page-common-edit替换page-common-add -->
-  <div class="page-common-edit">
-    <el-container>
-      <el-main>
-        <section class="common-section">
-          <div class="common-section-header">
-            <h2>基础信息</h2>
-          </div>
-          <div class="common-section-body">
-            <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
-            <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-            <el-form inline :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="提醒类别" prop="reminderCategory">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.reminderCategory"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="是否启用" prop="status">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="StatusEnum"
-                  v-model="form.status"
-                  placeholder="请选择"
-                  clearable
-                  filterable
-                  disabled
-                />
-              </el-form-item>
-              <el-form-item label="提醒内容" prop="reminderContent" style="width: 80%; ">
-                <el-input
-                  type="textarea"
-                  maxlength="500"
-                  show-word-limit
-                  placeholder="请输入"
-                  v-model="form.reminderContent"
-                  clearable
-                />
-              </el-form-item>
-            </el-form>
-          </div>
-        </section>
-        <section class="common-section">
-          <div class="common-section-header">
-            <h2>零件清单</h2>
-          </div>
-          <div class="common-section-body">
-            <div class="ais-select-group" v-if="remindId">
-              <fetch-select
-                  style="width: 305px;"
-                :remote-method="getSparePart"
-                remote
-                v-model="sparePartCode"
-                placeholder="请输入编码或名称"
-                labelKey="name"
-                valueKey="code"
-                subLabelKey="code"
-                clearable
-                collapseTags
-                filterable
-                @change="handleSparePartChange"
+  <edit-page-layout ref="editLayout" :title="title" showPaneFooter>
+    <template #left>
+      <edit-base-container
+        ref="containerRef"
+        :id="_id"
+        :title="title"
+        :isEditing.sync="isEditing"
+        :form.sync="form"
+        :originalForm.sync="originalForm"
+        :submitRequest="submitRequest"
+        :detailRequest="detailRequest"
+        :showEditBtn="true"
+      >
+        <template #status>
+          <span class="status primary">{{ form.statusLabel }}</span>
+        </template>
+        <el-main>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>基础信息</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="提醒类别：" prop="reminderCategory">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.reminderCategory"
+                    clearable
                   />
-              <el-button
-                type="primary"
-                @click="handleAddPart()"
-                size="small"
-              >
-                添加
-              </el-button>
-              <el-button
-                type="primary"
-                @click="handleImport()"
-                size="small"
-              >
-                导入零件
-              </el-button>
+                </el-form-item>
+                <el-form-item label="提醒内容：" prop="reminderContent" class="form-item-full">
+                  <el-input
+                    type="textarea"
+                    maxlength="500"
+                    show-word-limit
+                    placeholder="请输入"
+                    v-model="form.reminderContent"
+                    clearable
+                  />
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" label-width="150px" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="提醒类别：">
+                  {{ form.reminderCategory }}
+                </el-form-item>
+                <el-form-item label="提醒内容：" class="form-item-full">
+                  {{ form.reminderContent }}
+                </el-form-item>
+                <el-form-item label="是否启用：">
+                  {{ form.statusLabel }}
+                </el-form-item>
+              </el-form>
             </div>
-            <div class="common-section-table">
-              <el-table
-                :data="tableData"
-                style="width: 100%"
-                fit
-                stripe
-                highlight-current-row
-              >
-                <el-table-column prop="sparePartCode" label="零件编码" width="280">
-                  <template #default="{ row }">
-                    <el-link type="success" :href="'/service/sparepart/basic/sparePart/detail?id=' + row.sparePartId" target="_blank">{{ row.sparePartCode }}</el-link>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="sparePartName" label="零件名称" width="280"></el-table-column>
-                <el-table-column prop="createTime" label="创建时间" width="280"></el-table-column>
-                <el-table-column label="操作" width="100" fixed="right">
-                  <template slot-scope="scope">
-                    <el-popconfirm
-                      title="确认删除该门店吗？"
-                      @confirm="handleDeletePart(scope.row.id)"
-                    >
-                      <span
-                        slot="reference"
-                        class="action-button btn-delete"
+          </section>
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>备件清单</h2>
+            </div>
+            <div class="common-section-body">
+              <div class="ais-select-group" v-if="isEditing">
+                <fetch-select
+                  style="width: 305px;"
+                  :remote-method="getSparePart"
+                  remote
+                  v-model="sparePartCode"
+                  placeholder="请输入编码或名称"
+                  labelKey="name"
+                  valueKey="code"
+                  subLabelKey="code"
+                  clearable
+                  collapseTags
+                  filterable
+                  @change="handleSparePartChange"
+                />
+                <el-button
+                  type="primary"
+                  @click="handleAddPart()"
+                  size="small"
+                >
+                  添加
+                </el-button>
+                <el-button
+                  type="primary"
+                  @click="handleImport()"
+                  size="small"
+                >
+                  导入零件
+                </el-button>
+              </div>
+              <div class="common-section-table">
+                <el-table
+                  :data="tableData"
+                  style="width: 100%"
+                  fit
+                  stripe
+                  highlight-current-row
+                >
+                  <el-table-column prop="sparePartCode" label="零件编码" width="280">
+                    <template #default="{ row }">
+                      <el-link type="success" :href="'/service/sparepart/basic/sparePart/detail?id=' + row.sparePartId" target="_blank">{{ row.sparePartCode }}</el-link>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="sparePartName" label="零件名称" width="280"></el-table-column>
+                  <el-table-column prop="createTime" label="创建时间" width="280"></el-table-column>
+                  <el-table-column label="操作" width="100" fixed="right" v-if="isEditing">
+                    <template slot-scope="scope">
+                      <el-popconfirm
+                        title="确认删除该零件吗？"
+                        @confirm="handleDeletePart(scope.row.id)"
                       >
-                        删除
-                      </span>
-                    </el-popconfirm>
-                  </template>
-                </el-table-column>
-              </el-table>
+                        <span
+                          slot="reference"
+                          class="action-button btn-delete"
+                        >
+                          删除
+                        </span>
+                      </el-popconfirm>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </div>
             </div>
-          </div>
-        </section>
-      </el-main>
-      <el-footer height="60px">
-        <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-        <el-button size="small" @click="handleBack">取消</el-button>
-        <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button>
-      </el-footer>
-    </el-container>
-      <!-- TIPS: 填入项目id即可 -->
-    <Upload
-      :visible="uploadDialogVisible"
-      :businessParams = "_id"
-      id="purchaseReminderPartImport"
-      @close="handleUploadDialogClose"
-    />
-  </div>
+          </section>
+        </el-main>
+        <Upload
+          :visible="uploadDialogVisible"
+          :businessParams="_id"
+          id="purchaseReminderPartImport"
+          @close="handleUploadDialogClose"
+        />
+      </edit-base-container>
+    </template>
+  </edit-page-layout>
 </template>
 
 <script>
 import { getDetail, addOrUpdate, getPartDetailPage, addPart, deletePart } from '@/api/sparepart/basic/purchaseReminder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
+import EditPageLayout from '@/libs/components/EditPageLayout';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, sparePartListShort } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -139,59 +147,35 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
 
 const defaultForm = {
-  // 多选时字段有变化，自行修复
   reminderCategory: '',
   reminderContent: '',
   status: '1',
-  createTime: '',
-  updateTime: '',
-  id: '',
-  creator: '',
-  creatorName: '',
-  modifier: '',
-  modifierName: '',
-  remark: '',
-  statusDesc: '',
-  dataSource: '',
+  statusLabel: '',
 };
 
 export default {
   name: 'purchaseReminderEdit',
-  // 集中视图预留
-  props: {
-    id: {
-      type: [String, Number],
-      default: null
-    }
-  },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     FetchSelect,
+    EditPageLayout,
+    EditBaseContainer,
     Upload
   },
   computed: {
     _id () {
-      return this.id || this.$route.query.id || this.form.id;
-    }
-  },
-  watch: {
-    id: {
-      handler (val) {
-        if (val) {
-          this.getDetailData();
-        }
-      },
-      immediate: true
+      return this.$route.query.id || this.form.id;
+    },
+    title () {
+      return '提醒类别：' + (this.form.reminderCategory || '');
     }
   },
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '新页面',
+      pageTitle: '备件采购提醒设置',
       pageType: 'edit',
-      // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-purchaseReminder',
-      isEditing: false,
       loading: false,
       submitLoading: false,
       yes_no_enum: YES_NO_ENUM,
@@ -201,136 +185,38 @@ export default {
       partOptions: [],
       tableData: [],
       sparePartCode: '',
-      remindId: null,
       uploadDialogVisible: false,
       rules: {
         reminderCategory: [
-          { required: true, message: '请输入提醒类别', trigger: 'change' }
+          { required: true, message: '请输入提醒类别', trigger: 'blur' }
         ],
         reminderContent: [
-          { required: true, message: '请输入提醒内容，最大2000字符', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源，150:新销服; 老销服:10', trigger: 'change' }
+          { required: true, message: '请输入提醒内容，最大2000字符', trigger: 'blur' }
         ],
       }
     };
   },
-  mounted () {
-    this.getDetailData();
-    this.partDetailPage(this.$route.query.id);
-    this.remindId = this._id;
-  },
   methods: {
-    handleBack () {
-      this.$router.back();
-    },
-    getDetailData () {
+    detailRequest () {
       const id = this._id;
-      if (!this.id) {
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['备件采购提醒设置', `${id ? '详情' : '新建'}`]);
-      }
       if (id) {
-        getDetail(id).then(res => {
-          this.loading = false;
-          Object.assign(this.form, res);
-          Object.assign(this.originalForm, res);
-        });
+        return getDetail(id);
       }
+      return {};
     },
-    submitForm (formName, rest = false) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          this.submitLoading = true;
-          addOrUpdate({ ...this.form }).then(res => {
-            this.$message({
-              message: '保存成功',
-              type: 'success'
-            });
-            this.remindId = res || '';
-            const id = this.$route.query.id;
-            console.log('this.remindId' + this.remindId);
-            if (res) {
-              this.form.id = res;
-              this.getDetailData();
-              this.partDetailPage(res);
-              return;
-            }
-            if (res || !id) {
-              this.resetForm(formName);
-            } else {
-              this.getDetailData();
-            }
-          }).finally(() => {
-            this.submitLoading = false;
-          });
-        }
-      });
-    },
-    resetForm (formName) {
-      this.$refs[formName].resetFields();
-      this.tableData = [];
-      this.form = this.getDefautlForm();
+    submitRequest () {
+      return addOrUpdate({ id: this.form.id, ...this.form });
     },
     getDefautlForm () {
-      // TIPS: 此处可添加表单默认值，如当前用户信息等
-      // const userInfo = this.$store.state.user.userInfo;
       return {
         ...defaultForm
-        // ownerId: userInfo.userId,
-        // ownerName: userInfo.userName,
       };
-    },
-    // 审核日志
-    handleJumpAuditLog () {
-      this.$auditLog.show({ id: this._id });
     },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);
       }
       return [];
-    },
-    // 选择零件
-    getPartByName (query) {
-      sparePartListShort({
-        partCodeOrNameLike: query
-      }).then(res => {
-        this.partOptions = res?.map(item => {
-          return {
-            ...item,
-            value: item.code,
-            label: item.name
-          };
-        });
-      });
     },
     async getSparePart (query) {
       try {
@@ -347,10 +233,18 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
-    async handleAddPart (val) {
+    async handleAddPart () {
+      if (Object.keys(this.sparePartData).length === 0) {
+        this.$message({
+          type: 'warning',
+          message: '请选择零件'
+        });
+        return;
+      }
       await addPart(this.sparePartData);
       this.partDetailPage(this._id);
       this.sparePartCode = '';
+      this.sparePartData = {};
     },
     async handleDeletePart (val) {
       await deletePart([val]);
@@ -358,15 +252,17 @@ export default {
     },
     handleSparePartChange (val) {
       const selectedItem = this.partOptions.find(item => item.code === val);
-      this.sparePartData = {
-        ...this.sparePartData,
-        sparePartId: selectedItem.id,
-        sparePartCode: selectedItem.code,
-        sparePartName: selectedItem.name,
-        purchaseReminderId: this._id
-      };
+      if (selectedItem) {
+        this.sparePartData = {
+          sparePartId: selectedItem.id,
+          sparePartCode: selectedItem.code,
+          sparePartName: selectedItem.name,
+          purchaseReminderId: this._id
+        };
+      }
     },
     async partDetailPage (val) {
+      if (!val) return;
       const partRes = await getPartDetailPage({
         purchaseReminderId: val
       });
@@ -379,6 +275,30 @@ export default {
       this.uploadDialogVisible = false;
       this.partDetailPage(this._id);
     },
+  },
+  mounted () {
+    if (this._id) {
+      this.partDetailPage(this._id);
+    }
+  },
+  watch: {
+    _id: {
+      handler (val) {
+        if (val) {
+          this.partDetailPage(val);
+        }
+      }
+    }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.status.primary {
+  color: var(--leap-color-primary);
+  font-weight: 500;
+}
+.common-section-table {
+  margin-top: 20px;
+}
+</style>

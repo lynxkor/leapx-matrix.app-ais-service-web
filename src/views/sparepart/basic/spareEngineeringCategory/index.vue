@@ -171,9 +171,10 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/spareEngineeringCategory/detail',
+                  path: '/sparepart/basic/spareEngineeringCategory/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: false
                   }
                 });
               },
@@ -196,7 +197,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/spareEngineeringCategory/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

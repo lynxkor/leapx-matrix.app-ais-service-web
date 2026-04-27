@@ -6,6 +6,19 @@ import store from '../store';
 
 const root = window.APP_AIS_WEB_CONFIG.VUE_APP_WORK_ORDER_URL;
 const leapx = window.APP_AIS_WEB_CONFIG.VUE_APP_LEAPX_URL;
+const ais = window.APP_AIS_WEB_CONFIG.VUE_APP_AIS_URL;
+
+// 路由到 ais 后端的 URL 前缀列表，新增前缀只需在此添加一行
+const AIS_PREFIXES = [
+  '/vehstock/', '/maintain/', '/claimreturn/', '/datacenter/',
+  '/sp/', '/data/', '/vr/', '/vw/', '/datareport/', '/file/'
+];
+
+function resolveBaseURL (url, sign) {
+  if (sign) return leapx;
+  const target = url.startsWith('/') ? url : '/' + url;
+  return AIS_PREFIXES.some(p => target.startsWith(p)) ? ais : root;
+}
 
 // 请求拦截器
 axios.interceptors.request.use(config => {
@@ -102,7 +115,20 @@ const responseInterceptors = (instance, forbidToast) => {
   });
 };
 let myInterceptorsResponse = responseInterceptors(axios);
-// 封装axios的post 请求
+
+function buildRequestConfig (method, config, sign, url) {
+  const contentTypeMap = {
+    postJson: 'application/json',
+    delete: config?.isJSON ? 'application/json' : 'application/x-www-form-urlencoded',
+    put: config?.isRealPut ? 'application/json' : 'multipart/form-data'
+  };
+  const contentType = contentTypeMap[method] || 'application/x-www-form-urlencoded';
+  return {
+    baseURL: resolveBaseURL(url, sign),
+    ...config,
+    headers: { 'Content-Type': contentType, ...config?.headers }
+  };
+}
 
 /**
  * @param {string} url 请求地址
@@ -110,7 +136,7 @@ let myInterceptorsResponse = responseInterceptors(axios);
  * @param {string} method 请求方法
  * @param {boolean} sign 是否是leapx接口
  * @param {boolean} userResponse 是否自定义拦截器
- * @param {boolean} config 自定义配置 {responseType: 'blob',isRealPut:ture}
+ * @param {object} config 自定义配置 {responseType: 'blob', isRealPut: true}
  */
 export function fetch (url, params, method, sign, userResponse, config) {
   if (url === '/userCenter/user/v1/api/sso/getRedirectUrl') {
@@ -122,93 +148,28 @@ export function fetch (url, params, method, sign, userResponse, config) {
     axios.interceptors.response.eject(myInterceptorsResponse);
     myInterceptorsResponse = responseInterceptors(axios, userResponse);
   }
-  // 手动设置请求超时
-  // axios.defaults.timeout = 3000;
-  // 按照标识做url转发
-  axios.defaults.baseURL = root;
-  if (sign) {
-    axios.defaults.baseURL = leapx;
-  }
 
+  const reqConfig = buildRequestConfig(method, config, sign, url);
+
+  if (method === 'post') {
+    return axios.post(url, qs.stringify(params), reqConfig).then(res => res.data);
+  }
   if (method === 'postJson') {
-    axios.defaults.headers['Content-Type'] = 'application/json';
-  } else if (method === 'put') {
-    if (config && config.isRealPut) {
-      axios.defaults.headers['Content-Type'] = 'application/json';
-    } else {
-      axios.defaults.headers['Content-Type'] = 'multipart/form-data';
+    if (params?.id === '') delete params.id;
+    return axios.post(url, params, reqConfig).then(res => res.data);
+  }
+  if (method === 'put') {
+    if (config?.isRealPut) {
+      return axios.put(url, params, reqConfig).then(res => res.data);
     }
-  } else if (method === 'delete') {
-    if (config && config.isJSON) {
-      axios.defaults.headers['Content-Type'] = 'application/json';
-    } else {
-      axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-    }
-  } else {
-    axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-  };
-  return new Promise((resolve, reject) => {
-    if (method === 'post') { // 封装post方法
-      axios.post(url, qs.stringify(params))
-        .then(response => {
-          resolve(response.data);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    } else if (method === 'postJson') { // 封装postJSON方法
-      // for (var key in params) { // 非必填字段也要传值,传空就行
-      //   if (params[key] === '') {
-      //     delete params[key];
-      //   }
-      // }
-      // id为空时删除
-      if (params?.id === '') {
-        delete params.id;
-      }
-      axios.post(url, params, config)
-        .then(response => {
-          resolve(response.data);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    } else if (method === 'put') {
-      if (config && config.isRealPut) {
-        axios.put(url, params)
-          .then(response => {
-            resolve(response.data);
-          })
-          .catch((error) => {
-            reject(error);
-          });
-      } else {
-        axios.post(url, params)
-          .then(response => {
-            resolve(response.data);
-          })
-          .catch((error) => {
-            reject(error);
-          });
-      }
-    } else if (method === 'get') { // 封装get方法
-      axios.get(url, { params })
-        .then(response => {
-          resolve(response.data);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    } else if (method === 'delete') { // 封装delete方法
-      axios.delete(url, params)
-        .then(response => {
-          resolve(response.data);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    };
-  });
+    return axios.post(url, params, reqConfig).then(res => res.data);
+  }
+  if (method === 'get') {
+    return axios.get(url, { ...reqConfig, params }).then(res => res.data);
+  }
+  if (method === 'delete') {
+    return axios.delete(url, { ...params, ...reqConfig }).then(res => res.data);
+  }
 };
 
 export default {
