@@ -91,11 +91,11 @@ export default {
       this.$emit('update:visible', false);
     },
     async submit () {
-      if (this.tableData.some(item => item.operateQty > item.availableQty)) {
+      if (this.tableData.some(item => Number(item.operateQty) > Number(item.availableQty))) {
         this.$message.warning('上架库存不能大于可用库存');
         return;
       }
-      if (this.tableData.some(item => !item.suggestedSharedPrice || item.suggestedSharedPrice <= 0)) {
+      if (this.tableData.some(item => !Number(item.suggestedSharedPrice) || Number(item.suggestedSharedPrice) <= 0)) {
         this.$message.warning('请输入建议共享价格');
         return;
       }
