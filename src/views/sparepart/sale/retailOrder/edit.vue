@@ -889,11 +889,11 @@ export default {
         return;
       }
       // 检查是否已存在
-      const exists = this.tableData.some(item => item.id === record.id);
-      if (exists) {
-        this.$message.warning('请勿重复添加');
-        return;
-      }
+      // const exists = this.tableData.some(item => item.id === record.id);
+      // if (exists) {
+      //   this.$message.warning('请勿重复添加');
+      //   return;
+      // }
       // 根据需求调用接口
       this.sparePartId = val;
       const params = {
