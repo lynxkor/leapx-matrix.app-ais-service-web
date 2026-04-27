@@ -162,10 +162,15 @@ export default {
         isTemp: true,
         payList: this.tableData
       };
-      await collectPayment(params);
-      this.$emit('update:visible', false);
-      this.$emit('success');
-      this.submitLoading = false;
+      try {
+        await collectPayment(params);
+        this.$message.success('收款成功');
+        this.$emit('update:visible', false);
+        this.$emit('success');
+      } finally {
+        // 无论成功还是失败，都会执行这里
+        this.submitLoading = false;
+      }
     },
     // 收款完成
     async handleSubmit () {
@@ -185,11 +190,15 @@ export default {
         isTemp: false,
         payList: this.tableData
       };
-      await collectPayment(params);
-      this.$message.success('收款成功');
-      this.$emit('update:visible', false);
-      this.$emit('success');
-      this.submitLoading = false;
+      try {
+        await collectPayment(params);
+        this.$message.success('收款成功');
+        this.$emit('update:visible', false);
+        this.$emit('success');
+      } finally {
+        // 无论成功还是失败，都会执行这里
+        this.submitLoading = false;
+      }
     }
   }
 };

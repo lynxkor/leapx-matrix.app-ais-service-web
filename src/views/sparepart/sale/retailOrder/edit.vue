@@ -603,7 +603,7 @@ export default {
       return '应付总金额：' + this.form.payableTotalAmount;
     },
     isOrderStatus () { // 是够可添加备件
-      return ['10', '20', '330'].includes(this.form.orderStatus);
+      return ['10', '20', '30'].includes(this.form.orderStatus);
     },
     isDelete () { // 是否可删除 备件   可以编辑备件的【销售数量】
       return ['10', '20'].includes(this.form.orderStatus);
@@ -1048,9 +1048,9 @@ export default {
     },
     // 销售出库, 退料入库, 退订入库
     handleAll (num) {
-      this.returnMaterialId = this._id;
+      this.outboundId = this._id;
       this.titleDialog = num;
-      this.returnMaterialDialogVisible = true;
+      this.outboundDialogVisible = true;
     },
     // 退料申请
     handleApplyReturnMaterial () {
