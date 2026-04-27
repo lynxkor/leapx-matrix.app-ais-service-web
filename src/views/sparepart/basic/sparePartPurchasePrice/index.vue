@@ -231,9 +231,10 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePartPurchasePrice/detail',
+                  path: '/sparepart/basic/sparePartPurchasePrice/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: false
                   }
                 });
               },
@@ -250,7 +251,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/sparePart/detail',
                   query: {
-                    id: row.sparePartId
+                    id: row.sparePartId,
+                    isEditing: false
                   }
                 });
               },
@@ -293,7 +295,8 @@ export default {
                   this.$router.push({
                     path: '/sparepart/basic/sparePartPurchasePrice/edit',
                     query: {
-                      id: row.id
+                      id: row.id,
+                      isEditing: true
                     }
                   });
                 },

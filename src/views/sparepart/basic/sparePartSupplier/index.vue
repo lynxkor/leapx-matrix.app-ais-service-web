@@ -184,9 +184,10 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePartSupplier/detail',
+                  path: '/sparepart/basic/sparePartSupplier/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: false
                   }
                 });
               },
@@ -240,16 +241,16 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
-              name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/basic/sparePartSupplier/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: false
                   }
                 });
               },
-              type: 'info'
+              type: 'primary'
             }]
           }
         ],

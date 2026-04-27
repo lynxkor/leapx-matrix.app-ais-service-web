@@ -172,9 +172,10 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/spareSalesCategory/detail',
+                  path: '/sparepart/basic/spareSalesCategory/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: false
                   }
                 });
               },
@@ -197,7 +198,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/spareSalesCategory/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

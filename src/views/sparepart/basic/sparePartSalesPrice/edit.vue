@@ -1,104 +1,178 @@
 <template>
-  <!-- TIPS: 如果填写项大于15项，使用类名page-common-edit替换page-common-add -->
-  <div class="page-common-add">
-    <el-container>
-      <el-main>
-        <section class="common-section">
-          <div class="common-section-header">
-            <h2>基础信息</h2>
-          </div>
-          <div class="common-section-body">
-            <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
-            <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-            <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="备件编码" prop="sparePartCode">
-                <fetch-select
-                  filterable
-                  clearable
-                  remote
-                  reserve-keyword
-                  v-model="form.sparePartCode"
-                  :remote-method="listSparePart"
-                  :disabled="this.$route.query.id"
-                  labelKey="code"
-                  valueKey="id"
-                  subLabelKey="name"
-                  @change="listSparePartChange"
-                />
-              </el-form-item>
-              <el-form-item label="备件名称" prop="sparePartName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.sparePartName"
-                  disabled="true"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="销售价格" prop="dealerSalesPrice">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.dealerSalesPrice"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="生效开始日期" prop="effectiveStartDate">
-                <el-date-picker
-                  v-model="form.effectiveStartDate"
-                  :picker-options="effectiveStartDate"
-                  range-separator="至"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                />
-              </el-form-item>
-            </el-form>
-          </div>
-        </section>
-      </el-main>
-      <el-footer height="60px">
-        <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-        <el-button size="small" @click="handleBack">取消</el-button>
-        <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
-      </el-footer>
-    </el-container>
-  </div>
+  <edit-page-layout ref="editLayout" :title="title" showPaneFooter>
+    <template #left>
+      <edit-base-container
+        ref="containerRef"
+        :id="_id"
+        :title="title"
+        :isEditing.sync="isEditing"
+        :form.sync="form"
+        :originalForm.sync="originalForm"
+        :submitRequest="submitRequest"
+        :detailRequest="detailRequest"
+        :showEditBtn="true"
+      >
+        <template #status>
+          <span class="status primary">{{ form.statusLabel }}</span>
+        </template>
+        <el-main>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>基础信息</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="备件编码：" prop="sparePartCode">
+                  <fetch-select
+                    filterable
+                    clearable
+                    remote
+                    reserve-keyword
+                    v-model="form.sparePartCode"
+                    :remote-method="listSparePart"
+                    :disabled="!!_id"
+                    labelKey="code"
+                    valueKey="id"
+                    subLabelKey="name"
+                    @change="listSparePartChange"
+                  />
+                </el-form-item>
+                <el-form-item label="备件名称：" prop="sparePartName">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.sparePartName"
+                    disabled
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="销售价格：" prop="dealerSalesPrice">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.dealerSalesPrice"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="生效开始日期：" prop="effectiveStartDate">
+                  <el-date-picker
+                    v-model="form.effectiveStartDate"
+                    :picker-options="pickerOptions"
+                    range-separator="至"
+                    value-format="yyyy-MM-dd HH:mm:ss"
+                  />
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" label-width="150px" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="备件编码：">
+                  {{ form.sparePartCode }}
+                </el-form-item>
+                <el-form-item label="备件名称：">
+                  {{ form.sparePartName }}
+                </el-form-item>
+                <el-form-item label="门店销售价格：">
+                  {{ form.dealerSalesPrice }}
+                </el-form-item>
+                <el-form-item label="生效开始日期：">
+                  {{ form.effectiveStartDate }}
+                </el-form-item>
+                <el-form-item label="创建时间：">
+                  {{ form.createTime }}
+                </el-form-item>
+                <el-form-item label="修改时间：">
+                  {{ form.updateTime }}
+                </el-form-item>
+                <el-form-item label="主键：">
+                  {{ form.id }}
+                </el-form-item>
+                <el-form-item label="创建者：">
+                  {{ form.creator }}
+                </el-form-item>
+                <el-form-item label="创建者名称：">
+                  {{ form.creatorName }}
+                </el-form-item>
+                <el-form-item label="修改者：">
+                  {{ form.modifier }}
+                </el-form-item>
+                <el-form-item label="修改者名称：">
+                  {{ form.modifierName }}
+                </el-form-item>
+                <el-form-item label="备注：">
+                  {{ form.remark }}
+                </el-form-item>
+                <el-form-item label="状态：">
+                  {{ form.statusLabel }}
+                </el-form-item>
+                <el-form-item label="状态变更描述：">
+                  {{ form.statusDesc }}
+                </el-form-item>
+                <el-form-item label="数据来源：">
+                  {{ form.dataSource }}
+                </el-form-item>
+                <el-form-item label="备件ID：">
+                  {{ form.sparePartId }}
+                </el-form-item>
+                <el-form-item label="门店ID：">
+                  {{ form.dealerId }}
+                </el-form-item>
+                <el-form-item label="门店编码：">
+                  {{ form.dealerCode }}
+                </el-form-item>
+                <el-form-item label="门店名称：">
+                  {{ form.dealerName }}
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+        </el-main>
+      </edit-base-container>
+    </template>
+  </edit-page-layout>
 </template>
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/sparepart/basic/sparePartSalesPrice/index';
 import FetchSelect from '@/libs/components/FetchSelect';
+import EditPageLayout from '@/libs/components/EditPageLayout';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
+import commonMixins from '@/libs/mixins/commonMixins';
 import { getSparePart } from '@/api/sparepart/basic/sparePart/index';
 
 const defaultForm = {
-  // 多选时字段有变化，自行修复
   sparePartCode: '',
   sparePartName: '',
   dealerSalesPrice: '',
   effectiveStartDate: '',
+  statusLabel: '',
 };
 
 export default {
   name: 'sparePartSalesPriceEdit',
-  // 集中视图预留
-  props: {
-    id: {
-      type: [String, Number],
-      default: null
-    }
-  },
-  mixins: [routeGuard, permissions],
+  mixins: [routeGuard, permissions, commonMixins],
   components: {
-    FetchSelect
+    FetchSelect,
+    EditPageLayout,
+    EditBaseContainer,
+  },
+  computed: {
+    _id () {
+      return this.$route.query.id || this.form.id;
+    },
+    title () {
+      return '备件销售价格' + (this.form.id ? ' - ' + this.form.id : '');
+    }
   },
   data () {
     const form = this.getDefautlForm();
     return {
-      // TIPS: 权限前缀 AISMC，根据实际情况修改
+      pageTitle: '备件销售价格',
+      pageType: 'edit',
       moduleKey: 'AISPART-sparePartSalesPrice',
       loading: false,
       submitLoading: false,
+      info: {},
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -113,21 +187,15 @@ export default {
           { required: true, message: '请输入销售价格', trigger: 'blur' },
           {
             validator: (rule, value, callback) => {
-              // 非必填，允许为空
               if (value === null || value === undefined || value === '') {
                 callback();
                 return;
               }
-              // 转换为数字
               const num = Number(value);
-              // 检查转换是否有效
               if (isNaN(num)) {
                 callback(new Error('请输入有效的数字'));
                 return;
               }
-              // 根据需求选择条件：
-              // 1. 大于0的整数：num > 0
-              // 2. 大于等于0的整数：num >= 0
               if (num <= 0) {
                 callback(new Error('请输入大于0的数'));
                 return;
@@ -170,11 +238,22 @@ export default {
       }
     };
   },
-  mounted () {
-    this.getDetailData();
-  },
   methods: {
-
+    detailRequest () {
+      const id = this._id;
+      if (id) {
+        return getDetail(id);
+      }
+      return {};
+    },
+    submitRequest () {
+      return addOrUpdate({ id: this.form.id, ...this.form });
+    },
+    getDefautlForm () {
+      return {
+        ...defaultForm
+      };
+    },
     async listSparePart (query) {
       var a = await getSparePart({ partCodeOrNameLike: query });
       return a;
@@ -184,64 +263,6 @@ export default {
       this.form.sparePartCode = all.code;
       this.form.sparePartName = all.name;
     },
-    handleBack () {
-      this.$router.back();
-    },
-    getDetailData () {
-      const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['备件销售价格', `${id ? '编辑' : '新建'}`]);
-      if (id) {
-        getDetail(id).then(res => {
-          this.loading = false;
-          Object.assign(this.form, res);
-          Object.assign(this.originalForm, res);
-        });
-      }
-    },
-    submitForm (formName, rest = false) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          this.submitLoading = true;
-          addOrUpdate({ ...this.form }).then(res => {
-            this.$message({
-              message: '保存成功',
-              type: 'success'
-            });
-            const id = this.$route.query.id;
-            if (rest || !id) {
-              this.resetForm(formName);
-            } else {
-              this.getDetailData();
-            }
-          }).finally(() => {
-            this.submitLoading = false;
-          });
-        }
-      });
-    },
-    resetForm (formName) {
-      this.$refs[formName].resetFields();
-      this.tableData = [];
-      this.form = this.getDefautlForm();
-    },
-    getDefautlForm () {
-      // TIPS: 此处可添加表单默认值，如当前用户信息等
-      // const userInfo = this.$store.state.user.userInfo;
-      return {
-        ...defaultForm
-        // ownerId: userInfo.userId,
-        // ownerName: userInfo.userName,
-      };
-    },
-    // handleJumpAuditLog () {
-    //   this.$router.push({
-    //     path: '/xxx/auditLog',
-    //     query: {
-    //       tableCode: '',
-    //       tableId: ''
-    //     }
-    //   });
-    // },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);
@@ -251,3 +272,10 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.status.primary {
+  color: var(--leap-color-primary);
+  font-weight: 500;
+}
+</style>
