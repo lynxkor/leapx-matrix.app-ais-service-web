@@ -560,7 +560,7 @@ export default {
       handler (val) {
         if (val) {
           this.getData();
-          if (this.form.transferStatus === '0') {
+          if (this.form.transferStatus === '0' || this.form.transferStatus === '3') {
             this.orderStatusType = true;
           }
         }

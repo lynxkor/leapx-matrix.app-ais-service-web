@@ -212,7 +212,7 @@ export default {
           { props: 'address', label: '详细地址', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'statusDesc', label: '停用原因', visible: true, width: 200 },
+          { props: 'disableReason', label: '停用原因', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
