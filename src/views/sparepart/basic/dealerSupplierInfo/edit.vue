@@ -28,7 +28,7 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="供应商编码" prop="supplierCode">
+                <el-form-item label="供应商编码E-" prop="supplierCode">
                   <el-input
                     placeholder="请输入"
                     v-model="form.supplierCode"

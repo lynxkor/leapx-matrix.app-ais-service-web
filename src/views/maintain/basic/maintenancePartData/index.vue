@@ -140,7 +140,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '保养零件提醒表管理',
+      pageTitle: '保养零件主数据',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-maintenancePartData',
@@ -265,7 +265,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '保养零件提醒表管理',
+        businessType: '保养零件主数据',
         dataFetchPath: 'maintain/web/basic/maintenancePartData/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -273,7 +273,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '保养零件提醒表管理.xlsx');
+            await downloadExcel(res.excelUrl, '保养零件主数据.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',

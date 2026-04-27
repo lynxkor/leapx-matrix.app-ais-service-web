@@ -76,9 +76,9 @@
             <div class="common-section-body">
               <div class="rule-builder-container">
                 <rule-group-item
-                  v-if="form.ruleDetail"
-                  :relation.sync="form.ruleDetail.relation"
-                  :rule-item-list.sync="form.ruleDetail.ruleItemList"
+                  v-if="form.predictRuleDo"
+                  :relation.sync="form.predictRuleDo.relation"
+                  :rule-item-list.sync="form.predictRuleDo.ruleItemList"
                   :is-root="true"
                   :is-editing="isEditing || !_id"
                 />
@@ -123,7 +123,7 @@ const defaultForm = {
   modifierName: '',
   statusDesc: '',
   dataSource: '',
-  ruleDetail: {
+  predictRuleDo: {
     relation: 'and',
     item: null,
     ruleItemList: [
@@ -224,11 +224,11 @@ export default {
     },
     submitRequest () {
       const form = { ...this.form };
-      if (form.ruleDetail && !form.ruleDetail.relation) {
-        form.ruleDetail.relation = 'and';
+      if (form.predictRuleDo && !form.predictRuleDo.relation) {
+        form.predictRuleDo.relation = 'and';
       }
-      if (form.ruleDetail && form.ruleDetail.item === undefined) {
-        form.ruleDetail.item = null;
+      if (form.predictRuleDo && form.predictRuleDo.item === undefined) {
+        form.predictRuleDo.item = null;
       }
       return addOrUpdate(form);
     },

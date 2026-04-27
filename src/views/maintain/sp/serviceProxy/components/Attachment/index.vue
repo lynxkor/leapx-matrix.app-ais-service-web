@@ -138,8 +138,8 @@ export default {
       this.loading = true;
       try {
         const res = await getFileList({ businessId: this._id, attachType: this.attachType });
-        if (res && res.data) {
-          this.attachmentData = res.data.map(file => ({
+        if (res) {
+          this.attachmentData = res.map(file => ({
             ...file,
             isImage: isFileType(file, 'image'),
             isPdf: isFileType(file, 'pdf'),

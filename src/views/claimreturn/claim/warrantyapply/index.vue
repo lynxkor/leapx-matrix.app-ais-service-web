@@ -201,6 +201,11 @@
       <el-button size="small" @click="handleCancel">批量作废</el-button>
       <el-button size="small" @click="handlePrint">打印标签</el-button>
     </div>
+    <el-tabs v-model="activeTab" @tab-click="handleTabChange">
+      <el-tab-pane label="全部" name="all" />
+      <el-tab-pane label="保修经理" name="manager" />
+      <el-tab-pane label="总经理" name="gm" />
+    </el-tabs>
     <div
       class="ais-table-c"
     >
@@ -275,6 +280,7 @@ import {
   EDITABLE_STATUSES,
   PENDING_REVIEW_STATUSES,
   WITHDRAWABLE_STATUSES,
+  validateBatchStatus,
 } from './constants';
 import {
   getTableConfig, tableAddOrUpdate, getEnum, listVehicleModel, getScopeTypeOrg,
@@ -316,6 +322,7 @@ const defaultForm = {
   repairStartTime: '',
   mainPartCode: '',
   mainPartName: '',
+  mainPartNameList: '',
   serviceMonth: '',
   laborShareRatio: '',
   partsShareRatio: '',
@@ -359,6 +366,7 @@ export default {
       show: false,
       loading: false,
       exportLoading: false,
+      activeTab: 'all',
       clickItemId: '',
       //
       tableDataList: [],
@@ -488,8 +496,8 @@ export default {
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'dealerRegionName', label: '门店所属区域', visible: true, width: 200 },
           { props: 'currentSubmitTime', label: '当前提交时间', visible: true, width: 200 },
-          { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 200 },
-          { props: 'ownerName', label: '车主姓名', visible: true, width: 200 },
+          { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 200, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'vehiclePlateNo') },
+          { props: 'ownerName', label: '车主姓名', visible: true, width: 200, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'ownerName') },
           { props: 'vehicleModelName', label: '车型', visible: true, width: 200 },
           { props: 'warrantyStartdate', label: '保修开始日期', visible: true, width: 200 },
           { props: 'repairStartTime', label: '维修开始日期', visible: true, width: 200 },
@@ -717,11 +725,17 @@ export default {
     handleReject (paramIds, isApplyReject = false) {
       const isRow = Array.isArray(paramIds);
       if (!this.selectionList.length && !isRow) {
-        this.$message({
-          type: 'warning',
-          message: '请选择数据'
-        });
+        this.$message({ type: 'warning', message: '请选择数据' });
         return;
+      }
+      if (!isRow) {
+        const list = this.selectionList;
+        const allowedStatuses = isApplyReject ? [...PENDING_REVIEW_STATUSES, APPLY_STATUS.APPROVED] : PENDING_REVIEW_STATUSES;
+        const check = validateBatchStatus(list, allowedStatuses, '驳回');
+        if (!check.valid) {
+          this.$message.warning(check.message);
+          return;
+        }
       }
       const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
       this.rejectIds = ids;
@@ -731,11 +745,16 @@ export default {
     handleApprove (paramIds) {
       const isRow = Array.isArray(paramIds);
       if (!this.selectionList.length && !isRow) {
-        this.$message({
-          type: 'warning',
-          message: '请选择数据'
-        });
+        this.$message({ type: 'warning', message: '请选择数据' });
         return;
+      }
+      if (!isRow) {
+        const list = this.selectionList;
+        const check = validateBatchStatus(list, PENDING_REVIEW_STATUSES, '审批');
+        if (!check.valid) {
+          this.$message.warning(check.message);
+          return;
+        }
       }
       const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
       this.approveIds = ids;
@@ -744,11 +763,16 @@ export default {
     handleDeny (paramIds) {
       const isRow = Array.isArray(paramIds);
       if (!this.selectionList.length && !isRow) {
-        this.$message({
-          type: 'warning',
-          message: '请选择数据'
-        });
+        this.$message({ type: 'warning', message: '请选择数据' });
         return;
+      }
+      if (!isRow) {
+        const list = this.selectionList;
+        const check = validateBatchStatus(list, PENDING_REVIEW_STATUSES, '拒赔');
+        if (!check.valid) {
+          this.$message.warning(check.message);
+          return;
+        }
       }
       const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
       this.denyIds = ids;
@@ -757,11 +781,16 @@ export default {
     handleCancel (paramIds) {
       const isRow = Array.isArray(paramIds);
       if (!this.selectionList.length && !isRow) {
-        this.$message({
-          type: 'warning',
-          message: '请选择数据'
-        });
+        this.$message({ type: 'warning', message: '请选择数据' });
         return;
+      }
+      if (!isRow) {
+        const list = this.selectionList;
+        const check = validateBatchStatus(list, EDITABLE_STATUSES, '作废');
+        if (!check.valid) {
+          this.$message.warning(check.message);
+          return;
+        }
       }
       const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
       this.cancelIds = ids;
@@ -770,11 +799,16 @@ export default {
     handleWithdraw (paramIds) {
       const isRow = Array.isArray(paramIds);
       if (!this.selectionList.length && !isRow) {
-        this.$message({
-          type: 'warning',
-          message: '请选择数据'
-        });
+        this.$message({ type: 'warning', message: '请选择数据' });
         return;
+      }
+      if (!isRow) {
+        const list = this.selectionList;
+        const check = validateBatchStatus(list, WITHDRAWABLE_STATUSES, '撤回');
+        if (!check.valid) {
+          this.$message.warning(check.message);
+          return;
+        }
       }
       const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
       this.withdrawIds = ids;
@@ -793,6 +827,10 @@ export default {
       this.form = { ...defaultForm };
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
+      this.getData();
+    },
+    handleTabChange () {
+      this.tableForm.page = 1;
       this.getData();
     },
     getData () {
@@ -895,6 +933,14 @@ export default {
 
       // 排序字段
       data.sortColumns = this.sortColumns;
+
+      // Tab 固定条件
+      if (this.activeTab === 'manager') {
+        data.isWarrantyManagerApproval = 1;
+      } else if (this.activeTab === 'gm') {
+        data.isGeneralManagerApproval = 1;
+      }
+
       return data;
     },
     async fetchOptions (code) {
@@ -926,5 +972,14 @@ export default {
 
 <style lang="scss" scoped>
 .m-warranty-apply-list {
+  ::v-deep .m-vxe-table .m-vxe-table-options {
+    top: -96px;
+  }
+  .ais-actions {
+    margin-bottom: 8px;
+  }
+  .ais-table-c {
+    height: calc(100% - 168px);
+  }
 }
 </style>

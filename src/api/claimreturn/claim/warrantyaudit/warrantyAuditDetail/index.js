@@ -47,7 +47,7 @@ export function getDetailWithRelated (data) {
  * @param {Object} data
  */
 export function supplyMaterial (data) {
-  return api.jsonPost(prefix + 'supplyMaterial', data);
+  return api.jsonPost(prefix + 'supplementMaterial', data);
 }
 
 /**
@@ -55,7 +55,7 @@ export function supplyMaterial (data) {
  * @param {Object} data
  */
 export function auditPass (data) {
-  return api.jsonPost(prefix + 'auditPass', data);
+  return api.jsonPost(prefix + 'pass', data);
 }
 
 /**
@@ -63,7 +63,7 @@ export function auditPass (data) {
  * @param {Object} data
  */
 export function auditReject (data) {
-  return api.jsonPost(prefix + 'auditReject', data);
+  return api.jsonPost(prefix + 'reject', data);
 }
 
 /**

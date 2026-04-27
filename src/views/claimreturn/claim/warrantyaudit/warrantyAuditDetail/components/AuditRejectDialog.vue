@@ -11,7 +11,7 @@
           labelKey="checkItem" valueKey="id" subLabelKey="errorCode" clearable multiple collapseTags filterable
           @change="handleErrorConfigChange" />
       </el-form-item>
-      <el-form-item label="提交截止日期：" prop="feedbackDeadline">
+      <el-form-item label="提交截止日期：">
         <el-date-picker v-model="form.feedbackDeadline" type="date" format="yyyy-MM-dd" value-format="yyyy-MM-dd"
           placeholder="选择日期" :picker-options="deadlinePickerOptions" />
       </el-form-item>
@@ -23,6 +23,9 @@
             <span class="label">工时扣款：</span><span class="value">{{ form.laborDeduct }}</span>
             <span class="label">备件扣款：</span><span class="value">{{ form.partDeduct }}</span>
             <span class="label">其他扣款：</span><span class="value">{{ form.otherDeduct }}</span>
+          </div>
+          <div class="deduct-summary">
+            <span>计划扣款总金额：<b>{{ planDeductTotal }}</b></span>
           </div>
         </el-tab-pane>
 
@@ -43,6 +46,9 @@
           <el-form-item label="金额调整原因：" prop="amountAdjustReason">
             <el-input placeholder="请输入金额调整原因" v-model="form.amountAdjustReason" />
           </el-form-item>
+          <div class="deduct-summary">
+            <span>计划扣款总金额：<b>{{ planDeductTotal }}</b></span>
+          </div>
         </el-tab-pane>
       </el-tabs>
     </el-form>
@@ -71,7 +77,7 @@ const defaultForm = {
 };
 
 export default {
-  name: 'ReviewRejectDialog',
+  name: 'AuditRejectDialog',
   components: {
     FetchSelect,
   },
@@ -101,9 +107,6 @@ export default {
         amountAdjustReason: [
           { required: true, message: '请输入金额调整原因' }
         ],
-        feedbackDeadline: [
-          { required: true, message: '请选择提交截止日期' }
-        ],
       },
       deadlinePickerOptions: {
         disabledDate (time) {
@@ -112,10 +115,24 @@ export default {
       },
     };
   },
+  computed: {
+    planDeductTotal () {
+      const l = Number(this.form.laborDeduct) || 0;
+      const p = Number(this.form.partDeduct) || 0;
+      const o = Number(this.form.otherDeduct) || 0;
+      return Math.round((l + p + o) * 100) / 100;
+    }
+  },
   watch: {
     visible (val) {
       this.dialogVisible = val;
-      this.$refs.auditForm.clearValidate();
+      if (val) {
+        this.form = { ...defaultForm };
+        this.activeName = 'isAutoCalc';
+        this.$nextTick(() => {
+          this.$refs.auditForm.clearValidate();
+        });
+      }
     },
   },
   methods: {
@@ -132,12 +149,25 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
-    handleTabClick (tab) {
-      // 可选：切换 Tab 时清除校验结果，提升体验
+    handleTabClick () {
       this.$refs.auditForm.clearValidate();
+      // 从自动切换到手工：将自动计算的金额覆盖到手工输入框
+      if (this.activeName === 'isManualCalc') {
+        // 金额已经在 form 中，无需额外处理
+      }
+      // 从手工切换到自动：重新计算
+      if (this.activeName === 'isAutoCalc' && this.form.errorConfigIds.length > 0) {
+        this.handleErrorConfigChange();
+      }
     },
     // 自动计算金额
     async handleErrorConfigChange () {
+      if (!this.form.errorConfigIds || this.form.errorConfigIds.length === 0) {
+        this.form.laborDeduct = 0;
+        this.form.partDeduct = 0;
+        this.form.otherDeduct = 0;
+        return;
+      }
       const params = {
         detailId: this.id,
         errorConfigIds: this.form.errorConfigIds,
@@ -148,10 +178,16 @@ export default {
       this.form.otherDeduct = res.otherDeduct || 0;
     },
     handleSubmit () {
-      if (this.activeName === 'isAutoCalc') {
-        this.rules.amountAdjustReason[0].required = false;
-      } else {
+      // 手工模式校验
+      if (this.activeName === 'isManualCalc') {
         this.rules.amountAdjustReason[0].required = true;
+        // 计划扣款总金额必须大于0
+        if (this.planDeductTotal <= 0) {
+          this.$message.warning('计划扣款总金额必须大于0');
+          return;
+        }
+      } else {
+        this.rules.amountAdjustReason[0].required = false;
       }
       this.$refs.auditForm.validate(valid => {
         if (valid) {
@@ -164,7 +200,6 @@ export default {
             this.$message.success('审计驳回成功');
             this.handleClose();
             this.$emit('success');
-            this.form = { ...defaultForm };
           }).catch(() => {
           }).finally(() => {
             this.submitLoading = false;
@@ -186,30 +221,21 @@ export default {
   }
 }
 
-.deduct-section {
-  margin-bottom: 20px;
-  padding: 10px;
-  background: #f5f7fa;
-  border-radius: 4px;
-}
-
 .deduct-summary {
   margin-top: 10px;
+  padding: 10px 0;
   display: flex;
   gap: 20px;
   font-weight: bold;
 }
 
-/* 简单的样式优化，让只读数据看起来整齐 */
 .readonly-deducts {
   padding: 10px 0;
   line-height: 32px;
-  /* 与 input 高度对齐 */
 }
 
 .readonly-deducts .label {
   width: 120px;
-  /* 对应 label-width */
   display: inline-block;
   text-align: right;
   margin-right: 10px;
@@ -221,7 +247,6 @@ export default {
   font-weight: bold;
 }
 
-/* 让审计说明在 inline 表单中占据 100% 宽度 */
 .full-width-item {
   width: 100%;
   margin-bottom: 20px;

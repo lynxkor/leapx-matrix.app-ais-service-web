@@ -89,12 +89,11 @@
                     />
                     <AisAttachment
                       ref="auditor1SignRef"
-                      v-if="_id"
                       :businessId="_id"
                       attachType="审计专员1签名"
                       :show-pagination="false"
                       :noEcho="true"
-                      :uploadConfig="uploadConfig"
+                      :uploadConfig="signUploadConfig"
                       title="审计专员1签名"
                       :buttonText="sign1Label"
                       :showFilelist="false"
@@ -127,12 +126,11 @@
                     />
                     <AisAttachment
                       ref="auditor2SignRef"
-                      v-if="_id"
                       :businessId="_id"
                       attachType="审计专员2签名"
                       :show-pagination="false"
                       :noEcho="true"
-                      :uploadConfig="uploadConfig"
+                      :uploadConfig="signUploadConfig"
                       title="审计专员2签名"
                       :buttonText="sign2Label"
                       :showFilelist="false"
@@ -153,6 +151,7 @@
                     type="date"
                     format="yyyy-MM-dd"
                     value-format="yyyy-MM-dd"
+                    :picker-options="approvalStartPickerOptions"
                     placeholder="选择日期">
                   </el-date-picker>
                 </el-form-item>
@@ -169,6 +168,7 @@
                     type="date"
                     format="yyyy-MM-dd"
                     value-format="yyyy-MM-dd"
+                    :picker-options="approvalEndPickerOptions"
                     placeholder="选择日期">
                   </el-date-picker>
                 </el-form-item>
@@ -250,8 +250,8 @@
           <search-add-table
             v-if="_id"
             :_id="_id"
-            :canAddOrUpdate="canAddOrUpdate"
-            :canImport="canImport"
+            :canAddOrUpdate="canAddOrUpdate && form.auditStatus === AUDIT_STATUS.DRAFT"
+            :canImport="canAddOrUpdate && form.auditStatus === AUDIT_STATUS.DRAFT"
             :formData="form"
             @data-change="() => {}"
             @checkboxChange="checkboxChange"
@@ -260,7 +260,9 @@
           <!-- 总结报告 -->
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>总结报告<el-button type="text" class="download-link" @click="handleDownloadUnsignedSummary" v-if="form.summarySignTime">下载未签署总结报告</el-button></h2>
+              <h2>总结报告
+                <el-button type="text" class="download-link" @click="handleDownloadUnsignedSummary" v-if="form.summarySignTime">下载未签署总结报告</el-button>
+              </h2>
             </div>
             <div class="common-section-body">
               <div class="report-section">
@@ -421,8 +423,9 @@ import {
   agreeRectify,
   regenerateUnsignedSummary,
   regenerateUnsignedRectify,
-  getClaimTraceOrderDetail
+  getClaimTraceOrderDetail,
 } from '@/api/claimreturn/claim/warrantyaudit/warrantyAudit/index';
+import { getFileList } from '@/libs/api/attachment';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -540,6 +543,22 @@ export default {
     isDraftWithDetails () {
       return this.form.auditStatus === AUDIT_STATUS.DRAFT && this._id && this.form.actualAuditCount > 0;
     },
+    approvalStartPickerOptions () {
+      return {
+        disabledDate: (time) => time.getTime() > Date.now()
+      };
+    },
+    approvalEndPickerOptions () {
+      return {
+        disabledDate: (time) => {
+          if (time.getTime() > Date.now()) return true;
+          if (this.form.warrantyApprovalStartDate) {
+            return time.getTime() < new Date(this.form.warrantyApprovalStartDate).getTime();
+          }
+          return false;
+        }
+      };
+    },
   },
   watch: {
     id: {
@@ -568,6 +587,12 @@ export default {
         maxNum: 1,
         required: '1',
       },
+      signUploadConfig: {
+        acceptSuffix: '.png,.jpg,.jpeg',
+        maxSize: 50,
+        maxNum: 1,
+        required: '1',
+      },
       rules: {
         auditTheme: [
           { required: true, message: '请输入保修审计主题', trigger: 'blur' }
@@ -591,7 +616,19 @@ export default {
           { required: true, message: '请选择审计专员1', trigger: 'change' }
         ],
         auditor1Sign: [
-          { required: true, message: '请输入审计专员1签名', trigger: 'blur' }
+          { required: true, message: '请上传审计专员1签名', trigger: 'change' }
+        ],
+        auditor2Sign: [
+          {
+            validator: (rule, value, callback) => {
+              if (this.form.auditor2Id && !value) {
+                callback(new Error('审计专员2有内容时签名必传'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'change'
+          }
         ],
         planAuditCount: [
           { required: true, message: '请输入计划审计数量', trigger: 'blur' }
@@ -785,13 +822,21 @@ export default {
     handleUploadUnsignedRectify () {
       this.uploadUnsignedRectifyDialogVisible = true;
     },
-    handleDownloadUnsignedSummary () {
-      // TODO: 替换为实际下载接口
-      this.$message.info('下载未签署总结报告（接口待对接）');
+    async handleDownloadUnsignedSummary () {
+      const list = await getFileList({ businessId: this._id, attachType: '待签署总结报告' });
+      if (list && list.length) {
+        window.open(list[0].fileUrl);
+      } else {
+        this.$message.warning('暂无可下载的报告');
+      }
     },
-    handleDownloadUnsignedRectify () {
-      // TODO: 替换为实际下载接口
-      this.$message.info('下载未签署整改报告（接口待对接）');
+    async handleDownloadUnsignedRectify () {
+      const list = await getFileList({ businessId: this._id, attachType: '待签署整改报告' });
+      if (list && list.length) {
+        window.open(list[0].fileUrl);
+      } else {
+        this.$message.warning('暂无可下载的报告');
+      }
     },
     getTraceTableData () {
       getClaimTraceOrderDetail({

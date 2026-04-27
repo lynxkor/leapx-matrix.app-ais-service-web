@@ -172,9 +172,10 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/maintain/basic/dealerWorkTeam/detail',
+                  path: '/maintain/basic/dealerWorkTeam/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: false
                   }
                 });
               },
@@ -209,7 +210,8 @@ export default {
                 this.$router.push({
                   path: '/maintain/basic/dealerWorkTeam/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

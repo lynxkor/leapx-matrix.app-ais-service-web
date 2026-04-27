@@ -206,7 +206,7 @@
                 attachType="不合格凭证"
                 configCode="mcs_claimtrack_form"
                 emptyText="暂无不合格凭证"
-                :readonly="!detailButtons.includes('编辑')"
+                :readonly="!detailButtons.includes('提交审核')"
               />
             </div>
           </section>
@@ -221,7 +221,7 @@
                 attachType="申诉凭证"
                 configCode="mcs_claimtrack_form"
                 emptyText="暂无申诉凭证"
-                :readonly="!detailButtons.includes('编辑')"
+                :readonly="!detailButtons.includes('申诉')"
               />
             </div>
           </section>

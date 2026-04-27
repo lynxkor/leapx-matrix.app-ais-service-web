@@ -20,3 +20,15 @@ export const PENDING_REVIEW_STATUSES = [APPLY_STATUS.UNDER_REVIEW, APPLY_STATUS.
 
 // 可撤回状态：审核通过、已拒赔
 export const WITHDRAWABLE_STATUSES = [APPLY_STATUS.APPROVED, APPLY_STATUS.DENIED];
+
+// 批量操作状态校验
+export function validateBatchStatus (selectionList, allowedStatuses, actionName) {
+  if (!selectionList?.length) {
+    return { valid: false, message: `请选择需要${actionName}的保修单` };
+  }
+  const invalid = selectionList.find(item => !allowedStatuses.includes(item.applyStatus));
+  if (invalid) {
+    return { valid: false, message: `保修申请单：${invalid.applyNo}的状态是：${invalid.applyStatusLabel}，不允许${actionName}` };
+  }
+  return { valid: true };
+}

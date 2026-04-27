@@ -148,9 +148,10 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/maintain/basic/vehicleTag/detail',
+                  path: '/maintain/basic/vehicleTag/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: false
                   }
                 });
               },
@@ -172,7 +173,8 @@ export default {
                 this.$router.push({
                   path: '/maintain/basic/vehicleTag/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
