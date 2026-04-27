@@ -167,7 +167,7 @@ export default {
         dataProp: [
           { props: 'seq', label: '文件序号', visible: true, width: 120 },
           { props: 'fileName', label: '文件名称', visible: true, width: 200 },
-          { props: 'bizType', label: '业务类型', visible: true, width: 120 },
+          { props: 'bizTypeLabel', label: '业务类型', visible: true, width: 120 },
           { props: 'zipStatusLabel', label: '导出状态', visible: true, width: 100 },
           { props: 'startTime', label: '导出开始时间', visible: true, width: 160 },
           { props: 'finishTime', label: '导出结束时间', visible: true, width: 160 },
@@ -245,14 +245,7 @@ export default {
         .then(res => {
           console.log(res);
           const records = res.records || [];
-          this.optionObj.dataList = records.map(item => {
-            const statusMap = { 0: '等待', 10: '进行中', 20: '已导出', 30: '已失败' };
-            return {
-              ...item,
-              zipStatusLabel: statusMap[item.zipStatus] || item.zipStatus,
-              deleteLoading: false
-            };
-          });
+          this.optionObj.dataList = records;
           this.optionObj.total = res.total;
         }).finally(() => {
           this.loading = false;

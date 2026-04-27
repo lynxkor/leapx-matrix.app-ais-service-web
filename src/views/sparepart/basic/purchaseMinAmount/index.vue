@@ -219,9 +219,10 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/purchaseMinAmount/detail',
+                  path: '/sparepart/basic/purchaseMinAmount/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: false
                   }
                 });
               },

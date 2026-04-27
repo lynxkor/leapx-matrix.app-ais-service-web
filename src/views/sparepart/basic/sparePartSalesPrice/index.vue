@@ -176,7 +176,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/sparePart/detail',
                   query: {
-                    id: row.sparePartId
+                    id: row.sparePartId,
+                    isEditing: false
                   }
                 });
               },
@@ -200,7 +201,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/sparePartSalesPrice/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
