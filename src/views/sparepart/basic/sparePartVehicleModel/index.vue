@@ -205,7 +205,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/sparePart/detail',
                   query: {
-                    id: row.sparePartId
+                    id: row.sparePartId,
+                    isEditing: false
                   }
                 });
               },

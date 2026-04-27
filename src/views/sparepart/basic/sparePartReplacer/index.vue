@@ -203,7 +203,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/sparePart/detail',
                   query: {
-                    id: row.beforeSparePartId
+                    id: row.beforeSparePartId,
+                    isEditing: false
                   }
                 });
               },
@@ -221,7 +222,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/sparePart/detail',
                   query: {
-                    id: row.afterSparePartId
+                    id: row.afterSparePartId,
+                    isEditing: false
                   }
                 });
               },
