@@ -54,7 +54,7 @@ export default {
       },
       rules: {
         rejectReason: [
-          { required: true, message: '请选择验收结果', trigger: 'change' }
+          { required: true, message: '请输入驳回说明', trigger: 'change' }
         ],
       },
     };

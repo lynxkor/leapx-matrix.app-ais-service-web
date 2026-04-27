@@ -14,13 +14,14 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :showEditBtn="canEdit"
       >
         <template #extraButtons>
-          <el-button v-if="canSubmit && (form.applyStatus === '10' || form.applyStatus === '50')" type="primary" size="small" @click="handleSubmit">提交</el-button>
-          <el-button v-if="canFirstApprove && form.applyStatus === '20'" type="primary" size="small" @click="handleFirstApprovePass">一级审批通过</el-button>
-          <el-button v-if="canFirstApprove && form.applyStatus === '20'" type="danger" size="small" @click="handleFirstApproveReject">一级审批驳回</el-button>
-          <el-button v-if="canFinalApprove && form.applyStatus === '30'" type="primary" size="small" @click="handleFinalApprovePass">最终审批通过</el-button>
-          <el-button v-if="canFinalApprove && form.applyStatus === '30'" type="danger" size="small" @click="handleFinalApproveReject">最终审批驳回</el-button>
+          <el-button v-if="canSubmit && (form.applyStatus === APPLY_STATUS.DRAFT || form.applyStatus === APPLY_STATUS.REJECTED)" type="primary" size="small" @click="handleSubmit">提交</el-button>
+          <el-button v-if="canFirstApprove && form.applyStatus === APPLY_STATUS.FIRST_PENDING" type="primary" size="small" @click="handleFirstApprovePass">一级审批通过</el-button>
+          <el-button v-if="canFirstApprove && form.applyStatus === APPLY_STATUS.FIRST_PENDING" type="danger" size="small" @click="handleFirstApproveReject">一级审批驳回</el-button>
+          <el-button v-if="canFinalApprove && form.applyStatus === APPLY_STATUS.FINAL_PENDING" type="primary" size="small" @click="handleFinalApprovePass">最终审批通过</el-button>
+          <el-button v-if="canFinalApprove && form.applyStatus === APPLY_STATUS.FINAL_PENDING" type="danger" size="small" @click="handleFinalApproveReject">最终审批驳回</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -29,7 +30,7 @@
             </div>
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              <el-form :inline="true" :model="form" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="申请单号：" prop="applyNo">
                   <el-input
                     v-model="form.applyNo"
@@ -65,7 +66,7 @@
                     type="datetime"
                     format="yyyy-MM-dd HH:mm:ss"
                     value-format="yyyy-MM-dd HH:mm:ss"
-                    >
+                  >
                   </el-date-picker>
                 </el-form-item>
                 <el-form-item label="一级审批人：" prop="firstApproverName">
@@ -82,7 +83,7 @@
                     type="datetime"
                     format="yyyy-MM-dd HH:mm:ss"
                     value-format="yyyy-MM-dd HH:mm:ss"
-                    >
+                  >
                   </el-date-picker>
                 </el-form-item>
                 <el-form-item label="一级审批说明：" prop="firstApproveComment">
@@ -104,6 +105,7 @@
                     v-model="form.applyReason"
                     clearable
                     type="textarea"
+                    :disabled="!canEdit"
                   />
                 </el-form-item>
                 <el-form-item label="最终审批时间：" prop="finalApproveTime">
@@ -113,7 +115,7 @@
                     type="datetime"
                     format="yyyy-MM-dd HH:mm:ss"
                     value-format="yyyy-MM-dd HH:mm:ss"
-                    >
+                  >
                   </el-date-picker>
                 </el-form-item>
                 <el-form-item label="最终审批说明：" prop="finalApproveComment">
@@ -125,40 +127,40 @@
                 </el-form-item>
               </el-form>
               <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="申请单号：" prop="applyNo">
+                <el-form-item label="申请单号：">
                   {{ form.applyNo }}
                 </el-form-item>
-                <el-form-item label="申请数量：" prop="vehicleCount">
+                <el-form-item label="申请数量：">
                   {{ form.vehicleCount }}
                 </el-form-item>
-                <el-form-item label="申请状态：" prop="applyStatusLabel">
+                <el-form-item label="申请状态：">
                   {{ form.applyStatusLabel }}
                 </el-form-item>
-                <el-form-item label="申请人：" prop="applierName">
+                <el-form-item label="申请人：">
                   {{ form.applierName }}
                 </el-form-item>
-                <el-form-item label="一级审批人：" prop="firstApproverName">
-                  {{ form.firstApproverName }}
-                </el-form-item>
-                <el-form-item label="最终审批人：" prop="finalApproverName">
-                  {{ form.finalApproverName }}
-                </el-form-item>
-                <el-form-item label="申请原因：" prop="applyReason">
-                  {{ form.applyReason }}
-                </el-form-item>
-                <el-form-item label="一级审批时间：" prop="firstApproveTime">
-                  {{ form.firstApproveTime }}
-                </el-form-item>
-                <el-form-item label="申请时间：" prop="applyTime">
+                <el-form-item label="申请时间：">
                   {{ form.applyTime }}
                 </el-form-item>
-                <el-form-item label="一级审批说明：" prop="firstApproveComment">
+                <el-form-item label="一级审批人：">
+                  {{ form.firstApproverName }}
+                </el-form-item>
+                <el-form-item label="一级审批时间：">
+                  {{ form.firstApproveTime }}
+                </el-form-item>
+                <el-form-item label="一级审批说明：">
                   {{ form.firstApproveComment }}
                 </el-form-item>
-                <el-form-item label="最终审批时间：" prop="finalApproveTime">
+                <el-form-item label="最终审批人：">
+                  {{ form.finalApproverName }}
+                </el-form-item>
+                <el-form-item label="申请原因：">
+                  {{ form.applyReason }}
+                </el-form-item>
+                <el-form-item label="最终审批时间：">
                   {{ form.finalApproveTime }}
                 </el-form-item>
-                <el-form-item label="最终审批说明：" prop="finalApproveComment">
+                <el-form-item label="最终审批说明：">
                   {{ form.finalApproveComment }}
                 </el-form-item>
               </el-form>
@@ -166,12 +168,14 @@
           </section>
           <detail-table
             ref="modalAddTable"
-            :disabled="false"
+            :disabled="!canEdit"
+            :processing="isProcessing"
             :canAddOrUpdate="canAddOrUpdate"
             :_id="_id"
             @data-change="() => {}"
             @checkboxChange="checkboxChange"
             @open-add="openPane"
+            @processing-change="val => isProcessing = val"
           />
           <section class="common-section">
             <div class="common-section-header">
@@ -184,6 +188,7 @@
                   configCode="mcs_servicedealerchange"
                   attachType="附件"
                   ref="attachment"
+                  :readonly="!canEdit"
                 />
               </div>
             </div>
@@ -195,7 +200,7 @@
       </edit-base-container>
     </template>
     <template #right>
-      <div class="page-common-edit">
+      <div v-if="canEdit" class="page-common-edit">
         <add-vehicle-form
           ref="addVehicleForm"
           v-if="_id"
@@ -203,7 +208,7 @@
         />
       </div>
     </template>
-    <template #footer>
+    <template #footer v-if="canEdit">
       <el-button size="small" type="primary" @click="handleSubmitVehicle(true)">保存&关闭</el-button>
       <el-button size="small" type="primary" @click="handleSubmitVehicle(false)">保存&再建一个</el-button>
       <el-button size="small" @click="handleCancelVehicle">取消</el-button>
@@ -222,19 +227,6 @@
 </template>
 
 <script>
-
-// 1. 申请单号
-// 2. 申请数量
-// 3. 申请状态
-// 4. 申请人
-// 5. 一级审批人
-// 6. 最终审批人
-// 7. 申请原因
-// 8. 一级审批时间
-// 9. 申请时间
-// 10. 一级审批说明
-// 11. 最终审批时间
-// 12. 最终审批说明
 import {
   getDetail,
   addOrUpdate,
@@ -244,7 +236,6 @@ import {
 } from '@/api/datacenter/vehicle/serviceDealerChangeApply/index';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
-import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -255,9 +246,9 @@ import EditPageLayout from '@/libs/components/EditPageLayout';
 import BaseInput from '@/libs/components/BaseInput';
 import FirstApproveRejectDialog from './FirstApproveRejectDialog/index.vue';
 import FinalApproveRejectDialog from './FinalApproveRejectDialog/index.vue';
+import { APPLY_STATUS, EDITABLE_STATUS } from './constant';
 
 const defaultForm = {
-  // 多选时字段有变化，自行修复
   applyNo: '',
   applyReason: '',
   applyStatus: '',
@@ -274,7 +265,6 @@ const defaultForm = {
 
 export default {
   name: 'serviceDealerChangeApplyEdit',
-  // 集中视图预留
   props: {
     id: {
       type: [String, Number],
@@ -294,11 +284,14 @@ export default {
   },
   computed: {
     _id () {
-      return this.id || this.$route.query.id || this.form.id;
+      return this.id || this.$route.query.id || this.form.id || '';
     },
     title () {
       return '申请单号：' + this.form.applyNo;
-    }
+    },
+    canEdit () {
+      return EDITABLE_STATUS.includes(this.form.applyStatus) || !this._id;
+    },
   },
   watch: {
     id: {
@@ -313,61 +306,19 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      APPLY_STATUS,
       pageTitle: '专属服务门店变更',
       pageType: 'edit',
       moduleKey: 'AISMC-serviceDealerChangeApply',
       loading: false,
       submitLoading: false,
-      yes_no_enum: YES_NO_ENUM,
+      isProcessing: false,
       form: { ...form },
       originalForm: { ...form },
-      defaultNewRow: {
-        name: '',
-      },
       emptyText: '若要启用此内容，请创建记录',
-      tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
-      columns: [
-        {
-          field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
-        },
-        {
-          field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
-        },
-        {
-          field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
-        },
-      ],
-      rules: {
-        applyReason: [
-          { required: true, message: '请输入申请原因', trigger: 'blur' }
-        ],
-      },
       selectedRows: [],
-      // 一级审批弹窗
       firstApproveDialogVisible: false,
       currentApproveId: '',
-      // 最终审批弹窗
       finalApproveDialogVisible: false,
     };
   },
@@ -375,8 +326,6 @@ export default {
     this.canSubmit = this.permissions.has(`${this.moduleKey}-submit`);
     this.canFirstApprove = this.permissions.has(`${this.moduleKey}-firstApprove`);
     this.canFinalApprove = this.permissions.has(`${this.moduleKey}-finalApprove`);
-  },
-  mounted () {
   },
   methods: {
     detailRequest () {
@@ -388,7 +337,6 @@ export default {
     submitRequest () {
       return addOrUpdate({ ...this.form });
     },
-    // 打开侧边栏
     openPane () {
       this.$refs.editLayout.openPane();
     },
@@ -397,11 +345,10 @@ export default {
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
-      // const userInfo = this.$store.state.user.userInfo;
+      const userInfo = this.$store.state.user.userInfo;
       return {
-        ...defaultForm
-        // ownerId: userInfo.userId,
-        // ownerName: userInfo.userName,
+        ...defaultForm,
+        applierName: userInfo.userName,
       };
     },
     async fetchOptions (code) {
@@ -453,7 +400,6 @@ export default {
       this.$refs.editLayout.closePane();
     },
     async handleSubmitVehicle (isClose) {
-      console.log(isClose);
       try {
         await this.$refs.addVehicleForm.onAddSave();
         this.$refs.modalAddTable.getTableData();

@@ -123,9 +123,7 @@
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
     </div>
-    <div
-      class="ais-table-c"
-    >
+    <div class="ais-table-c">
       <LPVxeTable
         ref="tableRef"
         v-loading="loading"
@@ -144,7 +142,6 @@
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
     </div>
-    <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
       :id="'1'"
@@ -188,11 +185,9 @@ import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
 import FirstApproveRejectDialog from './FirstApproveRejectDialog/index.vue';
 import FinalApproveRejectDialog from './FinalApproveRejectDialog/index.vue';
-
-// 申请状态，10:草稿; 20:待一级审批; 30:待最终审批; 40:审批通过; 50:审批驳回; 100:导入中
+import { APPLY_STATUS } from './constant';
 
 const defaultForm = {
-  // TIPS:多选时字段名称会有变化，自行校对
   createTime: '',
   updateTime: '',
   applyNoList: [],
@@ -237,25 +232,16 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
-      // 一级审批弹窗
       firstApproveDialogVisible: false,
       currentApproveId: '',
-      // 最终审批弹窗
       finalApproveDialogVisible: false,
-      //
       canSubmit: false,
       canFirstApprove: false,
       canFinalApprove: false,
       tableDataList: [],
       tableTotal: 0,
       tableForm: { page: 1, size: pageSize },
-      //
-      sortColumns: [
-        // {
-        // column: 'create_time',
-        // sort: 'DESC'
-        // }
-      ],
+      sortColumns: [],
     };
   },
   computed: {
@@ -284,6 +270,7 @@ export default {
             }]
           },
           { props: 'applyStatusLabel', label: '申请状态', visible: true, width: 200 },
+          { props: 'dataSourceLabel', label: '数据来源', visible: true, width: 200 },
           { props: 'applierName', label: '申请人', visible: true, width: 200 },
           { props: 'applyTime', label: '申请时间', visible: true, width: 200 },
           { props: 'applyReason', label: '申请原因', visible: true, width: 200 },
@@ -315,25 +302,17 @@ export default {
               type: 'info',
               show: (row) => {
                 if (!this.canSubmit) { return false; }
-                // 【申请状态】为草稿，审批驳回
-                if (row.applyStatus === '10' || row.applyStatus === '50') {
-                  return true;
-                }
-                return false;
+                return row.applyStatus === APPLY_STATUS.DRAFT || row.applyStatus === APPLY_STATUS.REJECTED;
               },
             }, {
               name: '一级审批通过',
               click: (rowIndex, row) => {
                 this.handleFirstApprovePass(row);
               },
-              type: 'success',
+              type: 'info',
               show: (row) => {
                 if (!this.canFirstApprove) { return false; }
-                // 【申请状态】为待一级审批
-                if (row.applyStatus === '20') {
-                  return true;
-                }
-                return false;
+                return row.applyStatus === APPLY_STATUS.FIRST_PENDING;
               },
             }, {
               name: '一级审批驳回',
@@ -343,25 +322,17 @@ export default {
               type: 'danger',
               show: (row) => {
                 if (!this.canFirstApprove) { return false; }
-                // 【申请状态】为待一级审批
-                if (row.applyStatus === '20') {
-                  return true;
-                }
-                return false;
+                return row.applyStatus === APPLY_STATUS.FIRST_PENDING;
               },
             }, {
               name: '最终审批通过',
               click: (rowIndex, row) => {
                 this.handleFinalApprovePass(row);
               },
-              type: 'success',
+              type: 'info',
               show: (row) => {
                 if (!this.canFinalApprove) { return false; }
-                // 【申请状态】为待最终审批
-                if (row.applyStatus === '30') {
-                  return true;
-                }
-                return false;
+                return row.applyStatus === APPLY_STATUS.FINAL_PENDING;
               },
             }, {
               name: '最终审批驳回',
@@ -371,11 +342,7 @@ export default {
               type: 'danger',
               show: (row) => {
                 if (!this.canFinalApprove) { return false; }
-                // 【申请状态】为待最终审批
-                if (row.applyStatus === '30') {
-                  return true;
-                }
-                return false;
+                return row.applyStatus === APPLY_STATUS.FINAL_PENDING;
               },
             }]
           }
@@ -476,9 +443,6 @@ export default {
     getFormData () {
       const data = { ...this.form };
 
-      // TODO xxxx为过滤参数 待修改
-      data.xxxx = data.aisActiveTab;
-
       Object.keys(this.form).forEach(key => {
         if (data[key] === '' || data[key] === null) {
           delete data[key];
@@ -563,12 +527,6 @@ export default {
     },
     // 一级审批通过
     handleFirstApprovePass (row) {
-      // this.$confirm('确认通过一级审批？', '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      // }).catch(() => {});
       firstApprovePass({ id: row.id }).then(() => {
         this.$message.success('操作成功');
         this.getData();

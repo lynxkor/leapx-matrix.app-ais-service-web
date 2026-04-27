@@ -169,6 +169,12 @@ export default {
       this.form.beforeDealerName = record?.orgName || '';
     },
     handleAfterDealerChange (val, record) {
+      if (record?.orgCode && record.orgCode === this.form.beforeDealerCode) {
+        this.$message.warning('转移后的门店和原门店一致，请重新选择');
+        this.form.afterDealerCode = '';
+        this.form.afterDealerName = '';
+        return;
+      }
       this.form.afterDealerCode = record?.orgCode || '';
       this.form.afterDealerName = record?.orgName || '';
     },
