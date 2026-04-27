@@ -16,7 +16,7 @@
                 </vxe-column>
                 <vxe-column title="退料原因" width="12.5%">
                     <template #default="{ row }">
-                        <el-input v-model="row.description" />
+                        <el-input v-model="row.returnMaterialReason" />
                     </template>
                 </vxe-column>
                 <vxe-column title="操作" width="120">
@@ -32,7 +32,7 @@
         <!-- 底部按钮 -->
         <template v-slot:footer>
             <div class="dialog-footer">
-                <el-button size="small" @click="close">取 消</el-button>
+                <el-button size="small" @click="dialogVisible = false">取 消</el-button>
             </div>
         </template>
     </el-dialog>
@@ -81,20 +81,21 @@ export default {
       this.tableData = res.records || [];
     },
     close () {
+      this.$emit('success');
       this.$emit('update:visible', false);
     },
     async handleSubmitRow (rowIndex, row) {
       // 1. 获取当前填写的描述
-      let description = (row.description || '').trim();
+      let description = (row.returnMaterialReason || '').trim();
 
       // 2. 如果当前没填，尝试继承
       if (!description) {
         let foundReason = '';
 
         // 【核心改进】从上一行开始往前找，直到找到有内容的为止
-        // 不管是已申请还是未申请，只要有 description 就算有效
+        // 不管是已申请还是未申请，只要有 returnMaterialReason 就算有效
         for (let i = rowIndex - 1; i >= 0; i--) {
-          const prevDesc = (this.tableData[i].description || '').trim();
+          const prevDesc = (this.tableData[i].returnMaterialReason || '').trim();
           if (prevDesc) {
             foundReason = prevDesc;
             break; // 找到最近的非空描述，停止
@@ -104,7 +105,7 @@ export default {
         if (foundReason) {
           // 情况 A: 找到了，自动继承 (同时更新 row 对象，界面也会变)
           description = foundReason;
-          row.description = foundReason;
+          row.returnMaterialReason = foundReason;
         } else {
           // 情况 B: 前面所有行都没填 (包括这是第一行)
           this.$message.error('请输入退料原因（首条或前序未填时必须手动填写）');
