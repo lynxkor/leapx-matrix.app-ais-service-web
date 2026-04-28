@@ -17,24 +17,24 @@
         />
       </el-form-item>
       <el-form-item label="每月第几日保修结算">
-          <el-input
-            placeholder="请输入"
-            v-model="form.settlementDay"
-            clearable
-          />
-        </el-form-item>
+        <el-input
+          placeholder="请输入"
+          v-model="form.settlementDay"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="日历模式" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="warranty_calendar_mode"
+          v-model="form.calendarModes"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
+        />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="日历模式">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="warranty_calendar_mode"
-            v-model="form.calendarModes"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
         <el-form-item label="月度">
           <fetch-select
             :request="fetchOptions"
@@ -161,6 +161,8 @@ const defaultForm = {
   dealerCode: '',
   dealerName: '',
   monthType: '',
+  calendarModes: [],
+  statusList: []
 };
 
 const pageSize = 20;

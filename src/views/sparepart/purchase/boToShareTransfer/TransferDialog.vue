@@ -5,7 +5,7 @@
             <h4>注: 请确保与对方门店沟通无误后，再进行转调拨操作</h4>
         </div>
         <!-- 数据表格 -->
-        <div class="table-section">
+        <div class="table-section" v-loading="loading">
             <vxe-table ref="workTable" :data="tableData" stripe show-overflow resizable border="inner" size="medium">
                 <vxe-column field="dealerCode" title="共享门店编码" width="180" />
                 <vxe-column field="dealerName" title="共享门店名称" width="180" />
@@ -42,10 +42,10 @@
 
         <!-- 底部按钮 -->
         <template v-slot:footer>
-            <div class="dialog-footer">
-                <el-button size="small" @click="close">取 消</el-button>
-            </div>
-        </template>
+        <div class="dialog-footer">
+            <el-button size="small" @click="dialogVisible = false">取 消</el-button>
+        </div>
+    </template>
     </el-dialog>
 </template>
 
@@ -69,15 +69,14 @@ export default {
       dialogVisible: this.visible,
       // 模拟表格数据
       tableData: [],
+      loading: false,
     };
   },
   watch: {
     visible (val) {
       this.dialogVisible = val;
-    },
-    transferId (val) {
-      if (val) {
-        this.getData(val);
+      if (val && this.transferId) {
+        this.getData(this.transferId);
       }
     }
   },
@@ -87,11 +86,16 @@ export default {
       this.$emit('getData');
     },
     async getData (val) {
-      const res = await boToTransferPage({ id: val });
-      this.tableData = (res || []).map(item => ({
-        ...item,
-        qty: Math.min(item.pendingPartQty || 0, item.sharedQty || 0) // 调拨数量：默认待处理备件数量和共享数量的最小值
-      }));
+      this.loading = true;
+      try {
+        const res = await boToTransferPage({ id: val });
+        this.tableData = (res || []).map(item => ({
+          ...item,
+          qty: Math.min(item.pendingPartQty || 0, item.sharedQty || 0) // 调拨数量：默认待处理备件数量和共享数量的最小值
+        }));
+      } finally {
+        this.loading = false;
+      }
     },
     async handleApplyTransfer (row) {
       const maxQty = Math.min(row.pendingPartQty || 0, row.sharedQty || 0);
@@ -155,11 +159,14 @@ export default {
       if (!row.contactInfo && contactInfo) {
         row.contactInfo = contactInfo;
       }
+      this.loading = true;
       try {
         await applyBoToTransfer(params);
         this.getData(this.transferId);
         this.$message.success('调拨成功');
       } catch (error) {
+      } finally {
+        this.loading = false;
       }
     },
 

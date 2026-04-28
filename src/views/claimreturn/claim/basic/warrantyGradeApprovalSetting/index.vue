@@ -32,14 +32,14 @@
           @change="handleWarrantyTypeChange"
           :params="{'checkoutTypeNames':['合同','保修'],'excludeMaintenancePackage':true}" />
       </el-form-item>
-      <template v-if="show">
-        <el-form-item label="编码">
+      <el-form-item label="编码" v-show="this.visibleCount === 3 || show">
         <el-input
           placeholder="请输入"
           v-model="form.gradeApprovalCodeLike"
           clearable
         />
       </el-form-item>
+      <template v-if="show">
         <el-form-item label="审批级别">
           <fetch-select
           :request="fetchOptions"
@@ -161,6 +161,7 @@ const defaultForm = {
   status: '',
   createTime: '',
   updateTime: '',
+  statusIncludeList: []
 };
 
 const pageSize = 20;
