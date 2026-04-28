@@ -325,7 +325,7 @@
           {{ form.startAt }}
         </el-form-item>
         <el-form-item label="预授权信息：" prop="preAuthCode">
-          {{ form.preAuthCode }}
+          <el-link type="success" :href="`/service/maintain/sp/preAuth/edit?id=${form.preAuthId}`" target="_blank">{{ form.preAuthCode }}</el-link>
         </el-form-item>
         <el-form-item label="完成作业时间：" prop="finishAt">
           {{ form.finishAt }}
