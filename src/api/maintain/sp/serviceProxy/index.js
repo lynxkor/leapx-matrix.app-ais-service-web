@@ -383,3 +383,11 @@ export function getActivityInfo (data) {
 export function addFaultRecord (data) {
   return api.jsonPost('maintain/web/sp/spFaultAlertRecord/addFaultRecord', data);
 }
+
+/**
+ * 签字短信重推
+ * @param {Object} data - vin
+ */
+export function resendSignSms (data) {
+  return api.jsonPost(prefix + 'resendSignSms', data);
+}

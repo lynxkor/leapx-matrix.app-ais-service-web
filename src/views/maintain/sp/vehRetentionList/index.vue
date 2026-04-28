@@ -582,7 +582,7 @@ export default {
       if (!isAllUnpushed) {
         this.$message({
           type: 'warning',
-          message: '选中项中包含有已推送的数据，请重新选择'
+          message: '选中项中包含有已推送或已作废的数据，请重新选择'
         });
         return;
       }
