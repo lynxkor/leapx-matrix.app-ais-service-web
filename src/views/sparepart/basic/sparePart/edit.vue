@@ -11,11 +11,11 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
         :showEditBtn="
-          this.permissions.has('AISPART-sparePart-vfgImport') ||
-          this.permissions.has('AISPART-sparePart-modelImport') ||
-          this.permissions.has('AISPART-sparePart-purchaseImport') ||
-          this.permissions.has('AISPART-sparePart-transportImport') ||
-          this.permissions.has('AISPART-sparePart-salesImport')"
+          permissions.has('AISPART-sparePart-vfgImport') ||
+          permissions.has('AISPART-sparePart-modelImport') ||
+          permissions.has('AISPART-sparePart-purchaseImport') ||
+          permissions.has('AISPART-sparePart-transportImport') ||
+          permissions.has('AISPART-sparePart-salesImport')"
       >
         <template #status>
           <span class="status primary">{{ form.statusLabel }}</span>
