@@ -17,19 +17,24 @@
                 <vxe-column field="sharedQty" title="共享数量" width="120" />
                 <vxe-column field="suggestedSharedPrice" title="建议共享价格" width="120" />
                 <vxe-column field="distance" title="距离" width="100" />
-                <vxe-column title="调拨数量" width="100">
+                <vxe-column title="调拨数量" width="100" fixed="right">
                     <template #default="{ row }">
                         <el-input v-model="row.qty" type="number" />
                     </template>
                 </vxe-column>
-                <vxe-column title="联系方式" width="180">
+                <vxe-column title="联系方式" width="180" fixed="right">
                     <template #default="{ row }">
                         <el-input v-model="row.contactInfo" />
                     </template>
                 </vxe-column>
                 <vxe-column title="操作" width="100" fixed="right">
                     <template #default="{ row }">
-                        <el-button size="small" type="text" @click="handleApplyTransfer(row)">申请调拨</el-button>
+                      <el-popconfirm
+                        title="是否确认申请调拨？"
+                        @confirm="handleApplyTransfer(row)"
+                      >
+                        <span slot="reference" class="action-button btn-edit" size="small">申请调拨</span>
+                      </el-popconfirm>
                     </template>
                 </vxe-column>
             </vxe-table>
@@ -193,6 +198,15 @@ export default {
         display: flex;
         justify-content: flex-end;
         gap: 10px;
+    }
+
+    .action-button {
+      margin: 0 5px;
+      cursor: pointer;
+
+      &.btn-edit {
+        color: var(--leap-color-link);
+      }
     }
 }
 </style>

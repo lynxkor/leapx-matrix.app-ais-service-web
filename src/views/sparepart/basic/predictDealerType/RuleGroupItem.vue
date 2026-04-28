@@ -41,14 +41,15 @@
                 </el-dropdown-menu>
               </el-dropdown>
               <el-button v-if="!(isRoot && ruleItemList.length === 1 && index === 0)"
-                         type="danger" icon="el-icon-minus" circle size="mini"
-                         style="margin-left: 10px;"
-                         @click="handleDelete(index)"></el-button>
+                type="danger" icon="el-icon-minus" circle size="mini"
+                style="margin-left: 10px;"
+                @click="handleDelete(index)">
+              </el-button>
             </div>
           </template>
           <template v-else>
-            <span class="detail-text">{{ getFieldLabel(child.item.field) }}</span>
-            <span class="detail-symbol">{{ child.item.symbol }}</span>
+            <span class="detail-text">{{ child.item.fieldLabel || child.item.field }}</span>
+            <span class="detail-symbol">{{ child.item.symbolLabel || child.item.symbol }}</span>
             <span class="detail-text">{{ child.item.fieldValue }}</span>
           </template>
         </div>
@@ -129,9 +130,6 @@ export default {
       } else {
         this.$emit('update:ruleItemList', newList);
       }
-    },
-    getFieldLabel (val) {
-      return val;
     }
   }
 };
