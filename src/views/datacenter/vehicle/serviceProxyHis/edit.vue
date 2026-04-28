@@ -17,7 +17,7 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="接车施工单号：">
                   <el-link
                     type="primary"

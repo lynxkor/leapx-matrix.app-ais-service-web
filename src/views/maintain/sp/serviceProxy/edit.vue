@@ -43,7 +43,7 @@
                 <i>|</i>
                 <span>工单状态：{{ form.orderStatusLabel || '-' }}</span>
                 <i>|</i>
-                <span>领料状态：{{ form.pickStatusLabel || '-' }}</span>
+                <span>故障确认：{{ form.confirmFaultLabel || '-' }}</span>
                 <i>|</i>
                 <span>开单时间：{{ form.createTime || '-' }}</span>
               </h5>
@@ -288,7 +288,7 @@ const defaultForm = {
   inCustomerContent: '',
   customerComment: '',
   testResult: '',
-  currentFault: '',
+  currentFault: 1,
   customerContent: '',
   invaildDesc: '',
   anomalyDescription: '',

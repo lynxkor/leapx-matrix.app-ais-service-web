@@ -280,7 +280,7 @@
                   />
                 </div>
                 <div class="report-info">
-                  <el-form label-width="120px" :inline="true" class="form-detail">
+                  <el-form :inline="true" class="form-detail">
                     <el-form-item label="总结签署人：">{{ form.summarySignerName || '--' }}</el-form-item>
                     <el-form-item label="总结签署时间：">{{ form.summarySignTime || '--' }}</el-form-item>
                     <el-form-item label="总结签署说明：">{{ form.summarySignDesc || '--' }}</el-form-item>
@@ -313,7 +313,7 @@
                   />
                 </div>
                 <div class="report-info">
-                  <el-form label-width="120px" :inline="true" class="form-detail">
+                  <el-form :inline="true" class="form-detail">
                     <el-form-item label="整改签署人：">{{ form.rectifySignerName || '--' }}</el-form-item>
                     <el-form-item label="整改签署时间：">{{ form.rectifySignTime || '--' }}</el-form-item>
                     <el-form-item label="整改签署说明：">{{ form.rectifySignDesc || '--' }}</el-form-item>

@@ -247,6 +247,13 @@
             clearable
           />
         </el-form-item>
+        <el-form-item label="故障现象确认：" prop="confirmFaultLabel"  class="form-item-full">
+          <el-input
+            placeholder="请输入"
+            v-model="form.confirmFaultLabel"
+            disabled
+          />
+        </el-form-item>
         <el-form-item label="作废描述：" prop="invaildDesc" class="form-item-full">
           <el-input
             type="textarea"
@@ -504,7 +511,20 @@ export default {
           ]);
         }
       }
-    }
+    },
+    'form.currentFault': {
+      handler (val) {
+        if (val) {
+          this.rules.customerContent = [
+            { required: true, message: '请输入故障描述', trigger: 'change' }
+          ];
+        } else {
+          this.rules.customerContent = [
+            { required: false, message: '请输入故障描述', trigger: 'change' }
+          ];
+        }
+      }
+    },
   },
   data () {
     return {
@@ -520,7 +540,7 @@ export default {
           { required: true, message: '请输入异常描述', trigger: 'change' }
         ],
         customerContent: [
-          { required: false, message: '请输入故障描述', trigger: 'change' }
+          { required: true, message: '请输入故障描述', trigger: 'change' }
         ]
       },
       RepairOrderStatusEnum,
@@ -604,7 +624,7 @@ export default {
       if (val === 0) {
         const oldVal = this.form._prevCurrentFault;
         this.form._prevCurrentFault = val;
-        if (oldVal === 1) {
+        if (oldVal === 1 && this._id) {
           const message = '<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>提醒</div><div class="ais-leave-tips-sub">若本次无故障，将自动清空【故障模块】信息，请确认是否操作！</div>';
           this.$confirm(message, '', {
             confirmButtonText: '确定',
@@ -801,5 +821,8 @@ export default {
       opacity: 0.5;
     }
   }
+}
+.form-item-half {
+  flex: 1;
 }
 </style>

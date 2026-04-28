@@ -30,7 +30,7 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="保修申请单号：">
                   <el-link type="primary" :href="`/claimreturn/claim/warrantyapply/edit?id=${form.warrantyApply?.id}`" target="_blank">{{ form.warrantyApply?.applyNo }}</el-link>
                 </el-form-item>
@@ -99,7 +99,7 @@
               <h2>车辆&客户</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="170px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="vin：">
                   <el-link type="primary" :href="`/datacenter/vehicle/vehicleprofile/edit?id=${form.vehicleProfile?.vin}`" target="_blank">{{ formatVin(form.vehicleProfile?.vin) }}</el-link>
                 </el-form-item>
@@ -159,7 +159,7 @@
               <h2>质量反馈信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="质量反馈报告：">
                   {{ form.qualityOrderReport?.description }}
                 </el-form-item>
@@ -186,7 +186,7 @@
               <h2>保修费用信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="工时索赔小计：">
                   {{ form.warrantyApply?.laborClaimTotal }}
                 </el-form-item>
@@ -253,7 +253,7 @@
             </div>
             <div class="common-section-body">
               <div style="margin-bottom: 8px;">
-                <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+                <el-form :inline="true" :model="form" class="form-detail">
                   <el-form-item label="主因备件编码：">
                     {{ form.warrantyApply?.mainPartCode }}
                   </el-form-item>
@@ -298,7 +298,7 @@
             </div>
             <div class="common-section-body">
               <div class="common-title">基础信息</div>
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="保修审计单：">
                   <el-link type="primary" :href="`/claimreturn/claim/warrantyApply/edit?id=${form.warrantyAuditDetail?.auditId}`" target="_blank">{{ form.warrantyAuditDetail?.auditCode }}</el-link>
                 </el-form-item>
@@ -313,7 +313,7 @@
                 </el-form-item>
               </el-form>
               <div class="common-title">材料补充信息</div>
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="材料补充人：">
                   {{ form.warrantyAuditDetail?.materialSupplierName }}
                 </el-form-item>
@@ -328,7 +328,7 @@
                 </el-form-item>
               </el-form>
               <div class="common-title">审计&反馈信息</div>
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="审计人：">
                   {{ form.warrantyAuditDetail?.auditorName }}
                 </el-form-item>
@@ -349,7 +349,7 @@
                 </el-form-item>
               </el-form>
               <div class="common-title">申诉信息</div>
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="申诉人：">
                   {{ form.warrantyAuditDetail?.appealerName }}
                 </el-form-item>
@@ -379,7 +379,7 @@
               <h2>审计扣款信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="工时扣款：">
                   {{ form.warrantyAuditDetail?.laborDeduct }}
                 </el-form-item>

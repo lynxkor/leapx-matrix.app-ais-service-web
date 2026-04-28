@@ -240,7 +240,7 @@
               <h2>销毁信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" label-width=""  class="form-detail">
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="旧件销毁单：" prop="oldPartDestroyOrderNo">
                   <el-button class="link" @click="$router.push(`/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit?id=${form.oldPartDestroyOrderId}`)" type="text">{{form.oldPartDestroyOrderNo}}</el-button>
                 </el-form-item>
