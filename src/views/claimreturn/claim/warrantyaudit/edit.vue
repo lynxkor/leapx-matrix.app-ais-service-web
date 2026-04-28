@@ -185,7 +185,7 @@
                   <el-input v-model="form.auditDetailTotalAmount" disabled />
                 </el-form-item>
               </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="保修审计单号：">{{ form.auditCode }}</el-form-item>
                 <el-form-item label="审计类型：">{{ form.auditTypeLabel || form.auditType }}</el-form-item>
                 <el-form-item label="审计单状态：">{{ form.auditStatusLabel || form.auditStatus }}</el-form-item>
@@ -237,7 +237,7 @@
                   <el-input v-model="form.techManager" clearable placeholder="请输入" />
                 </el-form-item>
               </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="法人：">{{ form.legalPerson }}</el-form-item>
                 <el-form-item label="服务店长：">{{ form.serviceManager }}</el-form-item>
                 <el-form-item label="保修经理：">{{ form.warrantyManager }}</el-form-item>

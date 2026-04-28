@@ -126,7 +126,7 @@
                   />
                 </el-form-item>
               </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="申请单号：">
                   {{ form.applyNo }}
                 </el-form-item>
@@ -169,13 +169,11 @@
           <detail-table
             ref="modalAddTable"
             :disabled="!canEdit"
-            :processing="isProcessing"
             :canAddOrUpdate="canAddOrUpdate"
             :_id="_id"
             @data-change="() => {}"
             @checkboxChange="checkboxChange"
             @open-add="openPane"
-            @processing-change="val => isProcessing = val"
           />
           <section class="common-section">
             <div class="common-section-header">
@@ -312,7 +310,6 @@ export default {
       moduleKey: 'AISMC-serviceDealerChangeApply',
       loading: false,
       submitLoading: false,
-      isProcessing: false,
       form: { ...form },
       originalForm: { ...form },
       emptyText: '若要启用此内容，请创建记录',

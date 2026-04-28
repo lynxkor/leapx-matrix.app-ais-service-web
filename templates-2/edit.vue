@@ -130,7 +130,7 @@
               {{/if}}
               {{/each}}
               </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 {{#each detailList}}
                 <el-form-item label="{{description}}：" prop="{{key}}">
                   {{#if isBoolean}}

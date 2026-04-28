@@ -143,7 +143,7 @@
                   />
                 </el-form-item>
               </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="留车单编码：" prop="code">
                   {{ form.code }}
                 </el-form-item>
@@ -182,7 +182,7 @@
               <h2>现调信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="_id">
+              <el-form :inline="true" class="form-detail" v-show="_id">
                 <el-form-item label="工程师姓名：" prop="engineerName">
                   {{ form.engineerName }}
                 </el-form-item>

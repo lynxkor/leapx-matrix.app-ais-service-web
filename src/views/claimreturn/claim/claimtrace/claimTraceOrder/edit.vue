@@ -99,7 +99,7 @@
                 </el-form-item>
               </el-form>
               <!-- 详情页：基础信息 -->
-              <el-form :inline="true" label-width="150px" class="form-detail" v-show="!isEditing && _id">
+              <el-form :inline="true" class="form-detail" v-show="!isEditing && _id">
                 <el-form-item label="索赔追溯单号：">{{ form.claimTraceCode }}</el-form-item>
                 <el-form-item label="门店编码：">{{ form.dealerCode }}</el-form-item>
                 <el-form-item label="追溯状态：">{{ form.traceStatusLabel }}</el-form-item>
@@ -177,7 +177,7 @@
                 </el-form-item>
               </el-form>
               <!-- 详情页：处理信息 -->
-              <el-form :inline="true" label-width="150px" class="form-detail" v-show="!isEditing && _id">
+              <el-form :inline="true" class="form-detail" v-show="!isEditing && _id">
                 <el-form-item label="门店处理意见：">{{ form.dealerProcessOpinion }}</el-form-item>
                 <el-form-item label="同意追溯时间：">{{ form.agreeTraceTime }}</el-form-item>
                 <el-form-item label="追溯金调整人：">{{ form.traceAmountAdjuster }}</el-form-item>
