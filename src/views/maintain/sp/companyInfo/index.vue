@@ -189,7 +189,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '门店健康档案',
+      pageTitle: '维修企业档案',
       pageType: 'list',
       // TIPS: 权限前缀 AISCR，根据实际情况修改
       moduleKey: 'AISMC-dealerHealthInfo',
@@ -254,7 +254,7 @@ export default {
             ]
           },
 
-          { props: 'dealerStatusLabel', label: '网发门店状态', visible: true, width: 200 },
+          { props: 'dealerStatusLabel', label: '门店状态', visible: true, width: 200 },
           { props: 'companyName', label: '母公司名称', visible: true, width: 200 },
           { props: 'healthStatusLabel', label: '健康档案状态', visible: true, width: 200 },
           { props: 'creditCode', label: '统一社会信用代码', visible: true, width: 200 },
