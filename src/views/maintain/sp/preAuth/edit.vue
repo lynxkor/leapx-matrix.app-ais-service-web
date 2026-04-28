@@ -19,6 +19,7 @@
           <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && form.approvalStatus === AUDIT_STATUS.IN_PROGRESS && !form.isGoodWarranty">审批</el-button>
           <el-button size="small" type="primary" plain @click="handleCancel" v-if="_id && form.approvalStatus === AUDIT_STATUS.REJECTED">作废</el-button>
           <el-button size="small" type="primary" @click="handleSubmit(1)" v-if="_id && form.approvalStatus === AUDIT_STATUS.TODO">提交</el-button>
+          <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && form.approvalStatus === AUDIT_STATUS.REFUSED">激活</el-button>
         </template>
         <template #footer>
           <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleSubmit(0)" :loading="loading">保存</el-button>

@@ -38,7 +38,7 @@
     <template v-slot:footer>
       <div class="dialog-footer">
         <el-button size="small" @click="close">取 消</el-button>
-        <el-button size="small" :loading="submitLoading" :disabled="!hasSelectedItems" type="primary" @click="submit">核销选中权益</el-button>
+        <el-button size="small" :loading="submitLoading" :disabled="!hasSelectedItems" type="primary" @click="confirmSubmit">核销选中权益</el-button>
       </div>
     </template>
   </el-dialog>
@@ -406,21 +406,22 @@ export default {
         if (!success) {
           // 分配失败，返回具体错误
           const itemTypes = (item.relatedRepairTypeList || []).map(t => t.repairTypeName).join('、');
-          const itemDiscount = this.parsePaymentAmount(item.paymentAmount).discount;
+          // const itemDiscount = this.parsePaymentAmount(item.paymentAmount).discount;
 
           // 计算各类型的剩余金额和已抵扣金额
-          const details = item.relatedRepairTypeList.map(type => {
-            const typeName = type.repairTypeName;
-            const total = typeAmounts[typeName] || 0;
-            const deducted = allocation[typeName] || 0;
-            const remaining = total - deducted;
-            return `${typeName}(总额${total}元，已抵扣${deducted}元，剩余${remaining}元)`;
-          }).join('；');
+          // const details = item.relatedRepairTypeList.map(type => {
+          //   const typeName = type.repairTypeName;
+          //   const total = typeAmounts[typeName] || 0;
+          //   const deducted = allocation[typeName] || 0;
+          //   const remaining = total - deducted;
+          //   return `${typeName}(总额${total}元，已抵扣${deducted}元，剩余${remaining}元)`;
+          // }).join('；');
 
           return {
             valid: false,
             reason: 'exceed_available_amount',
-            message: `优惠券"${item.rightsName}"（减免${itemDiscount}元，适用：${itemTypes}）无法分配。${details}`
+            message: `已选的优惠券金额已经大于${itemTypes}剩余应付款金额，不能再选择新的抵扣券`
+            // `优惠券"${item.rightsName}"（减免${itemDiscount}元，适用：${itemTypes}）无法分配。${details}`
           };
         }
       }
@@ -490,13 +491,7 @@ export default {
     },
 
     // 提交核销
-    async submit () {
-      const selectedRows = this.tableData.filter((row) => row.checked);
-
-      if (selectedRows.length === 0) {
-        this.$message.warning('请选择要核销的权益');
-        return;
-      }
+    async submit (selectedRows) {
       try {
         this.submitLoading = true;
         const params = {
@@ -505,15 +500,32 @@ export default {
         };
 
         await rightsFreeze(params);
-        this.$message.success('权益核销成功');
+        this.$message.success('操作成功');
         this.$emit('refresh');
         this.close();
       } catch (error) {
         console.error('权益核销异常:', error);
-        this.$message.error('权益核销失败');
       } finally {
         this.submitLoading = false;
       }
+    },
+    confirmSubmit () {
+      const selectedRows = this.tableData.filter((row) => row.checked);
+      if (selectedRows.length === 0) {
+        this.$message.warning('请选择要核销的权益');
+        return;
+      }
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>是否确定要核销选中权益？</div>';
+      this.$confirm(message, '', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(() => {
+        this.submit(selectedRows);
+      }).catch(() => {
+      });
     },
 
     close () {

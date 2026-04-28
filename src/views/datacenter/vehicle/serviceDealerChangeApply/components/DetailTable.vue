@@ -3,14 +3,14 @@
     <div class="common-section-header">
       <h2>
         变更车辆信息
-        <div v-if="_id && !disabled && !processing" class="btns">
-          <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="openAdd"><i class="iconfont icon-lxppc-plus"></i>添加车辆</el-button>
-          <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="batchTransfer">批量转移</el-button>
-          <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="handleImport">导入车辆</el-button>
-        </div>
       </h2>
     </div>
     <div v-if="_id" class="common-section-body">
+      <div v-if="_id && !disabled" class="btns">
+        <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="openAdd"><i class="iconfont icon-lxppc-plus"></i>添加车辆</el-button>
+        <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="batchTransfer">批量转移</el-button>
+        <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="handleImport">导入车辆</el-button>
+      </div>
       <div class="common-section-table">
         <vxe-table
           ref="editTable"
@@ -44,7 +44,7 @@
               <el-popconfirm
                 title="确定要删除这条记录吗？"
                 @confirm="handleRemoveRow(row, rowIndex)"
-                v-if="canAddOrUpdate && !disabled && !processing"
+                v-if="canAddOrUpdate && !disabled"
               >
                 <el-button
                   class="action-button btn-delete"
@@ -111,10 +111,6 @@ export default {
       type: String,
     },
     disabled: {
-      type: Boolean,
-      default: false
-    },
-    processing: {
       type: Boolean,
       default: false
     }
@@ -212,23 +208,18 @@ export default {
       this.$emit('checkboxChange', this.selectedRows);
     },
     batchTransfer () {
-      this.$emit('processing-change', true);
       this.batchTransferDialogVisible = true;
     },
     onTransferComplete () {
-      this.$emit('processing-change', false);
       this.getTableData();
     },
     handleImport () {
-      this.$emit('processing-change', true);
       this.uploadDialogVisible = true;
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
-      this.$emit('processing-change', false);
     },
     onImportComplete () {
-      this.$emit('processing-change', false);
       this.getTableData();
     },
   },
@@ -237,5 +228,8 @@ export default {
 <style lang="scss" scoped>
 .btn-delete{
   color: #B91919;
+}
+.btns {
+  margin-bottom: 10px;
 }
 </style>

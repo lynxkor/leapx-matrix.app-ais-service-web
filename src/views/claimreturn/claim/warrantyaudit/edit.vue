@@ -185,7 +185,7 @@
                   <el-input v-model="form.auditDetailTotalAmount" disabled />
                 </el-form-item>
               </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="保修审计单号：">{{ form.auditCode }}</el-form-item>
                 <el-form-item label="审计类型：">{{ form.auditTypeLabel || form.auditType }}</el-form-item>
                 <el-form-item label="审计单状态：">{{ form.auditStatusLabel || form.auditStatus }}</el-form-item>
@@ -237,7 +237,7 @@
                   <el-input v-model="form.techManager" clearable placeholder="请输入" />
                 </el-form-item>
               </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="法人：">{{ form.legalPerson }}</el-form-item>
                 <el-form-item label="服务店长：">{{ form.serviceManager }}</el-form-item>
                 <el-form-item label="保修经理：">{{ form.warrantyManager }}</el-form-item>
@@ -280,7 +280,7 @@
                   />
                 </div>
                 <div class="report-info">
-                  <el-form label-width="120px" :inline="true" class="form-detail">
+                  <el-form :inline="true" class="form-detail">
                     <el-form-item label="总结签署人：">{{ form.summarySignerName || '--' }}</el-form-item>
                     <el-form-item label="总结签署时间：">{{ form.summarySignTime || '--' }}</el-form-item>
                     <el-form-item label="总结签署说明：">{{ form.summarySignDesc || '--' }}</el-form-item>
@@ -313,7 +313,7 @@
                   />
                 </div>
                 <div class="report-info">
-                  <el-form label-width="120px" :inline="true" class="form-detail">
+                  <el-form :inline="true" class="form-detail">
                     <el-form-item label="整改签署人：">{{ form.rectifySignerName || '--' }}</el-form-item>
                     <el-form-item label="整改签署时间：">{{ form.rectifySignTime || '--' }}</el-form-item>
                     <el-form-item label="整改签署说明：">{{ form.rectifySignDesc || '--' }}</el-form-item>

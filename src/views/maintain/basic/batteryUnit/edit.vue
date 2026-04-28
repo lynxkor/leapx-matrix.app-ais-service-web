@@ -53,7 +53,7 @@
                   />
                 </el-form-item>
               </el-form>
-              <el-form :inline="true" label-width="150px" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="单位代码：">
                   {{ form.code }}
                 </el-form-item>

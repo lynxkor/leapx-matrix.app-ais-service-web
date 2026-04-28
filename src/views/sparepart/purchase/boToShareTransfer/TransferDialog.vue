@@ -5,7 +5,7 @@
             <h4>注: 请确保与对方门店沟通无误后，再进行转调拨操作</h4>
         </div>
         <!-- 数据表格 -->
-        <div class="table-section">
+        <div class="table-section" v-loading="loading">
             <vxe-table ref="workTable" :data="tableData" stripe show-overflow resizable border="inner" size="medium">
                 <vxe-column field="dealerCode" title="共享门店编码" width="180" />
                 <vxe-column field="dealerName" title="共享门店名称" width="180" />
@@ -17,19 +17,24 @@
                 <vxe-column field="sharedQty" title="共享数量" width="120" />
                 <vxe-column field="suggestedSharedPrice" title="建议共享价格" width="120" />
                 <vxe-column field="distance" title="距离" width="100" />
-                <vxe-column title="调拨数量" width="100">
+                <vxe-column title="调拨数量" width="100" fixed="right">
                     <template #default="{ row }">
                         <el-input v-model="row.qty" type="number" />
                     </template>
                 </vxe-column>
-                <vxe-column title="联系方式" width="180">
+                <vxe-column title="联系方式" width="180" fixed="right">
                     <template #default="{ row }">
                         <el-input v-model="row.contactInfo" />
                     </template>
                 </vxe-column>
                 <vxe-column title="操作" width="100" fixed="right">
                     <template #default="{ row }">
-                        <el-button size="small" type="text" @click="handleApplyTransfer(row)">申请调拨</el-button>
+                      <el-popconfirm
+                        title="是否确认申请调拨？"
+                        @confirm="handleApplyTransfer(row)"
+                      >
+                        <span slot="reference" class="action-button btn-edit" size="small">申请调拨</span>
+                      </el-popconfirm>
                     </template>
                 </vxe-column>
             </vxe-table>
@@ -37,10 +42,10 @@
 
         <!-- 底部按钮 -->
         <template v-slot:footer>
-            <div class="dialog-footer">
-                <el-button size="small" @click="close">取 消</el-button>
-            </div>
-        </template>
+        <div class="dialog-footer">
+            <el-button size="small" @click="dialogVisible = false">取 消</el-button>
+        </div>
+    </template>
     </el-dialog>
 </template>
 
@@ -64,15 +69,14 @@ export default {
       dialogVisible: this.visible,
       // 模拟表格数据
       tableData: [],
+      loading: false,
     };
   },
   watch: {
     visible (val) {
       this.dialogVisible = val;
-    },
-    transferId (val) {
-      if (val) {
-        this.getData(val);
+      if (val && this.transferId) {
+        this.getData(this.transferId);
       }
     }
   },
@@ -82,11 +86,16 @@ export default {
       this.$emit('getData');
     },
     async getData (val) {
-      const res = await boToTransferPage({ id: val });
-      this.tableData = (res || []).map(item => ({
-        ...item,
-        qty: Math.min(item.pendingPartQty || 0, item.sharedQty || 0) // 调拨数量：默认待处理备件数量和共享数量的最小值
-      }));
+      this.loading = true;
+      try {
+        const res = await boToTransferPage({ id: val });
+        this.tableData = (res || []).map(item => ({
+          ...item,
+          qty: Math.min(item.pendingPartQty || 0, item.sharedQty || 0) // 调拨数量：默认待处理备件数量和共享数量的最小值
+        }));
+      } finally {
+        this.loading = false;
+      }
     },
     async handleApplyTransfer (row) {
       const maxQty = Math.min(row.pendingPartQty || 0, row.sharedQty || 0);
@@ -150,11 +159,14 @@ export default {
       if (!row.contactInfo && contactInfo) {
         row.contactInfo = contactInfo;
       }
+      this.loading = true;
       try {
         await applyBoToTransfer(params);
         this.getData(this.transferId);
         this.$message.success('调拨成功');
       } catch (error) {
+      } finally {
+        this.loading = false;
       }
     },
 
@@ -193,6 +205,15 @@ export default {
         display: flex;
         justify-content: flex-end;
         gap: 10px;
+    }
+
+    .action-button {
+      margin: 0 5px;
+      cursor: pointer;
+
+      &.btn-edit {
+        color: var(--leap-color-link);
+      }
     }
 }
 </style>

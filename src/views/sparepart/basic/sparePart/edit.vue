@@ -10,7 +10,12 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
-        :showEditBtn="true"
+        :showEditBtn="
+          permissions.has('AISPART-sparePart-vfgImport') ||
+          permissions.has('AISPART-sparePart-modelImport') ||
+          permissions.has('AISPART-sparePart-purchaseImport') ||
+          permissions.has('AISPART-sparePart-transportImport') ||
+          permissions.has('AISPART-sparePart-salesImport')"
       >
         <template #status>
           <span class="status primary">{{ form.statusLabel }}</span>
@@ -205,7 +210,7 @@
                   />
                 </el-form-item>
               </el-form>
-              <el-form :inline="true" label-width="160px" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="备件编码：">
                   {{ form.partCode }}
                 </el-form-item>
@@ -277,7 +282,7 @@
               <h2>其他信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="160px" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" :model="form" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="门店名称：">
                   {{ form.dealerName }}
                 </el-form-item>
@@ -594,6 +599,20 @@ export default {
     };
   },
   methods: {
+    getDetailData () {
+      const id = this.id || this.$route.query.id;
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['备件主数据', `${id ? '编辑' : '新建'}`]);
+      if (id) {
+        getDetail(id).then(res => {
+          this.loading = false;
+          Object.assign(this.form, res);
+          Object.assign(this.originalForm, res);
+          this.supplierData = res.sparePartSupplierRespList || []; // 供应商信息
+          this.modelData = res.sparePartVehicleModelRespList || []; // 车型信息
+          this.replacementData = res.sparePartReplacerRespList || []; // 替换件信息
+        });
+      }
+    },
     detailRequest () {
       const id = this._id;
       if (id) {

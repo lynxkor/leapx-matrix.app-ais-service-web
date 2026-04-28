@@ -501,7 +501,7 @@ export default {
       this.debouncedGetData();
     },
     getTabsList () {
-      getStatistics().then(res => {
+      getStatistics({ ...this.getFormData() }).then(res => {
         const target = res || {};
         this.tabList = [
           { orderStatusLabel: '全部', orderStatus: '', count: null },

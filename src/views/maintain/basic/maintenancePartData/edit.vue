@@ -79,7 +79,7 @@
                   />
                 </el-form-item>
               </el-form>
-              <el-form label-width="180px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="保养零件代码：" prop="code">
                   {{ form.code }}
                 </el-form-item>

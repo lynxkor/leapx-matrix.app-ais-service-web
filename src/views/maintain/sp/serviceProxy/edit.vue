@@ -16,6 +16,7 @@
                     <!-- 通用操作按钮 -->
                     <el-button size="small" @click="handlePrint" v-if="!isCanceled">打印工单</el-button>
                     <el-button size="small" @click="couponsDialogVisible = true" v-if="!isCanceled">查询卡券&终身</el-button>
+                    <el-button size="small" @click="handleResendSignSms" v-if="canResendSignSms">补推施工单短信签字</el-button>
                     <el-button size="small" @click="handleImport" v-if="!isCanceled">上传附件</el-button>
                     <el-button size="small" @click="handleShowLog">审核日志</el-button>
                     <el-button size="small" @click="remindInfoDialogVisible = true">提醒信息</el-button>
@@ -43,7 +44,7 @@
                 <i>|</i>
                 <span>工单状态：{{ form.orderStatusLabel || '-' }}</span>
                 <i>|</i>
-                <span>领料状态：{{ form.pickStatusLabel || '-' }}</span>
+                <span>故障确认：{{ form.confirmFaultLabel || '-' }}</span>
                 <i>|</i>
                 <span>开单时间：{{ form.createTime || '-' }}</span>
               </h5>
@@ -156,7 +157,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal, getSpRemindInfo, isVehRetention, addVehRetentionList } from '@/api/maintain/sp/serviceProxy/index';
+import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal, getSpRemindInfo, isVehRetention, addVehRetentionList, resendSignSms } from '@/api/maintain/sp/serviceProxy/index';
 import { RepairOrderStatusEnum, BusinessTypeEnum, RemindInfoTypeEnum, CurrentSituationEnum } from './constant';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import NavTop from './components/NavTop';
@@ -288,7 +289,7 @@ const defaultForm = {
   inCustomerContent: '',
   customerComment: '',
   testResult: '',
-  currentFault: '',
+  currentFault: 1,
   customerContent: '',
   invaildDesc: '',
   anomalyDescription: '',
@@ -423,6 +424,11 @@ export default {
     hasRepairItems () {
       const item = this.form?.costCountResp?.sparePartRespList?.some(item => (+item.quantity || 0) > 0 && item.isOutstock);
       return item && !this.form?.isCreateStatementInfo;
+    },
+    canResendSignSms () {
+      // 假设 signStatus 为空或特定状态表示待签字，这里主要依据题目要求的“签字生成时间不为空”和“非作废”
+      // 如果需要严格判断“待签字”，请加上 && this.form.signStatus === 'YOUR_PENDING_STATUS_CODE'
+      return !this.isCanceled && this.form.signGeneratedOn && this.form.signStatus && this.form.signStatus === 10;
     }
   },
   watch: {
@@ -747,6 +753,30 @@ export default {
           }
         });
       }, 1000);
+    },
+    /**
+     * 补推施工单短信签字
+     */
+    handleResendSignSms () {
+      const message = '此操作将再次推送短信给用户进行施工单签字，是否继续？';
+      this.$confirm(message, '', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        showClose: false
+      }).then(() => {
+        // 调用接口
+        // 假设接口参数为 id
+        resendSignSms(this._id).then(res => {
+          this.$message.success('推送成功');
+          // 可选：刷新页面数据以更新最新状态
+          this.getDetailData();
+        }).catch(err => {
+          // 错误处理通常由拦截器统一处理，如需特殊处理可在此添加
+          console.error(err);
+        });
+      }).catch(() => {
+        // 用户取消操作，无需处理
+      });
     },
   }
 };

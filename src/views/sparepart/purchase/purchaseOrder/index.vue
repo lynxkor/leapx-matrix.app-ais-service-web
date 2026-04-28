@@ -595,7 +595,18 @@ export default {
           },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'shippingOrder', label: '运单号', visible: true, width: 200 },
+          {
+            props: 'shippingOrder',
+            label: '运单号',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.getLogisticsInfo(row);
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'detailRemark', label: '备注', visible: true, width: 200 },
           { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },

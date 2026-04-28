@@ -8,7 +8,7 @@
         <div class="common-title">备件详情</div>
         <div class="ais-actions">
             <div class="common-section-table" v-if="sparePartDetail">
-                <el-form label-width="120px" :form="sparePartDetail" :inline="true" class="form-detail">
+                <el-form :form="sparePartDetail" :inline="true" class="form-detail">
                     <el-form-item label="备件编码：" prop="partCode">
                         {{ sparePartDetail.partCode }}
                     </el-form-item>
