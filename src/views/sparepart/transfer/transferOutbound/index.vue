@@ -523,7 +523,7 @@ export default {
     },
     async getDealerList (query) {
       try {
-        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query, authority: false });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
