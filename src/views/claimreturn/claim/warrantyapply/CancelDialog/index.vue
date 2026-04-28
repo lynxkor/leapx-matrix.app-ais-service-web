@@ -8,7 +8,7 @@
     <div class="page-common-edit">
       <section class="common-section">
         <div class="common-section-body">
-          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="100px" class="form-edit" >
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="90px" class="form-edit" >
             <el-form-item class="form-item-full" label="作废原因：" prop="cancelReason">
               <base-input
                 type="textarea"

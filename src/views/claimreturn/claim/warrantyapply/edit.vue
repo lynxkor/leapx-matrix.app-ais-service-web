@@ -9,14 +9,15 @@
     :originalForm.sync="originalForm"
     :submitRequest="submitRequest"
     :detailRequest="detailRequest"
+    :showEditBtn="EDITABLE_STATUSES.includes(form.applyStatus)"
   >
     <template #extraButtons>
       <el-button v-if="canSubmit && (EDITABLE_STATUSES.includes(form.applyStatus))" type="primary" size="small" @click="handleSubmit">提交</el-button>
-      <el-button v-if="canApprove && PENDING_REVIEW_STATUSES.includes(form.applyStatus)" type="primary" size="small" @click="handleApprove">同意</el-button>
-      <el-button v-if="canReject && PENDING_REVIEW_STATUSES.includes(form.applyStatus)" type="primary" size="small" @click="handleReject(false)">驳回</el-button>
-      <el-button v-if="canApplyReject && [...PENDING_REVIEW_STATUSES, APPLY_STATUS.APPROVED].includes(form.applyStatus)" type="primary" size="small" @click="handleReject(true)">申请驳回</el-button>
+      <el-button v-if="canApprove && isPendingCurrentUserReview" type="primary" size="small" @click="handleApprove">同意</el-button>
+      <el-button v-if="canReject && isPendingCurrentUserReview" type="primary" size="small" @click="handleReject(false)">驳回</el-button>
+      <el-button v-if="canApplyReject && (isPendingCurrentUserReview || form.applyStatus === APPLY_STATUS.APPROVED)" type="primary" size="small" @click="handleReject(true)">申请驳回</el-button>
       <el-button v-if="canWithdraw && WITHDRAWABLE_STATUSES.includes(form.applyStatus)" type="primary" size="small" @click="handleWithdraw">撤回</el-button>
-      <el-button v-if="canDeny && PENDING_REVIEW_STATUSES.includes(form.applyStatus)" type="danger" plain size="small" @click="handleDeny">拒赔</el-button>
+      <el-button v-if="canDeny && isPendingCurrentUserReview" type="danger" plain size="small" @click="handleDeny">拒赔</el-button>
       <el-button v-if="canCancel && (EDITABLE_STATUSES.includes(form.applyStatus))" type="danger" plain size="small" @click="handleCancel">作废</el-button>
       <el-button :loading="printLoading" size="small" @click="handlePrint">打印标签</el-button>
       <el-button size="small" @click="handleViewRights">查看权益</el-button>
@@ -790,6 +791,8 @@ const defaultForm = {
   cancelTime: '',
   cancelReason: '',
   dataSource: '',
+  isInApproval: false,
+  currentApproverIdList: [],
 };
 
 export default {
@@ -835,7 +838,14 @@ export default {
       return this.accountFlag === false;
     },
     canEditMainPart () {
-      return this.isFactoryAccount && PENDING_REVIEW_STATUSES.includes(this.form.applyStatus);
+      return this.isFactoryAccount && this.isPendingCurrentUserReview;
+    },
+    isPendingCurrentUserReview () {
+      if (!this.form.isInApproval) return false;
+      const list = this.form.currentApproverIdList;
+      if (!list || list.length === 0) return true;
+      const userId = this.$store.state.user.userInfo.userId;
+      return list.includes(userId);
     },
     isGoodwillWarranty () {
       return this.form.repairItemTypeName === '善意保修';

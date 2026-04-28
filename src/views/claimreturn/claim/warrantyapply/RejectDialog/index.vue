@@ -8,7 +8,7 @@
     <div class="page-common-edit">
       <section class="common-section">
         <div class="common-section-body">
-          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="100px" class="form-edit" >
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="90px" class="form-edit">
             <el-form-item class="form-item-full" label="审批说明：" prop="approvalRemark">
               <base-input
                 type="textarea"
@@ -17,24 +17,26 @@
                 clearable
               />
             </el-form-item>
-            <el-form-item class="form-item-full" label="错误名称：" prop="errorCodeId">
-              <fetch-select
-                filterable
-                clearable
-                remote
-                reserve-keyword
-                v-model="form.errorCodeId"
-                :remote-method="codeSearch"
-                params=""
-                value-key="id"
-                label-key="name"
-                sub-label-key="code"
-                @change="onChange"
-              />
-            </el-form-item>
-            <el-form-item class="form-item-full" label="错误代码：" prop="code">
-              {{ form.code }}
-            </el-form-item>
+            <template v-if="!isApplyReject">
+              <el-form-item class="form-item-full" label="错误名称：" prop="errorCodeId">
+                <fetch-select
+                  filterable
+                  clearable
+                  remote
+                  reserve-keyword
+                  v-model="form.errorCodeId"
+                  :remote-method="codeSearch"
+                  params=""
+                  value-key="id"
+                  label-key="name"
+                  sub-label-key="code"
+                  @change="onChange"
+                />
+              </el-form-item>
+              <el-form-item class="form-item-full" label="错误代码：" prop="code">
+                {{ form.code }}
+              </el-form-item>
+            </template>
           </el-form>
         </div>
       </section>

@@ -559,11 +559,7 @@ export default {
                   if (!this.approve) {
                     return false;
                   }
-                  // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
-                  if (PENDING_REVIEW_STATUSES.includes(row.applyStatus)) {
-                    return true;
-                  }
-                  return false;
+                  return this.isRowPendingCurrentUserReview(row);
                 },
               },
               {
@@ -576,11 +572,7 @@ export default {
                   if (!this.reject) {
                     return false;
                   }
-                  // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
-                  if (PENDING_REVIEW_STATUSES.includes(row.applyStatus)) {
-                    return true;
-                  }
-                  return false;
+                  return this.isRowPendingCurrentUserReview(row);
                 },
               },
               {
@@ -593,11 +585,7 @@ export default {
                   if (!this.applyReject) {
                     return false;
                   }
-                  // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
-                  if ([...PENDING_REVIEW_STATUSES, APPLY_STATUS.APPROVED].includes(row.applyStatus)) {
-                    return true;
-                  }
-                  return false;
+                  return this.isRowPendingCurrentUserReview(row) || row.applyStatus === APPLY_STATUS.APPROVED;
                 },
               },
               {
@@ -627,11 +615,7 @@ export default {
                   if (!this.deny) {
                     return false;
                   }
-                  // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
-                  if (PENDING_REVIEW_STATUSES.includes(row.applyStatus)) {
-                    return true;
-                  }
-                  return false;
+                  return this.isRowPendingCurrentUserReview(row);
                 },
               },
               {
@@ -686,6 +670,13 @@ export default {
     this.submit = this.permissions.has(`${this.moduleKey}-submit`);
   },
   methods: {
+    isRowPendingCurrentUserReview (row) {
+      if (!row.isInApproval) return false;
+      const list = row.currentApproverIdList;
+      if (!list || list.length === 0) return true;
+      const userId = this.$store.state.user.userInfo.userId;
+      return list.includes(userId);
+    },
     handlePrint (paramIds) {
       const isRow = Array.isArray(paramIds);
       if (!this.selectionList?.length && !isRow) {
