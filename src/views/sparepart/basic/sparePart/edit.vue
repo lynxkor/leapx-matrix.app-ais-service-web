@@ -599,6 +599,20 @@ export default {
     };
   },
   methods: {
+    getDetailData () {
+      const id = this.id || this.$route.query.id;
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['备件主数据', `${id ? '编辑' : '新建'}`]);
+      if (id) {
+        getDetail(id).then(res => {
+          this.loading = false;
+          Object.assign(this.form, res);
+          Object.assign(this.originalForm, res);
+          this.supplierData = res.sparePartSupplierRespList || []; // 供应商信息
+          this.modelData = res.sparePartVehicleModelRespList || []; // 车型信息
+          this.replacementData = res.sparePartReplacerRespList || []; // 替换件信息
+        });
+      }
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
