@@ -1039,7 +1039,6 @@ export default {
           partCodeOrNameLike: query,
         }).then(res => {
           if (!res.records?.length) {
-            this.$message.warning();
             resolve({
               ...res,
               records: [
