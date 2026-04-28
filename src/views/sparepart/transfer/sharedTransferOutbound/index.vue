@@ -12,7 +12,7 @@
      <el-form-item label="共享调拨出库单号">
         <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="出库门店">
+      <el-form-item label="入库门店">
         <fetch-select
           :remote-method="getDealerList"
           remote
