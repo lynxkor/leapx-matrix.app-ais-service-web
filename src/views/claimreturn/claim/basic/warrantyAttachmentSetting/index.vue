@@ -121,7 +121,7 @@ const defaultForm = {
   autoApproval: '',
   createTime: '',
   updateTime: '',
-  autoApprovals: ['0']
+  autoApprovals: []
 };
 
 const pageSize = 20;

@@ -137,8 +137,8 @@ const defaultForm = {
   status: '',
   code: '',
   name: '',
-  statusList: ['1'],
-  rejectConfigTypeList: ['803750000'],
+  statusList: [],
+  rejectConfigTypeList: [],
 };
 
 const pageSize = 20;

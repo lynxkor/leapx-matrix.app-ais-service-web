@@ -161,8 +161,8 @@ const defaultForm = {
   dealerCode: '',
   dealerName: '',
   monthType: '',
-  calendarModes: ['10'],
-  statusList: ['1']
+  calendarModes: [],
+  statusList: []
 };
 
 const pageSize = 20;

@@ -161,7 +161,7 @@ const defaultForm = {
   status: '',
   createTime: '',
   updateTime: '',
-  statusIncludeList: ['1']
+  statusIncludeList: []
 };
 
 const pageSize = 20;
