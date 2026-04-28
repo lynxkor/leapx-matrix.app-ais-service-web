@@ -11,7 +11,7 @@
           <h2>基础信息</h2>
         </div>
         <div class="common-section-body">
-          <el-form :inline="true" ref="ruleForm" label-width="180px">
+          <el-form :inline="true" ref="ruleForm">
             <!-- TIPS: 根据实际情况调整展示字段 -->
             <el-form-item label="备件编码：" prop="partCode">
               <!-- {{ info.partCode  }} -->
@@ -86,7 +86,7 @@
           <h2>其他信息</h2>
         </div>
         <div class="common-section-body">
-          <el-form :inline="true" ref="ruleForm" label-width="180px">
+          <el-form :inline="true" ref="ruleForm">
             <el-form-item label="门店名称：" prop="dealerName">
               {{ info.dealerName  }}
             </el-form-item>

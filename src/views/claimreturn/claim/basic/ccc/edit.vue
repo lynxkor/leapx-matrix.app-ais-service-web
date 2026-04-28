@@ -76,7 +76,7 @@
                   />
                 </el-form-item>
               </el-form>
-              <el-form :inline="true" label-width="150px"  class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="VRT名称：" prop="vrtName">
                   {{ form.vrtName }}
                 </el-form-item>

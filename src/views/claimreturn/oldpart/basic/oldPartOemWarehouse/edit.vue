@@ -103,7 +103,7 @@
                 />
               </el-form-item>
             </el-form>
-            <el-form :inline="true"  label-width="150px" class="form-detail" v-show="!(isEditing || !_id)">
+            <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
               <el-form-item label="仓库名称：" prop="warehouseName">
                 {{ form.warehouseName  }}
               </el-form-item>

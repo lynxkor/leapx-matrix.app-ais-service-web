@@ -514,7 +514,7 @@
                     v-show="expandedItems.includes(index)"
                     class="item-detail-body"
                   >
-                    <el-form :inline="true" class="form-detail" label-width="120px">
+                    <el-form :inline="true" class="form-detail">
                       <el-form-item label="*维修类型：">
                         {{ item.repairItemTypeName }}
                       </el-form-item>
