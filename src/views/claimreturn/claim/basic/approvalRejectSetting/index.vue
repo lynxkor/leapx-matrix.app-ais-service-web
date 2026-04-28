@@ -11,27 +11,27 @@
     >
     <el-form-item label="代码">
           <tag-input v-model="form.codes" placeholder="请输入"/>
-        </el-form-item>
-        <el-form-item label="名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.nameLike"
-            clearable
-          />
-        </el-form-item>
-      <template v-if="show">
-        <el-form-item label="类型">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="reject_config_type"
-            v-model="form.rejectConfigTypeList"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
-      <el-form-item label="是否启用"  v-show="this.visibleCount === 3 || show">
+    </el-form-item>
+    <el-form-item label="名称">
+      <el-input
+        placeholder="请输入"
+        v-model="form.nameLike"
+        clearable
+      />
+    </el-form-item>
+    <el-form-item label="类型" v-show="this.visibleCount === 3 || show">
+      <fetch-select
+        :request="fetchOptions"
+        enumCode="reject_config_type"
+        v-model="form.rejectConfigTypeList"
+        placeholder="请选择"
+        clearable
+        multiple
+        filterable
+      />
+    </el-form-item>
+    <template v-if="show">
+      <el-form-item label="是否启用">
         <fetch-select
           :request="fetchOptions"
           enumCode="StatusEnum"
@@ -137,7 +137,8 @@ const defaultForm = {
   status: '',
   code: '',
   name: '',
-  rejectConfigType: '',
+  statusList: ['1'],
+  rejectConfigTypeList: ['803750000'],
 };
 
 const pageSize = 20;

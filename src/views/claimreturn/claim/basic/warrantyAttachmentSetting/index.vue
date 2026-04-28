@@ -26,8 +26,7 @@
           filterable
         />
       </el-form-item>
-      <template v-if="show">
-        <el-form-item label="创建时间"  v-show="this.visibleCount === 2 || show">
+      <el-form-item label="创建时间"  v-show="this.visibleCount === 3 || show">
         <el-date-picker
          :default-time="['00:00:00', '23:59:59']"
           v-model="form.createTime"
@@ -39,6 +38,7 @@
           end-placeholder="结束日期"
         />
       </el-form-item>
+      <template v-if="show">
         <el-form-item label="修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -121,6 +121,7 @@ const defaultForm = {
   autoApproval: '',
   createTime: '',
   updateTime: '',
+  autoApprovals: ['0']
 };
 
 const pageSize = 20;
