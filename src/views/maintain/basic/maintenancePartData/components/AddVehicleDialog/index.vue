@@ -252,21 +252,28 @@ export default {
       }
       // 获取当前 tableData 的长度作为起始索引
       const startIndex = this.tableData.length;
+      // 已存在的 vehicleModelId 集合，用于去重
+      const existingIds = new Set(this.tableData.map(item => item.vehicleModelId));
       // 更新当前行的车型选择
-      const list = modelArray.map((item) => {
-        return {
-          index: startIndex + 1,
-          value: item.id,
-          label: item.modelName,
-          vehicleModelId: item.id,
-          vehicleModelName: item.modelName,
-          vehicleSeriesId: item.seriesId,
-          vehicleSeriesName: item.seriesName,
-          vehicleModelDesc: item.remark,
-          vehicleYearTypeId: this.yearDetail.vehicleYearTypeId,
-          vehicleYearTypeName: this.yearDetail.vehicleYearTypeName,
-        };
-      }) || [];
+      const list = modelArray
+        .filter(item => !existingIds.has(item.id))
+        .map((item, i) => {
+          return {
+            index: startIndex + i + 1,
+            value: item.id,
+            label: item.modelName,
+            vehicleModelId: item.id,
+            vehicleModelName: item.modelName,
+            vehicleSeriesId: item.seriesId,
+            vehicleSeriesName: item.seriesName,
+            vehicleModelDesc: item.remark,
+            vehicleYearTypeId: this.yearDetail.vehicleYearTypeId,
+            vehicleYearTypeName: this.yearDetail.vehicleYearTypeName,
+          };
+        });
+      // if (modelArray.length > list.length) {
+      //   this.$message.warning(`${modelArray.length - list.length} 条车型已存在，已自动去重`);
+      // }
       this.tableData.push(...list);
     },
     // 选择车系

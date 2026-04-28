@@ -397,7 +397,7 @@ export default {
         return;
       }
       // 检查是否已存在
-      const exists = this.tableDataPart.some(item => item.partCode === record.partCode);
+      const exists = this.tableDataPart.some(item => item.partCode === record.partsCode);
       if (exists) {
         this.$message.warning('该零件已添加');
         return;
