@@ -11,11 +11,11 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
         :showEditBtn="
-          this.permissions.has('AISPART-sparePart-vfgImport') ||
-          this.permissions.has('AISPART-sparePart-modelImport') ||
-          this.permissions.has('AISPART-sparePart-purchaseImport') ||
-          this.permissions.has('AISPART-sparePart-transportImport') ||
-          this.permissions.has('AISPART-sparePart-salesImport')"
+          permissions.has('AISPART-sparePart-vfgImport') ||
+          permissions.has('AISPART-sparePart-modelImport') ||
+          permissions.has('AISPART-sparePart-purchaseImport') ||
+          permissions.has('AISPART-sparePart-transportImport') ||
+          permissions.has('AISPART-sparePart-salesImport')"
       >
         <template #status>
           <span class="status primary">{{ form.statusLabel }}</span>
@@ -210,7 +210,7 @@
                   />
                 </el-form-item>
               </el-form>
-              <el-form :inline="true" label-width="160px" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="备件编码：">
                   {{ form.partCode }}
                 </el-form-item>
@@ -282,7 +282,7 @@
               <h2>其他信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="160px" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" :model="form" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="门店名称：">
                   {{ form.dealerName }}
                 </el-form-item>
