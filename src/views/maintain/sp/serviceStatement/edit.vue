@@ -7,6 +7,7 @@
         :title="`单据编号：${form.code}`">
         <template #extraButtons>
           <el-button size="small" @click="rightsList" v-if="buttonPermissions.rights">权益核销</el-button>
+          <el-button size="small" @click="handleResendSignSms" v-if="buttonPermissions.canResendSignSms">补推结算单短信签字</el-button>
           <el-button size="small" @click="submitAndSing" v-if="buttonPermissions.sign">提交结算并签字</el-button>
           <el-button size="small" @click="reject" v-if="buttonPermissions.reject">驳回</el-button>
           <el-button size="small" @click="addInvoiceRecord" v-if="buttonPermissions.addRecord">添加收款记录</el-button>
@@ -269,7 +270,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, reject, receiptCompletion, createCounterSettlement } from '@/api/maintain/sp/serviceStatement/index';
+import { getDetail, addOrUpdate, reject, receiptCompletion, createCounterSettlement, resendSignSms } from '@/api/maintain/sp/serviceStatement/index';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -405,7 +406,7 @@ export default {
       // 驳回按钮：自费、保险、内部结算类型，且状态为待收款
       const baseType = [CheckoutTypeEnum.SELF_PAY, CheckoutTypeEnum.INSURANCE, CheckoutTypeEnum.INTERNAL_SETTLEMENT];
       const baseType2 = [CheckoutTypeEnum.WARRANTY, CheckoutTypeEnum.CONTRACT];
-      const { statementType, statementStatus, isCheck } = this.form;
+      const { statementType, statementStatus, isCheck, signGeneratedOn, signStatus } = this.form;
       return {
         // 权益核销：结算类型为自费/保险/内部结算，状态为待结算，商城订单不显示
         rights: baseType.includes(statementType) && statementStatus === 10 && !this.isStoreOrder,
@@ -424,6 +425,8 @@ export default {
         reCreate1: baseType2.includes(statementType) && [40, 30].includes(statementStatus),
         // 添加收款记录：结算类型为自费/保险/内部结算，状态为待收款
         addRecord: baseType.includes(statementType) && statementStatus === 30,
+        // 重推签字短信
+        canResendSignSms: signStatus === 10 && signGeneratedOn !== '',
       };
     }
   },
@@ -749,7 +752,31 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    /**
+     * 补推结算单短信签字
+     */
+    handleResendSignSms () {
+      const message = '此操作将再次推送短信给用户进行结算单签字，是否继续？';
+      this.$confirm(message, '', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        showClose: false
+      }).then(() => {
+        // 调用接口
+        // 假设接口参数为 id
+        resendSignSms(this._id).then(res => {
+          this.$message.success('推送成功');
+          // 可选：刷新页面数据以更新最新状态
+          this.detailRequest();
+        }).catch(err => {
+          // 错误处理通常由拦截器统一处理，如需特殊处理可在此添加
+          console.error(err);
+        });
+      }).catch(() => {
+        // 用户取消操作，无需处理
+      });
+    },
   }
 };
 </script>
