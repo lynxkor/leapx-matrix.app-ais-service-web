@@ -51,7 +51,7 @@
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
               <h2>适配车辆</h2>
-              <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              <el-button v-if="canAddOrUpdate && isEditing" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
@@ -83,6 +83,8 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { getVehicleProfile } from '@/api/maintain/sp/serviceProxy/index';
+import EditPageLayout from '@/libs/components/EditPageLayout';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 
 const defaultForm = {
   code: '',
@@ -99,6 +101,8 @@ export default {
   name: 'vehicleTagEdit',
   mixins: [routeGuard, permissions, commonMixins],
   components: {
+    EditPageLayout,
+    EditBaseContainer,
     EditTable
   },
   computed: {
@@ -164,8 +168,16 @@ export default {
       }
       return {};
     },
-    submitRequest () {
-      return addOrUpdate({ ...this.form });
+    async submitRequest () {
+      let tableData = [];
+      if (this.$refs.editTable) {
+        try {
+          tableData = await this.$refs.editTable.saveAll();
+        } catch (e) {
+          return Promise.reject(e);
+        }
+      }
+      return addOrUpdate({ ...this.form, vinList: tableData });
     },
     getDefautlForm () {
       const userInfo = this.$store.state.user.userInfo;
