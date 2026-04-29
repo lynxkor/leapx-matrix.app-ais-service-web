@@ -407,6 +407,7 @@ export default {
         partsCode: record.partCode,
         partsName: record.partName,
         partsId: record.id,
+        remark: record.remark
       }).then(res => {
         this.$message.success('添加成功');
         this.$refs.containerRef.loadDetail();
