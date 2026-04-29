@@ -16,7 +16,7 @@
           <span class="status primary">{{ form.statusLabel }}</span>
         </template>
         <template #extraButtons>
-          <el-button v-if="form.id" size="small" @click="handleJumpAuditLog">审核日志</el-button>
+          <!-- <el-button v-if="form.id" size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
         </template>
         <el-main>
           <section class="common-section">
@@ -257,9 +257,8 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>适配车型</h2>
-              <el-button v-if="canAddOrUpdate" type="primary" size="small" @click.stop="handleModel">适配车型</el-button>
-              <el-button size="small" icon="el-icon-plus" @click="handleAddRow('cx')">添加</el-button>
+              <h2>适配车型<el-button v-if="canAddOrUpdate" type="primary" size="small" @click.stop="handleModel">适配车型</el-button></h2>
+              <el-button v-if="canAddOrUpdate && isEditing" size="small" icon="el-icon-plus" @click="handleAddRow('cx')">添加</el-button>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
@@ -279,7 +278,7 @@
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
               <h2>适配配件</h2>
-              <el-button v-if="canAddOrUpdate" size="small" icon="el-icon-plus" @click="handleAddRow('pj')">添加</el-button>
+              <el-button v-if="canAddOrUpdate && isEditing" size="small" icon="el-icon-plus" @click="handleAddRow('pj')">添加</el-button>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
@@ -633,13 +632,33 @@ export default {
       }
       return {};
     },
-    submitRequest () {
+    async submitRequest () {
+      // 先同步表格数据，确保编辑状态的数据已更新到组件内部
+      let tableData = [];
+      let tableDataPj = [];
+
+      if (this.$refs.editTable) {
+        try {
+          tableData = await this.$refs.editTable.saveAll();
+        } catch (e) {
+          return Promise.reject(e);
+        }
+      }
+
+      if (this.$refs.editTablePj) {
+        try {
+          tableDataPj = await this.$refs.editTablePj.saveAll();
+        } catch (e) {
+          return Promise.reject(e);
+        }
+      }
+
       const formData = { ...this.form };
       if (this._id) {
         delete formData.partsRespList;
         delete formData.modelRespList;
       }
-      return addOrUpdate({ ...formData, repairItemVehicleModelList: this.tableData, repairItemPartsList: this.tableDataPj });
+      return addOrUpdate({ ...formData, repairItemVehicleModelList: tableData, repairItemPartsList: tableDataPj });
     },
     handleJumpAuditLog () {
       this.$auditLog.show({ id: this._id });
