@@ -84,6 +84,7 @@
     </el-form>
     <div class="ais-actions">
       <el-button v-if="exportInvoice" :loading="exportLoading" size="small" @click="onExport">导出发票</el-button>
+      <el-button v-if="canPayConfirm" size="small" @click="handleBatchPayConfirm">批量付款</el-button>
     </div>
     <div class="ais-table-c">
       <LPVxeTable
@@ -121,7 +122,7 @@
     />
     <PayConfirmDialog
       :visible.sync="payConfirmDialogVisible"
-      :id="payConfirmRowId"
+      :ids="payConfirmRowIds"
       @success="getData"
     />
   </div>
@@ -215,7 +216,7 @@ export default {
       invoiceReturnDialogVisible: false,
       invoiceReturnRowId: '',
       payConfirmDialogVisible: false,
-      payConfirmRowId: '',
+      payConfirmRowIds: [],
     };
   },
   computed: {
@@ -430,7 +431,21 @@ export default {
     },
     // 确认付款
     handlePayConfirm (row) {
-      this.payConfirmRowId = row.id;
+      this.payConfirmRowIds = [row.id];
+      this.payConfirmDialogVisible = true;
+    },
+    // 批量付款
+    handleBatchPayConfirm () {
+      if (this.selectionList.length === 0) {
+        this.$message.warning('请选择需要付款的单据');
+        return;
+      }
+      const invalidStatuses = this.selectionList.filter(item => item.settleStatus !== '90');
+      if (invalidStatuses.length > 0) {
+        this.$message.warning('只能选择已验收的单据');
+        return;
+      }
+      this.payConfirmRowIds = this.selectionList.map(item => item.id);
       this.payConfirmDialogVisible = true;
     },
     onSubmit () {

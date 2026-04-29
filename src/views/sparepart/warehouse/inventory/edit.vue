@@ -11,6 +11,10 @@
         :detailRequest="detailRequest"
         :originalForm.sync="originalForm"
       >
+        <template #extraButtons>
+          <el-button v-if="_id && (Number(form.availableQty) > 0 && form.oemPart === '1')" type="primary" size="small" @click="handLaunch">上架共享</el-button>
+          <el-button v-if="_id && (Number(form.sharedQty) > 0)" type="primary" size="small" @click="handShelves">下架共享</el-button>
+        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
@@ -20,34 +24,34 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="库存单号：" prop="code">
-                  {{ form.code }}
+                  <el-input v-model="form.code" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="备件编码：" prop="sparePartId">
-                  {{ form.partCode }}
+                  <el-input v-model="form.partCode" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="备件名称：" prop="sparePartId">
-                  {{ form.partName }}
+                  <el-input v-model="form.partName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="可用数量：" prop="availableQty">
-                  {{ form.availableQty }}
+                  <el-input v-model="form.availableQty" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="冻结数量：" prop="frozenQty">
-                  {{ form.frozenQty }}
+                  <el-input v-model="form.frozenQty" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="共享数量：" prop="sharedQty">
-                  {{ form.sharedQty }}
+                  <el-input v-model="form.sharedQty" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="库存总数：" prop="totalQty">
-                  {{ form.totalQty }}
+                  <el-input v-model="form.totalQty" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="库存天数：">
-                  {{ form.inventoryDays }}
+                  <el-input v-model="form.inventoryDays" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="厅店名称：" prop="dealerCode">
-                  {{ form.dealerName }}
+                  <el-input v-model="form.dealerName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="仓库名称：" prop="warehouseId">
-                  {{ form.warehouseName }}
+                  <el-input v-model="form.warehouseName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="库位：">
                   <fetch-select
@@ -66,25 +70,25 @@
                   />
                 </el-form-item>
                 <el-form-item label="最近入库时间：">
-                  {{ form.latestInboundTime }}
+                  <el-input v-model="form.latestInboundTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="成本单价：" prop="costUnitPrice">
-                  {{ form.costUnitPrice }}
+                  <el-input v-model="form.costUnitPrice" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="最近出库时间：">
-                  {{ form.latestOutboundTime }}
+                  <el-input v-model="form.latestOutboundTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="成本金额：" prop="costAmount">
-                  {{ form.costAmount }}
+                  <el-input v-model="form.costAmount" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="采购单价：" prop="costAmount">
-                  {{ form.purchasePrice }}
+                  <el-input v-model="form.purchasePrice" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="在途数量：" prop="inTransitQty">
-                  {{ form.inTransitQty }}
+                  <el-input v-model="form.inTransitQty" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="销售单价：" prop="costAmount">
-                  {{ form.salePrice }}
+                  <el-input v-model="form.salePrice" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
                   <el-input
@@ -264,6 +268,20 @@
         ></OrderDetail>
       </div>
     </template>
+    <!-- 共享上架 -->
+    <LaunchDialog
+      :visible.sync="launchDialog"
+      :selectionList="launchList"
+      @update:visible="val => launchDialog = val"
+      @submit="getDetailData"
+    />
+    <!-- 共享下架 -->
+    <ShelvesDialog
+      :visible.sync="shelvesDialog"
+      :selectionList="shelvesList"
+      @update:visible="val => shelvesDialog = val"
+      @submit="getDetailData"
+    />
   </edit-page-layout>
 </template>
 
@@ -279,6 +297,8 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import OrderDetail from './OrderDetail.vue';
+import LaunchDialog from './LaunchDialog.vue';
+import ShelvesDialog from './ShelvesDialog.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -312,7 +332,9 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    OrderDetail
+    OrderDetail,
+    LaunchDialog,
+    ShelvesDialog,
   },
   computed: {
     _id () {
@@ -374,6 +396,10 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       orderTitle: '冻结订单',
+      launchDialog: false, // 共享上架弹窗
+      launchList: [], // 待共享上架列表
+      shelvesDialog: false, // 共享下架弹窗
+      shelvesList: [], // 待共享下架列表
       isNewLocation: false,
       inventoryData: [],
       inventory: {
@@ -543,6 +569,10 @@ export default {
       }
       return [];
     },
+    // 刷新详情数据
+    getDetailData () {
+      this.$refs.containerRef.loadDetail();
+    },
     async getInventory () {
       const params = {
         pageNum: this.inventory.current,
@@ -613,6 +643,16 @@ export default {
     getSectionTitle (type) {
       const section = this.sections.find(s => s.type === type);
       return section ? section.title : '';
+    },
+    // 上架共享
+    handLaunch () {
+      this.launchList = [this.form];
+      this.launchDialog = true;
+    },
+    // 下架共享
+    handShelves () {
+      this.shelvesList = [this.form];
+      this.shelvesDialog = true;
     },
   }
 };

@@ -396,7 +396,7 @@
   />
   <PayConfirmDialog
     :visible.sync="payConfirmDialogVisible"
-    :id="currentRowId"
+    :ids="[currentRowId]"
     @success="handleDialogSuccess"
   />
 </div>
