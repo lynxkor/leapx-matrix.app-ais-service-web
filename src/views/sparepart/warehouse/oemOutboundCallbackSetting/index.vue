@@ -346,10 +346,6 @@ export default {
         });
         this.getData();
       }).catch(() => {
-        this.$message({
-          type: 'error',
-          message: '关闭失败!'
-        });
       });
     }, 300),
     // 开启(防抖)
@@ -361,10 +357,6 @@ export default {
         });
         this.getData();
       }).catch(() => {
-        this.$message({
-          type: 'error',
-          message: '启用失败!'
-        });
       });
     }, 300),
   }
