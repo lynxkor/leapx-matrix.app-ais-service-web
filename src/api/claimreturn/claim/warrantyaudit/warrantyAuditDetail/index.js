@@ -3,6 +3,23 @@ import api from '@/axios';
 const prefix = 'claimreturn/claim/web/warrantyaudit/warrantyAuditDetail/';
 
 /**
+ * 查询加密数据
+ * @param {String} id
+ * @param {String} field
+ */
+export function getDecryptField (id, field) {
+  let param = {
+    id,
+    decryptFields: [field]
+  };
+  return new Promise(resolve => {
+    api.jsonPost(prefix + 'getDetailDecrypt', param).then(res => {
+      resolve(res?.[field]);
+    });
+  });
+}
+
+/**
  * 查询列表
  * @param {Object} data
  */

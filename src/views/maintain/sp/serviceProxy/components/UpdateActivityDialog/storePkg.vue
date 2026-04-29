@@ -150,7 +150,7 @@
 
       <!-- 空状态 -->
       <div v-else class="empty-state">
-        <span>请选择左侧套餐查看详情</span>
+        <span>请选择左侧商城订单查看详情</span>
       </div>
     </div>
   </div>

@@ -32,10 +32,10 @@
             <div class="common-section-body">
               <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="保修申请单号：">
-                  <el-link type="primary" :href="`/claimreturn/claim/warrantyapply/edit?id=${form.warrantyApply?.id}`" target="_blank">{{ form.warrantyApply?.applyNo }}</el-link>
+                  <el-link type="primary" :href="`/claimreturn/claim/warrantyApply/edit?id=${form.warrantyApply?.id}`" target="_blank">{{ form.warrantyApply?.applyNo }}</el-link>
                 </el-form-item>
                 <el-form-item label="接车施工单号：">
-                  <el-link type="primary" :href="`/maintain/sp/serviceproxy/edit?id=${form.warrantyApply?.serviceProxyId}`" target="_blank">{{ form.warrantyApply?.serviceProxyNo }}</el-link>
+                  <el-link type="primary" :href="`/maintain/sp/serviceProxy/edit?id=${form.warrantyApply?.serviceProxyId}`" target="_blank">{{ form.warrantyApply?.serviceProxyNo }}</el-link>
                 </el-form-item>
                 <el-form-item label="首次提交时间：">
                   {{ form.warrantyApply?.firstSubmitTime }}
@@ -101,7 +101,12 @@
             <div class="common-section-body">
               <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="vin：">
-                  <el-link type="primary" :href="`/datacenter/vehicle/vehicleprofile/edit?id=${form.vehicleProfile?.vin}`" target="_blank">{{ formatVin(form.vehicleProfile?.vin) }}</el-link>
+                  <LPEncrypted
+                    :value.sync="form.vehicleProfile.vin"
+                    :decryptMethod="() => getDetailDecryptField()"
+                  >
+                    <el-link type="primary" :href="`/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfile?.vin}`" target="_blank">{{ form.vehicleProfile?.vin }}</el-link>
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="车牌号：">
                   {{ form.vehicleProfile?.vehiclePlateNo }}
@@ -234,7 +239,11 @@
               <div class="common-section-table">
                 <vxe-table ref="tableRef" stripe :data="form.warrantyApplyWorkhours" show-overflow resizable border="inner" size="medium"
                   min-height="0" max-height="400px">
-                  <vxe-column field="isMainItemLabel" title="是否主因" min-width="10%" />
+                  <vxe-column field="isMainItem" title="是否主因" min-width="10%">
+                    <template #default="{ row }">
+                      {{ row.isMainItem === 1 ? '是':'否' }}
+                    </template>
+                  </vxe-column>
                   <vxe-column field="repairItemCode" title="工时代码" min-width="10%" />
                   <vxe-column field="repairItemName" title="工时名称" min-width="10%" />
                   <vxe-column field="workHour" title="工时数" min-width="10%" />
@@ -271,7 +280,11 @@
               <div class="common-section-table">
                 <vxe-table ref="tableRef" stripe :data="form.warrantyPartList" show-overflow resizable border="inner" size="medium"
                   min-height="0" max-height="400px">
-                  <vxe-column field="isMainPartLabel" title="是否主因" min-width="7%" />
+                  <vxe-column field="isMainPart" title="是否主因" min-width="7%" >
+                    <template #default="{ row }">
+                      {{ row.isMainPart === 1 ? '是':'否' }}
+                    </template>
+                  </vxe-column>
                   <vxe-column field="oldPartUniqueCode" title="旧件唯一码" min-width="7%" />
                   <vxe-column field="partCode" title="备件编码" min-width="7%" />
                   <vxe-column field="partName" title="备件名称" min-width="7%" />
@@ -515,7 +528,9 @@ import {
   getDetailWithRelated,
   addOrUpdate,
   agree,
+  getDecryptField,
 } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index';
+import LPEncrypted from '@/libs/components/LPEncrypted';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -562,7 +577,8 @@ export default {
     RejectAppealDialog,
     AisAttachment,
     SupplyMaterialDialog,
-    AppealDialog
+    AppealDialog,
+    LPEncrypted
   },
   computed: {
     _id () {
@@ -642,9 +658,11 @@ export default {
     };
   },
   mounted () {
-    this.loadRowFiles();
   },
   methods: {
+    getDetailDecryptField () {
+      return getDecryptField(this._id, 'vin');
+    },
     async detailRequest () {
       const id = this._id;
       if (id) {
@@ -677,13 +695,6 @@ export default {
         return getEnum(code);
       }
       return [];
-    },
-    // VIN脱敏显示
-    formatVin (vin) {
-      if (vin && vin.length > 6) {
-        return vin.substring(0, 3) + '***' + vin.substring(vin.length - 3);
-      }
-      return vin || '-';
     },
     // 提取的公共方法：构建表单数据
     setCommonFormData () {
