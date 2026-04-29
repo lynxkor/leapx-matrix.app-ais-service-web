@@ -72,7 +72,7 @@ const defaultForm = {
   planDeductTotal: 0,
   amountAdjustReason: '',
   auditDesc: '',
-  isAutoCalc: 0,
+  isAutoCalc: 1,
   feedbackDeadline: '',
 };
 
@@ -195,7 +195,7 @@ export default {
           auditReject({
             detailId: this.id,
             ...this.form,
-            isAutoCalc: this.activeName === 'isAutoCalc' ? 0 : 1,
+            isAutoCalc: this.activeName === 'isAutoCalc' ? 1 : 0,
           }).then(() => {
             this.$message.success('审计驳回成功');
             this.handleClose();
