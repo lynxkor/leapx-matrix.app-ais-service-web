@@ -13,6 +13,10 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
+        <template #extraButtons>
+          <el-button v-if="form.status === 1 && permissions.has('AISPART-oemOutboundCallbackSetting-close')" size="small" type="primary" @click="handleDisable">关闭</el-button>
+          <el-button v-if="form.status === 0 && permissions.has('AISPART-oemOutboundCallbackSetting-open')" size="small" type="primary" @click="handleEnable">开启</el-button>
+        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
@@ -117,9 +121,8 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/warehouse/oemOutboundCallbackSetting/index';
+import { getDetail, addOrUpdate, enableItem } from '@/api/sparepart/warehouse/oemOutboundCallbackSetting/index';
 import FetchSelect from '@/libs/components/FetchSelect';
-import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -161,7 +164,6 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    EditTable,
     FetchSelect
   },
   computed: {
@@ -330,7 +332,44 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    async handleDisable () {
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确认关闭?</div>';
+
+      this.$confirm(message, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(async () => {
+        // 调用 API
+        await enableItem({ id: this._id, status: 0 });
+        // 提示成功
+        this.$message.success('关闭成功！');
+        // 执行额外回调（比如刷新列表）
+        this.$refs.containerRef.loadDetail();
+      });
+    },
+    async handleEnable () {
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确认开启?</div>';
+
+      this.$confirm(message, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(async () => {
+        // 调用 API
+        await enableItem({ id: this._id, status: 1 });
+        // 提示成功
+        this.$message.success('开启成功！');
+        // 执行额外回调（比如刷新列表）
+        this.$refs.containerRef.loadDetail();
+      });
     }
+
   }
 };
 </script>
