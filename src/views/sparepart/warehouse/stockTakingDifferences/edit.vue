@@ -440,7 +440,35 @@ export default {
     },
     // 申请
     handleApply () {
-      this._handleAction(getApply, ACTION_CONFIG.apply);
+      if (this.form.differencesType === '10') {
+        this.$prompt('请输入申请理由', '申请', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          inputValue: ''
+        }).then(({ value }) => {
+          getApply({
+            id: this._id,
+            description: value
+          }).then(() => {
+            this.$message({
+              type: 'success',
+              message: '申请成功!'
+            });
+            this.$refs.containerRef.loadDetail();
+          });
+        }).catch(() => {});
+      } else {
+        getApply({
+          id: this._id,
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '申请成功!'
+          });
+          this.$refs.containerRef.loadDetail();
+        }).catch(() => {
+        });
+      }
     },
     // 盘亏同意
     handleAgreeLoss () {
