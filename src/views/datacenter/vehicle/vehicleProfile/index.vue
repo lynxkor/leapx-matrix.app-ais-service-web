@@ -19,7 +19,6 @@
           clearable
         />
       </el-form-item>
-      <template v-if="visibleCount === 3 || show">
         <el-form-item label="车牌号">
           <el-input
             placeholder="请输入"
@@ -27,6 +26,7 @@
             clearable
           />
         </el-form-item>
+        <template v-if="show">
         <el-form-item label="销售日期">
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
