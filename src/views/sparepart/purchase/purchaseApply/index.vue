@@ -871,9 +871,6 @@ export default {
         this.getData();
         return response;
       } catch (error) {
-        if (error !== 'cancel' && error !== 'close') {
-          this.$message.error('驳回失败!');
-        }
       }
     },
     // 复制

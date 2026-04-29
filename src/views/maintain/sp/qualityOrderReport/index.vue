@@ -86,7 +86,7 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <el-button v-if="canAddOrUpdate && accountFlag" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <!-- <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
@@ -138,6 +138,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -181,6 +182,7 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      accountFlag: false,
       optionObj: {
         id: 'qualityOrderReportTable',
         dataList: [],
@@ -372,6 +374,7 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    this.getAccountFlag();
   },
   methods: {
     // 排序
@@ -576,6 +579,12 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
+    getAccountFlag () {
+      loginUserGet().then(res => {
+        this.accountFlag = res.accountFlag;
+        console.log('res.accountFlag: ' + res.accountFlag);
+      });
+    }
   }
 };
 </script>

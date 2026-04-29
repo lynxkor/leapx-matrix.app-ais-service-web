@@ -410,10 +410,10 @@ export default {
           { required: true, message: '请输入是否自动审核', trigger: 'blur' }
         ],
         faultPhenomenon: [
-          { required: true, message: '请输入故障现象描述', trigger: 'blur' }
+          { required: false, message: '请输入故障现象描述', trigger: 'blur' }
         ],
         troubleshootingFlow: [
-          { required: true, message: '请输入故障排查流程', trigger: 'blur' }
+          { required: false, message: '请输入故障排查流程', trigger: 'blur' }
         ],
         checkoutTypeId: [
           { required: !isServiceCareActivity, message: '请选择结算类型', trigger: 'change' }
