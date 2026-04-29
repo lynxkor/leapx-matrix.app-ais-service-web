@@ -9,6 +9,12 @@
           <!-- 支持primary,warning,success,danger等状态 -->
           <span class="status primary">{{ form.orderStatusLabel }}</span>
         </template>
+        <template #extraButtons>
+          <el-button v-if="showSubmit" type="primary" size="small" @click="handleSubmit(form)">提交</el-button>
+          <el-button v-if="showAgree" type="primary" size="small" @click="handleAgree(form)">同意</el-button>
+          <el-button v-if="showReject" type="primary" size="small" @click="handleReject(form)">驳回</el-button>
+          <el-button v-if="showCopy" type="primary" size="small" @click="handleCopy(form)">复制</el-button>
+        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
@@ -25,7 +31,7 @@
                     :disabled="isEditing" @change="handleDealerChange" />
                 </el-form-item>
                 <el-form-item label="采购申请单：" prop="code">
-                  {{ form.code }}
+                  <el-input placeholder="请输入" v-model="form.code" disabled />
                 </el-form-item>
                 <el-form-item label="订单类型：" prop="purchaseOrderType">
                   <el-select v-model="form.purchaseOrderType" placeholder="请选择" clearable filterable
@@ -39,10 +45,10 @@
                     placeholder="请选择" disabled clearable filterable />
                 </el-form-item>
                 <el-form-item label="公司名称：" prop="companyCode">
-                  {{ form.companyName }}
+                  <el-input placeholder="请输入" v-model="form.companyName" disabled />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
+                  <el-input placeholder="请输入" v-model="form.dealerName" disabled />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
                   <el-input type="textarea" maxlength="500" show-word-limit placeholder="请输入" v-model="form.remark"
@@ -53,7 +59,7 @@
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
                 v-show="isEditing || !_id">
                 <el-form-item label="仓库名称：">
-                  {{ form.warehouseName }}
+                  <el-input placeholder="请输入" v-model="form.warehouseName" disabled />
                 </el-form-item>
                 <el-form-item label="是否第三方收货：" prop="thirdPartyDeliveryIs">
                   <el-radio-group v-model="form.thirdPartyDeliveryIs" :disabled="!isThirdPartyDelivery">
@@ -79,48 +85,48 @@
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
                 v-show="isEditing || !_id">
                 <el-form-item label="提交人：" prop="submitter">
-                  {{ form.submitterName }}
+                  <el-input placeholder="请输入" v-model="form.submitterName" disabled />
                 </el-form-item>
                 <el-form-item label="提交时间：" prop="submitTime">
-                  {{ form.submitTime }}
+                  <el-input placeholder="请输入" v-model="form.submitTime" disabled />
                 </el-form-item>
                 <el-form-item label="审批人：" prop="approver">
-                  {{ form.approverName }}
+                  <el-input placeholder="请输入" v-model="form.approverName" disabled />
                 </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
-                  {{ form.approvalTime }}
+                  <el-input placeholder="请输入" v-model="form.approvalTime" disabled />
                 </el-form-item>
                 <el-form-item label="审批说明：" prop="approvalDescription">
-                  {{ form.approvalDescription }}
+                  <el-input type="textarea" maxlength="500" show-word-limit placeholder="请输入" v-model="form.approvalDescription" clearable disabled />
                 </el-form-item>
               </el-form>
               <div class="common-title" v-show="isEditing || !_id">资金信息</div>
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
                 v-show="isEditing || !_id">
                 <el-form-item label="采购金额：" prop="purchaseAmount">
-                  {{ form.purchaseAmount }}
+                  <el-input placeholder="请输入" v-model="form.purchaseAmount" disabled />
                 </el-form-item>
                 <el-form-item label="使用现金：" prop="cashAmount">
-                  {{ form.cashAmount }}
+                  <el-input placeholder="请输入" v-model="form.cashAmount" disabled />
                 </el-form-item>
                 <el-form-item label="使用返利：" prop="rebateAmount">
-                  {{ form.rebateAmount }}
+                  <el-input placeholder="请输入" v-model="form.rebateAmount" disabled />
                 </el-form-item>
                 <el-form-item label="现金可用资金：" prop="cashAvailableAmount">
-                  {{ form.cashAvailableAmount }}
+                  <el-input placeholder="请输入" v-model="form.cashAvailableAmount" disabled />
                 </el-form-item>
                 <el-form-item label="返利可用资金：" prop="rebateAvailableAmount">
-                  {{ form.rebateAvailableAmount }}
+                  <el-input placeholder="请输入" v-model="form.rebateAvailableAmount" disabled />
                 </el-form-item>
               </el-form>
               <div class="common-title" v-show="isEditing || !_id">其他信息</div>
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
                 v-show="isEditing || !_id">
                 <el-form-item label="缺货单号：" prop="backOrderId">
-                  {{ form.backOrderCode }}
+                  <el-input placeholder="请输入" v-model="form.backOrderCode" disabled />
                 </el-form-item>
                 <el-form-item label="原价券：" prop="originalPriceCouponId">
-                  {{ form.originalPriceCouponId }}
+                  <el-input placeholder="请输入" v-model="form.originalPriceCouponId" disabled />
                 </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
                   <el-input placeholder="请输入" v-model="form.vin" clearable :disabled="orderTypeDisabled" />
@@ -313,11 +319,37 @@
     <!-- 补货预测 弹窗 -->
     <RestockDialog :visible.sync="restockDialog" :id="_id" @update:visible="val => restockDialog = val"
     @submit="getDetailData" />
+    <!-- 提交弹窗 -->
+    <SubmitDialog
+      ref="submitDialogRef"
+      :visible.sync="submitDialogVisible"
+      :id="purchaseId"
+      :purchaseList="purchaseList"
+      @close="handleSubmitDialogClose"
+    />
+    <!-- 同意弹窗 -->
+     <AgreeDialog
+      ref="agreeDialogRef"
+      :visible.sync="agreeDialogVisible"
+      :id="purchaseId"
+      :purchaseList="purchaseList"
+      @close="handleAgreeDialogClose"
+    />
+    <!-- 审批同意弹窗 -->
+     <ApprovalDialog
+      ref="approvalDialogRef"
+      :visible.sync="approvalDialogVisible"
+      :id="purchaseId"
+      :couponObj="couponObj"
+      @failure="handleApprovalFailure"
+      @success="handleApprovalSuccess"
+      @close="handleApprovalDialogClose"
+    />
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getPurchaseApplyPage, purchaseApplyDelete } from '@/api/sparepart/purchase/purchaseApply/index';
+import { getDetail, addOrUpdate, getPurchaseApplyPage, purchaseApplyDelete, purchaseApplyReject, purchaseApplyListUnPurchaseDetail, purchaseApplySubmit, purchaseApplyCopy, purchaseApplyGetCoupon } from '@/api/sparepart/purchase/purchaseApply/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -330,6 +362,9 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import SparePartsDetail from './SparePartsDetail.vue';
 import Upload from '@/libs/components/UploadDialog';
 import RestockDialog from './RestockDialog.vue';
+import SubmitDialog from './SubmitDialog.vue';
+import AgreeDialog from './AgreeDialog.vue';
+import ApprovalDialog from './ApprovalDialog.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -395,7 +430,10 @@ export default {
     FetchSelect,
     SparePartsDetail,
     Upload,
-    RestockDialog
+    RestockDialog,
+    SubmitDialog,
+    AgreeDialog,
+    ApprovalDialog
   },
   computed: {
     _id () {
@@ -406,6 +444,42 @@ export default {
     },
     isThirdPartyDelivery () {
       return this.isAllowedThirdDelivered === 1;
+    },
+    showSubmit () { // 必须满足订单状态条件
+      if (!this._id || (this.form.orderStatus !== '0' && this.form.orderStatus !== '3')) {
+        return false;
+      }
+      if (this.accountFlag) { // 门店账号需要额外检查订单类型
+        return ((this.form.purchaseOrderType === '0' || this.form.purchaseOrderType === '1') && !this.form.backOrderCode) && this.permissions.has('AISPART-purchaseApply-submit');
+      }
+      return true; // 主机厂账号直接显示
+    },
+    showAgree () { // 必须满足订单状态条件
+      if (!this._id || this.form.orderStatus !== '1') {
+        return false;
+      }
+      if (this.accountFlag) { // 门店账号需要额外检查订单类型
+        return ((this.form.purchaseOrderType === '0' || this.form.purchaseOrderType === '1') && !this.form.backOrderCode) && this.permissions.has('AISPART-purchaseApply-agree');
+      }
+      return true; // 主机厂账号直接显示
+    },
+    showReject () { // 必须满足订单状态条件
+      if (!this._id || this.form.orderStatus !== '1') {
+        return false;
+      }
+      if (this.accountFlag) { // 门店账号需要额外检查订单类型
+        return ((this.form.purchaseOrderType === '0' || this.form.purchaseOrderType === '1') && !this.form.backOrderCode) && this.permissions.has('AISPART-purchaseApply-reject');
+      }
+      return true; // 主机厂账号直接显示
+    },
+    showCopy () {
+      if (!this._id) {
+        return false;
+      }
+      if (this.accountFlag) { // 门店账号需要额外检查订单类型
+        return (this.form.purchaseOrderType === '0' || this.form.purchaseOrderType === '1') && this.permissions.has('AISPART-purchaseApply-copy');
+      }
+      return true; // 主机厂账号直接显示
     }
   },
   watch: {
@@ -447,7 +521,7 @@ export default {
       },
       immediate: true
     },
-    accountPermissions: {
+    accountFlag: {
       handler (val) {
         if (val) { // 门店账号，只可以选择普通订单和紧急订单；同时非这两类订单类型以及【缺货单号】非空的单据，门店账号只能查看，所有编辑提交等动作都不允许，主机厂账号不受限，按正常逻辑
           if ((this.form.purchaseOrderType !== '0' || this.form.purchaseOrderType !== '1') && this.form.backOrderCode) {
@@ -503,14 +577,23 @@ export default {
       detailTitle: '添加备件',
       uploadDialogVisible: false,
       purchaseOrderTypeOptions: [], // 采购申请单 订单类型
-      accountPermissions: false, // 账号权限控制 判断为主机厂还是门店账号
       orderTypeDisabled: true,
       restockDialog: false, // 补货预测 弹窗控制
+      submitDialogVisible: false, // 提交按钮弹窗
+      agreeDialogVisible: false, // 同意按钮弹窗.
+      approvalDialogVisible: false, // 审批按钮弹窗.
+      couponObj: {}, // 优惠券对象
+      purchaseId: '', // 采购单ID
+      purchaseList: [], // 不可采购清单
       pageSize: 10,
       current: 1,
       total: 0,
       purchaseApplyDeleteId: '', // 采购申请单ID
       tableData: [],
+      accountFlag: false, // 查询是否店端 true为门店  false为厂端
+      currentDealerCode: '', // 当前门店code
+      currentDealerName: '', // 当前门店名称
+      isPartOrder: null, // 是否有备附件订购能力,
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       rules: {
         purchaseOrderType: [
@@ -615,7 +698,17 @@ export default {
     async getLoginUser () {
       try {
         const res = await getLoginUser();
-        this.accountPermissions = res.accountFlag;
+        this.accountFlag = res.accountFlag;
+        this.currentDealerCode = res.currentDealerCode;
+        this.currentDealerName = res.currentDealerName;
+
+        if (this.accountFlag === true) {
+          const resDealer = await getPartDealer({ code: this.currentDealerCode });
+          this.isPartOrder = resDealer.isPartOrder;
+        } else {
+          this.isPartOrder = true;
+        }
+
         if (res.accountFlag) {
           this.form.dealerCode = res.currentDealerCode;
           this.form.dealerName = res.currentDealerName;
@@ -705,7 +798,7 @@ export default {
     async getOrderType () {
       let list = [];
       list = await this.fetchOptions('PurchaseOrderTypeEnum');
-      if (this.accountPermissions) {
+      if (this.accountFlag) {
         // 保留 code 为0 或 1的数据
         list = list.filter(item => ['0', '1'].includes(item.code));
       }
@@ -762,6 +855,111 @@ export default {
     // 补货预测
     handleRestock () {
       this.restockDialog = true;
+    },
+    // 提交
+    async handleSubmit (val) {
+      const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
+      if (res.records.length > 0) {
+        this.purchaseId = val.id;
+        this.purchaseList = res.records || [];
+        this.submitDialogVisible = true;
+      } else {
+        this.$confirm('确认提交吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(async () => {
+          await purchaseApplySubmit({ id: val.id });
+          this.$message.success('提交成功!');
+          this.$refs.containerRef.loadDetail();
+        }).catch(() => {});
+      }
+    },
+    handleSubmitDialogClose () {
+      this.submitDialogVisible = false;
+      this.$refs.containerRef.loadDetail();
+    },
+    // 同意
+    async handleAgree (val) {
+      if (!val || !val.id) {
+        this.$message.warning('操作失败：缺少采购单ID');
+        return;
+      }
+      const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
+      if (res.records.length > 0) {
+        // 确保只设置有效的id值
+        if (val.id) {
+          this.purchaseId = val.id;
+          this.purchaseList = res.records || [];
+          this.agreeDialogVisible = true;
+        } else {
+          this.$message.warning('操作失败：缺少采购单ID');
+        }
+      } else if (res.records.length === 0) {
+        const res = await purchaseApplyGetCoupon({ id: val.id });
+        // 确保只设置有效的id值
+        if (val.id) {
+          this.couponObj = res;
+          this.purchaseId = val.id;
+          this.approvalDialogVisible = true;
+        } else {
+          this.$message.warning('操作失败：缺少采购单ID');
+        }
+      }
+    },
+    handleAgreeDialogClose () {
+      this.agreeDialogVisible = false;
+      this.$refs.containerRef.loadDetail();
+    },
+    // 统一成功调按钮 接口
+    handleApprovalSuccess () {
+      this.approvalDialogVisible = false;
+      this.$refs.containerRef.loadDetail();
+    },
+    handleApprovalDialogClose () {
+      this.approvalDialogVisible = false;
+      this.$refs.containerRef.loadDetail();
+    },
+    // 审批同意失败时
+    handleApprovalFailure (val) {
+      this.approvalDialogVisible = false;
+      if (val) {
+        this.purchaseId = val;
+        this.agreeDialogVisible = true;
+      } else {
+        this.$message.error('操作失败：缺少采购单ID');
+      }
+    },
+    // 驳回
+    async handleReject (val) {
+      try {
+        const result = await this.$prompt('请输入审批说明', '驳回', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        });
+
+        const approvalDescription = result.value;
+        await purchaseApplyReject({ id: val.id, approvalDescription });
+
+        this.$message.success('驳回成功!');
+        this.$refs.containerRef.loadDetail();
+      } catch (error) {
+      }
+    },
+    // 复制
+    async handleCopy (row) {
+      const res = await purchaseApplyCopy({ id: row.id });
+      this.$router.push({
+        path: '/sparepart/purchase/purchaseApply/edit',
+        query: {
+          id: res
+        }
+      });
+      // 如果是当前页面跳转，强制刷新
+      if (this.$route.query.id === res) {
+        this.$refs.containerRef.loadDetail();
+      }
     },
   }
 };

@@ -397,7 +397,7 @@ export default {
         return;
       }
       // 检查是否已存在
-      const exists = this.tableDataPart.some(item => item.partCode === record.partsCode);
+      const exists = this.tableDataPart.some(item => item.partsCode === record.partCode);
       if (exists) {
         this.$message.warning('该零件已添加');
         return;
@@ -407,6 +407,7 @@ export default {
         partsCode: record.partCode,
         partsName: record.partName,
         partsId: record.id,
+        remark: record.remark
       }).then(res => {
         this.$message.success('添加成功');
         this.$refs.containerRef.loadDetail();
