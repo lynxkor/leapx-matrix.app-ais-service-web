@@ -10,7 +10,7 @@
       class="ais-search-form"
     >
       <el-form-item label="VIN码">
-        <tag-input v-model="form.vinList" placeholder="请输入" />
+        <tag-input v-model="form.vinList" placeholder="请输入" :min-length="6" />
       </el-form-item>
       <el-form-item label="车主手机号">
         <el-input
@@ -754,6 +754,10 @@ export default {
       });
     },
     onSubmit () {
+      if (this.form.vinList && this.form.vinList.some(vin => vin.length < 6)) {
+        this.$message.error('VIN码输入不能少于6位');
+        return;
+      }
       this.optionObj.form.page = 1;
       this.getData();
     },
