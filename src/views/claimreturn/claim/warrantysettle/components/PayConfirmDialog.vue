@@ -64,8 +64,8 @@ export default {
       type: Boolean,
       default: false
     },
-    id: {
-      type: String,
+    ids: {
+      type: Array,
       required: true
     }
   },
@@ -99,7 +99,7 @@ export default {
         }
         this.submitLoading = true;
         payConfirm({
-          id: this.id,
+          ids: this.ids,
           paymentMethod: this.form.paymentMethod,
           payRemark: this.form.payRemark,
         }).then(res => {
