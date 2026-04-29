@@ -234,7 +234,7 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="本次进店是否存在故障：" prop="currentFault">
+        <el-form-item label="本次是否因故障进店：" prop="currentFault">
           <el-switch :active-value="1" :inactive-value="0" v-model="form.currentFault" :disabled="currentFaultDisabled" @change="handleCurrentFaultChange" />
         </el-form-item>
         <el-form-item label="客户故障描述：" prop="customerContent" class="form-item-half">
@@ -245,6 +245,7 @@
             placeholder="请输入"
             v-model="form.customerContent"
             clearable
+            :disabled="!form.currentFault"
           />
         </el-form-item>
         <el-form-item label="故障现象确认：" prop="confirmFaultLabel"  class="form-item-full">
@@ -325,7 +326,7 @@
           {{ form.startAt }}
         </el-form-item>
         <el-form-item label="预授权信息：" prop="preAuthCode">
-          {{ form.preAuthCode }}
+          <el-link type="success" :href="`/service/maintain/sp/preAuth/edit?id=${form.preAuthId}`" target="_blank">{{ form.preAuthCode }}</el-link>
         </el-form-item>
         <el-form-item label="完成作业时间：" prop="finishAt">
           {{ form.finishAt }}
@@ -357,7 +358,7 @@
         <el-form-item label="客户经理建议：" prop="testResult" class="form-item-full">
           {{ form.testResult }}
         </el-form-item>
-        <el-form-item label="本次进店是否存在故障：" prop="currentFault">
+        <el-form-item label="本次是否因故障进店：" prop="currentFault">
           {{ form.currentFaultLabel }}
         </el-form-item>
         <el-form-item label="客户故障描述：" prop="customerContent" class="form-item-half">
@@ -518,10 +519,14 @@ export default {
           this.rules.customerContent = [
             { required: true, message: '请输入故障描述', trigger: 'change' }
           ];
+          if (this.form.customerContent === '本次进店车辆无故障') {
+            this.form.customerContent = '';
+          }
         } else {
           this.rules.customerContent = [
             { required: false, message: '请输入故障描述', trigger: 'change' }
           ];
+          this.form.customerContent = '本次进店车辆无故障';
         }
       }
     },

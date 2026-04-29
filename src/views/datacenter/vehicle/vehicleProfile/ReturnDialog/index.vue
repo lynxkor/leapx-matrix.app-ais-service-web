@@ -128,6 +128,7 @@ export default {
         this.submitLoading = true;
         vehicleReturn(this.form).then(res => {
           this.dialogVisible = false;
+          this.$message.success('退车成功');
           this.$emit('update');
         }).finally(() => {
           this.submitLoading = false;
