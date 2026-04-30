@@ -150,7 +150,7 @@
                   {{ form.dealerName }}
                 </el-form-item>
                 <el-form-item label="是否启用：" prop="status">
-                  {{ statusLabel }}
+                  {{ form.statusLabel }}
                 </el-form-item>
                 <el-form-item label="说明：" prop="statusDesc">
                   {{ form.statusDesc }}

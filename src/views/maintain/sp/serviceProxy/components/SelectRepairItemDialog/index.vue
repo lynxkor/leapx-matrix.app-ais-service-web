@@ -86,13 +86,14 @@
               :trigger-on-focus="false"
               :disabled="disabled"
               clearable
+              popper-class="repair-item-autocomplete-popper"
             >
               <template #suffix>
                 <i class="iconfont icon-lxppc-search"></i>
               </template>
               <template #default="{item}">
-                <div v-if="item.value === 'empty'" style="pointer-events: none;">您当前搜索的项目，不适用{{vehicleInfo.vehModelName}}车型，请联系服务工程</div>
-                <div v-else>
+                <div v-if="item.value === 'empty'" style="pointer-events: none; white-space: nowrap;">您当前搜索的项目，不适用{{vehicleInfo.vehModelName}}车型，请联系服务工程</div>
+                <div v-else style="white-space: nowrap;">
                   {{ item.value }}
                 </div>
               </template>
@@ -107,13 +108,14 @@
               :trigger-on-focus="false"
               :disabled="disabled"
               clearable
+              popper-class="repair-part-autocomplete-popper"
             >
               <template #suffix>
                 <i class="iconfont icon-lxppc-search"></i>
               </template>
               <template #default="{item}">
-                <div v-if="item.value === 'empty'" style="pointer-events: none;">未搜索到配件</div>
-                <div v-else>
+                <div v-if="item.value === 'empty'" style="pointer-events: none; white-space: nowrap;">未搜索到配件</div>
+                <div v-else style="white-space: nowrap;">
                   {{ item.value }}
                 </div>
               </template>
@@ -1532,7 +1534,7 @@ export default {
   .container {
     display: flex;
     gap: 16px;
-    height: calc(100% - 85px);
+    height: calc(100% - 5%);
 
     .leftmenu {
       width: 280px;
@@ -1637,6 +1639,22 @@ export default {
     background-color: rgba(245, 108, 108, 0.1) !important;
     .vxe-body--column {
       background-color: rgba(245, 108, 108, 0.2) !important;
+    }
+  }
+}
+</style>
+<style lang="scss">
+.repair-item-autocomplete-popper,
+.repair-part-autocomplete-popper {
+  width: 400px !important;
+  .el-autocomplete-suggestion__wrap {
+    overflow-x: auto;
+  }
+  .el-autocomplete-suggestion__list {
+    white-space: nowrap;
+    li {
+      overflow: visible;
+      white-space: nowrap;
     }
   }
 }

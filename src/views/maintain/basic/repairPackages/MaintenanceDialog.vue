@@ -23,8 +23,8 @@
         </vxe-column>
         <vxe-column field="unPurchaseReason" title="操作">
           <template #default="{ row, rowIndex }">
-            <el-button type="text" class="action-button btn-edit" @click="handleUpDown(row, 'UP')">上移</el-button>
-            <el-button type="text" class="action-button btn-edit" @click="handleUpDown(row, 'DOWN')">下移</el-button>
+            <el-button type="text" class="action-button btn-edit" :disabled="rowIndex === 0" @click="handleUpDown(row, 'UP')">上移</el-button>
+            <el-button type="text" class="action-button btn-edit" :disabled="rowIndex === tableData.length - 1" @click="handleUpDown(row, 'DOWN')">下移</el-button>
             <el-popconfirm :title="`确定要${row.status === 1 ? '停用' : '启用'}该套餐类型吗？`" @confirm="handleEdit(row)">
               <span slot="reference" type="text" class="action-button btn-edit" size="small">{{
                 row.status === 1 ? '停用' : '启用' }}</span>

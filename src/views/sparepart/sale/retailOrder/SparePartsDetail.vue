@@ -78,8 +78,6 @@ export default {
       handler (val) {
         if (val) {
           this.getSparePartDetail();
-          console.log('this.sparePartDetail', this.isNumber);
-          console.log('this.sparePartDetail', this.outboundIs);
         }
       },
       immediate: true

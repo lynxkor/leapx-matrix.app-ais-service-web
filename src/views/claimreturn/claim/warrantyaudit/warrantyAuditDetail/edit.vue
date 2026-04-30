@@ -351,7 +351,7 @@
                 <el-form-item label="错误项：">
                     <div>{{ errorCategoryText }}</div>
                 </el-form-item>
-                <el-form-item label="审计结果同人：">
+                <el-form-item label="审计结果同意人：">
                   {{ form.warrantyAuditDetail?.auditResultAgreeName }}
                 </el-form-item>
                 <el-form-item label="审计结果同意时间：">

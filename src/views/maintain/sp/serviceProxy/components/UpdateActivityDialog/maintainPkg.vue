@@ -137,10 +137,10 @@
         <!-- 底部操作栏 -->
         <div class="footer-bar">
           <el-popconfirm
-            :title="!selectedPackage?.used ? '确定取消使用该维修套餐？' : '确定选择使用该维修套餐？'"
+            :title="selectedPackage?.used ? '确定取消使用该维修套餐？' : '确定选择使用该维修套餐？'"
             @confirm="handleConfirm"
           >
-            <el-button :type="!selectedPackage?.used ? 'primary' : 'plain'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
+            <el-button :type="selectedPackage?.used ? 'primary' : 'plain'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
           </el-popconfirm>
         </div>
       </div>
@@ -256,6 +256,8 @@ export default {
     },
     handleSelectPackage (item) {
       if (this.detailLoading) return;
+      console.log('handleSelectPackage', item);
+
       this.selectedPackage = item;
       this.loadProjectDetail(item);
     },

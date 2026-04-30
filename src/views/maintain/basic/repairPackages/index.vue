@@ -122,9 +122,9 @@
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
+      <el-button size="small" @click="handleBatchMaintenance">套餐类型维护</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button size="small" @click="handleBatchMaintenance">套餐类型维护</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
@@ -242,7 +242,7 @@ export default {
             props: 'code',
             label: '套餐代码',
             visible: true,
-            width: 200,
+            width: 120,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -256,19 +256,19 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'packageName', label: '套餐名称', visible: true, width: 200 },
-          { props: 'typeNames', label: '套餐类型', visible: true, width: 200 },
-          { props: 'spellCode', label: '拼音简码', visible: true, width: 200 },
-          { props: 'vehicleSeriesNames', label: '车系', visible: true, width: 200 },
-          { props: 'carModelNames', label: '车型年型', visible: true, width: 200 },
-          { props: 'dataFromLabel', label: '数据来源', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
-          { props: 'totalAmount', label: '总金额', visible: true, width: 200 },
-          { props: 'modifierName', label: '修改者名称', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-          { props: 'creatorName', label: '创建者名称', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'packageName', label: '套餐名称', visible: true, width: 120 },
+          { props: 'typeNames', label: '套餐类型', visible: true, width: 160 },
+          { props: 'spellCode', label: '拼音简码', visible: true, width: 160 },
+          { props: 'vehicleSeriesNames', label: '车系', visible: true, width: 120 },
+          { props: 'carModelNames', label: '车型年型', visible: true, width: 160 },
+          { props: 'dataSourceLabel', label: '数据来源', visible: true, width: 120 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 220 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 60 },
+          { props: 'totalAmount', label: '总金额', visible: true, width: 90 },
+          { props: 'modifierName', label: '修改者名称', visible: true, width: 150 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 160 },
+          { props: 'creatorName', label: '创建者名称', visible: true, width: 150 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 160 },
           {
             props: 'operate',
             label: '操作',

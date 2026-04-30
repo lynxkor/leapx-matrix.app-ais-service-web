@@ -68,7 +68,7 @@ const defaultForm = {
   planDeductTotal: 0,
   amountAdjustReason: '',
   appealHandleDesc: '',
-  isAutoCalc: 0,
+  isAutoCalc: 1,
 };
 
 export default {
@@ -177,10 +177,11 @@ export default {
       this.$refs.auditForm.validate(valid => {
         if (valid) {
           this.submitLoading = true;
+          console.log('this.activeName', this.activeName);
           rejectAppeal({
             detailId: this.id,
             ...this.form,
-            isAutoCalc: this.activeName === 'isAutoCalc' ? 0 : 1,
+            isAutoCalc: this.activeName === 'isAutoCalc' ? 1 : 0,
           }).then(() => {
             this.$message.success('拒绝申诉成功');
             this.handleClose();
