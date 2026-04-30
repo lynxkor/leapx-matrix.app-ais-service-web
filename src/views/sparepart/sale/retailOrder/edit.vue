@@ -708,6 +708,18 @@ export default {
     },
     visibleButtons () {
       return this.extraButtons.filter(btn => btn.visible);
+    },
+    rules () {
+      const customerType = this.form.customerType || this.routeCustomerType;
+      return {
+        ...this.rulesBase,
+        vin: customerType === '10' // 对车主
+          ? [{ required: true, message: '请输入后6位VIN', trigger: 'blur' }]
+          : [],
+        customerContactInfo: customerType === '20' // 对公
+          ? [{ required: true, message: '请输入客户联系信息', trigger: 'blur' }]
+          : [],
+      };
     }
   },
   watch: {
@@ -757,15 +769,9 @@ export default {
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
-      rules: {
-        vin: [
-          { required: true, message: '请输入后6位VIN', trigger: 'blur' }
-        ],
+      rulesBase: {
         currentMileage: [
           { required: true, message: '请输入当前里程', trigger: 'blur' }
-        ],
-        customerContactInfo: [
-          { required: true, message: '请输入客户联系信息', trigger: 'blur' }
         ],
       },
       pageNum: 1,
