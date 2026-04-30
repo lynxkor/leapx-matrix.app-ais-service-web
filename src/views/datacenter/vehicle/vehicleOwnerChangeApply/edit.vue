@@ -213,7 +213,7 @@
           </el-form>
           <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
             <el-form-item label="是否自动审批：" prop="isAutoAudit">
-              {{ form.isAutoAudit }}
+              {{ form.isAutoAuditLabel }}
             </el-form-item>
             <el-form-item label="未满足自动审批原因：" prop="autoApprovalFailReason">
               {{ form.autoApprovalFailReason }}

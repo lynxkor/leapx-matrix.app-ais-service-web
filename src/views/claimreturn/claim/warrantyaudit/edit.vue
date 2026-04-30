@@ -545,15 +545,23 @@ export default {
     },
     approvalStartPickerOptions () {
       return {
-        disabledDate: (time) => time.getTime() > Date.now()
+        disabledDate: (time) => {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          return time.getTime() >= today.getTime();
+        }
       };
     },
     approvalEndPickerOptions () {
       return {
         disabledDate: (time) => {
-          if (time.getTime() > Date.now()) return true;
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          if (time.getTime() >= today.getTime()) return true;
           if (this.form.warrantyApprovalStartDate) {
-            return time.getTime() < new Date(this.form.warrantyApprovalStartDate).getTime();
+            const start = new Date(this.form.warrantyApprovalStartDate);
+            start.setHours(0, 0, 0, 0);
+            return time.getTime() < start.getTime();
           }
           return false;
         }

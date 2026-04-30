@@ -204,6 +204,7 @@ import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import {
   getList as getWarrantyAuditDetailList,
   agree,
+  getDecryptField,
 } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index';
 import { getList as getRepairTypeList } from '@/api/maintain/basic/repairItemType/index';
 import { getList as getErrorConfigList } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditErrorConfig/index';
@@ -375,6 +376,8 @@ export default {
             label: 'VIN码',
             visible: true,
             width: 200,
+            mask: true,
+            getValue: (row) => getDecryptField(row.id, 'vin'),
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -385,14 +388,7 @@ export default {
                 });
               },
               type: 'primary'
-            }],
-            formatter: ({ cellValue }) => {
-              // VIN脱敏显示
-              if (cellValue && cellValue.length > 6) {
-                return cellValue.substring(0, 3) + '***' + cellValue.substring(cellValue.length - 3);
-              }
-              return cellValue;
-            }
+            }]
           },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 150 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },

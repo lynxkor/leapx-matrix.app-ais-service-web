@@ -103,8 +103,8 @@
                 <el-form-item label="开单人：" prop="orderCreatorName">
                   <el-input placeholder="请输入" v-model="form.orderCreatorName" disabled />
                 </el-form-item>
-                <el-form-item label="开单时间：" prop="orderCreationTime">
-                  <el-input placeholder="请输入" v-model="form.orderCreationTime" disabled />
+                <el-form-item label="开单时间：" prop="createTime">
+                  <el-input placeholder="请输入" v-model="form.createTime" disabled />
                 </el-form-item>
                 <el-form-item label="确认人：" prop="confirmerName">
                   <el-input placeholder="请输入" v-model="form.confirmerName" disabled />
@@ -263,8 +263,8 @@
                 <el-form-item label="开单人：" prop="orderCreatorName">
                   {{ form.orderCreatorName }}
                 </el-form-item>
-                <el-form-item label="开单时间：" prop="orderCreationTime">
-                  {{ form.orderCreationTime }}
+                <el-form-item label="开单时间：" prop="createTime">
+                  {{ form.createTime }}
                 </el-form-item>
                 <el-form-item label="确认人：" prop="confirmerName">
                   {{ form.confirmerName }}
@@ -708,6 +708,18 @@ export default {
     },
     visibleButtons () {
       return this.extraButtons.filter(btn => btn.visible);
+    },
+    rules () {
+      const customerType = this.form.customerType || this.routeCustomerType;
+      return {
+        ...this.rulesBase,
+        vin: customerType === '10' // 对车主
+          ? [{ required: true, message: '请输入后6位VIN', trigger: 'blur' }]
+          : [],
+        customerContactInfo: customerType === '20' // 对公
+          ? [{ required: true, message: '请输入客户联系信息', trigger: 'blur' }]
+          : [],
+      };
     }
   },
   watch: {
@@ -757,15 +769,9 @@ export default {
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
-      rules: {
-        vin: [
-          { required: true, message: '请输入后6位VIN', trigger: 'blur' }
-        ],
+      rulesBase: {
         currentMileage: [
           { required: true, message: '请输入当前里程', trigger: 'blur' }
-        ],
-        customerContactInfo: [
-          { required: true, message: '请输入客户联系信息', trigger: 'blur' }
         ],
       },
       pageNum: 1,
@@ -866,12 +872,12 @@ export default {
       this.openPane();
     },
     // 删除子表数据
-    handleDeleteRow (val) {
+    async handleDeleteRow (val) {
       // 根据需求调用接口
-      deleteRetailOrderDetail([val.id]).then(res => {
-        this.$message.success('删除成功');
-        this.getData();
-      });
+      await deleteRetailOrderDetail([val.id]);
+      this.$message.success('删除成功');
+      this.handleRefresh();
+      this.getData();
     },
     // 备件远程搜索
     async queryListData (query) {
@@ -883,7 +889,7 @@ export default {
       }
     },
     // 新增子表数据
-    handleAddTableData (val, record) {
+    async handleAddTableData (val, record) {
       if (!record) {
         this.$message.warning('请先选择数据');
         return;
@@ -900,9 +906,9 @@ export default {
         retailOrderId: this._id,
         sparePartId: val
       };
-      addOrUpdateRetailOrderDetail(params).then(res => {
-        this.getData();
-      });
+      await addOrUpdateRetailOrderDetail(params);
+      this.handleRefresh();
+      this.getData();
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
@@ -944,9 +950,9 @@ export default {
       this.getData();
     },
     // 保存侧边栏数据
-    handleSave () {
-      this.$refs.detailRef.handleSave();
-      this.$refs.containerRef.loadDetail();
+    async handleSave () {
+      await this.$refs.detailRef.handleSave();
+      this.handleRefresh();
       this.$refs.editLayout.closePane();
     },
     // 处理额外按钮点击事件

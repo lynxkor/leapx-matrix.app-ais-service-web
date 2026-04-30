@@ -92,9 +92,14 @@
                     placeholder="请选择"
                     clearable
                     filterable
+                    @change="handleDevicePurposeChange"
                   />
                 </el-form-item>
-                <el-form-item label="工位名称：" prop="dealerStationName">
+                <el-form-item
+                  label="工位名称："
+                  prop="dealerStationName"
+                  :rules="form.devicePurpose === '20' || form.devicePurpose === 20 ? rules.dealerStationName : []"
+                >
                   <fetch-select
                     v-model="form.dealerStationName"
                     placeholder="请选择工位"
@@ -236,7 +241,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '监控设备用途-配置表管理',
+      pageTitle: '监控设备用途',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-monitoringEquipmentConfig',
@@ -275,12 +280,19 @@ export default {
         devicePurpose: [
           { required: true, message: '请输入设备用途', trigger: 'change' }
         ],
+        dealerStationName: [
+          { required: true, message: '请选择工位', trigger: 'change' }
+        ],
       }
     };
   },
   mounted () {
   },
   methods: {
+    handleDevicePurposeChange (val) {
+      this.$set(this.form, 'devicePurpose', val);
+      console.log(this.form.devicePurpose);
+    },
     async queryDealerStations (query) {
       return await getDealerStationList({ name: query });
     },

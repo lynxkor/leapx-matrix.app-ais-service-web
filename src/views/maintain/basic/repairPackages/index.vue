@@ -59,7 +59,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="RepairPackageDataSourceEnum"
-            v-model="form.dataSourceList"
+            v-model="form.dataFromList"
             placeholder="请选择"
             clearable
             multiple
@@ -186,8 +186,8 @@ const defaultForm = {
   spellCode: '',
   vehicleSeriesId: '',
   vehicleSeriesIds: '',
-  dataSource: '',
-  dataSourceList: '',
+  dataFrom: '',
+  dataFromList: '',
   dealerName: '',
   status: '',
   totalAmount: '',
@@ -288,12 +288,12 @@ export default {
               },
               type: 'info',
               disabled: (row) => {
-                return (this.isDealer && row.dataSource === 20) || (!this.isDealer && row.dataSource === 10);
+                return (this.isDealer && row.dataFrom === 20) || (!this.isDealer && row.dataFrom === 10);
               },
             }, {
               name: '下发',
               show: (row) => {
-                return !this.isDealer && row.dataSource === 20 && row.comboStatus === 10;
+                return !this.isDealer && row.dataFrom === 20 && row.comboStatus === 10;
               },
               popconfirmTitle: '确认下发该维修套餐',
               click: (rowIndex, row) => {
@@ -314,7 +314,7 @@ export default {
             }, {
               name: '撤回',
               show: (row) => {
-                return !this.isDealer && row.dataSource === 20 && row.comboStatus !== 10;
+                return !this.isDealer && row.dataFrom === 20 && row.comboStatus !== 10;
               },
               popconfirmTitle: '确认撤回该维修套餐',
               click: (rowIndex, row) => {
@@ -335,7 +335,7 @@ export default {
             }, {
               name: '删除',
               disabled: (row) => {
-                return (this.isDealer && row.dataSource === 20) || (!this.isDealer && row.dataSource === 10);
+                return (this.isDealer && row.dataFrom === 20) || (!this.isDealer && row.dataFrom === 10);
               },
               popconfirmConfirmButtonType: 'danger',
               popconfirmConfirmButtonText: '删除',

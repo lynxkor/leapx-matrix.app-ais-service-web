@@ -8,6 +8,11 @@
           <span v-if="form.status" class="status primary">{{ form.stockStatusLabel }}</span>
         </template>
         <template #extraButtons>
+          <el-button v-if="showInitialize" type="primary" size="small" @click="handleInitialize">初始化</el-button>
+          <el-button v-if="showCancel" type="primary" size="small" @click="handleCancel">作废</el-button>
+          <el-button v-if="showImportRes" type="primary" size="small" @click="handleImport('sparepartStockTakingDetailRes')">盘点结果导入</el-button>
+          <el-button v-if="showGenerateDifferences" type="primary" size="small" @click="handleDifference">生成差异单</el-button>
+          <el-button v-if="showPrint" type="primary" size="small" @click="handlePrint">打印</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -173,13 +178,24 @@
       @close="handleUploadDialogClose"
       @submit="refreshForm"
     />
+    <!-- 生成差异单弹窗 -->
+    <DifferenceDialog
+      ref="differenceDialogRef"
+      :visible.sync="differenceDialogVisible"
+      :differenceId="differenceId"
+      :differenceList="differenceTableData"
+      @update:visible="val => differenceDialogVisible = val"
+      @confirm="refreshForm"
+    />
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate, stockTakingDetailPage, stockTakingDetailAddOrUpdate, stockTakingDetailDelete } from '@/api/sparepart/warehouse/stockTaking/index';
+import { getDetail, addOrUpdate, stockTakingDetailPage, stockTakingDetailAddOrUpdate, stockTakingDetailDelete, initializeItem, cancelItem } from '@/api/sparepart/warehouse/stockTaking/index';
+import { getExceptionList, initDifferences } from '@/api/sparepart/warehouse/stockTakingDifferences/index';
 import { listDealerPartWithOem } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
+// import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, getPartDealer, getLoginUser, userQuery } from '@/api/common';
@@ -187,6 +203,8 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
+import DifferenceDialog from './DifferenceDialog.vue';
+import { handleCommonAction } from '@/libs/utils';
 
 const defaultForm = {
   code: '',
@@ -204,6 +222,11 @@ const defaultForm = {
   companyName: '',
 };
 
+const ACTION_CONFIG = { // 按钮配置
+  initiaLize: { title: '此操作将初始化该库存盘点, 是否继续?', success: '初始化成功' },
+  cancel: { title: '此操作将作废该库存盘点, 是否继续?', success: '作废成功' }
+};
+
 export default {
   name: 'stockTakingEdit',
   props: {
@@ -217,7 +240,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    Upload
+    Upload,
+    DifferenceDialog
   },
   computed: {
     _id () {
@@ -225,6 +249,21 @@ export default {
     },
     title () {
       return '盘点单号：' + this.form.code;
+    },
+    showInitialize () {
+      return this._id && this.form.stockStatus === '0' && this.permissions.has('AISPART-stockTaking-initialize');
+    },
+    showCancel () {
+      return this._id && (this.form.stockStatus === '0' || this.form.stockStatus === '2') && this.permissions.has('AISPART-stockTaking-cancel');
+    },
+    showImportRes () {
+      return this._id && this.form.stockStatus === '2' && this.permissions.has('AISPART-stockTaking-importRes');
+    },
+    showGenerateDifferences () {
+      return this._id && this.form.stockStatus === '2' && this.permissions.has('AISPART-stockTaking-generateDifferences');
+    },
+    showPrint () {
+      return this._id && this.permissions.has('AISPART-stockTaking-print');
     }
   },
   watch: {
@@ -253,6 +292,9 @@ export default {
     return {
       importType: '',
       uploadDialogVisible: false,
+      differenceDialogVisible: false, // 生成差异单弹窗
+      differenceId: '', // 差异单id
+      differenceTableData: [], // 差异单数据
       pageTitle: '库存盘点',
       pageType: 'edit',
       moduleKey: 'AISPART-stockTaking',
@@ -464,6 +506,62 @@ export default {
         operatorName: row.operatorName,
       };
       this.handleAddOrUpdate(params);
+    },
+    // 调用二次确认弹框
+    _handleAction (apiFn, config) {
+      handleCommonAction({
+        $confirm: this.$confirm,
+        $message: this.$message,
+        apiFn,
+        id: this._id,
+        config,
+        onSuccess: () => this.$refs.containerRef.loadDetail()
+      });
+    },
+    // 初始化
+    handleInitialize () {
+      this._handleAction(initializeItem, ACTION_CONFIG.initiaLize);
+    },
+    // 作废
+    handleCancel () {
+      this._handleAction(cancelItem, ACTION_CONFIG.cancel);
+    },
+    // 生成差异单
+    async handleDifference () {
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>此操作将生成差异单, 是否继续?</div>';
+
+      this.$confirm(message, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(async () => {
+        // 调用 API
+        const res = await getExceptionList({ id: this._id });
+        if (res.length > 0) {
+          this.differenceId = this._id;
+          this.differenceTableData = res;
+          this.differenceDialogVisible = true;
+        } else {
+          await initDifferences({ id: this._id });
+          this.$message.success('生成差异单成功!');
+          this.refreshForm();
+        }
+      }).catch((err) => {
+        // 错误处理
+        if (err !== 'cancel') {
+          console.error('操作失败:', err);
+        }
+      });
+    },
+    // 打印
+    handlePrint () {
+      this.$print.show({
+        id: this._id,
+        template: 'InventoryCount',
+        title: `${this.form.dealerName}厅店库存盘点单`
+      });
     },
   }
 };

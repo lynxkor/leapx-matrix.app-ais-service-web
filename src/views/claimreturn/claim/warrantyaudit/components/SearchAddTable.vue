@@ -37,7 +37,7 @@
           <vxe-column field="auditDesc" title="错误项" width="300" />
           <vxe-column title="操作" width="100" fixed="right">
             <template #default="{ row }">
-              <el-popconfirm title="确定要删除吗？" @confirm="handleRemoveRow(row)">
+              <el-popconfirm title="确定要删除吗？" @confirm="handleRemoveRow(row)" v-if="canAddOrUpdate">
                 <span slot="reference" type="text" size="small" class="btn-delete" fixed="right">删除</span>
               </el-popconfirm>
             </template>
@@ -95,7 +95,7 @@ export default {
   },
   computed: {
     isDetailFull () {
-      return this.formData.actualAuditCount >= this.formData.planAuditCount && this.formData.planAuditCount > 0;
+      return this.tableData.length >= this.formData.planAuditCount && this.formData.planAuditCount > 0;
     },
   },
   data () {
