@@ -59,7 +59,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="RepairPackageDataSourceEnum"
-            v-model="form.dataSourceList"
+            v-model="form.dataFromList"
             placeholder="请选择"
             clearable
             multiple
@@ -186,8 +186,8 @@ const defaultForm = {
   spellCode: '',
   vehicleSeriesId: '',
   vehicleSeriesIds: '',
-  dataSource: '',
-  dataSourceList: '',
+  dataFrom: '',
+  dataFromList: '',
   dealerName: '',
   status: '',
   totalAmount: '',
@@ -261,7 +261,7 @@ export default {
           { props: 'spellCode', label: '拼音简码', visible: true, width: 200 },
           { props: 'vehicleSeriesNames', label: '车系', visible: true, width: 200 },
           { props: 'carModelNames', label: '车型年型', visible: true, width: 200 },
-          { props: 'dataSourceLabel', label: '数据来源', visible: true, width: 200 },
+          { props: 'dataFromLabel', label: '数据来源', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'statusLabel', label: '状态', visible: true, width: 200 },
           { props: 'totalAmount', label: '总金额', visible: true, width: 200 },
@@ -288,12 +288,12 @@ export default {
               },
               type: 'info',
               disabled: (row) => {
-                return (this.isDealer && row.dataSource === 20) || (!this.isDealer && row.dataSource === 10);
+                return (this.isDealer && row.dataFrom === 20) || (!this.isDealer && row.dataFrom === 10);
               },
             }, {
               name: '下发',
               show: (row) => {
-                return !this.isDealer && row.dataSource === 20 && row.comboStatus === 10;
+                return !this.isDealer && row.dataFrom === 20 && row.comboStatus === 10;
               },
               popconfirmTitle: '确认下发该维修套餐',
               click: (rowIndex, row) => {
@@ -314,7 +314,7 @@ export default {
             }, {
               name: '撤回',
               show: (row) => {
-                return !this.isDealer && row.dataSource === 20 && row.comboStatus !== 10;
+                return !this.isDealer && row.dataFrom === 20 && row.comboStatus !== 10;
               },
               popconfirmTitle: '确认撤回该维修套餐',
               click: (rowIndex, row) => {
@@ -335,7 +335,7 @@ export default {
             }, {
               name: '删除',
               disabled: (row) => {
-                return (this.isDealer && row.dataSource === 20) || (!this.isDealer && row.dataSource === 10);
+                return (this.isDealer && row.dataFrom === 20) || (!this.isDealer && row.dataFrom === 10);
               },
               popconfirmConfirmButtonType: 'danger',
               popconfirmConfirmButtonText: '删除',

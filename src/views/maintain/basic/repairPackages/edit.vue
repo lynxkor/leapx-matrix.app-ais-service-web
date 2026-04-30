@@ -57,10 +57,10 @@
                     <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
                   </el-radio-group>
                 </el-form-item>
-                <el-form-item label="数据来源：" prop="dataSourceLabel">
+                <el-form-item label="数据来源：" prop="dataFromLabel">
                   <el-input
                     placeholder="请输入"
-                    v-model="form.dataSourceLabel"
+                    v-model="form.dataFromLabel"
                     clearable
                     disabled
                   />
@@ -92,8 +92,8 @@
                 <el-form-item label="是否下发：" prop="suedDealer">
                   {{ form.comboStatusLabel }}
                 </el-form-item>
-                <el-form-item label="数据来源：" prop="dataSource">
-                  {{ form.dataSourceLabel }}
+                <el-form-item label="数据来源：" prop="dataFrom">
+                  {{ form.dataFromLabel }}
                 </el-form-item>
                 <el-form-item label="门店：" prop="dealerName">
                   {{ form.dealerName }}
@@ -281,8 +281,8 @@ const defaultForm = {
   spellCode: '',
   vehicleSeriesId: '',
   vehicleSeriesIds: '',
-  dataSource: '',
-  dataSourceLabel: '',
+  dataFrom: '',
+  dataFromLabel: '',
   dealerName: '',
   status: '',
   totalAmount: '',
@@ -335,8 +335,8 @@ export default {
       return '套餐代码：' + this.form.code;
     },
     canEdit () {
-      console.log('accountFlag:' + this.accountFlag, (this.accountFlag && this.form.dataSource === 10), (!this.accountFlag && this.form.dataSource === 20));
-      return (this.accountFlag && this.form.dataSource === 10) || (!this.accountFlag && this.form.dataSource === 20);
+      console.log('accountFlag:' + this.accountFlag, (this.accountFlag && this.form.dataFrom === 10), (!this.accountFlag && this.form.dataFrom === 20));
+      return (this.accountFlag && this.form.dataFrom === 10) || (!this.accountFlag && this.form.dataFrom === 20);
     }
   },
   watch: {
@@ -399,7 +399,7 @@ export default {
         spellCode: [
           { required: false, message: '请输入拼音简码', trigger: 'change' }
         ],
-        dataSource: [
+        dataFrom: [
           { required: false, message: '请选择数据来源', trigger: 'change' }
         ],
         ownerOrgId: [
@@ -520,11 +520,11 @@ export default {
         this.form.dealerCode = res.currentDealerCode;// 当前门店编码
         this.form.dealerName = res.currentDealerName;// 当前门店名称
         if (this.accountFlag) {
-          this.form.dataSource = 10;
-          this.form.dataSourceLabel = '门店';
+          this.form.dataFrom = 10;
+          this.form.dataFromLabel = '门店';
         } else {
-          this.form.dataSource = 20;
-          this.form.dataSourceLabel = '主机厂';
+          this.form.dataFrom = 20;
+          this.form.dataFromLabel = '主机厂';
         }
       }
     },

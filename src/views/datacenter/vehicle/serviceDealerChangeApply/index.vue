@@ -270,7 +270,6 @@ export default {
             }]
           },
           { props: 'applyStatusLabel', label: '申请状态', visible: true, width: 200 },
-          { props: 'dataSourceLabel', label: '数据来源', visible: true, width: 200 },
           { props: 'applierName', label: '申请人', visible: true, width: 200 },
           { props: 'applyTime', label: '申请时间', visible: true, width: 200 },
           { props: 'applyReason', label: '申请原因', visible: true, width: 200 },

@@ -580,24 +580,10 @@
             </div>
             <div class="common-section-body">
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="故障现象：" prop="faultPhenomena">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.faultPhenomena"
-                    clearable
-                  />
-                </el-form-item>
                 <el-form-item label="故障现象描述：" prop="customerContent">
                   <el-input
                     placeholder="请输入"
                     v-model="form.customerContent"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="故障检查过程：" prop="diagnosisContent">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.diagnosisContent"
                     clearable
                   />
                 </el-form-item>
@@ -610,14 +596,8 @@
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="故障现象：" prop="faultPhenomena">
-                  {{ form.faultPhenomena }}
-                </el-form-item>
                 <el-form-item label="故障现象描述：" prop="customerContent">
                   {{ form.customerContent }}
-                </el-form-item>
-                <el-form-item label="故障检查过程：" prop="diagnosisContent">
-                  {{ form.diagnosisContent }}
                 </el-form-item>
                 <el-form-item label="故障排查流程：" prop="troubleshootingProcess">
                   {{ form.troubleshootingProcess }}

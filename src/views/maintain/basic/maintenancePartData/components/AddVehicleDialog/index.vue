@@ -252,11 +252,12 @@ export default {
       }
       // 获取当前 tableData 的长度作为起始索引
       const startIndex = this.tableData.length;
-      // 已存在的 vehicleModelId 集合，用于去重
-      const existingIds = new Set(this.tableData.map(item => item.vehicleModelId));
+      // 已存在的数据集合，以 vehicleModelId + vehicleSeriesId + vehicleYearTypeId 组合去重
+      const existingKeys = new Set(this.tableData.map(item => `${item.vehicleModelId}_${item.vehicleSeriesId}_${item.vehicleYearTypeId}`));
+      const currentYearTypeId = this.yearDetail.vehicleYearTypeId;
       // 更新当前行的车型选择
       const list = modelArray
-        .filter(item => !existingIds.has(item.id))
+        .filter(item => !existingKeys.has(`${item.id}_${item.seriesId}_${currentYearTypeId}`))
         .map((item, i) => {
           return {
             index: startIndex + i + 1,
@@ -291,6 +292,7 @@ export default {
         vehicleYearTypeId: year?.value,
         vehicleYearTypeName: year?.label || '无年款',
       };
+      this.selectedModelIndex = null;
     },
 
     // 年款下拉选择变更

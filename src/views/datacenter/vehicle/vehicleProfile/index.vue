@@ -10,7 +10,7 @@
       class="ais-search-form"
     >
       <el-form-item label="VIN码">
-        <tag-input v-model="form.vinList" placeholder="请输入" />
+        <tag-input v-model="form.vinList" placeholder="请输入" :min-length="6" />
       </el-form-item>
       <el-form-item label="车主手机号">
         <el-input
@@ -19,7 +19,6 @@
           clearable
         />
       </el-form-item>
-      <template v-if="visibleCount === 3 || show">
         <el-form-item label="车牌号">
           <el-input
             placeholder="请输入"
@@ -27,6 +26,7 @@
             clearable
           />
         </el-form-item>
+        <template v-if="show">
         <el-form-item label="销售日期">
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
@@ -754,6 +754,10 @@ export default {
       });
     },
     onSubmit () {
+      if (this.form.vinList && this.form.vinList.some(vin => vin.length < 6)) {
+        this.$message.error('VIN码输入不能少于6位');
+        return;
+      }
       this.optionObj.form.page = 1;
       this.getData();
     },

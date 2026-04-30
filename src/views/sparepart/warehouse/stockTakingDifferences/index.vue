@@ -746,10 +746,6 @@ export default {
             });
             this.getData();
           }).catch(() => {
-            this.$message({
-              type: 'error',
-              message: '申请失败!'
-            });
           });
         }).catch(() => {});
       } else {
@@ -762,10 +758,6 @@ export default {
           });
           this.getData();
         }).catch(() => {
-          this.$message({
-            type: 'error',
-            message: '申请失败!'
-          });
         });
       }
     },

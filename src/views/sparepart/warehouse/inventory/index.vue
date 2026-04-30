@@ -350,7 +350,7 @@ export default {
             }, {
               name: '上架共享',
               show: (row) => {
-                return row.availableQty > 0 && row.oemPart === '1';
+                return Number(row.availableQty) > 0 && row.oemPart === '1';
               },
               click: (rowIndex, row) => {
                 this.launchDialog = true;
@@ -360,7 +360,7 @@ export default {
             }, {
               name: '下架共享',
               show: (row) => {
-                return row.sharedQty > 0;
+                return Number(row.sharedQty) > 0;
               },
               click: (rowIndex, row) => {
                 this.shelvesDialog = true;

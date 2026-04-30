@@ -195,7 +195,7 @@
         <!-- 故障存在询问 -->
         <div class="fault-existence-section">
           <div>
-            <span class="fault-label">本次进店是否存在故障</span>
+            <span class="fault-label">本次是否因故障进店</span>
             <el-radio-group v-model="faultForm.faultFlag" @change="handleFaultExistenceChange">
               <el-radio :label="true">是</el-radio>
               <el-radio :label="false">否</el-radio>

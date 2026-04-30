@@ -12,7 +12,7 @@
       min-height="0px"
       max-height="300px"
     >
-      <vxe-column field="warrantyApplyId" title="保修申请单"></vxe-column>
+      <vxe-column field="warrantyApplyNo" title="保修申请单"></vxe-column>
       <vxe-column field="warrantyTypeName" title="保修类型"></vxe-column>
       <vxe-column field="vin" title="VIN"></vxe-column>
       <vxe-column field="workHourTotal" title="工时总额">

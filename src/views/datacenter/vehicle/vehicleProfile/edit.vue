@@ -614,13 +614,12 @@
                   </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="车牌号：">
-                  <el-input clearable v-model="form.vehiclePlateNo" placeholder="请输入" disabled />
-                  <!-- <LPEncrypted
+                  <LPEncrypted
                     :value.sync="form.vehiclePlateNo"
                     :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
                   >
                     {{ form.vehiclePlateNo }}
-                  </LPEncrypted> -->
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="合格证号：">
                   <el-input clearable v-model="form.certNumber" placeholder="请输入" disabled />
@@ -718,13 +717,12 @@
                   </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="车牌号：">
-                  {{ form.vehiclePlateNo }}
-                  <!-- <LPEncrypted
+                  <LPEncrypted
                     :value.sync="form.vehiclePlateNo"
                     :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
                   >
                     {{ form.vehiclePlateNo }}
-                  </LPEncrypted> -->
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="合格证号：">
                   {{ form.certNumber }}

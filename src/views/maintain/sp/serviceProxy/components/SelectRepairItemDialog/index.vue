@@ -918,7 +918,7 @@ export default {
 
       // 如果原来不包含，但现在包含，则显示提示
       if (!originalHasTargetRepair && currentHasTargetRepair) {
-        this.showMsg('维修类型为："一般维修"或"三电维修"，系统默认调整 【本次进店是否存在故障】为：是，存在故障，请填写故障模块信息！');
+        this.showMsg('维修类型为："一般维修"或"三电维修"，系统默认调整 【本次是否因故障进店】为：是，存在故障，请填写故障模块信息！');
       }
     },
     getEnumData () {

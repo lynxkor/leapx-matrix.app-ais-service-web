@@ -100,7 +100,7 @@
           <section class="common-section">
             <div class="common-section-header">
               <h2>维修工程师信息</h2>
-              <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              <el-button v-if="canAddOrUpdate && isEditing" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
@@ -261,8 +261,16 @@ export default {
       }
       return {};
     },
-    submitRequest () {
-      return addOrUpdate({ id: this.form.id, ...this.form, teamUsers: this.tableData });
+    async submitRequest () {
+      let tableData = [];
+      if (this.$refs.editTable) {
+        try {
+          tableData = await this.$refs.editTable.saveAll();
+        } catch (e) {
+          return Promise.reject(e);
+        }
+      }
+      return addOrUpdate({ id: this.form.id, ...this.form, teamUsers: tableData });
     },
     getDefautlForm () {
       const userInfo = this.$store.state.user.userInfo;
