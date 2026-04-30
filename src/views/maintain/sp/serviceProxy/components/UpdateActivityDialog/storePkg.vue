@@ -115,7 +115,7 @@
                   border="inner"
                   size="small"
                   min-height="0"
-                  max-height="300px"
+                  max-height="3000px"
                   show-overflow
                 >
 									<vxe-column field="partsName" title="零件名称" min-width="200" />
@@ -140,7 +140,7 @@
         <!-- 底部操作栏 -->
         <div class="footer-bar">
           <el-popconfirm
-            :title="!selectedPackage?.used ? '确定取消使用该商城订单？' : '确定选择使用该商城订单？'"
+            :title="selectedPackage?.used ? '确定取消使用该商城订单？' : '确定选择使用该商城订单？'"
             @confirm="handleConfirm"
           >
             <el-button :disabled="projectList.length === 0" :type="selectedPackage?.used ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
