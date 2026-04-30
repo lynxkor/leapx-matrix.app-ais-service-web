@@ -16,7 +16,7 @@
               :business-id="form.auditId"
               :uploadConfig="uploadConfig"
               :noEcho="true"
-              businessType="待签署总结报告"
+              attachType="待签署总结报告"
               @upload-loading-change="handleUploadLoadingChange"
             />
           </el-form-item>
