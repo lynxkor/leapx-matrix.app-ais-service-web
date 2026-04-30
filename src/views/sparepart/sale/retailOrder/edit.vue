@@ -866,12 +866,12 @@ export default {
       this.openPane();
     },
     // 删除子表数据
-    handleDeleteRow (val) {
+    async handleDeleteRow (val) {
       // 根据需求调用接口
-      deleteRetailOrderDetail([val.id]).then(res => {
-        this.$message.success('删除成功');
-        this.getData();
-      });
+      await deleteRetailOrderDetail([val.id]);
+      this.$message.success('删除成功');
+      this.handleRefresh();
+      this.getData();
     },
     // 备件远程搜索
     async queryListData (query) {
@@ -944,9 +944,9 @@ export default {
       this.getData();
     },
     // 保存侧边栏数据
-    handleSave () {
-      this.$refs.detailRef.handleSave();
-      this.$refs.containerRef.loadDetail();
+    async handleSave () {
+      await this.$refs.detailRef.handleSave();
+      this.handleRefresh();
       this.$refs.editLayout.closePane();
     },
     // 处理额外按钮点击事件
