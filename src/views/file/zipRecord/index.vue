@@ -73,6 +73,30 @@
           clearable
         />
       </el-form-item>
+        <el-form-item label="创建时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.createTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="修改时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.updateTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
       </template>
 
       <page-search-action
@@ -129,7 +153,9 @@ const defaultForm = {
   fileNameLike: '',
   startTime: '',
   finishTime: '',
-  creatorNameLike: ''
+  creatorNameLike: '',
+  createTime: '',
+  updateTime: '',
 };
 
 const pageSize = 20;
@@ -330,6 +356,21 @@ export default {
         if (this.form.finishTime.length > 1) {
           data.finishTimeStart = this.form.finishTime[0];
           data.finishTimeEnd = getEndOfDayString(this.form.finishTime[1]);
+        }
+      }
+
+      if (this.form.createTime) {
+        delete data.createTime;
+        if (this.form.createTime.length > 1) {
+          data.createTimeStart = this.form.createTime[0];
+          data.createTimeEnd = this.form.createTime[1];
+        }
+      }
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = this.form.updateTime[1];
         }
       }
 
