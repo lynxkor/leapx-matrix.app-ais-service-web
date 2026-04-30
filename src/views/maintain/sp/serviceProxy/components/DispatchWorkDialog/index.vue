@@ -307,7 +307,7 @@ export default {
     async initData () {
       try {
         this.tableLoading = true;
-        const res = await getRepairWorkRecord({ serviceProxyId: this.vehicleInfo.id });
+        const res = await getRepairWorkRecord({ serviceProxyId: this.vehicleInfo.id, pageSize: 1000 });
         this.filterForm.plannedTime = moment().format('YYYY-MM-DD HH:mm:ss');
         this.tableData = res || [];
         this.tableData.forEach(row => {
