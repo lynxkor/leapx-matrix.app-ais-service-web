@@ -883,7 +883,7 @@ export default {
       }
     },
     // 新增子表数据
-    handleAddTableData (val, record) {
+    async handleAddTableData (val, record) {
       if (!record) {
         this.$message.warning('请先选择数据');
         return;
@@ -900,9 +900,9 @@ export default {
         retailOrderId: this._id,
         sparePartId: val
       };
-      addOrUpdateRetailOrderDetail(params).then(res => {
-        this.getData();
-      });
+      await addOrUpdateRetailOrderDetail(params);
+      this.handleRefresh();
+      this.getData();
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
