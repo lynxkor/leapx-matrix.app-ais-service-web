@@ -53,13 +53,13 @@
             <div class="common-section-body">
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="申请人：" prop="apply">
-                  {{ form.apply }}
+                  {{ form.applyName }}
                 </el-form-item>
                 <el-form-item label="申请时间：" prop="applyTime">
                   {{ form.applyTime }}
                 </el-form-item>
                 <el-form-item label="审批人：" prop="approver">
-                  {{ form.approver }}
+                  {{ form.approverName }}
                 </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
                   {{ form.approvalTime }}
@@ -125,7 +125,7 @@
             <div class="common-section-body">
               <el-form :inline="true" class="form-detail">
                 <el-form-item label="申请人：" prop="apply">
-                  {{ form.apply }}
+                  {{ form.applyName }}
                 </el-form-item>
                 <el-form-item label="申请时间：" prop="applyTime">
                   {{ form.applyTime }}
@@ -134,7 +134,7 @@
                   {{ form.applyDescription }}
                 </el-form-item>
                 <el-form-item label="审批人：" prop="approver">
-                  {{ form.approver }}
+                  {{ form.approverName }}
                 </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
                   {{ form.approvalTime }}

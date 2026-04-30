@@ -30,8 +30,8 @@
                         <td>{{ info.logisticsProvider }}</td>
                         <td>{{ info.logisticsOrderNo }}</td>
                         <td>{{ info.logisticsRemark }}</td>
-                        <td>咸阳服务中心人民西路店</td>
-                        <td>咸阳服务中心人民西路店备件仓库</td>
+                        <td>{{ info.inboundDealerName }}</td>
+                        <td>{{ info.inboundWarehouseName }}</td>
                         <td>{{ info.applicantName }}</td>
                     </tr>
                 </tbody>
