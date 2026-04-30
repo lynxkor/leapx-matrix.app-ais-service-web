@@ -103,8 +103,8 @@
                 <el-form-item label="开单人：" prop="orderCreatorName">
                   <el-input placeholder="请输入" v-model="form.orderCreatorName" disabled />
                 </el-form-item>
-                <el-form-item label="开单时间：" prop="orderCreationTime">
-                  <el-input placeholder="请输入" v-model="form.orderCreationTime" disabled />
+                <el-form-item label="开单时间：" prop="createTime">
+                  <el-input placeholder="请输入" v-model="form.createTime" disabled />
                 </el-form-item>
                 <el-form-item label="确认人：" prop="confirmerName">
                   <el-input placeholder="请输入" v-model="form.confirmerName" disabled />
@@ -263,8 +263,8 @@
                 <el-form-item label="开单人：" prop="orderCreatorName">
                   {{ form.orderCreatorName }}
                 </el-form-item>
-                <el-form-item label="开单时间：" prop="orderCreationTime">
-                  {{ form.orderCreationTime }}
+                <el-form-item label="开单时间：" prop="createTime">
+                  {{ form.createTime }}
                 </el-form-item>
                 <el-form-item label="确认人：" prop="confirmerName">
                   {{ form.confirmerName }}

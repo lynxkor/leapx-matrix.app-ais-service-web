@@ -37,7 +37,7 @@
                 </thead>
                 <tbody id="data-main">
                     <tr>
-                        <td> 待做 </td>
+                        <td> {{info.code}} </td>
                         <td>零售出库</td>
                         <td>{{info.dealerName}}</td>
                         <td>--</td>
