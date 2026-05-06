@@ -111,8 +111,8 @@ export default {
       });
     },
     vinChange (val, record) {
-      this.form.beforeDealerCode = record?.salesDealerCode;
-      this.form.beforeDealerName = record?.salesDealerName;
+      this.form.beforeDealerCode = record?.vehicleProfileServiceResp.serviceDealerCode;
+      this.form.beforeDealerName = record?.vehicleProfileServiceResp.serviceDealerName;
       this.form.salesDate = record?.salesDate;
     },
     getDealerList (query) {
