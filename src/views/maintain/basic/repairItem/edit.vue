@@ -13,7 +13,7 @@
         :showEditBtn="true"
       >
         <template #status>
-          <span class="status primary">{{ form.statusLabel }}</span>
+          <span :class="['status', form.status ? 'primary' : 'danger']">{{ form.statusLabel }}</span>
         </template>
         <template #extraButtons>
           <!-- <el-button v-if="form.id" size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
