@@ -210,6 +210,7 @@ export default {
             width: 100,
             buttons: [{
               name: '下载',
+              show: (row) => row.zipStatus === '20',
               click: (rowIndex, row) => {
                 this.handleDownload(row);
               },
