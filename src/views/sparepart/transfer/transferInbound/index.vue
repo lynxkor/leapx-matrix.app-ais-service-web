@@ -218,7 +218,24 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'transferOutboundCode', label: '调拨出库单号', visible: true, width: 200 },
+          {
+            props: 'transferOutboundCode',
+            label: '调拨出库单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/transfer/transferOutbound/edit',
+                  query: {
+                    id: row.transferOutboundId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180 },
           { props: 'inboundDealerName', label: '入库门店名称', visible: true, width: 200 },
           { props: 'inboundWarehouseName', label: '入库仓库', visible: true, width: 200 },
