@@ -30,14 +30,14 @@
     <template v-slot:footer>
       <div class="dialog-footer">
         <el-button size="small" @click="$emit('update:visible', false)"
-          >取 消</el-button
+          >取消</el-button
         >
         <el-button
           size="small"
           :loading="submitLoading"
           type="primary"
           @click="submit"
-          >确 定</el-button
+          >确定</el-button
         >
       </div>
     </template>

@@ -156,6 +156,7 @@ export default {
       removeDetail(ids).then((d) => {
         this.$message.success('删除成功');
         this.getTableData();
+        this.$emit('refresh');
       }).catch(() => {
         this.$message({
           type: 'error',

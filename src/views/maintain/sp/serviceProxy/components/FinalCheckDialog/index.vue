@@ -366,7 +366,7 @@
 
     <template v-slot:footer>
       <div class="dialog-footer">
-        <el-button size="small" @click="close">取 消</el-button>
+        <el-button size="small" @click="close">取消</el-button>
         <el-button size="small" :loading="submitLoading" type="primary" @click="submit">终检</el-button>
       </div>
     </template>

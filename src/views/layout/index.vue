@@ -226,8 +226,8 @@
       </el-form>
       <template v-slot:footer>
         <span  class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="onSubmit">确 定</el-button>
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="onSubmit">确定</el-button>
         </span>
       </template>
     </el-dialog>

@@ -8,7 +8,7 @@
         <div class="table-section-header">
           <h3>费用估算</h3>
         </div>
-        <el-form :inline="true" label-width="150px" class="form-edit">
+        <el-form :inline="true" class="form-edit">
           <el-form-item label="本次维修估算费用：">
             {{ costCountResp.maintenanceCostEstimation }}
           </el-form-item>
