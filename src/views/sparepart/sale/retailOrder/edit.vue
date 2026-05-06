@@ -36,10 +36,15 @@
                 <el-form-item label="仓库名称：" prop="warehouseName">
                   <el-input placeholder="请输入" v-model="form.warehouseName" disabled />
                 </el-form-item>
-                <el-form-item label="VIN：" prop="vin">
+                <el-form-item label="VIN：" prop="vin" v-if="form.customerType === '10'">
                   <fetch-select :remote-method="getVinList" remote v-model="form.vin" placeholder="请输入vin"
                     labelKey="vin" valueKey="vin" clearable filterable :disabled="isEditing"
                     @change="handleVinChange" />
+                </el-form-item>
+                <el-form-item label="客户编码：" prop="customerCode" v-if="form.customerType === '20'">
+                  <fetch-select :remote-method="getCustomerInfo" remote v-model="form.customerCode" placeholder="请输入customerCode"
+                    labelKey="customerName" valueKey="customerCode" clearable filterable :disabled="isEditing"
+                    @change="handleCustomerChange" />
                 </el-form-item>
                 <el-form-item label="客户名称：" prop="customerName">
                   <el-input placeholder="请输入" v-model="form.customerName" disabled />
@@ -478,7 +483,7 @@
 
 <script>
 import {
-  spareParkList, getMileage, getVehicleProfile, getDetail, addOrUpdate, retailPaymentRecordPage,
+  spareParkList, getMileage, getVehicleProfile, getCustomerInfo, getDetail, addOrUpdate, retailPaymentRecordPage,
   retailOrderDetailPage, addOrUpdateRetailOrderDetail, deleteRetailOrderDetail, confirmOrder,
   cancelOrder, signOrder, cancelSignOrder, settleOrder, cancelSettleOrder, reverseSettleOrder, refundOrder
 } from '@/api/sparepart/sale/retailOrder/index';
@@ -716,8 +721,8 @@ export default {
         vin: customerType === '10' // 对车主
           ? [{ required: true, message: '请输入后6位VIN', trigger: 'blur' }]
           : [],
-        customerContactInfo: customerType === '20' // 对公
-          ? [{ required: true, message: '请输入客户联系信息', trigger: 'blur' }]
+        customerCode: customerType === '20' // 对公
+          ? [{ required: true, message: '请输入客户编码', trigger: 'blur' }]
           : [],
       };
     }
@@ -809,12 +814,26 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
+    async handleCustomerChange (val, ele) {
+      this.form.customerName = ele.customerName;
+      this.form.customerCode = ele.customerCode;
+    },
+
     async getVinList (query) {
       if (!query || query.length < 6) {
         return [];
       }
       try {
         const res = await getVehicleProfile({ searchVin: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+
+    async getCustomerInfo (query) {
+      try {
+        const res = await getCustomerInfo({ dealerCode: query });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
