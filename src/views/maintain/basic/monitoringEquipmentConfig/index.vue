@@ -153,8 +153,7 @@ const defaultForm = {
   remark: '',
   createTime: '',
   channelName: '',
-  dealerCode: '',
-  hasDevicePurpose: true
+  dealerCode: ''
 };
 
 const pageSize = 20;

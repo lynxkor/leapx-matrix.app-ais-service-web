@@ -374,20 +374,20 @@
       <div class="table-section">
         <div class="table-section-header">
           <h3>添加故障模块</h3>
-          <base-search
-            style="width: 450px;"
-            filterable
-            clearable
-            remote
-            :placeholder="form.currentFault ? '请输入VRT/VFG/CCC模糊搜索' : '当前工单为已提交结算或者不存在故障，无需添加CCC'"
-            :remote-method="getAlertModule"
-            @change="handleAlertModuleChange"
-            collapse-tags
-            value-key="id"
-            label-key="name"
-            :disabled="formDisabled || !form.currentFault"
-          />
         </div>
+        <base-search
+          style="width: 450px;margin-bottom: 10px;"
+          filterable
+          clearable
+          remote
+          :placeholder="form.currentFault ? '请输入VRT/VFG/CCC模糊搜索' : '当前工单为已提交结算或者不存在故障，无需添加CCC'"
+          :remote-method="getAlertModule"
+          @change="handleAlertModuleChange"
+          collapse-tags
+          value-key="id"
+          label-key="name"
+          :disabled="formDisabled || !form.currentFault"
+        />
         <vxe-table
           ref="faultTable"
           :data="faultTableData"

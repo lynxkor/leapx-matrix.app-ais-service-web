@@ -13,7 +13,7 @@
         :showEditBtn="true"
       >
         <template #status>
-          <span class="status primary">{{ form.statusLabel }}</span>
+          <span :class="['status', form.status ? 'primary' : 'danger']">{{ form.statusLabel }}</span>
         </template>
         <template #extraButtons>
           <!-- <el-button v-if="form.id" size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
@@ -257,10 +257,11 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>适配车型<el-button v-if="canAddOrUpdate" type="primary" size="small" @click.stop="handleModel">适配车型</el-button></h2>
+              <h2>适配车型</h2>
               <el-button v-if="canAddOrUpdate && isEditing" size="small" icon="el-icon-plus" @click="handleAddRow('cx')">添加</el-button>
             </div>
             <div class="common-section-body">
+              <el-button v-if="canAddOrUpdate" type="primary" size="small" plain @click.stop="handleModel">适配车型</el-button>
               <div class="common-section-table">
                 <edit-table
                   ref="editTable"

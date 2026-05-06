@@ -52,7 +52,7 @@
       <!-- 底部按钮 -->
       <template v-slot:footer>
         <div class="dialog-footer">
-          <el-button size="small" @click="close">取 消</el-button>
+          <el-button size="small" @click="close">取消</el-button>
           <el-button size="small" type="primary" :loading="submitLoading" @click="submit">出 库</el-button>
         </div>
       </template>

@@ -141,8 +141,8 @@
 
     <!-- 弹窗底部按钮 -->
     <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="handleClose">取 消</el-button>
-        <el-button type="primary" size="small" @click="handleConfirm">确 定</el-button>
+        <el-button size="small" @click="handleClose">取消</el-button>
+        <el-button type="primary" size="small" @click="handleConfirm">确定</el-button>
     </div>
     </el-dialog>
   </template>

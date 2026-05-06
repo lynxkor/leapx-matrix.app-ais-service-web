@@ -18,7 +18,7 @@
             <span>天，不允许提报，并提醒：您的保修单驳回日期距离当天已经超过{{ form.warrantyReSubmissionDaysConfig }}天，不允许提报</span>
           </el-form-item>
           <el-form-item class="form-item-full">
-            <el-button size="small" type="primary" :loading="loading" @click="submit">确 定</el-button>
+            <el-button size="small" type="primary" :loading="loading" @click="submit">确定</el-button>
           </el-form-item>
         </el-form>
       </div>

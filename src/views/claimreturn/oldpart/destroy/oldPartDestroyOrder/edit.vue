@@ -125,8 +125,8 @@
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button size="small" @click="dialogFormVisible = false">取 消</el-button>
-          <el-button size="small" :loading="loadingDialog" type="primary" @click="executeDestroy">确 定</el-button>
+          <el-button size="small" @click="dialogFormVisible = false">取消</el-button>
+          <el-button size="small" :loading="loadingDialog" type="primary" @click="executeDestroy">确定</el-button>
         </div>
       </el-dialog>
       <!-- 旧件销毁审批 -->
@@ -143,8 +143,8 @@
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button size="small" @click="dialogFormVisible2 = false">取 消</el-button>
-          <el-button size="small" type="primary" @click="approveSubmit">确 定</el-button>
+          <el-button size="small" @click="dialogFormVisible2 = false">取消</el-button>
+          <el-button size="small" type="primary" @click="approveSubmit">确定</el-button>
         </div>
       </el-dialog>
     </template>

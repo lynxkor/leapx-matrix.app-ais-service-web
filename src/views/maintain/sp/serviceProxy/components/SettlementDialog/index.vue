@@ -24,8 +24,8 @@
     </el-form>
 
     <span slot="footer" class="dialog-footer">
-      <el-button size="small" @click="handleClose">取 消</el-button>
-      <el-button size="small" type="primary" @click="handleConfirm">确 定</el-button>
+      <el-button size="small" @click="handleClose">取消</el-button>
+      <el-button size="small" type="primary" @click="handleConfirm">确定</el-button>
     </span>
   </el-dialog>
 </template>

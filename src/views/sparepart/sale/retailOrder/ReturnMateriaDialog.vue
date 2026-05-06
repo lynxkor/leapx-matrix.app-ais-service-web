@@ -32,7 +32,7 @@
         <!-- 底部按钮 -->
         <template v-slot:footer>
             <div class="dialog-footer">
-                <el-button size="small" @click="dialogVisible = false">取 消</el-button>
+                <el-button size="small" @click="dialogVisible = false">取消</el-button>
             </div>
         </template>
     </el-dialog>
