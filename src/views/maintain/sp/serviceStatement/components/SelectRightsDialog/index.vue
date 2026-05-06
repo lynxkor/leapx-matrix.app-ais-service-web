@@ -37,7 +37,7 @@
     </div>
     <template v-slot:footer>
       <div class="dialog-footer">
-        <el-button size="small" @click="close">取 消</el-button>
+        <el-button size="small" @click="close">取消</el-button>
         <el-button size="small" :loading="submitLoading" :disabled="!hasSelectedItems" type="primary" @click="confirmSubmit">核销选中权益</el-button>
       </div>
     </template>

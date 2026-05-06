@@ -40,7 +40,7 @@
     <!-- 底部按钮 -->
     <template v-slot:footer>
       <div class="dialog-footer">
-        <el-button size="small" @click="close">取 消</el-button>
+        <el-button size="small" @click="close">取消</el-button>
         <el-button type="primary" size="small" :loading="loading" @click="handleSave">保 存</el-button>
       </div>
     </template>
