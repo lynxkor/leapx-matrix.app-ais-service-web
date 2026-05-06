@@ -183,6 +183,13 @@ export default {
       return [];
     },
     handleClose () {
+      this.selectedRows = [];
+      this.searchForm = {
+        deviceSerialName: '',
+        channelName: '',
+        dealerCode: '',
+        hasDevicePurpose: false
+      };
       this.$emit('close');
     },
 
