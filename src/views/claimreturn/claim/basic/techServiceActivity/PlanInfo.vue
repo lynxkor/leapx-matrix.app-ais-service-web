@@ -19,7 +19,7 @@
           }"
           close-tip="确定删除该方案吗？"
           closeText="删除"
-          :disabled="!isEditing"
+          :disabled="!isEditing || !isDraft"
           @remove="onRemove"
           @add="onTabAdd"
           :menus="menus"
@@ -33,6 +33,7 @@
             基础信息
           </div>
           <el-form
+            v-if="isDraft"
             :inline="true"
             :model="form"
             :rules="rules"
@@ -138,6 +139,41 @@
               />
             </el-form-item>
           </el-form>
+          <el-form
+            v-else
+            :inline="true"
+            class="form-detail"
+          >
+            <el-form-item label="方案名称：">
+              {{ form.schemeName }}
+            </el-form-item>
+            <el-form-item v-if="!isServiceCareActivity" label="是否允许修改旧件：">
+              {{ form.allowModifyOldPart ? '是' : '否' }}
+            </el-form-item>
+            <el-form-item label="是否启用：">
+              {{ form.status ? '是' : '否' }}
+            </el-form-item>
+            <template v-if="!isServiceCareActivity">
+            <el-form-item label="主因零部件：">
+              {{ form.mainPartName }}
+            </el-form-item>
+            <el-form-item label="主因供应商：">
+              {{ form.mainSupplierName }}
+            </el-form-item>
+            <el-form-item label="VRT名称：">
+              {{ form.vrtName }}
+            </el-form-item>
+            <el-form-item label="VFG名称：">
+              {{ form.vfgName }}
+            </el-form-item>
+            <el-form-item label="责任部门：">
+              {{ form.responsibleDept }}
+            </el-form-item>
+            </template>
+            <el-form-item style="width:100%" label="方案说明：">
+              {{ form.description }}
+            </el-form-item>
+          </el-form>
 
           <div
             class="common-section-header"
@@ -193,6 +229,10 @@ export default {
     },
     isServiceCareActivity: {
       type: Boolean,
+    },
+    activityStatus: {
+      type: String,
+      default: '',
     }
   },
   mixins: [permissions],
@@ -244,6 +284,9 @@ export default {
     };
   },
   computed: {
+    isDraft () {
+      return this.activityStatus === '0';
+    },
     loadParams () {
       return {
         activityId: this.id,
@@ -273,6 +316,7 @@ export default {
         activityId: this.id,
       }).then(res => {
         defer.resolve(res);
+        this.schemeId = res;
       });
     },
     // 更新方案
@@ -312,8 +356,13 @@ export default {
       });
     },
     onRemove (item, index, defer) {
+      const prevSchemeId = this.schemeId;
       serviceActivitySchemeDelete([item.value]).then(() => {
         this.$message.success('操作成功');
+        defer.resolve();
+      }).catch(() => {
+        defer.reject();
+        this.schemeId = prevSchemeId;
       });
     },
     // 主因零部件下拉接口
