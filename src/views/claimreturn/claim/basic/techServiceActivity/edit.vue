@@ -519,3 +519,15 @@ export default {
   }
 };
 </script>
+<style lang="scss" scoped>
+::v-deep .vxe-table--empty-placeholder {
+  justify-content: flex-start;
+}
+::v-deep .vxe-table--empty-content {
+  width: auto;
+}
+::v-deep .m-vxe-table-empty-text {
+  text-align: left;
+  padding: 0 12px;
+}
+</style>

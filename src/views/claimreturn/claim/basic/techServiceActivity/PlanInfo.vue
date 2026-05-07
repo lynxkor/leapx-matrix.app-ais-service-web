@@ -18,6 +18,7 @@
             disableFirst: false,
           }"
           close-tip="确定删除该方案吗？"
+          closeText="删除"
           :disabled="!isEditing"
           @remove="onRemove"
           @add="onTabAdd"
