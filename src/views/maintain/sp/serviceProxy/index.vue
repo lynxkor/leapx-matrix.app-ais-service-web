@@ -74,6 +74,52 @@
             filterable
           />
         </el-form-item>
+        <el-form-item label="签字状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="SignStatusEnum"
+            v-model="form.signStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="签字渠道">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="SignChannelEnum"
+            v-model="form.signChannelList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="签字生成时间">
+          <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+            v-model="form.signGeneratedOn"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="签字完成时间">
+          <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+            v-model="form.signCompletedOn"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-show="canList"
@@ -281,6 +327,10 @@ export default {
           },
           { props: 'expectFinishAt', label: '预计交车时间', visible: true, width: 200 },
           { props: 'creatorName', label: '登记人', visible: true, width: 200 },
+          { props: 'signStatusLabel', label: '签字状态', visible: true, width: 200 },
+          { props: 'signChannelLabel', label: '签字渠道', visible: true, width: 200 },
+          { props: 'signGeneratedOn', label: '签字生成时间', visible: true, width: 200 },
+          { props: 'signCompletedOn', label: '签字完成时间', visible: true, width: 200 },
           { props: 'createTime', label: '开单时间', visible: true, width: 200, sortable: true, fixed: 'right' },
         ],
         total: 0
@@ -426,6 +476,22 @@ export default {
         if (this.form.createTime.length > 1) {
           data.createTimeStart = this.form.createTime[0];
           data.createTimeEnd = this.form.createTime[1];
+        }
+      }
+      // 处理签字生成时间
+      if (this.form.signGeneratedOn) {
+        delete data.signGeneratedOn;
+        if (this.form.signGeneratedOn.length > 1) {
+          data.signGeneratedOnStart = this.form.signGeneratedOn[0];
+          data.signGeneratedOnEnd = this.form.signGeneratedOn[1];
+        }
+      }
+      // 处理签字完成时间
+      if (this.form.signCompletedOn) {
+        delete data.signCompletedOn;
+        if (this.form.signCompletedOn.length > 1) {
+          data.signCompletedOnStart = this.form.signCompletedOn[0];
+          data.signCompletedOnEnd = this.form.signCompletedOn[1];
         }
       }
       data.sortColumns = ([
