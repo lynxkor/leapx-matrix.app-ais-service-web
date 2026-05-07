@@ -578,10 +578,6 @@ export default {
             });
             this.getData();
           }).catch(() => {
-            this.$message({
-              type: 'error',
-              message: '失效失败!'
-            });
           });
         }
       }).catch(() => {});

@@ -70,7 +70,7 @@
                             <td style="width: 50%; text-align: left;">开 单 人：{{ info.submitterName }}</td>
                         </tr>
                         <tr>
-                            <td style="width: 50%; text-align: left;">打 印 人：sitcrmadmin超管（勿动）</td>
+                            <td style="width: 50%; text-align: left;">打 印 人：{{ info.currentUserName }}</td>
                             <td style="width: 50%; text-align: left;">入 库 人：{{ info.inboundOperatorName }}</td>
                         </tr>
                     </tbody>

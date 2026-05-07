@@ -43,7 +43,7 @@
                 </el-form-item>
                 <el-form-item label="客户编码：" prop="customerCode" v-if="form.customerType === '20'">
                   <fetch-select :remote-method="getCustomerInfo" remote v-model="form.customerCode" placeholder="请输入customerCode"
-                    labelKey="customerName" valueKey="customerCode" clearable filterable :disabled="isEditing"
+                    labelKey="customerCode" valueKey="customerCode" subLabelKey="customerName" clearable filterable :disabled="isEditing"
                     @change="handleCustomerChange" />
                 </el-form-item>
                 <el-form-item label="客户名称：" prop="customerName">
@@ -834,7 +834,7 @@ export default {
 
     async getCustomerInfo (query) {
       try {
-        const res = await getCustomerInfo({ dealerCode: query });
+        const res = await getCustomerInfo({ dealerCode: this.form.companyCode, customerCode: query });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);

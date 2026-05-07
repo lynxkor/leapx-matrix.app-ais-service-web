@@ -14,7 +14,12 @@
     min-height="0"
     max-height="400px"
     >
-    <vxe-column field="name" title="备件名称" ></vxe-column>
+    <vxe-column field="name" title="备件名称" >
+      <template #default="{ row }">
+        <el-link v-if="row.maintenancePartId" type="success" :href="`/service/maintain/basic/maintenancePartData/edit?id=${row.maintenancePartId}`" target="_blank">{{ row.name }}</el-link>
+        <span v-else>{{ row.name }}</span>
+      </template>
+    </vxe-column>
     <vxe-column field="mileageTypeLabel" title="里程类型" ></vxe-column>
     <vxe-column field="nextMaintenanceDate" title="下次保养日期" >
       <template #default="{ row, rowIndex }">
@@ -198,7 +203,7 @@ export default {
     currentPageChange (current) {
       this.current = current;
       this.getDetailPageApi();
-    },
+    }
   },
 };
 

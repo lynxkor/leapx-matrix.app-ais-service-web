@@ -15,6 +15,9 @@
         <template #status>
           <span :class="['status', form.status ? 'primary' : 'danger']">{{ form.statusLabel }}</span>
         </template>
+        <template #extraButtons>
+          <el-button :disabled="form.canInvalid === 0" type="primary" size="small" @click="handleFailure">失效</el-button>
+        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
@@ -50,7 +53,7 @@
                   />
                 </el-form-item>
                 <el-form-item label="门店名称：" v-if="form.pricingModel != 'standardPrice'">
-                  {{ form.dealerName }}
+                  <el-input v-model="form.dealerName" placeholder="请输入" clearable disabled />
                 </el-form-item>
                 <el-form-item label="备件编码：" prop="sparePartCode" v-if="form.pricingModel != 'dealerPriceRatio'">
                   <fetch-select
@@ -69,7 +72,7 @@
                   />
                 </el-form-item>
                 <el-form-item label="备件名称：" v-if="form.pricingModel != 'dealerPriceRatio'">
-                  {{ form.sparePartName }}
+                  <el-input v-model="form.sparePartName" placeholder="请输入" clearable disabled />
                 </el-form-item>
                 <el-form-item label="采购价格：" prop="dealerPurchasePrice" v-if="form.pricingModel != 'dealerPriceRatio'">
                   <el-input
@@ -97,7 +100,7 @@
                   />
                 </el-form-item>
                 <el-form-item label="生效结束时间：" v-if="form.pricingModel != 'standardPrice'">
-                  {{ form.effectiveEndDatetime }}
+                  <el-input v-model="form.effectiveEndDatetime" placeholder="请输入" clearable disabled />
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
@@ -159,7 +162,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/basic/sparePartPurchasePrice/index';
+import { getDetail, addOrUpdate, enableItem } from '@/api/sparepart/basic/sparePartPurchasePrice/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -292,6 +295,20 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    handleFailure () {
+      this.$prompt('请输入失效说明', '失效', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      }).then(({ value }) => {
+        enableItem({ idSet: [this.form.id], statusDesc: value, status: 0 }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '失效成功!'
+          });
+          this.$refs.containerRef.loadDetail();
+        });
+      });
     }
   }
 };
