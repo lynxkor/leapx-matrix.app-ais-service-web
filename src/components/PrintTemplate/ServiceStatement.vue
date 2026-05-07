@@ -60,7 +60,7 @@
                     <td>车牌号码</td>
                     <td>{{ info.serviceProxyResp?.carPlate }}</td>
                     <td>型号</td>
-                    <td>{{ info.serviceProxyResp?.vehSeriesName }}</td>
+                    <td>{{ info.serviceProxyResp?.vehModelName }}</td>
                   </tr>
                   <tr>
                     <td>进店里程(Km)</td>
