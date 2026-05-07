@@ -313,7 +313,7 @@
               <div class="common-title">基础信息</div>
               <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="保修审计单：">
-                  <el-link type="primary" :href="`/claimreturn/claim/warrantyApply/edit?id=${form.warrantyAuditDetail?.auditId}`" target="_blank">{{ form.warrantyAuditDetail?.auditCode }}</el-link>
+                  <el-link type="primary" :href="`/claimreturn/claim/warrantyAudit/edit?id=${form.warrantyAuditDetail?.auditId}`" target="_blank">{{ form.warrantyAuditDetail?.auditCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="保修审计明细：">
                   {{ form.warrantyAuditDetail?.auditDetailCode }}

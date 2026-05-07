@@ -110,26 +110,16 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    ref="partSelectRef"
-                    style="width: 300px;"
-                    :remote-method="querySpareParts"
-                    remote
-                    placeholder="请选择零件"
-                    clearable
-                    filterable
-                    value-key="id"
-                    label-key="partName"
-                    @change="handlePartSelect"
-                  />
-                  <el-button
-                    type="primary"
-                    size="small"
-                  >
-                    添加
-                  </el-button>
-                </div>
+                <base-search
+                  style="width: 360px;"
+                  :remote-method="querySpareParts"
+                  remote
+                  placeholder="搜索维修项目代码、名称、拼音简码"
+                  clearable
+                  value-key="id"
+                  label-key="name"
+                  @change="handlePartSelect"
+                />
               </div>
               <div class="common-section-table">
                 <vxe-table
@@ -162,9 +152,10 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>适配车型&nbsp;<el-button type="primary" size="small" @click="modelDialogVisible = true">添加</el-button></h2>
+              <h2>适配车型</h2>
             </div>
             <div class="common-section-body">
+              <el-button type="primary" size="small" plain @click="modelDialogVisible = true">添加</el-button>
               <div class="common-section-table">
                 <vxe-table
                   ref="tableCx"
@@ -211,6 +202,7 @@ import { getDetail, addOrUpdate, deletePartItem, addPartItem, addPartVehModel, d
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
+import BaseSearch from '@/libs/components/BaseSearch';
 import { getEnum, sparePartList } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -255,7 +247,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    ModelDialog
+    ModelDialog,
+    BaseSearch
   },
   computed: {
     _id () {
