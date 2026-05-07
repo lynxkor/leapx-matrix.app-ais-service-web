@@ -594,7 +594,7 @@ export default {
           { required: true, message: '请输入入库门店编码', trigger: 'change' }
         ],
         inboundContactName: [
-          { required: false, message: '请输入入库方联系人', trigger: 'change' }
+          { required: true, message: '请输入入库方联系人', trigger: 'change' }
         ],
       }
     };

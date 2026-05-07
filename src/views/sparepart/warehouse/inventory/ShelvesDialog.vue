@@ -67,10 +67,10 @@ export default {
       this.$emit('update:visible', false);
     },
     async submit () {
-      // if (this.tableData.some(item => item.operateQty > item.sharedQty)) {
-      //   this.$message.warning('下架库存不能大于共享库存');
-      //   return;
-      // }
+      if (this.tableData.some(item => item.operateQty > item.sharedQty)) {
+        this.$message.warning('下架库存不能大于共享库存');
+        return;
+      }
       const params = {
         partList: this.tableData.map(item => ({
           inventoryId: item.id,

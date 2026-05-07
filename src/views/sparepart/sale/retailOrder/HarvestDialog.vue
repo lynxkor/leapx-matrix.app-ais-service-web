@@ -12,7 +12,7 @@
             </el-form-item>
         </el-form>
         <!-- 数据表格 -->
-        <div class="table-section">
+        <div class="table-section" v-loading="loading">
             <vxe-table ref="workTable" :data="tableData" stripe show-overflow resizable border="inner" size="medium">
                 <vxe-column title="序号" width="12.5%" align="center">
                     <template #default="{ rowIndex }">
@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import { collectPayment } from '@/api/sparepart/sale/retailOrder/index';
+import { collectPayment, retailPaymentRecordPage } from '@/api/sparepart/sale/retailOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
 
@@ -95,6 +95,7 @@ export default {
       // 模拟表格数据
       tableData: [],
       formData: {},
+      loading: false
     };
   },
   watch: {
@@ -115,16 +116,38 @@ export default {
       }
       return [];
     },
-    // 1. 初始化：打开弹窗时，强制显示一笔“其他”的空记录
-    open () {
-      this.tableData = [
-        {
-          paymentMethod: '60', // 默认为其他
-          actualPaymentAmount: '', // 空值
-          invoiceType: '',
-          invoiceNumber: ''
+    // 1. 初始化：先调用收款明细接口，如果有数据就直接赋值，没有数据再初始化一条空记录
+    async open () {
+      this.loading = true;
+      try {
+        const res = await retailPaymentRecordPage({ retailOrderId: this.form.id });
+        // 如果有数据，直接赋值到表格
+        if (res.records && res.records.length > 0) {
+          this.tableData = res.records;
+        } else {
+          // 没有数据，初始化一条空记录
+          this.tableData = [
+            {
+              paymentMethod: '60', // 默认为其他
+              actualPaymentAmount: '', // 空值
+              invoiceType: '',
+              invoiceNumber: ''
+            }
+          ];
         }
-      ];
+        this.loading = false;
+      } catch (error) {
+        // 接口调用失败，初始化一条空记录
+        this.tableData = [
+          {
+            paymentMethod: '60',
+            actualPaymentAmount: '',
+            invoiceType: '',
+            invoiceNumber: ''
+          }
+        ];
+        this.loading = false;
+      }
     },
 
     // 2. 新增：点击新增，追加一行空记录

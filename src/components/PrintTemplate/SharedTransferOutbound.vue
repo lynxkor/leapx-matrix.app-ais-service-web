@@ -32,7 +32,7 @@
                         <td>{{ info.logisticsRemark }}</td>
                         <td>{{ info.inboundDealerName }}</td>
                         <td>{{ info.inboundWarehouseName }}</td>
-                        <td>{{ info.inboundContactPerson }}</td>
+                        <td>{{ info.applicantName }}</td>
                     </tr>
                 </tbody>
             </table>

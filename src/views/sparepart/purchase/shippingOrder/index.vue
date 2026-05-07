@@ -13,16 +13,12 @@
         <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="发运日期">
-          <el-date-picker
-            v-model="form.shippingDate"
-            type="daterange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
+        <el-input
+          placeholder="请输入"
+          v-model="form.shippingDate"
+          clearable
+        />
+      </el-form-item>
       <el-form-item label="门店" v-show="this.visibleCount === 3 || show">
         <fetch-select
           :remote-method="getDealerList"

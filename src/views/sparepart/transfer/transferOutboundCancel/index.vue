@@ -82,7 +82,7 @@
         <el-form-item label="撤销状态">
           <fetch-select
             :request="fetchOptions"
-            enumCode="TransferOutboundCancelStatusEnumCancel"
+            enumCode="TransferOutboundCancelStatusEnum"
             v-model="form.cancelStatusList"
             placeholder="请选择"
             clearable
@@ -642,7 +642,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size, isCancel: true })
+      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {

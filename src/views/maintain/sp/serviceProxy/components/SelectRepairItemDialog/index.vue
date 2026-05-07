@@ -747,7 +747,7 @@ export default {
         isWarranty: selectedItem.isWarranty || 0,
         isProdType: selectedItem.isProdType || 0
       };
-      this.updateCheckoutType(newItem, this.partRepairType);
+
       this.itemData.push(newItem);
 
       // 如果维修项目带有关联零件列表，自动添加这些零件
@@ -781,8 +781,6 @@ export default {
             isBindltem: 1,
             autoImport: 1 // 标记为自动导入
           };
-
-          this.updateCheckoutType(newPart, this.partRepairType);
           this.partData.push(newPart);
         });
       }
@@ -842,7 +840,7 @@ export default {
         isBindltem: 0, // 手动添加的零件，标记为非自动导入
         packageCode: selectedPart.packageCode || ''
       };
-      this.updateCheckoutType(newPart, this.partRepairType);
+
       this.partData.push(newPart);
 
       // 清空输入
@@ -1157,17 +1155,6 @@ export default {
       this.partData = this.partData.filter(part => part.packageId !== row.packageId);
       this.itemData = this.itemData.filter(item => item.packageId !== row.packageId);
     },
-    updateCheckoutType (row, repairItemTypeId) {
-      if (repairItemTypeId === MaintenanceTypeEnum.WARRANTY) {
-        const target = this.itemOptions.checkoutTypeName.find(item => item.checkoutTypeId === CheckoutTypeEnum.WARRANTY);
-        row.checkoutTypeId = CheckoutTypeEnum.WARRANTY;
-        row.checkoutTypeName = target.checkoutTypeName;
-      } else {
-        const target = this.itemOptions.checkoutTypeName?.[0];
-        row.checkoutTypeId = CheckoutTypeEnum.CONTRACT;
-        row.checkoutTypeName = target.checkoutTypeName;
-      }
-    },
     // ==================== 维修项目表格事件处理 ====================
     // 维修类型变化
     handleRepairItemTypeChange (row) {
@@ -1175,7 +1162,6 @@ export default {
       if (selected) {
         row.repairItemTypeId = selected.repairItemTypeId;
       }
-      this.updateCheckoutType(row, selected.repairItemTypeId);
     },
     // 结算类型变化
     handleCheckoutTypeChange (row) {
@@ -1221,7 +1207,6 @@ export default {
       if (selected) {
         row.repairItemTypeId = selected.repairItemTypeId;
       }
-      this.updateCheckoutType(row, selected.repairItemTypeId);
     },
     // 结算类型变化
     handlePartCheckoutTypeChange (row) {

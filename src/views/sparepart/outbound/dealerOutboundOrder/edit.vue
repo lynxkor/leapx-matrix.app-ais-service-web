@@ -251,8 +251,7 @@
                     placeholder="请选择"
                     clearable
                     value-key="partCode"
-                    label-key="partCode"
-                    sub-label-key="partName"
+                    label-key="partName"
                     @change="handleAddTableData"
                     :disabled="!orderStatusType"
                   />
