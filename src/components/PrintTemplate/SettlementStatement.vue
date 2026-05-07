@@ -61,7 +61,7 @@
                                         <td>客户电话</td>
                                         <td id="mcs_customerphone">{{ info.customerContactInfo }}</td>
                                         <td>当前里程：</td>
-                                        <td id="mcs_nowmileage">{{ info.customerContactInfo }}</td>
+                                        <td id="mcs_nowmileage">{{ info.currentMileage }}</td>
                                         <td>销售日期：</td>
                                         <td id="mcs_saleson">{{ info.saleDate }}</td>
                                     </tr>

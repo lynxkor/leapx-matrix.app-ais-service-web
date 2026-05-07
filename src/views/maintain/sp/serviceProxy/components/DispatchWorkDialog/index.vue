@@ -476,9 +476,20 @@ export default {
         return;
       }
 
+      // 去除数据中为空字符串的属性
+      const target = this.selectedRows.map(item => {
+        const newItem = {};
+        for (const key in item) {
+          if (item[key] !== '') {
+            newItem[key] = item[key];
+          }
+        }
+        return newItem;
+      });
+
       try {
         this.dispatchLoading = true;
-        dispatchWorkers(this.selectedRows).then(res => {
+        dispatchWorkers(target).then(res => {
           this.initData();
           this.$message.success('派工成功');
           this.$refs.dispatchTable.clearCheckboxRow();

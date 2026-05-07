@@ -193,6 +193,9 @@ export function refundOrder (data) {
 export function retailOrderDetailPage (data) {
   return api.jsonPost(prefixDetail + 'page', data);
 }
+export function retailOrderDetailPrintPage (data) {
+  return api.jsonPost(prefixDetail + 'printPage', data);
+}
 
 /**
  * 备附件销售单明细表新增/编辑

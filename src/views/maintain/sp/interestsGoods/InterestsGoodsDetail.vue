@@ -18,9 +18,9 @@
           <el-form-item label="结算类型：" prop="checkoutTypeName" class="is-required">
             {{ repairDetail.checkoutTypeName }}
           </el-form-item>
-          <el-form-item label="保修类型：" prop="warrantyTypeId">
+          <!-- <el-form-item label="保修类型：" prop="warrantyTypeId">
             {{ repairDetail.warrantyTypeName }}
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="工时单价：" prop="unitPrice">
             {{ repairDetail.unitPrice || 0 }}
           </el-form-item>

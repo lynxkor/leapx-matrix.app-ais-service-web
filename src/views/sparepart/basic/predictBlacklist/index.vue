@@ -9,44 +9,44 @@
       label-width="150px"
       class="ais-search-form"
     >
-        <el-form-item label="备件">
-          <fetch-select
-              :remote-method="getSparePart"
-              remote
-              v-model="form.sparePartIdList"
-              placeholder="请输入编码或名称"
-              labelKey="partName"
-              valueKey="id"
-              subLabelKey="partCode"
-              clearable
-              multiple
-              collapseTags
-              filterable
-                />
-        </el-form-item>
+      <el-form-item label="备件">
+        <fetch-select
+            :remote-method="getSparePart"
+            remote
+            v-model="form.sparePartIdList"
+            placeholder="请输入编码或名称"
+            labelKey="partName"
+            valueKey="id"
+            subLabelKey="partCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
+              />
+      </el-form-item>
+      <el-form-item label="名单类型 ">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="PredictFilterTypeEnum"
+          v-model="form.filterTypeList"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
+        />
+      </el-form-item>
+      <el-form-item label="模式 " v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="PredictTypeEnum"
+          v-model="form.typeList"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
+        />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="名单类型 "  v-show="this.visibleCount === 3 || show">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="PredictFilterTypeEnum"
-            v-model="form.filterTypeList"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
-        <el-form-item label="模式 ">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="PredictTypeEnum"
-            v-model="form.typeList"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
         <el-form-item label="门店">
           <fetch-select
             :remote-method="getDealerList"

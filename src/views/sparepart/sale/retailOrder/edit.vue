@@ -810,6 +810,7 @@ export default {
         console.log('res', JSON.stringify(res));
         this.form.latestVisitMileage = res.latestVisitMileage;
         this.form.iotMileage = res.iotMileage;
+        this.form.currentMileage = res.iotMileage;
       } catch (error) {
         console.error('Error fetching series list:', error);
       }
