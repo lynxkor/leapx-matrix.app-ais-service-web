@@ -426,7 +426,7 @@ export default {
         // 添加收款记录：结算类型为自费/保险/内部结算，状态为待收款
         addRecord: baseType.includes(statementType) && statementStatus === 30,
         // 重推签字短信
-        canResendSignSms: signStatus === 10 && signGeneratedOn !== '',
+        canResendSignSms: signStatus === 10 && signGeneratedOn,
       };
     }
   },
