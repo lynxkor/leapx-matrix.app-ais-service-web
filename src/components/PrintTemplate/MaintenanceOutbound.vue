@@ -46,9 +46,9 @@
                 <tbody id="data-main">
                     <tr>
                         <td>{{info.code}}</td>
-                        <td>{{info.outboundStatusLabel}}</td>
+                        <td>维修出库</td>
                         <td>{{info.dealerName}}</td>
-                        <td>--</td>
+                        <td>{{info.warehouseName}}</td>
                     </tr>
                 </tbody>
             </table>
