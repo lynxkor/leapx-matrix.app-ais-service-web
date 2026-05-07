@@ -15,6 +15,9 @@
         <template #status>
           <span :class="['status', form.status ? 'primary' : 'danger']">{{ form.statusLabel }}</span>
         </template>
+        <template #extraButtons>
+          <el-button :disabled="form.canInvalid === 0" type="primary" size="small" @click="handleFailure">失效</el-button>
+        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
@@ -159,7 +162,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/basic/sparePartPurchasePrice/index';
+import { getDetail, addOrUpdate, enableItem } from '@/api/sparepart/basic/sparePartPurchasePrice/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -292,6 +295,20 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    handleFailure () {
+      this.$prompt('请输入失效说明', '失效', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      }).then(({ value }) => {
+        enableItem({ idSet: [this.form.id], statusDesc: value, status: 0 }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '失效成功!'
+          });
+          this.$refs.containerRef.loadDetail();
+        });
+      });
     }
   }
 };
