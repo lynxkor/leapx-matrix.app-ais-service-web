@@ -126,6 +126,7 @@ import {
 } from '@/api/claimreturn/claim/basic/serviceActivity';
 
 import permissions from '@/libs/mixins/permissions';
+import popconfirmScrollClose from '@/libs/mixins/popconfirmScrollClose';
 import { listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { cloneDeep } from 'lodash';
@@ -151,7 +152,7 @@ export default {
   components: {
     FetchSelect,
   },
-  mixins: [permissions],
+  mixins: [permissions, popconfirmScrollClose],
   computed: {
     _id () {
       return this.id || this.$route.query.id;

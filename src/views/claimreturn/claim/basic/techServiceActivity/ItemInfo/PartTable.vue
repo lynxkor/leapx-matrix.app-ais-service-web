@@ -223,6 +223,7 @@ import {
 } from '@/api/claimreturn/claim/basic/serviceActivity';
 
 import permissions from '@/libs/mixins/permissions';
+import popconfirmScrollClose from '@/libs/mixins/popconfirmScrollClose';
 import { getEnum, repairItemType } from '@/api/common';
 import { getList as sparePartSupplierList } from '@/api/sparepart/basic/sparePartSupplier';
 import { getList as partList } from '@/api/sparepart/basic/sparePart';
@@ -254,7 +255,7 @@ export default {
   components: {
     FetchSelect,
   },
-  mixins: [permissions],
+  mixins: [permissions, popconfirmScrollClose],
   computed: {
     _id () {
       return this.id || this.$route.query.id;
