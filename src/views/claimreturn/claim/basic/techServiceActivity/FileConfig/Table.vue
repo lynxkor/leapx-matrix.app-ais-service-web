@@ -35,7 +35,7 @@
           <span v-else>{{ row.quantity }}</span>
         </template>
       </vxe-column>
-      <vxe-column title="操作" :width="200" align="center" fixed="right" :resizable="false">
+      <vxe-column title="操作" :width="120" fixed="right" :resizable="false">
         <template #default="{ row, rowIndex }">
           <template v-if="eidtRowIndex === rowIndex">
             <span
@@ -64,6 +64,8 @@
             <el-popconfirm
               title="确定要删除这条记录吗？"
               @confirm="handleRemoveRow(row, rowIndex)"
+              confirm-button-text="删除"
+              confirm-button-type="danger"
               v-if="canAddOrUpdate"
             >
               <el-button
