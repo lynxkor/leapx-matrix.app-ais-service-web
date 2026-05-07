@@ -234,19 +234,21 @@
                 <tbody>
                   <tr>
                     <td style="width:120px; height:40px">客户经理确认</td>
-                    <td></td>
+                    <td>{{ info.creatorName }}</td>
                     <td style="width:120px;">收款人确认</td>
-                    <td></td>
+                    <td>{{ info.payeeName }}</td>
                     <td style="width:120px;">客户签字</td>
-                    <td></td>
+                    <td>
+                      <img v-if="signUrl" :src="signUrl"  style="width: 120px; height: 32px" />
+                    </td>
                   </tr>
                   <tr>
                     <td style="border-bottom-width:0px">日期</td>
-                    <td style="border-bottom-width:0px"></td>
+                    <td style="border-bottom-width:0px">{{ info.createTime}}</td>
                     <td style="border-bottom-width:0px">日期</td>
-                    <td style="border-bottom-width:0px"></td>
+                    <td style="border-bottom-width:0px">{{ info.receiveTime }}</td>
                     <td style="border-bottom-width:0px">日期</td>
-                    <td style="border-bottom-width:0px"></td>
+                    <td style="border-bottom-width:0px">{{ info.signCompletedOn }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -298,6 +300,7 @@
 import { getPrintInfo } from '@/api/maintain/sp/serviceStatement/index';
 import { getStoreDetailByCode } from '@/api/maintain/sp/serviceProxy/index';
 import { CheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
+import { getFileList } from '@/libs/api/attachment';
 
 export default {
   props: {
@@ -313,7 +316,8 @@ export default {
   data () {
     return {
       info: {},
-      storeInfo: {}
+      storeInfo: {},
+      signUrl: '',
     };
   },
   watch: {
@@ -328,6 +332,13 @@ export default {
     }
   },
   methods: {
+    loadAttachmentList () {
+      if (!this.id) return;
+      getFileList({ businessId: this.id, attachType: '制单签字' }).then(res => {
+        const imgUrl = res?.[0]?.fileUrl;
+        this.signUrl = imgUrl;
+      });
+    },
     getData () {
       getPrintInfo(this.id).then(res => {
         this.info = res;
@@ -339,6 +350,7 @@ export default {
         // 处理结算类型数据:保修、合同、内转不需要用户付钱,修改为0
         this.processCheckoutTypeData();
       });
+      this.loadAttachmentList();
     },
     // 格式化金额
     formatAmount (value) {
