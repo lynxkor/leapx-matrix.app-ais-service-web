@@ -26,7 +26,7 @@
       <vxe-column field="oldPartUniqueCode" title="旧件唯一码" width="180"></vxe-column>
       <vxe-column field="partCode" title="零件编码" width="150"></vxe-column>
       <vxe-column field="partName" title="零件名称" width="150"></vxe-column>
-      <vxe-column field="returnType" title="旧件返回类型" width="120"></vxe-column>
+      <vxe-column field="returnPartTypeLabel" title="旧件返还类型" width="120"></vxe-column>
       <vxe-column title="是否已返" width="120">
         <template #default="{row}">
           {{ row.isReturned ? '是' : '否' }}

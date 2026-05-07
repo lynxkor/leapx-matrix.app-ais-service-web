@@ -25,6 +25,7 @@
             placeholder: '维修项目代码/名称',
           }"
           close-tip="确定删除该项目零件吗？"
+          closeText="删除"
           :disabled="!isEditing"
           @remove="onRemove"
           @add="onTabAdd"
