@@ -2658,6 +2658,15 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/claimreturn/claim/warrantySettle/acceptedDetailReport',
+      name: 'acceptedDetailReport',
+      component: () => import('@/views/claimreturn/claim/warrantysettle/acceptedDetailReport.vue'),
+
+      meta: {
+        name: '保修结算验收明细报表',
+        noResourceUrl: true
+      }
+    }, {
       path: '/sparepart/basic/predictDealerType',
       name: 'predictDealerType',
       component: () => import('@/views/sparepart/basic/predictDealerType/index.vue'),
