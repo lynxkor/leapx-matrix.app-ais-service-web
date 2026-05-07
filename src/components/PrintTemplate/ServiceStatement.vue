@@ -92,6 +92,10 @@
                     <td style="border-bottom-width:0px">下次保养里程</td>
                     <td style="border-bottom-width:0px; text-align:left" colspan="3">{{ formatNumber(info.serviceProxyResp?.maintenanceMileage) }}</td>
                   </tr>
+                  <tr>
+                    <td style="border-bottom-width:0px">客户经理建议</td>
+                    <td style="border-bottom-width:0px; text-align:left" colspan="7">{{ info.serviceProxyResp?.testResult }}</td>
+                  </tr>
                 </tbody>
               </table>
             </td>
