@@ -5,7 +5,7 @@
       <div class="search-box">
         <el-input
           v-model="searchKey"
-          placeholder="输入代码/名称查询项目"
+          placeholder="输入代码、名称"
           prefix-icon="el-icon-search"
           size="small"
           clearable

@@ -19,7 +19,7 @@
       <div class="search-box">
         <el-input
           v-model="searchKey"
-          placeholder="请输入名称查询活动及方案"
+          placeholder="输入名称"
           prefix-icon="el-icon-search"
           size="small"
           clearable
