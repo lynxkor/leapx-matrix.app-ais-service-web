@@ -58,3 +58,11 @@ export function changeWhetherShelf (data) {
 export function deleteGoodsRepairItem (data) {
   return api.jsonPost('maintain/web/sp/goodsRepairItem/delete', data);
 }
+
+/**
+ * 校验code
+ * @param {Object} data
+ */
+export function checkCodeExist (data) {
+  return api.jsonPost(prefix + 'checkCodeExist', data);
+}

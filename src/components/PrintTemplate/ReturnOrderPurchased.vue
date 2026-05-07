@@ -68,7 +68,7 @@
                         <td rowspan="2" style="width: 50%; text-align: left; vertical-align: top;">退 货 员：</td>
                     </tr>
                     <tr>
-                        <td style="width: 50%; text-align: left;">打 印 人：sitcrmadmin超管（勿动）</td>
+                        <td style="width: 50%; text-align: left;">打 印 人：{{ info.currentUserName }}</td>
                     </tr>
                 </tbody>
             </table>

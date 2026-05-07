@@ -42,9 +42,9 @@
     <vxe-column field="finishedLabel" title="是否完成" width="160"></vxe-column>
     <vxe-column field="finishTime" title="完成时间" width="160"></vxe-column>
     <vxe-column field="actualDealerName" title="实际施工门店名称" width="160"></vxe-column>
-    <vxe-column field="workOrderNo" title="施工单号" width="160">
+    <vxe-column field="workOrderNo" title="施工单号" width="200">
       <template #default="{row}">
-        <div class="href-link" style="padding:6px 12px;" @click="handleJump(row)">{{ row.workOrderNo }}</div>
+        <div class="href-link" @click="handleJump(row)">{{ row.workOrderNo }}</div>
       </template>
     </vxe-column>
     <vxe-column title="车主手机" width="160">
@@ -57,7 +57,7 @@
     <vxe-column field="schemeId" title="施工方案" width="160"></vxe-column>
     <vxe-column field="createTime" title="创建时间" width="160"></vxe-column>
     <vxe-column field="updateTime" title="修改时间" width="160"></vxe-column>
-    <vxe-column title="操作" :width="200" align="center" fixed="right" :resizable="false">
+    <vxe-column title="操作" :width="120" fixed="right" :resizable="false">
       <template #default="{ row, rowIndex }">
         <template v-if="editRowIndex === rowIndex">
           <span
@@ -87,6 +87,8 @@
             title="确定要删除这条记录吗？"
             @confirm="handleRemoveRow(row, rowIndex)"
             v-if="canAddOrUpdate && row.finished==='0'"
+            confirm-button-text="删除"
+            confirm-button-type="danger"
           >
             <el-button
               class="action-button btn-delete"
