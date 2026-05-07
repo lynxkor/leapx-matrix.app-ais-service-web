@@ -239,6 +239,18 @@
                 <el-form-item label="零件应付金额：" prop="partPayableAmount">
                   {{ form.partPayableAmount }}
                 </el-form-item>
+                <el-form-item label="签字渠道：" prop="signChannelLabel">
+                  {{ form.signChannelLabel }}
+                </el-form-item>
+                <el-form-item label="签字生成时间：" prop="signGeneratedOn">
+                  {{ form.signGeneratedOn }}
+                </el-form-item>
+                <el-form-item label="签字完成时间：" prop="signCompletedOn">
+                  {{ form.signCompletedOn }}
+                </el-form-item>
+                <el-form-item label="短信签字链接过期时间：" prop="signUrlExpiredOn">
+                  {{ form.signUrlExpiredOn }}
+                </el-form-item>
               </el-form>
             </div>
           </section>
