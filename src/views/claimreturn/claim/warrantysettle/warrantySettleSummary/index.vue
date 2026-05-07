@@ -9,7 +9,14 @@
       class="ais-search-form"
     >
       <el-form-item label="月度">
-        <el-input v-model="form.month" placeholder="请输入" clearable maxlength="6" />
+        <el-date-picker
+          v-model="form.month"
+          type="month"
+          format="yyyyMM"
+          value-format="yyyyMM"
+          placeholder="请选择"
+          clearable
+        />
       </el-form-item>
       <el-form-item label="公司名称">
         <fetch-select
