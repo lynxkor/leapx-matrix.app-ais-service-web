@@ -239,6 +239,9 @@ export default {
                 if (row.inboundType === '1') {
                   myPath = '/sparepart/transfer/transferInbound/edit';
                 }
+                if (row.inboundType === '5') {
+                  myPath = '/sparepart/transfer/sharedTransferInbound/edit';
+                }
                 this.$router.push({
                   path: myPath,
                   query: {
