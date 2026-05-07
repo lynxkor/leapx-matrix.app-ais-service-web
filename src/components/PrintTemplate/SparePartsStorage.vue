@@ -35,7 +35,7 @@
         </div>
         <div class="el-card__header">
             <h3>本次厅店入库单详细如下：</h3><br>
-            <span id="test" style="font-size:15px">合计品项：1,合计数量：2，合计原总价：1200，合计折后总价：1200</span>
+            <span id="test" style="font-size:15px">合计品项：{{ info.totalCount }},合计数量：{{ info.totalQty }}，合计原总价：{{ info.totalAmount }}，合计折后总价：{{ info.cashAmount }}</span>
         </div>
         <div class="el-card__body">
             <table class="print-repeat-header">
@@ -57,11 +57,11 @@
                         <td>{{item.sparePartCode}}</td>
                         <td>{{item.sparePartName}}</td>
                         <td>{{item.inboundQty}}</td>
-                        <td>{{item.cashUnitPrice}}</td>
+                        <td>{{item.locationName}}</td>
+                        <td>{{item.price}}</td>
+                        <td>{{item.amount}}</td>
                         <td>{{item.cashUnitPrice}}</td>
                         <td>{{item.cashAmount}}</td>
-                        <td>{{item.rebateUnitPrice}}</td>
-                        <td>{{item.rebateAmount}}</td>
                     </tr>
                 </tbody>
             </table>
