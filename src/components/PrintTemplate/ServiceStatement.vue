@@ -70,7 +70,7 @@
                     <td>送修人</td>
                     <td>{{ info.serviceProxyResp?.shuttleName }}</td>
                     <td>销售日期</td>
-                    <td>{{ (info.serviceProxyResp?.saleDate).slice(0, 10) }}</td>
+                    <td>{{ (info.serviceProxyResp?.saleDate)?.slice(0, 10) }}</td>
                   </tr>
                   <tr>
                     <td>离店里程(Km)</td>
