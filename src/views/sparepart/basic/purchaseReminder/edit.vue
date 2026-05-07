@@ -89,25 +89,26 @@
                 </el-button>
               </div>
               <div class="common-section-table">
-                <el-table
+                <vxe-table
                   :data="tableData"
-                  style="width: 100%"
-                  fit
                   stripe
-                  highlight-current-row
+                  show-overflow resizable border="inner" size="medium"
+                  min-height="0" max-height="400px"
                 >
-                  <el-table-column prop="sparePartCode" label="零件编码" width="280">
+                  <vxe-column field="sparePartCode" title="零件编码" width="280">
                     <template #default="{ row }">
                       <el-link type="success" :href="'/service/sparepart/basic/sparePart/detail?id=' + row.sparePartId" target="_blank">{{ row.sparePartCode }}</el-link>
                     </template>
-                  </el-table-column>
-                  <el-table-column prop="sparePartName" label="零件名称" width="280"></el-table-column>
-                  <el-table-column prop="createTime" label="创建时间" width="280"></el-table-column>
-                  <el-table-column label="操作" width="100" fixed="right" v-if="isEditing">
-                    <template slot-scope="scope">
+                  </vxe-column>
+                  <vxe-column field="sparePartName" title="零件名称" width="280"></vxe-column>
+                  <vxe-column field="createTime" title="创建时间" width="280"></vxe-column>
+                  <vxe-column title="操作" width="100" fixed="right" v-if="isEditing">
+                    <template #default="{ row }">
                       <el-popconfirm
                         title="确认删除该零件吗？"
-                        @confirm="handleDeletePart(scope.row.id)"
+                        confirm-button-type="danger"
+                        confirm-button-text="删除"
+                        @confirm="handleDeletePart(row.id)"
                       >
                         <span
                           slot="reference"
@@ -117,8 +118,8 @@
                         </span>
                       </el-popconfirm>
                     </template>
-                  </el-table-column>
-                </el-table>
+                  </vxe-column>
+                </vxe-table>
               </div>
             </div>
           </section>
