@@ -91,7 +91,7 @@ export default {
       submitLoading: false,
       rules: {
         approvalRemark: [
-          { required: true, message: '请选择验收结果', trigger: 'change' }
+          { required: true, message: '请输入审批说明', trigger: 'change' }
         ],
         errorCodeId: [
           { required: true, message: '请选择错误代码', trigger: 'change' }

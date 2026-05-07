@@ -54,13 +54,13 @@
                   </tr>
                   <tr>
                     <td>车主</td>
-                    <td>{{ info.serviceProxyResp?.bindingUser }}</td>
+                    <td>{{ info.serviceProxyResp?.customerName }}</td>
                     <td>电话</td>
-                    <td>{{ info.serviceProxyResp?.bindingPhone }}</td>
+                    <td>{{ info.serviceProxyResp?.customerPhone }}</td>
                     <td>车牌号码</td>
                     <td>{{ info.serviceProxyResp?.carPlate }}</td>
                     <td>型号</td>
-                    <td>{{ info.serviceProxyResp?.vehRegisteredModelName }}</td>
+                    <td>{{ info.serviceProxyResp?.vehSeriesName }}</td>
                   </tr>
                   <tr>
                     <td>进店里程(Km)</td>
@@ -70,7 +70,7 @@
                     <td>送修人</td>
                     <td>{{ info.serviceProxyResp?.shuttleName }}</td>
                     <td>销售日期</td>
-                    <td>{{ info.serviceProxyResp?.saleDate }}</td>
+                    <td>{{ (info.serviceProxyResp?.saleDate).slice(0, 10) }}</td>
                   </tr>
                   <tr>
                     <td>离店里程(Km)</td>
