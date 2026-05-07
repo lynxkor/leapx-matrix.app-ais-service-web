@@ -246,6 +246,9 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '编辑',
+              show: (row) => {
+                return row.activityStatus === '0';
+              },
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: this.getPath(),
@@ -284,9 +287,9 @@ export default {
   methods: {
     getPath () {
       if (this.isServiceCareActivity) {
-        return '/claimreturn/claim/basic/serviceCareActivity/edit';
+        return '/claimreturn/claim/basic/serviceCareActivity/edit?isEditing=1';
       }
-      return '/claimreturn/claim/basic/techServiceActivity/edit';
+      return '/claimreturn/claim/basic/techServiceActivity/edit?isEditing=1';
     },
     handleImport () {
       this.uploadDialogVisible = true;

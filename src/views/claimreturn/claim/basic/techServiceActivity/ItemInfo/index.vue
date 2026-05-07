@@ -352,6 +352,7 @@ export default {
         repairItemTypeName,
       }).then(res => {
         defer.resolve(res);
+        this.partId = res;
       }).catch((e) => {
         defer.reject(e);
       });

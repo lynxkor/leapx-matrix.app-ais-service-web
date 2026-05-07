@@ -12,7 +12,20 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
         :dataTransform="dataTransform"
+        :showEditBtn="form.activityStatus === '0'"
       >
+        <template #extraButtons>
+          <el-button
+            v-if="form.activityStatus === '0' && permissions.has(moduleKey + '-submitPartsPreparation')"
+            size="small"
+            @click="handleSubmitPartsPreparation"
+          >提交零配件准备</el-button>
+          <el-button
+            v-if="form.activityStatus === '1' && permissions.has(moduleKey + '-partsPreparationCompleted')"
+            size="small"
+            @click="handlePartsPreparationCompleted"
+          >零配件准备完成</el-button>
+        </template>
         <template>
           <el-main>
             <section class="common-section">
@@ -251,6 +264,7 @@
               :moduleKey="moduleKey"
               @change="schemeChange"
               :isServiceCareActivity="isServiceCareActivity"
+              :activityStatus="form.activityStatus"
             />
             <fault
               v-if="!isServiceCareActivity"
@@ -289,7 +303,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import { getList } from '../../../../../api/maintain/basic/checkoutType';
 import { getList as repairGetList } from '../../../../../api/maintain/basic/repairItemType';
-import { getDetail, addOrUpdate } from '../../../../../api/claimreturn/claim/basic/serviceActivity';
+import { getDetail, addOrUpdate, submitPartsPreparation, partsPreparationCompleted } from '../../../../../api/claimreturn/claim/basic/serviceActivity';
 import PlanInfo from './PlanInfo.vue';
 import FileConfig from './FileConfig/index.vue';
 import { formatDateTime } from '@/libs/utils';
@@ -512,6 +526,18 @@ export default {
     //
     schemeChange (id) {
       this.schemeId = id;
+    },
+    handleSubmitPartsPreparation () {
+      submitPartsPreparation({ id: this._id }).then(() => {
+        this.$message.success('提交配件准备成功');
+        this.$refs.containerRef.loadDetail();
+      });
+    },
+    handlePartsPreparationCompleted () {
+      partsPreparationCompleted({ id: this._id }).then(() => {
+        this.$message.success('零配件准备完成');
+        this.$refs.containerRef.loadDetail();
+      });
     },
     filterActivityType (options) {
       return options.filter(item => item.code !== '4');

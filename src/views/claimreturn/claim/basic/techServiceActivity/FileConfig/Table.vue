@@ -35,20 +35,18 @@
           <span v-else>{{ row.quantity }}</span>
         </template>
       </vxe-column>
-      <vxe-column title="操作" :width="120" fixed="right" :resizable="false">
+      <vxe-column title="操作" :width="120" fixed="right" :resizable="false" v-if="canAddOrUpdate">
         <template #default="{ row, rowIndex }">
           <template v-if="eidtRowIndex === rowIndex">
             <span
               class="action-button btn-edit"
               @click="saveRowEdit(row, rowIndex)"
-              v-if="canAddOrUpdate"
             >
               保存
             </span>
             <span
               class="action-button btn-edit"
               @click="cancelEdit(row, rowIndex)"
-              v-if="canAddOrUpdate"
             >
               取消
             </span>
@@ -57,7 +55,6 @@
             <span
               class="action-button btn-edit"
               @click="editRow(row, rowIndex)"
-              v-if="canAddOrUpdate"
             >
               编辑
             </span>
@@ -66,7 +63,6 @@
               @confirm="handleRemoveRow(row, rowIndex)"
               confirm-button-text="删除"
               confirm-button-type="danger"
-              v-if="canAddOrUpdate"
             >
               <el-button
                 class="action-button btn-delete"
