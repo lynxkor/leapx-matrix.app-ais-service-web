@@ -241,16 +241,17 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
+              name: '编辑',
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/basic/sparePartSupplier/edit',
                   query: {
                     id: row.id,
-                    isEditing: false
+                    isEditing: true
                   }
                 });
               },
-              type: 'primary'
+              type: 'info'
             }]
           }
         ],
