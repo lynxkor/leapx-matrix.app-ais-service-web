@@ -183,6 +183,13 @@ export default {
       return [];
     },
     handleClose () {
+      this.selectedRows = [];
+      this.searchForm = {
+        deviceSerialName: '',
+        channelName: '',
+        dealerCode: '',
+        hasDevicePurpose: false
+      };
       this.$emit('close');
     },
 
@@ -268,7 +275,7 @@ export default {
     async queryDealerStations (query, row) {
       this.stationLoading = true;
       try {
-        return await getDealerStationList({ stationName: query });
+        return await getDealerStationList({ name: query, dealerCodes: [row.dealerCode] });
       } catch (error) {
         console.error('查询工位失败:', error);
         row.stationOptions = [];

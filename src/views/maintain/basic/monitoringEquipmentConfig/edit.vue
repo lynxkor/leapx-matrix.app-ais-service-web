@@ -294,7 +294,7 @@ export default {
       console.log(this.form.devicePurpose);
     },
     async queryDealerStations (query) {
-      return await getDealerStationList({ name: query });
+      return await getDealerStationList({ name: query, dealerCodes: [this.form.dealerCode] });
     },
     handleStationChange (data, obj) {
       this.form.dealerStationId = data;

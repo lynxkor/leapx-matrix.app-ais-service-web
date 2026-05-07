@@ -142,19 +142,17 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
-                <div class="ais-select-group">
-                  <base-search
-                    style="width: 360px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="搜索维修项目代码、名称、拼音简码"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                    :disabled = "!canEdit"
-                  />
-                </div>
+                <base-search
+                  style="width: 360px;"
+                  :remote-method="queryListData"
+                  remote
+                  placeholder="搜索维修项目代码、名称、拼音简码"
+                  clearable
+                  value-key="id"
+                  label-key="name"
+                  @change="handleAddTableData"
+                  :disabled = "!canEdit"
+                />
                 <!-- 右侧：合计信息 -->
                 <div class="summary-box">
                   <span class="summary-item">项目金额合计：￥{{ itemAmount }}</span>

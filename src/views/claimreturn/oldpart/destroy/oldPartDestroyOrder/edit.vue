@@ -275,7 +275,6 @@ export default {
                 id: row.serviceProxyId
               }
             });
-            // BUG: 保修申请单跳转路径未设置
             this.$router.push(`/maintain/sp/serviceProxy/edit?id=${row.serviceProxyId}`);
           }
         },
@@ -283,8 +282,8 @@ export default {
           field: 'warrantyNo',
           title: '保修申请单',
           width: '180',
-          click (row) {
-            // TODO 这里需要跳转
+          click: (row) => {
+            this.$router.push(`/claimreturn/claim/warrantyapply/edit?id=${row.warrantyId}`);
           }
         },
         {

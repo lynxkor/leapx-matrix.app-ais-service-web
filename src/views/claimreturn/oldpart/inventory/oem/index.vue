@@ -315,12 +315,10 @@ export default {
             width: 240,
             buttons: [{
               click: (rowIndex, row) => {
-                // eslint-disable-next-line no-warning-comments
-                // todo 跳转
                 this.$router.push({
-                  path: '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit',
+                  path: '/claimreturn/claim/warrantyapply/edit',
                   query: {
-                    id: row.id
+                    id: row.warrantyId
                   }
                 });
               },
