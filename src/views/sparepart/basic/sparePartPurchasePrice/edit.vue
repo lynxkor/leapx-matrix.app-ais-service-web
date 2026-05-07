@@ -53,7 +53,7 @@
                   />
                 </el-form-item>
                 <el-form-item label="门店名称：" v-if="form.pricingModel != 'standardPrice'">
-                  {{ form.dealerName }}
+                  <el-input v-model="form.dealerName" placeholder="请输入" clearable disabled />
                 </el-form-item>
                 <el-form-item label="备件编码：" prop="sparePartCode" v-if="form.pricingModel != 'dealerPriceRatio'">
                   <fetch-select
@@ -72,7 +72,7 @@
                   />
                 </el-form-item>
                 <el-form-item label="备件名称：" v-if="form.pricingModel != 'dealerPriceRatio'">
-                  {{ form.sparePartName }}
+                  <el-input v-model="form.sparePartName" placeholder="请输入" clearable disabled />
                 </el-form-item>
                 <el-form-item label="采购价格：" prop="dealerPurchasePrice" v-if="form.pricingModel != 'dealerPriceRatio'">
                   <el-input
@@ -100,7 +100,7 @@
                   />
                 </el-form-item>
                 <el-form-item label="生效结束时间：" v-if="form.pricingModel != 'standardPrice'">
-                  {{ form.effectiveEndDatetime }}
+                  <el-input v-model="form.effectiveEndDatetime" placeholder="请输入" clearable disabled />
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
