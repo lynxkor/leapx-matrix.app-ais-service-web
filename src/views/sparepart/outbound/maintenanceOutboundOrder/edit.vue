@@ -106,7 +106,7 @@
                     {{ form.remark }}
                   </el-form-item>
                   <el-form-item label="客户经理：" prop="remark">
-                    {{ form.username }}
+                    {{ form.serviceAdvisorName }}
                   </el-form-item>
                 </el-form>
               </div>
