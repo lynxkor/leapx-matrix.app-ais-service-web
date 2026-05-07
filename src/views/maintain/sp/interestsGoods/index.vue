@@ -86,8 +86,8 @@
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <!--<el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>-->
     </div>
     <div
       class="ais-table-c"
@@ -449,6 +449,15 @@ export default {
     // 批量删除
     handleBatchDelete () {
       const ids = this.selectionList.map(item => item.id) || [];
+      // 新增校验逻辑：检查是否包含上架状态的商品
+      const hasOnShelfItems = this.selectionList.some(item => item.whetherShelf === 1);
+      if (hasOnShelfItems) {
+        this.$message({
+          type: 'warning',
+          message: '仅支持删除已下架的权益商品'
+        });
+        return;
+      }
       this.$confirm('此操作将永久删除, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
