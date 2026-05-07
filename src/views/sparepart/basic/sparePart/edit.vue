@@ -20,6 +20,28 @@
         <template #status>
           <span :class="['status', form.status ? 'primary' : 'danger']">{{ form.statusLabel }}</span>
         </template>
+        <template #extraButtons>
+          <el-button
+            v-if="canShowAllowBoTransfer"
+            type="primary"
+            size="small"
+            @click="handleAllowBoTransfer">允许BO调拨</el-button>
+          <el-button
+            v-if="canShowForbidBoTransfer"
+            type="primary"
+            size="small"
+            @click="handleForbidBoTransfer">禁止BO调拨</el-button>
+          <el-button
+            v-if="canShowAllowSales"
+            type="primary"
+            size="small"
+            @click="handleAllowPartsAttachmentSales">允许备附件销售</el-button>
+          <el-button
+            v-if="canShowForbidSales"
+            type="primary"
+            size="small"
+            @click="handleForbidPartsAttachmentSales">禁止备附件销售</el-button>
+        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
@@ -407,7 +429,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/basic/sparePart/index';
+import { getDetail, addOrUpdate, allowBoTransfer, forbidBoTransfer, allowPartsAttachmentSales, forbidPartsAttachmentSales } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import EditTable from '@/libs/components/EditTable';
@@ -422,6 +444,14 @@ import ModelDialog from './model.vue';
 import { getSupplyList } from '@/api/sparepart/basic/spareSupplyCategory';
 import { getEngineeringList } from '@/api/sparepart/basic/spareEngineeringCategory';
 import { getSalesList } from '@/api/sparepart/basic/spareSalesCategory';
+import { handleCommonAction } from '@/libs/utils/index';
+
+const ACTION_CONFIG = {
+  allowBoTransfer: { title: '此操作将允许BO调拨, 是否继续?', success: '操作成功' },
+  forbidBoTransfer: { title: '此操作将禁止BO调拨, 是否继续?', success: '操作成功' },
+  allowPartsAttachmentSales: { title: '此操作将允许备附件销售, 是否继续?', success: '操作成功' },
+  forbidPartsAttachmentSales: { title: '此操作将禁止备附件销售, 是否继续?', success: '操作成功' }
+};
 
 const defaultForm = {
   partCode: '',
@@ -458,6 +488,7 @@ const defaultForm = {
   expressAvailableIs: '',
   traceableIs: '',
   boTransferIs: '',
+  retailIs: '',
   technicalIs: '',
   maintenanceSplitQuantityIs: '',
   domesticPrePackageWeightKg: '',
@@ -491,6 +522,18 @@ export default {
     },
     title () {
       return '备件编码：' + (this.form.partCode || '');
+    },
+    canShowAllowBoTransfer () {
+      return this.form.oemPart === '1' && this.form.boTransferIs === '0';
+    },
+    canShowForbidBoTransfer () {
+      return this.form.oemPart === '1' && this.form.boTransferIs === '1';
+    },
+    canShowAllowSales () {
+      return this.form.oemPart === '1' && this.form.retailIs === '0';
+    },
+    canShowForbidSales () {
+      return this.form.oemPart === '1' && this.form.retailIs === '1';
     }
   },
   data () {
@@ -685,6 +728,28 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    _handleAction (apiFn, config) {
+      handleCommonAction({
+        $confirm: this.$confirm,
+        $message: this.$message,
+        apiFn,
+        id: this._id,
+        config,
+        onSuccess: () => this.$refs.containerRef.loadDetail()
+      });
+    },
+    handleAllowBoTransfer () {
+      this._handleAction(allowBoTransfer, ACTION_CONFIG.allowBoTransfer);
+    },
+    handleForbidBoTransfer () {
+      this._handleAction(forbidBoTransfer, ACTION_CONFIG.forbidBoTransfer);
+    },
+    handleAllowPartsAttachmentSales () {
+      this._handleAction(allowPartsAttachmentSales, ACTION_CONFIG.allowPartsAttachmentSales);
+    },
+    handleForbidPartsAttachmentSales () {
+      this._handleAction(forbidPartsAttachmentSales, ACTION_CONFIG.forbidPartsAttachmentSales);
     }
   }
 };
