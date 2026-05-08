@@ -63,11 +63,11 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 20%">备件编码</th>
-                        <th style="width: 20%">备件名称</th>
-                        <th style="width: 10%">仓库库位</th>
-                        <th style="width: 10%">出库数量</th>
-                        <th style="width: 10%">是否出库</th>
+                        <th style="width: 13%">备件编码</th>
+                        <th style="width: 13%">备件名称</th>
+                        <th style="width: 8%">仓库库位</th>
+                        <th style="width: 8%">出库数量</th>
+                        <th style="width: 8%">是否出库</th>
                         <th>领料人</th>
                         <th>领料日期</th>
                         <th>销售单价</th>
@@ -82,7 +82,7 @@
                         <td>{{item.outboundQty}}</td>
                         <td>{{item.outboundIsLabel}}</td>
                         <td>{{item.pickerName}}</td>
-                        <td>{{item.pickTime}}</td>
+                        <td>{{ item.pickTime ? item.pickTime.substring(0, 10) : '--' }}</td>
                         <td>¥{{item.price}}</td>
                         <td>{{ item.remark || '--' }}</td>
                     </tr>

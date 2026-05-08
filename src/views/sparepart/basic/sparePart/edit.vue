@@ -23,23 +23,27 @@
         <template #extraButtons>
           <el-button
             v-if="canShowAllowBoTransfer"
-            type="primary"
             size="small"
+            plain
+            :loading="actionLoading"
             @click="handleAllowBoTransfer">允许BO调拨</el-button>
           <el-button
             v-if="canShowForbidBoTransfer"
-            type="primary"
             size="small"
+            plain
+            :loading="actionLoading"
             @click="handleForbidBoTransfer">禁止BO调拨</el-button>
           <el-button
             v-if="canShowAllowSales"
-            type="primary"
+            plain
             size="small"
+            :loading="actionLoading"
             @click="handleAllowPartsAttachmentSales">允许备附件销售</el-button>
           <el-button
             v-if="canShowForbidSales"
-            type="primary"
+            plain
             size="small"
+            :loading="actionLoading"
             @click="handleForbidPartsAttachmentSales">禁止备附件销售</el-button>
         </template>
         <el-main>
@@ -544,6 +548,7 @@ export default {
       moduleKey: 'AISPART-sparePart',
       loading: false,
       submitLoading: false,
+      actionLoading: false,
       info: {},
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
@@ -659,7 +664,7 @@ export default {
     detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id);
+        return this.getDetailData();
       }
       return {};
     },
@@ -730,13 +735,20 @@ export default {
       return [];
     },
     _handleAction (apiFn, config) {
+      this.actionLoading = true;
       handleCommonAction({
         $confirm: this.$confirm,
         $message: this.$message,
         apiFn,
         id: this._id,
         config,
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.$refs.containerRef.loadDetail();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     handleAllowBoTransfer () {

@@ -114,9 +114,9 @@
                                         <td>{{item.sparePartCode}}</td>
                                         <td>{{item.sparePartName}}</td>
                                         <td>{{item.qty}}</td>
-                                        <td>¥{{item.price}}</td>
-                                        <td>¥{{item.discountTotalAmount}}</td>
-                                        <td>¥{{item.amount}}</td>
+                                        <td>¥{{item.unitPrice}}</td>
+                                        <td>¥{{item.discountAmount}}</td>
+                                        <td>¥{{item.qty*item.unitPrice}}</td>
                                     </tr>
                                 </tbody>
                             </table>

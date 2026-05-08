@@ -16,7 +16,7 @@
           <span :class="['status', form.status ? 'primary' : 'danger']">{{ form.statusLabel }}</span>
         </template>
         <template #extraButtons>
-          <el-button :disabled="form.canInvalid === 0" type="primary" size="small" @click="handleFailure">失效</el-button>
+          <el-button :disabled="form.canInvalid === 0" type="primary" size="small" :loading="actionLoading" @click="handleFailure">失效</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -221,6 +221,7 @@ export default {
       moduleKey: 'AISPART-sparePartPurchasePrice',
       loading: false,
       submitLoading: false,
+      actionLoading: false,
       info: {},
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
@@ -297,6 +298,7 @@ export default {
       return [];
     },
     handleFailure () {
+      this.actionLoading = true;
       this.$prompt('请输入失效说明', '失效', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -307,7 +309,12 @@ export default {
             message: '失效成功!'
           });
           this.$refs.containerRef.loadDetail();
+          this.actionLoading = false;
+        }).finally(() => {
+          this.actionLoading = false;
         });
+      }).catch(() => {
+        this.actionLoading = false;
       });
     }
   }
