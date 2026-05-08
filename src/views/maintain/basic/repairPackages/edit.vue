@@ -107,7 +107,7 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
-              <div class="model-select" @click="handleModel" v-if = "canEdit">选择适配车型</div>
+              <el-button type="primary" plain size="small" class="model-select" @click="handleModel" v-if = "canEdit">选择适配车型</el-button>
               <vxe-table
                   ref="editTable"
                   stripe
@@ -592,18 +592,7 @@ export default {
 
 <style lang="scss" scoped>
 .model-select {
-  width: 114px;
-  height: 32px;
-  border-radius: 4px;
-  box-sizing: border-box;
-  /* 功能色/零跑绿 */
-  border: 1px solid #009100;
-  color: #009100;
-  font-size: 14px;
-  line-height: 32px;
-  text-align: center;
   margin-bottom: 8px;
-  cursor: pointer;
 }
 .action-button{
     margin: 0 5px;

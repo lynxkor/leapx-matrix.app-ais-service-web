@@ -4,7 +4,6 @@
       <div class="page-common-edit">
         <el-container>
           <el-main>
-            <NavTop :current="form.orderStatus"/>
             <section class="common-title common-title-extend" v-if="_id">
               <div class="common-title-main">
                 <h2>单据编号：{{ form.code }}</h2>
@@ -49,6 +48,7 @@
                 <span>开单时间：{{ form.createTime || '-' }}</span>
               </h5>
             </section>
+            <NavTop :current="form.orderStatus"/>
             <BasicInfo :formData.sync="form" :isEditing="isEditing" :_id="_id" ref="basicInfoRef" @refresh="handleRefresh"/>
             <EntrustInfo :formData="form" :isEditing.sync="isEditing" :_id="_id" ref="entrustInfoRef" @change="submitForm" @refresh="handleRefresh"/>
             <BatteryInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="batteryInfoRef"/>
@@ -784,9 +784,11 @@ export default {
 <style lang="scss" scoped>
 .page-common-edit .common-title {
   position: sticky;
-  top: 48px;
+  top: 0px;
   .el-divider--vertical {
     height: auto;
+    margin: 4px 12px;
+    background-color: var(--leap-color-default-light-4);
   }
 }
 </style>

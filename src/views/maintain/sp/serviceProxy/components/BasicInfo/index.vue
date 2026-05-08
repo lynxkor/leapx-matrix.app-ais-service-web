@@ -1,5 +1,5 @@
 <template>
-  <section class="common-section">
+  <section class="common-section" style="margin-top: 0;">
     <div class="common-section-header">
       <h2>基础信息</h2>
     </div>
