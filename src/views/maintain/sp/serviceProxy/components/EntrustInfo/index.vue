@@ -48,12 +48,36 @@
             :disabled="!_id"
           />
         </el-form-item>
-        <el-form-item label="是否直播：" prop="isLive">
-          <el-input
-            placeholder="请输入"
-            v-model="form.isLiveLabel"
+        <el-form-item label="是否门店开启直播：" prop="isStoreLive">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.isStoreLive"
+            placeholder="请选择"
             clearable
-            disabled
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="是否锁定直播开关：" prop="isLockLive">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.isLockLive"
+            placeholder="请选择"
+            clearable
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="是否直播：" prop="isLive">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="LiveStatusEnum"
+            v-model="form.isLive"
+            placeholder="请选择"
+            clearable
+            filterable
+            :disabled="isLiveDisabled"
+            @change="handleIsLiveChange"
           />
         </el-form-item>
         <el-form-item label="预检完成时间：" prop="previewingFinishAt">
@@ -439,6 +463,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import BaseSearch from '@/libs/components/BaseSearch';
 import { getEnum, getCCCList, updateSpFaultAlertRecord, deleteSpFaultAlertRecord, addFaultRecord, getDetail } from '@/api/maintain/sp/serviceProxy/index';
 import { RepairOrderStatusEnum } from '../../constant';
+import { getLoginUser } from '@/api/common';
 
 export default {
   props: {
@@ -478,6 +503,13 @@ export default {
       return this.formData.orderStatus === RepairOrderStatusEnum.CANCEL ||
              this.formData.orderStatus === RepairOrderStatusEnum.DELIVERED ||
              this.formData.isCreateStatementInfo === 1;
+    },
+    isLiveDisabled () {
+      // 若【是否锁定直播开关】为：是，【是否直播】开关不允许操作；
+      // 若【是否锁定直播开关】为：否，【是否直播】开关允许门店操作（工单状态非已作废、生成结算单）；
+      return Number(this.form.isLockLive) === 1 || !this.loginUser ||
+      (!this.loginUser.admin && this.loginUser.accountFlag && this.loginUser.currentOrgCode !== this.formData.dealerCode) ||
+      this.formData.orderStatus === RepairOrderStatusEnum.CANCEL || this.formData.isCreateStatementInfo === 1;
     }
   },
   watch: {
@@ -534,6 +566,7 @@ export default {
   data () {
     return {
       form: {},
+      loginUser: null,
       rules: {
         businessType: [
           { required: true, message: '请选择业务类型', trigger: 'change' }
@@ -552,7 +585,25 @@ export default {
       isExpectFinishEditable: true
     };
   },
+  mounted () {
+    this.getLoginUser();
+  },
   methods: {
+    async getLoginUser () {
+      try {
+        const res = await getLoginUser();
+        this.loginUser = res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    handleIsLiveChange (val) {
+      if (Number(val) === 20) {
+        this.form.isStoreLive = '0';
+      } else if (Number(val) === 30) {
+        this.form.isStoreLive = '1';
+      }
+    },
     validateForm () {
       if (this.formData?.costCountResp?.repairItemRespList?.length === 0 && this.formData?.costCountResp?.sparePartRespList?.length === 0) {
         this.$message.warning('请添加维修项目或配件');
