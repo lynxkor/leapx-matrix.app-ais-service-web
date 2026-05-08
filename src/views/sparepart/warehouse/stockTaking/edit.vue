@@ -456,34 +456,18 @@ export default {
         const params = {
           id: val.id,
           actualQty: val.actualQty,
+          remark: val.remark,
         };
-        if (val.actualQty > val.totalQty) {
-          if (!val.remark) {
-            this.$message.warning('实盘库存大于库存总数,请填写备注!');
-          }
-        } else {
-          this.handleAddOrUpdate(params);
-        }
+        this.handleAddOrUpdate(params);
       }
     },
     // 失焦以后 输入的备注 判断是否 实盘库存是否超过库存总数
     handleRemarkBlur (val) {
-      if (val.remark) {
-        let params = {
-          id: val.id,
-          remark: val.remark,
-        };
-        if (val.actualQty > val.totalQty) { // 超过总数 把实盘库存参数一起放进去 否则直接提交
-          params.actualQty = val.actualQty;
-          this.handleAddOrUpdate(params);
-        } else {
-          this.handleAddOrUpdate(params);
-        }
-      }
+      this.handleActualQtyBlur(val);
     },
     // 远程搜索方法，接收行索引参数
     querySearchAsync (queryString) {
-      userQuery({ name: queryString }).then(res => {
+      userQuery({ keyword: queryString }).then(res => {
         const list = res?.map(item => {
           return {
             value: item.userId,
@@ -504,6 +488,8 @@ export default {
         id: row.id,
         operator: val,
         operatorName: row.operatorName,
+        actualQty: val.actualQty,
+        remark: val.remark,
       };
       this.handleAddOrUpdate(params);
     },
