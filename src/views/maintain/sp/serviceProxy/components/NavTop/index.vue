@@ -44,9 +44,9 @@ export default {
 .page-common-nav {
   display: flex;
   align-items: center;
-  padding-top: 16px;
+  padding: 16px 0;
   position: sticky;
-  top: 0px;
+  top: 73px;
   z-index: 20;
   background-color: #fff;
   gap: 8px 20px;

@@ -13,7 +13,7 @@
         :showEditBtn="false"
       >
         <template #extraButtons>
-          <el-button v-if="(form.orderSyncSuccessIs === '0' || form.outboundSyncSuccessIs === '0' || form.invoiceSyncSuccessIs === '0') && permissions.has('AISPART-oemOutboundOrder-async')" size="small" type="primary" @click="handleSync">同步</el-button>
+          <el-button v-if="(form.orderSyncSuccessIs === '0' || form.outboundSyncSuccessIs === '0' || form.invoiceSyncSuccessIs === '0') && permissions.has('AISPART-oemOutboundOrder-async')" size="small" type="primary" :loading="syncLoading" @click="handleSync">同步</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -488,6 +488,7 @@ export default {
       moduleKey: 'AISPART-oemOutboundOrder',
       loading: false,
       submitLoading: false,
+      syncLoading: false,
       logisticsData: {}, // 物流信息
       logisticsDrawerVisible: false, // 物流信息抽屉
       yes_no_enum: YES_NO_ENUM,
@@ -723,6 +724,7 @@ export default {
     },
     // 同步
     async handleSync () {
+      this.syncLoading = true;
       const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>此操作将同步OEM出库单，是否继续?</div>';
 
       this.$confirm(message, '提示', {
@@ -738,6 +740,9 @@ export default {
         this.$message.success('同步成功！');
         // 执行额外回调（比如刷新列表）
         this.$refs.containerRef.loadDetail();
+        this.syncLoading = false;
+      }).catch(() => {
+        this.syncLoading = false;
       });
     }
   }

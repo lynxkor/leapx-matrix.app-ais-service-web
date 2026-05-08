@@ -8,10 +8,10 @@
           <span v-if="form.status" class="status primary">{{ form.stockStatusLabel }}</span>
         </template>
         <template #extraButtons>
-          <el-button v-if="showInitialize" type="primary" size="small" @click="handleInitialize">初始化</el-button>
-          <el-button v-if="showCancel" type="primary" size="small" @click="handleCancel">作废</el-button>
-          <el-button v-if="showImportRes" type="primary" size="small" @click="handleImport('sparepartStockTakingDetailRes')">盘点结果导入</el-button>
-          <el-button v-if="showGenerateDifferences" type="primary" size="small" @click="handleDifference">生成差异单</el-button>
+          <el-button v-if="showImportRes" plain size="small" @click="handleImport('sparepartStockTakingDetailRes')">盘点结果导入</el-button>
+          <el-button v-if="showInitialize" plain size="small" :loading="actionLoading" @click="handleInitialize">初始化</el-button>
+          <el-button v-if="showCancel" plain size="small" :loading="actionLoading" @click="handleCancel">作废</el-button>
+          <el-button v-if="showGenerateDifferences" plain size="small" :loading="actionLoading" @click="handleDifference">生成差异单</el-button>
           <el-button v-if="showPrint" type="primary" size="small" @click="handlePrint">打印</el-button>
         </template>
         <el-main>
@@ -95,12 +95,20 @@
             <div class="common-section-body">
               <div class="common-section-header">
                 <div class="ais-select-group">
-                  <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请选择" clearable
-                    value-key="partCode" label-key="partName" :disabled="form.stockStatus !== '0'"
-                    @change="handleAddTableData" />
-                  <el-button type="primary" size="small">添加</el-button>
-                  <el-button size="small" @click="handleImport('sparepartStockTakingDetail')" :disabled="form.stockStatus !== '0'">导入备件清单</el-button>
-                  <el-button size="small" @click="handleImport('sparepartStockTakingDetailRes')" :disabled="form.stockStatus !== '2'">盘点结果导入</el-button>
+                    <base-search
+                      style="width: 300px;"
+                      filterable
+                      clearable
+                      remote
+                      placeholder="请选择"
+                      :remote-method="queryListData"
+                      @change="handleAddTableData"
+                      value-key="partCode"
+                      label-key="partName"
+                      :disabled="form.stockStatus !== '0'"
+                    />
+                  <el-button class="search-btn" size="small" @click="handleImport('sparepartStockTakingDetail')" :disabled="form.stockStatus !== '0'">导入备件清单</el-button>
+                  <el-button class="search-btn" size="small" @click="handleImport('sparepartStockTakingDetailRes')" :disabled="form.stockStatus !== '2'">盘点结果导入</el-button>
                 </div>
               </div>
               <div class="common-section-table">
@@ -205,6 +213,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
 import DifferenceDialog from './DifferenceDialog.vue';
 import { handleCommonAction } from '@/libs/utils';
+import BaseSearch from '@/libs/components/BaseSearch';
 
 const defaultForm = {
   code: '',
@@ -241,7 +250,8 @@ export default {
     EditBaseContainer,
     FetchSelect,
     Upload,
-    DifferenceDialog
+    DifferenceDialog,
+    BaseSearch
   },
   computed: {
     _id () {
@@ -293,6 +303,7 @@ export default {
       importType: '',
       uploadDialogVisible: false,
       differenceDialogVisible: false, // 生成差异单弹窗
+      actionLoading: false, // 操作loading
       differenceId: '', // 差异单id
       differenceTableData: [], // 差异单数据
       pageTitle: '库存盘点',
@@ -495,13 +506,21 @@ export default {
     },
     // 调用二次确认弹框
     _handleAction (apiFn, config) {
+      this.actionLoading = true;
       handleCommonAction({
         $confirm: this.$confirm,
         $message: this.$message,
         apiFn,
         id: this._id,
         config,
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.$refs.containerRef.loadDetail();
+          this.getData();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     // 初始化
@@ -552,3 +571,10 @@ export default {
   }
 };
 </script>
+
+<style scoped lang="scss">
+.search-btn {
+  margin-left: 8px;
+  border-radius: 4px;
+}
+</style>
