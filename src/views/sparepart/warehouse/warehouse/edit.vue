@@ -86,10 +86,10 @@
               <div class="common-section-body">
                 <div class="ais-select-group" v-if="canAddOrUpdate">
                   <el-input placeholder="请输入" style="width: 305px;" v-model="locationName" clearable />
-                  <el-button type="primary" @click="addLocation" size="small">
+                  <el-button plain @click="addLocation" size="small">
                     添加
                   </el-button>
-                  <el-button type="primary" @click="handleImport" size="small">
+                  <el-button plain @click="handleImport" size="small">
                     导入
                   </el-button>
                 </div>
