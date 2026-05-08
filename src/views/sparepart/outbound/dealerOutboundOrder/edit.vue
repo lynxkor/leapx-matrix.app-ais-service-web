@@ -244,20 +244,19 @@
             <div class="common-section-body">
               <div class="common-section-header">
                 <div class="ais-select-group">
-                  <fetch-select
+                  <base-search
                     style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
+                    filterable
                     clearable
+                    remote
+                    :remote-method="queryListData"
+                    @change="handleAddTableData"
                     value-key="partCode"
                     label-key="partCode"
                     sub-label-key="partName"
-                    @change="handleAddTableData"
                     :disabled="!orderStatusType"
                   />
-                  <el-button type="primary" size="small">添加</el-button>
-                  <el-button size="small" @click="handleImport" :disabled="!orderStatusType">导入备件清单</el-button>
+                  <el-button class="search-btn" size="small" @click="handleImport" :disabled="!orderStatusType">导入备件清单</el-button>
                 </div>
               </div>
               <div class="common-section-table">
@@ -343,6 +342,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
 import { handleCommonAction, handleCommonPrompt, formatNumberInput } from '@/libs/utils/index';
+import BaseSearch from '@/libs/components/BaseSearch';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -409,7 +409,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    Upload
+    Upload,
+    BaseSearch
   },
   computed: {
     _id () {
@@ -792,3 +793,10 @@ export default {
   }
 };
 </script>
+
+<style scoped lang="scss">
+.search-btn {
+  margin-left: 8px;
+  border-radius: 4px;
+}
+</style>
