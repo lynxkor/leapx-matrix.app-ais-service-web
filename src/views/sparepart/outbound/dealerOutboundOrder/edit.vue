@@ -714,6 +714,11 @@ export default {
         title: `${this.form.dealerName}厅店内部领料入库单`// 可选，打印标题
       });
     },
+    // 刷新整个详情页所有数据
+    handleRefresh () {
+      this.$refs.containerRef.loadDetail();
+      this.getData();
+    },
     // 处理额外按钮点击事件
     handleExtraButtonClick (action) {
       const actionMap = {
@@ -742,7 +747,7 @@ export default {
         apiFn,
         id: this._id,
         config,
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => this.handleRefresh()
       });
     },
     handleApplyMaterial () {
@@ -772,7 +777,7 @@ export default {
           placeholder,
           success: successMsg
         },
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => this.handleRefresh()
       });
     },
     handleRejectMaterialApproval () {
