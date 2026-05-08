@@ -525,7 +525,7 @@
 </template>
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getVehicleProfile, getCarInfo, checkVinTag, getEnum, getActivityInfo } from '@/api/maintain/sp/serviceProxy/index';
+import { getVehicleProfile, getCarInfo, checkVinTag, getEnum, getActivityInfo, getRecentlyServiceProxy } from '@/api/maintain/sp/serviceProxy/index';
 import { RepairOrderStatusEnum, BusinessTypeEnum } from '../../constant';
 
 export const CustomTypeEnum = {
@@ -760,8 +760,30 @@ export default {
           Object.assign(this.form, { ...data });
           this.getNetworkCarInfo();
           this.checkActivity();
+          this.getRecentlyServiceProxy();
         });
       }
+    },
+    getRecentlyServiceProxy () {
+      getRecentlyServiceProxy(this.form.vehProfileVin).then(res => {
+        if (res) {
+          this.form.anomalyDescription = res.anomalyDescription || '';
+          this.form.exteriorPhotoList = (res.exteriorPhotoList || []).map(item => ({
+            fileId: item.fileId,
+            fileUrl: item.fileUrl,
+            fileType: item.fileType,
+            attachType: item.attachType,
+            configCode: item.configCode
+          }));
+          this.form.interiorPhotoList = (res.interiorPhotoList || []).map(item => ({
+            fileId: item.fileId,
+            fileUrl: item.fileUrl,
+            fileType: item.fileType,
+            attachType: item.attachType,
+            configCode: item.configCode
+          }));
+        }
+      });
     },
     getNetworkCarInfo () {
       getCarInfo(this.form.vehProfileVin).then(res => {
