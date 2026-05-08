@@ -1,8 +1,8 @@
 import api from '@/axios';
-
+import { SPARE_PREFIX } from '../../spareurl';
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
-const prefix = 'sp/web/maintenance/maintenanceOutboundOrder/';
-
+const prefix = SPARE_PREFIX + '/web/maintenance/maintenanceOutboundOrder/';
+const prefixDetail = SPARE_PREFIX + '/web/maintenance/maintenanceOutboundOrderDetail/';
 /**
  * 查询列表
  * @param {Object} data
@@ -48,7 +48,7 @@ export function enableItem (data) {
  * @param {Object} data
  */
 export function collarPage (data) {
-  return api.jsonPost('sp/web/maintenance/maintenanceOutboundOrderDetail/page', data);
+  return api.jsonPost(prefixDetail + 'page', data);
 }
 
 /**
@@ -64,7 +64,7 @@ export function goPage (data) {
  * @param {Object} data
  */
 export function OutboundPeople (data) {
-  return api.jsonPost('sp/web/maintenance/maintenanceOutboundOrderDetail/outbound', data);
+  return api.jsonPost(prefixDetail + 'outbound', data);
 }
 
 /**
@@ -88,5 +88,5 @@ export function settingUpdate (data) {
  * @param {Object} data
  */
 export function outboundPrint (data) {
-  return api.jsonPost('sp/web/maintenance/maintenanceOutboundOrder/print', data);
+  return api.jsonPost(prefix + 'print', data);
 }
