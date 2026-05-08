@@ -1004,6 +1004,8 @@ export default {
     // 刷新接口
     handleRefresh () {
       this.$refs.containerRef.loadDetail();
+      this.getData();
+      this.getPayment();
     },
     _handleAction (apiFn, config) {
       handleCommonAction({
@@ -1012,7 +1014,7 @@ export default {
         apiFn,
         id: this._id,
         config,
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => this.handleRefresh()
       });
     },
     // --- 业务方法调用 ---
@@ -1044,7 +1046,7 @@ export default {
           placeholder,
           success: successMsg
         },
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => this.handleRefresh()
       });
     },
 

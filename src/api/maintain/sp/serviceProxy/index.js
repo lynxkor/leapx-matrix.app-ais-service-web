@@ -391,3 +391,11 @@ export function addFaultRecord (data) {
 export function resendSignSms (data) {
   return api.jsonPost(prefix + 'resendSignSms', data);
 }
+
+/**
+ * 查询当天最近的一条施工单
+ * @param {Object} data - vin
+ */
+export function getRecentlyServiceProxy (data) {
+  return api.jsonPost(prefix + 'getRecentlyServiceProxy', data);
+}
