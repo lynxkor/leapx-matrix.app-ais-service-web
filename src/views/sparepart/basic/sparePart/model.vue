@@ -144,22 +144,22 @@ export default {
         {
           field: 'index',
           title: '序号',
-          width: '20%',
+          width: '22%',
         },
         {
           field: 'vehicleSeriesName',
           title: '车系',
-          width: '20%',
+          width: '22%',
         },
         {
           field: 'vehicleModelName',
           title: '适用车型',
-          width: '20%',
+          width: '22%',
         },
         {
           field: 'vehicleYearTypeName',
           title: '年款',
-          width: '20%',
+          width: '22%',
           editable: true,
           editRender: {
             name: 'ElSelect',
