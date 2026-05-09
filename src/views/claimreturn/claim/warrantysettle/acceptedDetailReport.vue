@@ -33,9 +33,12 @@
           filterable
         />
       </el-form-item>
-      <el-form-item label="门店编码/名称">
-        <dealer-select v-model="form.dealerCodeList" multiple/>
-      </el-form-item>
+      <template v-if="show">
+        <el-form-item label="门店编码/名称">
+          <dealer-select v-model="form.dealerCodeList" multiple/>
+        </el-form-item>
+      </template>
+
       <page-search-action
         v-model="show"
         is-expandable
@@ -151,6 +154,12 @@ export default {
   },
   methods: {
     async getCompany (query) {
+      if (!query) {
+        return {
+          total: 0,
+          records: []
+        };
+      }
       try {
         const res = await getSparePartCompany({ codeOrNameLike: query });
         res.records = res.records?.map(item => ({
