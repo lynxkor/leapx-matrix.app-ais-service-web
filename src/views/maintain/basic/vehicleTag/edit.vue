@@ -51,9 +51,22 @@
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
               <h2>适配车辆</h2>
-              <el-button v-if="canAddOrUpdate && isEditing" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              <!-- <el-button v-if="canAddOrUpdate && isEditing" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button> -->
             </div>
             <div class="common-section-body">
+              <div class="common-section-header">
+                <base-search
+                  v-if="canAddOrUpdate"
+                  style="width: 360px;"
+                  :remote-method="queryVinList"
+                  remote
+                  placeholder="搜索VIN码"
+                  clearable
+                  value-key="value"
+                  label-key="label"
+                  @change="handleVinSelect"
+                />
+              </div>
               <div class="common-section-table">
                 <edit-table
                   ref="editTable"
@@ -63,6 +76,9 @@
                   :show-toolbar="false"
                   :options="options"
                   :delTitle="delTitle"
+                  :enableSingleRowSave="true"
+                  @save-row-edit="saveRowEdit"
+                  @remove-row="removeRow"
                   :auth="{edit: canAddOrUpdate, delete: canDelete}"
                 />
               </div>
@@ -77,6 +93,7 @@
 <script>
 import { getDetail, addOrUpdate } from '@/api/maintain/basic/vehicleTag/index';
 import EditTable from '@/libs/components/EditTable';
+import BaseSearch from '@/libs/components/BaseSearch';
 import { getEnum, getUserByNameOrNo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -103,7 +120,8 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    EditTable
+    EditTable,
+    BaseSearch
   },
   computed: {
     _id () {
@@ -210,6 +228,50 @@ export default {
           };
         }) || [];
         this.options.vin = list;
+      });
+    },
+    queryVinList (query) {
+      return new Promise(resolve => {
+        getVehicleProfile({ searchVin: query }).then(res => {
+          const list = res?.map(item => {
+            return {
+              ...item,
+              value: item.id,
+              label: item.vin,
+              vin: item.vin,
+            };
+          }) || [];
+          resolve(list);
+        });
+      });
+    },
+    handleVinSelect (val, record) {
+      this.form.vinList.push({
+        ...record,
+        id: null,
+      });
+      addOrUpdate({ ...this.form, vinList: this.form.vinList }).then(res => {
+        this.$message.success('添加成功');
+      }).catch(e => {
+        this.form.vinList = this.form.vinList.filter(item => item !== record);
+      });
+    },
+    async saveRowEdit (row, defer) {
+      this.submitRequest().then(res => {
+        defer.resolve(res);
+        this.$message.success('更新成功');
+        this.$refs.containerRef.handleRefresh();
+      }).catch(e => {
+        defer.reject();
+      });
+    },
+    async removeRow (row, index, defer) {
+      this.submitRequest().then(res => {
+        defer.resolve(res);
+        this.$message.success('删除成功');
+        this.$refs.containerRef.handleRefresh();
+      }).catch(e => {
+        defer.reject();
       });
     }
   }

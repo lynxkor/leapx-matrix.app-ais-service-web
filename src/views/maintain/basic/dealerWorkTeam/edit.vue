@@ -103,6 +103,19 @@
               <el-button v-if="canAddOrUpdate && isEditing" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
             </div>
             <div class="common-section-body">
+              <div class="common-section-header">
+                <base-search
+                  v-if="canAddOrUpdate"
+                  style="width: 360px;"
+                  :remote-method="queryUserList"
+                  remote
+                  placeholder="搜索姓名、工号"
+                  clearable
+                  value-key="value"
+                  label-key="label"
+                  @change="handleUserSelect"
+                />
+              </div>
               <div class="common-section-table">
                 <edit-table
                   ref="editTable"
@@ -112,6 +125,9 @@
                   :show-toolbar="false"
                   :options="options"
                   :del-title="delTitle"
+                  :enableSingleRowSave="true"
+                  @save-row-edit="saveRowEdit"
+                  @remove-row="removeRow"
                   :auth="{edit: canAddOrUpdate, delete: canDelete}"
                 />
               </div>
@@ -128,6 +144,7 @@ import { getDetail, addOrUpdate } from '@/api/maintain/basic/dealerWorkTeam/inde
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import InputLink from '@/libs/components/InputLink';
+import BaseSearch from '@/libs/components/BaseSearch';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, getUserByNameOrNo } from '@/api/common';
@@ -158,6 +175,7 @@ export default {
     FetchSelect,
     EditTable,
     InputLink,
+    BaseSearch,
     EditPageLayout,
     EditBaseContainer,
   },
@@ -257,7 +275,14 @@ export default {
     detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id);
+        return new Promise((resolve) => {
+          getDetail(id).then(res => {
+            resolve(res);
+            this.tableData = res.userRelations || [];
+          }).catch(() => {
+            resolve({});
+          });
+        });
       }
       return {};
     },
@@ -303,13 +328,49 @@ export default {
     handleAddRow () {
       this.$refs.editTable.addRow();
     },
-    handleSaveTable (data) {
-      return new Promise((resolve, reject) => {
-        this.$refs.editTable.saveAll().then(data => {
-          resolve(data);
-        }).catch(error => {
-          reject(error);
+    queryUserList (queryString) {
+      return new Promise(resolve => {
+        getUserByNameOrNo({ name: queryString }).then(res => {
+          const list = res?.map(item => {
+            return {
+              ...item,
+              value: item.userId,
+              label: item.username,
+              userName: item.username,
+              userId: item.userId,
+            };
+          }) || [];
+          resolve(list);
         });
+      });
+    },
+    handleUserSelect (val, record) {
+      this.tableData.push({
+        ...record,
+        id: null,
+      });
+      addOrUpdate({ ...this.form, teamUsers: this.tableData }).then(res => {
+        this.$message.success('添加成功');
+      }).catch(e => {
+        this.tableData = this.tableData.filter(item => item !== record);
+      });
+    },
+    async saveRowEdit (row, defer) {
+      this.submitRequest().then(res => {
+        defer.resolve(res);
+        this.$message.success('更新成功');
+        this.$refs.containerRef.handleRefresh();
+      }).catch(e => {
+        defer.reject();
+      });
+    },
+    async removeRow (row, index, defer) {
+      this.submitRequest().then(res => {
+        defer.resolve(res);
+        this.$message.success('删除成功');
+        this.$refs.containerRef.handleRefresh();
+      }).catch(e => {
+        defer.reject();
       });
     },
     handleTableChange (tableData) {
