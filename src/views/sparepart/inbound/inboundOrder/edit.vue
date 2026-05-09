@@ -17,8 +17,8 @@
           <span class="status primary">{{ form.inboundStatusLabel }}</span>
         </template>
         <template #extraButtons>
+          <el-button v-if="_id && form.inboundStatus === '0' && permissions.has('AISPART-inboundOrder-inbound')" :loading="warehousingLoading" plain size="small" @click="handleWarehousing">入库</el-button>
           <el-button v-if="_id && permissions.has('AISPART-inboundOrder-print')" type="primary" size="small" @click="handlePrint">打印</el-button>
-          <el-button v-if="_id && form.inboundStatus === '0' && permissions.has('AISPART-inboundOrder-inbound')" type="primary" size="small" @click="handleWarehousing">入库</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -373,6 +373,7 @@ export default {
       moduleKey: 'AISPART-inboundOrder',
       loading: false,
       submitLoading: false,
+      warehousingLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -567,6 +568,7 @@ export default {
       });
     },
     async handleWarehousing () {
+      this.warehousingLoading = true;
       const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>此操作将入库, 是否继续?</div>';
 
       this.$confirm(message, '提示', {
@@ -579,8 +581,11 @@ export default {
         // 调用 API
         await warehousing({ id: this._id });
         this.$refs.containerRef.loadDetail();
+        this.getData();
         this.$message.success('入库成功!');
+        this.warehousingLoading = false;
       }).catch(() => {
+        this.warehousingLoading = false;
       });
     },
   }
