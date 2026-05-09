@@ -10,10 +10,10 @@
           <span class="status primary">{{ form.orderStatusLabel }}</span>
         </template>
         <template #extraButtons>
-          <el-button v-if="showSubmit" type="primary" size="small" @click="handleSubmit(form)">提交</el-button>
-          <el-button v-if="showAgree" type="primary" size="small" @click="handleAgree(form)">同意</el-button>
-          <el-button v-if="showReject" type="primary" size="small" @click="handleReject(form)">驳回</el-button>
-          <el-button v-if="showCopy" type="primary" size="small" @click="handleCopy(form)">复制</el-button>
+          <el-button v-if="showSubmit" plain size="small" :loading="actionLoading" @click="handleSubmit(form)">提交</el-button>
+          <el-button v-if="showAgree" plain size="small" @click="handleAgree(form)">同意</el-button>
+          <el-button v-if="showReject" plain size="small" :loading="actionLoading" @click="handleReject(form)">驳回</el-button>
+          <el-button v-if="showCopy" type="primary" size="small" :loading="actionLoading" @click="handleCopy(form)">复制</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -569,6 +569,7 @@ export default {
       moduleKey: 'AISPART-purchaseApply',
       loading: false,
       submitLoading: false,
+      actionLoading: false,
       routeQueryType: false, // 路由参数ID 是否可编辑
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
@@ -825,6 +826,11 @@ export default {
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
     },
+    // 刷新详情页所有接口
+    handleRefresh () {
+      this.$refs.containerRef.loadDetail();
+      this.getDetailData();
+    },
     // 请求备件列表表格接口
     async getDetailData () {
       const params = {
@@ -856,26 +862,42 @@ export default {
     },
     // 提交
     async handleSubmit (val) {
-      const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
-      if (res.records.length > 0) {
-        this.purchaseId = val.id;
-        this.purchaseList = res.records || [];
-        this.submitDialogVisible = true;
-      } else {
-        this.$confirm('确认提交吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(async () => {
-          await purchaseApplySubmit({ id: val.id });
-          this.$message.success('提交成功!');
-          this.$refs.containerRef.loadDetail();
-        }).catch(() => {});
+      this.actionLoading = true;
+      try {
+        const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
+        if (res.records.length > 0) {
+          this.purchaseId = val.id;
+          this.purchaseList = res.records || [];
+          this.submitDialogVisible = true;
+        } else {
+          const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确认提交吗？</div>';
+
+          this.$confirm(message, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            dangerouslyUseHTMLString: true,
+            customClass: 'ais-leave-tips',
+            showClose: false
+          }).then(async () => {
+            await purchaseApplySubmit({ id: val.id });
+            // 提示成功
+            this.$message.success('提交成功!');
+            // 执行额外回调（比如刷新列表）
+            this.handleRefresh();
+          }).catch(() => {
+          }).finally(() => {
+            this.actionLoading = false;
+          });
+        }
+      } finally {
+        if (!this.submitDialogVisible) {
+          this.actionLoading = false;
+        }
       }
     },
     handleSubmitDialogClose () {
       this.submitDialogVisible = false;
-      this.$refs.containerRef.loadDetail();
+      this.handleRefresh();
     },
     // 同意
     async handleAgree (val) {
@@ -883,40 +905,51 @@ export default {
         this.$message.warning('操作失败：缺少采购单ID');
         return;
       }
-      const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
-      if (res.records.length > 0) {
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确认同意吗？</div>';
+
+      this.$confirm(message, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(async () => {
+        const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
+        if (res.records.length > 0) {
         // 确保只设置有效的id值
-        if (val.id) {
-          this.purchaseId = val.id;
-          this.purchaseList = res.records || [];
-          this.agreeDialogVisible = true;
-        } else {
-          this.$message.warning('操作失败：缺少采购单ID');
+          if (val.id) {
+            this.purchaseId = val.id;
+            this.purchaseList = res.records || [];
+            this.agreeDialogVisible = true;
+          } else {
+            this.$message.warning('操作失败：缺少采购单ID');
+          }
+        } else if (res.records.length === 0) {
+          const res = await purchaseApplyGetCoupon({ id: val.id });
+          // 确保只设置有效的id值
+          if (val.id) {
+            this.couponObj = res;
+            this.purchaseId = val.id;
+            this.approvalDialogVisible = true;
+          } else {
+            this.$message.warning('操作失败：缺少采购单ID');
+          }
         }
-      } else if (res.records.length === 0) {
-        const res = await purchaseApplyGetCoupon({ id: val.id });
-        // 确保只设置有效的id值
-        if (val.id) {
-          this.couponObj = res;
-          this.purchaseId = val.id;
-          this.approvalDialogVisible = true;
-        } else {
-          this.$message.warning('操作失败：缺少采购单ID');
-        }
-      }
+      }).catch(() => {
+      });
     },
     handleAgreeDialogClose () {
       this.agreeDialogVisible = false;
-      this.$refs.containerRef.loadDetail();
+      this.handleRefresh();
     },
     // 统一成功调按钮 接口
     handleApprovalSuccess () {
       this.approvalDialogVisible = false;
-      this.$refs.containerRef.loadDetail();
+      this.handleRefresh();
     },
     handleApprovalDialogClose () {
       this.approvalDialogVisible = false;
-      this.$refs.containerRef.loadDetail();
+      this.handleRefresh();
     },
     // 审批同意失败时
     handleApprovalFailure (val) {
@@ -930,34 +963,55 @@ export default {
     },
     // 驳回
     async handleReject (val) {
-      try {
-        const result = await this.$prompt('请输入审批说明', '驳回', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        });
-
-        const approvalDescription = result.value;
-        await purchaseApplyReject({ id: val.id, approvalDescription });
-
+      this.actionLoading = true;
+      this.$prompt('请输入审批说明', '驳回', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /.+/, // 校验非空
+        inputErrorMessage: '请输入备注',
+      }).then(async ({ value }) => {
+        // 2. 二次校验：防止通过特殊手段绕过前端限制或处理粘贴超长文本的情况
+        if (!value || value.length > 100) {
+          this.$message.warning('请输入不超过100个字符的审批说明');
+          return Promise.reject(new Error('中断链条')); //  中断链条
+        }
+        // 调用 API，并传入用户输入的备注
+        await purchaseApplyReject({ id: val.id, approvalDescription: value });
         this.$message.success('驳回成功!');
-        this.$refs.containerRef.loadDetail();
-      } catch (error) {
-      }
+        this.handleRefresh();
+      }).catch(() => {
+        // 用户取消或校验失败，静默处理
+      }).finally(() => {
+        this.actionLoading = false;
+      });
     },
     // 复制
     async handleCopy (row) {
-      const res = await purchaseApplyCopy({ id: row.id });
-      this.$router.push({
-        path: '/sparepart/purchase/purchaseApply/edit',
-        query: {
-          id: res
+      this.actionLoading = true;
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确认复制吗？</div>';
+
+      this.$confirm(message, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(async () => {
+        const res = await purchaseApplyCopy({ id: row.id });
+        this.$router.push({
+          path: '/sparepart/purchase/purchaseApply/edit',
+          query: {
+            id: res
+          }
+        });
+        // 如果是当前页面跳转，强制刷新
+        if (this.$route.query.id === res) {
+          this.handleRefresh();
         }
+      }).catch(() => {
+      }).finally(() => {
+        this.actionLoading = false;
       });
-      // 如果是当前页面跳转，强制刷新
-      if (this.$route.query.id === res) {
-        this.$refs.containerRef.loadDetail();
-      }
     },
   }
 };
