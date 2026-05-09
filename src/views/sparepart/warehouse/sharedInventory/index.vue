@@ -88,7 +88,7 @@
 import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/inventory/index';
+import { getShareList, deleteItem, enableItem } from '@/api/sparepart/warehouse/inventory/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser, listDealerPartWithOem } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -296,7 +296,7 @@ export default {
       }
       exportTable({
         businessType: '共享呆滞件库存',
-        dataFetchPath: 'sparepart/web/warehouse/sharedInventory/page',
+        dataFetchPath: 'sparepart/web/warehouse/sharedInventory/sharePage',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
@@ -324,7 +324,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), sharedIs: '1', orderBySparePartCode: true, pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getShareList({ ...this.getFormData(), sharedIs: '1', orderBySparePartCode: true, pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {

@@ -249,7 +249,7 @@
                     show-word-limit
                   />
                 </el-form-item>
-                <el-form-item label="OEM备注：" prop="oemRemark" class="form-item-full" v-if="permissions.has('AISPART-sparePart-oem')">
+                <el-form-item label="OEM备注：" prop="oemRemark" class="form-item-full" v-if="oem">
                   <el-input
                     type="textarea"
                     placeholder="请输入"
@@ -322,7 +322,7 @@
                 <el-form-item label="备注：" class="form-item-full">
                   {{ form.remark }}
                 </el-form-item>
-                <el-form-item label="OEM备注：" class="form-item-full" v-if="permissions.has('AISPART-sparePart-oem')">
+                <el-form-item label="OEM备注：" class="form-item-full" v-if="oem">
                   {{ form.oemRemark }}
                 </el-form-item>
               </el-form>
@@ -464,7 +464,7 @@ import ListSelect from '@/libs/components/list-select/index.vue';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, listOrgStoreInfoByParam } from '@/api/common';
+import { getEnum, listOrgStoreInfoByParam, getLoginUser } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -568,6 +568,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      oem: false,
       pageTitle: '备件主数据',
       pageType: 'edit',
       moduleKey: 'AISPART-sparePart',
@@ -671,7 +672,18 @@ export default {
       }
     };
   },
+  mounted () {
+    this.getLoginUser();
+  },
   methods: {
+    async getLoginUser () {
+      try {
+        const res = await getLoginUser();
+        this.oem = !res.accountFlag;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     getDetailData () {
       const id = this.id || this.$route.query.id;
       this.$store.commit('SET_ACTIVE_BREADCRUMB', ['备件主数据', `${id ? '编辑' : '新建'}`]);

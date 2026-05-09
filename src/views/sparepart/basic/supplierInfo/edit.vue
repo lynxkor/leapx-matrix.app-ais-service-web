@@ -189,7 +189,7 @@ import { getDetail, addOrUpdate } from '@/api/sparepart/basic/supplierInfo/index
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
+import { getEnum, getLoginUser } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -266,9 +266,17 @@ export default {
     };
   },
   mounted () {
-    this.oem = this.$store.state.pageSource?.aisPageSource.includes('AISPART-sparePart-oem');
+    this.getLoginUser();
   },
   methods: {
+    async getLoginUser () {
+      try {
+        const res = await getLoginUser();
+        this.oem = !res.accountFlag;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
     detailRequest () {
       const id = this._id;
       if (id) {

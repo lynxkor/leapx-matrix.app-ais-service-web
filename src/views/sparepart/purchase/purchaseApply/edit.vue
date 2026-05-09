@@ -554,7 +554,6 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      oem: false,
       areaOptions: JSON.parse(localStorage.areaTree),
       orgProps: {
         checkStrictly: true,
@@ -629,7 +628,6 @@ export default {
     };
   },
   mounted () {
-    this.oem = this.$store.state.pageSource?.aisPageSource.includes('AISPART-sparePart-oem');
     this.getLoginUser();
     this.getDetailData();
   },
