@@ -493,7 +493,9 @@ export default {
       this.getData();
     },
     getTabsList () {
-      getStatistics().then((res) => {
+      getStatistics({
+        ...this.getFormData(),
+      }).then((res) => {
         const target = res || {};
         this.tabList = [
           { statementStatusLabel: '全部', statementStatus: '', count: null },

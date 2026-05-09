@@ -329,3 +329,21 @@ export function getScopeTypeOrg (data) {
 export function listOemFull (data) {
   return api.jsonPost('/sp/web/warehouse/warehouse/listOemFull', data);
 }
+
+/**
+ * 查询加密数据
+ * @param {String} id
+ * @param {String} field
+ */
+export function getDesensitize (id, type, field) {
+  let param = {
+    id,
+    type,
+    column: field
+  };
+  return new Promise(resolve => {
+    api.jsonPost('/sp/web/base/common/getDesensitize', param).then(res => {
+      resolve(res);
+    });
+  });
+}

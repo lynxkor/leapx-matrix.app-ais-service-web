@@ -89,7 +89,11 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getShareList, deleteItem, enableItem } from '@/api/sparepart/warehouse/inventory/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser, listDealerPartWithOem } from '@/api/common';
+import {
+  getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo,
+  listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer,
+  getLoginUser, listDealerPartWithOem, getDesensitize
+} from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -164,8 +168,22 @@ export default {
           { props: 'sharedQty', label: '共享数量', visible: true, width: 120, align: 'right' },
           { props: 'purchasePrice', label: '采购价格', visible: true, width: 120, align: 'right' },
           { props: 'suggestedSharedPrice', label: '共享价格', visible: true, width: 140, align: 'right' },
-          { props: 'sharedContactPerson', label: '联系人', visible: true, width: 160 },
-          { props: 'sharedContactInfo', label: '联系方式', visible: true, width: 180 },
+          {
+            props: 'sharedContactPerson',
+            label: '联系人',
+            visible: true,
+            width: 160,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'inventory', 'sharedContactPerson')
+          },
+          {
+            props: 'sharedContactInfo',
+            label: '联系方式',
+            visible: true,
+            width: 180,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'inventory', 'sharedContactInfo')
+          },
           { props: 'sharedDescription', label: '共享说明', visible: true, width: 200 },
           {
             props: 'operate',

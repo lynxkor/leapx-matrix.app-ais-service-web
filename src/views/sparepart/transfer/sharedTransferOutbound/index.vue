@@ -154,7 +154,10 @@ import debounce from 'lodash.debounce';
 import { LPVxeTable } from '@leapmotor/design';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/transfer/sharedTransferOutbound/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
+import {
+  getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, getDesensitize,
+  listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser
+} from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -245,8 +248,22 @@ export default {
           { props: 'outboundWarehouseName', label: '出库方仓库', visible: true, width: 200 },
           { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180 },
           { props: 'inboundDealerName', label: '入库门店名称', visible: true, width: 200 },
-          { props: 'inboundContactPerson', label: '入库方联系人', visible: true, width: 160 },
-          { props: 'inboundContactPhone', label: '入库方手机', visible: true, width: 180 },
+          {
+            props: 'inboundContactPerson',
+            label: '入库方联系人',
+            visible: true,
+            width: 160,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'sharedTransferOutbound', 'inboundContactPerson')
+          },
+          {
+            props: 'inboundContactPhone',
+            label: '入库方手机',
+            visible: true,
+            width: 180,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'sharedTransferOutbound', 'inboundContactPhone')
+          },
           { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
