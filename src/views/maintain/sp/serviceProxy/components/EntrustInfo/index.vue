@@ -681,7 +681,7 @@ export default {
         const oldVal = this.form._prevCurrentFault;
         this.form._prevCurrentFault = val;
         if (oldVal === 1 && this._id) {
-          const message = '<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>提醒</div><div class="ais-leave-tips-sub">若本次无故障，将自动清空【故障模块】信息，请确认是否操作！</div>';
+          const message = '<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>提醒</div><div class="ais-leave-tips-sub">若本次无故障，将自动清空【故障模块】信息，请确认是否操作！</div>';
           this.$confirm(message, '', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
@@ -731,7 +731,7 @@ export default {
             });
             this.refreshFaultList();
             if (res) {
-              const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>故障模块消息提醒</div><div class="ais-leave-tips-sub">${res}</div>`;
+              const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>故障模块消息提醒</div><div class="ais-leave-tips-sub">${res}</div>`;
               this.$confirm(message, '', {
                 confirmButtonText: '确定',
                 showCancelButton: false,

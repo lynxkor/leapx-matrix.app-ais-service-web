@@ -707,7 +707,7 @@ export default {
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      padding: 16px;
+      padding: 16px 16px 0 16px;
 
       .detail-header {
         font-size: 16px;
@@ -855,7 +855,8 @@ export default {
 
       .footer-bar {
         flex-shrink: 0;
-        padding: 16px 0 12px;
+        padding: 16px 20px;
+        margin: 0 -20px;
         border-top: 1px solid var(--leap-color-default-light-4);
         text-align: right;
       }
