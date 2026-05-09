@@ -115,7 +115,7 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd('10')"><i class="iconfont icon-lxppc-plus"></i>新增（车主）</el-button>
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd('20')"><i class="iconfont icon-lxppc-plus"></i>新建（对公）</el-button>
+      <el-button v-if="canAddOrUpdate && cooperationType==='0'" size="small" type="primary" @click="handleAdd('20')"><i class="iconfont icon-lxppc-plus"></i>新建（对公）</el-button>
       <el-button size="small" @click="excelSetting" v-permission="'AISPART-retailOrder-print'">出库单打印设置</el-button>
       <!-- <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
@@ -248,6 +248,8 @@ export default {
   },
   data () {
     return {
+      isPartOrder: false,
+      cooperationType: null,
       pageTitle: '备附件销售',
       pageType: 'list',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
@@ -590,6 +592,7 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    this.initDealerUser();
   },
   methods: {
     async getUser (query) {
@@ -638,6 +641,7 @@ export default {
       if (this.accountFlag === true) {
         const res = await getPartDealer({ code: this.currentDealerCode });
         this.isPartOrder = res.isPartOrder;
+        this.cooperationType = res.cooperationType;
       }
       if (this.accountFlag === false) {
         this.isPartOrder = true;

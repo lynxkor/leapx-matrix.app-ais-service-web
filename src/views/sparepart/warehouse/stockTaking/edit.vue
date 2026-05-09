@@ -104,7 +104,8 @@
                       :remote-method="queryListData"
                       @change="handleAddTableData"
                       value-key="partCode"
-                      label-key="partName"
+                      label-key="partCode"
+                      sub-label-key="partName"
                       :disabled="form.stockStatus !== '0'"
                     />
                   <el-button class="search-btn" size="small" @click="handleImport('sparepartStockTakingDetail')" :disabled="form.stockStatus !== '0'">导入备件清单</el-button>

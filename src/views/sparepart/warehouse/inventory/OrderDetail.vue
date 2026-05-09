@@ -95,8 +95,16 @@ export default {
         path = '/sparepart/purchase/backOrder/edit';
       } else if (row.orderType === '退货不合格退回') {
         path = '/sparepart/return/returnOrder/edit';
+      } else if (row.orderType === '调拨方出库') {
+        path = '/sparepart/transfer/transferinbound/edit';
+      } else if (row.orderType === '共享调拨方出库') {
+        path = '/sparepart/transfer/sharedTransferinbound/edit';
       } else if (row.orderType === '采购退货提交') {
         path = '/sparepart/return/returnOrder/edit';
+      } else if (row.orderType === '调拨申请') {
+        path = '/sparepart/transfer/transferoutbound/edit';
+      } else if (row.orderType === '共享调拨申请') {
+        path = '/sparepart/transfer/sharedTransferOutbound/edit';
       } else {
         return;
       }

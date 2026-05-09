@@ -119,6 +119,7 @@
                   min-height="0"
                   max-height="400px"
                 >
+                  <vxe-column field="sparePartCode" title="备件编码" min-width="10%" />
                   <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
                   <vxe-column field="locationName" title="库位" min-width="10%" />
                   <vxe-column field="availableQty" title="可用库存" min-width="10%" />
@@ -128,13 +129,6 @@
                   <vxe-column field="transferQty" title="调拨数量" min-width="10%"/>
                   <vxe-column field="remark" title="备注" min-width="10%"/>
                   <vxe-column field="createTime" title="创建时间" min-width="10%" />
-                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
-                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                      </el-popconfirm>
-                    </template>
-                  </vxe-column>
                   <template #empty>
                     <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
                   </template>
