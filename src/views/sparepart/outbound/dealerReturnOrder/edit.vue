@@ -10,10 +10,10 @@
           <!-- <span class="status primary">状态</span> -->
         </template>
         <template #extraButtons>
+          <el-button v-if="form.orderStatus === '10' && permissions.has('AISPART-dealerReturnOrder-agree')" plain size="small" :loading="actionLoading" @click="handleAgree">通过</el-button>
+          <el-button v-if="form.orderStatus === '10' && permissions.has('AISPART-dealerReturnOrder-cancel')" plain size="small" :loading="actionLoading" @click="handleCancel">作废</el-button>
+          <el-button v-if="form.orderStatus === '20' && form.outboundStatus === '10' && permissions.has('AISPART-dealerReturnOrder-outbound')" plain size="small" :loading="actionLoading" @click="handleOutbound">出库</el-button>
           <el-button v-if="permissions.has('AISPART-dealerReturnOrder-outbound')" type="primary" size="small" @click="handlePrint">打印出库单</el-button>
-          <el-button v-if="form.orderStatus === '10' && permissions.has('AISPART-dealerReturnOrder-agree')" type="primary" size="small" @click="handleAgree">通过</el-button>
-          <el-button v-if="form.orderStatus === '10' && permissions.has('AISPART-dealerReturnOrder-cancel')" type="primary" size="small" @click="handleCancel">作废</el-button>
-          <el-button v-if="form.orderStatus === '20' && form.outboundStatus === '10' && permissions.has('AISPART-dealerReturnOrder-outbound')" type="primary" size="small" @click="handleOutbound">出库</el-button>
         </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
@@ -330,6 +330,7 @@ export default {
       loading: false,
       submitLoading: false,
       orderStatusType: false, // 是否可编辑
+      actionLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -450,6 +451,11 @@ export default {
       this.pageNum = 1;
       this.getData();
     },
+    // 刷新详情所有数据
+    handleRefresh () {
+      this.$refs.containerRef.loadDetail();
+      this.getData();
+    },
     // 打印外购件退货单
     handlePrint () {
       this.$print.show({
@@ -460,13 +466,20 @@ export default {
     },
     // 执行通用操作
     _handleAction (apiFn, config) {
+      this.actionLoading = true;
       handleCommonAction({
         $confirm: this.$confirm,
         $message: this.$message,
         apiFn,
         id: this._id,
         config,
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.handleRefresh();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     // 通过
@@ -475,6 +488,7 @@ export default {
     },
     // 作废
     async handleCancel () {
+      this.actionLoading = true;
       this.$prompt('请输入审批原因！', '作废', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -487,9 +501,11 @@ export default {
         // 提示成功
         this.$message.success('作废成功');
         // 执行额外回调（比如刷新列表）
-        this.$refs.containerRef.loadDetail();
+        this.handleRefresh();
+        this.actionLoading = false;
       }).catch(() => {
         // 用户取消或校验失败，静默处理
+        this.actionLoading = false;
       });
     },
     // 出库
