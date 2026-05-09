@@ -1680,15 +1680,5 @@ export default {
 .repair-item-autocomplete-popper,
 .repair-part-autocomplete-popper {
   width: 400px !important;
-  .el-autocomplete-suggestion__wrap {
-    overflow-x: auto;
-  }
-  .el-autocomplete-suggestion__list {
-    white-space: nowrap;
-    li {
-      overflow: visible;
-      white-space: nowrap;
-    }
-  }
 }
 </style>

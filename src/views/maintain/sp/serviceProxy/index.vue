@@ -494,12 +494,7 @@ export default {
           data.signCompletedOnEnd = this.form.signCompletedOn[1];
         }
       }
-      data.sortColumns = ([
-        {
-          column: 'order_status',
-          sort: 'ASC'
-        }
-      ]).concat(this.sortColumns);
+      data.sortColumns = this.sortColumns;
       return data;
     },
     async fetchOptions (code) {

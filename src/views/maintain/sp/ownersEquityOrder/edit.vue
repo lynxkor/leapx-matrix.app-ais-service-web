@@ -1113,7 +1113,7 @@ export default {
 
 .claim-summary span {
   padding: 5px 10px;
-  background-color: #f5f7fa;
+  background-color: var(--leap-color-default-light-5);
   border-radius: 4px;
 }
 </style>

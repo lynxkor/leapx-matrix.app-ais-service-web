@@ -758,10 +758,12 @@ export default {
      * 补推施工单短信签字
      */
     handleResendSignSms () {
-      const message = '此操作将再次推送短信给用户进行施工单签字，是否继续？';
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>此操作将再次推送短信给用户进行施工单签字，是否继续？</div>';
       this.$confirm(message, '', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
         showClose: false
       }).then(() => {
         // 调用接口

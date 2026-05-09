@@ -159,12 +159,13 @@ export default {
 @import '@/libs/assets/styles/variables.scss';
 
 .m-update-activity-dialog {
+  ::v-deep .el-dialog {
+    height: 700px;
+    overflow: hidden;
+  }
   ::v-deep .el-dialog__body {
     padding: 0;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    max-height: calc(85vh - 54px);
   }
 
   .tabs-wrapper {
@@ -209,7 +210,7 @@ export default {
     flex: 1;
     display: flex;
     overflow: hidden;
-    min-height: 580px;
+    height: 595px;
   }
 
   .placeholder-content {

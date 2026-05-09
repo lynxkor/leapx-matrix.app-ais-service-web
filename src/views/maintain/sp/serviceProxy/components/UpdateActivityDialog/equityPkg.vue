@@ -221,7 +221,7 @@ export default {
           const remindRes = await equityRemind({ id: this.vehicleInfo.id });
           if (Array.isArray(remindRes) && remindRes.length > 0) {
             const content = remindRes.join('<br/>');
-            const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>提醒</div><div class="ais-leave-tips-sub">${content}</div>`;
+            const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>提醒</div><div class="ais-leave-tips-sub">${content}</div>`;
             this.$confirm(message, '', {
               confirmButtonText: '确定',
               showCancelButton: false,
@@ -363,7 +363,7 @@ export default {
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      padding: 16px;
+      padding: 16px 16px 0 16px;
 
       .detail-title {
         font-size: 16px;
@@ -396,7 +396,8 @@ export default {
 
       .footer-bar {
         flex-shrink: 0;
-        padding: 16px 0 12px;
+        padding: 16px 20px;
+        margin: 0 -20px;
         border-top: 1px solid var(--leap-color-default-light-4);
         text-align: right;
         margin-top: auto;
