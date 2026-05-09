@@ -12,12 +12,13 @@
           <el-button
             v-for="btn in visibleButtons"
             :key="btn.key"
-            type="primary"
             size="small"
+            :loading="actionLoading"
             @click="handleExtraButtonClick(btn.action)"
           >
             {{ btn.label }}
           </el-button>
+          <el-button v-if="_id && permissions.has('AISPART-dealerInboundOrder-printInbound')" type="primary" size="small" @click="handlePrint">打印入库单</el-button>
         </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
@@ -176,10 +177,18 @@
             <div class="common-section-body">
               <div class="common-section-header">
                 <div class="ais-select-group">
-                  <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请选择" clearable
-                    value-key="partCode" label-key="partName" @change="handleAddTableData" :disabled="!orderStatusType" />
-                  <el-button type="primary" size="small">添加</el-button>
-                  <el-button size="small" @click="handleImport" :disabled="!orderStatusType">导入备件清单</el-button>
+                  <base-search
+                    style="width: 300px;"
+                    filterable
+                    clearable
+                    remote
+                    :remote-method="queryListData"
+                    @change="handleAddTableData"
+                    value-key="partCode"
+                    label-key="partName"
+                    :disabled="!orderStatusType"
+                  />
+                  <el-button class="search-btn" size="small" @click="handleImport" :disabled="!orderStatusType">导入备件清单</el-button>
                 </div>
               </div>
               <div class="common-section-table">
@@ -267,6 +276,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
 import { formatNumberInput, handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
 import OrderReturnDialog from './OrderReturnDialog.vue';
+import BaseSearch from '@/libs/components/BaseSearch';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -320,7 +330,8 @@ export default {
     EditBaseContainer,
     FetchSelect,
     Upload,
-    OrderReturnDialog
+    OrderReturnDialog,
+    BaseSearch
   },
   computed: {
     _id () {
@@ -331,12 +342,6 @@ export default {
     },
     extraButtons () {
       const buttons = [
-        {
-          key: 'print',
-          label: '打印入库单',
-          action: 'print',
-          visible: this._id && this.permissions.has('AISPART-dealerInboundOrder-printInbound')
-        },
         {
           key: 'submit',
           label: '提交',
@@ -405,6 +410,7 @@ export default {
       moduleKey: 'AISPART-dealerInboundOrder',
       loading: false,
       submitLoading: false,
+      actionLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -606,7 +612,6 @@ export default {
     // 处理额外按钮点击事件
     handleExtraButtonClick (action) {
       const actionMap = {
-        print: 'handlePrint',
         submit: 'handleSubmit',
         pass: 'handleApprove',
         reject: 'handleReject',
@@ -623,6 +628,7 @@ export default {
     // 刷新接口
     handleRefresh () {
       this.$refs.containerRef.loadDetail();
+      this.getData();
     },
     // 打印外购件入库单
     handlePrint () {
@@ -634,13 +640,20 @@ export default {
     },
     // 调用二次确认弹框
     _handleAction (apiFn, config) {
+      this.actionLoading = true;
       handleCommonAction({
         $confirm: this.$confirm,
         $message: this.$message,
         apiFn,
         id: this._id,
         config,
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.handleRefresh();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     // --- 业务方法调用 ---
@@ -659,6 +672,7 @@ export default {
     },
     // 通用 备注弹窗
     _execPrompt (api, title, placeholder, successMsg) {
+      this.actionLoading = true;
       handleCommonPrompt({
         $prompt: this.$prompt,
         $message: this.$message,
@@ -669,7 +683,13 @@ export default {
           placeholder,
           success: successMsg
         },
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.handleRefresh();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     handleReject () {
