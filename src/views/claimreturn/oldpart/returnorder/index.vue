@@ -171,45 +171,10 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
-      //
-      tableDataList: [],
-      tableTotal: 0,
-      tableForm: { page: 1, size: pageSize },
-    };
-  },
-  beforeCreate () {
-    defaultForm.returnType = this.$route.meta.returnType;
-  },
-  created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
-    this.getData();
-    loginUserGet().then(data => {
-      this.isDealer = data.accountFlag;
-    });
-  },
-  mounted () {
-  },
-  computed: {
-    isFastReturn () {
-      return this.$route.meta.returnType === '40';
-    },
-    editPath () {
-      if (this.isDealer) {
-        return this.isFastReturn ? '/claimreturn/oldpart/dealerReturnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
-      }
-      return this.isFastReturn ? '/claimreturn/oldpart/returnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
-    },
-    canPublish () {
-      return this.permissions.has(`${this.moduleKey}-publish`);
-    },
-    canSign () {
-      return this.permissions.has(`${this.moduleKey}-sign`);
-    },
-    optionObj () {
-      return {
+      optionObj: {
         id: this.$route.meta.moduleKey,
-        dataList: this.tableDataList,
-        form: this.tableForm,
+        dataList: [],
+        form: { page: 1, size: pageSize },
         dataProp: [
           {
             props: 'returnOrderNo',
@@ -330,7 +295,36 @@ export default {
           }
         ],
         total: 0
-      };
+      }
+    };
+  },
+  beforeCreate () {
+    defaultForm.returnType = this.$route.meta.returnType;
+  },
+  created () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    this.getData();
+    loginUserGet().then(data => {
+      this.isDealer = data.accountFlag;
+    });
+  },
+  mounted () {
+  },
+  computed: {
+    isFastReturn () {
+      return this.$route.meta.returnType === '40';
+    },
+    editPath () {
+      if (this.isDealer) {
+        return this.isFastReturn ? '/claimreturn/oldpart/dealerReturnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
+      }
+      return this.isFastReturn ? '/claimreturn/oldpart/returnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
+    },
+    canPublish () {
+      return this.permissions.has(`${this.moduleKey}-publish`);
+    },
+    canSign () {
+      return this.permissions.has(`${this.moduleKey}-sign`);
     }
   },
   methods: {
@@ -349,13 +343,13 @@ export default {
       });
     },
     onSubmit () {
-      this.tableForm.page = 1;
+      this.optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
       this.form = { ...defaultForm };
-      this.tableForm.page = 1;
-      this.tableForm.pageSize = pageSize;
+      this.optionObj.form.page = 1;
+      this.optionObj.form.pageSize = pageSize;
       this.getData();
     },
     exportExcel () {
@@ -390,15 +384,15 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
+      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
-          this.tableDataList = res.records.map(item => {
+          this.optionObj.dataList = res.records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.tableTotal = res.total;
+          this.optionObj.total = res.total;
         }).finally(() => {
           this.loading = false;
         });
@@ -423,9 +417,9 @@ export default {
     },
     paginationChange (type, num) {
       if (type === 'page') {
-        this.tableForm.page = num;
+        this.optionObj.form.page = num;
       } else {
-        this.tableForm.size = num;
+        this.optionObj.form.size = num;
       }
       this.debouncedGetData();
     },
