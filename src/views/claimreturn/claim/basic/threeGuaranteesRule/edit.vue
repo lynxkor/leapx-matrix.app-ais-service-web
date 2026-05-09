@@ -201,7 +201,7 @@
                     />
                   </el-form-item>
                 </el-form>
-                <el-form :inline="true" v-show="!(isEditing || !_id)">
+                <el-form class="form-detail" :inline="true" v-show="!(isEditing || !_id)">
                   <el-form-item label="三包规则编码：" prop="ruleCode">
                     {{ form.ruleCode }}
                   </el-form-item>
@@ -413,7 +413,14 @@ export default {
         return getDetail(id);
       }
     },
-    submitRequest () {
+    async submitRequest () {
+      if (this.$refs.editTable) {
+        try {
+          const tableData = await this.$refs.editTable.saveAll();
+        } catch (e) {
+          return Promise.reject(e);
+        }
+      }
       return addOrUpdate({ ...this.form });
     },
     getDefautlForm () {
