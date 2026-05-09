@@ -54,10 +54,20 @@
             <div class="common-section-body">
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="160px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="备件编码：">
-                  {{ form.partCode }}
+                  <el-input
+                    placeholder="请输入"
+                    disabled
+                    v-model="form.partCode"
+                    clearable
+                  />
                 </el-form-item>
                 <el-form-item label="备件名称：">
-                  {{ form.partName }}
+                  <el-input
+                    placeholder="请输入"
+                    disabled
+                    v-model="form.partName"
+                    clearable
+                  />
                 </el-form-item>
                 <el-form-item label="拼音简码：" prop="pinyinCode">
                   <el-input
@@ -87,7 +97,12 @@
                   />
                 </el-form-item>
                 <el-form-item label="是否OEM件：">
-                  {{ form.oemPartLabel }}
+                  <el-input
+                    placeholder="请输入"
+                    disabled
+                    v-model="form.oemPart"
+                    clearable
+                  />
                 </el-form-item>
                 <el-form-item label="是否可销售：" prop="saleableIs">
                   <el-radio-group
@@ -123,7 +138,12 @@
                   />
                 </el-form-item>
                 <el-form-item label="BO调拨：">
-                  {{ form.boTransferIsLabel }}
+                  <el-input
+                    placeholder="请输入"
+                    disabled
+                    v-model="form.boTransferIs"
+                    clearable
+                  />
                 </el-form-item>
                 <el-form-item label="是否常备库存件：" prop="standingInventoryIs">
                   <el-radio-group
@@ -211,7 +231,12 @@
                   />
                 </el-form-item>
                 <el-form-item label="技术是否启用：">
-                  {{ form.technicalIsLabel }}
+                  <el-input
+                    placeholder="请输入"
+                    disabled
+                    v-model="form.technicalIsLabel"
+                    clearable
+                  />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark" class="form-item-full">
                   <el-input

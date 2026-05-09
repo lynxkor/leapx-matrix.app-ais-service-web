@@ -8,13 +8,13 @@
           <span v-if="form.status" class="status primary">{{ form.status }}</span>
         </template>
         <template #extraButtons>
-          <el-button v-if="showApply" type="primary" size="small" @click="handleApply">申请</el-button>
-          <el-button v-if="showAgreeLoss" type="primary" size="small" @click="handleAgreeLoss">盘亏同意</el-button>
-          <el-button v-if="showRejectLoss" type="primary" size="small" @click="handleRejectLoss">盘亏拒绝</el-button>
-          <el-button v-if="showAgreeProfit" type="primary" size="small" @click="handleAgreeProfit">盘盈同意</el-button>
-          <el-button v-if="showRejectProfit" type="primary" size="small" @click="handleRejectProfit">盘盈拒绝</el-button>
-          <el-button v-if="showInbound" type="primary" size="small" @click="handleInbound">入库</el-button>
-          <el-button v-if="showOutbound" type="primary" size="small" @click="handleOutbound">出库</el-button>
+          <el-button v-if="showAgreeLoss" plain size="small" :loading="actionLoading" @click="handleAgreeLoss">盘亏同意</el-button>
+          <el-button v-if="showRejectLoss" plain size="small" :loading="actionLoading" @click="handleRejectLoss">盘亏拒绝</el-button>
+          <el-button v-if="showAgreeProfit" plain size="small" :loading="actionLoading" @click="handleAgreeProfit">盘盈同意</el-button>
+          <el-button v-if="showRejectProfit" plain size="small" :loading="actionLoading" @click="handleRejectProfit">盘盈拒绝</el-button>
+          <el-button v-if="showInbound" plain size="small" :loading="actionLoading" @click="handleInbound">入库</el-button>
+          <el-button v-if="showOutbound" plain size="small" :loading="actionLoading" @click="handleOutbound">出库</el-button>
+           <el-button v-if="showApply" type="primary" plain size="small" :loading="actionLoading" @click="handleApply">申请</el-button>
         </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
@@ -324,6 +324,7 @@ export default {
       loading: false,
       submitLoading: false,
       stockStatusType: false, // 是否可编辑
+      actionLoading: false,
       form: { ...form },
       originalForm: { ...form },
       pageSize: 10,
@@ -429,17 +430,26 @@ export default {
     },
     // 调用二次确认弹框
     _handleAction (apiFn, config) {
+      this.actionLoading = true;
       handleCommonAction({
         $confirm: this.$confirm,
         $message: this.$message,
         apiFn,
         id: this._id,
         config,
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.$refs.containerRef.loadDetail();
+          this.getData();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     // 申请
     handleApply () {
+      this.actionLoading = true;
       if (this.form.differencesType === '10') {
         this.$prompt('请输入申请理由', '申请', {
           confirmButtonText: '确定',
@@ -450,23 +460,30 @@ export default {
             id: this._id,
             description: value
           }).then(() => {
+            this.actionLoading = false;
             this.$message({
               type: 'success',
               message: '申请成功!'
             });
             this.$refs.containerRef.loadDetail();
+            this.getData();
           });
-        }).catch(() => {});
+        }).catch(() => {
+          this.actionLoading = false;
+        });
       } else {
         getApply({
           id: this._id,
         }).then(() => {
+          this.actionLoading = false;
           this.$message({
             type: 'success',
             message: '申请成功!'
           });
           this.$refs.containerRef.loadDetail();
+          this.getData();
         }).catch(() => {
+          this.actionLoading = false;
         });
       }
     },
@@ -476,13 +493,21 @@ export default {
     },
     // 盘亏拒绝
     handleRejectLoss () {
+      this.actionLoading = true;
       handleCommonPrompt({
         $prompt: this.$prompt,
         $message: this.$message,
         apiFn: rejectLoss,
         id: this._id,
         config: ACTION_CONFIG.rejectLoss,
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.$refs.containerRef.loadDetail();
+          this.getData();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     // 盘盈同意
@@ -491,13 +516,21 @@ export default {
     },
     // 盘盈拒绝
     handleRejectProfit () {
+      this.actionLoading = true;
       handleCommonPrompt({
         $prompt: this.$prompt,
         $message: this.$message,
         apiFn: rejectProfit,
         id: this._id,
         config: ACTION_CONFIG.rejectProfit,
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.$refs.containerRef.loadDetail();
+          this.getData();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     // 入库

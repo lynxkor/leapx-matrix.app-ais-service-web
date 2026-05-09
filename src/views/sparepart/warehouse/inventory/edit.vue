@@ -12,8 +12,8 @@
         :originalForm.sync="originalForm"
       >
         <template #extraButtons>
-          <el-button v-if="_id && (Number(form.availableQty) > 0 && form.oemPart === '1')" type="primary" size="small" @click="handLaunch">上架共享</el-button>
-          <el-button v-if="_id && (Number(form.sharedQty) > 0)" type="primary" size="small" @click="handShelves">下架共享</el-button>
+          <el-button v-if="_id && (Number(form.availableQty) > 0 && form.oemPart === '1')" plain size="small" @click="handLaunch">上架共享</el-button>
+          <el-button v-if="_id && (Number(form.sharedQty) > 0)" plain size="small" @click="handShelves">下架共享</el-button>
         </template>
         <el-main>
           <section class="common-section">
