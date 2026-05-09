@@ -745,7 +745,8 @@ export default {
         statusLabel: '',
         packageCode: selectedItem.packageCode || '',
         isWarranty: selectedItem.isWarranty || 0,
-        isProdType: selectedItem.isProdType || 0
+        isProdType: selectedItem.isProdType || 0,
+        _originalWorkHour: selectedItem.workhour || 0
       };
       this.updateCheckoutType(newItem, this.partRepairType);
       this.itemData.push(newItem);
@@ -960,7 +961,10 @@ export default {
     getRepairItemInfo () {
       getRepairItemInfo(this.vehicleInfo.id).then(res => {
         this.info = res || {};
-        this.itemData = res.repairItemRespList || [];
+        this.itemData = (res.repairItemRespList || []).map(item => ({
+          ...item,
+          _originalWorkHour: item.workHour
+        }));
         this.partData = (res.sparePartRespList || []).map(part => ({
           ...part,
           // 如果零件有关联的维修项目ID，标记为自动导入
@@ -1171,14 +1175,19 @@ export default {
     // ==================== 维修项目表格事件处理 ====================
     // 维修类型变化
     handleRepairItemTypeChange (row) {
+      const wasTimeEditable = this.checkIfTimeEditable(row);
       const selected = this.itemOptions.repairItemTypeName.find(item => item.repairItemTypeName === row.repairItemTypeName);
       if (selected) {
         row.repairItemTypeId = selected.repairItemTypeId;
       }
       this.updateCheckoutType(row, selected.repairItemTypeId);
+      if (wasTimeEditable && !this.checkIfTimeEditable(row)) {
+        this.restoreWorkHour(row);
+      }
     },
     // 结算类型变化
     handleCheckoutTypeChange (row) {
+      const wasTimeEditable = this.checkIfTimeEditable(row);
       const selected = this.itemOptions.checkoutTypeName.find(item => item.checkoutTypeName === row.checkoutTypeName);
       if (selected) {
         row.checkoutTypeId = selected.checkoutTypeId;
@@ -1188,6 +1197,9 @@ export default {
         const allowType = warrantyTypes.filter(el => this.checkIfWarrantyTypeEditable(row, el.warrantyTypeId));
         row.warrantyTypeId = allowType?.[0]?.warrantyTypeId;
         row.warrantyTypeName = allowType?.[0]?.warrantyTypeName;
+      }
+      if (wasTimeEditable && !this.checkIfTimeEditable(row)) {
+        this.restoreWorkHour(row);
       }
     },
     // 保修类型变化
@@ -1340,6 +1352,12 @@ export default {
         return true;
       }
       return false;
+    },
+    restoreWorkHour (row) {
+      if (row._originalWorkHour !== undefined) {
+        row.workHour = row._originalWorkHour;
+        this.handleWorkHourChange(row);
+      }
     },
     getRepairItemTypeList () {
       getRepairItemTypeList({
