@@ -283,7 +283,7 @@ export default {
           title: '保修申请单',
           width: '180',
           click: (row) => {
-            this.$router.push(`/claimreturn/claim/warrantyapply/edit?id=${row.warrantyId}`);
+            this.$router.push(`/claimreturn/claim/warrantyApply/edit?id=${row.warrantyId}`);
           }
         },
         {
