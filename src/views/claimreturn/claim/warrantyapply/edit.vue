@@ -149,7 +149,7 @@
               {{ form.checkoutTypeCode }}
             </el-form-item>
             <el-form-item label="结算单号：" prop="statementCode">
-              <el-link type="success" :href="`/maintain/sp/servicestatement/edit?id=${form.statementId}`" target="_blank">{{ form.statementCode }}</el-link>
+              <el-link type="success" :href="`/service/maintain/sp/serviceStatement/edit?id=${form.statementId}`" target="_blank">{{ form.statementCode }}</el-link>
             </el-form-item>
             <el-form-item label="当前提交时间：" prop="currentSubmitTime">
               {{ form.currentSubmitTime }}
