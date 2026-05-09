@@ -404,6 +404,10 @@ export default {
     },
     // 获取技师选项
     async getTechnicianOptions () {
+      if (!this.filterForm.team) {
+        this.technicianOptions = [];
+        return;
+      }
       try {
         const res = await getDealerTeamUserRelation({
           teamId: this.filterForm.team
