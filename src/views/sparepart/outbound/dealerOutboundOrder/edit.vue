@@ -17,12 +17,14 @@
           <el-button
             v-for="btn in visibleButtons"
             :key="btn.key"
-            type="primary"
+            plain
             size="small"
+            :loading="actionLoading"
             @click="handleExtraButtonClick(btn.action)"
           >
             {{ btn.label }}
           </el-button>
+          <el-button v-if="_id" type="primary" size="small" @click="handlePrint">打印出库单</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -427,12 +429,6 @@ export default {
     extraButtons () {
       const buttons = [
         {
-          key: 'print',
-          label: '打印出库单',
-          action: 'print',
-          visible: this._id
-        },
-        {
           key: 'applyMaterial',
           label: '申请领料',
           action: 'applyMaterial',
@@ -518,6 +514,7 @@ export default {
       moduleKey: 'AISPART-dealerOutboundOrder',
       loading: false,
       submitLoading: false,
+      actionLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -723,7 +720,6 @@ export default {
     // 处理额外按钮点击事件
     handleExtraButtonClick (action) {
       const actionMap = {
-        print: 'handlePrint',
         applyMaterial: 'handleApplyMaterial',
         approvalMaterial: 'handleApprovalMaterial',
         rejectMaterialApproval: 'handleRejectMaterialApproval',
@@ -742,13 +738,20 @@ export default {
     },
     // 二次确认
     _handleAction (apiFn, config) {
+      this.actionLoading = true;
       handleCommonAction({
         $confirm: this.$confirm,
         $message: this.$message,
         apiFn,
         id: this._id,
         config,
-        onSuccess: () => this.handleRefresh()
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.handleRefresh();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     handleApplyMaterial () {
@@ -768,6 +771,7 @@ export default {
     },
     // 通用 备注弹窗
     _execPrompt (api, title, placeholder, successMsg) {
+      this.actionLoading = true;
       handleCommonPrompt({
         $prompt: this.$prompt,
         $message: this.$message,
@@ -778,7 +782,13 @@ export default {
           placeholder,
           success: successMsg
         },
-        onSuccess: () => this.handleRefresh()
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.handleRefresh();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     handleRejectMaterialApproval () {
