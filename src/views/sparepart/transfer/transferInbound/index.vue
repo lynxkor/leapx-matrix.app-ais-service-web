@@ -257,7 +257,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/transfer/transferInbound/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
