@@ -258,7 +258,7 @@
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
               <h2>适配车型</h2>
-              <el-button v-if="canAddOrUpdate && isEditing" size="small" icon="el-icon-plus" @click="handleAddRow('cx')">添加</el-button>
+              <!-- <el-button v-if="canAddOrUpdate && isEditing" size="small" icon="el-icon-plus" @click="handleAddRow('cx')">添加</el-button> -->
             </div>
             <div class="common-section-body">
               <el-button v-if="canAddOrUpdate" type="primary" size="small" plain @click.stop="handleModel">适配车型</el-button>
@@ -271,6 +271,9 @@
                   :show-toolbar="false"
                   :options="options"
                   :delTitle="delTitle"
+                  :enableSingleRowSave="true"
+                  @save-row-edit="saveRowEdit"
+                  @remove-row="removeRow"
                   :auth="{edit: canAddOrUpdate, delete: canDelete}"
                 />
               </div>
@@ -279,9 +282,21 @@
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
               <h2>适配配件</h2>
-              <el-button v-if="canAddOrUpdate && isEditing" size="small" icon="el-icon-plus" @click="handleAddRow('pj')">添加</el-button>
+              <!-- <el-button v-if="canAddOrUpdate && isEditing" size="small" icon="el-icon-plus" @click="handleAddRow('pj')">添加</el-button> -->
             </div>
             <div class="common-section-body">
+              <div class="common-section-header">
+                <base-search
+                  style="width: 360px;"
+                  :remote-method="querySparePartsList"
+                  remote
+                  placeholder="搜索零件代码、名称、拼音简码"
+                  clearable
+                  value-key="value"
+                  label-key="label"
+                  @change="handlePartSelect"
+                />
+              </div>
               <div class="common-section-table">
                 <edit-table
                   ref="editTablePj"
@@ -291,6 +306,9 @@
                   :show-toolbar="false"
                   :options="options"
                   :delTitle="delTitlePj"
+                  :enableSingleRowSave="true"
+                  @save-row-edit="saveRowEdit"
+                  @remove-row="removeRow"
                   :auth="{edit: canAddOrUpdate, delete: canDelete}"
                 />
               </div>
@@ -306,6 +324,7 @@
 <script>
 import { getDetail, addOrUpdate } from '@/api/maintain/basic/repairItem/index';
 import FetchSelect from '@/libs/components/FetchSelect';
+import BaseSearch from '@/libs/components/BaseSearch';
 import EditTable from '@/libs/components/EditTable';
 import ModelDialog from './model.vue';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -358,6 +377,7 @@ export default {
     ModelDialog,
     EditPageLayout,
     EditBaseContainer,
+    BaseSearch
   },
   computed: {
     _id () {
@@ -517,7 +537,7 @@ export default {
         {
           field: 'partsCode',
           title: '零件代码',
-          width: '20%',
+          width: '22%',
           editable: true,
           editRender: {
             name: 'ElSelect',
@@ -537,19 +557,19 @@ export default {
         {
           field: 'partsName',
           title: '零件名称',
-          width: '20%',
+          width: '22%',
           editRender: { name: 'ElInput' },
         },
         {
           field: 'oemPartLabel',
           title: '是否OEM件',
-          width: '20%',
+          width: '22%',
           editRender: { name: 'ElInput' }
         },
         {
           field: 'createTime',
           title: '创建时间',
-          width: '20%',
+          width: '22%',
           editRender: { name: 'ElInput' }
         }
       ],
@@ -622,6 +642,63 @@ export default {
     };
   },
   methods: {
+    // 备件主数据表列表查询
+    querySparePartsList (queryString) {
+      return new Promise(resolve => {
+        sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
+          const list = res?.map(item => {
+            return {
+              ...item,
+              value: item.id,
+              label: `${item.partCode}-${item.partName}`,
+              partsId: item.id,
+              partsName: item.partName,
+              partsCode: item.partCode,
+              isOemPart: item.oemPart,
+              oemPartLabel: item.oemPartLabel,
+            };
+          }) || [];
+          resolve(list);
+        });
+      });
+    },
+    // 零件选择变更
+    handlePartSelect (val, record) {
+      this.tableDataPj.push({
+        ...record,
+        partsId: record.id,
+        partsName: record.partName,
+        partsCode: record.partCode,
+        isOemPart: record.oemPart,
+        oemPartLabel: record.oemPartLabel,
+        id: null
+      });
+      addOrUpdate({ ...this.form, repairItemVehicleModelList: this.tableData, repairItemPartsList: this.tableDataPj }).then(res => {
+        this.$message.success('添加成功');
+      }).catch(e => {
+        this.tableDataPj = this.tableDataPj.filter(item => item.id !== record.id);
+      });
+    },
+    // 行保存
+    async saveRowEdit (row, defer) {
+      this.submitRequest().then(res => {
+        defer.resolve(res);
+        this.$message.success('更新成功');
+        this.$refs.containerRef.handleRefresh();
+      }).catch(e => {
+        defer.reject();
+      });
+    },
+    // 行删除
+    async removeRow (row, index, defer) {
+      this.submitRequest().then(res => {
+        defer.resolve(res);
+        this.$message.success('删除成功');
+        this.$refs.containerRef.handleRefresh();
+      }).catch(e => {
+        defer.reject();
+      });
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -793,6 +870,7 @@ export default {
     },
     handleUpdateTableData (data) {
       this.tableData = [...data];
+      this.$refs.containerRef.handleSubmit();
     },
     handleCloseModel () {
       this.modelDialogVisible = false;

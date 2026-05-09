@@ -114,7 +114,7 @@
                   style="width: 360px;"
                   :remote-method="querySpareParts"
                   remote
-                  placeholder="搜索维修项目代码、名称、拼音简码"
+                  placeholder="搜索零件代码、名称、拼音简码"
                   clearable
                   value-key="id"
                   label-key="name"
