@@ -147,10 +147,10 @@
                 </el-form-item>
                 <!-- TODO 这里需要跳转 -->
                 <el-form-item label="保修申请单：" prop="warrantyNo">
-                  <el-button class="link" @click="$router.push(`/claimreturn/claim/warrantyapply/edit?id=${form.warrantyId}`)" type="text">{{ form.warrantyNo }}</el-button>
+                  <el-button class="link" @click="$router.push(`/claimreturn/claim/warrantyApply/edit?id=${form.warrantyId}`)" type="text">{{ form.warrantyNo }}</el-button>
                 </el-form-item>
                 <el-form-item label="保修零件明细：" prop="warrantyPartId">
-                  <el-button class="link" @click="$router.push(`/claimreturn/claim/warrantyapply/edit?id=${form.warrantyId}`)" type="text">{{ form.warrantyPartId }}</el-button>
+                  <el-button class="link" @click="$router.push(`/claimreturn/claim/warrantyApply/edit?id=${form.warrantyId}`)" type="text">{{ form.oldPartCode }}</el-button>
                 </el-form-item>
                 <el-form-item label="索赔追溯单号：" prop="claimTrackNo">
                   <el-button class="link" @click="$router.push(`/claimreturn/claim/claimtrace/claimtraceorder/edit?id=${form.claimTrackId}`)" type="text">{{ form.claimTrackNo }}</el-button>

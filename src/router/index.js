@@ -2631,7 +2631,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/warrantyapply/edit',
+      path: '/claimreturn/claim/warrantyApply/edit',
       name: 'warrantyApplyEdit',
       component: () => import('@/views/claimreturn/claim/warrantyapply/edit.vue'),
 

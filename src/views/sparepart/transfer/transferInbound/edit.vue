@@ -12,7 +12,7 @@
         :detailRequest="detailRequest"
       >
         <template #status>
-          <span v-if="form.status" class="status primary">{{ form.status }}</span>
+          <span v-if="form.status" class="status primary">{{ form.signStatusLabel }}</span>
         </template>
         <template #extraButtons>
           <el-button v-if="_id" size="small" type="primary" @click="handlePrint">打印</el-button>

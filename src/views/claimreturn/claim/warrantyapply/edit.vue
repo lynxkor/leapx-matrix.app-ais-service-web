@@ -48,8 +48,8 @@
             <el-form-item label="保修单状态：" prop="applyStatusLabel">
               <el-input placeholder="" v-model="form.applyStatusLabel" clearable disabled />
             </el-form-item>
-            <el-form-item label="结算类型：" prop="checkoutTypeCode">
-              <el-input placeholder="" v-model="form.checkoutTypeCode" clearable disabled />
+            <el-form-item label="结算类型：" prop="checkoutTypeName">
+              <el-input placeholder="" v-model="form.checkoutTypeName" clearable disabled />
             </el-form-item>
             <el-form-item label="结算单号：" prop="statementCode">
               <el-input placeholder="" v-model="form.statementCode" clearable disabled />
@@ -145,8 +145,8 @@
             <el-form-item label="保修单状态：" prop="applyStatusLabel">
               {{ form.applyStatusLabel }}
             </el-form-item>
-            <el-form-item label="结算类型：" prop="checkoutTypeCode">
-              {{ form.checkoutTypeCode }}
+            <el-form-item label="结算类型：" prop="checkoutTypeName">
+              {{ form.checkoutTypeName }}
             </el-form-item>
             <el-form-item label="结算单号：" prop="statementCode">
               <el-link type="success" :href="`/service/maintain/sp/serviceStatement/edit?id=${form.statementId}`" target="_blank">{{ form.statementCode }}</el-link>
@@ -680,7 +680,7 @@ const defaultForm = {
   statementId: '',
   statementCode: '',
   checkoutTypeId: '',
-  checkoutTypeCode: '',
+  checkoutTypeName: '',
   repairItemTypeId: '',
   repairItemTypeName: '',
   dealerCode: '',
