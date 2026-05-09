@@ -43,6 +43,7 @@
                     multiple
                     placeholder="请选择"
                     collapse-tags
+                    clearable
                   >
                     <el-option
                       v-for="item in storeTypeOptions"
@@ -69,10 +70,10 @@
                 <el-form-item label="修改时间：">
                   {{ form.updateTime }}
                 </el-form-item>
-                <el-form-item label="建店类型：">
-                  {{ form.buildTypeName }}
+                <el-form-item label="建店类型：" style="width: 100%;">
+                  {{ buildTypeNamesString }}
                 </el-form-item>
-                <el-form-item label="备注：">
+                <el-form-item label="备注：" style="width: 100%;">
                   {{ form.remark }}
                 </el-form-item>
               </el-form>
@@ -218,6 +219,16 @@ export default {
     },
     title () {
       return '营销分类编码：' + (this.form.categoryCode || '');
+    },
+    buildTypeNamesString () {
+    // 1. 获取数组引用
+      const list = this.form.categoryBuildTypeRespList;
+
+      // 2. 安全检查：先判断是否存在且为数组，防止报错
+      if (!list || !Array.isArray(list)) return '';
+
+      // 3. 链式调用：直接 map 提取名称并 join 拼接
+      return list.map(item => item.buildTypeName).join('、');
     }
   },
   data () {
