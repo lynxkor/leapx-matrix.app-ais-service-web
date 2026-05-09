@@ -1168,7 +1168,7 @@ export default {
         row.checkoutTypeName = target.checkoutTypeName;
       } else {
         const target = this.itemOptions.checkoutTypeName?.[0];
-        row.checkoutTypeId = CheckoutTypeEnum.CONTRACT;
+        row.checkoutTypeId = target.checkoutTypeId;
         row.checkoutTypeName = target.checkoutTypeName;
       }
     },

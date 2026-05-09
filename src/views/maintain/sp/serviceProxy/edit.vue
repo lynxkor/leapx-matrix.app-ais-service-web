@@ -48,7 +48,7 @@
                 <span>开单时间：{{ form.createTime || '-' }}</span>
               </h5>
             </section>
-            <NavTop :current="form.orderStatus"/>
+            <NavTop :current="form.orderStatus" :_id="_id"/>
             <BasicInfo :formData.sync="form" :isEditing="isEditing" :_id="_id" ref="basicInfoRef" @refresh="handleRefresh"/>
             <EntrustInfo :formData="form" :isEditing.sync="isEditing" :_id="_id" ref="entrustInfoRef" @change="submitForm" @refresh="handleRefresh"/>
             <BatteryInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="batteryInfoRef"/>
