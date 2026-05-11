@@ -288,7 +288,7 @@ export default {
             }, {
               name: '发运',
               show: (row) => {
-                return row.outboundStatus === '0';
+                return row.outboundStatus === '0' && this.permissions.has('AISPART-sharedTransferOutbound-ship');
               },
               click: (rowIndex, row) => {
                 this.handleShipment(row);
@@ -296,6 +296,7 @@ export default {
               type: 'info'
             }, {
               name: '打印',
+              show: (row) => this.permissions.has('AISPART-sharedTransferOutbound-print'),
               click: (rowIndex, row) => {
                 this.handlePrint(row);
               },

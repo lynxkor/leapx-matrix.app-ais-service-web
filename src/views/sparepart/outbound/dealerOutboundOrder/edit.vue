@@ -24,7 +24,7 @@
           >
             {{ btn.label }}
           </el-button>
-          <el-button v-if="_id" type="primary" size="small" @click="handlePrint">打印出库单</el-button>
+          <el-button v-if="_id && permissions.has('AISPART-dealerOutboundOrder-printOutbound')" type="primary" size="small" @click="handlePrint">打印出库单</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -432,49 +432,49 @@ export default {
           key: 'applyMaterial',
           label: '申请领料',
           action: 'applyMaterial',
-          visible: this._id && ['10', '30'].includes(this.form.orderStatus)
+          visible: this._id && ['10', '30'].includes(this.form.orderStatus) && this.permissions.has('AISPART-dealerOutboundOrder-applyRequest')
         },
         {
           key: 'approvalMaterial',
           label: '同意领料',
           action: 'approvalMaterial',
-          visible: this._id && this.form.orderStatus === '20'
+          visible: this._id && this.form.orderStatus === '20' && this.permissions.has('AISPART-dealerOutboundOrder-agreeRequest')
         },
         {
           key: 'rejectMaterialApproval',
           label: '驳回领料',
           action: 'rejectMaterialApproval',
-          visible: this._id && this.form.orderStatus === '20'
+          visible: this._id && this.form.orderStatus === '20' && this.permissions.has('AISPART-dealerOutboundOrder-rejectRequest')
         },
         {
           key: 'ship',
           label: '出库',
           action: 'ship',
-          visible: this._id && this.form.orderStatus === '40' && this.form.outboundStatus === '0'
+          visible: this._id && this.form.orderStatus === '40' && this.form.outboundStatus === '0' && this.permissions.has('AISPART-dealerOutboundOrder-outbound')
         },
         {
           key: 'applyReturnMaterial',
           label: '申请退料',
           action: 'applyReturnMaterial',
-          visible: this._id && (this.form.orderStatus === '40' || this.form.outboundStatus === '60') && this.form.outboundStatus === '1'
+          visible: this._id && (this.form.orderStatus === '40' || this.form.outboundStatus === '60') && this.form.outboundStatus === '1' && this.permissions.has('AISPART-dealerOutboundOrder-applyReturn')
         },
         {
           key: 'approveReturnMaterialApproval',
           label: '同意退料',
           action: 'approveReturnMaterialApproval',
-          visible: this._id && this.form.orderStatus === '50'
+          visible: this._id && this.form.orderStatus === '50' && this.permissions.has('AISPART-dealerOutboundOrder-agreeReturn')
         },
         {
           key: 'rejectReturnMaterialApproval',
           label: '驳回退料',
           action: 'rejectReturnMaterialApproval',
-          visible: this._id && this.form.orderStatus === '50'
+          visible: this._id && this.form.orderStatus === '50' && this.permissions.has('AISPART-dealerOutboundOrder-rejectReturn')
         },
         {
           key: 'inbound',
           label: '入库',
           action: 'inbound',
-          visible: this._id && this.form.orderStatus === '70' && this.form.inboundStatus === '0'
+          visible: this._id && this.form.orderStatus === '70' && this.form.inboundStatus === '0' && this.permissions.has('AISPART-dealerOutboundOrder-inbound')
         }
       ];
       return buttons;

@@ -490,55 +490,55 @@ export default {
           key: 'submit',
           label: '提交',
           action: 'submit',
-          visible: this._id && (this.form.transferStatus === '0' || this.form.transferStatus === '3')
+          visible: this._id && (this.form.transferStatus === '0' || this.form.transferStatus === '3') && this.permissions.has('AISPART-transferOutbound-submit')
         },
         {
           key: 'approve',
           label: '同意',
           action: 'approve',
-          visible: this._id && this.form.transferStatus === '1'
+          visible: this._id && this.form.transferStatus === '1' && this.permissions.has('AISPART-transferOutbound-approve')
         },
         {
           key: 'reject',
           label: '驳回',
           action: 'reject',
-          visible: this._id && this.form.transferStatus === '1'
+          visible: this._id && this.form.transferStatus === '1' && this.permissions.has('AISPART-transferOutbound-reject')
         },
         {
           key: 'revoke',
           label: '撤回',
           action: 'revoke',
-          visible: this._id && this.form.transferStatus === '2' && this.form.outboundStatus === '0'
+          visible: this._id && this.form.transferStatus === '2' && this.form.outboundStatus === '0' && this.permissions.has('AISPART-transferOutbound-revoke')
         },
         {
           key: 'ship',
           label: '发运',
           action: 'ship',
-          visible: this._id && this.form.transferStatus === '2' && this.form.outboundStatus === '0'
+          visible: this._id && this.form.transferStatus === '2' && this.form.outboundStatus === '0' && this.permissions.has('AISPART-transferOutbound-ship')
         },
         {
           key: 'applyCancel',
           label: '申请撤销',
           action: 'applyCancel',
-          visible: this._id && (this.form.cancelStatus === '10' || this.form.cancelStatus === '40') && this.form.outboundStatus === '1'
+          visible: this._id && (this.form.cancelStatus === '10' || this.form.cancelStatus === '40') && this.form.outboundStatus === '1' && this.permissions.has('AISPART-transferOutbound-applyCancel')
         },
         {
           key: 'approveCancel',
           label: '同意撤销',
           action: 'approveCancel',
-          visible: this._id && this.form.cancelStatus === '20'
+          visible: this._id && this.form.cancelStatus === '20' && this.permissions.has('AISPART-transferOutbound-approveCancel')
         },
         {
           key: 'rejectCancel',
           label: '驳回撤销',
           action: 'rejectCancel',
-          visible: this._id && this.form.cancelStatus === '20'
+          visible: this._id && this.form.cancelStatus === '20' && this.permissions.has('AISPART-transferOutbound-rejectCancel')
         },
         {
           key: 'inbound',
           label: '入库',
           action: 'inbound',
-          visible: this._id && this.form.cancelStatus === '30' && this.form.inboundStatus === '0'
+          visible: this._id && this.form.cancelStatus === '30' && this.form.inboundStatus === '0' && this.permissions.has('AISPART-transferOutbound-inbound')
         },
       ];
       return buttons;

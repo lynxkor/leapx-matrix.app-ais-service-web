@@ -286,7 +286,7 @@ export default {
             {
               name: '签收',
               show: (row) => {
-                return row.signStatus === '0';
+                return row.signStatus === '0' && this.permissions.has('AISPART-transferInbound-sign');
               },
               popconfirmTitle: '此操作将签收调拨入库单, 是否继续?',
               click: (rowIndex, row) => {
