@@ -7,8 +7,8 @@
           <span v-if="form.status" class="status primary">{{ form.status }}</span>
         </template>
         <template #extraButtons>
+          <el-button v-if="_id && form.outboundStatus === '0'" plain size="small" @click="handleShipment">发运</el-button>
           <el-button v-if="_id" type="primary" size="small" @click="handlePrint">打印</el-button>
-          <el-button v-if="_id && form.outboundStatus === '0'" type="primary" size="small" @click="handleShipment">发运</el-button>
         </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
@@ -418,6 +418,7 @@ export default {
     // 刷新接口
     handleRefresh () {
       this.$refs.containerRef.loadDetail();
+      this.getData();
     },
     // 打印备件调拨出库单
     handlePrint () {
