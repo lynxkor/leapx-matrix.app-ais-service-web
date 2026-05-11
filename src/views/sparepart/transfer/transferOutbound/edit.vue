@@ -314,11 +314,20 @@
             <div class="common-section-body">
               <div class="common-section-header">
                 <div class="ais-select-group">
-                  <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请选择" clearable
-                    value-key="id" label-key="name" subLabelKey="code" :disabled="!orderStatusType"
-                    @change="handleAddTableData" />
-                  <el-button type="primary" size="small">添加</el-button>
-                  <el-button size="small" @click="handleImport" :disabled="!orderStatusType">导入备件清单</el-button>
+                  <base-search
+                    style="width: 300px;"
+                    filterable
+                    clearable
+                    remote
+                    placeholder="请选择"
+                    :remote-method="queryListData"
+                    @change="handleAddTableData"
+                    value-key="id"
+                    label-key="name"
+                    subLabelKey="code"
+                    :disabled="!orderStatusType"
+                  />
+                  <el-button class="search-btn" size="small" @click="handleImport" :disabled="!orderStatusType">导入备件清单</el-button>
                 </div>
               </div>
               <div class="common-section-table">
@@ -417,6 +426,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
 import { handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
 import ShipmentDialog from './ShipmentDialog';
+import BaseSearch from '@/libs/components/BaseSearch';
 
 const defaultForm = {
   code: '',
@@ -473,7 +483,8 @@ export default {
     EditBaseContainer,
     FetchSelect,
     Upload,
-    ShipmentDialog
+    ShipmentDialog,
+    BaseSearch
   },
   computed: {
     _id () {
