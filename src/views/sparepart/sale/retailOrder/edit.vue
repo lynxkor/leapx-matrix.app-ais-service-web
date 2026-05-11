@@ -412,7 +412,7 @@
                     value-key="id"
                     label-key="partName"
                     subLabelKey="partCode"
-                    :disabled="!orderStatusType"
+                    :disabled="!isOrderStatus"
                   />
                 </div>
               </div>
