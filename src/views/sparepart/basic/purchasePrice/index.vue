@@ -15,7 +15,7 @@
             remote
             v-model="form.dealerCodeList"
             placeholder="请输入门店编码或名称"
-            labelKey="orgName"
+            labelKey="orgCode"
             valueKey="orgCode"
             subLabelKey="orgName"
             clearable
