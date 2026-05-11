@@ -121,13 +121,13 @@
                   <vxe-column field="totalQty" title="库存总数" min-width="12.5%" />
                   <vxe-column field="actualQty" title="实盘库存" min-width="12.5%">
                     <template #default="{ row }">
-                      <el-input v-model="row.actualQty" :disabled="!row.stockStatusType"
+                      <el-input v-model="row.actualQty" :disabled="!stockStatusType"
                         @change="handleActualQtyBlur(row)" type="number" min="1" />
                     </template>
                   </vxe-column>
                   <vxe-column field="remark" title="备注" min-width="12.5%">
                     <template #default="{ row }">
-                      <el-input v-model="row.remark" @blur="handleRemarkBlur(row)" :disabled="!row.stockStatusType" />
+                      <el-input v-model="row.remark" @blur="handleRemarkBlur(row)" :disabled="!stockStatusType" />
                     </template>
                   </vxe-column>
                   <vxe-column field="operatorName" title="操作人" min-width="12.5%">
@@ -138,7 +138,7 @@
                         placeholder="请选择"
                         filterable
                         remote
-                        :disabled="!row.stockStatusType"
+                        :disabled="!stockStatusType"
                         :remote-method="(query) => querySearchAsync(query)"
                         @change="handleOperatorChange(row, $event)"
                       >
@@ -275,6 +275,9 @@ export default {
     },
     showPrint () {
       return this._id && this.permissions.has('AISPART-stockTaking-print');
+    },
+    stockStatusType () {
+      return this.form.stockStatus === '0' || this.form.stockStatus === '2';
     }
   },
   watch: {
@@ -290,9 +293,6 @@ export default {
       handler (val) {
         if (val) {
           this.getData();
-          if (this.form.stockStatus === '0' || this.form.stockStatus === '2') {
-            this.stockStatusType = true;
-          }
         }
       },
       immediate: true
@@ -312,7 +312,6 @@ export default {
       moduleKey: 'AISPART-stockTaking',
       loading: false,
       submitLoading: false,
-      stockStatusType: false, // 查看状态是否可编辑, 可编辑哪些内容
       form: { ...form },
       originalForm: { ...form },
       pageSize: 10,
@@ -368,8 +367,9 @@ export default {
         return getDetail(id);
       }
     },
-    refreshForm () { // 刷新表单
-      this.$refs.containerRef.loadDetail();
+    async refreshForm () { // 刷新表单
+      await this.$refs.containerRef.loadDetail();
+      this.getData();
     },
     submitRequest () {
       return addOrUpdate({ ...this.form });
@@ -382,7 +382,7 @@ export default {
       if (id) {
         await stockTakingDetailDelete([id]);
         this.$message.success('删除成功');
-        this.getData();
+        this.refreshForm();
       }
     },
     async queryListData (queryString) {
@@ -447,10 +447,7 @@ export default {
       };
       const res = await stockTakingDetailPage(params);
       this.total = res.total || 0;
-      this.tableData = res.records.map(item => ({
-        ...item,
-        stockStatusType: this.stockStatusType,
-      })) || [];
+      this.tableData = res.records || [];
       console.log(this.tableData);
     },
     handleCurrentChange (pageNum) {
@@ -516,8 +513,7 @@ export default {
         config,
         onSuccess: () => {
           this.actionLoading = false;
-          this.$refs.containerRef.loadDetail();
-          this.getData();
+          this.refreshForm();
         },
         onComplete: () => {
           this.actionLoading = false;

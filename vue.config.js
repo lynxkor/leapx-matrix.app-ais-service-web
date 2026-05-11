@@ -26,11 +26,11 @@ const cdn = {
   },
   // cdn的js链接
   js: [
-    './js/vue.min.js',
-    './js/vuex.min.js',
-    './js/vue-router.min.js',
-    './js/index.js',
-    './js/axios.min.js'
+    '/js/vue.min.js',
+    '/js/vuex.min.js',
+    '/js/vue-router.min.js',
+    '/js/index.js',
+    '/js/axios.min.js'
   ]
 };
 

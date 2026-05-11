@@ -8,11 +8,28 @@
           <el-button
             v-for="btn in visibleButtons"
             :key="btn.key"
-            type="primary"
+            plain
             size="small"
+            :loading="actionLoading"
             @click="handleExtraButtonClick(btn.action)"
           >
             {{ btn.label }}
+          </el-button>
+          <el-button
+            plain
+            size="small"
+            v-if="_id && ['20', '30', '40', '50', '60', '100'].includes(form.orderStatus) && permissions.has('AISPART-retailOrder-printOut')"
+            @click="handlePrintOut"
+          >
+            打印出库单
+          </el-button>
+          <el-button
+            plain
+            size="small"
+            v-if="_id && ['50', '60'].includes(form.orderStatus) && permissions.has('AISPART-retailOrder-printSettle')"
+            @click="handlePrintSettle"
+          >
+            打印结算单
           </el-button>
         </template>
         <el-main>
@@ -384,9 +401,19 @@
             <div class="common-section-body">
               <div class="common-section-header">
                 <div class="ais-select-group">
-                  <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请输入编码或名称" clearable
-                    value-key="id" label-key="partName" subLabelKey="partCode" @change="handleAddTableData" filterable :disabled="!isOrderStatus" />
-                  <el-button type="primary" size="small">添加</el-button>
+                  <base-search
+                    style="width: 300px;"
+                    filterable
+                    clearable
+                    remote
+                    placeholder="请选择"
+                    :remote-method="queryListData"
+                    @change="handleAddTableData"
+                    value-key="id"
+                    label-key="partName"
+                    subLabelKey="partCode"
+                    :disabled="!isOrderStatus"
+                  />
                 </div>
               </div>
               <div class="common-section-table">
@@ -500,6 +527,7 @@ import OutboundDialog from './OutboundDialog.vue';
 import ReturnMateriaDialog from './ReturnMateriaDialog.vue';
 import HarvestDialog from './HarvestDialog.vue';
 import { handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
+import BaseSearch from '@/libs/components/BaseSearch';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -598,7 +626,8 @@ export default {
     SparePartsDetail,
     OutboundDialog,
     ReturnMateriaDialog,
-    HarvestDialog
+    HarvestDialog,
+    BaseSearch
   },
   computed: {
     _id () {
@@ -635,12 +664,6 @@ export default {
           label: '出库',
           action: 'ship',
           visible: this._id && this.form.orderStatus === '20' && this.permissions.has('AISPART-retailOrder-ship')
-        },
-        {
-          key: 'printOut',
-          label: '打印出库单',
-          action: 'printOut',
-          visible: this._id && ['20', '30', '40', '50', '60', '100'].includes(this.form.orderStatus) && this.permissions.has('AISPART-retailOrder-printOut')
         },
         {
           key: 'sign',
@@ -683,12 +706,6 @@ export default {
           label: '收款',
           action: 'collectPayment',
           visible: this._id && this.form.orderStatus === '50' && this.permissions.has('AISPART-retailOrder-collectPayment')
-        },
-        {
-          key: 'printSettle',
-          label: '打印结算单',
-          action: 'printSettle',
-          visible: this._id && ['50', '60'].includes(this.form.orderStatus) && this.permissions.has('AISPART-retailOrder-printSettle')
         },
         {
           key: 'reverseSettle',
@@ -765,6 +782,7 @@ export default {
       moduleKey: 'AISPART-retailOrder',
       loading: false,
       submitLoading: false,
+      actionLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -981,7 +999,6 @@ export default {
         confirm: 'handleConfirm',
         cancel: 'handleCancel',
         ship: 'handleShip',
-        printOut: 'handlePrintOut',
         sign: 'handleSign',
         cancelSign: 'handleCancelSign',
         applyReturnMaterial: 'handleApplyReturnMaterial',
@@ -989,7 +1006,6 @@ export default {
         settle: 'handleSettle',
         cancelSettle: 'handleCancelSettle',
         collectPayment: 'handleCollectPayment',
-        printSettle: 'handlePrintSettle',
         reverseSettle: 'handleReverseSettle',
         cancelOrderInbound: 'handleCancelOrderInbound',
         refund: 'handleRefund'
@@ -1002,19 +1018,26 @@ export default {
       }
     },
     // 刷新接口
-    handleRefresh () {
-      this.$refs.containerRef.loadDetail();
+    async handleRefresh () {
+      await this.$refs.containerRef.loadDetail();
       this.getData();
       this.getPayment();
     },
     _handleAction (apiFn, config) {
+      this.actionLoading = true;
       handleCommonAction({
         $confirm: this.$confirm,
         $message: this.$message,
         apiFn,
         id: this._id,
         config,
-        onSuccess: () => this.handleRefresh()
+        onSuccess: () => {
+          this.handleRefresh();
+          this.actionLoading = false;
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     // --- 业务方法调用 ---
@@ -1036,6 +1059,7 @@ export default {
     },
     // 通用 备注弹窗
     _execPrompt (api, title, placeholder, successMsg) {
+      this.actionLoading = true;
       handleCommonPrompt({
         $prompt: this.$prompt,
         $message: this.$message,
@@ -1046,7 +1070,13 @@ export default {
           placeholder,
           success: successMsg
         },
-        onSuccess: () => this.handleRefresh()
+        onSuccess: () => {
+          this.handleRefresh();
+          this.actionLoading = false;
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
 

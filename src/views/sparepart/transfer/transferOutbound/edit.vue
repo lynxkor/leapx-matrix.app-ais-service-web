@@ -19,8 +19,9 @@
           <el-button
             v-for="btn in visibleButtons"
             :key="btn.key"
-            type="primary"
+            plain
             size="small"
+            :loading="actionLoading"
             @click="handleExtraButtonClick(btn.action)"
           >
             {{ btn.label }}
@@ -313,11 +314,20 @@
             <div class="common-section-body">
               <div class="common-section-header">
                 <div class="ais-select-group">
-                  <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请选择" clearable
-                    value-key="id" label-key="name" subLabelKey="code" :disabled="!orderStatusType"
-                    @change="handleAddTableData" />
-                  <el-button type="primary" size="small">添加</el-button>
-                  <el-button size="small" @click="handleImport" :disabled="!orderStatusType">导入备件清单</el-button>
+                  <base-search
+                    style="width: 300px;"
+                    filterable
+                    clearable
+                    remote
+                    placeholder="请选择"
+                    :remote-method="queryListData"
+                    @change="handleAddTableData"
+                    value-key="id"
+                    label-key="name"
+                    subLabelKey="code"
+                    :disabled="!orderStatusType"
+                  />
+                  <el-button class="search-btn" size="small" @click="handleImport" :disabled="!orderStatusType">导入备件清单</el-button>
                 </div>
               </div>
               <div class="common-section-table">
@@ -416,6 +426,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
 import { handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
 import ShipmentDialog from './ShipmentDialog';
+import BaseSearch from '@/libs/components/BaseSearch';
 
 const defaultForm = {
   code: '',
@@ -472,7 +483,8 @@ export default {
     EditBaseContainer,
     FetchSelect,
     Upload,
-    ShipmentDialog
+    ShipmentDialog,
+    BaseSearch
   },
   computed: {
     _id () {
@@ -545,6 +557,9 @@ export default {
     },
     visibleButtons () {
       return this.extraButtons.filter(btn => btn.visible);
+    },
+    orderStatusType () {
+      return this.form.transferStatus === '0' || this.form.transferStatus === '3';
     }
   },
   watch: {
@@ -560,9 +575,6 @@ export default {
       handler (val) {
         if (val) {
           this.getData();
-          if (this.form.transferStatus === '0' || this.form.transferStatus === '3') {
-            this.orderStatusType = true;
-          }
         }
       },
       immediate: true
@@ -577,7 +589,7 @@ export default {
       moduleKey: 'AISPART-transferOutbound',
       loading: false,
       submitLoading: false,
-      orderStatusType: false, // 是否可编辑
+      actionLoading: false, // 操作按钮 loading
       shipmentDialogVisible: false, // 发运弹窗是否显示
       pageNum: 1,
       pageSize: 10,
@@ -785,18 +797,26 @@ export default {
       }
     },
     // 刷新接口
-    handleRefresh () {
-      this.$refs.containerRef.loadDetail();
+    async handleRefresh () {
+      await this.$refs.containerRef.loadDetail();
+      this.getData();
     },
     // 调用二次确认弹框
     _handleAction (apiFn, config) {
+      this.actionLoading = true;
       handleCommonAction({
         $confirm: this.$confirm,
         $message: this.$message,
         apiFn,
         id: this._id,
         config,
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.handleRefresh();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     // --- 业务方法调用 ---
@@ -817,6 +837,7 @@ export default {
     },
     // 通用 备注弹窗
     _execPrompt (api, title, placeholder, successMsg) {
+      this.actionLoading = true;
       handleCommonPrompt({
         $prompt: this.$prompt,
         $message: this.$message,
@@ -827,7 +848,13 @@ export default {
           placeholder,
           success: successMsg
         },
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.handleRefresh();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     handleReject () {

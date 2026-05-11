@@ -84,6 +84,24 @@
                     clearable
                   />
                 </el-form-item>
+                <el-form-item label="表头起始行" prop="titleStartRow">
+                  <el-input
+                    type="number"
+                    min="1"
+                    placeholder="请输入"
+                    v-model="form.titleStartRow"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="数据起始行" prop="dataStartRow">
+                  <el-input
+                    type="number"
+                    min="2"
+                    placeholder="请输入"
+                    v-model="form.dataStartRow"
+                    clearable
+                  />
+                </el-form-item>
               </el-form>
             </div>
           </section>
