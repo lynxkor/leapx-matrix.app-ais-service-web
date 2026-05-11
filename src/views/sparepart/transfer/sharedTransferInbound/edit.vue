@@ -13,8 +13,8 @@
         :detailRequest="detailRequest"
       >
         <template #extraButtons>
+          <el-button v-if="_id && form.signStatus === '0'" :loading="actionLoading" plain size="small" @click="handleSign">签收</el-button>
           <el-button v-if="_id" type="primary" size="small" @click="handlePrint">打印</el-button>
-          <el-button v-if="_id && form.signStatus === '0'" type="primary" size="small" @click="handleSign">签收</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -279,6 +279,7 @@ export default {
       moduleKey: 'AISPART-sharedTransferInbound',
       loading: false,
       submitLoading: false,
+      actionLoading: false, // 操作加载状态
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -428,6 +429,7 @@ export default {
     },
     // 签收
     async handleSign () {
+      this.actionLoading = true;
       const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确定签收吗?</div>';
       this.$confirm(message, '', {
         confirmButtonText: '确定',
@@ -442,8 +444,12 @@ export default {
           type: 'success',
           message: '签收成功!'
         });
+        this.actionLoading = false;
         this.$refs.containerRef.loadDetail();
+        this.getLogisticsInfo();
+        this.getData();
       }).catch(() => {
+        this.actionLoading = false;
       });
     },
   }
