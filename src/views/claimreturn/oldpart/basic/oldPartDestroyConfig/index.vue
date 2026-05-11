@@ -99,7 +99,7 @@ export default {
       getConfig({
         paramCode: 'oldPartDestroyConfig'
       }).then(res => {
-        this.form = res;
+        this.form = { ...defaultForm, ...res };
       });
     },
     submit () {
