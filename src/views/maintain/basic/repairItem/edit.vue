@@ -329,7 +329,7 @@ import EditTable from '@/libs/components/EditTable';
 import ModelDialog from './model.vue';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, listVehicleYearTypeFull, listVehicleYearType, repairItemType, sparePartList, getMaintenanceItemEnum } from '@/api/common';
+import { getEnum, listVehicleYearTypeFull, listVehicleYearType, repairItemType, listDealerPartWithOem, getMaintenanceItemEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -645,7 +645,7 @@ export default {
     // 备件主数据表列表查询
     querySparePartsList (queryString) {
       return new Promise(resolve => {
-        sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
+        listDealerPartWithOem({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
           const list = res?.map(item => {
             return {
               ...item,
@@ -845,7 +845,7 @@ export default {
       });
     },
     querySpareParts (queryString, cb) {
-      sparePartList({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
+      listDealerPartWithOem({ partCodeOrNameLike: queryString, status: 1, limitSize: 20 }).then(res => {
         const list = res?.map(item => {
           let label = item.partCode || '';
           if (item.partName) {
