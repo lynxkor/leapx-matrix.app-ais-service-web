@@ -331,7 +331,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/sale/retailOrder/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

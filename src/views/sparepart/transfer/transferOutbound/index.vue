@@ -324,7 +324,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/transfer/transferOutbound/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

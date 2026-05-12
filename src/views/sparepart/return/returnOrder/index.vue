@@ -307,6 +307,7 @@ export default {
                   path: '/sparepart/return/returnOrder/edit',
                   query: {
                     id: row.id,
+                    isEditing: true
                   }
                 });
               },

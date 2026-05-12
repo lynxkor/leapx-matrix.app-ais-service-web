@@ -280,7 +280,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/transfer/sharedTransferOutbound/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

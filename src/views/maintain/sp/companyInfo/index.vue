@@ -158,7 +158,6 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel, getEndOfDayString } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
-import ListSelect from '@/libs/components/list-select/index.vue';
 import DealerSelect from '@/components/dealer-select';
 
 const defaultForm = {
@@ -273,10 +272,10 @@ export default {
               name: '申请开通健康档案',
 
               click: (rowIndex, row) => {
-                this.handleOpenApplyDialog(row);
+                this.handleOpenApplyDialog(row.parentCompany);
               },
               type: 'info',
-              show: (row) => row.healthStatus === 10 && row.isParentCompany === 1
+              show: (row) => row.parentCompany && row.parentCompany.healthStatus === 10
             }]
           }
         ],
@@ -374,15 +373,15 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '新页面',
-        dataFetchPath: '/maintain/sp/companyHealthInfo/page',
+        businessType: '维修企业健康档案',
+        dataFetchPath: '/maintain/web/sp/dealerHealthInfo/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '维修企业健康档案.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
