@@ -13,7 +13,7 @@
         :detailRequest="detailRequest"
       >
         <template #extraButtons>
-          <el-button v-if="_id && form.signStatus === '0'" :loading="actionLoading" plain size="small" @click="handleSign">签收</el-button>
+          <el-button v-if="_id && form.signStatus === '0' && permissions.has('AISPART-sharedTransferInbound-print')" :loading="actionLoading" plain size="small" @click="handleSign">签收</el-button>
           <el-button v-if="_id" type="primary" size="small" @click="handlePrint">打印</el-button>
         </template>
         <el-main>

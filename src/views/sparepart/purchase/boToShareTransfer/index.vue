@@ -230,6 +230,9 @@ export default {
               click: (rowIndex, row) => {
                 this.handleTransfer(row);
               },
+              show: (row) => {
+                return this.permissions.has('AISPART-boToShareTransfer-apply');
+              },
               type: 'info'
             }
             //   {

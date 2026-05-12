@@ -26,11 +26,11 @@ const cdn = {
   },
   // cdn的js链接
   js: [
-    './js/vue.min.js',
-    './js/vuex.min.js',
-    './js/vue-router.min.js',
-    './js/index.js',
-    './js/axios.min.js'
+    // '/js/vue.min.js',
+    // '/js/vuex.min.js',
+    // '/js/vue-router.min.js',
+    // '/js/index.js',
+    // '/js/axios.min.js'
   ]
 };
 
@@ -131,9 +131,10 @@ module.exports = {
         localesToKeep: ['zh-cn']
       })
     ],
-    externals: isProduction || devNeedCdn ? cdn.externals : {
-      AMap: 'AMap'
-    },
+    // 不用cdn，防止微前端应用之间相互污染
+    // externals: isProduction || devNeedCdn ? cdn.externals : {
+    //   AMap: 'AMap'
+    // },
     devtool: isProduction ? false : 'source-map'
   },
   css: {

@@ -75,6 +75,141 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <el-form-item label="结算单状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="SettlementStatusEnum"
+            v-model="form.statementStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="结算单类型">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="StatementTypeEnum"
+            v-model="form.statementTypeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="数据来源">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="dataSource"
+            v-model="form.dataSourceList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="销账标识">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="WriteOffFlagEnum"
+            v-model="form.accountTypeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="是否已推送满意度">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="SatisfactionPushStatusEnum"
+            v-model="form.satisfactionPushStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="创建时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.createTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="结算时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.statementTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="收款时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.receiveTime"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="维修类型（汇总）">
+          <!-- <fetch-select
+            :remote-method="getRepairItemTypeList"
+            remote
+            v-model="form.repairItemTypeCollectList"
+            placeholder="请输入"
+            labelKey="name"
+            valueKey="id"
+            clearable
+            multiple
+            filterable
+          /> -->
+          <el-input
+            placeholder="请输入"
+            v-model="form.repairItemTypeDetailCollectLike"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="结算人员">
+          <fetch-select
+            :remote-method="getUserList"
+            remote
+            v-model="form.statementPersonNameList"
+            placeholder="请输入"
+            labelKey="username"
+            valueKey="userId"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="收款人员">
+          <fetch-select
+            :remote-method="getUserList"
+            remote
+            v-model="form.payeeNameList"
+            placeholder="请输入"
+            labelKey="username"
+            valueKey="userId"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canPage"
@@ -177,6 +312,9 @@ import {
   tableAddOrUpdate,
   exportTable,
   getEnum,
+  repairItemType,
+  listVehicleModel,
+  getUserByNameOrNo,
 } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -195,6 +333,18 @@ const defaultForm = {
   vehProfileVin: '',
   createReStatement: '',
   statementStatus: '',
+  statementStatusList: [],
+  statementTypeList: [],
+  dataSourceList: [],
+  accountTypeList: [],
+  satisfactionPushStatusList: [],
+  createTime: [],
+  statementTime: [],
+  receiveTime: [],
+  repairItemTypeCollectList: [],
+  statementPersonNameList: [],
+  payeeNameList: [],
+  repairItemTypeDetailCollectLike: ''
 };
 
 const pageSize = 20;
@@ -656,6 +806,22 @@ export default {
           data.signCompletedOnEnd = this.form.signCompletedOn[1];
         }
       }
+      // 处理结算时间
+      if (this.form.statementTime) {
+        delete data.statementTime;
+        if (this.form.statementTime.length > 1) {
+          data.statementTimeStart = this.form.statementTime[0];
+          data.statementTimeEnd = this.form.statementTime[1];
+        }
+      }
+      // 处理收款时间
+      if (this.form.receiveTime) {
+        delete data.receiveTime;
+        if (this.form.receiveTime.length > 1) {
+          data.receiveTimeStart = this.form.receiveTime[0];
+          data.receiveTimeEnd = this.form.receiveTime[1];
+        }
+      }
       data.sortColumns = this.sortColumns;
       return data;
     },
@@ -664,6 +830,30 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    async getRepairItemTypeList (query) {
+      try {
+        const res = await repairItemType({ nameOrCodeLike: query });
+        return res;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async getUserList (query) {
+      try {
+        const res = await getUserByNameOrNo({ nameOrEmpNo: query });
+        return res;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async getVehicleModelList (query) {
+      try {
+        const res = await listVehicleModel({ modelNameLike: query });
+        return res;
+      } catch (error) {
+        console.error(error);
+      }
     },
     // 批量删除
     handleBatchDelete () {

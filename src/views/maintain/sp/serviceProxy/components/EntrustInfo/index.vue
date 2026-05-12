@@ -211,10 +211,18 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="最早故障施工单（周期内）：" prop="earliestfaultServiceProxy">
+        <el-form-item label="最近故障施工单（周期内）：" prop="recentlyfaultServiceProxyCode">
           <el-input
             placeholder="请输入"
-            v-model="form.earliestfaultServiceProxy"
+            v-model="form.recentlyfaultServiceProxyCode"
+            clearable
+            disabled
+          />
+        </el-form-item>
+        <el-form-item label="最早故障施工单（周期内）：" prop="earliestfaultServiceProxyCode">
+          <el-input
+            placeholder="请输入"
+            v-model="form.earliestfaultServiceProxyCode"
             clearable
             disabled
           />
@@ -367,8 +375,13 @@
         <el-form-item label="原因说明：" prop="faultDesc">
           {{ form.faultDesc }}
         </el-form-item>
-        <el-form-item label="最早故障施工单（周期内）：" prop="earliestfaultServiceProxy">
-          {{ form.earliestfaultServiceProxy }}
+        <el-form-item label="最近故障施工单（周期内）：" prop="recentlyfaultServiceProxyCode">
+          <el-link v-if="form.recentlyfaultServiceProxy" type="success" :href="`/service/maintain/sp/serviceProxy/edit?id=${form.recentlyfaultServiceProxy}`" target="_blank">{{ form.recentlyfaultServiceProxyCode }}</el-link>
+          <span v-else>{{ form.recentlyfaultServiceProxyCode }}</span>
+        </el-form-item>
+        <el-form-item label="最早故障施工单（周期内）：" prop="earliestfaultServiceProxyCode">
+          <el-link  v-if="form.earliestfaultServiceProxy" type="success" :href="`/service/maintain/sp/serviceProxy/edit?id=${form.earliestfaultServiceProxy}`" target="_blank">{{ form.earliestfaultServiceProxyCode }}</el-link>
+          <span v-else>{{ form.earliestfaultServiceProxyCode }}</span>
         </el-form-item>
         <el-form-item label="故障提醒内容：" prop="faultAlert">
           {{ form.faultAlert }}
@@ -387,6 +400,9 @@
         </el-form-item>
         <el-form-item label="客户故障描述：" prop="customerContent" class="form-item-half">
           {{ form.customerContent }}
+        </el-form-item>
+        <el-form-item label="故障现象确认：" prop="confirmFaultLabel"  class="form-item-full">
+          {{ form.confirmFaultLabel }}
         </el-form-item>
         <el-form-item label="作废描述：" prop="invaildDesc" class="form-item-full">
           {{ form.invaildDesc }}

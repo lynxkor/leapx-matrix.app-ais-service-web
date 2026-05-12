@@ -265,7 +265,7 @@ export default {
             }, {
               name: '签收',
               show: (row) => {
-                return row.signStatus === '0';
+                return row.signStatus === '0' && this.permissions.has('AISPART-sharedTransferInbound-sign');
               },
               popconfirmTitle: '确定签收吗?',
               click: (rowIndex, row) => {
@@ -286,6 +286,7 @@ export default {
             },
             {
               name: '打印',
+              show: (row) => this.permissions.has('AISPART-sharedTransferInbound-print'),
               click: (rowIndex, row) => {
                 this.handlePrint(row);
               },

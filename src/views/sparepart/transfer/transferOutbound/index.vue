@@ -332,7 +332,7 @@ export default {
             }, {
               name: '提交',
               show: (row) => {
-                return row.transferStatus === '0' || row.transferStatus === '3';
+                return (row.transferStatus === '0' || row.transferStatus === '3') && this.permissions.has('AISPART-transferOutbound-submit');
               },
               popconfirmTitle: '此操作将提交, 是否继续?',
               click: (rowIndex, row) => {
@@ -348,7 +348,7 @@ export default {
             }, {
               name: '同意',
               show: (row) => {
-                return row.transferStatus === '1';
+                return row.transferStatus === '1' && this.permissions.has('AISPART-transferOutbound-approve');
               },
               popconfirmTitle: '此操作将同意, 是否继续?',
               click: (rowIndex, row) => {
@@ -364,7 +364,7 @@ export default {
             }, {
               name: '驳回',
               show: (row) => {
-                return row.transferStatus === '1';
+                return row.transferStatus === '1' && this.permissions.has('AISPART-transferOutbound-reject');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入驳回原因！', '驳回', {
@@ -385,7 +385,7 @@ export default {
             }, {
               name: '撤回',
               show: (row) => {
-                return row.transferStatus === '2' && row.outboundStatus === '0';
+                return row.transferStatus === '2' && row.outboundStatus === '0' && this.permissions.has('AISPART-transferOutbound-revoke');
               },
               popconfirmTitle: '此操作将撤回该出库单, 是否继续?',
               click: (rowIndex, row) => {
@@ -401,7 +401,7 @@ export default {
             }, {
               name: '发运',
               show: (row) => {
-                return row.transferStatus === '2' && row.outboundStatus === '0';
+                return row.transferStatus === '2' && row.outboundStatus === '0' && this.permissions.has('AISPART-transferOutbound-ship');
               },
               click: (rowIndex, row) => {
                 this.handleShipment(row);
@@ -423,7 +423,7 @@ export default {
             }, {
               name: '申请撤销',
               show: (row) => {
-                return (row.cancelStatus === '10' || row.cancelStatus === '40') && row.outboundStatus === '1';
+                return (row.cancelStatus === '10' || row.cancelStatus === '40') && row.outboundStatus === '1' && this.permissions.has('AISPART-transferOutbound-applyCancel');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入申请撤销原因！', '申请撤销', {
@@ -443,7 +443,7 @@ export default {
             }, {
               name: '同意撤销',
               show: (row) => {
-                return row.cancelStatus === '20';
+                return row.cancelStatus === '20' && this.permissions.has('AISPART-transferOutbound-approveCancel');
               },
               popconfirmTitle: '此操作将同意撤销, 是否继续?',
               click: (rowIndex, row) => {
@@ -459,7 +459,7 @@ export default {
             }, {
               name: '驳回撤销',
               show: (row) => {
-                return row.cancelStatus === '20';
+                return row.cancelStatus === '20' && this.permissions.has('AISPART-transferOutbound-rejectCancel');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入驳回撤销原因！', '驳回撤销', {
@@ -479,7 +479,7 @@ export default {
             }, {
               name: '入库',
               show: (row) => {
-                return row.cancelStatus === '30' && row.inboundStatus === '0';
+                return row.cancelStatus === '30' && row.inboundStatus === '0' && this.permissions.has('AISPART-transferOutbound-inbound');
               },
               popconfirmTitle: '此操作将入库, 是否继续?',
               click: (rowIndex, row) => {
