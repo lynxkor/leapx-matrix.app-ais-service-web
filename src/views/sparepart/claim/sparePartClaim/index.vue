@@ -223,7 +223,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/claim/sparePartClaim/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: false
                   }
                 });
               },
@@ -272,7 +273,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/claim/sparePartClaim/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

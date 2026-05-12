@@ -396,7 +396,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/purchase/purchaseApply/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

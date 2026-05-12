@@ -251,7 +251,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/outbound/dealerOutboundOrder/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

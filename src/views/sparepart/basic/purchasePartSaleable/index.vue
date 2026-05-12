@@ -35,9 +35,8 @@
             filterable
               />
       </el-form-item>
-      <template v-if="show">
-        <el-form-item label="是否可售">
-          <fetch-select
+      <el-form-item label="是否可售" v-show="this.visibleCount === 3 || show">
+        <fetch-select
           :request="fetchOptions"
           enumCode="BooleanEnum"
           v-model="form.saleableIs"
@@ -45,7 +44,8 @@
           clearable
           filterable
         />
-        </el-form-item>
+      </el-form-item>
+      <template v-if="show">
         <el-form-item label="创建时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -252,7 +252,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/purchasePartSaleable/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

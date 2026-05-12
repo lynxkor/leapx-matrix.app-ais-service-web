@@ -228,7 +228,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/warehouse/oemWarehouse/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
