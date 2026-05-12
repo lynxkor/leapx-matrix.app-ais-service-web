@@ -88,6 +88,14 @@ export default {
       };
       goPage(params).then(res => {
         this.tableData = res.records || [];
+        // 默认勾选所有行
+        this.$nextTick(() => {
+          if (this.$refs.workTable) {
+            this.$refs.workTable.setAllCheckboxRow(true);
+          }
+          // 手动设置 selectedRows，因为 setAllCheckboxRow 不会触发 checkbox-change 事件
+          this.selectedRows = [...this.tableData];
+        });
       });
     },
     close () {
