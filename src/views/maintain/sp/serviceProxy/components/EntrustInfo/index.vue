@@ -401,6 +401,9 @@
         <el-form-item label="客户故障描述：" prop="customerContent" class="form-item-half">
           {{ form.customerContent }}
         </el-form-item>
+        <el-form-item label="故障现象确认：" prop="confirmFaultLabel"  class="form-item-full">
+          {{ form.confirmFaultLabel }}
+        </el-form-item>
         <el-form-item label="作废描述：" prop="invaildDesc" class="form-item-full">
           {{ form.invaildDesc }}
         </el-form-item>

@@ -214,7 +214,7 @@
           /> -->
           <el-input
             placeholder="请输入"
-            v-model="form.warrantyTypeCollect"
+            v-model="form.repairItemTypeDetailCollectLike"
             clearable
           />
         </el-form-item>
@@ -238,7 +238,7 @@
             v-model="form.vehModelNameList"
             placeholder="请输入"
             labelKey="name"
-            valueKey="id"
+            valueKey="name"
             clearable
             multiple
             filterable
@@ -319,7 +319,7 @@ const defaultForm = {
   code: '',
   dataSource: '',
   orderStatus: '',
-  warrantyTypeCollect: '',
+  repairItemTypeDetailCollectLike: '',
   customerName: '',
   custType: '',
   vehModelName: '',

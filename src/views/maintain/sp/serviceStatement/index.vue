@@ -180,7 +180,7 @@
           /> -->
           <el-input
             placeholder="请输入"
-            v-model="form.warrantyTypeCollect"
+            v-model="form.repairItemTypeDetailCollectLike"
             clearable
           />
         </el-form-item>
@@ -344,7 +344,7 @@ const defaultForm = {
   repairItemTypeCollectList: [],
   statementPersonNameList: [],
   payeeNameList: [],
-  warrantyTypeCollect: ''
+  repairItemTypeDetailCollectLike: ''
 };
 
 const pageSize = 20;
