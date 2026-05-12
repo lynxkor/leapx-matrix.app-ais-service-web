@@ -898,6 +898,7 @@ export default {
     handleSubmitDialogClose () {
       this.submitDialogVisible = false;
       this.handleRefresh();
+      this.actionLoading = false;
     },
     // 同意
     async handleAgree (val) {
