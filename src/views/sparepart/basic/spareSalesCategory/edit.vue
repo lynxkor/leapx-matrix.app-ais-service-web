@@ -85,26 +85,19 @@
             </div>
             <div class="common-section-body">
               <div class="ais-select-group" v-if="partsId && isEditing">
-                <fetch-select
-                  style="width: 305px;"
-                  :remote-method="getDealerList"
-                  remote
-                  v-model="dealerCodes"
-                  placeholder="请选择"
-                  labelKey="orgName"
-                  valueKey="orgCode"
-                  subLabelKey="orgCode"
-                  clearable
+                <base-search
+                  style="width: 300px;"
                   filterable
-                  @change="handleStoreChange"
+                  clearable
+                  remote
+                  placeholder="请选择"
+                  v-model="dealerCodes"
+                  :remote-method="getDealerList"
+                  @change="(val, ele) => handleStoreChange(val, ele, 1)"
+                  label-key="orgName"
+                  value-key="orgCode"
+                  subLabelKey="orgCode"
                 />
-                <el-button
-                  type="primary"
-                  @click="handleAddStore(1)"
-                  size="small"
-                >
-                  添加
-                </el-button>
               </div>
               <div class="common-section-table">
                 <expand-table
@@ -135,26 +128,19 @@
             </div>
             <div class="common-section-body">
               <div class="ais-select-group" v-if="partsId && isEditing">
-                <fetch-select
-                  style="width: 305px;"
-                  :remote-method="getDealerList"
-                  remote
-                  v-model="noDealerCodes"
-                  placeholder="请选择"
-                  labelKey="orgName"
-                  valueKey="orgCode"
-                  subLabelKey="orgCode"
-                  clearable
+                <base-search
+                  style="width: 300px;"
                   filterable
-                  @change="handleStoreChange"
+                  clearable
+                  remote
+                  placeholder="请选择"
+                  v-model="noDealerCodes"
+                  :remote-method="getDealerList"
+                  @change="(val, ele) => handleStoreChange(val, ele, 0)"
+                  label-key="orgName"
+                  value-key="orgCode"
+                  subLabelKey="orgCode"
                 />
-                <el-button
-                  type="primary"
-                  @click="handleAddStores(0)"
-                  size="small"
-                >
-                  添加
-                </el-button>
               </div>
               <div class="common-section-table">
                 <expand-table
@@ -196,6 +182,7 @@ import expandTable from '@/libs/components/expandTable';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
+import BaseSearch from '@/libs/components/BaseSearch';
 
 const defaultForm = {
   categoryCode: '',
@@ -209,9 +196,9 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     expandTable,
-    FetchSelect,
     EditPageLayout,
     EditBaseContainer,
+    BaseSearch
   },
   computed: {
     _id () {
@@ -273,22 +260,22 @@ export default {
         {
           field: 'dealerName',
           title: '门店名称',
-          width: '20%',
+          width: '23%',
         },
         {
           field: 'dealerCode',
           title: '门店编码',
-          width: '20%',
+          width: '23%',
         },
         {
           field: 'createTime',
           title: '添加时间',
-          width: '20%',
+          width: '23%',
         },
         {
           field: 'creatorName',
           title: '操作人',
-          width: '20%',
+          width: '22%',
         }
       ],
     };
@@ -305,7 +292,7 @@ export default {
       const id = this._id;
       if (id) {
         return getDetail(id).then(res => {
-          this.form.buildTypeCode = res.categoryBuildTypeRespList?.map(item => Number(item.buildTypeCode)) || [];
+          res.buildTypeCode = res.categoryBuildTypeRespList?.map(item => Number(item.buildTypeCode)) || [];
           return res;
         });
       }
@@ -350,13 +337,19 @@ export default {
         return [];
       }
     },
-    handleStoreChange (val, ele) {
+    handleStoreChange (val, ele, type) {
       this.storeParams = {
         dealerCode: ele.orgCode,
         dealerName: ele.orgName,
         categorySpareId: this.partsId
       };
+      if (type === 0) {
+        this.handleAddStores(type); // 不可采购门店
+      } else if (type === 1) {
+        this.handleAddStore(type); // 可采购门店
+      }
     },
+    // 可采购门店
     async handleAddStore (val) {
       if (!this.dealerCodes) {
         return;
@@ -370,6 +363,7 @@ export default {
       this.dealerCodes = '';
       this.storeParams = {};
     },
+    // 不可采购门店
     async handleAddStores (val) {
       if (!this.noDealerCodes) {
         return;

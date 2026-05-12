@@ -23,18 +23,18 @@
           clearable
         />
       </el-form-item>
+      <el-form-item label="是否启用" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="BooleanEnum"
+          v-model="form.statusIncludeList"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
+        />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="是否启用">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="BooleanEnum"
-            v-model="form.statusIncludeList"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
