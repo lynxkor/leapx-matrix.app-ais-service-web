@@ -295,7 +295,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/fund/accountOperateDeductionApply/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

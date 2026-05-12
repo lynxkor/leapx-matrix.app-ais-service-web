@@ -192,7 +192,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/notify/notificationGroup/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

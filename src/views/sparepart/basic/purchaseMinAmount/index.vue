@@ -136,7 +136,7 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="1"
+      :id="'1'"
       @close="handleUploadDialogClose"
     />
   </div>
@@ -250,7 +250,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/purchaseMinAmount/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

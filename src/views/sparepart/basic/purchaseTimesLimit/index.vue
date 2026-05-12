@@ -254,7 +254,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/purchaseTimesLimit/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

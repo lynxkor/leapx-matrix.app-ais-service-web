@@ -261,6 +261,7 @@ export default {
                   path: '/sparepart/inbound/dealerInboundOrder/edit',
                   query: {
                     id: row.id,
+                    isEditing: true
                   }
                 });
               },

@@ -422,7 +422,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/purchase/backOrder/outOfStock/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
