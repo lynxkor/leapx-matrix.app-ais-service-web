@@ -28,7 +28,7 @@
                 <el-form-item label="门店编码：" prop="dealerCode">
                   <fetch-select :remote-method="getDealerList" remote v-model="form.dealerCode" placeholder="请输入门店编码或名称"
                     labelKey="orgCode" valueKey="orgCode" subLabelKey="orgName" clearable filterable
-                    :disabled="isEditing" @change="handleDealerChange" />
+                    :disabled="isEditing || accountFlag" @change="handleDealerChange" />
                 </el-form-item>
                 <el-form-item label="采购申请单：" prop="code">
                   <el-input placeholder="请输入" v-model="form.code" disabled />
@@ -590,7 +590,7 @@ export default {
       total: 0,
       purchaseApplyDeleteId: '', // 采购申请单ID
       tableData: [],
-      accountFlag: false, // 查询是否店端 true为门店  false为厂端
+      accountFlag: true, // 查询是否店端 true为门店  false为厂端
       currentDealerCode: '', // 当前门店code
       currentDealerName: '', // 当前门店名称
       isPartOrder: null, // 是否有备附件订购能力,
