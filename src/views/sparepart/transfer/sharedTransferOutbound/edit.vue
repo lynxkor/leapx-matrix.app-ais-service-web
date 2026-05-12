@@ -4,7 +4,7 @@
       <edit-base-container ref="containerRef" :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form"
         :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest">
         <template #status>
-          <span v-if="form.status" class="status primary">{{ form.status }}</span>
+          <span v-if="form.status" class="status primary">{{ form.outboundStatusLabel }}</span>
         </template>
         <template #extraButtons>
           <el-button v-if="_id && form.outboundStatus === '0' && permissions.has('AISPART-sharedTransferOutbound-print')" plain size="small" @click="handleShipment">发运</el-button>
