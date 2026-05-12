@@ -63,14 +63,14 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 13%">备件编码</th>
-                        <th style="width: 13%">备件名称</th>
-                        <th style="width: 8%">仓库库位</th>
-                        <th style="width: 8%">出库数量</th>
-                        <th style="width: 8%">是否出库</th>
-                        <th>领料人</th>
-                        <th>领料日期</th>
-                        <th>销售单价</th>
+                        <th style="width: 12%">备件编码</th>
+                        <th style="width: 15%">备件名称</th>
+                        <th style="width: 10%">仓库库位</th>
+                        <th style="width: 7%">出库数量</th>
+                        <th style="width: 7%">是否出库</th>
+                        <th style="width: 7%">领料人</th>
+                        <th style="width: 15%">领料日期</th>
+                        <th style="width: 8%">销售单价</th>
                         <th>备注</th>
                     </tr>
                 </thead>
