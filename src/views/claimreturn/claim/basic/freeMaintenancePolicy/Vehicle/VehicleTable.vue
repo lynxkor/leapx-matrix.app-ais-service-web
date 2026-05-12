@@ -11,6 +11,7 @@
     size="medium"
     min-height="0"
     max-height="400px"
+    class="common-section-table"
     >
     <vxe-column field="vehicleYearType" title="车辆年型"></vxe-column>
     <vxe-column field="vehicleModelName" title="车型名称"></vxe-column>

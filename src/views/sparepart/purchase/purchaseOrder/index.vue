@@ -161,13 +161,11 @@
       <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchSignFor(false)" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseOrder-sign'">批量签收</el-button>
       <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchSignFor(true)" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseOrder-signIn'">签收并入库</el-button>
     </div>
-    <div class="ais-tabs">
-      <el-tabs v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
-        <el-tab-pane label="全部备件" name="allSpareParts"></el-tab-pane>
-        <el-tab-pane label="待签收备件" name="proxySign"></el-tab-pane>
-      </el-tabs>
-    </div>
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
+      <el-tab-pane label="全部备件" name="allSpareParts"></el-tab-pane>
+      <el-tab-pane label="待签收备件" name="proxySign"></el-tab-pane>
+    </el-tabs>
     <div
       class="ais-table-c"
       v-if="activeName === 'homePage'"

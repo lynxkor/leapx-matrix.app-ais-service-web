@@ -217,7 +217,7 @@
                 </el-form-item>
               </el-form>
               <div class="common-title" v-show="!(isEditing || !_id)">采购单收货方</div>
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" class="form-detail"
                 v-show="!(isEditing || !_id) ">
                 <el-form-item label="备件收货人姓名：" prop="receiverName">
                   {{ form.receiverName }}
@@ -236,7 +236,7 @@
                 </el-form-item>
               </el-form>
               <div class="common-title" v-show="!(isEditing || !_id)">采购单发货方</div>
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" class="form-detail"
                 v-show="!(isEditing || !_id)">
                 <el-form-item label="仓库编码：" prop="deliveryWarehouseCode">
                   {{ form.deliveryWarehouseCode }}
@@ -314,7 +314,7 @@
               <h2>附件信息</h2>
             </div>
             <div class="common-section-body">
-              <h2 style="padding-bottom: 10px;">附件申请</h2>
+              <h2 class="common-title">附件申请</h2>
               <div class="common-section-table">
                 <!-- 附件上传组件 -->
                 <AisAttachment
@@ -324,7 +324,7 @@
                   :readonly="form.claimStatus !== '10' && form.claimStatus !== '30'"
                 />
               </div>
-              <h2 style="padding-bottom: 10px;">审批附件</h2>
+              <h2 class="common-title">审批附件</h2>
               <div class="common-section-table">
                 <AisAttachment
                   :businessId="_id"
@@ -902,6 +902,7 @@ export default {
   font-size: 14px;
   font-weight: 500;
   color: #0A0E0A;
+  margin-bottom: 16px;
 }
 
 .form-edit {

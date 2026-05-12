@@ -191,6 +191,7 @@ export default {
             label: '操作',
             type: 'operate',
             visible: true,
+            width: 100,
             fixed: 'right',
             buttons: [{
               name: '编辑',

@@ -261,17 +261,20 @@ export default {
               type: 'info'
             }, {
               name: '退车',
+              popconfirmConfirmButtonType: 'danger',
+              popconfirmConfirmButtonText: '退车',
+              popconfirmTitle: '确认要退车吗?',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
                   this.$message({
                     type: 'success',
-                    message: '删除成功!'
+                    message: '退车成功!'
                   });
                   this.getData();
                 }).catch(() => {
                   this.$message({
                     type: 'error',
-                    message: '删除失败!'
+                    message: '退车失败!'
                   });
                 });
               },

@@ -31,7 +31,7 @@
                 <el-form-item label="备件编码：" prop="partCode">
                   <el-input
                     placeholder="请输入"
-                    v-model="form.partCode"
+                    v-model="partCodeInput"
                     clearable
                     :disabled="!!_id"
                   >
@@ -246,6 +246,15 @@ export default {
     },
     title () {
       return '主键：' + this.form.id;
+    },
+    partCodeInput: {
+      get () {
+        const val = this.form.partCode || '';
+        return val.startsWith('E-') ? val.substring(2) : val;
+      },
+      set (val) {
+        this.form.partCode = val;
+      }
     }
   },
   watch: {

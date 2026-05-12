@@ -28,7 +28,7 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="供应商编码E-" prop="supplierCode">
+                <el-form-item label="供应商编码：" prop="supplierCode">
                   <el-input
                     placeholder="请输入"
                     v-model="form.supplierCode"
@@ -36,7 +36,7 @@
                     :disabled="!!_id"
                   />
                 </el-form-item>
-                <el-form-item label="供应商名称" prop="supplierName">
+                <el-form-item label="供应商名称：" prop="supplierName">
                   <el-input
                     placeholder="请输入"
                     v-model="form.supplierName"
@@ -44,7 +44,7 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="拼音简码">
+                <el-form-item label="拼音简码：">
                   <el-input
                     placeholder="保存后自动生成"
                     v-model="form.pinyincode"
@@ -52,14 +52,14 @@
                     disabled="true"
                   />
                 </el-form-item>
-                <el-form-item label="供应商简称" prop="supplierShortName">
+                <el-form-item label="供应商简称：" prop="supplierShortName">
                   <el-input
                     placeholder="请输入"
                     v-model="form.supplierShortName"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="国家" prop="countryName">
+                <el-form-item label="国家：" prop="countryName">
                   <fetch-select
                     :request="fetchOptions"
                     enumCode="CountryEnum"
@@ -69,7 +69,7 @@
                     filterable
                   />
                 </el-form-item>
-                <el-form-item label="省市区" prop="provinceCode"
+                <el-form-item label="省市区：" prop="provinceCode"
                 >
                   <el-cascader
                     style="width: 100%"
@@ -81,42 +81,42 @@
                     clearable>
                   </el-cascader>
                 </el-form-item>
-                <el-form-item label="地址" prop="address">
+                <el-form-item label="地址：" prop="address">
                   <el-input
                     placeholder="请输入"
                     v-model="form.address"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="供应商类型" prop="supplierType">
+                <el-form-item label="供应商类型：" prop="supplierType">
                   <el-input
                     placeholder="请输入"
                     v-model="form.supplierType"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="联系人姓名" prop="contactName">
+                <el-form-item label="联系人姓名：" prop="contactName">
                   <el-input
                     placeholder="请输入"
                     v-model="form.contactName"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="联系人电话" prop="contactPhone">
+                <el-form-item label="联系人电话：" prop="contactPhone">
                   <el-input
                     placeholder="请输入"
                     v-model="form.contactPhone"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="联系人邮箱" prop="contactEmail">
+                <el-form-item label="联系人邮箱：" prop="contactEmail">
                   <el-input
                     placeholder="请输入"
                     v-model="form.contactEmail"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="联系人传真" prop="contactFax">
+                <el-form-item label="联系人传真：" prop="contactFax">
                   <el-input
                     placeholder="请输入"
                     v-model="form.contactFax"

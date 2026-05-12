@@ -8,7 +8,6 @@
         :title="`${title} ${form.createTime}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
-        :showBackBtn="showBackBtn"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >

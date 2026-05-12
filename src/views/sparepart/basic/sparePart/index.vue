@@ -118,23 +118,24 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button> -->
-      <el-button v-permission="moduleKey + '-salesImport'" size="small" @click="handleImport('sparePartSalesImport', '销售导入模板')">销售导入</el-button>
-      <el-button v-permission="moduleKey + '-transportImport'" size="small" @click="handleImport('sparePartTransportImport', '物流导入模板')">物流导入</el-button>
-      <el-button v-permission="moduleKey + '-purchaseImport'" size="small" @click="handleImport('sparePartPurchaseImport', '采购导入模板')">采购导入</el-button>
-      <el-button v-permission="moduleKey + '-modelImport'" size="small" @click="handleImport('sparePartModelImport', '车型导入模板')">车型导入</el-button>
-      <el-button v-permission="moduleKey + '-vfgImport'" size="small" @click="handleImport('sparePartVfgImport', 'VFG导入模板')">VFG导入</el-button>
-      <el-button v-permission="moduleKey + '-printImport'" size="small">打印报价单</el-button>
-      <!-- <el-button v-permission="moduleKey + '-detail'" size="small">集中视图</el-button> -->
-
-      <!-- <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchAllowTransfer" :disabled="selectionList.length === 0">允许BO调拨</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchForbidTransfer" :disabled="selectionList.length === 0">禁止BO调拨</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchAllowSales" :disabled="selectionList.length === 0">允许备附件销售</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchForbidSales" :disabled="selectionList.length === 0">禁止备附件销售</el-button>
+      <ButtonGroup maxWidth="90%" collapseDirection="left">
+        <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button> -->
+        <el-button v-permission="moduleKey + '-salesImport'" size="small" @click="handleImport('sparePartSalesImport', '销售导入模板')">销售导入</el-button>
+        <el-button v-permission="moduleKey + '-transportImport'" size="small" @click="handleImport('sparePartTransportImport', '物流导入模板')">物流导入</el-button>
+        <el-button v-permission="moduleKey + '-purchaseImport'" size="small" @click="handleImport('sparePartPurchaseImport', '采购导入模板')">采购导入</el-button>
+        <el-button v-permission="moduleKey + '-modelImport'" size="small" @click="handleImport('sparePartModelImport', '车型导入模板')">车型导入</el-button>
+        <el-button v-permission="moduleKey + '-vfgImport'" size="small" @click="handleImport('sparePartVfgImport', 'VFG导入模板')">VFG导入</el-button>
+        <el-button v-permission="moduleKey + '-printImport'" size="small">打印报价单</el-button>
+        <!-- <el-button v-permission="moduleKey + '-detail'" size="small">集中视图</el-button> -->
+        <!-- <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+        <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
+        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
+        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchAllowTransfer" :disabled="selectionList.length === 0">允许BO调拨</el-button>
+        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchForbidTransfer" :disabled="selectionList.length === 0">禁止BO调拨</el-button>
+        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchAllowSales" :disabled="selectionList.length === 0">允许备附件销售</el-button>
+        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchForbidSales" :disabled="selectionList.length === 0">禁止备附件销售</el-button>
+      </ButtonGroup>
     </div>
     <div
       class="ais-table-c"
@@ -178,6 +179,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, getEndOfDayString, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import TagInput from '@/libs/components/TagInput';
+import ButtonGroup from '@/libs/components/ButtonGroup';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -210,7 +212,8 @@ export default {
     LPVxeTable,
     FetchSelect,
     Upload,
-    TagInput
+    TagInput,
+    ButtonGroup
   },
   data () {
     return {

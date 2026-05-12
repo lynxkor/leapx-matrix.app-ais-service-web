@@ -1,5 +1,5 @@
 <template>
-  <edit-page-layout ref="editLayout" :title="detailTitle">
+  <edit-page-layout ref="editLayout" :title="detailTitle" class="purchase-apply">
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :form.sync="form"
@@ -251,7 +251,7 @@
               <h2>备件信息</h2>
             </div>
             <div class="common-section-body">
-              <div class="ais-select-group">
+              <div style="margin-bottom: 10px;">
                 <el-button size="small" @click="handleAdd" :disabled="!['0', '3'].includes(form.orderStatus)"><i
                     class="iconfont icon-lxppc-plus"></i>添加备件</el-button>
                 <el-button class="ais-button" size="small" :disabled="!['0', '3'].includes(form.orderStatus)" @click="handleRestock">
@@ -1018,36 +1018,33 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.common-title {
-  font-size: 14px;
-  font-weight: 500;
-  color: #0A0E0A;
-}
+.purchase-apply {
+  .ais-select-group {
+    margin-bottom: 12px;
+  }
 
-.ais-select-group {
-  margin-bottom: 12px;
-}
+  .ais-button {
+    margin-left: 12px;
+    border-radius: 4px;
+  }
 
-.ais-button {
-  margin-left: 12px;
-  border-radius: 4px;
-}
+  .common-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0A0E0A;
+    margin-bottom: 16px;
+    padding-top: 4px;
+  }
 
-.common-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #0A0E0A;
-  margin-bottom: 10px;
-}
+  .table-pagination {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+  }
 
-.table-pagination {
-  margin-top: 15px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.clickable {
-  cursor: pointer;
-  color: #009100;
+  .clickable {
+    cursor: pointer;
+    color: #009100;
+  }
 }
 </style>

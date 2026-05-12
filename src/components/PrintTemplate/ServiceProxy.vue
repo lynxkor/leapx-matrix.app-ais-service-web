@@ -88,7 +88,7 @@
                     <td>送修人手机</td>
                     <td>{{ info.shuttlePhone }}</td>
                     <td>客户经理</td>
-                    <td>{{ info.dedicatedServiceManager }}</td>
+                    <td>{{ info.creatorName }}</td>
                   </tr>
                   <!-- <tr>
                     <td style="border-bottom-width: 0px">客户地址</td>
@@ -386,7 +386,7 @@
                   </tr>
                   <tr>
                     <td style="height: 40px">客户经理确认</td>
-                    <td colspan="2">{{ info.creatorName }}</td>
+                    <td colspan="2"></td>
                     <td>客户签字</td>
                     <td colspan="2" id="mcs_snap_ticket">
                       <img v-if="signUrl" :src="signUrl"  style="width: 120px; height: 32px" />
@@ -394,7 +394,7 @@
                   </tr>
                   <tr>
                     <td>日期</td>
-                    <td colspan="2">{{ info.createTime }}</td>
+                    <td colspan="2"></td>
                     <td>日期</td>
                     <td colspan="2">{{ info.signCompletedOn }}</td>
                   </tr>

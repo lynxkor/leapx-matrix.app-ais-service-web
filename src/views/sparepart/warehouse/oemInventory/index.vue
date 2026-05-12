@@ -6,7 +6,7 @@
       :model="form"
       size="small"
       label-position="right"
-      label-width="150px"
+      label-width="100px"
       class="ais-search-form"
     >
       <el-form-item label="备件">
