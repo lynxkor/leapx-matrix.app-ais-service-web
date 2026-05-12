@@ -574,7 +574,6 @@ export default {
           this.rules.customerContent = [
             { required: false, message: '请输入故障描述', trigger: 'change' }
           ];
-          this.form.customerContent = '本次进店车辆无故障';
         }
       }
     },
@@ -709,7 +708,7 @@ export default {
               addFaultRecord({
                 id: this._id,
                 currentFault: 0,
-                customerContent: null
+                customerContent: '本次进店车辆无故障'
               }).then(() => {
                 this.$message.success('本次故障信息清除成功');
                 this.$emit('refresh', false);
@@ -844,14 +843,15 @@ export default {
     // 刷新故障列表数据
     refreshFaultList () {
       if (!this._id) return;
-      getDetail(this._id).then(res => {
-        if (res && res.faultAlertRecordRespList) {
-          // 只更新故障列表数据，不影响其他字段
-          this.$set(this.form, 'faultAlertRecordRespList', res.faultAlertRecordRespList);
-        }
-      }).catch(err => {
-        console.error('刷新故障列表失败:', err);
-      });
+      this.$emit('refresh');
+      // getDetail(this._id).then(res => {
+      //   if (res && res.faultAlertRecordRespList) {
+      //     // 只更新故障列表数据，不影响其他字段
+      //     this.$set(this.form, 'faultAlertRecordRespList', res.faultAlertRecordRespList);
+      //   }
+      // }).catch(err => {
+      //   console.error('刷新故障列表失败:', err);
+      // });
     }
   }
 };
