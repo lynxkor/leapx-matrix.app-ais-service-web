@@ -43,6 +43,7 @@
                     placeholder="请输入"
                     v-model="form.workhourPrice"
                     type="number"
+                    min="0"
                     clearable
                   />
                 </el-form-item>
@@ -170,7 +171,7 @@ export default {
           title: '工时单价',
           editable: true,
           width: '27%',
-          editRender: { name: 'ElInput', props: { type: 'number' } },
+          editRender: { name: 'ElInput', props: { type: 'number', min: 0 } },
           rules: [
             { required: true, message: '工时单价不能为空', trigger: 'blur' },
           ]
@@ -196,6 +197,10 @@ export default {
               }
               if (isNaN(Number(value))) {
                 callback(new Error('请输入有效的数字'));
+                return;
+              }
+              if (Number(value) < 0) {
+                callback(new Error('工时单价不能小于0'));
                 return;
               }
               const strValue = value.toString();

@@ -217,7 +217,6 @@ const defaultForm = {
   statusDesc: '',
   pickStatus: '',
   ownerOrgId: '',
-  dealerCode: '',
   shuttleName: '',
   shuttlePhone: '',
   payType: '',

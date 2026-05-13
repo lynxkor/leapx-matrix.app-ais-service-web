@@ -1,6 +1,6 @@
 <template>
   <section class="common-section">
-    <div class="common-section-body" v-if="id && schemeId">
+    <div class="" v-if="id && schemeId">
       <section class="common-section">
         <enhanced-tabs
           ref="tabs"
@@ -148,8 +148,8 @@
               零件明细
             </div>
             <div
+              class="common-section"
               v-if="canAddOrUpdate && id"
-              class="common-section-header"
             >
               <base-search
                 filterable
@@ -502,7 +502,8 @@ export default {
   font-weight: 500;
 }
 .sub-title{
-  color: #6C6E6C;
+  color: var(--leap-color-default);
+  font-weight: 600;
   font-size: 14px;
   margin-bottom: 8px;
 }

@@ -47,6 +47,7 @@
         @reset="onReset"
       />
     </el-form>
+    <div class="ais-actions"/>
     <div class="ais-table-c">
       <LPVxeTable
         ref="tableRef"

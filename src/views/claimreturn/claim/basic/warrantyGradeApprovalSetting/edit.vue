@@ -72,6 +72,7 @@
                     :controls = "false"
                     :max="999999999"
                     :min="0"
+                    size="small"
                     style="width: calc(50% - 15px);"
                   />
                   <span style="margin: 0 8px;">至</span>
@@ -82,6 +83,7 @@
                     :controls = "false"
                     :max="999999999"
                     :min="0"
+                    size="small"
                     style="width: calc(50% - 15px);"
                   />
                 </el-form-item>

@@ -447,6 +447,7 @@ export default {
   },
   mounted () {
     if (this.isServiceCareActivity) {
+      this.form.checkoutTypeId = '352BB70C-82AC-E911-B0BB-FC82BA5F9EDF';
       this.form.checkoutTypeName = '自费';
       this.form.activityTypeLabel = '服务关爱活动';
       this.form.activityType = '4';

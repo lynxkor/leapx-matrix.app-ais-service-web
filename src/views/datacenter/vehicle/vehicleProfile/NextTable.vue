@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="common-section-table pb-0">
   <vxe-table
     ref="editTable"
     :data="tableData"
@@ -89,6 +89,7 @@
       :page-size="pageSize"
       layout="total, sizes, prev, pager, next, jumper"
       :total="total"
+      v-if="tableData.length"
     >
     </el-pagination>
   </div>

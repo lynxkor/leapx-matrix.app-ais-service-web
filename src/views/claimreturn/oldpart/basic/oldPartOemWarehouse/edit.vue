@@ -8,7 +8,6 @@
         :id="_id"
         :title="`仓库名称：${form.warehouseName}`"
         :isEditing.sync="isEditing"
-        direction="vertical"
         :form.sync="form"
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
