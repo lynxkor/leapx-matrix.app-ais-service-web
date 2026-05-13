@@ -746,7 +746,7 @@ export default {
       setTimeout(() => {
         getSpRemindInfo(this._id).then(res => {
           const list = res || [];
-          const target = list.find(item => item.type === RemindInfoTypeEnum.PRE_AUTH && item.content);
+          const target = list.find(item => (item.type === RemindInfoTypeEnum.PRE_AUTH || item.type === RemindInfoTypeEnum.CITY_LEVEL) && item.content);
           if (target) {
             this.remindInfoDialogVisible = true;
           }

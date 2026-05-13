@@ -74,7 +74,9 @@ export const RemindInfoTypeEnum = {
   /** 三包预警 */
   THREE_GUARANTEES: '2',
   /** 预授权提醒 */
-  PRE_AUTH: '3'
+  PRE_AUTH: '3',
+  /** 城市等级提醒 */
+  CITY_LEVEL: '4'
 };
 
 // 三包预警等级枚举
