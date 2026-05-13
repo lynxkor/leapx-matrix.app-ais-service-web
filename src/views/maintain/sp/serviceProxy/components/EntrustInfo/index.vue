@@ -68,7 +68,7 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="是否直播：" prop="isLive">
+        <!-- <el-form-item label="是否直播：" prop="isLive">
           <fetch-select
             :request="fetchOptions"
             enumCode="LiveStatusEnum"
@@ -79,7 +79,7 @@
             :disabled="isLiveDisabled"
             @change="handleIsLiveChange"
           />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="预检完成时间：" prop="previewingFinishAt">
           <el-date-picker
             type="datetime"
@@ -235,6 +235,13 @@
             disabled
           />
         </el-form-item>
+        <el-form-item label="故障现象确认：" prop="confirmFaultLabel">
+          <el-input
+            placeholder="请输入"
+            v-model="form.confirmFaultLabel"
+            disabled
+          />
+        </el-form-item>
         <el-form-item label="车联网故障描述：" prop="inCustomerContent" class="form-item-full">
           <el-input
             type="textarea"
@@ -278,13 +285,6 @@
             v-model="form.customerContent"
             clearable
             :disabled="!form.currentFault"
-          />
-        </el-form-item>
-        <el-form-item label="故障现象确认：" prop="confirmFaultLabel"  class="form-item-full">
-          <el-input
-            placeholder="请输入"
-            v-model="form.confirmFaultLabel"
-            disabled
           />
         </el-form-item>
         <el-form-item label="作废描述：" prop="invaildDesc" class="form-item-full">
@@ -386,6 +386,9 @@
         <el-form-item label="故障提醒内容：" prop="faultAlert">
           {{ form.faultAlert }}
         </el-form-item>
+        <el-form-item label="故障现象确认：" prop="confirmFaultLabel">
+          {{ form.confirmFaultLabel }}
+        </el-form-item>
         <el-form-item label="车联网故障描述：" prop="inCustomerContent" class="form-item-full">
           {{ form.inCustomerContent }}
         </el-form-item>
@@ -400,9 +403,6 @@
         </el-form-item>
         <el-form-item label="客户故障描述：" prop="customerContent" class="form-item-half">
           {{ form.customerContent }}
-        </el-form-item>
-        <el-form-item label="故障现象确认：" prop="confirmFaultLabel"  class="form-item-full">
-          {{ form.confirmFaultLabel }}
         </el-form-item>
         <el-form-item label="作废描述：" prop="invaildDesc" class="form-item-full">
           {{ form.invaildDesc }}

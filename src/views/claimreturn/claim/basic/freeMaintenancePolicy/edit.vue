@@ -242,7 +242,7 @@ import { getList } from '@/api/maintain/basic/repairItem';
 import { debounce } from 'lodash';
 import { uIntRule } from '@/validation/rule';
 import EnhancedTabs from '@/libs/components/EnhancedTabs';
-import { getDetail, addOrUpdate, freeMaintenancePolicyPartDetailList, freeMaintenancePolicyPartDetailDeleteVehicle } from '../../../../../api/claimreturn/claim/basic/freeMaintenancePolicy';
+import { getDetail, addOrUpdate, freeMaintenancePolicyPartDetailList, freeMaintenancePolicyPartDetailDeleteVehicle, freeMaintenancePolicyPartDetailUpdate } from '../../../../../api/claimreturn/claim/basic/freeMaintenancePolicy';
 import { vehicleSalesVersionList, getEnum, sparePartList } from '../../../../../api/common';
 import PartTable from './PartTable.vue';
 import ReplaceTable from './ReplaceTable.vue';
@@ -385,6 +385,20 @@ export default {
   mounted () {
   },
   methods: {
+    addRow (row) {
+      const parmas = {
+        partId: row.partId, // 零件ID
+        partQuantity: row.partQuantity, // 零件数量
+        freeMaintenancePolicyId: this._id, // 免保政策ID
+        vehicleRegisteredModelId: this.currentVehicleId, // 公告车型ID
+      };
+      freeMaintenancePolicyPartDetailUpdate(parmas).then(id => {
+        this.$message.success('添加成功');
+        this.$refs.containerRef.handleRefresh();
+        this.$refs.partTable.getDetailPageApi();
+      }).catch(e => {
+      });
+    },
     // 项目维修代码
     handleRepairItemChange (val, record) {
       if (record) {
@@ -449,7 +463,7 @@ export default {
         purchasePrice: cur.purchasePrice,
         partQuantity: 1,
       };
-      this.$refs.partTable.handleAdd(newItem);
+      this.addRow(newItem);
     }, 200),
     async fetchOptions (code) {
       if (code) {
