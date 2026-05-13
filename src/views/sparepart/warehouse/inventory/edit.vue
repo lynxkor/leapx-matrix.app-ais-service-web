@@ -433,8 +433,13 @@ export default {
     };
   },
   mounted () {
-    this.getInventory();
-    this.loadAllTableData();
+    // 等待详情接口加载完成后再调用 getInventory
+    this.$nextTick(() => {
+      this.$refs.containerRef.loadDetail().then(() => {
+        this.getInventory();
+        this.loadAllTableData();
+      });
+    });
   },
   methods: {
     // 业务单号跳转
@@ -577,7 +582,7 @@ export default {
       const params = {
         pageNum: this.inventory.current,
         pageSize: this.inventory.pageSize,
-        inventoryId: this.$route.query.id
+        inventoryId: this.form.id
       };
       const res = await flowPage(params);
       this.inventoryData = res.records || [];
@@ -606,7 +611,7 @@ export default {
     // 统一的加载数据方法
     async loadTableData (type) {
       const { current, pageSize } = this.pagination[type];
-      const inventoryId = this.$route.query.id;
+      const inventoryId = this.form.id;
 
       // 参数映射
       const paramMap = {
