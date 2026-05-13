@@ -473,6 +473,7 @@
                 </vxe-table>
                 <div class="table-pagination">
                   <el-pagination
+                    v-if="tableData.length"
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
                     :current-page="pageNum"

@@ -168,4 +168,7 @@ export default {
   font-size: 14px;
   font-weight: 500;
 }
+.el-button {
+  font-weight: 400;
+}
 </style>

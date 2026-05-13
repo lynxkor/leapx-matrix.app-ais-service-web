@@ -58,32 +58,24 @@
               <h2>备件清单</h2>
             </div>
             <div class="common-section-body">
-              <div class="ais-select-group" v-if="isEditing">
-                <fetch-select
-                  style="width: 305px;"
-                  :remote-method="getSparePart"
+              <div style="display: flex;gap: 8px;">
+                <base-search
+                  v-if="canAddOrUpdate"
+                  style="width: 360px;"
+                  :remote-method="queryPartList"
                   remote
-                  v-model="sparePartCode"
                   placeholder="请输入编码或名称"
-                  labelKey="name"
-                  valueKey="code"
-                  subLabelKey="code"
                   clearable
-                  collapseTags
-                  filterable
-                  @change="handleSparePartChange"
+                  value-key="value"
+                  label-key="label"
+                  @change="handlePartSelect"
                 />
                 <el-button
-                  type="primary"
-                  @click="handleAddPart()"
-                  size="small"
-                >
-                  添加
-                </el-button>
-                <el-button
+                  v-if="canAddOrUpdate"
                   type="primary"
                   @click="handleImport()"
                   size="small"
+                  plain
                 >
                   导入零件
                 </el-button>
@@ -95,14 +87,14 @@
                   show-overflow resizable border="inner" size="medium"
                   min-height="0" max-height="400px"
                 >
-                  <vxe-column field="sparePartCode" title="零件编码" width="280">
+                  <vxe-column field="sparePartCode" title="零件编码">
                     <template #default="{ row }">
                       <el-link type="success" :href="'/service/sparepart/basic/sparePart/detail?id=' + row.sparePartId" target="_blank">{{ row.sparePartCode }}</el-link>
                     </template>
                   </vxe-column>
-                  <vxe-column field="sparePartName" title="零件名称" width="280"></vxe-column>
-                  <vxe-column field="createTime" title="创建时间" width="280"></vxe-column>
-                  <vxe-column title="操作" width="100" fixed="right" v-if="isEditing">
+                  <vxe-column field="sparePartName" title="零件名称"></vxe-column>
+                  <vxe-column field="createTime" title="创建时间"></vxe-column>
+                  <vxe-column title="操作" width="100" fixed="right" v-if="canAddOrUpdate">
                     <template #default="{ row }">
                       <el-popconfirm
                         title="确认删除该零件吗？"
@@ -137,9 +129,9 @@
 
 <script>
 import { getDetail, addOrUpdate, getPartDetailPage, addPart, deletePart } from '@/api/sparepart/basic/purchaseReminder/index';
-import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
+import BaseSearch from '@/libs/components/BaseSearch';
 import { getEnum, sparePartListShort } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -158,7 +150,7 @@ export default {
   name: 'purchaseReminderEdit',
   mixins: [routeGuard, permissions, commonMixins],
   components: {
-    FetchSelect,
+    BaseSearch,
     EditPageLayout,
     EditBaseContainer,
     Upload
@@ -182,10 +174,7 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      sparePartData: [],
-      partOptions: [],
       tableData: [],
-      sparePartCode: '',
       uploadDialogVisible: false,
       rules: {
         reminderCategory: [
@@ -219,48 +208,41 @@ export default {
       }
       return [];
     },
-    async getSparePart (query) {
-      try {
-        const res = await sparePartListShort({ partCodeLikeOrList: query });
-        this.partOptions = res?.map(item => {
-          return {
-            ...item,
-            value: item.code,
-            label: item.name
-          };
+    queryPartList (queryString) {
+      return new Promise(resolve => {
+        sparePartListShort({ partCodeLikeOrList: queryString }).then(res => {
+          const list = res?.map(item => {
+            return {
+              ...item,
+              value: item.id,
+              label: `${item.code} - ${item.name}`,
+            };
+          }) || [];
+          resolve(list);
         });
-        return res;
-      } catch (error) {
-        console.error('Error fetching series list:', error);
-      }
+      });
     },
-    async handleAddPart () {
-      if (Object.keys(this.sparePartData).length === 0) {
-        this.$message({
-          type: 'warning',
-          message: '请选择零件'
-        });
+    handlePartSelect (val, record) {
+      if (!record.name) {
+        this.$message.warning('该备件未维护名称，请联系管理员');
         return;
       }
-      await addPart(this.sparePartData);
-      this.partDetailPage(this._id);
-      this.sparePartCode = '';
-      this.sparePartData = {};
+      addPart({
+        sparePartId: record.id,
+        sparePartCode: record.code,
+        sparePartName: record.name,
+        purchaseReminderId: this._id
+      }).then(() => {
+        this.$message.success('添加成功');
+        this.partDetailPage(this._id);
+      });
     },
     async handleDeletePart (val) {
-      await deletePart([val]);
-      this.partDetailPage(this._id);
-    },
-    handleSparePartChange (val) {
-      const selectedItem = this.partOptions.find(item => item.code === val);
-      if (selectedItem) {
-        this.sparePartData = {
-          sparePartId: selectedItem.id,
-          sparePartCode: selectedItem.code,
-          sparePartName: selectedItem.name,
-          purchaseReminderId: this._id
-        };
-      }
+      try {
+        await deletePart([val]);
+        this.$message.success('删除成功');
+        this.partDetailPage(this._id);
+      } catch (error) {}
     },
     async partDetailPage (val) {
       if (!val) return;
