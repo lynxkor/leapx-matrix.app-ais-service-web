@@ -561,7 +561,7 @@ export default {
           editRender: { name: 'ElInput' },
         },
         {
-          field: 'oemPartLabel',
+          field: 'isOemPartLabel',
           title: '是否OEM件',
           width: '22%',
           editRender: { name: 'ElInput' }
@@ -584,10 +584,62 @@ export default {
           { required: true, message: '请输入拼音简码', trigger: 'blur' }
         ],
         workhour: [
-          { required: true, message: '请输入工时', trigger: 'blur' }
+          { required: true, message: '请输入工时', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              if (value === '' || value === undefined || value === null) {
+                callback();
+                return;
+              }
+              if (isNaN(Number(value))) {
+                callback(new Error('请输入有效的数字'));
+                return;
+              }
+              if (Number(value) < 0) {
+                callback(new Error('工时不能小于0'));
+                return;
+              }
+              const strValue = value.toString();
+              if (strValue.includes('.')) {
+                const decimalPart = strValue.split('.')[1];
+                if (decimalPart.length > 2) {
+                  callback(new Error('最多只能输入两位小数'));
+                  return;
+                }
+              }
+              callback();
+            },
+            trigger: 'blur'
+          }
         ],
         workhourPrice: [
-          { required: true, message: '请输入工时单价', trigger: 'blur' }
+          { required: true, message: '请输入工时单价', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              if (value === '' || value === undefined || value === null) {
+                callback();
+                return;
+              }
+              if (isNaN(Number(value))) {
+                callback(new Error('请输入有效的数字'));
+                return;
+              }
+              if (Number(value) < 0) {
+                callback(new Error('工时单价不能小于0'));
+                return;
+              }
+              const strValue = value.toString();
+              if (strValue.includes('.')) {
+                const decimalPart = strValue.split('.')[1];
+                if (decimalPart.length > 2) {
+                  callback(new Error('最多只能输入两位小数'));
+                  return;
+                }
+              }
+              callback();
+            },
+            trigger: 'blur'
+          }
         ],
         maintenanceItemType: [
           { required: true, message: '请选择保养项目分类', trigger: 'change' }
@@ -655,7 +707,7 @@ export default {
               partsName: item.partName,
               partsCode: item.partCode,
               isOemPart: item.oemPart,
-              oemPartLabel: item.oemPartLabel,
+              isOemPartLabel: item.oemPartLabel,
             };
           }) || [];
           resolve(list);
@@ -671,10 +723,12 @@ export default {
         partsCode: record.partCode,
         isOemPart: record.oemPart,
         oemPartLabel: record.oemPartLabel,
-        id: null
+        id: null,
+        createTime: null
       });
       addOrUpdate({ ...this.form, repairItemVehicleModelList: this.tableData, repairItemPartsList: this.tableDataPj }).then(res => {
         this.$message.success('添加成功');
+        this.$refs.containerRef.handleRefresh();
       }).catch(e => {
         this.tableDataPj = this.tableDataPj.filter(item => item.id !== record.id);
       });

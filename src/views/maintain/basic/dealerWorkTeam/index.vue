@@ -198,6 +198,7 @@ export default {
             }]
           },
           { props: 'remark', label: '说明', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',
