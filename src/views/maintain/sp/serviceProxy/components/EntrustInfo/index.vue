@@ -694,7 +694,9 @@ export default {
     handleCurrentFaultChange (val) {
       if (val === 0) {
         const oldVal = this.form._prevCurrentFault;
+        const oldCustomerContent = this.form.customerContent;
         this.form._prevCurrentFault = val;
+        this.form.customerContent = '本次进店车辆无故障';
         if (oldVal === 1 && this._id) {
           const message = '<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>提醒</div><div class="ais-leave-tips-sub">若本次无故障，将自动清空【故障模块】信息，请确认是否操作！</div>';
           this.$confirm(message, '', {
@@ -721,6 +723,7 @@ export default {
           }).catch(() => {
             this.$set(this.form, 'currentFault', 1);
             this.form._prevCurrentFault = 1;
+            this.form.customerContent = oldCustomerContent;
           });
           return;
         }
@@ -744,7 +747,6 @@ export default {
               message: '保存成功',
               type: 'success'
             });
-            this.refreshFaultList();
             if (res) {
               const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>故障模块消息提醒</div><div class="ais-leave-tips-sub">${res}</div>`;
               this.$confirm(message, '', {
@@ -843,15 +845,18 @@ export default {
     // 刷新故障列表数据
     refreshFaultList () {
       if (!this._id) return;
-      this.$emit('refresh');
-      // getDetail(this._id).then(res => {
-      //   if (res && res.faultAlertRecordRespList) {
-      //     // 只更新故障列表数据，不影响其他字段
-      //     this.$set(this.form, 'faultAlertRecordRespList', res.faultAlertRecordRespList);
-      //   }
-      // }).catch(err => {
-      //   console.error('刷新故障列表失败:', err);
-      // });
+      getDetail(this._id).then(res => {
+        if (res && res.faultAlertRecordRespList) {
+          // 只更新故障列表数据，不影响其他字段
+          this.$set(this.form, 'faultAlertRecordRespList', res.faultAlertRecordRespList);
+          this.$set(this.form, 'currentSituationLabel', res.currentSituationLabel);
+          this.$set(this.form, 'faultAlert', res.faultAlert);
+          this.$set(this.form, 'recentlyfaultServiceProxyCode', res.recentlyfaultServiceProxyCode);
+          this.$set(this.form, 'earliestfaultServiceProxyCode', res.earliestfaultServiceProxyCode);
+        }
+      }).catch(err => {
+        console.error('刷新故障列表失败:', err);
+      });
     }
   }
 };

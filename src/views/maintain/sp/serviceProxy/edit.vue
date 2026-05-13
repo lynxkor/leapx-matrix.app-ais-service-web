@@ -478,9 +478,25 @@ export default {
       this.$refs.editLayout.openPane();
     },
     handleCancel () {
-      this.$refs.basicInfoRef.clearValidate();
-      this.$refs.entrustInfoRef.clearValidate();
-      this.isEditing = false;
+      // 检查表单是否有修改
+      if (JSON.stringify(this.originalForm) !== JSON.stringify(this.form)) {
+        const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确定要取消？</div><div class="ais-leave-tips-sub">取消后，当前填写的数据会被清空。</div>';
+        this.$confirm(message, '', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true,
+          customClass: 'ais-leave-tips',
+          showClose: false
+        }).then(() => {
+          this.$refs.basicInfoRef.clearValidate();
+          this.$refs.entrustInfoRef.clearValidate();
+          this.isEditing = false;
+          this.form = JSON.parse(JSON.stringify(this.originalForm));
+        }).catch(() => {
+        });
+      } else {
+        this.isEditing = false;
+      }
     },
     handleShowLog () {
       this.$auditLog.show({ id: this._id });
@@ -500,7 +516,9 @@ export default {
         getDetail(id).then(res => {
           this.loading = false;
           this.form = res;
-          this.originalForm = res;
+          this.$nextTick(() => {
+            this.originalForm = JSON.parse(JSON.stringify(this.form));
+          });
         });
       }
     },
