@@ -701,7 +701,7 @@ export default {
     detailRequest () {
       const id = this._id;
       if (id) {
-        return this.getDetailData();
+        return getDetail(id);
       }
       return {};
     },
