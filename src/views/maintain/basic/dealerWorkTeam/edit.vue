@@ -97,7 +97,7 @@
               </el-form>
             </div>
           </section>
-          <section class="common-section">
+          <section class="common-section" v-if = "_id">
             <div class="common-section-header">
               <h2>维修工程师信息</h2>
               <el-button v-if="canAddOrUpdate && isEditing" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>

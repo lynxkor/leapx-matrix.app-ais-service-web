@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="common-section-table pb-0">
     <vxe-table
       ref="editTable"
       :data="tableData"

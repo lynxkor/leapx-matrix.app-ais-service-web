@@ -74,7 +74,9 @@ export const RemindInfoTypeEnum = {
   /** 三包预警 */
   THREE_GUARANTEES: '2',
   /** 预授权提醒 */
-  PRE_AUTH: '3'
+  PRE_AUTH: '3',
+  /** 城市等级提醒 */
+  CITY_LEVEL: '4'
 };
 
 // 三包预警等级枚举
@@ -171,4 +173,10 @@ export const WorkRecordStatusEnum = {
   COMPLETED: 40,
   /** 作业作废 */
   CANCELLED: 50
+};
+
+// 客户类型
+export const CustomerTypeEnum = {
+  BOOKED: '10',
+  WALK_IN: '20'
 };

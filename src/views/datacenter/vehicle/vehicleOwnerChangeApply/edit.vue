@@ -12,10 +12,10 @@
     :showEditBtn="showEditBtn"
   >
     <template #extraButtons>
+      <el-button v-if="canCancel && (form.applyStatus === APPLY_STATUS.DRAFT || form.applyStatus === APPLY_STATUS.REJECTED)" type="danger" size="small" @click="handleCancel">作废</el-button>
       <el-button v-if="canSubmit && (form.applyStatus === APPLY_STATUS.DRAFT || form.applyStatus === APPLY_STATUS.REJECTED)" type="primary" size="small" @click="handleSubmit">提交</el-button>
-      <el-button v-if="canCancel && (form.applyStatus === APPLY_STATUS.DRAFT || form.applyStatus === APPLY_STATUS.REJECTED)" type="danger" plain size="small" @click="handleCancel">作废</el-button>
+      <el-button v-if="canReject && form.applyStatus === APPLY_STATUS.PENDING" type="danger" size="small" @click="handleReject">审批驳回</el-button>
       <el-button v-if="canApprove && form.applyStatus === APPLY_STATUS.PENDING" type="primary" size="small" @click="handleApprove">审批通过</el-button>
-      <el-button v-if="canReject && form.applyStatus === APPLY_STATUS.PENDING" type="danger" plain size="small" @click="handleReject">审批驳回</el-button>
     </template>
     <el-main>
       <section class="common-section">

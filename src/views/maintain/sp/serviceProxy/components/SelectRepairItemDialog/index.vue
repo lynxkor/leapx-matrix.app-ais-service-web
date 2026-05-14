@@ -897,17 +897,17 @@ export default {
         this.submitLoading = false;
         this.$message.success('保存成功');
 
-        // 检查维修类型变化
-        this.checkRepairTypeChange();
-
         this.$emit('update:visible', false);
         this.$emit('refresh');
-        this.$emit('check');
+        // 检查维修类型变化
+        this.checkRepairTypeChange(() => {
+          this.$emit('check');
+        });
       }).catch(e => {
         this.submitLoading = false;
       });
     },
-    checkRepairTypeChange () {
+    checkRepairTypeChange (callback) {
       // 检查原来的维修项目是否包含"一般维修"或"三电维修"
       const originalRepairItems = this.vehicleInfo.costCountResp?.repairItemRespList || [];
       const originalHasTargetRepair = originalRepairItems.some(item =>
@@ -923,7 +923,16 @@ export default {
 
       // 如果原来不包含，但现在包含，则显示提示
       if (!originalHasTargetRepair && currentHasTargetRepair) {
-        this.showMsg('维修类型为："一般维修"或"三电维修"，系统默认调整 【本次是否因故障进店】为：是，存在故障，请填写故障模块信息！');
+        this.$confirm('维修类型为："一般维修"或"三电维修"，系统默认调整 【本次是否因故障进店】为：是，存在故障，请填写故障模块信息！', '提醒', {
+          confirmButtonText: '确定',
+          type: 'warning'
+        }).then(() => {
+          callback && callback();
+        }).catch(() => {
+          callback && callback();
+        });
+      } else {
+        callback && callback();
       }
     },
     getEnumData () {
@@ -1410,6 +1419,7 @@ export default {
     handleRefresh () {
       this.getRepairItemInfo();
       this.$emit('refresh');
+      this.$emit('check');
     },
     // ----------替换件逻辑-----------------
     handlePartReplaceChange (current, row) {

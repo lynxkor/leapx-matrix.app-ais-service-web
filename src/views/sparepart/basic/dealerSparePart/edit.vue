@@ -31,7 +31,7 @@
                 <el-form-item label="备件编码：" prop="partCode">
                   <el-input
                     placeholder="请输入"
-                    v-model="form.partCode"
+                    v-model="partCodeInput"
                     clearable
                     :disabled="!!_id"
                   >
@@ -65,7 +65,9 @@
                   />
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode  }}
+                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                    {{ form.dealerCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName  }}
@@ -118,7 +120,9 @@
                   {{ form.baseUnitLabel  }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode  }}
+                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                    {{ form.dealerCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName  }}
@@ -246,6 +250,15 @@ export default {
     },
     title () {
       return '主键：' + this.form.id;
+    },
+    partCodeInput: {
+      get () {
+        const val = this.form.partCode || '';
+        return val.startsWith('E-') ? val.substring(2) : val;
+      },
+      set (val) {
+        this.form.partCode = val;
+      }
     }
   },
   watch: {

@@ -125,7 +125,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/sparePartClaimPrice/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, sparePartListShort } from '@/api/common';

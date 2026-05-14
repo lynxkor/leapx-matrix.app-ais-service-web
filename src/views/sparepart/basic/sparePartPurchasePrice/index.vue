@@ -154,7 +154,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/sparePartPurchasePrice/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
@@ -262,7 +262,18 @@ export default {
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
           { props: 'pricingModelLabel', label: '定价模式', visible: true, width: 180 },
           { props: 'dealerPurchasePrice', label: '采购价格', visible: true, align: 'right', width: 120 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'adjustmentRatio', label: '调价比例（%）', visible: true, width: 140 },
           { props: 'effectiveStartDate', label: '生效开始日期', visible: true, width: 200 },

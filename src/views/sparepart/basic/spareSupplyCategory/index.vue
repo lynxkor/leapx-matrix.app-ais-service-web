@@ -105,7 +105,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/spareSupplyCategory/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -191,6 +191,7 @@ export default {
             label: '操作',
             type: 'operate',
             visible: true,
+            width: 100,
             fixed: 'right',
             buttons: [{
               name: '编辑',

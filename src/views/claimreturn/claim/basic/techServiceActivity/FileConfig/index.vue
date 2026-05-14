@@ -7,7 +7,7 @@
       <section class="common-section">
         <div
           v-if="canAddOrUpdate && id"
-          class="common-section-header"
+          class="common-section"
         >
           <base-search
             :request="fetchOptions"

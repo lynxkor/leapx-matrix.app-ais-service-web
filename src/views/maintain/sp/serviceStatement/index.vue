@@ -90,7 +90,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="StatementTypeEnum"
-            v-model="form.statementTypeList"
+            v-model="form.StatementOrderTypeEnum"
             placeholder="请选择"
             clearable
             multiple
@@ -299,7 +299,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import {
   getList,
@@ -334,7 +334,7 @@ const defaultForm = {
   createReStatement: '',
   statementStatus: '',
   statementStatusList: [],
-  statementTypeList: [],
+  StatementOrderTypeEnum: [],
   dataSourceList: [],
   accountTypeList: [],
   satisfactionPushStatusList: [],
@@ -822,6 +822,8 @@ export default {
           data.receiveTimeEnd = this.form.receiveTime[1];
         }
       }
+      // 转换statementStatusList
+      data.statementStatusList = this.form.statementStatusList.map((item) => +item);
       data.sortColumns = this.sortColumns;
       return data;
     },

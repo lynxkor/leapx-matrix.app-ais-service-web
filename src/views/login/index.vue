@@ -111,7 +111,7 @@ export default {
         this.$store.commit('SET_PAGE_RESOURCE', res.resources);
         getAreaTree().then(res => {
           console.log('areaTree', res);
-          localStorage.getItem('areaTree', JSON.stringify(res));
+          localStorage.setItem('areaTree', JSON.stringify(res));
           this.$store.commit('SET_AREATREE', res);
         }).catch(() => {});
         this.$store.commit('SET_LOGIN_INFO', Object.assign({}, res));

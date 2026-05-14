@@ -400,7 +400,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/excelmanagement/commondataprocessexceltask/detail',
+      path: '/excelManagement/commonDataProcessExcelTask/detail',
       name: 'commonDataProcessExcelTaskDetail',
       component: () => import('@/views/excelManagement/commonDataProcessExcelTask/detail.vue'),
 
@@ -409,7 +409,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/excelmanagement/commondataprocessexceltask/edit',
+      path: '/excelManagement/commonDataProcessExcelTask/edit',
       name: 'commonDataProcessExcelTaskEdit',
       component: () => import('@/views/excelManagement/commonDataProcessExcelTask/edit.vue'),
 
@@ -427,7 +427,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/sparepartvehiclemodel/detail',
+      path: '/sparepart/basic/sparePartVehicleModel/detail',
       name: 'sparePartVehicleModelDetail',
       component: () => import('@/views/sparepart/basic/sparePartVehicleModel/detail.vue'),
 
@@ -436,7 +436,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/basic/sparepartvehiclemodel/edit',
+      path: '/sparepart/basic/sparePartVehicleModel/edit',
       name: 'sparePartVehicleModelEdit',
       component: () => import('@/views/sparepart/basic/sparePartVehicleModel/edit.vue'),
 
@@ -454,7 +454,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/sparesalescategory/detail',
+      path: '/sparepart/basic/spareSalesCategory/detail',
       name: 'spareSalesCategoryDetail',
       component: () => import('@/views/sparepart/basic/spareSalesCategory/detail.vue'),
 
@@ -463,7 +463,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/basic/sparesalescategory/edit',
+      path: '/sparepart/basic/spareSalesCategory/edit',
       name: 'spareSalesCategoryEdit',
       component: () => import('@/views/sparepart/basic/spareSalesCategory/edit.vue'),
 
@@ -481,7 +481,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/sparesupplycategory/detail',
+      path: '/sparepart/basic/spareSupplyCategory/detail',
       name: 'spareSupplyCategoryDetail',
       component: () => import('@/views/sparepart/basic/spareSupplyCategory/detail.vue'),
 
@@ -490,7 +490,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/basic/sparesupplycategory/edit',
+      path: '/sparepart/basic/spareSupplyCategory/edit',
       name: 'spareSupplyCategoryEdit',
       component: () => import('@/views/sparepart/basic/spareSupplyCategory/edit.vue'),
 
@@ -508,7 +508,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/spareengineeringcategory/detail',
+      path: '/sparepart/basic/spareEngineeringCategory/detail',
       name: 'spareEngineeringCategoryDetail',
       component: () => import('@/views/sparepart/basic/spareEngineeringCategory/detail.vue'),
 
@@ -517,7 +517,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/basic/spareengineeringcategory/edit',
+      path: '/sparepart/basic/spareEngineeringCategory/edit',
       name: 'spareEngineeringCategoryEdit',
       component: () => import('@/views/sparepart/basic/spareEngineeringCategory/edit.vue'),
 
@@ -589,7 +589,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/vehiclespecialpartwarrantypolicy/detail',
+      path: '/claimreturn/claim/basic/vehicleSpecialPartWarrantyPolicy/detail',
       name: 'vehicleSpecialPartWarrantyPolicyDetail',
       component: () => import('@/views/claimreturn/claim/basic/vehicleSpecialPartWarrantyPolicy/detail.vue'),
 
@@ -598,7 +598,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/claim/basic/vehiclespecialpartwarrantypolicy/edit',
+      path: '/claimreturn/claim/basic/vehicleSpecialPartWarrantyPolicy/edit',
       name: 'vehicleSpecialPartWarrantyPolicyEdit',
       component: () => import('@/views/claimreturn/claim/basic/vehicleSpecialPartWarrantyPolicy/edit.vue'),
 
@@ -616,7 +616,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/vehiclewarrantypolicy/edit',
+      path: '/claimreturn/claim/basic/vehicleWarrantyPolicy/edit',
       name: 'vehicleWarrantyPolicyEdit',
       component: () => import('@/views/claimreturn/claim/basic/vehicleWarrantyPolicy/edit.vue'),
 
@@ -634,7 +634,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/partwarrantypolicy/detail',
+      path: '/claimreturn/claim/basic/partWarrantyPolicy/detail',
       name: 'partWarrantyPolicyDetail',
       component: () => import('@/views/claimreturn/claim/basic/partWarrantyPolicy/detail.vue'),
 
@@ -643,7 +643,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/claim/basic/partwarrantypolicy/edit',
+      path: '/claimreturn/claim/basic/partWarrantyPolicy/edit',
       name: 'partWarrantyPolicyEdit',
       component: () => import('@/views/claimreturn/claim/basic/partWarrantyPolicy/edit.vue'),
 
@@ -661,7 +661,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/partspecialpartwarrantypolicy/detail',
+      path: '/claimreturn/claim/basic/partSpecialPartWarrantyPolicy/detail',
       name: 'partSpecialPartWarrantyPolicyDetail',
       component: () => import('@/views/claimreturn/claim/basic/partSpecialPartWarrantyPolicy/detail.vue'),
 
@@ -670,7 +670,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/claim/basic/partspecialpartwarrantypolicy/edit',
+      path: '/claimreturn/claim/basic/partSpecialPartWarrantyPolicy/edit',
       name: 'partSpecialPartWarrantyPolicyEdit',
       component: () => import('@/views/claimreturn/claim/basic/partSpecialPartWarrantyPolicy/edit.vue'),
 
@@ -688,7 +688,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/supplierinfo/detail',
+      path: '/sparepart/basic/supplierInfo/detail',
       name: 'supplierInfoDetail',
       component: () => import('@/views/sparepart/basic/supplierInfo/detail.vue'),
 
@@ -697,7 +697,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/basic/supplierinfo/edit',
+      path: '/sparepart/basic/supplierInfo/edit',
       name: 'supplierInfoEdit',
       component: () => import('@/views/sparepart/basic/supplierInfo/edit.vue'),
 
@@ -715,7 +715,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/sparepartsupplier/detail',
+      path: '/sparepart/basic/sparePartSupplier/detail',
       name: 'sparePartSupplierDetail',
       component: () => import('@/views/sparepart/basic/sparePartSupplier/detail.vue'),
 
@@ -724,7 +724,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/basic/sparepartsupplier/edit',
+      path: '/sparepart/basic/sparePartSupplier/edit',
       name: 'sparePartSupplierEdit',
       component: () => import('@/views/sparepart/basic/sparePartSupplier/edit.vue'),
 
@@ -742,7 +742,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/sparepartreplacer/detail',
+      path: '/sparepart/basic/sparePartReplacer/detail',
       name: 'sparePartReplacerDetail',
       component: () => import('@/views/sparepart/basic/sparePartReplacer/detail.vue'),
 
@@ -751,7 +751,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/basic/sparepartreplacer/edit',
+      path: '/sparepart/basic/sparePartReplacer/edit',
       name: 'sparePartReplacerEdit',
       component: () => import('@/views/sparepart/basic/sparePartReplacer/edit.vue'),
 
@@ -768,7 +768,7 @@ const routes = [
         name: '备件采购价格'
       }
     }, {
-      path: '/sparepart/basic/sparepartpurchaseprice/detail',
+      path: '/sparepart/basic/sparePartPurchasePrice/detail',
       name: 'sparePartPurchasePriceDetail',
       component: () => import('@/views/sparepart/basic/sparePartPurchasePrice/detail.vue'),
 
@@ -777,7 +777,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/basic/sparepartpurchaseprice/edit',
+      path: '/sparepart/basic/sparePartPurchasePrice/edit',
       name: 'sparePartPurchasePriceEdit',
       component: () => import('@/views/sparepart/basic/sparePartPurchasePrice/edit.vue'),
 
@@ -794,7 +794,7 @@ const routes = [
         name: '备件销售价格'
       }
     }, {
-      path: '/sparepart/basic/sparepartsalesprice/detail',
+      path: '/sparepart/basic/sparePartSalesPrice/detail',
       name: 'sparePartSalesPriceDetail',
       component: () => import('@/views/sparepart/basic/sparePartSalesPrice/detail.vue'),
 
@@ -803,7 +803,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/basic/sparepartsalesprice/edit',
+      path: '/sparepart/basic/sparePartSalesPrice/edit',
       name: 'sparePartSalesPriceEdit',
       component: () => import('@/views/sparepart/basic/sparePartSalesPrice/edit.vue'),
       meta: {
@@ -820,7 +820,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/sparepart/detail',
+      path: '/sparepart/basic/sparePart/detail',
       name: 'sparePartDetail',
       component: () => import('@/views/sparepart/basic/sparePart/detail.vue'),
 
@@ -829,7 +829,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/basic/sparepart/edit',
+      path: '/sparepart/basic/sparePart/edit',
       name: 'sparePartEdit',
       component: () => import('@/views/sparepart/basic/sparePart/edit.vue'),
 
@@ -867,7 +867,7 @@ const routes = [
         moduleKey: 'serviceActivityVehicle',
       }
     }, {
-      path: '/claimreturn/claim/basic/serviceactivityvehicle/edit',
+      path: '/claimreturn/claim/basic/serviceActivityVehicle/edit',
       name: 'serviceActivityVehicleEdit',
       component: () => import('@/views/claimreturn/claim/basic/serviceActivityVehicle/edit.vue'),
 
@@ -951,7 +951,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/freemaintenancepolicy/detail',
+      path: '/claimreturn/claim/basic/freeMaintenancePolicy/detail',
       name: 'freeMaintenancePolicyDetail',
       component: () => import('@/views/claimreturn/claim/basic/freeMaintenancePolicy/detail.vue'),
 
@@ -960,7 +960,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/claim/basic/freemaintenancepolicy/edit',
+      path: '/claimreturn/claim/basic/freeMaintenancePolicy/edit',
       name: 'freeMaintenancePolicyEdit',
       component: () => import('@/views/claimreturn/claim/basic/freeMaintenancePolicy/edit.vue'),
 
@@ -978,7 +978,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/freemaintenancepolicy/detail',
+      path: '/claimreturn/claim/basic/freeMaintenancePolicy/detail',
       name: 'freeMaintenancePolicyDetail2',
       component: () => import('@/views/claimreturn/claim/basic/freeMaintenancePolicy/detail.vue'),
 
@@ -987,7 +987,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/claimreturn/claim/basic/freemaintenancepolicy/edit',
+      path: '/claimreturn/claim/basic/freeMaintenancePolicy/edit',
       name: 'freeMaintenancePolicyEdit2',
       component: () => import('@/views/claimreturn/claim/basic/freeMaintenancePolicy/edit.vue'),
 
@@ -1005,7 +1005,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/threeguaranteesrule/edit',
+      path: '/claimreturn/claim/basic/threeGuaranteesRule/edit',
       name: 'threeGuaranteesRuleEdit',
       component: () => import('@/views/claimreturn/claim/basic/threeGuaranteesRule/edit.vue'),
 
@@ -1023,7 +1023,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/purchaseminamount/detail',
+      path: '/sparepart/basic/purchaseMinAmount/detail',
       name: 'purchaseMinAmountDetail',
       component: () => import('@/views/sparepart/basic/purchaseMinAmount/detail.vue'),
 
@@ -1032,7 +1032,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/basic/purchaseminamount/edit',
+      path: '/sparepart/basic/purchaseMinAmount/edit',
       name: 'purchaseMinAmountEdit',
       component: () => import('@/views/sparepart/basic/purchaseMinAmount/edit.vue'),
 
@@ -1050,7 +1050,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/oldpart/basic/oldpartoemwarehouse/edit',
+      path: '/claimreturn/oldpart/basic/oldPartOemWarehouse/edit',
       name: 'pageEdit',
       component: () => import('@/views/claimreturn/oldpart/basic/oldPartOemWarehouse/edit.vue'),
 
@@ -1068,7 +1068,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/oldpart/basic/oldpartunqualifiedconfig/edit',
+      path: '/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/edit',
       name: 'oldPartUnqualifiedConfigEdit',
       component: () => import('@/views/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/edit.vue'),
 
@@ -1086,7 +1086,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/purchasereminder/detail',
+      path: '/sparepart/basic/purchaseReminder/detail',
       name: 'purchaseReminderDetail',
       component: () => import('@/views/sparepart/basic/purchaseReminder/detail.vue'),
 
@@ -1095,7 +1095,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/basic/purchasereminder/edit',
+      path: '/sparepart/basic/purchaseReminder/edit',
       name: 'purchaseReminderEdit',
       component: () => import('@/views/sparepart/basic/purchaseReminder/edit.vue'),
 
@@ -1172,7 +1172,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/outbound/maintenanceoutboundorder/edit',
+      path: '/sparepart/outbound/maintenanceOutboundOrder/edit',
       name: 'maintenanceOutboundOrderEdit',
       component: () => import('@/views/sparepart/outbound/maintenanceOutboundOrder/edit.vue'),
 
@@ -1268,7 +1268,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/maintain/sp/serviceproxy/edit',
+      path: '/maintain/sp/serviceProxy/edit',
       name: 'serviceProxyEdit',
       component: () => import('@/views/maintain/sp/serviceProxy/edit.vue'),
 
@@ -1387,7 +1387,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/purchaseprice/edit',
+      path: '/sparepart/basic/purchasePrice/edit',
       name: 'purchasePriceEdit',
       component: () => import('@/views/sparepart/basic/purchasePrice/edit.vue'),
 
@@ -1405,7 +1405,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/warehouse/oemwarehouse/edit',
+      path: '/sparepart/warehouse/oemWarehouse/edit',
       name: 'oemWarehouseEdit',
       component: () => import('@/views/sparepart/warehouse/oemWarehouse/edit.vue'),
 
@@ -1423,7 +1423,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/purchasepricecoupon/edit',
+      path: '/sparepart/basic/purchasePriceCoupon/edit',
       name: 'purchasePriceCouponEdit',
       component: () => import('@/views/sparepart/basic/purchasePriceCoupon/edit.vue'),
 
@@ -1441,7 +1441,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/maintain/sp/servicestatement/edit',
+      path: '/maintain/sp/serviceStatement/edit',
       name: 'serviceStatementEdit',
       component: () => import('@/views/maintain/sp/serviceStatement/edit.vue'),
 
@@ -1459,7 +1459,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/datacenter/vehicle/vehicleprofile/edit',
+      path: '/datacenter/vehicle/vehicleProfile/edit',
       name: 'vehicleProfileEdit',
       component: () => import('@/views/datacenter/vehicle/vehicleProfile/edit.vue'),
 
@@ -1495,7 +1495,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/purchasepartsaleable/edit',
+      path: '/sparepart/basic/purchasePartSaleable/edit',
       name: 'purchasePartSaleableEdit',
       component: () => import('@/views/sparepart/basic/purchasePartSaleable/edit.vue'),
 
@@ -1532,7 +1532,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/oldpart/destroy/oldpartdestroyorder/edit',
+      path: '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit',
       name: 'oldPartDestroyOrderEdit',
       component: () => import('@/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit.vue'),
 
@@ -1578,7 +1578,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/purchasetimeslimit/edit',
+      path: '/sparepart/basic/purchaseTimesLimit/edit',
       name: 'purchaseTimesLimitEdit',
       component: () => import('@/views/sparepart/basic/purchaseTimesLimit/edit.vue'),
 
@@ -1605,7 +1605,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/maintain/basic/maintenancepartdata/edit',
+      path: '/maintain/basic/maintenancePartData/edit',
       name: 'maintenancePartDataEdit',
       component: () => import('@/views/maintain/basic/maintenancePartData/edit.vue'),
 
@@ -1623,7 +1623,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/claim/sparepartclaim/edit',
+      path: '/sparepart/claim/sparePartClaim/edit',
       name: 'sparePartClaimEdit',
       component: () => import('@/views/sparepart/claim/sparePartClaim/edit.vue'),
 
@@ -1641,7 +1641,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/purchase/purchaseapply/edit',
+      path: '/sparepart/purchase/purchaseApply/edit',
       name: 'purchaseApplyEdit',
       component: () => import('@/views/sparepart/purchase/purchaseApply/edit.vue'),
 
@@ -1659,7 +1659,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/purchase/purchaseorder/edit',
+      path: '/sparepart/purchase/purchaseOrder/edit',
       name: 'purchaseOrderEdit',
       component: () => import('@/views/sparepart/purchase/purchaseOrder/edit.vue'),
 
@@ -1687,7 +1687,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/purchase/backorder/edit',
+      path: '/sparepart/purchase/backOrder/edit',
       name: 'backOrderEdit',
       component: () => import('@/views/sparepart/purchase/backOrder/edit.vue'),
 
@@ -1714,7 +1714,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/warehouse/oemoutboundorder/edit',
+      path: '/sparepart/warehouse/oemOutboundOrder/edit',
       name: 'oemOutboundOrderEdit',
       component: () => import('@/views/sparepart/warehouse/oemOutboundOrder/edit.vue'),
 
@@ -1732,7 +1732,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/return/returnorder/edit',
+      path: '/sparepart/return/returnOrder/edit',
       name: 'returnOrderEdit',
       component: () => import('@/views/sparepart/return/returnOrder/edit.vue'),
 
@@ -1768,7 +1768,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/inbound/inboundorder/edit',
+      path: '/sparepart/inbound/inboundOrder/edit',
       name: 'inboundOrderEdit',
       component: () => import('@/views/sparepart/inbound/inboundOrder/edit.vue'),
 
@@ -1786,7 +1786,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/warehouse/oemoutboundcallbacksetting/edit',
+      path: '/sparepart/warehouse/oemOutboundCallbackSetting/edit',
       name: 'oemOutboundCallbackSettingEdit',
       component: () => import('@/views/sparepart/warehouse/oemOutboundCallbackSetting/edit.vue'),
 
@@ -1804,7 +1804,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/sys/consistencyin/edit',
+      path: '/sparepart/sys/consistencyIn/edit',
       name: 'consistencyInEdit',
       component: () => import('@/views/sparepart/sys/consistencyIn/edit.vue'),
 
@@ -1831,7 +1831,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/fund/accountoperateapply/edit',
+      path: '/sparepart/fund/accountOperateApply/edit',
       name: 'accountOperateApplyEdit',
       component: () => import('@/views/sparepart/fund/accountOperateApply/edit.vue'),
 
@@ -1849,7 +1849,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/fund/accountoperatedeductionapply/edit',
+      path: '/sparepart/fund/accountOperateDeductionApply/edit',
       name: 'accountOperateApplyEdit',
       component: () => import('@/views/sparepart/fund/accountOperateDeductionApply/edit.vue'),
 
@@ -1876,7 +1876,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/maintain/basic/repairpackages/edit',
+      path: '/maintain/basic/repairPackages/edit',
       name: 'repairPackagesEdit',
       component: () => import('@/views/maintain/basic/repairPackages/edit.vue'),
 
@@ -1894,7 +1894,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/dealersupplierinfo/edit',
+      path: '/sparepart/basic/dealerSupplierInfo/edit',
       name: 'dealerSupplierInfoEdit',
       component: () => import('@/views/sparepart/basic/dealerSupplierInfo/edit.vue'),
 
@@ -1912,7 +1912,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/warehouse/oeminventory/edit',
+      path: '/sparepart/warehouse/oemInventory/edit',
       name: 'oemInventoryEdit',
       component: () => import('@/views/sparepart/warehouse/oemInventory/edit.vue'),
 
@@ -1930,7 +1930,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/maintain/sp/qualityorderreport/edit',
+      path: '/maintain/sp/qualityOrderReport/edit',
       name: 'qualityOrderReportEdit',
       component: () => import('@/views/maintain/sp/qualityOrderReport/edit.vue'),
 
@@ -1966,7 +1966,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/warrantyhoursetting/edit',
+      path: '/claimreturn/claim/basic/warrantyHourSetting/edit',
       name: 'warrantyHourSettingEdit',
       component: () => import('@/views/claimreturn/claim/basic/warrantyHourSetting/edit.vue'),
 
@@ -1984,7 +1984,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/inbound/dealerinboundorder/edit',
+      path: '/sparepart/inbound/dealerInboundOrder/edit',
       name: 'dealerInboundOrderEdit',
       component: () => import('@/views/sparepart/inbound/dealerInboundOrder/edit.vue'),
 
@@ -2002,7 +2002,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/outbound/dealerreturnorder/edit',
+      path: '/sparepart/outbound/dealerReturnOrder/edit',
       name: 'dealerReturnOrderEdit',
       component: () => import('@/views/sparepart/outbound/dealerReturnOrder/edit.vue'),
 
@@ -2020,7 +2020,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/maintain/sp/interestsgoods/edit',
+      path: '/maintain/sp/interestsGoods/edit',
       name: 'interestsGoodsEdit',
       component: () => import('@/views/maintain/sp/interestsGoods/edit.vue'),
 
@@ -2038,7 +2038,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/outbound/dealeroutboundorder/edit',
+      path: '/sparepart/outbound/dealerOutboundOrder/edit',
       name: 'dealerOutboundOrderEdit',
       component: () => import('@/views/sparepart/outbound/dealerOutboundOrder/edit.vue'),
 
@@ -2056,7 +2056,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/notify/notificationgroup/edit',
+      path: '/sparepart/notify/notificationGroup/edit',
       name: 'notificationGroupEdit',
       component: () => import('@/views/sparepart/notify/notificationGroup/edit.vue'),
 
@@ -2074,7 +2074,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/warehouse/stocktaking/edit',
+      path: '/sparepart/warehouse/stockTaking/edit',
       name: 'stockTakingEdit',
       component: () => import('@/views/sparepart/warehouse/stockTaking/edit.vue'),
 
@@ -2092,7 +2092,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/warehouse/stocktakingdifferences/edit',
+      path: '/sparepart/warehouse/stockTakingDifferences/edit',
       name: 'stockTakingDifferencesEdit',
       component: () => import('@/views/sparepart/warehouse/stockTakingDifferences/edit.vue'),
 
@@ -2128,7 +2128,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/transfer/transferoutbound/edit',
+      path: '/sparepart/transfer/transferOutbound/edit',
       name: 'transferOutboundEdit',
       component: () => import('@/views/sparepart/transfer/transferOutbound/edit.vue'),
 
@@ -2146,7 +2146,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/transfer/transferinbound/edit',
+      path: '/sparepart/transfer/transferInbound/edit',
       name: 'transferInboundEdit',
       component: () => import('@/views/sparepart/transfer/transferInbound/edit.vue'),
 
@@ -2164,7 +2164,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/transfer/sharedtransferoutbound/edit',
+      path: '/sparepart/transfer/sharedTransferOutbound/edit',
       name: 'sharedTransferOutboundEdit',
       component: () => import('@/views/sparepart/transfer/sharedTransferOutbound/edit.vue'),
 
@@ -2182,7 +2182,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/transfer/sharedtransferinbound/edit',
+      path: '/sparepart/transfer/sharedTransferInbound/edit',
       name: 'sharedTransferInboundEdit',
       component: () => import('@/views/sparepart/transfer/sharedTransferInbound/edit.vue'),
 
@@ -2200,7 +2200,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/purchase/botosharetransfer/edit',
+      path: '/sparepart/purchase/boToShareTransfer/edit',
       name: 'boToShareTransferEdit',
       component: () => import('@/views/sparepart/purchase/boToShareTransfer/edit.vue'),
 
@@ -2254,7 +2254,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/purchase/shippingorder/edit',
+      path: '/sparepart/purchase/shippingOrder/edit',
       name: 'shippingOrderEdit',
       component: () => import('@/views/sparepart/purchase/shippingOrder/edit.vue'),
 
@@ -2275,7 +2275,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/warrantypartmanagementratesetting/edit',
+      path: '/claimreturn/claim/basic/warrantyPartManagementRateSetting/edit',
       name: 'warrantyPartManagementRateSettingEdit',
 
       component: () => import(
@@ -2305,7 +2305,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/maintain/sp/ownersequityorder/edit',
+      path: '/maintain/sp/ownersEquityOrder/edit',
       name: 'ownersEquityOrderEdit',
       component: () => import('@/views/maintain/sp/ownersEquityOrder/edit.vue'),
 
@@ -2323,7 +2323,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/maintain/sp/vehretention/edit',
+      path: '/maintain/sp/vehRetention/edit',
       name: 'vehRetentionEdit',
       component: () => import('@/views/maintain/sp/vehRetention/edit.vue'),
 
@@ -2341,7 +2341,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/approvalrejectsetting/edit',
+      path: '/claimreturn/claim/basic/approvalRejectSetting/edit',
       name: 'approvalRejectSettingEdit',
       component: () => import('@/views/claimreturn/claim/basic/approvalRejectSetting/edit.vue'),
 
@@ -2377,7 +2377,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/warrantysettlementcalendar/edit',
+      path: '/claimreturn/claim/basic/warrantySettlementCalendar/edit',
       name: 'warrantySettlementCalendarEdit',
       component: () => import('@/views/claimreturn/claim/basic/warrantySettlementCalendar/edit.vue'),
 
@@ -2395,7 +2395,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/warrantyattachmentsetting/edit',
+      path: '/claimreturn/claim/basic/warrantyAttachmentSetting/edit',
       name: 'warrantyAttachmentSettingEdit',
       component: () => import('@/views/claimreturn/claim/basic/warrantyAttachmentSetting/edit.vue'),
 
@@ -2413,7 +2413,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/warrantygradeapprovalsetting/edit',
+      path: '/claimreturn/claim/basic/warrantyGradeApprovalSetting/edit',
       name: 'warrantyGradeApprovalSettingEdit',
       component: () => import('@/views/claimreturn/claim/basic/warrantyGradeApprovalSetting/edit.vue'),
 
@@ -2447,7 +2447,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/warrantyorderwarningrule/edit',
+      path: '/claimreturn/claim/basic/warrantyOrderWarningRule/edit',
       name: 'warrantyOrderWarningRuleEdit',
       component: () => import('@/views/claimreturn/claim/basic/warrantyOrderWarningRule/edit.vue'),
 
@@ -2465,7 +2465,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/claimtrace/claimtraceorder/edit',
+      path: '/claimreturn/claim/claimtrace/claimTraceOrder/edit',
       name: 'claimTraceOrderEdit',
       component: () => import('@/views/claimreturn/claim/claimtrace/claimTraceOrder/edit.vue'),
 
@@ -2483,7 +2483,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/maintain/sp/vehretentionlist/edit',
+      path: '/maintain/sp/vehRetentionList/edit',
       name: 'vehRetentionListEdit',
       component: () => import('@/views/maintain/sp/vehRetentionList/edit.vue'),
 
@@ -2500,7 +2500,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/datacenter/vehicle/vehicleownerchangeapply/edit',
+      path: '/datacenter/vehicle/vehicleOwnerChangeApply/edit',
       name: 'vehicleOwnerChangeApplyEdit',
       component: () => import('@/views/datacenter/vehicle/vehicleOwnerChangeApply/edit.vue'),
       meta: {
@@ -2553,7 +2553,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/sparepartclaimprice/edit',
+      path: '/sparepart/basic/sparePartClaimPrice/edit',
       name: 'sparePartClaimPriceEdit',
       component: () => import('@/views/sparepart/basic/sparePartClaimPrice/edit.vue'),
 
@@ -2574,7 +2574,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/basic/supplierreplacementcarclaimprice/edit',
+      path: '/claimreturn/claim/basic/supplierReplacementCarClaimPrice/edit',
       name: 'supplierReplacementCarClaimPriceEdit',
 
       component: () => import(
@@ -2595,7 +2595,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/maintain/basic/monitoringequipmentconfig/edit',
+      path: '/maintain/basic/monitoringEquipmentConfig/edit',
       name: 'monitoringEquipmentConfigEdit',
       component: () => import('@/views/maintain/basic/monitoringEquipmentConfig/edit.vue'),
 
@@ -2613,7 +2613,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/maintain/basic/voicecontenttemplateconfig/edit',
+      path: '/maintain/basic/voiceContentTemplateConfig/edit',
       name: 'voiceContentTemplateConfigEdit',
       component: () => import('@/views/maintain/basic/voiceContentTemplateConfig/edit.vue'),
 
@@ -2631,7 +2631,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/claimreturn/claim/warrantyApply/edit',
+      path: '/claimreturn/claim/warrantyapply/edit',
       name: 'warrantyApplyEdit',
       component: () => import('@/views/claimreturn/claim/warrantyapply/edit.vue'),
 
@@ -2685,7 +2685,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/predictdealertype/edit',
+      path: '/sparepart/basic/predictDealerType/edit',
       name: 'predictDealerTypeEdit',
       component: () => import('@/views/sparepart/basic/predictDealerType/edit.vue'),
 
@@ -2703,7 +2703,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/basic/predictblacklist/edit',
+      path: '/sparepart/basic/predictBlacklist/edit',
       name: 'predictBlacklistEdit',
       component: () => import('@/views/sparepart/basic/predictBlacklist/edit.vue'),
 
@@ -2729,7 +2729,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/maintain/basic/datasyncrecord/edit',
+      path: '/maintain/basic/dataSyncRecord/edit',
       name: 'dataSyncRecordEdit',
       component: () => import('@/views/maintain/basic/dataSyncRecord/edit.vue'),
 

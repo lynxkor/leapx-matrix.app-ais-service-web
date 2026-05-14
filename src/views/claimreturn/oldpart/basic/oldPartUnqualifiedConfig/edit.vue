@@ -3,7 +3,6 @@
     ref="containerRef"
     :id="_id"
     :title="`代码：${form.unqualifiedCode}`"
-    direction="vertical"
     :isEditing.sync="isEditing"
     :form.sync="form"
     :originalForm.sync="originalForm"
@@ -16,7 +15,7 @@
             <h2>基础信息</h2>
           </div>
           <div class="common-section-body">
-            <el-form label-width="150px" :inline="true" :model="form" :rules="rules" ref="ruleForm"  class="form-edit" v-show="isEditing || !_id">
+            <el-form label-width="120px" :inline="true" :model="form" :rules="rules" ref="ruleForm"  class="form-edit" v-show="isEditing || !_id">
               <el-form-item label="代码：" prop="unqualifiedCode">
                 <el-input
                   v-model="form.unqualifiedCode"

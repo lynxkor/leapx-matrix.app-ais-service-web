@@ -11,7 +11,7 @@
         :model="form"
         :rules="rules"
         ref="ruleForm"
-        label-width="150px"
+        label-width="180px"
         class="form-edit"
       >
         <el-form-item label="流程编号（OA）：" prop="processCode">

@@ -108,7 +108,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/basic/dealerWorkTeam/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
@@ -198,6 +198,7 @@ export default {
             }]
           },
           { props: 'remark', label: '说明', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',

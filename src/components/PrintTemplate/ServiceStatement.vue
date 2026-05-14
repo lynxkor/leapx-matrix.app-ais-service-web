@@ -80,7 +80,7 @@
                     <td>送修人电话</td>
                     <td>{{ info.serviceProxyResp?.shuttlePhone }}</td>
                     <td>客户经理</td>
-                    <td>{{ info.serviceProxyResp?.dedicatedServiceManager }}</td>
+                    <td>{{ info.serviceProxyResp?.creatorName }}</td>
                   </tr>
                   <!-- <tr>
                     <td>客户地址</td>

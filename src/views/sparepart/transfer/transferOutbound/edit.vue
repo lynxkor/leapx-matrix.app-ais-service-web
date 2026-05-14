@@ -351,12 +351,12 @@
                   <vxe-column field="purchaseAmountTax" title="金额（含税）" min-width="10%" />
                   <vxe-column field="transferQty" title="调拨数量" min-width="10%">
                     <template #default="{ row }">
-                      <el-input v-model="row.transferQty" :disabled="!orderStatusType" :max="row.availableQty" type="number" min="1" @blur="handleQtyBlur(row)"/>
+                      <el-input v-model="row.transferQty" :disabled="!orderStatusType" :max="row.availableQty" type="number" min="1" @change="handleQtyBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="remark" title="备注" min-width="10%">
                     <template #default="{ row }">
-                      <el-input v-model="row.remark" :disabled="!orderStatusType" @blur="handleRemarkBlur(row)"/>
+                      <el-input v-model="row.remark" :disabled="!orderStatusType" @change="handleRemarkBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="10%" />

@@ -56,10 +56,10 @@
             <RepairInfo :formData="form" :_id="_id"/>
             <SparepartsInfo :formData="form"/>
             <section class="common-section">
-              <div class="common-section-header">
+              <div class="common-section-header fold">
                 <h2>资料附件</h2>
               </div>
-              <div class="common-section-body">
+              <div class="common-section-body" style="display: none;">
                 <Attachment :_id="_id" :show-upload="false" ref="attachmentRef" attachType="附件资料"/>
               </div>
             </section>
@@ -158,7 +158,7 @@
 
 <script>
 import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal, getSpRemindInfo, isVehRetention, addVehRetentionList, resendSignSms } from '@/api/maintain/sp/serviceProxy/index';
-import { RepairOrderStatusEnum, BusinessTypeEnum, RemindInfoTypeEnum, CurrentSituationEnum } from './constant';
+import { RepairOrderStatusEnum, BusinessTypeEnum, RemindInfoTypeEnum, CurrentSituationEnum, CustomerTypeEnum } from './constant';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import NavTop from './components/NavTop';
 import { getEnum } from '@/api/common';
@@ -193,7 +193,7 @@ const defaultForm = {
   orderStatus: '',
   warrantyTypeCollect: '',
   customerName: '',
-  custType: '',
+  custType: CustomerTypeEnum.WALK_IN,
   vehModelName: '',
   carPlate: '',
   dealerName: '',
@@ -217,7 +217,6 @@ const defaultForm = {
   statusDesc: '',
   pickStatus: '',
   ownerOrgId: '',
-  dealerCode: '',
   shuttleName: '',
   shuttlePhone: '',
   payType: '',
@@ -479,9 +478,25 @@ export default {
       this.$refs.editLayout.openPane();
     },
     handleCancel () {
-      this.$refs.basicInfoRef.clearValidate();
-      this.$refs.entrustInfoRef.clearValidate();
-      this.isEditing = false;
+      // 检查表单是否有修改
+      if (JSON.stringify(this.originalForm) !== JSON.stringify(this.form)) {
+        const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确定要取消？</div><div class="ais-leave-tips-sub">取消后，当前填写的数据会被清空。</div>';
+        this.$confirm(message, '', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true,
+          customClass: 'ais-leave-tips',
+          showClose: false
+        }).then(() => {
+          this.$refs.basicInfoRef.clearValidate();
+          this.$refs.entrustInfoRef.clearValidate();
+          this.isEditing = false;
+          this.form = JSON.parse(JSON.stringify(this.originalForm));
+        }).catch(() => {
+        });
+      } else {
+        this.isEditing = false;
+      }
     },
     handleShowLog () {
       this.$auditLog.show({ id: this._id });
@@ -501,7 +516,9 @@ export default {
         getDetail(id).then(res => {
           this.loading = false;
           this.form = res;
-          this.originalForm = res;
+          this.$nextTick(() => {
+            this.originalForm = JSON.parse(JSON.stringify(this.form));
+          });
         });
       }
     },
@@ -519,6 +536,11 @@ export default {
           this.$message.warning('请先添加故障模块');
           this.isEditing = true;
           return;
+        }
+        if (+this.form.mileage < +this.form.lastMileage) {
+          this.$message.warning(`本次进店里程数${this.form.mileage}小于上次进店里程数${this.form.lastMileage}，请注意`);
+        } else if (Math.abs(+this.form.mileage - +this.form.netMileage) > 300) {
+          this.$message.warning('进店里程数和车联网里程数不符，请注意');
         }
         this.submitLoading = true;
         addOrUpdate(data).then(res => {
@@ -747,7 +769,7 @@ export default {
       setTimeout(() => {
         getSpRemindInfo(this._id).then(res => {
           const list = res || [];
-          const target = list.find(item => item.type === RemindInfoTypeEnum.PRE_AUTH && item.content);
+          const target = list.find(item => (item.type === RemindInfoTypeEnum.PRE_AUTH || item.type === RemindInfoTypeEnum.CITY_LEVEL) && item.content);
           if (target) {
             this.remindInfoDialogVisible = true;
           }

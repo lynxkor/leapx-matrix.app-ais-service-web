@@ -139,6 +139,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { getAreaTree } from '@/utils';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import PartTable from './PartTable.vue';
 import ReplaceTable from './ReplaceTable.vue';
@@ -213,7 +214,7 @@ export default {
     const form = this.getDefautlForm();
     return {
       // 省市区
-      areaOptions: JSON.parse(localStorage.areaTree),
+      areaOptions: getAreaTree(),
       orgProps: {
         checkStrictly: true,
         emitPath: false,

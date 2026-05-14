@@ -49,6 +49,9 @@ Vue.use(VxeButton);
 /* -------------------- 注册vxe-table ----------------- */
 
 Vue.config.productionTip = false;
+Vue.config.errorHandler = (err, vm, info) => {
+  console.error('[Vue Error]', info, err);
+};
 
 Vue.use(ElementUI);
 Vue.use(Vuex);

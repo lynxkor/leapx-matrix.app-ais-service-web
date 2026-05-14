@@ -423,24 +423,37 @@
                   <vxe-column field="sparePartName" title="备件名称" width="160" />
                   <vxe-column field="locationName" title="库位" width="120" />
                   <vxe-column field="availableQty" title="可用库存" width="100" />
-                  <vxe-column field="priceTypeLabel" title="价格类型" width="100" />
+                  <vxe-column field="priceTypeLabel" title="价格类型" width="150">
+                    <template #default="{ row }">
+                      <fetch-select :request="fetchOptions" enumCode="RetailOrderPriceTypeEnum" v-model="row.priceType"
+                          placeholder="请选择价格类型" clearable filterable @change="handleSave(row)" :disabled="!isEditSpare" />
+                    </template>
+                  </vxe-column>
                   <vxe-column field="unitPrice" title="单价" width="100" />
-                  <vxe-column field="discountAmount" title="优惠金额" width="100" />
+                  <vxe-column field="discountAmount" title="优惠金额" width="100">
+                    <template #default="{ row }">
+                      <el-input v-model="row.discountAmount" type="number" @input="val => row.discountAmount = formatNumberInput(val)" @change="handleSave(row)" :disabled="!isEditSpare" />
+                    </template>
+                  </vxe-column>
                   <vxe-column field="payableAmount" title="应付金额" width="100" />
-                  <vxe-column field="qty" title="数量" width="100" />
+                  <vxe-column field="qty" title="数量" width="100">
+                    <template #default="{ row }">
+                      <el-input v-model="row.qty" type="number" @input="val => row.qty = formatNumberInput( val, { allowDecimal: false } )" @change="handleSave(row)" :disabled="!(isDelete && row.outboundIs === '0')" />
+                    </template>
+                  </vxe-column>
                   <vxe-column field="outboundIsLabel" title="是否出库" width="100" />
                   <vxe-column field="operationOperatorName" title="出入库操作人" width="160" />
                   <vxe-column field="operationTime" title="出入库操作时间" width="160" />
                   <vxe-column field="createTime" title="创建时间" width="160" />
                   <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
                     <template #default="{ row }">
-                      <span
+                      <!-- <span
                         class="btn-edit"
                         v-if="(isDelete && row.outboundIs === '0') || (isEditSpare)"
                         @click="handleEdit(row)"
                       >
                         编辑
-                      </span>
+                      </span> -->
                       <el-popconfirm title="确定要删除吗？" v-if="isDelete && row.outboundIs === '0'" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(row)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
@@ -526,7 +539,7 @@ import SparePartsDetail from './SparePartsDetail';
 import OutboundDialog from './OutboundDialog.vue';
 import ReturnMateriaDialog from './ReturnMateriaDialog.vue';
 import HarvestDialog from './HarvestDialog.vue';
-import { handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
+import { handleCommonAction, handleCommonPrompt, formatNumberInput } from '@/libs/utils/index';
 import BaseSearch from '@/libs/components/BaseSearch';
 
 const defaultForm = {
@@ -817,6 +830,7 @@ export default {
     this.initDealerUser();
   },
   methods: {
+    formatNumberInput,
     async handleVinChange (val, ele) {
       this.form.customerName = ele.vehicleProfileOwnerResp.ownerName;
       this.form.plateNumber = ele.vehiclePlateNo;
@@ -915,7 +929,6 @@ export default {
       await deleteRetailOrderDetail([val.id]);
       this.$message.success('删除成功');
       this.handleRefresh();
-      this.getData();
     },
     // 备件远程搜索
     async queryListData (query) {
@@ -988,10 +1001,19 @@ export default {
       this.getData();
     },
     // 保存侧边栏数据
-    async handleSave () {
-      await this.$refs.detailRef.handleSave();
+    // async handleSave () {
+    //   await this.$refs.detailRef.handleSave();
+    //   this.handleRefresh();
+    //   this.$refs.editLayout.closePane();
+    // },
+    // 保存修改
+    async handleSave (val) {
+      await addOrUpdateRetailOrderDetail(val);
       this.handleRefresh();
-      this.$refs.editLayout.closePane();
+      this.$message({
+        message: '保存成功',
+        type: 'success',
+      });
     },
     // 处理额外按钮点击事件
     handleExtraButtonClick (action) {

@@ -51,11 +51,11 @@
             <table class="gridtable print-repeat-header">
                 <thead class="print-header">
                     <tr id="data-title">
-                        <th>厅店入库单号</th>
-                        <th>采购订单号</th>
-                        <th>备件编码</th>
-                        <th>备件名称</th>
-                        <th>备件数量</th>
+                        <th style="width:12%">厅店入库单号</th>
+                        <th style="width:12%">采购订单号</th>
+                        <th style="width:12%">备件编码</th>
+                        <th style="width:18%">备件名称</th>
+                        <th style="width:10%">备件数量</th>
                     </tr>
                 </thead>
 

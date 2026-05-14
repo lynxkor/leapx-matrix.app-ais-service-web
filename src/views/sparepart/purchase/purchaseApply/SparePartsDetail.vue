@@ -8,7 +8,7 @@
         <div class="common-title">备件详情</div>
         <div class="ais-actions">
             <div class="common-section-table" v-if="sparePartDetail">
-                <el-form :form="sparePartDetail" :inline="true" class="form-detail">
+                <el-form :form="sparePartDetail" :inline="true" class="form-edit">
                     <el-form-item label="备件编码：" prop="partCode">
                         {{ sparePartDetail.partCode }}
                     </el-form-item>
@@ -39,6 +39,7 @@
                             @change="updateSparePartDetail"
                             controls-position="right"
                             style="width: 100%;"
+                            size="small"
                         ></el-input-number>
                     </el-form-item>
                     <el-form-item label="OEM库存：" prop="oemInventoryIs">

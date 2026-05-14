@@ -16,7 +16,7 @@
                 </vxe-column>
                 <vxe-column title="退料原因" width="12.5%">
                     <template #default="{ row }">
-                        <el-input v-model="row.returnMaterialReason" />
+                        <el-input size="small" v-model="row.returnMaterialReason" />
                     </template>
                 </vxe-column>
                 <vxe-column title="操作" width="120">

@@ -119,6 +119,7 @@
 <script>
 import { getDetail } from '@/api/sparepart/basic/supplierInfo/index';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
+import { getAreaTree } from '@/utils';
 import permissions from '@/libs/mixins/permissions';
 
 export default {
@@ -129,7 +130,7 @@ export default {
   data () {
     return {
       oem: false,
-      areaOptions: JSON.parse(localStorage.areaTree),
+      areaOptions: getAreaTree(),
       orgProps: {
         checkStrictly: true,
         emitPath: false,

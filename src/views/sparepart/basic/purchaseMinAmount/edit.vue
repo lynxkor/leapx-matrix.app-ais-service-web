@@ -92,7 +92,9 @@
                   {{ form.typeLabel }}
                 </el-form-item>
                 <el-form-item label="门店编码：">
-                  {{ form.dealerCode }}
+                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                    {{ form.dealerCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="门店名称：">
                   {{ form.dealerName }}

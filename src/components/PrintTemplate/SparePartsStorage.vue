@@ -41,14 +41,14 @@
             <table class="print-repeat-header">
                 <thead class="print-header">
                     <tr id="data-title">
-                        <th>备件编码</th>
-                        <th>备件名称</th>
-                        <th>入库数量</th>
-                        <th>库位编码</th>
-                        <th>原单价</th>
-                        <th>原总价</th>
-                        <th>折后单价</th>
-                        <th>折后总价</th>
+                        <th style="width:12%">备件编码</th>
+                        <th style="width:15%">备件名称</th>
+                        <th style="width:7%">入库数量</th>
+                        <th style="width:12%">库位编码</th>
+                        <th style="width:7%">原单价</th>
+                        <th style="width:7%">原总价</th>
+                        <th style="width:7%">折后单价</th>
+                        <th style="width:7%">折后总价</th>
                     </tr>
                 </thead>
 

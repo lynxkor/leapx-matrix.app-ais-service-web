@@ -139,17 +139,16 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction/index.vue';
 import {
   getList,
   deleteItem,
   enableItem,
   companyList,
-  getEnum,
   openUpload
 } from '@/api/maintain/sp/companyInfo';
-import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import Upload from '@/libs/components/UploadDialog/index.vue';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -499,7 +498,7 @@ export default {
     // 批量删除
     handleBatchDelete () {
       const ids = this.selectionList.map(item => item.id) || [];
-      this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+      this.$confirm('此操作将删除选中维修企业健康档案信息，您无法撤销此操作，是否继续？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'

@@ -183,7 +183,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, getAsync } from '@/api/sparepart/warehouse/oemOutboundOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse, listOemWarehouse } from '@/api/common';
@@ -313,7 +313,18 @@ export default {
             }]
           },
           { props: 'deliveryWarehouseName', label: '发货仓库', visible: true, width: 180 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 180 },
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
           {

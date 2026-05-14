@@ -1,14 +1,14 @@
 <template>
     <el-dialog class="m-start-work-dialog" title="补货预测" width="80%" :visible.sync="dialogVisible" @close="close">
-        <el-form ref="form" :model="form" inline label-width="150px" size="small">
+        <el-form ref="form" :model="form" :rules="rules" inline label-width="160px" size="small">
             <el-form-item label="备件编码：">
                 <tag-input v-model="form.partsCodeList" placeholder="请输入" />
             </el-form-item>
             <el-form-item label="备件名称：">
                 <el-input v-model="form.partsNameLike" placeholder="请输入" />
             </el-form-item>
-            <el-form-item label="一次性满足率（%)：">
-                <el-input v-model="form.onceSatisfactionRate" type="number" placeholder="请输入" />
+            <el-form-item label="一次性满足率（%)：" prop="onceSatisfactionRate">
+                <el-input v-model="form.onceSatisfactionRate" type="number" placeholder="请输入" :min="60" :max="99" />
             </el-form-item>
             <el-form-item label="MAX大于等于：">
                 <el-input v-model="form.maxForecast" type="number" placeholder="请输入" />
@@ -50,7 +50,13 @@
                 <vxe-column field="subtotal" title="小计" width="100" />
                 <vxe-column field="purchaseQty" title="采购量" fixed="right" width="120">
                     <template #default="{ row }">
-                        <el-input v-model="row.purchaseQty" type="number" placeholder="请输入" />
+                        <el-input
+                            v-model="row.purchaseQty"
+                            type="number"
+                            size="small"
+                            placeholder="请输入"
+                            @change="handlePurchaseQtyBlur(row)"
+                        />
                     </template>
                 </vxe-column>
             </vxe-table>
@@ -82,7 +88,7 @@ const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   partsCodeList: [],
   partsNameLike: '',
-  onceSatisfactionRate: '80',
+  onceSatisfactionRate: 80,
   maxForecast: '',
   suggestedPurchaseQty: '',
   expectedShortageDate: [],
@@ -115,6 +121,24 @@ export default {
       pageSize: 10,
       total: 0,
       selectedRows: [],
+      rules: {
+        onceSatisfactionRate: [
+          { required: true, message: '一次性满足率不能为空', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              const num = Number(value);
+              if (isNaN(num)) {
+                callback(new Error('一次性满足率必须是数字'));
+              } else if (num < 60 || num > 99) {
+                callback(new Error('一次性满足率必须在60-99之间'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'blur'
+          }
+        ]
+      }
     };
   },
   watch: {
@@ -137,6 +161,19 @@ export default {
       this.current = 1;
       this.pageSize = 10;
       this.getData();
+    },
+    handlePurchaseQtyBlur (row) {
+      const purchaseQty = Number(row.purchaseQty);
+      const minOrderQty = Number(row.minOrderQty);
+
+      if (purchaseQty > 0 && minOrderQty > 0) {
+        if (purchaseQty % minOrderQty !== 0) {
+          // 计算最接近的倍数（向上取整）
+          const nearestMultiple = Math.ceil(purchaseQty / minOrderQty) * minOrderQty;
+          row.purchaseQty = nearestMultiple;
+          this.$message.warning(`采购量已自动调整为最小订购量（${minOrderQty}）的倍数：${nearestMultiple}`);
+        }
+      }
     },
     getFormData () {
       const data = { ...this.form };
@@ -162,7 +199,7 @@ export default {
     // 请求表格数据
     getData () {
       this.loading = true;
-      purchaseApplyGetCouponPage({ ...this.getFormData(), orderId: '019DBD21-5DF1-7134-9D2A-02C7C2EDAE52', pageNum: this.current, pageSize: this.pageSize })
+      purchaseApplyGetCouponPage({ ...this.getFormData(), orderId: this.id, pageNum: this.current, pageSize: this.pageSize })
         .then(res => {
           this.tableData = res.records.map(item => {
             return {

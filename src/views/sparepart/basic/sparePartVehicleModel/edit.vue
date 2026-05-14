@@ -181,13 +181,17 @@
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="备件编码：">
-                  {{ form.partCode }}
+                  <el-link type="primary" :href="`/sparepart/basic/sparePart/edit?id=${form.sparePartId}`" target="_blank">
+                    {{ form.partCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="备件名称：">
                   {{ form.partName }}
                 </el-form-item>
                 <el-form-item label="车系名称：">
-                  {{ form.vehicleSeriesName }}
+                  <el-link type="primary" :href="`/sales/datacenter/materials/vehicleseries/edit?id=${form.vehicleSeriesId}`" target="_blank">
+                    {{ form.vehicleSeriesName }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="车型名称：">
                   {{ form.vehicleModelName }}
