@@ -266,7 +266,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: 'VFG',
-        dataFetchPath: '/claimreturn/claim/basic/vfg/page',
+        dataFetchPath: '/claimreturn/claim/web/basic/vfg/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
