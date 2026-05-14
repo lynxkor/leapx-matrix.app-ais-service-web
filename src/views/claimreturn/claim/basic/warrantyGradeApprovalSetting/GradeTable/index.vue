@@ -18,9 +18,9 @@
         </template>
       </vxe-column>
       <vxe-column title="审批人员">
-        <template #default="{ row }">
+        <template #default="{ row, rowIndex }">
           <fetch-select
-            v-if="row._editing"
+            v-if="row._editing && rowIndex>0"
             filterable
             clearable
             remote
