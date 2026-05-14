@@ -163,7 +163,18 @@ export default {
             }]
           },
           { props: 'partName', label: '备件名称', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'sharedQty', label: '共享数量', visible: true, width: 120, align: 'right' },
           { props: 'purchasePrice', label: '采购价格', visible: true, width: 120, align: 'right' },

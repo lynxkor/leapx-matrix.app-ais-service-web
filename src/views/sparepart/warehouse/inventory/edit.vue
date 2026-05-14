@@ -106,7 +106,9 @@
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="备件编码：" prop="sparePartId">
-                  {{ form.partCode }}
+                  <el-link type="primary" :href="`/service/sparepart/basic/sparePart/detail?id=${form.sparePartId}`" target="_blank">
+                    {{ form.partCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="备件名称：" prop="sparePartId">
                   {{ form.partName }}
@@ -513,6 +515,7 @@ export default {
         // 请求完成后按顺序执行这两个方法
         this.getInventory();
         this.loadAllTableData();
+        console.log('this.form', this.form);
 
         // 同样，如果需要返回接口数据，可以加上
         return res;
@@ -580,7 +583,7 @@ export default {
       const params = {
         pageNum: this.inventory.current,
         pageSize: this.inventory.pageSize,
-        inventoryId: this.form.id
+        inventoryId: this._id
       };
       const res = await flowPage(params);
       this.inventoryData = res.records || [];
@@ -609,7 +612,7 @@ export default {
     // 统一的加载数据方法
     async loadTableData (type) {
       const { current, pageSize } = this.pagination[type];
-      const inventoryId = this.form.id;
+      const inventoryId = this._id;
 
       // 参数映射
       const paramMap = {

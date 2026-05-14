@@ -171,7 +171,9 @@
                   {{ form.claimTypeLabel }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode }}
+                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                    {{ form.dealerCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
@@ -281,12 +283,12 @@
                   <vxe-column field="inboundQty" title="已入库数" min-width="10%" />
                   <vxe-column field="claimQty" title="索赔数量" min-width="10%" >
                     <template #default="{ row }">
-                      <el-input v-model="row.claimQty" :disabled="isClaimStatus || !accountFlag" :max="row.inboundQty" type="number" min="1" @blur="handleQtyBlur(row)"/>
+                      <el-input v-model="row.claimQty" :disabled="isClaimStatus || !accountFlag" :max="row.inboundQty" type="number" min="1" @change="handleQtyBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="claimDescription" title="索赔说明" min-width="10%">
                     <template #default="{ row }">
-                      <el-input v-model="row.claimDescription" :disabled="isClaimStatus || !accountFlag" @blur="handleQtyBlur(row)"/>
+                      <el-input v-model="row.claimDescription" :disabled="isClaimStatus || !accountFlag" @change="handleQtyBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="10%" />

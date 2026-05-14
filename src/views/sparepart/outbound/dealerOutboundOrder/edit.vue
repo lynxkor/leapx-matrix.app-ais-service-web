@@ -88,7 +88,9 @@
                   {{ form.orderStatusLabel }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode }}
+                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                    {{ form.dealerCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
@@ -281,7 +283,7 @@
                   <vxe-column field="costUnitPrice" title="成本单价" min-width="11%" />
                   <vxe-column field="qty" title="数量" min-width="11%">
                     <template #default="{ row }">
-                      <el-input v-model="row.qty" @input="val => row.qty = formatNumberInput(val, { allowDecimal: false })" :disabled="!(isEditing || !_id || isOrderType)" @blur="handleBlur(row)"/>
+                      <el-input v-model="row.qty" @input="val => row.qty = formatNumberInput(val, { allowDecimal: false })" :disabled="!(isEditing || !_id || isOrderType)" @change="handleBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="11%" />

@@ -214,7 +214,18 @@ export default {
             }]
           },
           { props: 'partName', label: '备件名称', visible: true, width: 200 },
-          { props: 'vehicleSeriesName', label: '车系名称', visible: true, width: 200 },
+          {
+            props: 'vehicleSeriesName',
+            label: '车系名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/sales/datacenter/materials/vehicleseries/edit?id=${row.vehicleSeriesId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'vehicleModelName', label: '车型名称', visible: true, width: 200 },
           { props: 'vehicleYearTypeName', label: '年款名称', visible: true, width: 120 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },

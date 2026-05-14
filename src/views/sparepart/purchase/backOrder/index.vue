@@ -335,7 +335,18 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
           { props: 'pendingVarietyCount', label: '待处理品种数', visible: true, align: 'right', width: 140 },
@@ -391,10 +402,37 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
-          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180 },
+          {
+            props: 'sparePartCode',
+            label: '备件编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/sparePart/edit',
+                  query: {
+                    id: row.sparePartId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
           { props: 'backDays', label: '缺货天数', visible: true, align: 'right', width: 120 },
           { props: 'estimatedFactoryDeliveryTime', label: '预计厂端发货时间', visible: true, width: 200 },
