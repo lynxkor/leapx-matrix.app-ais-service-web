@@ -47,7 +47,11 @@
                 <vxe-column field="sharedInventory" title="共享库存" width="120" />
                 <vxe-column field="suggestedPurchaseQty" title="建议采购数" width="150" />
                 <vxe-column field="unitPrice" title="单价" width="100" />
-                <vxe-column field="subtotal" title="小计" width="100" />
+                <vxe-column field="subtotal" title="小计" width="100">
+                    <template #default="{ row }">
+                        {{ calculateSubtotal(row) }}
+                    </template>
+                </vxe-column>
                 <vxe-column field="purchaseQty" title="采购量" fixed="right" width="120">
                     <template #default="{ row }">
                         <el-input
@@ -150,6 +154,12 @@ export default {
     },
   },
   methods: {
+    calculateSubtotal (row) {
+      const purchaseQty = Number(row.purchaseQty) || 0;
+      const unitPrice = Number(row.unitPrice) || 0;
+      const subtotal = purchaseQty * unitPrice;
+      return subtotal.toFixed(2);
+    },
     close () {
       this.$emit('update:visible', false);
     },
