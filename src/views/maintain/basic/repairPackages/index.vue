@@ -109,6 +109,18 @@
           />
         </el-form-item>
       </template>
+      <template v-if="show">
+        <el-form-item label="状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="StatusEnum"
+            v-model="form.statusIncludeList"
+            placeholder="请选择"
+            clearable
+            multiple
+          />
+        </el-form-item>
+      </template>
       <page-search-action
         v-if="canList"
         v-model="show"
