@@ -1,14 +1,14 @@
 <template>
     <el-dialog class="m-start-work-dialog" title="补货预测" width="80%" :visible.sync="dialogVisible" @close="close">
-        <el-form ref="form" :model="form" inline label-width="150px" size="small">
+        <el-form ref="form" :model="form" :rules="rules" inline label-width="160px" size="small">
             <el-form-item label="备件编码：">
                 <tag-input v-model="form.partsCodeList" placeholder="请输入" />
             </el-form-item>
             <el-form-item label="备件名称：">
                 <el-input v-model="form.partsNameLike" placeholder="请输入" />
             </el-form-item>
-            <el-form-item label="一次性满足率（%)：">
-                <el-input v-model="form.onceSatisfactionRate" type="number" placeholder="请输入" />
+            <el-form-item label="一次性满足率（%)：" prop="onceSatisfactionRate">
+                <el-input v-model="form.onceSatisfactionRate" type="number" placeholder="请输入" :min="60" :max="99" />
             </el-form-item>
             <el-form-item label="MAX大于等于：">
                 <el-input v-model="form.maxForecast" type="number" placeholder="请输入" />
@@ -115,6 +115,12 @@ export default {
       pageSize: 10,
       total: 0,
       selectedRows: [],
+      rules: {
+        onceSatisfactionRate: [
+          { required: true, message: '一次性满足率不能为空', trigger: 'blur' },
+          { type: 'number', min: 60, max: 99, message: '一次性满足率必须在60-99之间', trigger: 'blur' }
+        ]
+      }
     };
   },
   watch: {
@@ -162,7 +168,7 @@ export default {
     // 请求表格数据
     getData () {
       this.loading = true;
-      purchaseApplyGetCouponPage({ ...this.getFormData(), orderId: '019DBD21-5DF1-7134-9D2A-02C7C2EDAE52', pageNum: this.current, pageSize: this.pageSize })
+      purchaseApplyGetCouponPage({ ...this.getFormData(), orderId: this.id, pageNum: this.current, pageSize: this.pageSize })
         .then(res => {
           this.tableData = res.records.map(item => {
             return {
