@@ -124,25 +124,89 @@ export default {
           { props: 'type', label: '类型', visible: true, width: 100 },
           { props: 'monthCode', label: '保修月度', visible: true, width: 100 },
           { props: 'alarmLevelLabel', label: '三包预警', visible: true, width: 100 },
-          { props: 'receiveType', label: '收款方式', visible: true, width: 100 },
+          { props: 'paymentMethodLabel', label: '收款方式', visible: true, width: 100 },
           { props: 'submitTime', label: '提交时间', visible: true, width: 160 },
           { props: 'parentOrgCode', label: '公司编码', visible: true, width: 120 },
           { props: 'parentOrgName', label: '公司名称', visible: true, width: 180 },
           { props: 'provinceName', label: '省', visible: true, width: 100 },
           { props: 'cityName', label: '市', visible: true, width: 100 },
-          { props: 'region', label: '所属区域', visible: true, width: 120 },
-          { props: 'serviceProxyNo', label: '接车施工单号', visible: true, width: 180 },
-          { props: 'applyNo', label: '保修申请单号', visible: true, width: 180 },
-          { props: 'vin', label: 'VIN', visible: true, width: 200 },
-          { props: 'vehicleModel', label: '车型', visible: true, width: 150 },
-          { props: 'vehicleUsage', label: '车辆用途', visible: true, width: 120 },
-          { props: 'approvalStatus', label: '审批状态', visible: true, width: 120 },
-          { props: 'warrantyType', label: '保修类型', visible: true, width: 120 },
-          { props: 'activityCode', label: '活动代码', visible: true, width: 120 },
-          { props: 'activityName', label: '活动名称', visible: true, width: 180 },
+          { props: 'dealerRegionName', label: '所属区域', visible: true, width: 120 },
+          {
+            props: 'serviceProxyNo',
+            label: '接车施工单号',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/sp/serviceProxy/edit',
+                  query: {
+                    id: row.serviceProxyId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'warrantyApplyNo',
+            label: '保修申请单号',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/claim/warrantyApply/edit',
+                  query: {
+                    id: row.warrantyApplyId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'vin',
+            label: 'VIN',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/datacenter/vehicle/vehicleProfile/edit',
+                  query: {
+                    id: row.vehicleProfileId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'vehicleModelName', label: '车型', visible: true, width: 150 },
+          { props: 'vehiclePropertyLabel', label: '车辆用途', visible: true, width: 120 },
+          { props: 'approvalStatusLabel', label: '审批状态', visible: true, width: 120 },
+          { props: 'warrantyTypeName', label: '保修类型', visible: true, width: 120 },
+          { props: 'serviceActivityCode', label: '活动代码', visible: true, width: 120 },
+          { props: 'serviceActivityName', label: '活动名称', visible: true, width: 180 },
           { props: 'warrantyStartDate', label: '保修开始日期', visible: true, width: 120 },
-          { props: 'mainPartCode', label: '主因件编码', visible: true, width: 150 },
-          { props: 'mainPartName', label: '主因件名称', visible: true, width: 180 },
+          {
+            props: 'mainFaultPartCode',
+            label: '主因件编码',
+            visible: true,
+            width: 150,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/sparePart/edit',
+                  query: {
+                    id: row.mainPartId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'mainFaultPartName', label: '主因件名称', visible: true, width: 180 },
         ],
         total: this.tableTotal
       };
