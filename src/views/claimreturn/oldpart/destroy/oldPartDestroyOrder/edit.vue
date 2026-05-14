@@ -269,12 +269,6 @@ export default {
           title: '接车施工单',
           width: '160',
           click: (row) => {
-            this.navigateToRoute({
-              path: '/maintain/sp/serviceProxy/edit',
-              query: {
-                id: row.serviceProxyId
-              }
-            });
             this.$router.push(`/maintain/sp/serviceProxy/edit?id=${row.serviceProxyId}`);
           }
         },

@@ -333,6 +333,200 @@
               <h2>其他信息</h2>
             </div>
             <div class="common-section-body">
+              <el-form inline :model="form" :rules="rules" ref="ruleForm" label-width="160px" v-show="isEditing || !_id">
+                <el-form-item label="门店名称" prop="dealerName">
+                  <el-select
+                    v-model="form.dealerCode"
+                    filterable
+                    clearable
+                    disabled
+                    remote
+                    placeholder="请选择"
+                    :remote-method="getStoreByName"
+                    @change="handleStoreChange"
+                    collapse-tags
+                    >
+                      <el-option
+                        v-for="item in storeOptions"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="是否启用" prop="status">
+                  {{ form.statusLabel  }}
+                </el-form-item>
+                <el-form-item label="供应商起订量" prop="supplierMinOrderQuantity">
+                  <el-input
+                    placeholder="请输入"
+                    disabled
+                    v-model="form.supplierMinOrderQuantity"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="是否追溯件" prop="traceableIs">
+                  {{ form.traceableIsLabel }}
+                </el-form-item>
+                <el-form-item label="是否可快递" prop="expressAvailableIs">
+                  <el-radio-group
+                  :disabled="!(permissions.has('AISPART-sparePart-salesImport') || permissions.has('AISPART-sparePart-transportImport'))"
+                  v-model="form.expressAvailableIs">
+                    <el-radio label="1">是</el-radio>
+                    <el-radio label="0">否</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+                <el-form-item label="保修是否拆分" prop="maintenanceSplitQuantityIs">
+                  {{ form.maintenanceSplitQuantityIsLabel }}
+                </el-form-item>
+                <el-form-item label="是否关键件" prop="keyPartIs">
+                  <el-radio-group
+                  :disabled="!(permissions.has('AISPART-sparePart-salesImport') || permissions.has('AISPART-sparePart-purchaseImport'))"
+                  v-model="form.keyPartIs">
+                    <el-radio label="1">是</el-radio>
+                    <el-radio label="0">否</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+                <el-form-item label="国内包装前长(mm)" prop="domesticPrePackageLengthMm">
+                  <el-input
+                    type="number"
+                    placeholder="请输入"
+                    :disabled="!permissions.has('AISPART-sparePart-transportImport')"
+                    v-model="form.domesticPrePackageLengthMm"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="国内包装前宽(mm)" prop="domesticPrePackageWidthMm">
+                  <el-input
+                    type="number"
+                    :disabled="!permissions.has('AISPART-sparePart-transportImport')"
+                    placeholder="请输入"
+                    v-model="form.domesticPrePackageWidthMm"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="国内包装前高(mm)" prop="domesticPrePackageHeightMm">
+                  <el-input
+                    type="number"
+                    placeholder="请输入"
+                    :disabled="!permissions.has('AISPART-sparePart-transportImport')"
+                    v-model="form.domesticPrePackageHeightMm"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="国内包装前体积(cm³)" prop="domesticPrePackageVolumeCm3">
+                  <el-input
+                    type="number"
+                    disabled
+                    placeholder="请输入"
+                    v-model="form.domesticPrePackageVolumeCm3"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="国内包装前重量(kg)" prop="domesticPrePackageWeightKg">
+                  <el-input
+                    type="number"
+                    placeholder="请输入"
+                    :disabled="!permissions.has('AISPART-sparePart-transportImport')"
+                    v-model="form.domesticPrePackageWeightKg"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="是否翻包" prop="needRepackIs">
+                  <el-radio-group
+                  :disabled="!(permissions.has('AISPART-sparePart-salesImport')||permissions.has('AISPART-sparePart-transportImport'))"
+                  v-model="form.needRepackIs">
+                    <el-radio label="1">是</el-radio>
+                    <el-radio label="0">否</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+                <el-form-item label="供应物料分类" prop="categorySpareSupplyId">
+                  <fetch-select
+                    filterable
+                    clearable
+                    remote
+                    :disabled="!(permissions.has('AISPART-sparePart-salesImport')||permissions.has('AISPART-sparePart-purchaseImport'))"
+                    reserve-keyword
+                    v-model="form.categorySpareSupplyId"
+                    :remote-method="getSupplyList"
+                    :params="form.categorySpareSupplyName"
+                    value-key="id"
+                    label-key="name"
+                    @change="categorySpareSupplyChange"
+                  />
+                </el-form-item>
+                <el-form-item label="国内包装后长(mm)" prop="domesticPostPackageLengthMm">
+                  <el-input
+                    type="number"
+                    :disabled="!permissions.has('AISPART-sparePart-transportImport')"
+                    placeholder="请输入"
+                    v-model="form.domesticPostPackageLengthMm"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="国内包装后宽(mm)" prop="domesticPostPackageWidthMm">
+                  <el-input
+                    type="number"
+                    :disabled="!permissions.has('AISPART-sparePart-transportImport')"
+                    placeholder="请输入"
+                    v-model="form.domesticPostPackageWidthMm"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="国内包装前后高(mm)" prop="domesticPostPackageHeightMm">
+                  <el-input
+                    type="number"
+                    :disabled="!permissions.has('AISPART-sparePart-transportImport')"
+                    placeholder="请输入"
+                    v-model="form.domesticPostPackageHeightMm"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="国内包装后体积(cm³)" prop="domesticPostPackageVolumeCm3">
+                  <el-input
+                    type="number"
+                    disabled
+                    placeholder="请输入"
+                    v-model="form.domesticPostPackageVolumeCm3"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="国内包装后重量(kg)" prop="domesticPostPackageWeightKg">
+                  <el-input
+                    type="number"
+                    :disabled="!permissions.has('AISPART-sparePart-transportImport')"
+                    placeholder="请输入"
+                    v-model="form.domesticPostPackageWeightKg"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="工程物料分类" prop="categorySpareEngineeringId">
+                  <fetch-select
+                    filterable
+                    clearable
+                    remote
+                    disabled
+                    reserve-keyword
+                    v-model="form.categorySpareEngineeringId"
+                    :remote-method="getEngineeringList"
+                    :params="form.categorySpareEngineeringName"
+                    value-key="id"
+                    label-key="name"
+                    @change="categorySpareEngineeringChange"
+                  />
+                </el-form-item>
+                <el-form-item label="物料来源" prop="materialSourceType">
+                  <fetch-select
+                    :request="fetchOptions"
+                    disabled
+                    enumCode="MaterialSourceTypeEnum"
+                    v-model="form.materialSourceType"
+                    placeholder="请选择"
+                    clearable
+                    filterable
+                  />
+                </el-form-item>
+              </el-form>
               <el-form :inline="true" :model="form" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="门店名称：">
                   {{ form.dealerName }}

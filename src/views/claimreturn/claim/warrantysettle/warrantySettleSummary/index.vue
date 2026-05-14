@@ -15,7 +15,7 @@
           format="yyyyMM"
           value-format="yyyyMM"
           placeholder="请选择"
-          clearable
+          :clearable="false"
         />
       </el-form-item>
       <el-form-item label="公司名称">
@@ -71,9 +71,10 @@ import { getList } from '@/api/claimreturn/claim/warrantysettle/warrantySettleSu
 import { getTableConfig, tableAddOrUpdate, getSparePartCompany } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import DealerSelect from '@/components/dealer-select';
+import moment from 'moment';
 
 const defaultForm = {
-  month: '',
+  month: moment().subtract(1, 'month').format('YYYYMM'),
   companyCodeList: '',
   dealerCodes: [],
   dealerNames: [],
@@ -219,7 +220,6 @@ export default {
     },
     getFormData () {
       const data = { ...this.form };
-
       Object.keys(this.form).forEach(key => {
         if (data[key] === '' || data[key] === null || (Array.isArray(data[key]) && data[key].length === 0)) {
           delete data[key];
