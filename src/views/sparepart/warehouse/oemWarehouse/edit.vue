@@ -123,6 +123,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { getAreaTree } from '@/utils';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -190,7 +191,7 @@ export default {
     const form = this.getDefautlForm();
     return {
       // 省市区
-      areaOptions: JSON.parse(localStorage.areaTree),
+      areaOptions: getAreaTree(),
       orgProps: {
         checkStrictly: true,
         emitPath: false,

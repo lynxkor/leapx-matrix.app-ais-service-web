@@ -859,7 +859,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import LPEncrypted from '@/libs/components/LPEncrypted/index.vue';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum } from '@/api/common';
-import { getAreaInfo } from '@/utils';
+import { getAreaInfo, getAreaTree } from '@/utils';
 import ChangeHistory from './ChangeHistory';
 import ServiceHistory from './ServiceHistory';
 import NextTable from './NextTable.vue';
@@ -1051,7 +1051,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      areaOptions: JSON.parse(localStorage.areaTree),
+      areaOptions: getAreaTree(),
       pageTitle: '车辆档案管理',
       pageType: 'edit',
       title: 'VIN码：' + form.vin,
