@@ -351,6 +351,7 @@ export default {
       });
       addOrUpdate({ ...this.form, teamUsers: this.tableData }).then(res => {
         this.$message.success('添加成功');
+        this.$refs.containerRef.handleRefresh();
       }).catch(e => {
         this.tableData = this.tableData.filter(item => item !== record);
       });
