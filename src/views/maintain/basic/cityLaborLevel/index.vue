@@ -62,7 +62,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { deleteItem, enableItem, getPage } from '@/api/maintain/basic/cityLaborLevel/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
