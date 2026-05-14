@@ -80,13 +80,17 @@
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="供应商编码：">
-                  {{ form.supplierCode }}
+                  <el-link type="primary" :href="`/sparepart/basic/supplierInfo/edit?id=${form.supplierInfoId}`" target="_blank">
+                    {{ form.supplierCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="供应商名称：">
                   {{ form.supplierName }}
                 </el-form-item>
                 <el-form-item label="备件编码：">
-                  {{ form.partCode }}
+                  <el-link type="primary" :href="`/sparepart/basic/sparePart/edit?id=${form.sparePartId}`" target="_blank">
+                    {{ form.partCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="备件名称：">
                   {{ form.partName }}

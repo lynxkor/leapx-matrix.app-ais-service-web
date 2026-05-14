@@ -432,15 +432,6 @@ export default {
       }
     };
   },
-  mounted () {
-    // 等待详情接口加载完成后再调用 getInventory
-    this.$nextTick(() => {
-      this.$refs.containerRef.loadDetail().then(() => {
-        this.getInventory();
-        this.loadAllTableData();
-      });
-    });
-  },
   methods: {
     // 业务单号跳转
     async handleJump (row) {
@@ -514,10 +505,17 @@ export default {
         this.form.locationName = val;
       }
     },
-    detailRequest () {
+    async detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id);
+        // 等待 getDetail 请求完成
+        const res = await getDetail(id);
+        // 请求完成后按顺序执行这两个方法
+        this.getInventory();
+        this.loadAllTableData();
+
+        // 同样，如果需要返回接口数据，可以加上
+        return res;
       }
     },
     submitRequest () {

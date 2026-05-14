@@ -63,7 +63,9 @@
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="备件编码：">
-                  {{ form.sparePartCode }}
+                  <el-link type="primary" :href="`/sparepart/basic/sparePart/edit?id=${form.sparePartCode}`" target="_blank">
+                    {{ form.sparePartCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="备件名称：">
                   {{ form.sparePartName }}
