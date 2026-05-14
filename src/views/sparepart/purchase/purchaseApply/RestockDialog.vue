@@ -50,7 +50,13 @@
                 <vxe-column field="subtotal" title="小计" width="100" />
                 <vxe-column field="purchaseQty" title="采购量" fixed="right" width="120">
                     <template #default="{ row }">
-                        <el-input v-model="row.purchaseQty" type="number" placeholder="请输入" />
+                        <el-input
+                            v-model="row.purchaseQty"
+                            type="number"
+                            size="small"
+                            placeholder="请输入"
+                            @change="handlePurchaseQtyBlur(row)"
+                        />
                     </template>
                 </vxe-column>
             </vxe-table>
@@ -82,7 +88,7 @@ const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   partsCodeList: [],
   partsNameLike: '',
-  onceSatisfactionRate: '80',
+  onceSatisfactionRate: 80,
   maxForecast: '',
   suggestedPurchaseQty: '',
   expectedShortageDate: [],
@@ -118,7 +124,19 @@ export default {
       rules: {
         onceSatisfactionRate: [
           { required: true, message: '一次性满足率不能为空', trigger: 'blur' },
-          { type: 'number', min: 60, max: 99, message: '一次性满足率必须在60-99之间', trigger: 'blur' }
+          {
+            validator: (rule, value, callback) => {
+              const num = Number(value);
+              if (isNaN(num)) {
+                callback(new Error('一次性满足率必须是数字'));
+              } else if (num < 60 || num > 99) {
+                callback(new Error('一次性满足率必须在60-99之间'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'blur'
+          }
         ]
       }
     };
@@ -143,6 +161,19 @@ export default {
       this.current = 1;
       this.pageSize = 10;
       this.getData();
+    },
+    handlePurchaseQtyBlur (row) {
+      const purchaseQty = Number(row.purchaseQty);
+      const minOrderQty = Number(row.minOrderQty);
+
+      if (purchaseQty > 0 && minOrderQty > 0) {
+        if (purchaseQty % minOrderQty !== 0) {
+          // 计算最接近的倍数（向上取整）
+          const nearestMultiple = Math.ceil(purchaseQty / minOrderQty) * minOrderQty;
+          row.purchaseQty = nearestMultiple;
+          this.$message.warning(`采购量已自动调整为最小订购量（${minOrderQty}）的倍数：${nearestMultiple}`);
+        }
+      }
     },
     getFormData () {
       const data = { ...this.form };
