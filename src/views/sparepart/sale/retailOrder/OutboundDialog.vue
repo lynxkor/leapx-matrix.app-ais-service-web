@@ -31,6 +31,7 @@
                   filterable
                   remote
                   :remote-method="(query) => querySearchAsync(query, rowIndex)"
+                  @focus="handleSelectFocus(rowIndex)"
                   @change="handleWorkstationChange(row, rowIndex, $event)"
                 >
                   <el-option
@@ -152,6 +153,7 @@ export default {
       this.initData();
     },
     close () {
+      this.userList = [];
       this.$emit('update:visible', false);
     },
     async submit () {
@@ -201,8 +203,15 @@ export default {
         this.submitLoading = false;
       }
     },
-    // 远程搜索方法，接收行索引参数
-    querySearchAsync (queryString, rowIndex) {
+    // 下拉框获得焦点时调用接口
+    handleSelectFocus (rowIndex) {
+      if (this.userList && this.userList.length === 0) {
+        this.loadUserList('');
+      }
+    },
+
+    // 加载用户列表
+    loadUserList (queryString) {
       getUserByNameOrNo({ name: queryString }).then(res => {
         const list = res?.map(item => {
           return {
@@ -216,6 +225,11 @@ export default {
         console.log('搜索用户失败:', error);
         this.userList = [];
       });
+    },
+
+    // 远程搜索方法，接收行索引参数
+    querySearchAsync (queryString, rowIndex) {
+      this.loadUserList(queryString);
     },
 
     // 处理领料人选择变化

@@ -106,13 +106,17 @@
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="备件编码：" prop="sparePartId">
-                  {{ form.partCode }}
+                  <el-link type="primary" :href="`/service/sparepart/basic/sparePart/detail?id=${form.sparePartId}`" target="_blank">
+                    {{ form.partCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="备件名称：" prop="sparePartId">
                   {{ form.partName }}
                 </el-form-item>
                 <el-form-item label="门店编码：" v-if="form.type==='dealer'">
-                  {{ form.dealerCode }}
+                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                    {{ form.dealerCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="门店名称：" v-if="form.type==='dealer'">
                   {{ form.dealerName }}

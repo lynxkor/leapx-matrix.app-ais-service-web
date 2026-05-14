@@ -149,7 +149,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/predictBlacklist/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listDealerPartWithOem, listOrgStoreInfoByParam } from '@/api/common';
@@ -229,7 +229,18 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'partCode', label: '备件编码', visible: true, width: 200 },
+          {
+            props: 'partCode',
+            label: '备件编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/service/sparepart/basic/sparePart/detail?id=${row.sparePartId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'partName', label: '备件名称', visible: true, width: 200 },
           { props: 'filterTypeLabel', label: '名单类型 ', visible: true, width: 200 },
           { props: 'typeLabel', label: '模式 ', visible: true, width: 200 },

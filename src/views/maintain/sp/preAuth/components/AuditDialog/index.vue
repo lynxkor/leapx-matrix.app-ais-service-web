@@ -39,7 +39,6 @@
       <el-form-item label="附件信息" v-if="form.auditStaus === '20'">
         <AisAttachment
           ref="attachment"
-          :business-id="businessId"
           :upload-config="uploadConfig"
         />
       </el-form-item>

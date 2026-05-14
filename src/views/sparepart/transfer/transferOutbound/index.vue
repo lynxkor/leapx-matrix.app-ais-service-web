@@ -184,7 +184,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, getSubmit, getApprove, getReject, getRevoke, applyCancel, approveCancel, rejectCancel, getInbound } from '@/api/sparepart/transfer/transferOutbound/index';
 import {

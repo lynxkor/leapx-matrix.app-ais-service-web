@@ -144,7 +144,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/purchaseMinAmount/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
@@ -230,7 +230,18 @@ export default {
             }]
           },
           { props: 'typeLabel', label: '类型', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'minimumAmount', label: '起订金额', visible: true, align: 'right', width: 120 },
           { props: 'effectiveStartDate', label: '生效开始日期', visible: true, width: 200 },

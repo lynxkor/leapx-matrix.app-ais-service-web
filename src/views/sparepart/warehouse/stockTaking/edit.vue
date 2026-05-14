@@ -59,7 +59,9 @@
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode }}
+                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                    {{ form.dealerCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
@@ -127,7 +129,7 @@
                   </vxe-column>
                   <vxe-column field="remark" title="备注" min-width="12.5%">
                     <template #default="{ row }">
-                      <el-input v-model="row.remark" @blur="handleRemarkBlur(row)" :disabled="!stockStatusType" />
+                      <el-input v-model="row.remark" @change="handleRemarkBlur(row)" :disabled="!stockStatusType" />
                     </template>
                   </vxe-column>
                   <vxe-column field="operatorName" title="操作人" min-width="12.5%">

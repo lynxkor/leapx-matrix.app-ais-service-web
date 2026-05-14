@@ -165,7 +165,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, allowBoTransfer, forbidBoTransfer, allowPartsAttachmentSales, forbidPartsAttachmentSales } from '@/api/sparepart/basic/sparePart';
 import { vfglist } from '@/api/claimreturn/claim/basic/vfg';

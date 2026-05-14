@@ -127,7 +127,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { deleteItem, enableItem, boToShareTransferPage } from '@/api/sparepart/purchase/backOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser, sparePartListShort } from '@/api/common';
@@ -212,9 +212,31 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180 },
+          {
+            props: 'sparePartCode',
+            label: '备件编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/service/sparepart/basic/sparePart/detail?id=${row.sparePartId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'pendingPartQty', label: '待处理零件数', visible: true, width: 140, align: 'right' },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
