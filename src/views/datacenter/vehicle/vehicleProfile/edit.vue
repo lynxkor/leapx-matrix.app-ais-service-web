@@ -464,7 +464,7 @@
                   <vxe-column field="vin" title="VIN" min-width="10%" />
                   <vxe-column field="realnameStatusLabel" title="实名状态" min-width="10%" />
                   <vxe-column field="operateTime" title="操作时间" min-width="10%" />
-                  <vxe-column field="desc" title="描述" min-width="10%" />
+                  <vxe-column field="remark" title="描述" min-width="10%" />
                   <vxe-column field="iccid" title="卡ICCID" min-width="10%" />
                   <vxe-column field="operatore" title="运营商" min-width="10%" />
                   <template #empty>

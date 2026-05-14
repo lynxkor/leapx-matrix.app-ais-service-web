@@ -56,10 +56,10 @@
             <RepairInfo :formData="form" :_id="_id"/>
             <SparepartsInfo :formData="form"/>
             <section class="common-section">
-              <div class="common-section-header">
+              <div class="common-section-header fold">
                 <h2>资料附件</h2>
               </div>
-              <div class="common-section-body">
+              <div class="common-section-body" style="display: none;">
                 <Attachment :_id="_id" :show-upload="false" ref="attachmentRef" attachType="附件资料"/>
               </div>
             </section>
@@ -158,7 +158,7 @@
 
 <script>
 import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal, getSpRemindInfo, isVehRetention, addVehRetentionList, resendSignSms } from '@/api/maintain/sp/serviceProxy/index';
-import { RepairOrderStatusEnum, BusinessTypeEnum, RemindInfoTypeEnum, CurrentSituationEnum } from './constant';
+import { RepairOrderStatusEnum, BusinessTypeEnum, RemindInfoTypeEnum, CurrentSituationEnum, CustomerTypeEnum } from './constant';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import NavTop from './components/NavTop';
 import { getEnum } from '@/api/common';
@@ -193,7 +193,7 @@ const defaultForm = {
   orderStatus: '',
   warrantyTypeCollect: '',
   customerName: '',
-  custType: '',
+  custType: CustomerTypeEnum.WALK_IN,
   vehModelName: '',
   carPlate: '',
   dealerName: '',

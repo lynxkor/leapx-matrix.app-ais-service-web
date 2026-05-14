@@ -166,8 +166,8 @@ const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   codeList: [],
   sparePartIdList: [],
-  filterTypeList: [],
-  typeList: [],
+  filterTypeList: ['blacklist'],
+  typeList: ['standard'],
   statusList: [],
   createTime: '',
   updateTime: '',

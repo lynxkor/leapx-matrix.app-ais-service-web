@@ -174,3 +174,9 @@ export const WorkRecordStatusEnum = {
   /** 作业作废 */
   CANCELLED: 50
 };
+
+// 客户类型
+export const CustomerTypeEnum = {
+  BOOKED: '10',
+  WALK_IN: '20'
+};
