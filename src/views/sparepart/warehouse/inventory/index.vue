@@ -313,7 +313,18 @@ export default {
           { props: 'warehouseName', label: '仓库名称', visible: true, width: 200 },
           { props: 'warehouseStatusLabel', label: '仓库状态', visible: true, width: 120 },
           { props: 'locationName', label: '库位', visible: true, width: 140 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 180 },
           { props: 'inTransitQty', label: '在途数量', visible: true, align: 'right', width: 120 },
           { props: 'availableQty', label: '可用数量', visible: true, align: 'right', width: 120 },

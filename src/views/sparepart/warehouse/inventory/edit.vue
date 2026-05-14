@@ -106,7 +106,9 @@
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="备件编码：" prop="sparePartId">
-                  {{ form.partCode }}
+                  <el-link type="primary" :href="`/service/sparepart/basic/sparePart/detail?id=${form.sparePartId}`" target="_blank">
+                    {{ form.partCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="备件名称：" prop="sparePartId">
                   {{ form.partName }}
