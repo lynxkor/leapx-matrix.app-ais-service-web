@@ -273,7 +273,7 @@ export default {
           { props: 'spellCode', label: '拼音简码', visible: true, width: 160 },
           { props: 'vehicleSeriesNames', label: '车系', visible: true, width: 120 },
           { props: 'carModelNames', label: '车型年型', visible: true, width: 160 },
-          { props: 'dataSourceLabel', label: '数据来源', visible: true, width: 120 },
+          { props: 'dataFromLabel', label: '数据来源', visible: true, width: 120 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 220 },
           { props: 'statusLabel', label: '状态', visible: true, width: 60 },
           { props: 'totalAmount', label: '总金额', visible: true, width: 90 },
