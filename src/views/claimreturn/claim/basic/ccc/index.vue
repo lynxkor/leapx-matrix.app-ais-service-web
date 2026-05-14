@@ -295,7 +295,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: 'CCC',
-        dataFetchPath: '/datacenter/claimreturn/claim/basic/ccc/page',
+        dataFetchPath: '/claimreturn/claim/basic/ccc/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
