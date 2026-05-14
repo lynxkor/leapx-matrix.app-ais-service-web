@@ -235,12 +235,24 @@ export function downloadExcel (rowOrUrl, defaultName = '模板') {
 }
 
 /**
+ * 安全获取省市区树数据
+ * @returns {Array} 省市区树数据，解析失败时返回空数组
+ */
+export function getAreaTree () {
+  try {
+    return JSON.parse(localStorage.getItem('areaTree')) || [];
+  } catch {
+    return [];
+  }
+}
+
+/**
  * 获取省市县信息
  * @param districtCode 区域编码
  * @returns {Object} 省市区县信息
  */
 export function getAreaInfo (districtCode) {
-  let areaTree = JSON.parse(localStorage.areaTree);
+  let areaTree = getAreaTree();
   for (let province of areaTree) {
     let cityTree = province.child;
     for (const city of cityTree) {

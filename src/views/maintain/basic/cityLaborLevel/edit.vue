@@ -99,6 +99,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { getAreaTree } from '@/utils';
 import FetchSelect from '@/libs/components/FetchSelect';
 
 const defaultForm = {
@@ -175,7 +176,7 @@ export default {
       form: { ...form },
       originalForm: { ...form },
       emptyText: '若要启用此内容，请创建记录',
-      areaOptions: JSON.parse(localStorage.areaTree), // 行政区域选项数据
+      areaOptions: getAreaTree(), // 行政区域选项数据
       cascaderProps: {
         checkStrictly: true,
         emitPath: false,
@@ -237,7 +238,8 @@ export default {
      * @returns {Object} 省市区县信息
      */
     getAreaInfo (code) {
-      let areaTree = JSON.parse(localStorage.areaTree);
+      let areaTree;
+      try { areaTree = JSON.parse(localStorage.getItem('areaTree')) || []; } catch { areaTree = []; }
 
       // 遍历省级
       for (const province of areaTree) {

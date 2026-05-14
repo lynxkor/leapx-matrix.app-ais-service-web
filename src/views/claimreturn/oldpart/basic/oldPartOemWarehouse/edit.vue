@@ -152,7 +152,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { getAreaInfo } from '@/utils';
+import { getAreaInfo, getAreaTree } from '@/utils';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 
@@ -217,7 +217,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      areaOptions: JSON.parse(localStorage.areaTree),
+      areaOptions: getAreaTree(),
       pageTitle: '主机厂仓库管理',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改

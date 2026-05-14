@@ -194,6 +194,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { getAreaTree } from '@/utils';
 
 const defaultForm = {
   supplierCode: '',
@@ -245,7 +246,7 @@ export default {
       info: {},
       yes_no_enum: YES_NO_ENUM,
       oem: false,
-      areaOptions: JSON.parse(localStorage.areaTree),
+      areaOptions: getAreaTree(),
       orgProps: {
         checkStrictly: true,
         emitPath: false,
