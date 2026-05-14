@@ -235,7 +235,18 @@ export default {
           { props: 'limitTypeLabel', label: '类型', visible: true, width: 78 },
           { props: 'purchaseTimes', label: '采购次数', visible: true, align: 'right', width: 120 },
           { props: 'periodLabel', label: '周期', visible: true, width: 78 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'perOrderMaxItems', label: '单次最多采购品项数', visible: true, align: 'right', width: 180 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
