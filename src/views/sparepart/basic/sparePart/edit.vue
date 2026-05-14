@@ -892,12 +892,15 @@ export default {
         });
       }
     },
-    detailRequest () {
+    async detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id);
+        const res = await getDetail(id);
+        this.supplierData = res.sparePartSupplierRespList || []; // 供应商信息
+        this.modelData = res.sparePartVehicleModelRespList || []; // 车型信息
+        this.replacementData = res.sparePartReplacerRespList || []; // 替换件信息
+        return res;
       }
-      return {};
     },
     submitRequest () {
       return addOrUpdate({ id: this.form.id, ...this.form });
