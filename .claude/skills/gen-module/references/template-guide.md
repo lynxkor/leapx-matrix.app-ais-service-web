@@ -317,7 +317,7 @@ export default {
 import debounce from 'lodash.debounce';
 
 // 2. @leapmotor/design components
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 
 // 3. Local components
 import PageSearchAction from '@/libs/components/AisPageSearchAction';

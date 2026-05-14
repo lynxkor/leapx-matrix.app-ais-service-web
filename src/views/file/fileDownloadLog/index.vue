@@ -79,7 +79,7 @@ import { getList } from '@/api/file/fileDownloadLog';
 import { exportTable, getEnum, getTableConfig, tableAddOrUpdate } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import TagInput from '@/libs/components/TagInput';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import { downloadExcel, getEndOfDayString } from '@/libs/utils';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import commonMixins from '@/libs/mixins/commonMixins';

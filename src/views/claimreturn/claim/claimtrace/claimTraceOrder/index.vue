@@ -245,7 +245,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, agreeIssue, agreeTrace, getDetailDecryptField } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';

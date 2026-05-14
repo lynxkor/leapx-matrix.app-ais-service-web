@@ -70,7 +70,7 @@ import { getList, enableItem } from '@/api/claimreturn/claim/warrantyaudit/warra
 import { getTableConfig, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
