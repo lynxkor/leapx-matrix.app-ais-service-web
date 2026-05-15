@@ -133,7 +133,11 @@
               </LPEncrypted>
             </el-form-item>
             <el-form-item label="门店编码：" prop="dealerCode">
-              {{ form.dealerCode }}
+              <el-link
+                type="primary"
+                :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                target="_blank"
+              >{{ form.dealerCode }}</el-link>
             </el-form-item>
             <el-form-item label="门店名称：" prop="dealerName">
              {{ form.dealerName }}

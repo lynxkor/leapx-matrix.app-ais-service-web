@@ -609,11 +609,44 @@ export default {
           },
           { props: 'bindingOn', label: '绑车时间', visible: true, width: 180 },
           { props: 'salesDealerCode', label: '销售门店编码', visible: true, width: 150 },
-          { props: 'salesDealerName', label: '销售门店名称', visible: true, width: 200 },
+          {
+            props: 'salesDealerName',
+            label: '销售门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.salesDealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'deliveryDealerCode', label: '交付门店编码', visible: true, width: 150 },
-          { props: 'deliveryDealerName', label: '交付门店名称', visible: true, width: 200 },
+          {
+            props: 'deliveryDealerName',
+            label: '交付门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.deliveryDealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'serviceDealerCode', label: '服务门店编码', visible: true, width: 150 },
-          { props: 'serviceDealerName', label: '服务门店名称', visible: true, width: 200 },
+          {
+            props: 'serviceDealerName',
+            label: '服务门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.serviceDealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           {
             props: 'vehicleMaterialCode',
             label: '整车物料',

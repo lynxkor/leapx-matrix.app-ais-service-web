@@ -193,7 +193,20 @@ export default {
             }]
           },
           { props: 'carPlate', label: '车牌号', visible: true, width: 200 },
-          { props: 'vehModelName', label: '基本车型', visible: true, width: 200 },
+          {
+            props: 'vehModelName',
+            label: '基本车型',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.vehModelId) {
+                  window.open(`/service/datacenter/materials/vehicleModel/detail?id=${row.vehModelId}`, '_blank');
+                }
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'mileage', label: '进店里程数（KM）', visible: true, width: 200 },
           { props: 'netMileageExtend', label: '车联网里程数（增）', visible: true, width: 200 },
           { props: 'customerFaultDescription', label: '客户故障描述', visible: true, width: 200 },

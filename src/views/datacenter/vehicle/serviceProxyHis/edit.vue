@@ -26,10 +26,18 @@
                   >{{ form.serviceProxyCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="VIN码：">
-                  {{ form.vehProfileVin }}
+                  <el-link
+                    type="primary"
+                    :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`"
+                    target="_blank"
+                  >{{ form.vehProfileVin }}</el-link>
                 </el-form-item>
                 <el-form-item label="车型：">
-                  {{ form.vehModelName }}
+                  <el-link
+                    type="primary"
+                    :href="`/service/datacenter/materials/vehicleModel/detail?id=${form.vehModelId}`"
+                    target="_blank"
+                  >{{ form.vehModelName }}</el-link>
                 </el-form-item>
                 <el-form-item label="维修门店名称：">
                   <el-link
