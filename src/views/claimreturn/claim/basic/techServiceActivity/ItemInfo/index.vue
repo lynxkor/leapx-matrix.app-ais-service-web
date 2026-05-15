@@ -108,6 +108,14 @@
                 disabled
               />
             </el-form-item>
+            <el-form-item label="门店支持费用：" prop="dealerSupportAmount">
+              <base-input
+                placeholder="请输入"
+                v-model="form.dealerSupportAmount"
+                clearable
+                @change="onUpdate(form)"
+              />
+            </el-form-item>
             <el-form-item label="维修类型：" prop="repairItemTypeName">
               <fetch-select
                 filterable

@@ -142,7 +142,7 @@
           reserve-keyword
           v-model="form.mainPartCodeList"
           :remote-method="partRemote"
-          value-key="id"
+          value-key="partCode"
           label-key="partName"
           subLabelKey="partCode"
           placeholder="请输入零件编码/名称"
