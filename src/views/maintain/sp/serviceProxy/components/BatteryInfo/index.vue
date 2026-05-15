@@ -1,9 +1,9 @@
 <template>
   <section class="common-section">
-    <div class="common-section-header fold">
+    <div :class="['common-section-header', { fold: collapsedSections['batteryInfo'] }]" data-section-key="batteryInfo">
       <h2>电池更换信息</h2>
     </div>
-    <div class="common-section-body" style="display: none;">
+    <div class="common-section-body" :style="{ display: collapsedSections['batteryInfo'] ? 'none' : '' }">
       <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-if="isEditing || !_id" :disabled="formDisabled">
         <el-form-item label="电池去向单位：" prop="batteryUnitId">
           <fetch-select
@@ -84,6 +84,7 @@ export default {
       default: null
     }
   },
+  inject: ['collapsedSections'],
   components: {
     FetchSelect
   },

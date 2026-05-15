@@ -56,10 +56,10 @@
             <RepairInfo :formData="form" :_id="_id"/>
             <SparepartsInfo :formData="form"/>
             <section class="common-section">
-              <div class="common-section-header fold">
+              <div :class="['common-section-header', { fold: collapsedSections['attachment'] }]" data-section-key="attachment">
                 <h2>资料附件</h2>
               </div>
-              <div class="common-section-body" style="display: none;">
+              <div class="common-section-body" :style="{ display: collapsedSections['attachment'] ? 'none' : '' }">
                 <Attachment :_id="_id" :show-upload="false" ref="attachmentRef" attachType="附件资料"/>
               </div>
             </section>
@@ -443,6 +443,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      collapsedSections: { attachment: true, batteryInfo: true },
       pageTitle: '接车施工单管理',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
