@@ -2810,6 +2810,15 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/maintain/sp/departureDetail',
+      name: 'departureDetail',
+      component: () => import('@/views/maintain/sp/departureDetail/index.vue'),
+
+      meta: {
+        name: '出厂台次名细',
+        keepAlive: true
+      }
+    }, {
       path: '/maintain/sp/rightsUsageWriteOff',
       name: 'rightsUsageWriteOff',
       component: () => import('@/views/maintain/sp/rightsUsageWriteOff/index.vue'),
