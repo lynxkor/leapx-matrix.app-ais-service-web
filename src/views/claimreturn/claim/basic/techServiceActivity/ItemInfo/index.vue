@@ -108,7 +108,7 @@
                 disabled
               />
             </el-form-item>
-            <el-form-item label="门店支持费用：" prop="dealerSupportAmount">
+            <el-form-item v-if="isServiceCareActivity" label="门店支持费用：" prop="dealerSupportAmount">
               <base-input
                 placeholder="请输入"
                 v-model="form.dealerSupportAmount"
@@ -224,6 +224,7 @@ const defaultForm = {
   isMainRepairItem: false,
   repairItemTypeName: '',
   repairItemTypeId: '',
+  dealerSupportAmount: ''
 };
 const repairItemTypeCode = 'WXLX002';
 const repairItemTypeId = '898A364C-DD79-EC11-B0F9-9216EACB73F2';
