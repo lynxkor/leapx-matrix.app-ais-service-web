@@ -193,7 +193,18 @@ export default {
             }]
           },
           { props: 'serviceProxyCode', label: '施工单号', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          {
+            props: 'dealerName',
+            label: '门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'carPlate', label: '车牌号', visible: true, width: 150 },
           { props: 'vehProfileVin', label: 'VIN', visible: true, width: 200 },
           { props: 'approvalStatusLabel', label: '单据状态', visible: true, width: 150 },

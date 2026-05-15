@@ -143,7 +143,11 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="partsCode" title="零件代码" min-width="200" />
+                  <vxe-column field="partsCode" title="零件代码" min-width="200">
+                    <template #default="{ row }">
+                      <el-link type="primary" :href="`/service/sparepart/basic/sparePart/detail?id=${row.partsId}`" target="_blank">{{ row.partsCode }}</el-link>
+                    </template>
+                  </vxe-column>
                   <vxe-column field="partsName" title="零件名称" min-width="200" />
                   <vxe-column field="remark" title="备注" min-width="200">
                     <template #default="{ row }">

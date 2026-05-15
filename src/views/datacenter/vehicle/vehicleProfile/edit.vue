@@ -115,28 +115,64 @@
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="整车订单：">
-                  {{ form.vehicleOrder }}
+                  <el-link
+                    v-if="form.vehicleOrderId"
+                    type="primary"
+                    :href="`/service/sales/vehretail/orderManager/retailOrderInfo/edit?id=${form.vehicleOrderId}`"
+                    target="_blank"
+                  >{{ form.vehicleOrder }}</el-link>
+                  <span v-else>{{ form.vehicleOrder }}</span>
                 </el-form-item>
                 <el-form-item label="企业客户整车订单：">
-                  {{ form.vehicleEnterpriseOrder }}
+                  <el-link
+                    v-if="form.vehicleEnterpriseOrderId"
+                    type="primary"
+                    :href="`/service/sales/vehwholesale/entorder/entVehicleOrder/edit?id=${form.vehicleEnterpriseOrderId}`"
+                    target="_blank"
+                  >{{ form.vehicleEnterpriseOrder }}</el-link>
+                  <span v-else>{{ form.vehicleEnterpriseOrder }}</span>
                 </el-form-item>
                 <el-form-item label="商城订单号：">
-                  {{ form.shopcode }}
+                  <el-link
+                    v-if="form.shopcode"
+                    type="primary"
+                    :href="`/service/sales/vehretail/productManager/productCenter/edit?code=${form.shopcode}`"
+                    target="_blank"
+                  >{{ form.shopcode }}</el-link>
+                  <span v-else>{{ form.shopcode }}</span>
                 </el-form-item>
                 <el-form-item label="销售门店：">
-                  {{ form.salesDealerName }}
+                  <el-link
+                    v-if="form.salesDealerCode"
+                    type="primary"
+                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.salesDealerCode}`"
+                    target="_blank"
+                  >{{ form.salesDealerName }}</el-link>
+                  <span v-else>{{ form.salesDealerName }}</span>
                 </el-form-item>
                 <el-form-item label="销售顾问：">
                   {{ form.salesUserName }}
                 </el-form-item>
                 <el-form-item label="交付门店：">
-                  {{ form.deliveryDealerName }}
+                  <el-link
+                    v-if="form.deliveryDealerCode"
+                    type="primary"
+                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.deliveryDealerCode}`"
+                    target="_blank"
+                  >{{ form.deliveryDealerName }}</el-link>
+                  <span v-else>{{ form.deliveryDealerName }}</span>
                 </el-form-item>
                 <el-form-item label="交付顾问：">
                   {{ form.deliveryUserName }}
                 </el-form-item>
                 <el-form-item label="服务门店：">
-                  {{ form.serviceDealerName }}
+                  <el-link
+                    v-if="form.serviceDealerCode"
+                    type="primary"
+                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.serviceDealerCode}`"
+                    target="_blank"
+                  >{{ form.serviceDealerName }}</el-link>
+                  <span v-else>{{ form.serviceDealerName }}</span>
                 </el-form-item>
                 <el-form-item label="服务顾问：">
                   {{ form.serviceUserName }}

@@ -365,9 +365,48 @@ export default {
             }]
           },
           { props: 'traceStatusLabel', label: '追溯状态', visible: true, width: 200 },
-          { props: 'warrantyCode', label: '保修申请单', visible: true, width: 200 },
-          { props: 'vin', label: 'VIN 码', visible: true, width: 200, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'vin') },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          {
+            props: 'warrantyCode',
+            label: '保修申请单',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.warrantyId) {
+                  window.open(`/claimreturn/claim/claimapply/claimApply/edit?id=${row.warrantyId}`, '_blank');
+                }
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'vin',
+            label: 'VIN 码',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDetailDecryptField(row.id, 'vin'),
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.vehicleProfileId) {
+                  window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehicleProfileId}`, '_blank');
+                }
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'laborClaimTotal', label: '保修工时金额', visible: true, width: 200 },
           { props: 'partsClaimTotal', label: '保修备件金额', visible: true, width: 200 },

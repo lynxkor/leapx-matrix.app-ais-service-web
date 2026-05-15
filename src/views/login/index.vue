@@ -108,7 +108,14 @@ export default {
       login(encrypt(this.form)).then(async (res) => {
         this.iskey = false;
         this.$store.commit('SET_TOKEN', res.token);
-        this.$store.commit('SET_PAGE_RESOURCE', res.resources);
+        if (res?.resources?.length) {
+          this.$store.commit('SET_PAGE_RESOURCE', res.resources);
+        } else {
+          this.$store.commit('SET_PAGE_RESOURCE', {
+            pageSource: res?.resourceTagList || [],
+            sourceUrl: res?.resourceUriList || []
+          });
+        }
         getAreaTree().then(res => {
           console.log('areaTree', res);
           localStorage.setItem('areaTree', JSON.stringify(res));
