@@ -64,7 +64,13 @@
               {{ form.settleStatusLabel }}
             </el-form-item>
             <el-form-item label="门店编码：" prop="dealerCode">
-              {{ form.dealerCode }}
+              <el-link
+                v-if="form.dealerCode"
+                type="primary"
+                :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                target="_blank"
+              >{{ form.dealerCode }}</el-link>
+              <span v-else>{{ form.dealerCode }}</span>
             </el-form-item>
             <el-form-item label="门店名称：" prop="dealerName">
               {{ form.dealerName }}

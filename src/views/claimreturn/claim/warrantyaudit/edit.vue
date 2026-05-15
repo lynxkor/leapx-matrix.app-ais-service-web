@@ -192,11 +192,27 @@
                 <el-form-item label="保修审计主题：">{{ form.auditTheme }}</el-form-item>
                 <el-form-item label="审计开始日期：">{{ form.auditStartDate }}</el-form-item>
                 <el-form-item label="提交截止日期：">{{ form.submitDeadline }}</el-form-item>
-                <el-form-item label="门店编码：">{{ form.dealerCode }}</el-form-item>
+                <el-form-item label="门店编码：">
+                  <el-link
+                    v-if="form.dealerCode"
+                    type="primary"
+                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                    target="_blank"
+                  >{{ form.dealerCode }}</el-link>
+                  <span v-else>{{ form.dealerCode }}</span>
+                </el-form-item>
                 <el-form-item label="审计专员1：">{{ form.auditor1Name }}</el-form-item>
                 <!-- <el-form-item label="审计专员1签名：">{{ form.auditor1Sign }}</el-form-item> -->
                 <el-form-item label="计划扣款金额：">{{ form.planDeductAmount }}</el-form-item>
-                <el-form-item label="门店名称：">{{ form.dealerName }}</el-form-item>
+                <el-form-item label="门店名称：">
+                  <el-link
+                    v-if="form.dealerCode"
+                    type="primary"
+                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                    target="_blank"
+                  >{{ form.dealerName }}</el-link>
+                  <span v-else>{{ form.dealerName }}</span>
+                </el-form-item>
                 <el-form-item label="审计专员2：">{{ form.auditor2Name }}</el-form-item>
                 <!-- <el-form-item label="审计专员2签名：">{{ form.auditor2Sign }}</el-form-item> -->
                 <el-form-item label="已扣款金额：">{{ form.deductedAmount }}</el-form-item>

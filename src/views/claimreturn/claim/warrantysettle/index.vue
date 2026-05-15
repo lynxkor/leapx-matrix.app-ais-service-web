@@ -245,7 +245,18 @@ export default {
             }]
           },
           { props: 'month', label: '月度', visible: true, width: 120 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 120 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              }
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 180 },
           { props: 'storeStatusLabel', label: '门店状态', visible: true, width: 120 },
           { props: 'settleStatusLabel', label: '通知书状态', visible: true, width: 120 },

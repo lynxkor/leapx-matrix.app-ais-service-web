@@ -317,8 +317,30 @@ export default {
           { props: 'auditStartDate', label: '审计开始日期', visible: true, width: 200 },
           { props: 'planAuditCount', label: '计划审计数量', visible: true, width: 200 },
           { props: 'actualAuditCount', label: '实际审计数量', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'dealerName',
+            label: '门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'submitDeadline', label: '提交截止日期', visible: true, width: 200 },
           { props: 'planDeductAmount', label: '计划扣款金额', visible: true, width: 200 },
           { props: 'deductedAmount', label: '已扣款金额', visible: true, width: 200 },
