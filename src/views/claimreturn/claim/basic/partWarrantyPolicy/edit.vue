@@ -107,10 +107,22 @@
                     {{ form.policyName }}
                   </el-form-item>
                   <el-form-item label="车系名称：" prop="seriesName">
-                    {{ form.seriesName }}
+                    <el-link
+                      v-if="form.seriesId"
+                      type="primary"
+                      :href="`/service/datacenter/materials/vehicleSeries/detail?id=${form.seriesId}`"
+                      target="_blank"
+                    >{{ form.seriesName }}</el-link>
+                    <span v-else>{{ form.seriesName }}</span>
                   </el-form-item>
                   <el-form-item label="车型名称：" prop="modelName">
-                    {{ form.modelName }}
+                    <el-link
+                      v-if="form.modelId"
+                      type="primary"
+                      :href="`/service/datacenter/materials/vehicleModel/detail?id=${form.modelId}`"
+                      target="_blank"
+                    >{{ form.modelName }}</el-link>
+                    <span v-else>{{ form.modelName }}</span>
                   </el-form-item>
                   <el-form-item label="车辆年款：" prop="yearTypeName">
                     {{ form.yearTypeName }}

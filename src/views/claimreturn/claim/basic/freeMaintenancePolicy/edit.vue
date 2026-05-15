@@ -121,7 +121,13 @@
                   {{ form.policyTypeLabel }}
                 </el-form-item>
                 <el-form-item label="维修项目代码：" prop="repairItemCode">
-                  {{ form.repairItemCode }}
+                  <el-link
+                    v-if="form.repairItemId"
+                    type="primary"
+                    :href="`/service/maintain/basic/repairItem/detail?id=${form.repairItemId}`"
+                    target="_blank"
+                  >{{ form.repairItemCode }}</el-link>
+                  <span v-else>{{ form.repairItemCode }}</span>
                 </el-form-item>
                 <el-form-item label="维修项目名称：" prop="repairItemName">
                   {{ form.repairItemName }}
