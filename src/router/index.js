@@ -2810,6 +2810,15 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/maintain/sp/repairWorkTimeliness',
+      name: 'repairWorkTimeliness',
+      component: () => import('@/views/maintain/sp/repairWorkTimeliness/index.vue'),
+
+      meta: {
+        name: '车间作业时效表',
+        keepAlive: true
+      }
+    }, {
       path: '/maintain/sp/departureDetail',
       name: 'departureDetail',
       component: () => import('@/views/maintain/sp/departureDetail/index.vue'),
