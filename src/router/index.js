@@ -2809,6 +2809,24 @@ const routes = [
         name: '文件下载',
         noResourceUrl: 'true'
       }
+    }, {
+      path: '/sparepart/warehouse/flowReport',
+      name: 'flowReport',
+      component: () => import('@/views/sparepart/warehouse/flowReport/index.vue'),
+
+      meta: {
+        name: '门店备件库存流水',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/warehouse/flowreport/edit',
+      name: 'flowReportEdit',
+      component: () => import('@/views/sparepart/warehouse/flowReport/edit.vue'),
+
+      meta: {
+        name: '门店备件库存流水详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
