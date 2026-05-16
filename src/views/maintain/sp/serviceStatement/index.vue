@@ -191,7 +191,7 @@
             v-model="form.statementPersonNameList"
             placeholder="请输入"
             labelKey="username"
-            valueKey="userId"
+            valueKey="username"
             clearable
             multiple
             filterable
@@ -204,7 +204,7 @@
             v-model="form.payeeNameList"
             placeholder="请输入"
             labelKey="username"
-            valueKey="userId"
+            valueKey="username"
             clearable
             multiple
             filterable
@@ -843,7 +843,7 @@ export default {
     },
     async getUserList (query) {
       try {
-        const res = await getUserByNameOrNo({ nameOrEmpNo: query });
+        const res = await getUserByNameOrNo({ name: query });
         return res;
       } catch (error) {
         console.error(error);

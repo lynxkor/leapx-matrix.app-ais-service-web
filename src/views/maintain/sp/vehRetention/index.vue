@@ -221,7 +221,18 @@ export default {
             }]
           },
           { props: 'vehYearTypeName', label: '年款', visible: true, width: 200 },
-          { props: 'vehModelName', label: '车型', visible: true, width: 200 },
+          {
+            props: 'vehModelName',
+            label: '车型',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/sales/datacenter/materials/vehicleModel/detail?id=${row.vehModelId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'cccName', label: '故障名称', visible: true, width: 200 },
           { props: 'partsCode', label: '涉及零件代码', visible: true, width: 200 },
           { props: 'partsName', label: '涉及零件名称', visible: true, width: 200 },

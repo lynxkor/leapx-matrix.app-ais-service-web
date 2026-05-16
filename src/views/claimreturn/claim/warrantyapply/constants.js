@@ -2,10 +2,10 @@
 export const APPLY_STATUS = {
   UN_SUBMITTED: '10',       // 未提交
   UNDER_REVIEW: '20',       // 审核中
-  PENDING_MANAGER: '25',    // 待保修经理审核
-  PENDING_GM: '30',         // 待总经理审核
-  REJECTED: '40',           // 已驳回
-  DENIED: '50',             // 已拒赔
+  PENDING_MANAGER: '21',    // 待保修经理审核
+  PENDING_GM: '25',         // 待总经理审核
+  REJECTED: '30',           // 已驳回
+  DENIED: '40',             // 已拒赔
   APPROVED: '60',           // 审核通过
   SETTLED: '70',            // 已结算
   PAID: '80',               // 已付款

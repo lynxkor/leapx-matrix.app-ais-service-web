@@ -228,7 +228,18 @@ export default {
 
           { props: 'accountTypeLabel', label: '销账标识', visible: true, width: 200 },
           { props: 'approvalStatusLabel', label: '审核状态', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          {
+            props: 'dealerName',
+            label: '门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'statementTypeLabel', label: '结算单类型', visible: true, width: 200 },
           { props: 'statementStatusLabel', label: '结算单状态', visible: true, width: 200 },
           { props: 'repairItemAmount', label: '维修项目金额', visible: true, width: 200 },

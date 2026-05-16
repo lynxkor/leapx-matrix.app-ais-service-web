@@ -274,6 +274,18 @@ export default {
           { props: 'applyTime', label: '申请时间', visible: true, width: 200 },
           { props: 'applyReason', label: '申请原因', visible: true, width: 200 },
           { props: 'vehicleCount', label: '申请数量', visible: true, width: 200 },
+          {
+            props: 'dealerName',
+            label: '门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'firstApproverName', label: '一级审批人', visible: true, width: 200 },
           { props: 'firstApproveTime', label: '一级审批时间', visible: true, width: 200 },
           { props: 'firstApproveComment', label: '一级审批说明', visible: true, width: 200 },

@@ -34,7 +34,6 @@
                     placeholder="请输入"
                     v-model="form.code"
                     clearable
-                    @input="handleCodeInput"
                   />
                 </el-form-item>
                 <el-form-item label="套餐名称：" prop="packageName">

@@ -142,7 +142,7 @@
           reserve-keyword
           v-model="form.mainPartCodeList"
           :remote-method="partRemote"
-          value-key="id"
+          value-key="partCode"
           label-key="partName"
           subLabelKey="partCode"
           placeholder="请输入零件编码/名称"
@@ -492,7 +492,18 @@ export default {
           },
           { props: 'applyStatusLabel', label: '保修单状态', visible: true, width: 200 },
           { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              }
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'dealerRegionName', label: '门店所属区域', visible: true, width: 200 },
           { props: 'currentSubmitTime', label: '当前提交时间', visible: true, width: 200 },

@@ -642,6 +642,11 @@ export default {
           data.startWarrantyDateEnd = this.form.startWarrantyDate[1];
         }
       }
+      // 转数字
+      if (this.form.alarmLevelList.length) {
+        const list = this.form.alarmLevelList.map(item => Number(item));
+        data.alarmLevelList = [...list];
+      }
       data.sortColumns = this.sortColumns;
       return data;
     },

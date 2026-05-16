@@ -399,3 +399,19 @@ export function resendSignSms (data) {
 export function getRecentlyServiceProxy (data) {
   return api.jsonPost(prefix + 'getRecentlyServiceProxy', data);
 }
+
+/**
+ * 出厂台次名细分页查询
+ * @param {Object} data
+ */
+export function pageDepartureDetail (data) {
+  return api.jsonPost(prefix + 'pageDepartureDetail', data);
+}
+
+/**
+ * 车间作业时效表分页查询
+ * @param {Object} data
+ */
+export function pageRepairWorkTimeliness (data) {
+  return api.jsonPost(prefix + 'pageRepairWorkTimeliness', data);
+}

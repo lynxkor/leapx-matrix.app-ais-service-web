@@ -101,10 +101,28 @@
               <!-- 详情页：基础信息 -->
               <el-form :inline="true" class="form-detail" v-show="!isEditing && _id">
                 <el-form-item label="索赔追溯单号：">{{ form.claimTraceCode }}</el-form-item>
-                <el-form-item label="门店编码：">{{ form.dealerCode }}</el-form-item>
+                <el-form-item label="门店编码：">
+                  <el-link
+                    v-if="form.dealerCode"
+                    type="primary"
+                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                    target="_blank"
+                  >{{ form.dealerCode }}</el-link>
+                  <span v-else>{{ form.dealerCode }}</span>
+                </el-form-item>
                 <el-form-item label="追溯状态：">{{ form.traceStatusLabel }}</el-form-item>
-                <el-form-item label="保修申请单：">{{ form.warrantyCode }}</el-form-item>
-                <el-form-item label="门店名称：">{{ form.dealerName }}</el-form-item>
+                <el-form-item label="保修申请单：">
+                  <el-link
+                    v-if="form.warrantyId"
+                    type="primary"
+                    :href="`/claimreturn/claim/claimapply/claimApply/edit?id=${form.warrantyId}`"
+                    target="_blank"
+                  >{{ form.warrantyCode }}</el-link>
+                  <span v-else>{{ form.warrantyCode }}</span>
+                </el-form-item>
+                <el-form-item label="门店名称：">
+                  {{ form.dealerName }}
+                </el-form-item>
                 <el-form-item label="首次下发时间：">{{ form.firstIssueTime }}</el-form-item>
                 <el-form-item label="追溯说明：">{{ form.traceDesc }}</el-form-item>
                 <el-form-item label="VIN：">

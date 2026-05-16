@@ -161,7 +161,13 @@
               {{ form.repairItemTypeName }}
             </el-form-item>
             <el-form-item label="门店编码：" prop="dealerCode">
-              {{ form.dealerCode }}
+              <el-link
+                v-if="form.dealerCode"
+                type="primary"
+                :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                target="_blank"
+              >{{ form.dealerCode }}</el-link>
+              <span v-else>{{ form.dealerCode }}</span>
             </el-form-item>
             <el-form-item label="审批时间：" prop="approvalTime">
               {{ form.approvalTime }}
@@ -967,7 +973,7 @@ export default {
           }
           return {
             ...res,
-            partAndSupplierId: res.mainPartId + res.mainPartSupplierId,
+            partAndSupplierId: res.mainPartId ? res.mainPartId + res.mainPartSupplierId : '',
           };
         });
       }

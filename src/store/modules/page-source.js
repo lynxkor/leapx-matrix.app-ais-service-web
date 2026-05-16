@@ -10,10 +10,14 @@ const data = {
   mutations: {
     // 设置资源目录
     SET_PAGE_RESOURCE (state, info) {
-      const arr = [];
-      const arr1 = [];
-      recursionSource(info, arr);
-      getSourceUrl(info, arr1);
+      const arr = info?.pageSource || [];
+      const arr1 = info?.sourceUrl || [];
+      if (arr.length === 0) {
+        recursionSource(info, arr);
+      }
+      if (arr1.length === 0) {
+        getSourceUrl(info, arr1);
+      }
       const aisPageSource = arr.filter(item => item.startsWith('AIS'));
       localStorage.setItem('pageSource', JSON.stringify(arr));
       localStorage.setItem('sourceUrl', JSON.stringify(arr1));

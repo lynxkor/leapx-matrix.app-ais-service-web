@@ -1321,7 +1321,8 @@ const routes = [
         name: '预授权申请表管理详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 主机厂
+    {
       path: '/sparepart/fund/account',
       name: 'account',
       component: () => import('@/views/sparepart/fund/account/index.vue'),
@@ -1330,8 +1331,7 @@ const routes = [
         name: '备件现金账户',
         keepAlive: true
       }
-    }, // 主机厂
-    {
+    }, {
       path: '/sparepart/fund/account/edit',
       name: 'accountEdit',
       component: () => import('@/views/sparepart/fund/account/edit.vue'),
@@ -1340,7 +1340,8 @@ const routes = [
         name: '备件现金账户详情',
         noResourceUrl: 'true'
       }
-    }, {
+    }, // 门店销毁
+    {
       path: '/sparepart/fund/accountRebate',
       name: 'accountRebate',
       component: () => import('@/views/sparepart/fund/accountRebate/index.vue'),
@@ -1349,8 +1350,7 @@ const routes = [
         name: '备件返利账户',
         keepAlive: true
       }
-    }, // 门店销毁
-    {
+    }, {
       path: '/sparepart/fund/accountRebate/edit',
       name: 'accountRebateEdit',
       component: () => import('@/views/sparepart/fund/accountRebate/edit.vue'),
@@ -2808,6 +2808,51 @@ const routes = [
       meta: {
         name: '文件下载',
         noResourceUrl: 'true'
+      }
+    }, {
+      path: '/maintain/sp/workHourSummary/technician',
+      name: 'workHourSummaryTechnician',
+      component: () => import('@/views/maintain/sp/workHourSummary/technician.vue'),
+
+      meta: {
+        name: '技师工时统计（按技师）',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/workHourSummary/team',
+      name: 'workHourSummaryTeam',
+      component: () => import('@/views/maintain/sp/workHourSummary/team.vue'),
+
+      meta: {
+        name: '技师工时统计（按班组）',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/repairWorkTimeliness',
+      name: 'repairWorkTimeliness',
+      component: () => import('@/views/maintain/sp/repairWorkTimeliness/index.vue'),
+
+      meta: {
+        name: '车间作业时效表',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/departureDetail',
+      name: 'departureDetail',
+      component: () => import('@/views/maintain/sp/departureDetail/index.vue'),
+
+      meta: {
+        name: '出厂台次名细',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/rightsUsageWriteOff',
+      name: 'rightsUsageWriteOff',
+      component: () => import('@/views/maintain/sp/rightsUsageWriteOff/index.vue'),
+
+      meta: {
+        name: '结算单-权益核销记录表管理',
+        keepAlive: true
       }
     }, {
       path: '/sparepart/warehouse/flowReport',

@@ -162,8 +162,8 @@ const defaultForm = {
   // 多选时字段有变化，自行修复
   code: '',
   sparePartId: '',
-  filterType: '',
-  type: '',
+  filterType: 'blacklist',
+  type: 'standard',
   status: '',
   remark: '',
   createTime: '',

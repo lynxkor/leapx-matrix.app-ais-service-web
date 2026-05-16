@@ -212,7 +212,18 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 140 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 140,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'returnStatusLabel', label: '回运状态', visible: true, width: 110 },
           { props: 'isCheckedLabel', label: '是否验收完成', visible: true, width: 140 },
           { props: 'returnDate', label: '回运日期', visible: true, width: 200 },

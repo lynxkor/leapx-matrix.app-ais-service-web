@@ -237,7 +237,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePart/detail',
+                  path: '/sparepart/basic/sparePart/edit',
                   query: {
                     id: row.partId
                   }
@@ -247,8 +247,34 @@ export default {
             }]
           },
           { props: 'partName', label: '零件名称', visible: true, width: 200 },
-          { props: 'seriesName', label: '车系名称', visible: true, width: 120 },
-          { props: 'modelName', label: '车型名称', visible: true, width: 200 },
+          {
+            props: 'seriesName',
+            label: '车系名称',
+            visible: true,
+            width: 120,
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.seriesId) {
+                  window.open(`/service/datacenter/materials/vehicleSeries/detail?id=${row.seriesId}`, '_blank');
+                }
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'modelName',
+            label: '车型名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.modelId) {
+                  window.open(`/service/datacenter/materials/vehicleModel/detail?id=${row.modelId}`, '_blank');
+                }
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'yearTypeName', label: '车辆年款', visible: true, width: 110 },
           { props: 'vehiclePropertyLabel', label: '车辆属性', visible: true, width: 110 },
           { props: 'mileage', label: '里程数（KM）', visible: true, width: 140 },

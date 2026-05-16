@@ -29,7 +29,8 @@
               {{ repairDetail.price }}
             </el-form-item>
             <el-form-item label="工时数量：" prop="workHour">
-              {{ repairDetail.workHour }}
+              <el-input-number type="number" @blur="handleDiscountAmountBlur" clearable size="small" :min="0"
+                v-model="repairDetail.workHour"></el-input-number>
             </el-form-item>
             <el-form-item label="项目金额：" prop="purchaseQty">
               {{ repairDetail.actualAmount || 0 }}
