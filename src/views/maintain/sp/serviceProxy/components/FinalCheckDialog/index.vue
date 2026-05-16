@@ -748,6 +748,7 @@ export default {
           repairWorkRecordResps: this.tableData,
           traceRecordParams: this.partsTraceRecordResps,
           batteryUnitId: this.formInline.batteryUnitId,
+          batteryUnitName: this.formInline.batteryUnitName,
           targetUnitCode: this.formInline.targetUnitCode,
           beforeChangeCode: this.formInline.beforeChangeCode,
           afterChangeCode: this.formInline.afterChangeCode,
