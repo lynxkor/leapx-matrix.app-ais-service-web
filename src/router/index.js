@@ -2810,6 +2810,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/maintain/sp/workHourSummary/technician',
+      name: 'workHourSummaryTechnician',
+      component: () => import('@/views/maintain/sp/workHourSummary/technician.vue'),
+
+      meta: {
+        name: '技师工时统计（按技师）',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/sp/workHourSummary/team',
+      name: 'workHourSummaryTeam',
+      component: () => import('@/views/maintain/sp/workHourSummary/team.vue'),
+
+      meta: {
+        name: '技师工时统计（按班组）',
+        keepAlive: true
+      }
+    }, {
       path: '/maintain/sp/repairWorkTimeliness',
       name: 'repairWorkTimeliness',
       component: () => import('@/views/maintain/sp/repairWorkTimeliness/index.vue'),
