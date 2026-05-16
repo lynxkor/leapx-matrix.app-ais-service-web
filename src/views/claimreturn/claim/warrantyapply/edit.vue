@@ -973,7 +973,7 @@ export default {
           }
           return {
             ...res,
-            partAndSupplierId: res.mainPartId + res.mainPartSupplierId,
+            partAndSupplierId: res.mainPartId ? res.mainPartId + res.mainPartSupplierId : '',
           };
         });
       }
