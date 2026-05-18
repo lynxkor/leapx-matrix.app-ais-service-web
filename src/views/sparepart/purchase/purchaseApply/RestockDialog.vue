@@ -52,7 +52,7 @@
                         {{ calculateSubtotal(row) }}
                     </template>
                 </vxe-column>
-                <vxe-column field="purchaseQty" title="采购量" fixed="right" width="120">
+                <vxe-column field="purchaseQty" title="采购数" fixed="right" width="120">
                     <template #default="{ row }">
                         <el-input
                             v-model="row.purchaseQty"
