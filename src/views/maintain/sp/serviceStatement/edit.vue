@@ -87,6 +87,23 @@
                 <el-form-item label="备注：" prop="remark" class="form-item-full">
                   <el-input placeholder="请输入" v-model="form.remark" clearable maxlength="500" />
                 </el-form-item>
+                <el-form-item class="form-item-full" />
+                <el-form-item label="签字完成时间：" prop="signCompletedOn">
+                  <el-input placeholder="请输入" v-model="form.signCompletedOn" disabled />
+                </el-form-item>
+                <el-form-item label="签字渠道：" prop="signChannelLabel">
+                  <el-input placeholder="请输入" v-model="form.signChannelLabel" disabled />
+                </el-form-item>
+                <el-form-item label="签字生成时间：" prop="signGeneratedOn">
+                  <el-input placeholder="请输入" v-model="form.signGeneratedOn" disabled />
+                </el-form-item>
+                <el-form-item label="签字状态：" prop="signStatusLabel">
+                  <el-input placeholder="请输入" v-model="form.signStatusLabel" disabled />
+                </el-form-item>
+                <el-form-item label="短信签字链接过期时间：" prop="signUrlExpiredOn">
+                  <el-input placeholder="请输入" v-model="form.signUrlExpiredOn" disabled />
+                </el-form-item>
+                <el-form-item class="form-item-full" />
                 <el-form-item label="总金额：" prop="totalAmount">
                   <el-input placeholder="请输入" v-model="form.totalAmount" disabled clearable />
                 </el-form-item>
@@ -191,6 +208,23 @@
                 <el-form-item label="备注：" prop="remark" class="form-item-full">
                   {{ form.remark }}
                 </el-form-item>
+                <el-form-item class="form-item-full" />
+                <el-form-item label="签字完成时间：" prop="signCompletedOn">
+                  {{ form.signCompletedOn }}
+                </el-form-item>
+                <el-form-item label="签字渠道：" prop="signChannelLabel">
+                  {{ form.signChannelLabel }}
+                </el-form-item>
+                <el-form-item label="签字生成时间：" prop="signGeneratedOn">
+                  {{ form.signGeneratedOn }}
+                </el-form-item>
+                <el-form-item label="签字状态：" prop="signStatusLabel">
+                  {{ form.signStatusLabel }}
+                </el-form-item>
+                <el-form-item label="短信签字链接过期时间：" prop="signUrlExpiredOn">
+                  {{ form.signUrlExpiredOn }}
+                </el-form-item>
+                <el-form-item class="form-item-full" />
                 <el-form-item label="总金额：" prop="totalAmount">
                   {{ form.totalAmount }}
                 </el-form-item>
@@ -238,18 +272,6 @@
                 </el-form-item>
                 <el-form-item label="零件应付金额：" prop="partPayableAmount">
                   {{ form.partPayableAmount }}
-                </el-form-item>
-                <el-form-item label="签字渠道：" prop="signChannelLabel">
-                  {{ form.signChannelLabel }}
-                </el-form-item>
-                <el-form-item label="签字生成时间：" prop="signGeneratedOn">
-                  {{ form.signGeneratedOn }}
-                </el-form-item>
-                <el-form-item label="签字完成时间：" prop="signCompletedOn">
-                  {{ form.signCompletedOn }}
-                </el-form-item>
-                <el-form-item label="短信签字链接过期时间：" prop="signUrlExpiredOn">
-                  {{ form.signUrlExpiredOn }}
                 </el-form-item>
               </el-form>
             </div>

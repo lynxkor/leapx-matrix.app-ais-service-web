@@ -89,7 +89,7 @@
         <el-form-item label="结算单类型">
           <fetch-select
             :request="fetchOptions"
-            enumCode="StatementTypeEnum"
+            enumCode="StatementOrderTypeEnum"
             v-model="form.StatementOrderTypeEnum"
             placeholder="请选择"
             clearable
