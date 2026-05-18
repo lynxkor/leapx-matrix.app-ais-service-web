@@ -328,7 +328,7 @@
 import { getDiscountType } from '@/api/maintain/sp/serviceProxy/index';
 import { submitSettlement, queryIsLastConfirm } from '@/api/maintain/sp/serviceStatement/index';
 import SignDialog from '../SignDialog';
-import { CheckoutTypeEnum, PackageTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
+import { StatementCheckoutTypeEnum, PackageTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
 
 export default {
   name: 'SubmitSettlemenDialog',
@@ -651,7 +651,7 @@ export default {
     },
     // 结算类型是否为合同、保修
     checkoutTypeIncluded (type) {
-      return type === CheckoutTypeEnum.WARRANTY || type === CheckoutTypeEnum.CONTRACT;
+      return type === StatementCheckoutTypeEnum.WARRANTY || type === StatementCheckoutTypeEnum.CONTRACT;
     },
     handleRefresh () {
       this.$emit('refresh');

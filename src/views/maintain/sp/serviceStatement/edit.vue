@@ -287,7 +287,7 @@ import { getDetail, addOrUpdate, reject, receiptCompletion, createCounterSettlem
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
-import { CheckoutTypeEnum, PackageTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
+import { StatementCheckoutTypeEnum, PackageTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
 import CreateWarrantyApplyDialog from './components/CreateWarrantyApplyDialog';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -416,8 +416,8 @@ export default {
     // 按钮权限控制 - 使用计算属性确保响应式更新
     buttonPermissions () {
       // 驳回按钮：自费、保险、内部结算类型，且状态为待收款
-      const baseType = [CheckoutTypeEnum.SELF_PAY, CheckoutTypeEnum.INSURANCE, CheckoutTypeEnum.INTERNAL_SETTLEMENT];
-      const baseType2 = [CheckoutTypeEnum.WARRANTY, CheckoutTypeEnum.CONTRACT];
+      const baseType = [StatementCheckoutTypeEnum.SELF_PAY, StatementCheckoutTypeEnum.INSURANCE, StatementCheckoutTypeEnum.INTERNAL_SETTLEMENT];
+      const baseType2 = [StatementCheckoutTypeEnum.WARRANTY, StatementCheckoutTypeEnum.CONTRACT];
       const { statementType, statementStatus, isCheck, signGeneratedOn, signStatus } = this.form;
       return {
         // 权益核销：结算类型为自费/保险/内部结算，状态为待结算，商城订单不显示
