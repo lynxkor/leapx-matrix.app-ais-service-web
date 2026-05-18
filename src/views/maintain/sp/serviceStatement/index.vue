@@ -123,7 +123,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="SatisfactionPushStatusEnum"
-            v-model="form.satisfactionPushStatusList"
+            v-model="form.isPushVisitResultList"
             placeholder="请选择"
             clearable
             multiple
@@ -337,7 +337,7 @@ const defaultForm = {
   StatementOrderTypeEnum: [],
   dataSourceList: [],
   accountTypeList: [],
-  satisfactionPushStatusList: [],
+  isPushVisitResultList: [],
   createTime: [],
   statementTime: [],
   receiveTime: [],

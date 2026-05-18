@@ -152,6 +152,8 @@
                 <el-form-item label="零件优惠金额：" prop="partDiscount">
                   <el-input placeholder="请输入" v-model="form.partDiscount" disabled clearable />
                 </el-form-item>
+              </el-form>
+              <el-form :inline="true" :model="form" label-width="180px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="剩余应付款金额：" prop="remainAmount">
                   <el-input placeholder="请输入" v-model="form.remainAmount" disabled clearable />
                 </el-form-item>
@@ -225,17 +227,13 @@
                   {{ form.signUrlExpiredOn }}
                 </el-form-item>
                 <el-form-item class="form-item-full" />
+                </el-form>
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="总金额：" prop="totalAmount">
                   {{ form.totalAmount }}
                 </el-form-item>
                 <el-form-item label="维修项目金额：" prop="repairItemAmount">
                   {{ form.repairItemAmount }}
-                </el-form-item>
-                <el-form-item label="维修项优惠金额：" prop="repairItemDiscount">
-                  {{ form.repairItemDiscount }}
-                </el-form-item>
-                <el-form-item label="维修项目应付金额：" prop="repairItemPayableAmount">
-                  {{ form.repairItemPayableAmount }}
                 </el-form-item>
                 <el-form-item label="结算人员：" prop="statementPersonName">
                   <el-link type="success" target="_blank" :href="`/partner/user/list/detail?&userId=${form.statementPersonId}`">{{ form.statementPersonName }}</el-link>
@@ -243,11 +241,17 @@
                 <el-form-item label="去零金额：" prop="noFractionAmount">
                   {{ form.noFractionAmount }}
                 </el-form-item>
+                <el-form-item label="维修项目优惠金额：" prop="repairItemDiscount">
+                  {{ form.repairItemDiscount }}
+                </el-form-item>
                 <el-form-item label="结算时间：" prop="statementTime">
                   {{ form.statementTime }}
                 </el-form-item>
                 <el-form-item label="权益金额：" prop="rightsAmount">
                   {{ form.rightsAmount }}
+                </el-form-item>
+                <el-form-item label="维修项目应付金额：" prop="repairItemPayableAmount">
+                  {{ form.repairItemPayableAmount }}
                 </el-form-item>
                 <el-form-item label="收款人：" prop="payeeName">
                   <el-link type="success" target="_blank" :href="`/partner/user/list/detail?&userId=${form.payeeId}`">{{ form.payeeName }}</el-link>
@@ -267,6 +271,8 @@
                 <el-form-item label="零件优惠金额：" prop="partDiscount">
                   {{ form.partDiscount }}
                 </el-form-item>
+                </el-form>
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="剩余应付款金额：" prop="remainAmount">
                   {{ form.remainAmount }}
                 </el-form-item>

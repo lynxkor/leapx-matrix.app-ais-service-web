@@ -49,7 +49,7 @@
             filterable
           >
             <template #option="{ item }">
-              <span>{{ item.partCode }}/{{ item.partName }}————{{ item.supplierName }}({{ item.supplierCode }})</span>
+              <span>{{ item.partCode }}/{{ item.partName }}——{{ item.supplierName }}({{ item.supplierCode }})</span>
             </template>
           </fetch-select>
           <span v-else>{{ row.oldPartCode }}</span>
@@ -250,6 +250,7 @@ export default {
         this.$message.success('更新成功');
         this.getDetailPageApi();
         this.editRowIndex = -1;
+        this.$emit('update');
       }).catch(e => {});
     },
     pageSizeChange (pageSize) {
