@@ -438,15 +438,15 @@
                 <template #default="{ row, rowIndex }">
                   <span class="btn-delete disabled" v-if="disabled">删除</span>
                   <span slot="reference" v-else-if="row.packageId" :class="['btn-delete', {'disabled': !!row.isOutstock}]" @click="handleRemovePartRow(rowIndex, row)">删除</span>
-                  <el-popconfirm v-else title="确定要删除这条记录吗？" @confirm="handleRemovePartRow(rowIndex, row)" :disabled="!!!!row.isOutstock">
+                  <el-popconfirm v-else title="确定要删除这条记录吗？" @confirm="handleRemovePartRow(rowIndex, row)" :disabled="!!row.isOutstock">
                     <span slot="reference" :class="['btn-delete', {'disabled': !!row.isOutstock}]">删除</span>
                   </el-popconfirm>
-                  <el-dropdown v-if="row.replaceSparePartRespList && row.replaceSparePartRespList.length > 0" trigger="click" @command="v => handlePartReplaceChange(v, row)">
-                    <span class="el-dropdown-link">
+                  <el-dropdown v-if="row.replaceSparePartRespList && row.replaceSparePartRespList.length > 0" :disabled="!!row.isOutstock" trigger="click" @command="v => handlePartReplaceChange(v, row)">
+                    <span class="el-dropdown-link"  :style="{color: !!row.isOutstock ? 'var(--leap-color-default-light-2)': ''}" @click.stop="e => handlePartReplaceClick(e, row)">
                       替换件<i class="el-icon-arrow-down el-icon--right"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown" placement="bottom-start" style="max-height: 200px;overflow-y: auto;overflow-x: hidden;">
-                      <el-dropdown-item v-for="el in row.replaceSparePartRespList" :command="el" :key="el.id">{{el.partsName}}-库存:{{el.stockCount || 0}}-{{el.partsCode}}</el-dropdown-item>
+                      <el-dropdown-item v-for="el in row.replaceSparePartRespList" :command="el" :key="el.id">{{el.partsCode}}/{{el.partsName}}-库存({{el.stockCount || 0}})-￥{{el.price || 0}}</el-dropdown-item>
                     </el-dropdown-menu>
                   </el-dropdown>
                 </template>
@@ -890,6 +890,7 @@ export default {
       if (JSON.stringify(data) === this.originalDataJson) {
         this.$emit('update:visible', false);
         this.submitLoading = false;
+        this.$emit('check');
         return;
       }
 
@@ -1419,7 +1420,6 @@ export default {
     handleRefresh () {
       this.getRepairItemInfo();
       this.$emit('refresh');
-      this.$emit('check');
     },
     // ----------替换件逻辑-----------------
     handlePartReplaceChange (current, row) {
@@ -1447,6 +1447,12 @@ export default {
         packageId: row.packageId || ''
       });
     },
+    handlePartReplaceClick (e, row) {
+      if (row.isOutstock) {
+        this.$message.warning('该零件已经领料出库，不允许替换，请全部退料后再操作，谢谢');
+        e.stopPropagation();
+      }
+    }
   }
 };
 </script>
