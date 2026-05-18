@@ -2854,6 +2854,24 @@ const routes = [
         name: '结算单-权益核销记录表管理',
         keepAlive: true
       }
+    }, {
+      path: '/sparepart/warehouse/flowReport',
+      name: 'flowReport',
+      component: () => import('@/views/sparepart/warehouse/flowReport/index.vue'),
+
+      meta: {
+        name: '门店备件库存流水',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/warehouse/flowreport/edit',
+      name: 'flowReportEdit',
+      component: () => import('@/views/sparepart/warehouse/flowReport/edit.vue'),
+
+      meta: {
+        name: '门店备件库存流水详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
