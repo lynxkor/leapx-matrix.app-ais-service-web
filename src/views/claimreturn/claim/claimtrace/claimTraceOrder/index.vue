@@ -487,7 +487,7 @@ export default {
               },
               {
                 name: '同意追溯',
-                show: (row) => row.traceStatus === TRACE_STATUS.PENDING_CONFIRM,
+                show: (row) => row.traceStatus === TRACE_STATUS.PENDING_CONFIRM || row.traceStatus === TRACE_STATUS.APPEAL_REJECTED,
                 click: (rowIndex, row) => {
                   this.handleAgreeTrace(row);
                 },
@@ -495,7 +495,7 @@ export default {
               },
               {
                 name: '申诉',
-                show: (row) => row.traceStatus === TRACE_STATUS.PENDING_CONFIRM,
+                show: (row) => row.traceStatus === TRACE_STATUS.PENDING_CONFIRM || row.traceStatus === TRACE_STATUS.APPEAL_REJECTED,
                 click: (rowIndex, row) => {
                   this.currentRow = row;
                   this.appealDialogVisible = true;
