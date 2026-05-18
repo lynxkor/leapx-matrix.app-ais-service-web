@@ -108,10 +108,10 @@
         <!-- 底部操作栏 -->
         <div class="footer-bar">
           <el-popconfirm
-            :title="selectedPackage?.used ? '确定使用该免保项目？' : '确定取消使用该免保项目？'"
+            :title="!selectedPackage?.used ? '确定使用该免保项目？' : '确定取消使用该免保项目？'"
             @confirm="handleConfirm"
           >
-            <el-button :type="selectedPackage?.used ? 'primary' : 'plain'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
+            <el-button :type="!selectedPackage?.used ? 'primary' : 'plain'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
           </el-popconfirm>
         </div>
       </div>
