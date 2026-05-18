@@ -89,7 +89,7 @@
         <el-form-item label="结算单类型">
           <fetch-select
             :request="fetchOptions"
-            enumCode="StatementTypeEnum"
+            enumCode="StatementOrderTypeEnum"
             v-model="form.StatementOrderTypeEnum"
             placeholder="请选择"
             clearable
@@ -123,7 +123,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="SatisfactionPushStatusEnum"
-            v-model="form.satisfactionPushStatusList"
+            v-model="form.isPushVisitResultList"
             placeholder="请选择"
             clearable
             multiple
@@ -337,7 +337,7 @@ const defaultForm = {
   StatementOrderTypeEnum: [],
   dataSourceList: [],
   accountTypeList: [],
-  satisfactionPushStatusList: [],
+  isPushVisitResultList: [],
   createTime: [],
   statementTime: [],
   receiveTime: [],

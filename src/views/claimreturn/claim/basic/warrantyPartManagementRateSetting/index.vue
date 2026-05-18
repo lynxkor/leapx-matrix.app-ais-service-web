@@ -298,7 +298,7 @@ export default {
       }
       exportTable({
         businessType: '新页面',
-        dataFetchPath: 'claimreturn/web/claim/basic/warrantyPartManagementRateSetting/page',
+        dataFetchPath: 'claimreturn/claim/web/basic/warrantyPartManagementRateSetting/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

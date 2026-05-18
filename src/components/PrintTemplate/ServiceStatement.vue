@@ -238,17 +238,17 @@
                 <tbody>
                   <tr>
                     <td style="width:120px; height:40px">客户经理确认</td>
-                    <td>{{ info.creatorName }}</td>
+                    <td style="width:120px;"></td>
                     <td style="width:120px;">收款人确认</td>
-                    <td>{{ info.payeeName }}</td>
+                    <td style="width:120px;">{{ info.payeeName }}</td>
                     <td style="width:120px;">客户签字</td>
-                    <td>
+                    <td style="width:120px;">
                       <img v-if="signUrl" :src="signUrl"  style="width: 120px; height: 32px" />
                     </td>
                   </tr>
                   <tr>
                     <td style="border-bottom-width:0px">日期</td>
-                    <td style="border-bottom-width:0px">{{ info.createTime}}</td>
+                    <td style="border-bottom-width:0px"></td>
                     <td style="border-bottom-width:0px">日期</td>
                     <td style="border-bottom-width:0px">{{ info.receiveTime }}</td>
                     <td style="border-bottom-width:0px">日期</td>
@@ -303,7 +303,7 @@
 // 对应业务的接口
 import { getPrintInfo } from '@/api/maintain/sp/serviceStatement/index';
 import { getStoreDetailByCode } from '@/api/maintain/sp/serviceProxy/index';
-import { CheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
+import { StatementCheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
 import { getFileList } from '@/libs/api/attachment';
 
 export default {
@@ -375,7 +375,7 @@ export default {
       return num.toFixed(2);
     },
     checkoutTypeIncluded (type) {
-      return type === CheckoutTypeEnum.WARRANTY || type === CheckoutTypeEnum.CONTRACT || type === CheckoutTypeEnum.INTERNAL_SETTLEMENT;
+      return type === StatementCheckoutTypeEnum.WARRANTY || type === StatementCheckoutTypeEnum.CONTRACT || type === StatementCheckoutTypeEnum.INTERNAL_SETTLEMENT;
     },
     // 处理结算类型数据,将不需要支付的金额置为0并更新总金额
     processCheckoutTypeData () {
