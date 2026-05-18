@@ -300,7 +300,7 @@ export default {
       }
       exportTable({
         businessType: '保修工时单价设置',
-        dataFetchPath: 'claimreturn/web/claim/basic/warrantyHourSetting/page',
+        dataFetchPath: 'claimreturn/claim/web/basic/warrantyHourSetting/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
