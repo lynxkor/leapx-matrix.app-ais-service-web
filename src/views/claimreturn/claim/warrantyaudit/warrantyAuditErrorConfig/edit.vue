@@ -155,11 +155,7 @@ export default {
       }
     },
     submitRequest () {
-      this.$refs.ruleForm.validate((valid) => {
-        if (valid) {
-          return addOrUpdate({ ...this.form });
-        }
-      });
+      return addOrUpdate({ ...this.form });
     },
     getDefautlForm () {
       return { ...defaultForm };
