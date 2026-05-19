@@ -186,7 +186,7 @@
                     :params="form.qualityOrderReport"
                     value-key="id"
                     label-key="code"
-                    subLabelKey="displayName"
+                    subLabelKey="title"
                     placeholder="请选择质量反馈单"
                     clearable
                     filterable
@@ -843,6 +843,7 @@ export default {
         getQualityReportList({
           codeLike: queryString,
           vehProfileVin: this.form.vehProfileVin,
+          orderStatus: 30,
           pageSize: 20,
           pageNum: 1
         }).then(res => {
