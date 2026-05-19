@@ -60,9 +60,9 @@
                     </el-form-item>
                   </el-form>
                   <el-form :model="form" class="form-detail" v-else style="display: block;width:100%;">
-                    <el-form-item label="正式工时扣款比例（%）">{{ form.formalLaborDeductRatio }}%</el-form-item>
-                    <el-form-item label="正式备件扣款比例（%）">{{ form.formalPartDeductRatio }}%</el-form-item>
-                    <el-form-item label="正式其他扣款比例（%）">{{ form.formalOtherDeductRatio }}%</el-form-item>
+                    <el-form-item label="正式工时扣款比例（%）" style="width: 100%">{{ form.formalLaborDeductRatio }}</el-form-item>
+                    <el-form-item label="正式备件扣款比例（%）" style="width: 100%">{{ form.formalPartDeductRatio }}</el-form-item>
+                    <el-form-item label="正式其他扣款比例（%）" style="width: 100%">{{ form.formalOtherDeductRatio }}</el-form-item>
                   </el-form>
                 </el-col>
                 <el-col :span="12">
@@ -78,9 +78,9 @@
                     </el-form-item>
                   </el-form>
                   <el-form :model="form" class="form-detail" v-else style="display: block;width:100%;">
-                    <el-form-item label="跟进工时扣款比例（%）">{{ form.followLaborDeductRatio }}</el-form-item>
-                    <el-form-item label="跟进备件扣款比例（%）">{{ form.followPartDeductRatio }}</el-form-item>
-                    <el-form-item label="跟进其他扣款比例（%）">{{ form.followOtherDeductRatio }}</el-form-item>
+                    <el-form-item label="跟进工时扣款比例（%）" style="width: 100%">{{ form.followLaborDeductRatio }}</el-form-item>
+                    <el-form-item label="跟进备件扣款比例（%）" style="width: 100%">{{ form.followPartDeductRatio }}</el-form-item>
+                    <el-form-item label="跟进其他扣款比例（%）" style="width: 100%">{{ form.followOtherDeductRatio }}</el-form-item>
                   </el-form>
                 </el-col>
               </el-row>
