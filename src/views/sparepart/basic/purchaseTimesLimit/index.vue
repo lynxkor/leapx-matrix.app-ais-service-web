@@ -9,7 +9,7 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="订单类">
+      <el-form-item label="订单类型">
         <fetch-select
           :request="fetchOptions"
           enumCode="PurchaseOrderTypeEnum"
