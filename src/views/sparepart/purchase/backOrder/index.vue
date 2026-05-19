@@ -62,7 +62,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="BackOrderStatusEnum"
-            v-model="form.backStatus"
+            v-model="form.backStatusList"
             placeholder="请选择"
             clearable
             multiple
@@ -253,7 +253,7 @@ const defaultForm = {
   purchaseApplyCode: '',
   dealerCode: '',
   purchaseOrderTypeList: [],
-  backStatus: '',
+  backStatusList: '',
   createTime: '',
   updateTime: '',
 };
