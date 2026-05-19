@@ -1,53 +1,54 @@
 <template>
   <div class="change-history">
-    <el-timeline class="change-history-timeline">
-      <el-timeline-item
-        v-for="(item, index) in tableData"
-        :key="index"
-        color="#354"
-        >
-        <template v-slot:dot>
-          <div class="dot" :class="{'first': index === 0}"></div>
-        </template>
-        <div class="item">
-          <div class="line-1">{{ item.orderTime }}
-            <span class="type" v-for="val in item.repairTypes" :key="val">{{ val }}</span>
-          </div>
-          <div class="line-2">
-            <div class="line-item">
-              <span class="grey">业务单据：</span>
-              <el-link type="success" :href="`/maintain/sp/serviceProxy/edit?id=${item.serviceProxyId}`" target="_blank">{{ item.serviceProxyCode }}</el-link>
+    <template v-if="tableData.length">
+      <el-timeline class="change-history-timeline">
+        <el-timeline-item
+          v-for="(item, index) in tableData"
+          :key="index"
+          color="#354"
+          >
+          <template v-slot:dot>
+            <div class="dot" :class="{'first': index === 0}"></div>
+          </template>
+          <div class="item">
+            <div class="line-1">{{ item.orderTime }}
+              <span class="type" v-for="val in item.repairTypes" :key="val">{{ val }}</span>
+            </div>
+            <div class="line-2">
+              <div class="line-item">
+                <span class="grey">业务单据：</span>
+                <el-link type="success" @click="handleLinkClick(item)">{{ item.serviceProxyCode }}</el-link>
+              </div>
+            </div>
+            <div class="line-2">
+              <div class="line-item">
+                <span class="grey">施工门店：</span>
+                <span>{{ item.dealerName }}</span>
+              </div>
+            </div>
+            <div class="line-2">
+              <div class="line-item">
+                <span class="grey">进店里程：</span>
+                <span>{{ item.mileage }}</span>
+              </div>
+            </div>
+            <div class="line-2">
+              <div class="line-item">
+                <span class="grey">客户故障描述：</span>
+                <span>{{ item.customerFaultDescription }}</span>
+              </div>
+            </div>
+            <div class="line-2">
+              <div class="line-item">
+                <span class="grey">客户经理建议：</span>
+                <span>{{ item.managerSuggestion }}</span>
+              </div>
             </div>
           </div>
-          <div class="line-2">
-            <div class="line-item">
-              <span class="grey">施工门店：</span>
-              <span>{{ item.dealerName }}</span>
-            </div>
-          </div>
-          <div class="line-2">
-            <div class="line-item">
-              <span class="grey">进店里程：</span>
-              <span>{{ item.mileage }}</span>
-            </div>
-          </div>
-          <div class="line-2">
-            <div class="line-item">
-              <span class="grey">客户故障描述：</span>
-              <span>{{ item.customerFaultDescription }}</span>
-            </div>
-          </div>
-          <div class="line-2">
-            <div class="line-item">
-              <span class="grey">客户经理建议：</span>
-              <span>{{ item.managerSuggestion }}</span>
-            </div>
-          </div>
-        </div>
-      </el-timeline-item>
-    </el-timeline>
-    <div class="table-pagination">
-      <el-pagination
+        </el-timeline-item>
+      </el-timeline>
+      <div class="table-pagination">
+        <el-pagination
         @size-change="pageSizeChange"
         @current-change="currentPageChange"
         :current-page="current"
@@ -55,14 +56,17 @@
         :page-size="pageSize"
         layout="total, sizes, prev, next, jumper"
         :total="total"
-      >
+        >
       </el-pagination>
     </div>
+  </template>
+  <div v-else class="empty-text">暂无数据</div>
   </div>
 </template>
 
 <script>
 import { serviceProxyHisPage } from '@/api/datacenter/vehicle/vehicleProfile';
+import { getLoginUser } from '@/api/common';
 import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
@@ -87,6 +91,7 @@ export default {
       pageSize: 10,
       total: 0,
       tableData: [],
+      loginUser: null,
       //
     };
   },
@@ -103,14 +108,14 @@ export default {
     },
   },
   mounted () {
+    this.initLoginUser();
     this.getDetailPageApi();
   },
 
   methods: {
     getDetailPageApi () {
       serviceProxyHisPage({
-        // vehProfileId: this.id,
-        vehProfileId: 'FFFE520B-3858-45A9-B7A5-DDA656D717D3',
+        vehProfileId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,
         sortColumns: [{
@@ -135,6 +140,16 @@ export default {
     currentPageChange (current) {
       this.current = current;
       this.getDetailPageApi();
+    },
+    async initLoginUser () {
+      this.loginUser = await getLoginUser();
+    },
+    handleLinkClick (item) {
+      if (this.loginUser?.accountFlag && this.loginUser.currentDealerCode !== item.dealerCode) {
+        this.$message.warning('权限不足');
+        return;
+      }
+      window.open(`/maintain/sp/serviceProxy/edit?id=${item.serviceProxyId}`, '_blank');
     },
   }
 };
@@ -220,6 +235,12 @@ export default {
 }
 .table-pagination{
   padding: 0 12px;
+}
+.empty-text {
+  padding: 200px 0;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
 }
 ::v-deep .el-timeline .el-timeline-item .el-timeline-item__tail {
   top: 7px;

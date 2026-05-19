@@ -14,10 +14,11 @@
     min-height="0"
     max-height="400px"
     >
-    <vxe-column field="name" title="备件名称" >
+    <vxe-column field="name" title="保养零件名称" ></vxe-column>
+    <vxe-column field="maintenancePartCode" title="保养零件代码" >
       <template #default="{ row }">
-        <el-link v-if="row.maintenancePartId" type="success" :href="`/service/maintain/basic/maintenancePartData/edit?id=${row.maintenancePartId}`" target="_blank">{{ row.name }}</el-link>
-        <span v-else>{{ row.name }}</span>
+        <el-link v-if="row.maintenancePartId" type="success" :href="`/service/maintain/basic/maintenancePartData/edit?id=${row.maintenancePartId}`" target="_blank">{{ row.maintenancePartCode }}</el-link>
+        <span v-else>{{ row.maintenancePartCode }}</span>
       </template>
     </vxe-column>
     <vxe-column field="mileageTypeLabel" title="里程类型" ></vxe-column>
