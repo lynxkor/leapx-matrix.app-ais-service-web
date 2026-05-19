@@ -167,7 +167,7 @@
               {{ form.vfgName }}
             </el-form-item>
             <el-form-item label="责任部门：">
-              {{ form.responsibleDept }}
+              {{ form.responsibleDeptLabel }}
             </el-form-item>
             </template>
             <el-form-item style="width:100%" label="方案说明：">
@@ -261,6 +261,7 @@ export default {
         vfgName: '',
         responsibleDept: '',
         description: '',
+        responsibleDeptLabel: ''
       },
       rules: {
         checkoutTypeId: [
