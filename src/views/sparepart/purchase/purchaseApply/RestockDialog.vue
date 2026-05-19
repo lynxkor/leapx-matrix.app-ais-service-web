@@ -36,7 +36,11 @@
                 <vxe-column field="planCategory" title="计划分类" width="150" />
                 <vxe-column field="partsCategory" title="备件分类" width="150" />
                 <vxe-column field="avgWeeklyDemand" title="周平均值需求" width="150" />
-                <vxe-column field="riskWarning" title="风险预警" width="150" />
+                <vxe-column field="riskWarning" title="风险预警" width="150">
+                  <template #default="{ row }">
+                    <span :style="row.riskWarning === '高' ? 'color: #B91919;' : row.riskWarning === '中' ? 'color: #B96619;' : 'color: #C8A12B;'">{{ row.riskWarning }}</span>
+                  </template>
+                </vxe-column>
                 <vxe-column field="expectedShortageDate" title="预计缺货日期" width="150" />
                 <vxe-column field="minTargetAmount" title="Min" width="100" />
                 <vxe-column field="maxForecast" title="Max" width="100" />
@@ -212,9 +216,11 @@ export default {
           this.tableData = res.records.map(item => {
             return {
               ...item,
+              checked: true, // 默认选中
             };
           });
           this.total = res.total;
+          this.selectedRows = [...this.tableData]; // 默认选中所有数据
         }).finally(() => {
           this.loading = false;
         });

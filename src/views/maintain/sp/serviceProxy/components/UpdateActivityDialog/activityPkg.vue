@@ -447,7 +447,7 @@ export default {
         checkoutTypeName: activityRes.checkoutTypeName,
         warrantyTypeId: activityRes.repairItemTypeId,
         warrantyTypeName: activityRes.repairItemTypeName,
-        workHour: item.workHour || 1,
+        workHour: item.quantity || 1,
         isAddItems: this.vehicleInfo.isAddItems,
         discountAmount: item.discountAmount || 0,
         packageType: String(activityRes.activityType) === ActivityTypeEnum.SERVICE_CARE ? PackageTypeEnum.CARE_ACTIVITY : PackageTypeEnum.TECH_ACTIVITY,
