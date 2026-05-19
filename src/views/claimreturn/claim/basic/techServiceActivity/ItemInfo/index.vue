@@ -108,6 +108,14 @@
                 disabled
               />
             </el-form-item>
+            <el-form-item v-if="isServiceCareActivity" label="门店支持费用：" prop="dealerSupportAmount">
+              <base-input
+                placeholder="请输入"
+                v-model="form.dealerSupportAmount"
+                clearable
+                @change="onSubmit(form)"
+              />
+            </el-form-item>
             <el-form-item label="维修类型：" prop="repairItemTypeName">
               <fetch-select
                 filterable
@@ -125,13 +133,13 @@
             </el-form-item>
             <el-form-item label="工时是否允许修改：" prop="allowDelete">
               <el-switch
-                @change="onUpdate(form)"
+                @change="onSubmit(form)"
                 v-model="form.allowDelete">
               </el-switch>
             </el-form-item>
             <el-form-item v-if="!isServiceCareActivity" label="工时是否主因工时：" prop="isMainRepairItem">
               <el-switch
-                @change="onUpdate(form)"
+                @change="onSubmit(form)"
                 v-model="form.isMainRepairItem">
               </el-switch>
             </el-form-item>
@@ -216,6 +224,7 @@ const defaultForm = {
   isMainRepairItem: false,
   repairItemTypeName: '',
   repairItemTypeId: '',
+  dealerSupportAmount: ''
 };
 const repairItemTypeCode = 'WXLX002';
 const repairItemTypeId = '898A364C-DD79-EC11-B0F9-9216EACB73F2';
@@ -327,7 +336,7 @@ export default {
       const maxDiscount = row.quantity * row.unitPrice;
       this.$set(row, 'amount', (maxDiscount - row.discountAmount).toFixed(2));
       if (isUpdate) {
-        this.onUpdate(this.form);
+        this.onSubmit(this.form);
       }
     },
     resetForm () {
@@ -362,6 +371,15 @@ export default {
         ...data,
         allowDelete: data.allowDelete ? '1' : '0',
         isMainRepairItem: data.isMainRepairItem ? '1' : '0',
+      });
+    },
+    onSubmit (data) {
+      techServiceActivityItemUpdate({
+        ...data,
+        allowDelete: data.allowDelete ? '1' : '0',
+        isMainRepairItem: data.isMainRepairItem ? '1' : '0',
+      }).then(res => {
+        this.$message.success('保存成功');
       });
     },
     // 获取项目零件列表
@@ -445,7 +463,7 @@ export default {
       this.form.repairItemTypeName = record?.name;
       this.form.repairItemTypeCode = record?.code;
       this.form.repairItemTypeId = record?.id;
-      this.onUpdate(this.form);
+      this.onSubmit(this.form);
     },
     // ------------
     // 零件

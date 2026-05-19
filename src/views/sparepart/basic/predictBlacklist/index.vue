@@ -244,6 +244,8 @@ export default {
           { props: 'partName', label: '备件名称', visible: true, width: 200 },
           { props: 'filterTypeLabel', label: '名单类型 ', visible: true, width: 200 },
           { props: 'typeLabel', label: '模式 ', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码 ', visible: true, width: 200 },
+          { props: 'dealerName', label: '门店名称 ', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },

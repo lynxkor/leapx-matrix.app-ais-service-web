@@ -89,7 +89,7 @@
         <el-form-item label="结算单类型">
           <fetch-select
             :request="fetchOptions"
-            enumCode="StatementTypeEnum"
+            enumCode="StatementOrderTypeEnum"
             v-model="form.StatementOrderTypeEnum"
             placeholder="请选择"
             clearable
@@ -123,7 +123,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="SatisfactionPushStatusEnum"
-            v-model="form.satisfactionPushStatusList"
+            v-model="form.isPushVisitResultList"
             placeholder="请选择"
             clearable
             multiple
@@ -191,7 +191,7 @@
             v-model="form.statementPersonNameList"
             placeholder="请输入"
             labelKey="username"
-            valueKey="userId"
+            valueKey="username"
             clearable
             multiple
             filterable
@@ -204,7 +204,7 @@
             v-model="form.payeeNameList"
             placeholder="请输入"
             labelKey="username"
-            valueKey="userId"
+            valueKey="username"
             clearable
             multiple
             filterable
@@ -337,7 +337,7 @@ const defaultForm = {
   StatementOrderTypeEnum: [],
   dataSourceList: [],
   accountTypeList: [],
-  satisfactionPushStatusList: [],
+  isPushVisitResultList: [],
   createTime: [],
   statementTime: [],
   receiveTime: [],
@@ -843,7 +843,7 @@ export default {
     },
     async getUserList (query) {
       try {
-        const res = await getUserByNameOrNo({ nameOrEmpNo: query });
+        const res = await getUserByNameOrNo({ name: query });
         return res;
       } catch (error) {
         console.error(error);

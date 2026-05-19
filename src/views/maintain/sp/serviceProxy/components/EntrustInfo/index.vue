@@ -284,7 +284,7 @@
             placeholder="请输入"
             v-model="form.customerContent"
             clearable
-            :disabled="!form.currentFault"
+            :disabled="!form.currentFault || form.confirmFault"
           />
         </el-form-item>
         <el-form-item label="作废描述：" prop="invaildDesc" class="form-item-full">

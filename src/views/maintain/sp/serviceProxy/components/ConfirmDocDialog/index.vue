@@ -48,7 +48,7 @@ export default {
     return {
       dialogVisible: this.visible,
       form: {
-        signChannel: '999',
+        signChannel: '',
       },
       rules: {
         signChannel: [

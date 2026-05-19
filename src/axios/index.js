@@ -168,7 +168,7 @@ export function fetch (url, params, method, sign, userResponse, config) {
     return axios.get(url, { ...reqConfig, params }).then(res => res.data);
   }
   if (method === 'delete') {
-    return axios.delete(url, { ...params, ...reqConfig }).then(res => res.data);
+    return axios.delete(url, { ...reqConfig, params }).then(res => res.data);
   }
 };
 

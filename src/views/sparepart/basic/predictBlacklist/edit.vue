@@ -35,6 +35,7 @@
                   clearable
                   remote
                   reserve-keyword
+                  :disabled="!!_id"
                   v-model="form.partCode"
                   :remote-method="getSparePart"
                   labelKey="name"
@@ -68,6 +69,7 @@
                     placeholder="请选择"
                     clearable
                     filterable
+                    :disabled="!!_id"
                   />
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode" v-if="form.type==='dealer'">
@@ -83,6 +85,7 @@
                     collapseTags
                     filterable
                     @change="handleDealerChange"
+                    :disabled="!!_id"
                   />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName" v-if="form.type==='dealer'">

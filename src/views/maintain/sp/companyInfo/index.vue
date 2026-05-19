@@ -255,6 +255,7 @@ export default {
           { props: 'dealerStatusLabel', label: '门店状态', visible: true, width: 200 },
           { props: 'companyName', label: '母公司名称', visible: true, width: 200 },
           { props: 'healthStatusLabel', label: '健康档案状态', visible: true, width: 200 },
+          { props: 'venueId', label: '场所ID', visible: true, width: 200 },
           { props: 'creditCode', label: '统一社会信用代码', visible: true, width: 200 },
           { props: 'areaCode', label: '注册区域编码', visible: true, width: 200 },
           { props: 'repairCode', label: '维修企业唯一标识', visible: true, width: 200 },

@@ -34,7 +34,7 @@ export const BusinessTypeEnum = {
   ANTI_SETTLEMENT_APPROVAL: 60
 };
 
-// 结算类型枚举
+// 施工单中使用到的结算类型枚举
 export const CheckoutTypeEnum = {
   /** 自费 */
   SELF_PAY: '352BB70C-82AC-E911-B0BB-FC82BA5F9EDF',
@@ -46,6 +46,20 @@ export const CheckoutTypeEnum = {
   CONTRACT: '3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF',
   /** 内部结算 */
   INTERNAL_SETTLEMENT: '3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF'
+};
+
+// 结算单中使用到的类型枚举
+export const StatementCheckoutTypeEnum = {
+  /** 自费 */
+  SELF_PAY: 30,
+  /** 保险 */
+  INSURANCE: 40,
+  /** 保修 */
+  WARRANTY: 10,
+  /** 合同 */
+  CONTRACT: 20,
+  /** 内部结算 */
+  INTERNAL_SETTLEMENT: 50
 };
 
 // 保修类型枚举

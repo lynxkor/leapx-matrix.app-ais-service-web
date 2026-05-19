@@ -43,8 +43,8 @@
         </el-form-item>
       </el-form>
       <el-form :inline="true" class="form-detail" v-else>
-        <el-form-item label="电池去向单位：" prop="targetUnitName">
-          {{ form.targetUnitName }}
+        <el-form-item label="电池去向单位：" prop="batteryUnitName">
+          {{ form.batteryUnitName }}
         </el-form-item>
         <el-form-item label="去向单位统一代码：" prop="targetUnitCode">
           {{ form.targetUnitCode }}
@@ -146,6 +146,7 @@ export default {
       if (record) {
         this.form.targetUnitCode = record.buinessLicense;
         this.form.targetUnitName = record.name;
+        this.form.batteryUnitName = record.name;
       }
     }
   }
