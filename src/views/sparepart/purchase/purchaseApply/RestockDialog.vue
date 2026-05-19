@@ -36,7 +36,11 @@
                 <vxe-column field="planCategory" title="计划分类" width="150" />
                 <vxe-column field="partsCategory" title="备件分类" width="150" />
                 <vxe-column field="avgWeeklyDemand" title="周平均值需求" width="150" />
-                <vxe-column field="riskWarning" title="风险预警" width="150" />
+                <vxe-column field="riskWarning" title="风险预警" width="150">
+                  <template #default="{ row }">
+                    <span :style="row.riskWarning === '高' ? 'color: #B91919;' : row.riskWarning === '中' ? 'color: #B96619;' : 'color: #C8A12B;'">{{ row.riskWarning }}</span>
+                  </template>
+                </vxe-column>
                 <vxe-column field="expectedShortageDate" title="预计缺货日期" width="150" />
                 <vxe-column field="minTargetAmount" title="Min" width="100" />
                 <vxe-column field="maxForecast" title="Max" width="100" />
@@ -52,14 +56,15 @@
                         {{ calculateSubtotal(row) }}
                     </template>
                 </vxe-column>
-                <vxe-column field="purchaseQty" title="采购数" fixed="right" width="120">
+                <vxe-column field="purchaseQty" title="采购量" fixed="right" width="160">
                     <template #default="{ row }">
-                        <el-input
+                        <el-input-number
                             v-model="row.purchaseQty"
-                            type="number"
+                            :min="0"
+                            :step="row.minOrderQty || 1"
                             size="small"
                             placeholder="请输入"
-                            @change="handlePurchaseQtyBlur(row)"
+                            @change="handlePurchaseQtyChange(row)"
                         />
                     </template>
                 </vxe-column>
@@ -172,16 +177,13 @@ export default {
       this.pageSize = 10;
       this.getData();
     },
-    handlePurchaseQtyBlur (row) {
+    handlePurchaseQtyChange (row) {
       const purchaseQty = Number(row.purchaseQty);
       const minOrderQty = Number(row.minOrderQty);
 
       if (purchaseQty > 0 && minOrderQty > 0) {
         if (purchaseQty % minOrderQty !== 0) {
-          // 计算最接近的倍数（向上取整）
-          const nearestMultiple = Math.ceil(purchaseQty / minOrderQty) * minOrderQty;
-          row.purchaseQty = nearestMultiple;
-          this.$message.warning(`采购量已自动调整为最小订购量（${minOrderQty}）的倍数：${nearestMultiple}`);
+          this.$message.warning(`采购量必须是最小订购量（${minOrderQty}）的倍数`);
         }
       }
     },
@@ -214,9 +216,11 @@ export default {
           this.tableData = res.records.map(item => {
             return {
               ...item,
+              checked: true, // 默认选中
             };
           });
           this.total = res.total;
+          this.selectedRows = [...this.tableData]; // 默认选中所有数据
         }).finally(() => {
           this.loading = false;
         });

@@ -1211,6 +1211,9 @@ export default {
       if (wasTimeEditable && !this.checkIfTimeEditable(row)) {
         this.restoreWorkHour(row);
       }
+      if (this.checkoutTypeIncluded(row.checkoutTypeId)) {
+        this.restoreItemDiscountAmount(row);
+      }
     },
     // 保修类型变化
     handleWarrantyTypeChange (row) {
@@ -1256,6 +1259,9 @@ export default {
         const allowType = warrantyTypes.filter(el => this.checkIfWarrantyTypeEditable(row, el.warrantyTypeId));
         row.warrantyTypeId = allowType?.[0]?.warrantyTypeId;
         row.warrantyTypeName = allowType?.[0]?.warrantyTypeName;
+      }
+      if (this.checkoutTypeIncluded(row.checkoutTypeId)) {
+        this.restorePartDiscountAmount(row);
       }
     },
     // 保修类型变化
@@ -1368,6 +1374,14 @@ export default {
         row.workHour = row._originalWorkHour;
         this.handleWorkHourChange(row);
       }
+    },
+    restoreItemDiscountAmount (row) {
+      row.discountAmount = 0;
+      this.handleItemDiscountAmountChange(row);
+    },
+    restorePartDiscountAmount (row) {
+      row.discountAmount = 0;
+      this.handlePartDiscountAmountChange(row);
     },
     getRepairItemTypeList () {
       getRepairItemTypeList({

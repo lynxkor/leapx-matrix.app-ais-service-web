@@ -32,4 +32,4 @@ debug.log
 mcp-yapi-server/
 .omc
 .lingma
-.claude/settings.local.json
+.claude

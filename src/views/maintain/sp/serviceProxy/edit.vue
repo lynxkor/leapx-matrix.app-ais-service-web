@@ -30,8 +30,8 @@
                     <el-button size="small" @click="startWorkDialogVisible = true" v-if="isInConstruction && hasDispatchedNotStartedItems">作业开始</el-button>
                     <el-button size="small" @click="endWorkDialogVisible = true" v-if="isInConstruction && hasWorkingItems">作业结束</el-button>
                     <el-button size="small" @click="finalCheckDialogVisible = true" v-if="orderStatus === RepairOrderStatusEnum.PENDING_FINAL_INSPECTION">终检</el-button>
-                    <el-button size="small" @click="handleSettlement(1)" v-if="canSettlement && !form.isCreateStatementInfo">结算</el-button>
-                    <el-button size="small" @click="handleSettlement(0)" v-if="canSettlement && form.isCreateStatementInfo">取消结算</el-button>
+                    <el-button size="small" @click="handleSettlement(1)" :loading="settlementLoading" v-if="canSettlement && !form.isCreateStatementInfo">结算</el-button>
+                    <el-button size="small" @click="handleSettlement(0)" :loading="settlementLoading" v-if="canSettlement && form.isCreateStatementInfo">取消结算</el-button>
                     <el-button size="small" @click="handleCancelFinal" v-if="orderStatus === RepairOrderStatusEnum.ANTI_SETTLEMENT">取消终检</el-button>
 
                     <el-divider direction="vertical"></el-divider>
@@ -462,6 +462,7 @@ export default {
       materialReturnDialogVisible: false,
       couponsDialogVisible: false,
       settlementDialogVisible: false, // 结算弹窗
+      settlementLoading: false,
       remindInfoDialogVisible: false,
       yes_no_enum: YES_NO_ENUM,
       RepairOrderStatusEnum,
@@ -711,6 +712,7 @@ export default {
           this.handleSettlementConfirm({ faultSolve: true, reason: '' });
         }
       } else {
+        if (this.settlementLoading) return;
         const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>您确定要取消结算吗？</div>';
         this.$confirm(message, '', {
           confirmButtonText: '确定',
@@ -719,17 +721,20 @@ export default {
           customClass: 'ais-leave-tips',
           showClose: false
         }).then(() => {
-          // 调用接口
+          this.settlementLoading = true;
           cancelStatement({ serviceProxyId: this._id }).then(res => {
             this.$message.success('取消结算成功');
             this.getDetailData();
+          }).finally(() => {
+            this.settlementLoading = false;
           });
         }).catch(() => {
         });
       }
     },
     async handleSettlementConfirm (faultData = {}) {
-      // 调用结算接口
+      if (this.settlementLoading) return;
+      this.settlementLoading = true;
       try {
         const res = await addStatement({ serviceProxyId: this._id, ...faultData });
         this.$message.success('结算成功');
@@ -743,6 +748,8 @@ export default {
       } catch (error) {
         console.error('结算失败:', error);
         this.$message.error(error.msg || '结算失败');
+      } finally {
+        this.settlementLoading = false;
       }
     },
 

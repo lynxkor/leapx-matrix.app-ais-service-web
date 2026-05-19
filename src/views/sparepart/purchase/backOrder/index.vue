@@ -697,6 +697,7 @@ export default {
     // 点击tabs栏切换
     handleClick (item) {
       this.activeName = item.name;
+      this.show = false;
       this.getData();
     },
     // 跳转详情页

@@ -19,7 +19,7 @@
         >
           <vxe-column field="serviceProxyCode" title="接车施工单号" min-width="200" >
             <template #default="{ row }">
-              <el-link type="success" :href="`/service/datacenter/vehicle/serviceProxyHis/edit?id=${row.id}`" target="_blank">{{ row.serviceProxyCode }}</el-link>
+              <el-link type="success" @click="handleLinkClick(row)">{{ row.serviceProxyCode }}</el-link>
             </template>
           </vxe-column>
           <vxe-column field="dealerName" title="维修门店名称" min-width="200"/>
@@ -48,6 +48,8 @@
 	</section>
 </template>
 <script>
+import { getLoginUser } from '@/api/common';
+
 export default {
   props: {
     formData: {
@@ -76,10 +78,24 @@ export default {
   },
   data () {
     return {
-      form: {}
+      form: {},
+      loginUser: null
     };
   },
+  mounted () {
+    this.initLoginUser();
+  },
   methods: {
+    async initLoginUser () {
+      this.loginUser = await getLoginUser();
+    },
+    handleLinkClick (row) {
+      if (this.loginUser?.accountFlag && this.loginUser.currentDealerCode !== row.dealerCode) {
+        this.$message.warning('权限不足');
+        return;
+      }
+      window.open(`/service/datacenter/vehicle/serviceProxyHis/edit?id=${row.id}`, '_blank');
+    }
   }
 };
 
