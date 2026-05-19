@@ -90,7 +90,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="StatementOrderTypeEnum"
-            v-model="form.StatementOrderTypeEnum"
+            v-model="form.statementTypeList"
             placeholder="请选择"
             clearable
             multiple
@@ -180,7 +180,7 @@
           /> -->
           <el-input
             placeholder="请输入"
-            v-model="form.repairItemTypeDetailCollectLike"
+            v-model="form.warrantyTypeCollectLike"
             clearable
           />
         </el-form-item>
@@ -334,14 +334,14 @@ const defaultForm = {
   createReStatement: '',
   statementStatus: '',
   statementStatusList: [],
-  StatementOrderTypeEnum: [],
+  statementTypeList: [],
   dataSourceList: [],
   accountTypeList: [],
   isPushVisitResultList: [],
   createTime: [],
   statementTime: [],
   receiveTime: [],
-  repairItemTypeCollectList: [],
+  warrantyTypeCollectLike: [],
   statementPersonNameList: [],
   payeeNameList: [],
   repairItemTypeDetailCollectLike: ''
