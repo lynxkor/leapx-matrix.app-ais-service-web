@@ -153,11 +153,11 @@ export default {
             }]
           },
           { props: 'areaName', label: '行政区名称', visible: true, width: 200 },
-          { props: 'areaLevelLabel', label: '行政区域级别', visible: true, width: 200 },
-          { props: 'parentId', label: '父级id', visible: true, width: 200 },
+          { props: 'areaLevelLabel', label: '行政区域级别', visible: true, width: 120 },
+          { props: 'parentId', label: '父级id', visible: true, width: 120 },
           { props: 'parentName', label: '父级行政区名称', visible: true, width: 200 },
-          { props: 'laborLevelLabel', label: '城市工时等级', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
+          { props: 'laborLevelLabel', label: '城市工时等级', visible: true, width: 120 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 80 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
 
         ],

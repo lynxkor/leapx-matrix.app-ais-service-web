@@ -276,7 +276,7 @@ export default {
           { props: 'dataFromLabel', label: '数据来源', visible: true, width: 120 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 220 },
           { props: 'statusLabel', label: '状态', visible: true, width: 60 },
-          { props: 'totalAmount', label: '总金额', visible: true, width: 90 },
+          { props: 'totalAmount', label: '总金额', visible: true, width: 100, align: 'right', headerAlign: 'right' },
           { props: 'modifierName', label: '修改者名称', visible: true, width: 150 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 160 },
           { props: 'creatorName', label: '创建者名称', visible: true, width: 150 },
