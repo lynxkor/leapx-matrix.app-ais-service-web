@@ -303,7 +303,7 @@
 // 对应业务的接口
 import { getPrintInfo } from '@/api/maintain/sp/serviceStatement/index';
 import { getStoreDetailByCode } from '@/api/maintain/sp/serviceProxy/index';
-import { CheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
+import { CheckoutTypeEnum, StatementCheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
 import { getFileList } from '@/libs/api/attachment';
 
 export default {
@@ -377,6 +377,9 @@ export default {
     checkoutTypeIncluded (type) {
       return type === CheckoutTypeEnum.WARRANTY || type === CheckoutTypeEnum.CONTRACT || type === CheckoutTypeEnum.INTERNAL_SETTLEMENT;
     },
+    statementCheckoutTypeEnumIncluded (type) {
+      return type === StatementCheckoutTypeEnum.WARRANTY || type === StatementCheckoutTypeEnum.CONTRACT || type === StatementCheckoutTypeEnum.INTERNAL_SETTLEMENT;
+    },
     // 处理结算类型数据,将不需要支付的金额置为0并更新总金额
     processCheckoutTypeData () {
       if (!this.info) return;
@@ -404,7 +407,7 @@ export default {
       }
 
       const { statementType } = this.info;
-      if (this.checkoutTypeIncluded(statementType)) {
+      if (this.statementCheckoutTypeEnumIncluded(statementType)) {
         this.info.repairItemAmount = 0;
         this.info.partAmount = 0;
         this.info.totalAmount = 0;
