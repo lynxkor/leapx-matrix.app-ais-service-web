@@ -43,6 +43,7 @@
               <el-button v-if="!(isRoot && ruleItemList.length === 1 && index === 0)"
                 type="danger" icon="el-icon-minus" circle size="mini"
                 style="margin-left: 10px;"
+                :disabled="hasAnyGroupInCurrentLevel()"
                 @click="handleDelete(index)">
               </el-button>
             </div>
@@ -60,6 +61,17 @@
           :level="level + 1"
           :is-editing="isEditing"
           @delete="handleDelete(index)" />
+        <!-- 组的删除按钮 -->
+        <div v-if="!child.item && isEditing" class="group-delete-wrapper">
+          <el-button
+            type="danger"
+            icon="el-icon-minus"
+            circle
+            size="mini"
+            :disabled="hasGroupChildren(child)"
+            @click="handleDelete(index)">
+          </el-button>
+        </div>
       </div>
     </div>
   </div>
@@ -130,6 +142,14 @@ export default {
       } else {
         this.$emit('update:ruleItemList', newList);
       }
+    },
+    // 检查当前层级是否有任何组（有组则不允许删除任何项）
+    hasAnyGroupInCurrentLevel () {
+      return this.ruleItemList.some(item => item.item === null && item.ruleItemList && item.ruleItemList.length > 0);
+    },
+    // 检查组是否有子项（组内有子项则不允许删除组）
+    hasGroupChildren (group) {
+      return group.ruleItemList && group.ruleItemList.length > 0;
     }
   }
 };
@@ -216,6 +236,13 @@ export default {
 
   .rule-item-wrapper {
     position: relative;
+
+    .group-delete-wrapper {
+      position: absolute;
+      right: -40px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
   }
 
   .rule-condition-row {

@@ -22,10 +22,10 @@
             </div>
             <div class="common-section-body">
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="价格设置代码：" prop="priceCode">
+                <el-form-item label="价格设置代码：" prop="code">
                   <el-input
                     placeholder="自动生成"
-                    v-model="form.priceCode"
+                    v-model="form.code"
                     disabled
                     clearable
                   />
@@ -50,7 +50,7 @@
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="价格设置代码：">
-                  {{ form.priceCode }}
+                  {{ form.code }}
                 </el-form-item>
                 <el-form-item label="门店名称：">
                   {{ form.dealerName }}
@@ -100,7 +100,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
-  priceCode: '',
+  code: '',
   dealerName: '',
   dealerCode: '',
   workhourPrice: '',
@@ -121,7 +121,7 @@ export default {
       return this.$route.query.id || this.form.id;
     },
     title () {
-      return '价格设置代码：' + (this.form.priceCode || '');
+      return '价格设置代码：' + (this.form.code || '');
     }
   },
   data () {
