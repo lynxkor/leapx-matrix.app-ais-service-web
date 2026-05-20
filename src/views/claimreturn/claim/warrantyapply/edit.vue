@@ -565,6 +565,7 @@
         :id="_id"
         :canAddOrUpdate="canEdit"
         :repairItemTypeId="form.repairItemTypeId"
+        :serviceActivityId="form.serviceActivityId"
         :disabled="!EDITABLE_STATUSES.includes(form.applyStatus)"
       />
       <section class="common-section">
