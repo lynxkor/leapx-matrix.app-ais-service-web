@@ -341,7 +341,7 @@ const defaultForm = {
   createTime: [],
   statementTime: [],
   receiveTime: [],
-  warrantyTypeCollectLike: [],
+  warrantyTypeCollectLike: '',
   statementPersonNameList: [],
   payeeNameList: [],
   repairItemTypeDetailCollectLike: ''

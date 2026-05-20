@@ -48,7 +48,7 @@ export const CheckoutTypeEnum = {
   INTERNAL_SETTLEMENT: '3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF'
 };
 
-// 结算单中使用到的类型枚举
+// 结算单类型，仅用于结算单主表，注意区别上面的结算类型
 export const StatementCheckoutTypeEnum = {
   /** 自费 */
   SELF_PAY: 30,

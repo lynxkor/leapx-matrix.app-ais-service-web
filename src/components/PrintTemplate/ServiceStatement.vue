@@ -303,7 +303,7 @@
 // 对应业务的接口
 import { getPrintInfo } from '@/api/maintain/sp/serviceStatement/index';
 import { getStoreDetailByCode } from '@/api/maintain/sp/serviceProxy/index';
-import { StatementCheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
+import { CheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
 import { getFileList } from '@/libs/api/attachment';
 
 export default {
@@ -375,7 +375,7 @@ export default {
       return num.toFixed(2);
     },
     checkoutTypeIncluded (type) {
-      return type === StatementCheckoutTypeEnum.WARRANTY || type === StatementCheckoutTypeEnum.CONTRACT || type === StatementCheckoutTypeEnum.INTERNAL_SETTLEMENT;
+      return type === CheckoutTypeEnum.WARRANTY || type === CheckoutTypeEnum.CONTRACT || type === CheckoutTypeEnum.INTERNAL_SETTLEMENT;
     },
     // 处理结算类型数据,将不需要支付的金额置为0并更新总金额
     processCheckoutTypeData () {
