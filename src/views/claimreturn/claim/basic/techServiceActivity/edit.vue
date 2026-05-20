@@ -12,7 +12,6 @@
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
         :dataTransform="dataTransform"
-        :showEditBtn="form.activityStatus === '0'"
       >
         <template #extraButtons>
           <el-button
@@ -39,6 +38,7 @@
                       placeholder="请输入"
                       v-model="form.activityCode"
                       clearable
+                      :disabled="form.activityStatus === '2'"
                     />
                   </el-form-item>
                   <el-form-item label="活动名称：" prop="activityName">
@@ -70,14 +70,23 @@
                       v-model="form.autoApprove">
                     </el-switch>
                   </el-form-item>
-                  <el-form-item class="form-item-half" label="活动时间：" prop="activityTime">
+                  <el-form-item label="活动开始时间：" prop="startTime">
                     <el-date-picker
-                      v-model="form.activityTime"
-                      type="datetimerange"
-                      :picker-options="pickerOptions"
-                      range-separator="至"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
+                      v-model="form.startTime"
+                      type="datetime"
+                      :picker-options="startPickerOptions"
+                      placeholder="开始日期"
+                      size="small"
+                      align="right"
+                      :disabled="form.activityStatus === '2'">
+                    </el-date-picker>
+                  </el-form-item>
+                  <el-form-item label="活动结束时间：" prop="endTime">
+                    <el-date-picker
+                      v-model="form.endTime"
+                      type="datetime"
+                      :picker-options="endPickerOptions"
+                      placeholder="结束日期"
                       size="small"
                       align="right">
                     </el-date-picker>
@@ -319,7 +328,6 @@ const defaultForm = {
   activityStatus: '',
   startTime: '',
   endTime: '',
-  activityTime: [],
   attachmentRequired: false,
   description: '',
   vehicleCount: '',
@@ -373,7 +381,23 @@ export default {
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
-    }
+    },
+    startPickerOptions () {
+      const endTime = this.form.endTime;
+      return {
+        disabledDate (time) {
+          return endTime ? time.getTime() > new Date(endTime).getTime() : false;
+        },
+      };
+    },
+    endPickerOptions () {
+      const startTime = this.form.startTime;
+      return {
+        disabledDate (time) {
+          return startTime ? time.getTime() < new Date(startTime).getTime() : false;
+        },
+      };
+    },
   },
   watch: {
     id: {
@@ -408,8 +432,11 @@ export default {
         activityType: [
           { required: !isServiceCareActivity, message: '请选择活动类型', trigger: 'change' }
         ],
-        activityTime: [
-          { required: true, message: '请选择活动时间', trigger: 'change' },
+        startTime: [
+          { required: true, message: '请选择活动开始时间', trigger: 'change' },
+        ],
+        endTime: [
+          { required: true, message: '请选择活动结束时间', trigger: 'change' },
         ],
         attachmentRequired: [
           { required: true, message: '请输入施工单必需上传附件（1&#x3D;是，0&#x3D;否）', trigger: 'blur' }
@@ -462,17 +489,15 @@ export default {
     },
     dataTransform (data) {
       Object.assign(this.form, data);
-      this.form.activityTime = [
-        new Date(data.startTime),
-        new Date(data.endTime),
-      ];
+      this.form.startTime = data.startTime ? new Date(data.startTime) : '';
+      this.form.endTime = data.endTime ? new Date(data.endTime) : '';
       this.form.autoApprove = data.autoApprove === '1';
       this.form.attachmentRequired = data.attachmentRequired === '1';
       return this.form;
     },
     async submitRequest () {
-      const startTime = formatDateTime(this.form.activityTime[0]);
-      const endTime = formatDateTime(this.form.activityTime[1]);
+      const startTime = formatDateTime(this.form.startTime);
+      const endTime = formatDateTime(this.form.endTime);
       return addOrUpdate({
         ...this.form,
         startTime,
