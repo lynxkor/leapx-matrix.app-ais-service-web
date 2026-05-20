@@ -301,26 +301,28 @@ export default {
       }
       return [];
     },
-    handleFailure () {
+    async handleFailure (val) {
       this.actionLoading = true;
-      this.$prompt('请输入失效说明', '失效', {
+      this.$prompt('失效说明', '失效', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-      }).then(({ value }) => {
-        enableItem({ idSet: [this.form.id], statusDesc: value, status: 0 }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '失效成功!'
-          });
-          this.$refs.containerRef.loadDetail();
-          this.actionLoading = false;
-        }).finally(() => {
-          this.actionLoading = false;
-        });
+        inputPattern: /.+/, // 校验非空
+        inputErrorMessage: '请输入失效说明',
+      }).then(async ({ value }) => {
+        // 2. 二次校验：防止通过特殊手段绕过前端限制或处理粘贴超长文本的情况
+        if (!value || value.length > 100) {
+          this.$message.warning('请输入不超过 100 字的失效说明');
+          return Promise.reject(new Error('中断链条')); //  中断链条
+        }
+        // 调用 API，并传入用户输入的备注
+        await enableItem({ idSet: [this._id], statusDesc: value, status: 0 });
+        this.$message.success('失效成功!');
+        this.$refs.containerRef.loadDetail();
+        this.actionLoading = false;
       }).catch(() => {
         this.actionLoading = false;
       });
-    }
+    },
   }
 };
 </script>
