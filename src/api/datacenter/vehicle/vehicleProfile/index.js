@@ -108,6 +108,15 @@ export function serviceProxyHisPage (data) {
   return api.jsonPost('/maintain/web/sp/serviceProxyHis/page', data);
 }
 
+/**
+ * PC端 接车施工单-维修履历信息管理(查询所有，无数据权限)
+ * @param {*} data
+ * @returns
+ */
+export function serviceProxyHisPageAll (data) {
+  return api.jsonPost('/maintain/web/sp/serviceProxyHis/pageAll', data);
+}
+
 // 权益查询
 export function rightsQuery (data) {
   return api.jsonPost('/claimreturn/claim/web/warrantyapply/warrantyApply/rights/query', data);
