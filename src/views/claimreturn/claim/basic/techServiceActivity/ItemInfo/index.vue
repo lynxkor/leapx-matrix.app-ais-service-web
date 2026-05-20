@@ -131,7 +131,7 @@
                 sub-label-key="code"
               />
             </el-form-item>
-            <el-form-item label="工时是否允许修改：" prop="allowDelete">
+            <el-form-item label="工时是否允许删除：" prop="allowDelete">
               <el-switch
                 @change="onSubmit(form)"
                 v-model="form.allowDelete">
