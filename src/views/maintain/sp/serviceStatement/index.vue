@@ -325,6 +325,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select';
 import FetchSelect from '@/libs/components/FetchSelect';
+import moment from 'moment';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -363,13 +364,14 @@ export default {
     FetchSelect
   },
   data () {
+    const defaultData = this.getDefautlForm();
     return {
       pageTitle: '结算单表管理',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-serviceStatement',
       form: {
-        ...defaultForm,
+        ...defaultData,
       },
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
@@ -678,7 +680,8 @@ export default {
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
+      const defaultData = this.getDefautlForm() || {};
+      this.form = { ...defaultData };
       this.optionObj.form.page = 1;
       this.optionObj.form.pageSize = pageSize;
       this.getData();
@@ -856,6 +859,15 @@ export default {
       } catch (error) {
         console.error(error);
       }
+    },
+    getDefautlForm () {
+      // 获取前30天的日期
+      const startTime = moment().subtract(90, 'day').format('YYYY-MM-DD 00:00:00');
+      const endTime = moment().format('YYYY-MM-DD 23:59:59');
+      return {
+        ...defaultForm,
+        createTime: [startTime, endTime]
+      };
     },
     // 批量删除
     handleBatchDelete () {
