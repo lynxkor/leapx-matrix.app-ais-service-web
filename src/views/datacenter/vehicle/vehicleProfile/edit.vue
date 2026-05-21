@@ -215,6 +215,30 @@
                 <el-button v-if="modifyMaintenanceRecord" size="small" @click="onInfo">调整保养信息</el-button>
               </div>
               <el-form label-width="150px" :inline="true" :model="form" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="最近保养时间：">
+                  {{ form.lastMaintainDate }}
+                </el-form-item>
+                <el-form-item label="最近保养里程：">
+                  {{ form.lastMaintainMileages }}
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="最近保养时间：">
+                  {{ form.lastMaintainDate }}
+                </el-form-item>
+                <el-form-item label="最近保养里程：">
+                  {{ form.lastMaintainMileages }}
+                </el-form-item>
+              </el-form>
+              <el-form label-width="150px" :inline="true" :model="form" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="下次保养时间：" prop="nextMaintainDate">
+                  {{ form.nextMaintainDate }}
+                </el-form-item>
+                <el-form-item label="下次保养里程：" prop="nextMaintainMileages">
+                  {{ form.nextMaintainMileages }}
+                </el-form-item>
+              </el-form>
+              <el-form label-width="150px" :inline="true" :model="form" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="下次保养时间：" prop="nextMaintainDate">
                   {{ form.nextMaintainDate }}
                 </el-form-item>
