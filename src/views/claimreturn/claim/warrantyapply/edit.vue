@@ -173,7 +173,7 @@
               {{ form.approvalTime }}
             </el-form-item>
             <el-form-item label="预授权单：" prop="preAuthCode">
-              <el-link type="success" :href="`/maintain/sp/preAuth/edit?id=${form.preAuthId}`" target="_blank">{{ form.preAuthCode }}</el-link>
+              <el-link type="success" :href="`/service/maintain/sp/preAuth/edit?id=${form.preAuthId}`" target="_blank">{{ form.preAuthCode }}</el-link>
             </el-form-item>
             <el-form-item label="维修开始时间：" prop="repairStartTime">
               {{ form.repairStartTime }}
@@ -217,7 +217,13 @@
               </LPEncrypted>
             </el-form-item>
             <el-form-item label="车牌号：" prop="vehiclePlateNo">
-              <el-input placeholder="" v-model="form.vehiclePlateNo" clearable disabled />
+              <LPEncrypted
+                :value.sync="form.vehiclePlateNo"
+                :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
+                >
+                <el-input placeholder="" v-model="form.vehiclePlateNo" clearable disabled />
+              </LPEncrypted>
+              <!-- <el-input placeholder="" v-model="form.vehiclePlateNo" clearable disabled /> -->
             </el-form-item>
             <el-form-item label="生产日期：" prop="produceDate">
               <el-date-picker
@@ -337,17 +343,17 @@
             <el-form-item label="车辆用途：" prop="vehicleProperty">
               {{ form.vehicleProperty }}
             </el-form-item>
-            <el-form-item label="开单预警信息：">
-              {{ remindContent }}
-            </el-form-item>
-            <el-form-item label="保修预警信息：" prop="warrantyWarningMsg">
-              {{ form.warrantyWarningMsg }}
-            </el-form-item>
             <el-form-item label="整车是否在保(预测)：" prop="isLifetimeWarrantyForecastLabel">
               {{ form.isLifetimeWarrantyForecastLabel }}
             </el-form-item>
             <el-form-item label="三包预警：" prop="alarmLevelLabel">
               {{ form.alarmLevelLabel }}
+            </el-form-item>
+            <el-form-item label="开单预警信息：" style="width: 100%;">
+              {{ remindContent }}
+            </el-form-item>
+            <el-form-item label="保修预警信息：" prop="warrantyWarningMsg" style="width: 100%;">
+              {{ form.warrantyWarningMsg }}
             </el-form-item>
           </el-form>
         </div>
@@ -668,6 +674,7 @@ import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 // 旧件供应商
 import { getList } from '@/api/sparepart/basic/sparePartSupplier/index';
+import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -1035,21 +1042,22 @@ export default {
       this.form.vfgName = row.vfgName;
       this.form.vrtId = row.vrtId;
       this.form.vrtName = row.vrtName;
-      this.form.faultPhenomenon = row.customerContent;
-      this.form.troubleshootingFlow = row.troubleshootingFlow;
+      this.form.faultPhenomenon = row.customerContent; // 故障排查信息 赋值
+      this.form.troubleshootingFlow = row.troubleshootingProcess;
+      // this.form.troubleshootingFlow = row.troubleshootingFlow;
 
-      this.form.mainPartName = row.mainPartName;
-      this.form.mainPartCode = row.mainPartCode;
-      this.form.mainPartId = row.mainPartId;
+      this.form.mainPartName = row.causePartName;
+      this.form.mainPartCode = row.causePartCode;
+      this.form.mainPartId = row.causePartId;
 
-      this.form.mainPartSupplierName = row.mainPartSupplierName;
-      this.form.mainPartSupplierCode = row.mainPartSupplierCode;
-      this.form.mainPartSupplierId = row.mainPartSupplierId;
+      this.form.mainPartSupplierName = row.supplierName;
+      this.form.mainPartSupplierCode = row.supplierCode;
+      this.form.mainPartSupplierId = row.supplierId;
     },
     // 搜索主因零件
     partRemote (query) {
       return new Promise((resolve, reject) => {
-        getList({
+        getSparePartFull({
           pageNum: 1,
           pageSize: 20,
           oemPart: 1,
