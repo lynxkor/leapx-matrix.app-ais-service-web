@@ -216,21 +216,10 @@
               </div>
               <el-form label-width="150px" :inline="true" :model="form" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="下次保养时间：" prop="nextMaintainDate">
-                  <el-date-picker
-                    v-model="form.nextMaintainDate"
-                    type="date"
-                    value-format="yyyy-MM-dd"
-                    placeholder="选择日期"
-                  />
+                  {{ form.nextMaintainDate }}
                 </el-form-item>
                 <el-form-item label="下次保养里程：" prop="nextMaintainMileages">
-                  <el-input
-                    clearable
-                    v-model="form.nextMaintainMileages"
-                    placeholder="请输入"
-                    :controls="false"
-                    :precision="2"
-                  />
+                  {{ form.nextMaintainMileages }}
                 </el-form-item>
                 <el-form-item class="form-item-full">
                   <next-table
@@ -1238,6 +1227,7 @@ export default {
     },
     onInfoSuccess () {
       this.$refs?.nextTable?.getDetailPageApi();
+      this.$refs?.containerRef?.loadDetail();
     },
     onReturnSuccess () {
       this.$refs.containerRef.loadDetail();
