@@ -30,7 +30,7 @@
                     placeholder="请输入"
                     v-model="form.code"
                     clearable
-                    disabled
+                    @input="handleCodeInput"
                   />
                 </el-form-item>
                 <el-form-item label="保养零件名称：" prop="name">
@@ -295,7 +295,7 @@ export default {
       modelDialogVisible: false, // 适配车型弹窗
       rules: {
         code: [
-          { required: false, message: '请输入保养零件代码', trigger: 'change' }
+          { required: true, message: '请输入保养零件代码', trigger: 'change' }
         ],
         name: [
           { required: true, message: '请输入保养零件名称', trigger: 'change' }
@@ -446,7 +446,10 @@ export default {
           resolve(list);
         });
       });
-    }
+    },
+    handleCodeInput (val) {
+      this.form.code = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    },
   }
 };
 </script>
