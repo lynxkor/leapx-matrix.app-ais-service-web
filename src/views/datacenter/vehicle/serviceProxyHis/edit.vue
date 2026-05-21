@@ -111,7 +111,7 @@
                   <vxe-column field="discountAmount" title="优惠金额" min-width="120" />
                   <vxe-column field="discountRate" title="折扣率" min-width="100" />
                   <vxe-column field="repairAmount" title="项目金额" min-width="120" /> -->
-                  <vxe-column field="packageCode" title="活动编号" min-width="150" />
+                  <!-- <vxe-column field="packageCode" title="活动编号" min-width="150" /> -->
                   <template #empty>
                     <div class="m-vxe-table-empty-text">暂无维修项目数据</div>
                   </template>
@@ -157,7 +157,7 @@
                   <vxe-column field="discountAmount" title="优惠金额" min-width="120" />
                   <vxe-column field="discountRate" title="折扣率" min-width="100" />
                   <vxe-column field="partsAmount" title="配件金额" min-width="120" /> -->
-                  <vxe-column field="packageCode" title="活动编号" min-width="150" />
+                  <!-- <vxe-column field="packageCode" title="活动编号" min-width="150" /> -->
                   <template #empty>
                     <div class="m-vxe-table-empty-text">暂无维修配件数据</div>
                   </template>
