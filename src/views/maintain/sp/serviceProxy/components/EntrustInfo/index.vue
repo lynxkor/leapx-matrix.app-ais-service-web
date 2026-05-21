@@ -48,6 +48,7 @@
             :disabled="!_id"
           />
         </el-form-item>
+        <!--
         <el-form-item label="是否门店开启直播：" prop="isStoreLive">
           <fetch-select
             :request="fetchOptions"
@@ -68,7 +69,7 @@
             filterable
           />
         </el-form-item>
-        <!-- <el-form-item label="是否直播：" prop="isLive">
+        <el-form-item label="是否直播：" prop="isLive">
           <fetch-select
             :request="fetchOptions"
             enumCode="LiveStatusEnum"
@@ -324,9 +325,9 @@
         <el-form-item label="预计交车时间：" prop="expectFinishAt">
           {{ form.expectFinishAt }}
         </el-form-item>
-        <el-form-item label="是否直播：" prop="isLiveLabel">
+        <!-- <el-form-item label="是否直播：" prop="isLiveLabel">
           {{ form.isLiveLabel }}
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="预检完成时间：" prop="previewingFinishAt">
           {{ form.previewingFinishAt }}
         </el-form-item>
