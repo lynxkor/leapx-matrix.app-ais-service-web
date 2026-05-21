@@ -108,6 +108,7 @@
                 clearable
                 remote
                 reserve-keyword
+                :disabled="!form.vrtId"
                 v-model="form.vfgId"
                 :remote-method="vfgRemote"
                 :params="form.vfgName"
@@ -411,7 +412,6 @@ export default {
     vrtRemote (query) {
       return getVrtList({
         vrtNameLike: query,
-        vrtCodeLike: query,
         pageSize: 20,
         pageNum: 1,
       });
@@ -428,7 +428,7 @@ export default {
     vfgRemote (query) {
       return getVfgList({
         vfgNameLike: query,
-        vfgCodeLike: query,
+        vrtNameLike: this.form.vrtName,
         pageSize: 20,
         pageNum: 1,
       });

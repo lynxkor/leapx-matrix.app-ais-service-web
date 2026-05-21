@@ -195,6 +195,7 @@ import {
   techServiceActivityItemGet,
   techServiceActivityItemUpdate,
   techServiceActivityItemDelete,
+  techServiceActivityPartUpdate,
 } from '@/api/claimreturn/claim/basic/serviceActivity';
 // 维修保养 -> 维修项目
 import { getList as repairList } from '@/api/maintain/basic/repairItem';
@@ -507,9 +508,24 @@ export default {
         repairItemTypeCode,
         repairItemTypeId,
         repairItemTypeName,
+        activityId: this.id,
+        schemeId: this.schemeId,
+        serviceActivityItemId: this.getServiceActivityItemId(),
+        allowDelete: '1',
+        mainPart: '0',
       };
-      this.$refs.partTable.handleAdd(partId, newItem);
+
+      // 直接调用接口保存
+      techServiceActivityPartUpdate(newItem).then(() => {
+        this.$message.success('添加成功');
+        this.$refs.partTable.getDetailPageApi();
+      }).catch(() => {
+        this.$message.error('添加失败');
+      });
     }, 200),
+    getServiceActivityItemId () {
+      return this.partId === '全部备件' ? '' : this.partId;
+    },
   }
 };
 
