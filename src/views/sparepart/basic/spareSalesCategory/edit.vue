@@ -193,6 +193,13 @@ const defaultForm = {
 
 export default {
   name: 'spareSalesCategoryEdit',
+  // 集中视图预留
+  props: {
+    id: {
+      type: [String, Number],
+      default: null
+    },
+  },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     expandTable,
@@ -202,7 +209,7 @@ export default {
   },
   computed: {
     _id () {
-      return this.$route.query.id || this.form.id;
+      return this.id || this.$route.query.id || this.form.id;
     },
     title () {
       return '营销分类编码：' + (this.form.categoryCode || '');
@@ -216,6 +223,16 @@ export default {
 
       // 3. 链式调用：直接 map 提取名称并 join 拼接
       return list.map(item => item.buildTypeName).join('、');
+    }
+  },
+  watch: {
+    id: {
+      handler (val) {
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
+        }
+      },
+      immediate: true
     }
   },
   data () {
