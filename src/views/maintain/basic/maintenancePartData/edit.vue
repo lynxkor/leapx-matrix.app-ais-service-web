@@ -37,6 +37,7 @@
                   <el-input
                     placeholder="请输入"
                     v-model="form.name"
+                    maxlength="50"
                     clearable
                   />
                 </el-form-item>
@@ -117,7 +118,8 @@
                   placeholder="搜索零件代码、名称、拼音简码"
                   clearable
                   value-key="id"
-                  label-key="name"
+                  label-key="partName"
+                  subLabelKey="partCode"
                   @change="handlePartSelect"
                 />
               </div>
@@ -134,7 +136,11 @@
                   max-height="400px"
                 >
                   <vxe-column field="partsName" title="零件名称" min-width="30%" />
-                  <vxe-column field="partsCode" title="零件代码" min-width="30%" />
+                  <vxe-column field="partsCode" title="零件代码" min-width="30%">
+                    <template #default="{ row }">
+                      <el-link type="primary" :href="`/service/sparepart/basic/sparePart/detail?id=${row.partsId}`" target="_blank">{{ row.partsCode }}</el-link>
+                    </template>
+                  </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="30%" />
                   <vxe-column title="操作" width="100" v-if="canDelete">
                     <template #default="{ rowIndex }">
@@ -298,16 +304,20 @@ export default {
           { required: true, message: '请选择里程类型', trigger: 'change' }
         ],
         firstServiceMileage: [
-          { required: true, message: '请输入首次保养里程', trigger: 'change' }
+          { required: true, message: '请输入首次保养里程', trigger: 'change' },
+          { validator: this.validateNumber, trigger: 'change' }
         ],
         firstServiceMonth: [
-          { required: true, message: '请输入首次保养时间', trigger: 'change' }
+          { required: true, message: '请输入首次保养时间', trigger: 'change' },
+          { validator: this.validateNumber, trigger: 'change' }
         ],
         mileageInterval: [
-          { required: true, message: '请输入定期保养里程间隔', trigger: 'change' }
+          { required: true, message: '请输入定期保养里程间隔', trigger: 'change' },
+          { validator: this.validateNumber, trigger: 'change' }
         ],
         monthInterval: [
-          { required: true, message: '请输入定期保养时间间隔', trigger: 'change' }
+          { required: true, message: '请输入定期保养时间间隔', trigger: 'change' },
+          { validator: this.validateNumber, trigger: 'change' }
         ],
       }
     };
@@ -315,6 +325,13 @@ export default {
   mounted () {
   },
   methods: {
+    validateNumber (_rule, value, callback) {
+      if (value !== '' && value !== undefined && value !== null && !/^\d+(\.\d{1,2})?$/.test(value)) {
+        callback(new Error('支持数字，保留到小数点后2位'));
+      } else {
+        callback();
+      }
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -349,7 +366,7 @@ export default {
         return;
       }
       // 检查是否已存在
-      const exists = this.tableDataPj.some(item => item.partCode === record.partCode);
+      const exists = this.tableDataPj.some(item => item.partsCode === record.partCode);
       if (exists) {
         this.$message.warning('该零件已添加');
         return;
