@@ -308,7 +308,7 @@ export default {
           { validator: this.validateNumber, trigger: 'change' }
         ],
         firstServiceMonth: [
-          { required: true, message: '请输入首次保养时间', trigger: 'change' },
+          { required: false, message: '请输入首次保养时间', trigger: 'change' },
           { validator: this.validateInteger, trigger: 'change' }
         ],
         mileageInterval: [
@@ -316,7 +316,7 @@ export default {
           { validator: this.validateNumber, trigger: 'change' }
         ],
         monthInterval: [
-          { required: true, message: '请输入定期保养时间间隔', trigger: 'change' },
+          { required: false, message: '请输入定期保养时间间隔', trigger: 'change' },
           { validator: this.validateInteger, trigger: 'change' }
         ],
       }
@@ -351,20 +351,11 @@ export default {
       }
     },
     submitRequest () {
-      addOrUpdate({
+      return addOrUpdate({
         ...this.form,
         vehModelList: this.tableDataCx,
         partsList: this.tableDataPj
-      }).then(result => {
-        this.$message.success('保存成功');
-        console.log(result);
-        this.$router.push({
-          path: '/maintain/basic/maintenancePartData/edit',
-          query: {
-            id: result
-          }
-        });
-      }).catch(() => {});
+      });
     },
     // 添加零件
     handleAddPart (record) {
