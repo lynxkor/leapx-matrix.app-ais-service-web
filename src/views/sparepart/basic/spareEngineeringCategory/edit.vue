@@ -83,6 +83,13 @@ const defaultForm = {
 
 export default {
   name: 'spareEngineeringCategoryEdit',
+  // 集中视图预留
+  props: {
+    id: {
+      type: [String, Number],
+      default: null
+    },
+  },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     EditPageLayout,
@@ -90,10 +97,20 @@ export default {
   },
   computed: {
     _id () {
-      return this.$route.query.id || this.form.id;
+      return this.id || this.$route.query.id || this.form.id;
     },
     title () {
       return '工程分类编码：' + (this.form.categoryCode || '');
+    }
+  },
+  watch: {
+    id: {
+      handler (val) {
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
+        }
+      },
+      immediate: true
     }
   },
   data () {
