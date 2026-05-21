@@ -82,13 +82,14 @@
         <template #default="{ row, rowIndex }">
           <fetch-select
             v-if="eidtRowIndex === rowIndex"
+            ref="oldPartSelect"
             filterable
             clearable
             remote
             reserve-keyword
             v-model="row.oldPartCode"
             :remote-method="partRemote"
-            :params="row.oldPartCode"
+            :params="row.oldPartName"
             @change="(value, option) => onOldPartCodeChange(row, value, option)"
             placeholder="请输入"
             value-key="partCode"
@@ -390,6 +391,21 @@ export default {
         return;
       }
       this.eidtRowIndex = rowIndex;
+      // 设置旧件编码下拉组件的选项数据，确保正确显示名称
+      this.$nextTick(() => {
+        if (row.oldPartCode && row.oldPartName && this.$refs.oldPartSelect) {
+          this.$refs.oldPartSelect.remoteOptions = [{
+            partCode: row.oldPartCode,
+            partName: row.oldPartName,
+            id: row.oldPartId
+          }];
+          this.$refs.oldPartSelect.initialLoaded = true;
+        }
+        // 如果有旧件编码，加载对应的供应商列表
+        if (row.oldPartId) {
+          this.sparePartSupplierListApi(row.oldPartId, row);
+        }
+      });
     },
     // 取消
     cancelEdit (row, rowIndex) {
@@ -446,6 +462,8 @@ export default {
         this.$message.success('更新成功');
         this.getDetailPageApi();
         this.eidtRowIndex = -1;
+        // 保存后通知父组件刷新方案信息（主因零部件、供应商、VRT、VFG）
+        this.$emit('saved');
       }).catch(e => {
       });
     },
@@ -478,18 +496,19 @@ export default {
         if (!row.__options__) {
           row.__options__ = {};
         }
-        // 默认选择第一个
-        if (!row.oldSupplierId && options.length) {
+        row.__options__.oldSupplierId = options?.length ? options : [];
+
+        // 默认选择第一个（切换旧件编码时强制更新）
+        if (options.length) {
           const item = options[0];
           row.oldSupplierName = item.label;
           row.oldSupplierId = item.value;
           row.oldSupplierCode = item.labelDesc;
-        } else if (!options.length) {
+        } else {
           row.oldSupplierName = '';
           row.oldSupplierId = '';
           row.oldSupplierCode = '';
         }
-        row.__options__.oldSupplierId = options?.length ? options : [];
 
         this.$refs.editTable.updateData(row, row);
         return options;
@@ -541,9 +560,14 @@ export default {
     },
     // 旧件编码下拉
     onOldPartCodeChange (row, value, option) {
+      // 先清空旧的供应商信息
+      row.oldSupplierId = '';
+      row.oldSupplierName = '';
+      row.oldSupplierCode = '';
       row.oldPartCode = option?.partCode;
       row.oldPartName = option?.partName;
       row.oldPartId = option?.id;
+      // 获取新的供应商列表并默认选择第一个
       this.sparePartSupplierListApi(option?.id, row);
     },
     // 零部件下拉接口

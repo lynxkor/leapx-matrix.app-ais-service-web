@@ -181,6 +181,7 @@
             :schemeId="schemeId"
             :serviceActivityItemId="partId"
             :isServiceCareActivity="isServiceCareActivity"
+            @saved="onPartSaved"
             />
         </section>
     </div>
@@ -525,6 +526,10 @@ export default {
     }, 200),
     getServiceActivityItemId () {
       return this.partId === '全部备件' ? '' : this.partId;
+    },
+    // 零件保存后通知父组件刷新方案信息
+    onPartSaved () {
+      this.$emit('part-saved');
     },
   }
 };
