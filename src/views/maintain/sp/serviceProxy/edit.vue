@@ -189,7 +189,7 @@ import RemindInfoDialog from './components/RemindInfoDialog';
 const defaultForm = {
   // 多选时字段有变化，自行修复
   code: '',
-  dataSource: '',
+  dataSource: 170, // 170零小跑PC端; 180零小跑APP端
   orderStatus: '',
   warrantyTypeCollect: '',
   customerName: '',
@@ -529,7 +529,7 @@ export default {
         const basicInfo = await this.$refs.basicInfoRef.getFormData();
         const entrustInfo = await this.$refs.entrustInfoRef.getFormData();
         const batteryInfo = await this.$refs.batteryInfoRef.getFormData();
-        const data = { ...this.form, ...basicInfo, ...entrustInfo, ...batteryInfo };
+        const data = { ...this.form, ...basicInfo, ...entrustInfo, ...batteryInfo, dataSource: 170 }; // 170零小跑PC端; 180零小跑APP端
         // 后端要求新开单增加isAddItems字段
         if (!this._id) {
           data.isAddItems = 0;
