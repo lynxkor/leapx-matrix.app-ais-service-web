@@ -1458,7 +1458,10 @@ export default {
         repairItemId: current.repairItemId || '',
         isBindltem: 0, // 手动添加的零件，标记为非自动导入
         packageCode: row.packageCode || '',
-        packageId: row.packageId || ''
+        packageId: row.packageId || '',
+        // 原零件信息，如果不存在，证明是第一次替换，需要带上
+        originPartsId: row.originPartsId || row.partsId,
+        originPartsCode: row.originPartsCode || row.partsCode
       });
     },
     handlePartReplaceClick (e, row) {

@@ -309,7 +309,7 @@ export default {
         ],
         firstServiceMonth: [
           { required: true, message: '请输入首次保养时间', trigger: 'change' },
-          { validator: this.validateNumber, trigger: 'change' }
+          { validator: this.validateInteger, trigger: 'change' }
         ],
         mileageInterval: [
           { required: true, message: '请输入定期保养里程间隔', trigger: 'change' },
@@ -317,7 +317,7 @@ export default {
         ],
         monthInterval: [
           { required: true, message: '请输入定期保养时间间隔', trigger: 'change' },
-          { validator: this.validateNumber, trigger: 'change' }
+          { validator: this.validateInteger, trigger: 'change' }
         ],
       }
     };
@@ -328,6 +328,13 @@ export default {
     validateNumber (_rule, value, callback) {
       if (value !== '' && value !== undefined && value !== null && !/^\d+(\.\d{1,2})?$/.test(value)) {
         callback(new Error('支持数字，保留到小数点后2位'));
+      } else {
+        callback();
+      }
+    },
+    validateInteger (_rule, value, callback) {
+      if (value !== '' && value !== undefined && value !== null && !/^\d+$/.test(value)) {
+        callback(new Error('请输入整数'));
       } else {
         callback();
       }

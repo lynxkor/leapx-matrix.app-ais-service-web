@@ -418,6 +418,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/excelManagement/commonDataProcessExcelImportTask',
+      name: 'commonDataProcessExcelImportTask',
+      component: () => import('@/views/excelManagement/commonDataProcessExcelImportTask/index.vue'),
+
+      meta: {
+        name: '新页面',
+        keepAlive: true
+      }
+    }, {
+      path: '/excelManagement/commonDataProcessExcelImportTask/detail',
+      name: 'commonDataProcessExcelImportTaskDetail',
+      component: () => import('@/views/excelManagement/commonDataProcessExcelImportTask/detail.vue'),
+
+      meta: {
+        name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/sparepart/basic/sparePartVehicleModel',
       name: 'sparePartVehicleModel',
       component: () => import('@/views/sparepart/basic/sparePartVehicleModel/index.vue'),
