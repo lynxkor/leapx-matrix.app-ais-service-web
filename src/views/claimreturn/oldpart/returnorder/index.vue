@@ -367,7 +367,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '新页面',
-        dataFetchPath: 'claimreturn/web/oldpart/returnorder/fastReturnOrder/page',
+        dataFetchPath: 'claimreturn/oldpart/web/returnorder/oldPartReturnOrder/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
