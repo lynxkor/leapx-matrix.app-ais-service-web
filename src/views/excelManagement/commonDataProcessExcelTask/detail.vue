@@ -4,7 +4,6 @@
     <template v-else>
       <section class="common-title">
         <h2>主键：{{ info.id }}</h2>
-        <el-button size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
       </section>
       <section class="common-section">
         <div class="common-section-header">
@@ -24,7 +23,7 @@
             <el-form-item label="导出的excel下载地址：" prop="excelUrl">
               {{ info.excelUrl  }}
             </el-form-item>
-            <el-form-item label="导入结果备注：" prop="importRemark">
+            <el-form-item label="结果备注：" prop="importRemark">
               {{ info.importRemark  }}
             </el-form-item>
             <el-form-item label="任务状态：" prop="taskStatus">
@@ -39,12 +38,12 @@
             <el-form-item label="修改时间：" prop="updateTime">
               {{ info.updateTime  }}
             </el-form-item>
-            <el-form-item label="导入模板的主键id：" prop="importModelId">
-              {{ info.importModelId  }}
-            </el-form-item>
-            <el-form-item label="导入失败的数据excel下载地址：" prop="importFailUrl">
-              {{ info.importFailUrl  }}
-            </el-form-item>
+<!--            <el-form-item label="导入模板的主键id：" prop="importModelId">-->
+<!--              {{ info.importModelId  }}-->
+<!--            </el-form-item>-->
+<!--            <el-form-item label="导入失败的数据excel下载地址：" prop="importFailUrl">-->
+<!--              {{ info.importFailUrl  }}-->
+<!--            </el-form-item>-->
             <el-form-item label="修改者：" prop="modifier">
               {{ info.modifier  }}
             </el-form-item>
