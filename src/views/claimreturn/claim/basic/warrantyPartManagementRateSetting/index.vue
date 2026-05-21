@@ -26,6 +26,22 @@
         <el-form-item label="费率序号">
       <tag-input v-model="form.rateSerialNos" placeholder="请输入"/>
       </el-form-item>
+        <el-form-item label="保修类型：" prop="warrantyTypeId">
+          <list-select
+            listUrl="/maintain/web/basic/repairItemType/list"
+            placeholder="请输入保修类型编码/名称"
+            v-model="form.warrantyTypeIds"
+            query-key="codeOrNameLike"
+            auto-load-options
+            no-param-load
+            filterable
+            :show-code="false"
+            clearable
+            collapseTags
+            label-key="name"
+            multiple
+            :params="{'checkoutTypeNames':['合同','保修']}"    />
+        </el-form-item>
         <el-form-item label="生效开始日期">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -139,6 +155,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select/index.vue';
 import TagInput from '@/libs/components/TagInput/index.vue';
+import ListSelect from '@/libs/components/list-select/index.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   createTime: '',
@@ -159,6 +176,7 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
+    ListSelect,
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
@@ -209,6 +227,7 @@ export default {
               type: 'primary'
             }]
           },
+          { props: 'warrantyTypeName', label: '保修类型', visible: true, width: 200 },
           { props: 'rateModeLabel', label: '费率模式', visible: true, width: 200 },
           { props: 'managementRate', label: '管理费率（%）', visible: true, width: 200 },
           { props: 'maxManagementFee', label: '最大管理费用', visible: true, width: 200 },

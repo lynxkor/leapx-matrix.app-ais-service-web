@@ -194,7 +194,6 @@ export default {
             label: '结算单编码',
             visible: true,
             width: 200,
-            fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -212,7 +211,6 @@ export default {
             label: '接车施工单',
             visible: true,
             width: 200,
-            fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
