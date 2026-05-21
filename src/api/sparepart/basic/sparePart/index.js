@@ -32,6 +32,15 @@ export function listDealerPart (data) {
 export function getSparePart (data) {
   return api.jsonPost(prefix + 'list', data);
 };
+
+/**
+ * 查询门店备件详情分页数据
+ * @param {Object} data
+ */
+export function getSparePartFull (data) {
+  return api.jsonPost(prefix + 'listFull', data);
+};
+
 export function listDealerPartWithOem (data) {
   return api.jsonPost(prefix + 'listDealerPartWithOem', data);
 };
