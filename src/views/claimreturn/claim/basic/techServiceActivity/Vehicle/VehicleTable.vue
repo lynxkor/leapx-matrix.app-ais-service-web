@@ -54,7 +54,7 @@
         <span v-else @click="() => onPhone(row)" class="eye-icon iconfont icon-lxppc-eye-off"></span>
       </template>
     </vxe-column>
-    <vxe-column field="schemeId" title="施工方案" width="160"></vxe-column>
+    <vxe-column field="schemeName" title="施工方案" width="160"></vxe-column>
     <vxe-column field="createTime" title="创建时间" width="160"></vxe-column>
     <vxe-column field="updateTime" title="修改时间" width="160"></vxe-column>
     <vxe-column title="操作" :width="120" fixed="right" :resizable="false" v-if="canAddOrUpdate">

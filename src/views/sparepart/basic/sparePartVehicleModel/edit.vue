@@ -289,6 +289,13 @@ const defaultForm = {
 
 export default {
   name: 'sparePartVehicleModelEdit',
+  // 集中视图预留
+  props: {
+    id: {
+      type: [String, Number],
+      default: null
+    },
+  },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     FetchSelect,
@@ -297,10 +304,20 @@ export default {
   },
   computed: {
     _id () {
-      return this.$route.query.id || this.form.id;
+      return this.id || this.$route.query.id || this.form.id;
     },
     title () {
       return '备件编码：' + (this.form.partCode || '');
+    }
+  },
+  watch: {
+    id: {
+      handler (val) {
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
+        }
+      },
+      immediate: true
     }
   },
   data () {

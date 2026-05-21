@@ -38,6 +38,7 @@
 // 维修保养 -> 维修项目
 import permissions from '@/libs/mixins/permissions';
 import { getEnum } from '@/api/common';
+import { techServiceActivityFileConfigUpdate } from '@/api/claimreturn/claim/basic/serviceActivity';
 import Table from './Table.vue';
 import BaseSearch from '@/libs/components/BaseSearch';
 import { debounce } from 'lodash';
@@ -144,14 +145,17 @@ export default {
         return;
       }
 
-      const search = this.search;
+      const fileType = this.search;
       this.search = '';
 
-      const newItem = {
-        fileType: search,
+      techServiceActivityFileConfigUpdate({
+        activityId: this.id,
+        fileType,
         quantity: 1,
-      };
-      this.$refs.table.handleAdd(newItem);
+      }).then(() => {
+        this.$message.success('添加成功');
+        this.$refs.table.getTablePage();
+      });
     }, 200),
   }
 };

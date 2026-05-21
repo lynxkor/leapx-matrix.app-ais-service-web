@@ -730,6 +730,13 @@ const defaultForm = {
 
 export default {
   name: 'sparePartEdit',
+  // 集中视图预留
+  props: {
+    id: {
+      type: [String, Number],
+      default: null
+    },
+  },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     ListSelect,
@@ -741,7 +748,7 @@ export default {
   },
   computed: {
     _id () {
-      return this.$route.query.id || this.form.id;
+      return this.id || this.$route.query.id || this.form.id;
     },
     title () {
       return '备件编码：' + (this.form.partCode || '');
@@ -757,6 +764,16 @@ export default {
     },
     canShowForbidSales () {
       return this.form.oemPart === '1' && this.form.retailIs === '1';
+    }
+  },
+  watch: {
+    id: {
+      handler (val) {
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
+        }
+      },
+      immediate: true
     }
   },
   data () {

@@ -955,11 +955,19 @@ export default {
       return listVehicleModel({ modelNameLike: query });
     },
     repairItemTypeRemote (query) {
-      return repairGetList({
-        nameLike: query,
-        pageSize: 20,
-        pageNum: 1,
-        categorys: ['20'],
+      return new Promise((resolve, reject) => {
+        repairGetList({
+          nameLike: query,
+          pageSize: 20,
+          pageNum: 1,
+          categorys: ['20'],
+        }).then(res => {
+          const data = res.records?.filter(item => ['保修', '合同'].includes(item.checkoutTypeName));
+          resolve(data);
+        }).catch(err => {
+          console.error(err);
+          resolve([]);
+        });
       });
     },
     getScopeTypeOrg () {

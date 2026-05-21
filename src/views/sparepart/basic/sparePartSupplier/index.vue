@@ -93,12 +93,16 @@
         is-checkbox
         is-page
         checkboxFixed
+        centralized
         :option-obj="optionObj"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
         @handleSelect="handleSelectionChange"
-      />
+        @listSelect="handleListSelect"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
     <Upload
@@ -123,6 +127,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 import TagInput from '@/libs/components/TagInput';
+import EditPage from './edit.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -150,7 +155,8 @@ export default {
     LPVxeTable,
     FetchSelect,
     Upload,
-    TagInput
+    TagInput,
+    EditPage
   },
   data () {
     return {
@@ -167,6 +173,7 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      clickItemId: '',
       optionObj: {
         id: 'sparePartSupplierTable',
         dataList: [],
@@ -291,6 +298,9 @@ export default {
     this.getData();
   },
   methods: {
+    handleListSelect (row) {
+      this.clickItemId = row.id;
+    },
     handleImport () {
       this.uploadDialogVisible = true;
     },

@@ -177,6 +177,16 @@ export default {
       return '备件起订金额设置' + (this.form.purchaseOrderTypeLabel ? ' - ' + this.form.purchaseOrderTypeLabel : '');
     }
   },
+  watch: {
+    id: {
+      handler (val) {
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
+        }
+      },
+      immediate: true
+    }
+  },
   data () {
     const form = this.getDefautlForm();
     return {
