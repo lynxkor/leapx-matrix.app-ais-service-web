@@ -221,6 +221,7 @@
                       clearable
                       remote
                       reserve-keyword
+                      disabled
                       v-model="form.checkoutTypeId"
                       :remote-method="checkoutTypeRemote"
                       :params="form.checkoutTypeName"
@@ -340,9 +341,9 @@ const defaultForm = {
   costContent: '',
   faultPhenomenon: '',
   troubleshootingFlow: '',
-  checkoutTypeId: '',
-  checkoutTypeName: '',
-  repairItemTypeId: '',
+  checkoutTypeId: '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF',
+  checkoutTypeName: '保修',
+  repairItemTypeId: '64A3066F-82AC-E911-B0BB-FC82BA5F9EDF',
   repairItemTypeName: '',
 };
 
@@ -508,12 +509,20 @@ export default {
     handleCheckoutType (val, record) {
       if (record) {
         this.form.checkoutTypeName = record.name;
+        // 结算类型改变时清空保修类型，触发重新查询
+        this.form.repairItemTypeId = '';
+        this.form.repairItemTypeName = '';
       }
     },
     // 维修类型
     repairItemTypeRemote (query) {
+      const checkoutTypeId = this.form.checkoutTypeId;
+      // 如果结算类型没有选择，默认查询 "10", "20"  目前写死 只查询保修类型
+      // const checkoutTypeIds = checkoutTypeId ? [checkoutTypeId] : ['10', '20'];
+      const categorys = ['20'];
       return repairGetList({
         nameLike: query,
+        categorys,
         pageSize: 20,
         pageNum: 1,
       });
