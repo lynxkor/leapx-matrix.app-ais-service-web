@@ -114,7 +114,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: 'Excel模板导入',
+      pageTitle: 'Excel导入模板',
       pageType: 'list',
       form: {
         ...defaultForm

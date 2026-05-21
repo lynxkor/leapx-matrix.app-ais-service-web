@@ -18,7 +18,7 @@
               </el-form-item>
               <el-form-item label="任务类型" prop="taskType">
                 <fetch-select
-                  :request="() => fetchOptions('xxx')"
+                  :request="() => fetchOptions('data_process_task_execute_type')"
                   v-model="form.taskType"
                   placeholder="请选择"
                   clearable
@@ -50,7 +50,7 @@
               </el-form-item>
               <el-form-item label="任务状态" prop="taskStatus">
                 <fetch-select
-                  :request="() => fetchOptions('xxx')"
+                  :request="() => fetchOptions('data_process_task_execute_status')"
                   v-model="form.taskStatus"
                   placeholder="请选择"
                   clearable

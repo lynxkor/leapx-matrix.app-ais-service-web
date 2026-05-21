@@ -73,11 +73,13 @@
                 :params="form.mainPartName"
                 @change="partChange"
                 value-key="id"
+                subLabelKey="partCode"
                 label-key="partName"
               />
             </el-form-item>
             <el-form-item label="主因供应商：" prop="mainSupplierId">
               <fetch-select
+                ref="supplierSelect"
                 :options="supplierOptions"
                 v-model="form.mainSupplierId"
                 placeholder="请选择"
@@ -90,6 +92,7 @@
             </el-form-item>
             <el-form-item label="VRT名称：" prop="vrtId">
               <fetch-select
+                ref="vrtSelect"
                 filterable
                 clearable
                 remote
@@ -104,6 +107,7 @@
             </el-form-item>
             <el-form-item label="VFG名称：" prop="vfgId">
               <fetch-select
+                ref="vfgSelect"
                 filterable
                 clearable
                 remote
@@ -187,6 +191,7 @@
             :moduleKey="moduleKey"
             :schemeId="schemeId"
             :isServiceCareActivity="isServiceCareActivity"
+            @part-saved="onPartSaved"
           />
         </section>
         <div class="common-section-body not-commit" v-else>
@@ -204,7 +209,7 @@ import {
   serviceActivitySchemeDelete,
   serviceActivitySchemeGet, serviceActivitySchemeList, serviceActivitySchemeUpdate
 } from '../../../../../api/claimreturn/claim/basic/serviceActivity';
-import { getList as partList } from '../../../../../api/sparepart/basic/sparePart';
+import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
 import { getList as sparePartList } from '../../../../../api/sparepart/basic/sparePartSupplier';
 import permissions from '@/libs/mixins/permissions';
 import EnhancedTabs from '@/libs/components/EnhancedTabs/index.vue';
@@ -354,6 +359,44 @@ export default {
           }
           this.form[key] = data[key];
         });
+
+        // 如果有主因零部件，获取零部件详情设置供应商选项
+        if (data.mainPartId) {
+          getSparePartFull({
+            id: data.mainPartId,
+            pageSize: 1,
+            pageNum: 1,
+          }).then(partData => {
+            const partRecord = partData?.records?.[0] || partData?.[0] || partData;
+            if (partRecord?.sparePartSupplierRespList) {
+              this.supplierOptions = partRecord.sparePartSupplierRespList.map(item => {
+                return {
+                  label: item.supplierName,
+                  value: item.supplierInfoId
+                };
+              }) || [];
+            }
+          });
+        }
+
+        // 设置 VRT 下拉组件的选项数据，确保正确显示名称
+        if (data.vrtId && data.vrtName && this.$refs.vrtSelect) {
+          this.$refs.vrtSelect.remoteOptions = [{
+            id: data.vrtId,
+            vrtName: data.vrtName
+          }];
+          this.$refs.vrtSelect.initialLoaded = true;
+        }
+
+        // 设置 VFG 下拉组件的选项数据，确保正确显示名称
+        if (data.vfgId && data.vfgName && this.$refs.vfgSelect) {
+          this.$refs.vfgSelect.remoteOptions = [{
+            id: data.vfgId,
+            vfgName: data.vfgName
+          }];
+          this.$refs.vfgSelect.initialLoaded = true;
+        }
+
         this.$emit('change', data.id);
       });
     },
@@ -369,7 +412,7 @@ export default {
     },
     // 主因零部件下拉接口
     partRemote (query) {
-      return partList({
+      return getSparePartFull({
         partCodeOrNameLike: query,
         pageSize: 20,
         pageNum: 1,
@@ -382,18 +425,48 @@ export default {
     partChange (val, record) {
       // 零部件id
       if (val) {
-        sparePartList({
-          sparePartId: val,
-          pageNum: 1,
-          pageSize: 100,
-        }).then(res => {
-          this.supplierOptions = res.records.map(item => {
-            return {
-              label: item.supplierName,
-              value: item.supplierInfoId
-            };
-          });
-          // 选中第一个
+        // 先清空所有 id，避免显示 id
+        this.form.mainSupplierId = '';
+        this.form.vrtId = '';
+        this.form.vfgId = '';
+
+        // 设置供应商选项
+        this.supplierOptions = record.sparePartSupplierRespList.map(item => {
+          return {
+            label: item.supplierName,
+            value: item.supplierInfoId
+          };
+        }) || [];
+
+        // 设置 name 用于反显
+        if (record.vrtId) {
+          this.form.vrtName = record.vrtName || '';
+        }
+        if (record.vfgId) {
+          this.form.vfgName = record.vfgName || '';
+        }
+
+        // 使用 nextTick 确保 options 和 params 先更新，再赋值 id
+        this.$nextTick(() => {
+          // 设置 VRT/VFG 下拉组件的选项数据
+          if (record.vrtId && this.$refs.vrtSelect) {
+            this.$refs.vrtSelect.remoteOptions = [{
+              id: record.vrtId,
+              vrtName: record.vrtName
+            }];
+            this.$refs.vrtSelect.initialLoaded = true;
+            this.form.vrtId = record.vrtId;
+          }
+          if (record.vfgId && this.$refs.vfgSelect) {
+            this.$refs.vfgSelect.remoteOptions = [{
+              id: record.vfgId,
+              vfgName: record.vfgName
+            }];
+            this.$refs.vfgSelect.initialLoaded = true;
+            this.form.vfgId = record.vfgId;
+          }
+
+          // 选中第一个供应商
           if (this.supplierOptions.length) {
             const item = this.supplierOptions[0];
             this.form.mainSupplierId = item.value;
@@ -402,11 +475,11 @@ export default {
             this.form.mainSupplierId = '';
             this.form.mainSupplierName = '';
           }
+
           // 更新
           this.updatePlan(this.form);
         });
       }
-      //
     },
     // vrt
     vrtRemote (query) {
@@ -440,6 +513,12 @@ export default {
         this.form.vfgName = '';
       }
       this.updatePlan(this.form);
+    },
+    // 零件保存后刷新方案详情（后端已更新主因零部件、供应商、VRT、VFG）
+    onPartSaved () {
+      if (this.schemeId) {
+        this.getDetail(this.schemeId);
+      }
     },
     command (command, item, index) {
       console.log(command, item, index);
