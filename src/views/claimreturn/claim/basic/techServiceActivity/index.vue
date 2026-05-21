@@ -246,9 +246,9 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '编辑',
-              show: (row) => {
-                return row.activityStatus === '0';
-              },
+              // show: (row) => {
+              //   return row.activityStatus === '0';
+              // },
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: this.getPath(),

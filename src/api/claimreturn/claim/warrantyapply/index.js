@@ -115,3 +115,8 @@ export function getDetailDecryptField (id, field) {
     });
   });
 }
+
+// 服务活动附件配置分页查询
+export function getServiceActivityFileConfigPage (data) {
+  return api.jsonPost('claimreturn/claim/web/basic/serviceActivityFileConfig/pageForUpload', data);
+}

@@ -10,6 +10,7 @@
           <!-- <span class="status primary">状态</span> -->
         </template>
         <template #extraButtons>
+          <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button>
           <!-- <el-button size="small">按钮1</el-button>
           <el-button size="small">按钮2</el-button> -->
         </template>
@@ -342,9 +343,9 @@ export default {
       };
     },
     // 审核日志
-    // handleJumpAuditLog () {
-    //   this.$auditLog.show({ id: 123 });
-    // },
+    handleJumpAuditLog () {
+      this.$auditLog.show({ id: 123 });
+    },
     async fetchOptions (code) {
       if (code) {
         return getEnum(code);

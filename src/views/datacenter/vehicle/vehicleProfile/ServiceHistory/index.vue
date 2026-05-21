@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import { serviceProxyHisPage } from '@/api/datacenter/vehicle/vehicleProfile';
+import { serviceProxyHisPageAll } from '@/api/datacenter/vehicle/vehicleProfile';
 import { getLoginUser } from '@/api/common';
 import commonMixins from '@/libs/mixins/commonMixins';
 
@@ -114,7 +114,7 @@ export default {
 
   methods: {
     getDetailPageApi () {
-      serviceProxyHisPage({
+      serviceProxyHisPageAll({
         vehProfileId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,

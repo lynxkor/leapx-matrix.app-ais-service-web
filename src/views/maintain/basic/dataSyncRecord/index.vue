@@ -188,10 +188,10 @@ export default {
             }]
           },
           { props: 'oldTableName', label: '老表表名', visible: true, width: 200 },
-          { props: 'newTableSyncedCount', label: '新表已同步数据量', visible: true, width: 200 },
-          { props: 'oldTableTotalCount', label: '老表可同步数据量', visible: true, width: 200 },
+          { props: 'newTableSyncedCount', label: '新表已同步数据量', visible: true, width: 160, align: 'right', headerAlign: 'right' },
+          { props: 'oldTableTotalCount', label: '老表可同步数据量', visible: true, width: 160, align: 'right', headerAlign: 'right' },
           { props: 'syncTaskName', label: '同步任务名称', visible: true, width: 200 },
-          { props: 'syncRate', label: '同步率', visible: true, width: 200 },
+          { props: 'syncRate', label: '同步率', visible: true, width: 120, align: 'right', headerAlign: 'right' },
           { props: 'lastSyncTime', label: '最后同步时间', visible: true, width: 200 },
           { props: 'lastStatisticsTime', label: '最后统计时间', visible: true, width: 200 },
           {

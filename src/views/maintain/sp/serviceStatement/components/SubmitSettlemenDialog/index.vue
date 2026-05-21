@@ -328,7 +328,7 @@
 import { getDiscountType } from '@/api/maintain/sp/serviceProxy/index';
 import { submitSettlement, queryIsLastConfirm } from '@/api/maintain/sp/serviceStatement/index';
 import SignDialog from '../SignDialog';
-import { CheckoutTypeEnum, PackageTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
+import { CheckoutTypeEnum, PackageTypeEnum, StatementCheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
 
 export default {
   name: 'SubmitSettlemenDialog',
@@ -429,7 +429,7 @@ export default {
   },
   methods: {
     open () {
-      if (this.checkoutTypeIncluded(this.info.statementType)) {
+      if (this.statementCheckoutTypeEnumIncluded(this.info.statementType)) {
         this.checkAndSign();
       } else {
         this.settlemenDialogVisible = true;
@@ -648,6 +648,10 @@ export default {
       };
       this.totalData = data;
       return data;
+    },
+    // 结算单类型是否为合同、保修
+    statementCheckoutTypeEnumIncluded (type) {
+      return type === StatementCheckoutTypeEnum.WARRANTY || type === StatementCheckoutTypeEnum.CONTRACT;
     },
     // 结算类型是否为合同、保修
     checkoutTypeIncluded (type) {

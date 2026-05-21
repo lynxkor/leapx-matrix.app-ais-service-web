@@ -217,7 +217,7 @@ export default {
           },
           { props: 'venueId', label: '场所ID', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 80 },
           { props: 'deviceSerialName', label: '设备序列名称', visible: true, width: 200 },
           { props: 'deviceSerialNumber', label: '设备序列号', visible: true, width: 200 },
           { props: 'channelName', label: '通道名称', visible: true, width: 200 },

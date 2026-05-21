@@ -20,8 +20,8 @@
           placeholder="请选择错误代码"
           :options="errorCodeOptions"
           value-key="value"
-          label-key="label"
-          subLabelKey="desc"
+          label-key="desc"
+          subLabelKey="label"
           filterable
           clearable
         />

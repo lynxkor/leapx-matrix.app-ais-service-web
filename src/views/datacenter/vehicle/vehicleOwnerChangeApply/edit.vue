@@ -662,6 +662,9 @@ const defaultForm = {
   ocrIdUser: '',
   ocrLicenseOwner: '',
   ocrLicenseVin: '',
+  dealerName: '',
+  dealerCode: '',
+  ownerOrgId: ''
 };
 export default {
   name: 'vehicleOwnerChangeApplyEdit',
