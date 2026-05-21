@@ -25,7 +25,7 @@
             {{ repairDetail.unitPrice || 0 }}
           </el-form-item>
           <el-form-item label="工时数量：" prop="workingHours">
-            {{ repairDetail.workingHours || 0 }}
+            <el-input-number :controls="false" :min="0" size="small" type="number" v-model="repairDetail.workingHours" clearable />
           </el-form-item>
           <el-form-item label="优惠金额：" prop="discountAmount">
             <el-input-number :controls="false" :min="0" :max="repairDetail.unitPrice * repairDetail.workingHours" size="small" type="number" v-model="repairDetail.discountAmount" clearable @change="calculateAmount" />

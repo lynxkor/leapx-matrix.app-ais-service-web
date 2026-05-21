@@ -695,7 +695,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '商城订单管理',
+      pageTitle: '商城订单',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-ownersEquityOrder',
