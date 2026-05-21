@@ -305,7 +305,11 @@
               </LPEncrypted>
             </el-form-item>
             <el-form-item label="车牌号：" prop="vehiclePlateNo">
-              {{ form.vehiclePlateNo }}
+              <LPEncrypted
+                :value.sync="form.vehiclePlateNo"
+                :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
+                >
+              </LPEncrypted>
             </el-form-item>
             <el-form-item label="生产日期：" prop="produceDate">
               {{ form.produceDate }}
@@ -960,8 +964,8 @@ export default {
     // 571005W202603271622250001
   },
   methods: {
-    getDetailDecryptField () {
-      return getDetailDecryptField(this.form.id, 'vin');
+    getDetailDecryptField (id, field) {
+      return getDetailDecryptField(id, field);
     },
     handleTableUpdate () {
       this.$refs.containerRef.loadDetail();
