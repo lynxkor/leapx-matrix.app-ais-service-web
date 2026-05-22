@@ -19,7 +19,7 @@
             <div class="common-section-body">
               <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="接车施工单号：">
-                  <el-link type="success" @click="handleLinkClick(row)">{{ form.serviceProxyCode }}</el-link>
+                  <el-link type="success" @click="handleLinkClick()">{{ form.serviceProxyCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="VIN码：">
                   <el-link
@@ -272,12 +272,12 @@ export default {
     async initLoginUser () {
       this.loginUser = await getLoginUser();
     },
-    handleLinkClick (row) {
-      if (this.loginUser?.accountFlag && this.loginUser.currentDealerCode !== row.dealerCode) {
+    handleLinkClick () {
+      if (this.loginUser?.accountFlag && this.loginUser.currentDealerCode !== this.form.dealerCode) {
         this.$message.warning('权限不足');
         return;
       }
-      window.open(`/service/maintain/sp/serviceProxy/edit?id=${row.id}`, '_blank');
+      window.open(`/service/maintain/sp/serviceProxy/edit?id=${this.form.serviceProxyId}`, '_blank');
     }
   }
 };
