@@ -19,11 +19,7 @@
             <div class="common-section-body">
               <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="接车施工单号：">
-                  <el-link
-                    type="primary"
-                    :href="`/service/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`"
-                    target="_blank"
-                  >{{ form.serviceProxyCode }}</el-link>
+                  <el-link type="success" @click="handleLinkClick(row)">{{ form.serviceProxyCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="VIN码：">
                   <el-link
@@ -183,6 +179,7 @@ import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { getLoginUser } from '@/api/common';
 
 const defaultForm = {
   id: '',
@@ -249,8 +246,12 @@ export default {
       isEditing: false,
       form: { ...defaultForm },
       repairItemRespList: [],
-      sparePartRespList: []
+      sparePartRespList: [],
+      loginUser: null
     };
+  },
+  mounted () {
+    this.initLoginUser();
   },
   methods: {
     async detailRequest () {
@@ -267,6 +268,16 @@ export default {
         }
         return res;
       }
+    },
+    async initLoginUser () {
+      this.loginUser = await getLoginUser();
+    },
+    handleLinkClick (row) {
+      if (this.loginUser?.accountFlag && this.loginUser.currentDealerCode !== row.dealerCode) {
+        this.$message.warning('权限不足');
+        return;
+      }
+      window.open(`/service/maintain/sp/serviceProxy/edit?id=${row.id}`, '_blank');
     }
   }
 };

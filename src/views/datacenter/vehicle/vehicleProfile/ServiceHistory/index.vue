@@ -17,7 +17,7 @@
             <div class="line-2">
               <div class="line-item">
                 <span class="grey">业务单据：</span>
-                <el-link type="success" @click="handleLinkClick(item)">{{ item.serviceProxyCode }}</el-link>
+                <el-link type="success" :href="`/service/datacenter/vehicle/serviceProxyHis/edit?id=${item.id}`" target="_blank">{{ item.serviceProxyCode }}</el-link>
               </div>
             </div>
             <div class="line-2">
@@ -66,7 +66,6 @@
 
 <script>
 import { serviceProxyHisPageAll } from '@/api/datacenter/vehicle/vehicleProfile';
-import { getLoginUser } from '@/api/common';
 import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
@@ -108,7 +107,6 @@ export default {
     },
   },
   mounted () {
-    this.initLoginUser();
     this.getDetailPageApi();
   },
 
@@ -140,16 +138,6 @@ export default {
     currentPageChange (current) {
       this.current = current;
       this.getDetailPageApi();
-    },
-    async initLoginUser () {
-      this.loginUser = await getLoginUser();
-    },
-    handleLinkClick (item) {
-      if (this.loginUser?.accountFlag && this.loginUser.currentDealerCode !== item.dealerCode) {
-        this.$message.warning('权限不足');
-        return;
-      }
-      window.open(`/maintain/sp/serviceProxy/edit?id=${item.serviceProxyId}`, '_blank');
     },
   }
 };
