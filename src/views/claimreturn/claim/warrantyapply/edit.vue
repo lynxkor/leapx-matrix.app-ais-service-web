@@ -1066,8 +1066,9 @@ export default {
           pageSize: 20,
           oemPart: 1,
           partCodeOrNameLike: query,
+          status: 1,
         }).then(res => {
-          if (!res.records?.length) {
+          if (!res?.length) {
             resolve({
               ...res,
               records: [
@@ -1078,7 +1079,7 @@ export default {
               ],
             });
           } else {
-            const records = res.records?.map(item => {
+            const records = res?.map(item => {
               return {
                 ...item,
                 partAndSupplierId: item.sparePartId + item.supplierInfoId,
