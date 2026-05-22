@@ -468,7 +468,12 @@ export default {
         // 重推签字短信
         canResendSignSms: signStatus === 10 && signGeneratedOn,
       };
-    }
+    },
+
+    // 创建保修申请单 按钮权限
+    canCreateWarrantyApply () {
+      return [StatementCheckoutTypeEnum.WARRANTY, StatementCheckoutTypeEnum.CONTRACT].includes(this.form.statementType) && this.form.statementStatus === 30;
+    },
   },
   watch: {
     id: {
@@ -479,14 +484,14 @@ export default {
       },
       immediate: true
     },
-    'form.serviceProxyId': {
-      handler (val) {
-        if (val) {
-          this.checkCanCreate();
-        }
-      },
-      immediate: true,
-    }
+    // 'form.serviceProxyId': {
+    //   handler (val) {
+    //     if (val) {
+    //       this.checkCanCreate();
+    //     }
+    //   },
+    //   immediate: true,
+    // }
   },
   data () {
     const form = this.getDefautlForm();
@@ -514,7 +519,7 @@ export default {
         // 如 type: [{label: 'xxx', value: 'xxx'}]
       },
       // 创建保修申请单
-      canCreateWarrantyApply: false,
+      // canCreateWarrantyApply: false,
       warrantyApplyVisible: false,
     };
   },
@@ -740,7 +745,7 @@ export default {
       });
     },
     handleRefresh () {
-      this.checkCanCreate();
+      // this.checkCanCreate();
       this.$refs.containerRef.handleRefresh();
     },
     detailRequest () {
