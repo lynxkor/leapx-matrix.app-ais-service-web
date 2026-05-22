@@ -75,7 +75,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/excelManagement/commonDataProcessExcelTask/index';
+import { getList, deleteItem, enableItem, retryItem } from '@/api/excelManagement/commonDataProcessExcelTask/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -149,10 +149,10 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'taskType', label: '任务类型', visible: true, width: 200 },
+          { props: 'taskTypeLabel', label: '任务类型', visible: true, width: 200 },
           { props: 'businessType', label: '业务标识', visible: true, width: 200 },
           { props: 'importFailUrl', label: '导入失败数据下载地址', visible: true, width: 200 },
-          { props: 'taskStatus', label: '任务状态', visible: true, width: 200 },
+          { props: 'taskStatusLabel', label: '任务状态', visible: true, width: 200 },
           { props: 'importRemark', label: '描述', visible: true, width: 200 },
           { props: 'creator', label: '创建者', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
@@ -163,7 +163,14 @@ export default {
             type: 'operate',
             visible: true,
             fixed: 'right',
-            buttons: []
+            buttons: [{
+              name: '重试',
+              show: (row) => row.taskStatus === 14,
+              click: (rowIndex, row) => {
+                this.handleRetry(row);
+              },
+              type: 'primary'
+            }]
           }
         ],
         total: 0
@@ -366,6 +373,27 @@ export default {
           });
         });
       });
+    },
+    // 重试导入任务
+    handleRetry (row) {
+      this.$confirm('确定要重新执行该导入任务吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        retryItem(row.id).then(() => {
+          this.$message({
+            type: 'success',
+            message: '操作成功!'
+          });
+          this.getData();
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: '操作失败!'
+          });
+        });
+      }).catch(() => {});
     }
   }
 };

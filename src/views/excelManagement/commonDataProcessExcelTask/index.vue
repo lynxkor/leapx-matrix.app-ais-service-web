@@ -148,10 +148,10 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'taskType', label: '任务类型', visible: true, width: 200 },
+          { props: 'taskTypeLabel', label: '任务类型', visible: true, width: 200 },
           { props: 'businessType', label: '业务标识', visible: true, width: 200 },
           { props: 'excelUrl', label: '导出下载地址', visible: true, width: 200 },
-          { props: 'taskStatus', label: '任务状态', visible: true, width: 200 },
+          { props: 'taskStatusLabel', label: '任务状态', visible: true, width: 200 },
           { props: 'importRemark', label: '描述', visible: true, width: 200 },
           { props: 'creator', label: '创建者', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
