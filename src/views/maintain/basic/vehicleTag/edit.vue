@@ -246,6 +246,9 @@ export default {
       });
     },
     handleVinSelect (val, record) {
+      if (!this.form.vinList) {
+        this.form.vinList = [];
+      }
       this.form.vinList.push({
         ...record,
         id: null,
