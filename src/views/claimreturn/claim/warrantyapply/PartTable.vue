@@ -135,7 +135,7 @@
 <script>
 import { cloneDeep } from 'lodash';
 import { warrantyApplyPartPage, warrantyApplyPartDelete, warrantyApplyPartUpdate } from '@/api/claimreturn/claim/warrantyapply/warrantyApplyPart';
-import { getList } from '@/api/sparepart/basic/sparePartSupplier/index';
+import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
 import FetchSelect from '@/libs/components/FetchSelect';
 
 export default {
@@ -272,22 +272,37 @@ export default {
     },
     // 搜索旧件
     partRemote (query) {
-      return getList({
-        pageNum: 1,
-        pageSize: 20,
-        oemPart: 1,
-        partCodeOrNameLike: query,
-      }).then(res => {
-        const records = res.records?.map(item => {
-          return {
-            ...item,
-            partAndSupplierId: item.sparePartId + item.supplierInfoId,
-          };
+      return new Promise((resolve, reject) => {
+        getSparePartFull({
+          pageNum: 1,
+          pageSize: 20,
+          oemPart: 1,
+          partCodeOrNameLike: query,
+          status: 1,
+        }).then(res => {
+          if (!res?.length) {
+            resolve({
+              ...res,
+              records: [
+                {
+                  placeholder: `备件编码：${query}不存在备件供应商关系信息`,
+                  disabled: true,
+                }
+              ],
+            });
+          } else {
+            const records = res?.map(item => {
+              return {
+                ...item,
+                partAndSupplierId: item.sparePartId + item.supplierInfoId,
+              };
+            });
+            resolve({
+              ...res,
+              records,
+            });
+          }
         });
-        return {
-          ...res,
-          records,
-        };
       });
     },
     // 旧件选择变更
