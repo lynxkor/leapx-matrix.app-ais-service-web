@@ -526,7 +526,8 @@ export default {
         statementId: this._id,
         serviceProxyId: this.form.serviceProxyId,
       }).then(res => {
-        this.canCreateWarrantyApply = res?.canCreate;
+        // 【结算单类型】为保修、合同 且 结算单状态为【待收款】
+        this.canCreateWarrantyApply = res?.canCreate && [StatementCheckoutTypeEnum.WARRANTY, StatementCheckoutTypeEnum.CONTRACT].includes(this.form.statementType) && this.form.statementStatus === 30;
       });
     },
     showMsg (msg) {

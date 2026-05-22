@@ -88,17 +88,25 @@
                     label-key="name"
                   />
                 </el-form-item>
-                <el-form-item label="零件名称：" prop="partsName">
+                <el-form-item label="涉及零件编码：" prop="partsCode">
                   <fetch-select
                     filterable
                     clearable
                     remote
-                    v-model="form.partsName"
+                    v-model="form.partsCode"
                     :remote-method="partsSearch"
-                    :params="form.partsName"
+                    :params="form.partsCode"
                     @change="handlePartsChange"
                     value-key="partCode"
-                    label-key="partName"
+                    label-key="partCode"
+                    subLabelKey="partName"
+                  />
+                </el-form-item>
+                <el-form-item label="涉及零件名称：" prop="partsName">
+                  <el-input
+                    v-model="form.partsName"
+                    clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="制造开始日期：" prop="manufactureStartOn">
@@ -147,10 +155,10 @@
                 <el-form-item label="故障名称：" prop="cccName">
                   {{ form.cccName }}
                 </el-form-item>
-                <el-form-item label="零件代码：" prop="partsCode">
+                <el-form-item label="涉及零件编码：" prop="partsCode">
                   {{ form.partsCode }}
                 </el-form-item>
-                <el-form-item label="零件名称：" prop="partsName">
+                <el-form-item label="涉及零件名称：" prop="partsName">
                   {{ form.partsName }}
                 </el-form-item>
                 <el-form-item label="留车范围：" prop="retainedScope">
@@ -358,9 +366,6 @@ export default {
         partsCode: [
           { required: true, message: '请输入零件代码', trigger: 'change' }
         ],
-        partsName: [
-          { required: true, message: '请输入零件名称', trigger: 'change' }
-        ],
         retainedScope: [
           { required: true, message: '请输入留车范围', trigger: 'change' }
         ],
@@ -541,11 +546,14 @@ export default {
       return sparePartList({ partCodeOrNameLike: query, status: '1' });
     },
     handlePartsChange (val, record) {
-      console.log(val, record);
       if (record) {
         this.form.partsName = record.partName;
         this.form.partsCode = record.partCode;
         this.form.partsId = record.id;
+      } else {
+        this.form.partsName = '';
+        this.form.partsCode = '';
+        this.form.partsId = '';
       }
     },
     async getProvince (params) {

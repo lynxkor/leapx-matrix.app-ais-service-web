@@ -39,6 +39,7 @@
 	</section>
 </template>
 <script>
+import moment from 'moment';
 export default {
   props: {
     formData: {
@@ -69,6 +70,11 @@ export default {
     };
   },
   methods: {
+    // 格式化日期
+    formatDate (date) {
+      if (!date) return '';
+      return moment(date).format('YYYY-MM-DD');
+    }
   }
 };
 

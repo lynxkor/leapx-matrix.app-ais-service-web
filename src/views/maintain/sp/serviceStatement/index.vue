@@ -431,7 +431,6 @@ export default {
             label: '接车施工单',
             visible: true,
             width: 200,
-            fixed: 'left',
             buttons: [
               {
                 click: (rowIndex, row) => {

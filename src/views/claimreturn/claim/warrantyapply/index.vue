@@ -538,6 +538,21 @@ export default {
             fixed: 'right',
             buttons: [
               {
+                name: '编辑 ',
+                show: (row) => {
+                  return row.applyStatus === '10' || row.applyStatus === '30';
+                },
+                click: (rowIndex, row) => {
+                  this.$router.push({
+                    path: '/claimreturn/claim/warrantyapply/edit',
+                    query: {
+                      id: row.id,
+                      isEditing: true
+                    }
+                  });
+                },
+                type: 'info'
+              }, {
                 name: '提交',
                 // popconfirmTitle: '确认提交?',
                 click: (rowIndex, row) => {

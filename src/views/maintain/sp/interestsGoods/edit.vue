@@ -308,7 +308,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '权益商品管理',
+      pageTitle: '权益商品',
       pageType: 'edit',
       moduleKey: 'AISMC-interestsGoods',
       loading: false,

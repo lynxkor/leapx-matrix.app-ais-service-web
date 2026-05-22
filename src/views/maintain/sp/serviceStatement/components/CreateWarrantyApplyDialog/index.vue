@@ -211,6 +211,7 @@ export default {
     getNewIds (newList, oldIds = []) {
       if (!newList || !newList.length) return [];
       const newIds = newList.map(item => item.id);
+      if (!oldIds.length) return newIds;
       return oldIds.filter(id => newIds.includes(id));
     },
     getData () {

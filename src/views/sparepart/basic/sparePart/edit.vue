@@ -589,7 +589,7 @@
                   {{ form.categorySpareEngineeringName }}
                 </el-form-item>
                 <el-form-item label="物料来源：">
-                  {{ form.materialSourceType }}
+                  {{ form.materialSourceTypeLabel }}
                 </el-form-item>
               </el-form>
             </div>

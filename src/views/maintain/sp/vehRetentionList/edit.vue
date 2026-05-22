@@ -148,13 +148,13 @@
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="留车配置项编码：" prop="configCode">
-                  {{ form.configCode }}
+                  <el-link type="primary" :href="`/maintain/sp/vehRetention/edit?id=${form.configId}`" target="_blank">{{ form.configCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="VIN码：" prop="vehProfileVin">
-                  {{ form.vehProfileVin }}
+                  <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
                 </el-form-item>
                 <el-form-item label="接车施工单：" prop="serviceProxyCode">
-                  {{ form.serviceProxyCode }}
+                  <el-link type="primary" :href="`/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`" target="_blank">{{ form.serviceProxyCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="年款：" prop="vehYearTypeName">
                   {{ form.vehYearTypeName }}
@@ -166,7 +166,7 @@
                   {{ form.manufactureOn }}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
+                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`" target="_blank">{{ form.dealerName }}</el-link>
                 </el-form-item>
                 <el-form-item label="故障描述：" prop="faultDesc">
                   {{ form.faultDesc }}
@@ -245,6 +245,10 @@ const defaultForm = {
   retentionStatus: '',
   vehProfileVin: '',
   configCode: '',
+  serviceProxyId: '',
+  vehProfileId: '',
+  configId: '',
+  dealerCode: '',
 };
 
 export default {
