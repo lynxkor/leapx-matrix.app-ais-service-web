@@ -304,6 +304,32 @@
               </div>
             </div>
           </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>附件信息</h2>
+            </div>
+            <div class="common-section-body">
+              <h2 class="common-title">附件申请</h2>
+              <div class="common-section-table">
+                <!-- 附件上传组件 -->
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_partsclaimorder"
+                  attachType="索赔申请附件"
+                  readonly
+                />
+              </div>
+              <h2 class="common-title">审批附件</h2>
+              <div class="common-section-table">
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_partsclaimorder"
+                  attachType="索赔审批附件"
+                  readonly
+                />
+              </div>
+            </div>
+          </section>
         </el-main>
       </edit-base-container>
     </template>
@@ -311,14 +337,14 @@
       <div class="page-common-edit">
         <!-- 右侧栏组件，自行开发 -->
         <SparePartsDetail :purchase-apply-id="_id" :purchaseApplyDeleteId="purchaseApplyDeleteId"
-          @submit="getDetailData" />
+          @submit="handleRefresh" />
       </div>
     </template>
     <Upload :visible="uploadDialogVisible" :businessParams="_id" id="sparePartPurchaseApplyDetailImport"
-      @close="handleUploadDialogClose" @submit="getDetailData" />
+      @close="handleUploadDialogClose" @submit="handleRefresh" />
     <!-- 补货预测 弹窗 -->
     <RestockDialog :visible.sync="restockDialog" :id="_id" @update:visible="val => restockDialog = val"
-    @submit="getDetailData" />
+    @submit="handleRefresh" />
     <!-- 提交弹窗 -->
     <SubmitDialog
       ref="submitDialogRef"
@@ -366,6 +392,7 @@ import RestockDialog from './RestockDialog.vue';
 import SubmitDialog from './SubmitDialog.vue';
 import AgreeDialog from './AgreeDialog.vue';
 import ApprovalDialog from './ApprovalDialog.vue';
+import AisAttachment from '@/libs/components/AisAttachment';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -434,7 +461,8 @@ export default {
     RestockDialog,
     SubmitDialog,
     AgreeDialog,
-    ApprovalDialog
+    ApprovalDialog,
+    AisAttachment
   },
   computed: {
     _id () {
@@ -828,8 +856,8 @@ export default {
       this.uploadDialogVisible = false;
     },
     // 刷新详情页所有接口
-    handleRefresh () {
-      this.$refs.containerRef.loadDetail();
+    async handleRefresh () {
+      await this.$refs.containerRef.loadDetail();
       this.getDetailData();
     },
     // 请求备件列表表格接口
