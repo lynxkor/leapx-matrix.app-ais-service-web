@@ -119,7 +119,7 @@
                     {{ form.ownerPhone }}
                   </el-form-item>
                   <el-form-item label="是否完成：" prop="finished">
-                    {{ form.finished }}
+                    {{ form.finishedLabel }}
                   </el-form-item>
                   <el-form-item label="完成时间：" prop="finishTime">
                     {{ form.finishTime }}
