@@ -23,11 +23,13 @@
       </el-form-item>
       <el-form-item label="创建时间" v-show="this.visibleCount === 3 || show">
         <el-date-picker v-model="form.createTime" type="daterange" :picker-options="pickerOptions" range-separator="至"
+        unlink-panels
                         value-format="yyyy-MM-dd HH:mm:ss" start-placeholder="开始日期" end-placeholder="结束日期"/>
       </el-form-item>
       <template v-if="show">
         <el-form-item label="修改时间">
           <el-date-picker v-model="form.updateTime" type="daterange" :picker-options="pickerOptions"
+          unlink-panels
                           range-separator="至"
                           value-format="yyyy-MM-dd HH:mm:ss" start-placeholder="开始日期" end-placeholder="结束日期"/>
         </el-form-item>

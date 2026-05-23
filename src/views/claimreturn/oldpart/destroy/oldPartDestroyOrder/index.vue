@@ -40,6 +40,7 @@
           <el-date-picker
             v-model="form.destroyDate"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"

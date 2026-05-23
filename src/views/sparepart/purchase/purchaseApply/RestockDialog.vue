@@ -19,6 +19,7 @@
             <el-form-item label="预计缺货日期：">
                 <el-date-picker :default-time="['00:00:00', '23:59:59']" v-model="form.expectedShortageDate"
                     type="daterange" :picker-options="pickerOptions" range-separator="至"
+                    unlink-panels
                     value-format="yyyy-MM-dd HH:mm:ss" start-placeholder="开始日期" end-placeholder="结束日期" />
             </el-form-item>
             <page-search-action v-model="show" :isExpandable="false" :loading="loading" @submit="onSubmit"

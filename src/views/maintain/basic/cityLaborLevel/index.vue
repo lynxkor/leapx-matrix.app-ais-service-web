@@ -5,6 +5,7 @@
       class="ais-search-form">
       <el-form-item label="创建时间">
         <el-date-picker v-model="form.createTime" type="daterange" range-separator="至"
+        unlink-panels
           value-format="yyyy-MM-dd HH:mm:ss" start-placeholder="开始日期" end-placeholder="结束日期" />
       </el-form-item>
       <el-form-item label="行政区域名称">

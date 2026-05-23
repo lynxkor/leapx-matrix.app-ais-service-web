@@ -57,6 +57,7 @@
             <el-date-picker
               v-model="form.warrantyApproveTime"
               type="daterange"
+              unlink-panels
               :picker-options="pickerOptions"
               range-separator="至"
               start-placeholder="开始日期"
@@ -69,6 +70,7 @@
             <el-date-picker
               v-model="form.dealerInTime"
               type="daterange"
+              unlink-panels
               :picker-options="pickerOptions"
               range-separator="至"
               start-placeholder="开始日期"

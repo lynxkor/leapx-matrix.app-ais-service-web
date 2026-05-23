@@ -35,6 +35,7 @@
         <el-date-picker
           v-model="form.downloadTime"
           type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           value-format="yyyy-MM-dd HH:mm:ss"
           range-separator="至"
