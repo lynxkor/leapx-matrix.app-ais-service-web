@@ -275,6 +275,7 @@
               @change="schemeChange"
               :isServiceCareActivity="isServiceCareActivity"
               :activityStatus="form.activityStatus"
+              :isEditing="isEditing"
             />
             <fault
               v-if="!isServiceCareActivity"

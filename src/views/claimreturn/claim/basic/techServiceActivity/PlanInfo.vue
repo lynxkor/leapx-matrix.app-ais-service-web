@@ -19,7 +19,6 @@
           }"
           close-tip="确定删除该方案吗？"
           closeText="删除"
-          :disabled="!isEditing || !isDraft"
           @remove="onRemove"
           @add="onTabAdd"
           :menus="menus"
@@ -33,7 +32,7 @@
             基础信息
           </div>
           <el-form
-            v-if="isDraft"
+            v-if="isEditing"
             :inline="true"
             :model="form"
             :rules="rules"
@@ -227,7 +226,7 @@ export default {
     },
     isEditing: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     moduleKey: {
       type: String,
@@ -369,7 +368,7 @@ export default {
           }).then(partData => {
             const partRecord = partData?.records?.[0] || partData?.[0] || partData;
             if (partRecord?.sparePartSupplierRespList) {
-              this.supplierOptions = partRecord.sparePartSupplierRespList.map(item => {
+              this.supplierOptions = partRecord.sparePartSupplierRespList?.map(item => {
                 return {
                   label: item.supplierName,
                   value: item.supplierInfoId
@@ -431,7 +430,7 @@ export default {
         this.form.vfgId = '';
 
         // 设置供应商选项
-        this.supplierOptions = record.sparePartSupplierRespList.map(item => {
+        this.supplierOptions = record.sparePartSupplierRespList?.map(item => {
           return {
             label: item.supplierName,
             value: item.supplierInfoId
