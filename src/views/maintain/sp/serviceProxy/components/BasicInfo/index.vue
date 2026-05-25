@@ -230,6 +230,7 @@
             placeholder="请输入"
             v-model="form.departureNetMileage"
             clearable
+            disabled
           >
             <template slot="append">KM</template>
           </el-input>

@@ -8,13 +8,13 @@
         <div class="table-section-header">
           <h3>外部检查</h3>
         </div>
-        <FileDisplay :fileList="externalFiles" @delete="handleDelete" @update="loadAttachmentList" />
+        <FileDisplay :fileList="externalFiles" @delete="handleDelete" @update="loadAttachmentList" readonly/>
       </div>
       <div class="table-section" v-if="internalFiles.length">
         <div class="table-section-header">
           <h3>内部检查</h3>
         </div>
-        <FileDisplay :fileList="internalFiles" @delete="handleDelete" @update="loadAttachmentList" />
+        <FileDisplay :fileList="internalFiles" @delete="handleDelete" @update="loadAttachmentList" readonly/>
       </div>
     </div>
   </section>
