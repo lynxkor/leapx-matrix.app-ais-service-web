@@ -362,10 +362,11 @@ export default {
 
         // 如果有主因零部件，获取零部件详情设置供应商选项
         if (data.mainPartId) {
-          getSparePartFull({
+          sparePartList({
             id: data.mainPartId,
             pageSize: 1,
             pageNum: 1,
+            status: 1
           }).then(partData => {
             const partRecord = partData?.records?.[0] || partData?.[0] || partData;
             if (partRecord?.sparePartSupplierRespList) {
@@ -412,10 +413,11 @@ export default {
     },
     // 主因零部件下拉接口
     partRemote (query) {
-      return getSparePartFull({
+      return sparePartList({
         partCodeOrNameLike: query,
         pageSize: 20,
         pageNum: 1,
+        status: 1
       }).then(res => {
         // this.form
         return res;
