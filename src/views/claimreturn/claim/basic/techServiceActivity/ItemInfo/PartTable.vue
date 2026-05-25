@@ -576,6 +576,7 @@ export default {
         partCodeOrNameLike: query,
         pageSize: 20,
         pageNum: 1,
+        status: 1
       });
     },
   },
