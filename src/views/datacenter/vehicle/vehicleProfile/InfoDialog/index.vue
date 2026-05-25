@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import moment from 'moment';
 import NextTable from '../NextTable.vue';
 import { updateFlat } from '@/api/datacenter/vehicle/vehicleProfile';
 
@@ -94,7 +95,7 @@ export default {
   watch: {
     data: {
       handler (val) {
-        this.form.nextMaintainDate = new Date(val.nextMaintainDate || null);
+        this.form.nextMaintainDate = moment(val.nextMaintainDate || '').format('YYYY-MM-DD HH:mm:ss');
         this.form.nextMaintainMileages = val.nextMaintainMileages || '';
         this.originalForm = { ...this.form };
       },
