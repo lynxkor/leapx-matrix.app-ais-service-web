@@ -855,10 +855,10 @@ export default {
       return !this.form.vfgId;
     },
     canEdit () {
-      return this.accountFlag && (this.form.orderStatus === 10 || this.form.orderStatus === 40);
+      return this.form.orderStatus === 10 || this.form.orderStatus === 40;
     },
     canSubmitApproval () {
-      return this.accountFlag && (this.form.orderStatus === 10 || this.form.orderStatus === 40);
+      return this.form.orderStatus === 10 || this.form.orderStatus === 40;
     },
     canApproval () {
       return !this.accountFlag && this.form.orderStatus === 20;
