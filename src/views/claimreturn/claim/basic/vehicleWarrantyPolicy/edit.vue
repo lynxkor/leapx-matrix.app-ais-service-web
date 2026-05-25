@@ -121,7 +121,7 @@
                     <el-link
                       v-if="form.seriesId"
                       type="primary"
-                      :href="`/service/datacenter/materials/vehicleSeries/detail?id=${form.seriesId}`"
+                      :href="`/sales/datacenter/materials/vehicleSeries/edit?id=${form.seriesId}`"
                       target="_blank"
                     >{{ form.seriesName }}</el-link>
                     <span v-else>{{ form.seriesName }}</span>
@@ -130,7 +130,7 @@
                     <el-link
                       v-if="form.modelId"
                       type="primary"
-                      :href="`/service/datacenter/materials/vehicleModel/detail?id=${form.modelId}`"
+                      :href="`/sales/datacenter/materials/vehicleModel/edit?id=${form.modelId}`"
                       target="_blank"
                     >{{ form.modelName }}</el-link>
                     <span v-else>{{ form.modelName }}</span>

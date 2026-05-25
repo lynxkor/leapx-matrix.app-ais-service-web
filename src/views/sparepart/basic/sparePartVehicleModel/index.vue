@@ -235,7 +235,20 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'vehicleModelName', label: '车型名称', visible: true, width: 200 },
+          {
+            props: 'vehicleModelName',
+            label: '车型名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.vehicleModelName) {
+                  window.open(`/sales/datacenter/materials/vehicleModel/edit?id=${row.vehicleModelId}`, '_blank');
+                }
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'vehicleYearTypeName', label: '年款名称', visible: true, width: 120 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },

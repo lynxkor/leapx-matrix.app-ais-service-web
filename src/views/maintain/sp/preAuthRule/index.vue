@@ -187,7 +187,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 if (row.vehicleModelIds && row.vehicleModelIds.length > 0) {
-                  window.open(`/sales/datacenter/materials/vehicleModel/detail?id=${row.vehicleModelIds[0]}`, '_blank');
+                  window.open(`/sales/datacenter/materials/vehicleModel/edit?id=${row.vehicleModelIds[0]}`, '_blank');
                 }
               },
               type: 'primary'
