@@ -205,14 +205,10 @@ export default {
     },
     // 新增收款记录
     handleAdd () {
-      // 计算剩余需付款金额
-      const remainingAmount =
-        (this.info.remainAmount || 0);
-      console.log('remainingAmount:', remainingAmount);
-      console.log('this.info.remainAmount:', this.info.remainAmount);
-      console.log('this.totalPayAmount:', this.totalPayAmount);
+      // 动态计算剩余需付款金额 = 总剩余金额 - 当前已添加的收款总额
+      const remainingAmount = Number(this.info.payableAmount || 0) - this.totalPayAmount;
 
-      if (remainingAmount < 0) {
+      if (remainingAmount <= 0) {
         this.$message.warning('剩余可添加的收款记录金额为0,暂时无法添加新的收款记录');
         return;
       }

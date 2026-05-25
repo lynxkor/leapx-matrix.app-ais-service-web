@@ -69,6 +69,7 @@
           <el-date-picker
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -80,6 +81,7 @@
           <el-date-picker
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -286,21 +288,21 @@ export default {
               },
               type: 'info'
             }, {
-              name: '退车',
+              name: '删除',
               popconfirmConfirmButtonType: 'danger',
-              popconfirmConfirmButtonText: '退车',
-              popconfirmTitle: '确认要退车吗?',
+              popconfirmConfirmButtonText: '删除',
+              popconfirmTitle: '此操作将永久删除, 是否继续?',
               click: (rowIndex, row) => {
                 deleteItem([row.id]).then(() => {
                   this.$message({
                     type: 'success',
-                    message: '退车成功!'
+                    message: '删除成功!'
                   });
                   this.getData();
                 }).catch(() => {
                   this.$message({
                     type: 'error',
-                    message: '退车失败!'
+                    message: '删除失败!'
                   });
                 });
               },

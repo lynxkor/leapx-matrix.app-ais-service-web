@@ -275,6 +275,7 @@
               @change="schemeChange"
               :isServiceCareActivity="isServiceCareActivity"
               :activityStatus="form.activityStatus"
+              :isEditing="isEditing"
             />
             <fault
               v-if="!isServiceCareActivity"
@@ -490,8 +491,8 @@ export default {
     },
     dataTransform (data) {
       Object.assign(this.form, data);
-      this.form.startTime = data.startTime ? new Date(data.startTime) : '';
-      this.form.endTime = data.endTime ? new Date(data.endTime) : '';
+      this.form.startTime = data.startTime;
+      this.form.endTime = data.endTime;
       this.form.autoApprove = data.autoApprove === '1';
       this.form.attachmentRequired = data.attachmentRequired === '1';
       return this.form;

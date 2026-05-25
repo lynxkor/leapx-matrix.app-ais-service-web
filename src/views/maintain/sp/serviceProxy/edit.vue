@@ -189,7 +189,7 @@ import RemindInfoDialog from './components/RemindInfoDialog';
 const defaultForm = {
   // 多选时字段有变化，自行修复
   code: '',
-  dataSource: 170, // 170零小跑PC端; 180零小跑APP端
+  dataSource: '',
   orderStatus: '',
   warrantyTypeCollect: '',
   customerName: '',
@@ -529,10 +529,11 @@ export default {
         const basicInfo = await this.$refs.basicInfoRef.getFormData();
         const entrustInfo = await this.$refs.entrustInfoRef.getFormData();
         const batteryInfo = await this.$refs.batteryInfoRef.getFormData();
-        const data = { ...this.form, ...basicInfo, ...entrustInfo, ...batteryInfo, dataSource: 170 }; // 170零小跑PC端; 180零小跑APP端
+        const data = { ...this.form, ...basicInfo, ...entrustInfo, ...batteryInfo };
         // 后端要求新开单增加isAddItems字段
         if (!this._id) {
           data.isAddItems = 0;
+          data.dataSource = 170; // 新建时增加开单来源，170零小跑PC端; 180零小跑APP端
         }
         if (data.currentFault && (data.faultAlertRecordRespList || []).length === 0 && (data.faultAlertRecordParams || []).length === 0) {
           this.$message.warning('请先添加故障模块');

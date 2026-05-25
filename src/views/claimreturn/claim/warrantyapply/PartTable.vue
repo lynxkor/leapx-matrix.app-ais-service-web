@@ -49,7 +49,7 @@
             filterable
           >
             <template #option="{ item }">
-              <span>{{ item.partCode }}/{{ item.partName }}——{{ item.supplierName }}({{ item.supplierCode }})</span>
+              <span>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `—${item.supplierName}${item.supplierCode}`: ''}}</span>
             </template>
           </fetch-select>
           <span v-else>{{ row.oldPartCode }}</span>
@@ -246,6 +246,7 @@ export default {
         remark: row.remark,
         oldPartId: row.oldPartId,
         oldPartSupplierId: row.oldPartSupplierId,
+        oldPartSupplierName: row.oldPartSupplierName,
       }).then(id => {
         this.$message.success('更新成功');
         this.getDetailPageApi();
@@ -291,29 +292,70 @@ export default {
               ],
             });
           } else {
-            const records = res?.map(item => {
-              return {
-                ...item,
-                partAndSupplierId: item.sparePartId + item.supplierInfoId,
-              };
+            const records = [];
+            res.forEach(item => {
+              const supplierList = item.sparePartSupplierRespList;
+              if (supplierList?.length) {
+                supplierList.forEach(supplier => {
+                  records.push({
+                    ...item,
+                    sparePartId: item.id,
+                    supplierInfoId: supplier.supplierInfoId,
+                    supplierCode: supplier.supplierCode,
+                    supplierName: supplier.supplierName,
+                    partAndSupplierId: item.id + supplier.supplierInfoId,
+                  });
+                });
+              } else {
+                records.push({
+                  ...item,
+                  sparePartId: item.id,
+                  supplierInfoId: null,
+                  supplierCode: null,
+                  supplierName: null,
+                  partAndSupplierId: item.id + null,
+                });
+              }
             });
-            resolve({
-              ...res,
-              records,
-            });
+            if (!records.length) {
+              resolve({
+                ...res,
+                records: [
+                  {
+                    placeholder: `备件编码：${query}不存在备件供应商关系信息`,
+                    disabled: true,
+                  }
+                ],
+              });
+            } else {
+              resolve({
+                ...res,
+                records,
+              });
+            }
           }
         });
       });
     },
     // 旧件选择变更
     onOldPartChange (val, option, row) {
-      row.oldPartCode = option?.partCode;
-      row.oldPartName = option?.partName;
-      row.oldPartId = option?.sparePartId;
+      if (!option) {
+        row.oldPartCode = '';
+        row.oldPartName = '';
+        row.oldPartId = '';
+        row.oldPartSupplierCode = '';
+        row.oldPartSupplierName = '';
+        row.oldPartSupplierId = '';
+        row.partAndSupplierId = '';
+        return;
+      }
+      row.oldPartCode = option.partCode;
+      row.oldPartName = option.partName;
+      row.oldPartId = option.sparePartId;
 
-      row.oldPartSupplierCode = option?.supplierCode;
-      row.oldPartSupplierName = option?.supplierName;
-      row.oldPartSupplierId = option?.supplierInfoId;
+      row.oldPartSupplierCode = option.supplierCode;
+      row.oldPartSupplierName = option.supplierName;
+      row.oldPartSupplierId = option.supplierInfoId;
       row.partAndSupplierId = row.oldPartId + row.oldPartSupplierId;
     }
   },

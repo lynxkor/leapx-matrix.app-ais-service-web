@@ -19,8 +19,8 @@
           {{ $rowIndex + 1 }}
         </template>
       </vxe-column>
-      <vxe-column field="rightsCode" title="权益编码" />
-      <vxe-column field="rightsName" title="权益名称" />
+      <vxe-column field="rightsCode" title="权益编码" width="120" />
+      <vxe-column field="rightsName" title="权益名称" width="120" />
       <vxe-column field="rightsRuleDesc" title="权益规则说明" />
     </vxe-table>
   </simple-table-dialog>

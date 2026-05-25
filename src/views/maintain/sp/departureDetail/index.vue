@@ -25,6 +25,7 @@
           :default-time="['00:00:00', '23:59:59']"
           v-model="form.departureDate"
           type="daterange"
+          unlink-panels
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
