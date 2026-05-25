@@ -10,10 +10,11 @@
       <el-form-item label="下次保养时间：" prop="nextMaintainDate">
         <el-date-picker
           v-model="form.nextMaintainDate"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="选择日期"
+          type="datetime"
+          format="yyyy-MM-dd HH:mm:ss"
+          value-format="yyyy-MM-dd HH:mm:ss"
           @change="onFieldChange"
+          placeholder="选择日期时间"
         />
       </el-form-item>
       <el-form-item label="下次保养里程：" prop="nextMaintainMileages">
@@ -67,11 +68,11 @@ export default {
     };
     return {
       form: {
-        nextMaintainDate: '',
+        nextMaintainDate: null,
         nextMaintainMileages: '',
       },
       originalForm: {
-        nextMaintainDate: '',
+        nextMaintainDate: null,
         nextMaintainMileages: '',
       },
       rules: {
@@ -93,7 +94,7 @@ export default {
   watch: {
     data: {
       handler (val) {
-        this.form.nextMaintainDate = val.nextMaintainDate || '';
+        this.form.nextMaintainDate = new Date(val.nextMaintainDate || null);
         this.form.nextMaintainMileages = val.nextMaintainMileages || '';
         this.originalForm = { ...this.form };
       },

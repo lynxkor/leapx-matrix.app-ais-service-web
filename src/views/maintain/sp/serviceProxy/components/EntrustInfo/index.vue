@@ -568,9 +568,6 @@ export default {
           this.rules.customerContent = [
             { required: true, message: '请输入故障描述', trigger: 'change' }
           ];
-          if (this.form.customerContent === '本次进店车辆无故障') {
-            this.form.customerContent = '';
-          }
         } else {
           this.rules.customerContent = [
             { required: false, message: '请输入故障描述', trigger: 'change' }
@@ -697,7 +694,7 @@ export default {
         const oldVal = this.form._prevCurrentFault;
         const oldCustomerContent = this.form.customerContent;
         // 签字弹框确认：用户点击【准确】后，门店修改本次是否因故障进店，由是修改成否，不用清空【客户故障描述】字段内容
-        const newCustomerContent = this.form.confirmFaultLabel === 1 ? oldCustomerContent : '本次进店车辆无故障'; // 1 为准确 2 为不准确
+        const newCustomerContent = this.form.confirmFault === 1 ? oldCustomerContent : '本次进店车辆无故障'; // 1 为准确 2 为不准确
         this.form._prevCurrentFault = val;
         if (oldVal === 1 && this._id) {
           const message = '<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>提醒</div><div class="ais-leave-tips-sub">若本次无故障，将自动清空【故障模块】信息，请确认是否操作！</div>';
@@ -729,6 +726,11 @@ export default {
             this.form.customerContent = oldCustomerContent;
           });
           return;
+        }
+      } else {
+        // 不准确时，从否切到是，需要清空故障模块描述
+        if (this.form.confirmFault !== 1) {
+          this.form.customerContent = '';
         }
       }
       this.form._prevCurrentFault = val;
