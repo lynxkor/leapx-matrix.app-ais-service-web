@@ -45,6 +45,7 @@
                   </el-form-item>
                   <el-form-item label="车型：" prop="modelId">
                     <list-select
+                      v-if="!$route.query.id||form.id"
                       listUrl="/datacenter/web/materials/vehicleModel/list"
                       placeholder="请选择"
                       v-model="form.modelId"

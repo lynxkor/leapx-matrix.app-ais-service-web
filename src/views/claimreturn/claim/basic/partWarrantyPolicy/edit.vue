@@ -45,6 +45,7 @@
                   </el-form-item>
                   <el-form-item label="车型名称：" prop="modelId">
                     <list-select
+                      v-if="!$route.query.id||form.id"
                       listUrl="/datacenter/web/materials/vehicleModel/list"
                       placeholder="请选择"
                       v-model="form.modelId"
@@ -58,6 +59,7 @@
                   </el-form-item>
                   <el-form-item label="车辆年款：" prop="yearTypeName">
                     <list-select
+                      v-if="!$route.query.id||form.id"
                       listUrl="/datacenter/web/materials/vehicleYearType/list"
                       placeholder="请选择"
                       v-model="form.yearTypeId"
