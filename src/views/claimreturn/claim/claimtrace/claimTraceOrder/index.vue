@@ -379,7 +379,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 if (row.warrantyId) {
-                  window.open(`/claimreturn/claim/claimapply/claimApply/edit?id=${row.warrantyId}`, '_blank');
+                  window.open(`/service/claimreturn/claim/warrantyApply/edit?id=${row.warrantyId}`, '_blank');
                 }
               },
               type: 'primary'
@@ -394,9 +394,7 @@ export default {
             getValue: (row) => getDetailDecryptField(row.id, 'vin'),
             buttons: [{
               click: (rowIndex, row) => {
-                if (row.vehicleProfileId) {
-                  window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehicleProfileId}`, '_blank');
-                }
+                window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehicleProfileId}`, '_blank');
               },
               type: 'primary'
             }]
