@@ -39,7 +39,7 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="活动类型">
+        <el-form-item label="活动类型" v-show="!isServiceCareActivity">
           <fetch-select
             :request="fetchOptions"
             enumCode="claim_activity_type"
