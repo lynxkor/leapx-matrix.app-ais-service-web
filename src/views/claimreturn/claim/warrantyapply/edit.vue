@@ -523,7 +523,7 @@
               >
                 <template #option="{ item }">
                   <span v-if="item.disabled">{{ item.placeholder }}</span>
-                  <span v-else>{{ item.partCode }}/{{ item.partName }}————{{ item.supplierName }}({{ item.supplierCode }})</span>
+                  <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `—${item.supplierName}${item.supplierCode}`: ''}}</span>
                 </template>
               </fetch-select>
             </el-form-item>
@@ -1079,16 +1079,47 @@ export default {
               ],
             });
           } else {
-            const records = res?.map(item => {
-              return {
-                ...item,
-                partAndSupplierId: item.sparePartId + item.supplierInfoId,
-              };
+            const records = [];
+            res.forEach(item => {
+              const supplierList = item.sparePartSupplierRespList;
+              if (supplierList?.length) {
+                supplierList.forEach(supplier => {
+                  records.push({
+                    ...item,
+                    sparePartId: item.id,
+                    supplierInfoId: supplier.supplierInfoId,
+                    supplierCode: supplier.supplierCode,
+                    supplierName: supplier.supplierName,
+                    partAndSupplierId: item.id + supplier.supplierInfoId,
+                  });
+                });
+              } else {
+                records.push({
+                  ...item,
+                  sparePartId: item.id,
+                  supplierInfoId: null,
+                  supplierCode: null,
+                  supplierName: null,
+                  partAndSupplierId: item.id,
+                });
+              }
             });
-            resolve({
-              ...res,
-              records,
-            });
+            if (!records.length) {
+              resolve({
+                ...res,
+                records: [
+                  {
+                    placeholder: `备件编码：${query}不存在备件供应商关系信息`,
+                    disabled: true,
+                  }
+                ],
+              });
+            } else {
+              resolve({
+                ...res,
+                records,
+              });
+            }
           }
         });
       });
@@ -1098,9 +1129,9 @@ export default {
       this.form.mainPartCode = row?.partCode;
       this.form.mainPartName = row?.partName;
       this.form.mainPartId = row?.sparePartId;
-      this.form.mainPartSupplierCode = row?.supplierCode;
-      this.form.mainPartSupplierName = row?.supplierName;
-      this.form.mainPartSupplierId = row?.supplierInfoId;
+      this.form.mainPartSupplierCode = row?.supplierCode || '';
+      this.form.mainPartSupplierName = row?.supplierName || '';
+      this.form.mainPartSupplierId = row?.supplierInfoId || '';
     },
     // 提交
     handleSubmit () {
