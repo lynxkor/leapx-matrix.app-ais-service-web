@@ -991,8 +991,15 @@ export default {
         });
       }
     },
-    submitRequest () {
-      return addOrUpdate({ ...this.form });
+    async submitRequest () {
+      const res = await addOrUpdate({ ...this.form });
+      // 保存成功后刷新零件表格
+      this.$nextTick(() => {
+        if (this.$refs.partTableRef) {
+          this.$refs.partTableRef.getDetailPageApi();
+        }
+      });
+      return res;
     },
     // 打开侧边栏
     openPane () {
@@ -1120,6 +1127,11 @@ export default {
       this.form.mainPartSupplierCode = row?.supplierCode || '';
       this.form.mainPartSupplierName = row?.supplierName || '';
       this.form.mainPartSupplierId = row?.supplierInfoId || '';
+    },
+    // 刷新页面所有接口
+    async refreshAll () {
+      await this.$refs.containerRef.loadDetail();
+      this.$refs.partTableRef.getDetailPageApi();
     },
     // 提交
     handleSubmit () {
