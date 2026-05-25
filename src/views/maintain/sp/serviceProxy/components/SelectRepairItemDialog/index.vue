@@ -1438,6 +1438,7 @@ export default {
     // ----------替换件逻辑-----------------
     handlePartReplaceChange (current, row) {
       const discountAmount = Number(current.price || 0) * (Number(this.selectedDiscount?.discountPartRate || 0) || 0);
+      const old = JSON.parse(JSON.stringify(row));
       Object.assign(row, {
         partsId: current.partsId,
         partsCode: current.partsCode,
@@ -1461,7 +1462,8 @@ export default {
         packageId: row.packageId || '',
         // 原零件信息，如果不存在，证明是第一次替换，需要带上
         originPartsId: row.originPartsId || row.partsId,
-        originPartsCode: row.originPartsCode || row.partsCode
+        originPartsCode: row.originPartsCode || row.partsCode,
+        replaceSparePartRespList: [old]
       });
     },
     handlePartReplaceClick (e, row) {

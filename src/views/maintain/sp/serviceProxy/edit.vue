@@ -569,8 +569,8 @@ export default {
           }
         }).finally(() => {
           this.submitLoading = false;
-          this.$refs.basicInfoRef.clearValidate();
-          this.$refs.entrustInfoRef.clearValidate();
+          this.$refs.basicInfoRef?.clearValidate();
+          this.$refs.entrustInfoRef?.clearValidate();
         });
       } catch (error) {
         console.log(error);
