@@ -80,7 +80,7 @@
 
       <div slot="footer" class="dialog-footer">
         <el-button size="small" @click="handleClose">取消</el-button>
-        <el-button size="small" type="primary" @click="handleConfirm">确认</el-button>
+        <el-button size="small" type="primary" :loading="confirmLoading" @click="handleConfirm">确认</el-button>
       </div>
     </el-dialog>
   </div>
@@ -116,6 +116,7 @@ export default {
     return {
       tableData: [],
       loading: false,
+      confirmLoading: false,
       // 支付方式选项
       payTypeOptions: [
         // { id: 1, name: '现金' },
@@ -266,6 +267,7 @@ export default {
     },
     // 获取提交数据
     getSubmitData () {
+      this.confirmLoading = true;
       const data = {
         statementId: this.info.id || '',
         invoiceRecordList: this.tableData,
@@ -274,6 +276,8 @@ export default {
         this.$message.success('保存成功');
         this.close();
         this.$emit('refresh');
+      }).finally(() => {
+        this.confirmLoading = false;
       });
     },
     // 格式化金额

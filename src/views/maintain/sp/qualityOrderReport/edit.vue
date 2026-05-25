@@ -17,7 +17,7 @@
           <!-- 支持primary,warning,success,danger等状态 -->
         </template>
         <template #extraButtons>
-          <el-button size="small" v-if="canSubmitApproval" @click="handleSubmitApproval()">提交审批</el-button>
+          <el-button size="small" v-if="canSubmitApproval" :loading="submitApprovalLoading" @click="handleSubmitApproval()">提交审批</el-button>
           <el-button size="small" v-if="canApproval" @click="clickApproval()">审批</el-button>
         </template>
         <template v-if="_id">
@@ -714,8 +714,8 @@
       </el-form>
 
       <div slot="footer" class="dialog-footer">
-        <el-button @click="approvalDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleApproval">保 存</el-button>
+        <el-button @click="approvalDialogVisible = false" size="small">取消</el-button>
+        <el-button type="primary" :loading="approvalLoading" @click="handleApproval" size="small">保存</el-button>
       </div>
     </el-dialog>
   </edit-page-layout>
@@ -883,6 +883,8 @@ export default {
       moduleKey: 'AISMC-qualityOrderReport',
       loading: false,
       submitLoading: false,
+      submitApprovalLoading: false,
+      approvalLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -1328,6 +1330,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        this.submitApprovalLoading = true;
         submitApproval(this._id).then(() => {
           this.$message({
             type: 'success',
@@ -1339,6 +1342,8 @@ export default {
             type: 'error',
             message: '提交失败!'
           });
+        }).finally(() => {
+          this.submitApprovalLoading = false;
         });
       }).catch(() => {});
     },
@@ -1367,6 +1372,7 @@ export default {
             replyFromEngineer: this.approvalForm.replyFromEngineer
           };
 
+          this.approvalLoading = true;
           approval(params).then(res => {
             this.$message.success('审批成功！');
             this.approvalDialogVisible = false;
@@ -1374,6 +1380,8 @@ export default {
             this.$refs.containerRef?.loadDetail();
           }).catch(() => {
             this.$message.error('审批失败！');
+          }).finally(() => {
+            this.approvalLoading = false;
           });
         }
       });
