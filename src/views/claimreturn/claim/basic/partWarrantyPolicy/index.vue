@@ -221,7 +221,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 if (row.seriesId) {
-                  window.open(`/service/datacenter/materials/vehicleSeries/detail?id=${row.seriesId}`, '_blank');
+                  window.open(`/sales/datacenter/materials/vehicleSeries/edit?id=${row.seriesId}`, '_blank');
                 }
               },
               type: 'primary'
@@ -235,7 +235,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 if (row.modelId) {
-                  window.open(`/service/datacenter/materials/vehicleModel/detail?id=${row.modelId}`, '_blank');
+                  window.open(`/sales/datacenter/materials/vehicleModel/edit?id=${row.modelId}`, '_blank');
                 }
               },
               type: 'primary'

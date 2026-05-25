@@ -115,7 +115,7 @@
                   <el-link
                     v-if="form.warrantyId"
                     type="primary"
-                    :href="`/claimreturn/claim/claimapply/claimApply/edit?id=${form.warrantyId}`"
+                    :href="`/service/claimreturn/claim/warrantyApply/edit?id=${form.warrantyId}`"
                     target="_blank"
                   >{{ form.warrantyCode }}</el-link>
                   <span v-else>{{ form.warrantyCode }}</span>
