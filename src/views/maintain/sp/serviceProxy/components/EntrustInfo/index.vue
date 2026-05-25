@@ -32,7 +32,12 @@
           />
         </el-form-item>
         <el-form-item label="是否已生成结算单：" prop="isCreateStatementInfo">
-          <el-switch :active-value="1" :inactive-value="0" v-model="form.isCreateStatementInfo" disabled/>
+          <el-input
+            placeholder="请输入"
+            v-model="form.isCreateStatementInfoLabel"
+            clearable
+            disabled
+          />
         </el-form-item>
         <el-form-item label="预计交车时间：" prop="expectFinishAt">
           <el-date-picker

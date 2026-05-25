@@ -708,7 +708,8 @@ export default {
       if (!query) {
         return Promise.resolve([]);
       }
-      return getVehicleProfile({ searchVin: query });
+      const searchKey = query?.trim();
+      return getVehicleProfile({ searchVin: searchKey });
     },
     onSelectRef (el) {
       this.selectRef = el;
