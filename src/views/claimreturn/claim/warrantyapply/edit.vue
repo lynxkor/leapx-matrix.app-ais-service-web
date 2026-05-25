@@ -1126,6 +1126,16 @@ export default {
     },
     // 主因零件选择变更
     onMainPartChange (val, row) {
+      if (!row) {
+        this.form.mainPartCode = '';
+        this.form.mainPartName = '';
+        this.form.mainPartId = '';
+        this.form.mainPartSupplierCode = '';
+        this.form.mainPartSupplierName = '';
+        this.form.mainPartSupplierName = '';
+        this.form.partAndSupplierId = '';
+        return;
+      }
       this.form.mainPartCode = row?.partCode;
       this.form.mainPartName = row?.partName;
       this.form.mainPartId = row?.sparePartId;
