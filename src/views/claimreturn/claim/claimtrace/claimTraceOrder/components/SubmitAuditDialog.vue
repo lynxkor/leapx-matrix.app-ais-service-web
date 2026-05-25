@@ -68,7 +68,7 @@ export default {
         traceDesc: [{ required: true, message: '请输入追溯说明', trigger: 'blur' }],
       },
       uploadConfig: {
-        acceptSuffix: '.rar,.zip,.doc,.docx,.pdf,.jpg,.jpeg,.xlsx,.xls,.mp4',
+        acceptSuffix: '.rar,.zip,.doc,.docx,.pdf,.jpg,.jpeg,.xlsx,.xls,.mp4,.png',
         maxSize: 50,
         maxNum: 9,
       },
