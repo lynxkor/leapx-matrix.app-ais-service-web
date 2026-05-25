@@ -696,35 +696,39 @@ export default {
         // 签字弹框确认：用户点击【准确】后，门店修改本次是否因故障进店，由是修改成否，不用清空【客户故障描述】字段内容
         const newCustomerContent = this.form.confirmFault === 1 ? oldCustomerContent : '本次进店车辆无故障'; // 1 为准确 2 为不准确
         this.form._prevCurrentFault = val;
-        if (oldVal === 1 && this._id) {
-          const message = '<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>提醒</div><div class="ais-leave-tips-sub">若本次无故障，将自动清空【故障模块】信息，请确认是否操作！</div>';
-          this.$confirm(message, '', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            dangerouslyUseHTMLString: true,
-            customClass: 'ais-leave-tips',
-            showClose: false
-          }).then(() => {
-            if (this._id) {
-              addFaultRecord({
-                id: this._id,
-                currentFault: 0,
-                customerContent: newCustomerContent
-              }).then(() => {
+        if (oldVal === 1) {
+          if (this._id) {
+            const message = '<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>提醒</div><div class="ais-leave-tips-sub">若本次无故障，将自动清空【故障模块】信息，请确认是否操作！</div>';
+            this.$confirm(message, '', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              dangerouslyUseHTMLString: true,
+              customClass: 'ais-leave-tips',
+              showClose: false
+            }).then(() => {
+              if (this._id) {
+                addFaultRecord({
+                  id: this._id,
+                  currentFault: 0,
+                  customerContent: newCustomerContent
+                }).then(() => {
+                  this.$message.success('本次故障信息清除成功');
+                  this.form.customerContent = newCustomerContent;
+                  this.$emit('refresh', false);
+                  this.$emit('update:isEditing', false);
+                });
+              } else {
+                this.$set(this.form, 'faultAlertRecordParams', []);
                 this.$message.success('本次故障信息清除成功');
-                this.form.customerContent = newCustomerContent;
-                this.$emit('refresh', false);
-                this.$emit('update:isEditing', false);
-              });
-            } else {
-              this.$set(this.form, 'faultAlertRecordParams', []);
-              this.$message.success('本次故障信息清除成功');
-            }
-          }).catch(() => {
-            this.$set(this.form, 'currentFault', 1);
-            this.form._prevCurrentFault = 1;
-            this.form.customerContent = oldCustomerContent;
-          });
+              }
+            }).catch(() => {
+              this.$set(this.form, 'currentFault', 1);
+              this.form._prevCurrentFault = 1;
+              this.form.customerContent = oldCustomerContent;
+            });
+          } else {
+            this.form.customerContent = newCustomerContent;
+          }
           return;
         }
       } else {
