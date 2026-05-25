@@ -100,6 +100,7 @@
                 :remote-method="vrtRemote"
                 :params="form.vrtName"
                 @change="vrtChange"
+                @clear="() => vrtChange()"
                 value-key="id"
                 label-key="vrtName"
               />
@@ -493,6 +494,11 @@ export default {
         this.form.vrtName = record.vrtName;
       } else {
         this.form.vrtName = '';
+        this.form.vrtId = '';
+        this.form.vrtCode = '';
+        this.form.vfgId = '';
+        this.form.vfgName = '';
+        this.form.vfgCode = '';
       }
       this.updatePlan(this.form);
     },

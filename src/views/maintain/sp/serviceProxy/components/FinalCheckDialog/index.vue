@@ -372,6 +372,7 @@ import { getListData } from '@/api/maintain/basic/batteryUnit/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import moment from 'moment';
 import BaseSearch from '@/libs/components/BaseSearch';
+import { page } from '@/api/maintain/basic/monitoringEquipmentConfig';
 
 const allTabs = ['质检', '故障模块确认', '电池信息确认', '追溯信息确认', '终检'];
 const allSubTabs = [
@@ -674,9 +675,6 @@ export default {
     },
     // 搜索用户(质检人/终检人)
     async searchUser (query) {
-      if (!query) {
-        return [];
-      }
       try {
         const res = await getUserByNameOrNo({ name: query });
         return res || [];
