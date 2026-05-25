@@ -683,7 +683,7 @@ export default {
           { props: 'interiorName', label: '内饰', visible: true, width: 100 },
           { props: 'wheelHubName', label: '轮毂', visible: true, width: 100 },
           { props: 'nextMaintainDate', label: '下次保养时间', visible: true, width: 160 },
-          { props: 'nextMaintainMileage', label: '下次保养里程', visible: true, width: 150 },
+          { props: 'nextMaintainMileages', label: '下次保养里程', visible: true, width: 150 },
           { props: 'createTime', label: '创建时间', visible: true, width: 180 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
           { props: 'isIovVehicleLabel', label: '车联网对接', visible: true, width: 120 },
