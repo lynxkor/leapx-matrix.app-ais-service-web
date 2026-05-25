@@ -510,6 +510,7 @@
           <el-form :inline="true" ref="ruleForm5" label-width="150px" class="form-edit" v-show="isEditing || !_id || canEditMainPart">
             <el-form-item label="主因零件编码：" prop="mainPartId">
               <fetch-select
+                ref="mainPartSelectRef"
                 :remote-method="partRemote"
                 remote
                 v-model="form.partAndSupplierId"
@@ -1057,6 +1058,14 @@ export default {
       this.form.mainPartSupplierName = row.supplierName;
       this.form.mainPartSupplierCode = row.supplierCode;
       this.form.mainPartSupplierId = row.supplierId;
+      // 更新 partAndSupplierId 以同步 fetch-select 显示
+      this.form.partAndSupplierId = row.causePartId && row.supplierId ? row.causePartId + row.supplierId : '';
+      // 重新加载下拉框选项，使选项列表更新为新的零件编码
+      this.$nextTick(() => {
+        if (this.$refs.mainPartSelectRef) {
+          this.$refs.mainPartSelectRef.loadRemoteMethod(this.form.mainPartCode);
+        }
+      });
     },
     // 搜索主因零件
     partRemote (query) {
