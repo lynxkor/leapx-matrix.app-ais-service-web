@@ -523,7 +523,7 @@
               >
                 <template #option="{ item }">
                   <span v-if="item.disabled">{{ item.placeholder }}</span>
-                  <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `—${item.supplierName}${item.supplierCode}`: ''}}</span>
+                  <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `-${item.supplierName}-${item.supplierCode}`: ''}}</span>
                 </template>
               </fetch-select>
             </el-form-item>
@@ -1061,14 +1061,14 @@ export default {
     // 搜索主因零件
     partRemote (query) {
       return new Promise((resolve, reject) => {
-        getSparePartFull({
+        getList({
           pageNum: 1,
           pageSize: 20,
           oemPart: 1,
           partCodeOrNameLike: query,
           status: 1,
         }).then(res => {
-          if (!res?.length) {
+          if (!res?.records?.length) {
             resolve({
               ...res,
               records: [
@@ -1079,47 +1079,16 @@ export default {
               ],
             });
           } else {
-            const records = [];
-            res.forEach(item => {
-              const supplierList = item.sparePartSupplierRespList;
-              if (supplierList?.length) {
-                supplierList.forEach(supplier => {
-                  records.push({
-                    ...item,
-                    sparePartId: item.id,
-                    supplierInfoId: supplier.supplierInfoId,
-                    supplierCode: supplier.supplierCode,
-                    supplierName: supplier.supplierName,
-                    partAndSupplierId: item.id + supplier.supplierInfoId,
-                  });
-                });
-              } else {
-                records.push({
-                  ...item,
-                  sparePartId: item.id,
-                  supplierInfoId: null,
-                  supplierCode: null,
-                  supplierName: null,
-                  partAndSupplierId: item.id,
-                });
-              }
+            const records = res?.records?.map(item => {
+              return {
+                ...item,
+                partAndSupplierId: item.sparePartId + item.supplierInfoId,
+              };
             });
-            if (!records.length) {
-              resolve({
-                ...res,
-                records: [
-                  {
-                    placeholder: `备件编码：${query}不存在备件供应商关系信息`,
-                    disabled: true,
-                  }
-                ],
-              });
-            } else {
-              resolve({
-                ...res,
-                records,
-              });
-            }
+            resolve({
+              ...res,
+              records,
+            });
           }
         });
       });
