@@ -313,7 +313,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import { getList } from '../../../../../api/maintain/basic/checkoutType';
-import { getList as repairGetList } from '../../../../../api/maintain/basic/repairItemType';
+import { listItem as repairGetList } from '../../../../../api/maintain/basic/repairItemType';
 import { getDetail, addOrUpdate, submitPartsPreparation, partsPreparationCompleted } from '../../../../../api/claimreturn/claim/basic/serviceActivity';
 import PlanInfo from './PlanInfo.vue';
 import FileConfig from './FileConfig/index.vue';
@@ -546,11 +546,20 @@ export default {
       // 如果结算类型没有选择，默认查询 "10", "20"  目前写死 只查询保修类型
       // const checkoutTypeIds = checkoutTypeId ? [checkoutTypeId] : ['10', '20'];
       const categorys = ['20'];
-      return repairGetList({
-        nameLike: query,
-        categorys,
-        pageSize: 20,
-        pageNum: 1,
+      return new Promise(resolve => {
+        repairGetList({
+          nameLike: query,
+          categorys,
+          pageSize: 20,
+          pageNum: 1,
+        }).then(res => {
+          const list = (res || []).filter(
+            item => item.checkoutTypeId === checkoutTypeId
+          );
+          resolve(list);
+        }).catch(() => {
+          resolve([]);
+        });
       });
     },
     // 维修类型
